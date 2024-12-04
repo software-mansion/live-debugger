@@ -18,11 +18,16 @@ def deps do
 end
 ```
 
-After that you can add the "Hello World" LiveView to your router:
+After that you can add LiveDebugger to your router:
 
 ```elixir
-  live_session :default do
-    live "/hello", LiveDebugger.Web.HelloLive
+import LiveDebugger.Router
+
+  scope "/" do
+    pipe_through :browser
+
+    live "/", CounterLive
+    live_debugger "/dbg"
   end
 ```
 

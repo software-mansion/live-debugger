@@ -29,6 +29,7 @@ end
 defmodule DemoRouter do
   use Phoenix.Router
   import Phoenix.LiveView.Router
+  import LiveDebugger.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -41,7 +42,7 @@ defmodule DemoRouter do
     pipe_through :browser
 
     live "/", CounterLive
-    live "/hello", LiveDebugger.Web.HelloLive
+    live_debugger "/dbg"
   end
 end
 
