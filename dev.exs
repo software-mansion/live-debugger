@@ -32,18 +32,25 @@ defmodule DemoRouter do
   import LiveDebugger.Router
 
   pipeline :browser do
-    plug :accepts, ["html"]
-    plug :fetch_session
-    plug :put_root_layout, html: {PhoenixPlayground.Layout, :root}
-    plug :put_secure_browser_headers
+    plug(:accepts, ["html"])
+    plug(:fetch_session)
+    plug(:put_root_layout, html: {PhoenixPlayground.Layout, :root})
+    plug(:put_secure_browser_headers)
   end
 
   scope "/" do
-    pipe_through :browser
+    pipe_through(:browser)
 
-    live "/", CounterLive
-    live_debugger "/dbg"
+    live("/", CounterLive)
+    live_debugger("/dbg")
   end
 end
 
-PhoenixPlayground.start(plug: DemoRouter)
+secret_key_length = 64
+
+secret_key_base =
+  :crypto.strong_rand_bytes(secret_key_length)
+  |> Base.encode64(padding: false)
+  |> binary_part(0, secret_key_length)
+
+PhoenixPlayground.start(plug: DemoRouter, endpoint_options: [secret_key_base: secret_key_base])
