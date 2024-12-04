@@ -7,7 +7,8 @@ defmodule LiveDebugger.MixProject do
       version: "0.0.1",
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -18,10 +19,17 @@ defmodule LiveDebugger.MixProject do
     ]
   end
 
+  defp aliases do
+    [
+      dev: "run --no-halt dev.exs"
+    ]
+  end
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:phoenix_live_view, "~> 1.0"}
+      {:phoenix_live_view, "~> 1.0"},
+      {:phoenix_playground, "~> 0.1.7", only: :dev}
     ]
   end
 end
