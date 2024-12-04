@@ -39,3 +39,9 @@ For those planning to contribute to this project, you can run a dev version of t
 mix setup
 mix dev
 ```
+
+For now when you change something in `app.css` or in `app.js` you'll have rebuild assets with the following command:
+
+```bash
+mix assets.build
+```
