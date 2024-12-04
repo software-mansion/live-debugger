@@ -1,21 +1,21 @@
 # LiveDebugger
 
-**TODO: Add description**
+## Local installation
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `live_debugger` to your list of dependencies in `mix.exs`:
+Add `live_debugger` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:live_debugger, "~> 0.1.0"}
+    {:live_debugger, path: "../path/to/library"}
   ]
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/live_debugger>.
+After that you can add the "Hello World" LiveView to your router:
 
+```elixir
+  live_session :default do
+    live "/hello", LiveDebugger.Web.HelloLive
+  end
+```
