@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "phoenix": "^1.7.17",
+    "phoenix_html": "^3.3.4",
+    "phoenix_live_view": "^1.0.0"
+  }
+}
