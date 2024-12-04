@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Web.GreetLive do
+defmodule LiveDebugger.LiveViews.GreetLive do
   use Phoenix.LiveView
 
   @impl true

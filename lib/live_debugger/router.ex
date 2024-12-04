@@ -9,8 +9,8 @@ defmodule LiveDebugger.Router do
         import Phoenix.Router
         import Phoenix.LiveView.Router
 
-        live("/hello", LiveDebugger.Web.HelloLive)
-        live("/greet/:name", LiveDebugger.Web.GreetLive)
+        live("/hello", LiveDebugger.LiveViews.HelloLive)
+        live("/greet/:name", LiveDebugger.LiveViews.GreetLive)
       end
     end
   end
