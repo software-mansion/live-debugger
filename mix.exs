@@ -21,6 +21,7 @@ defmodule LiveDebugger.MixProject do
 
   defp aliases do
     [
+      setup: ["deps.get"],
       dev: "run --no-halt dev.exs"
     ]
   end

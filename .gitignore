@@ -26,3 +26,5 @@ live_debugger-*.tar
 /tmp/
 
 .DS_Store
+
+.elixir_ls/
