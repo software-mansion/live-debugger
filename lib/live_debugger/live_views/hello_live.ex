@@ -9,7 +9,7 @@ defmodule LiveDebugger.LiveViews.HelloLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <h1>Hello, from <%= @current_pid %></h1>
+    <h1 class="bg-blue-400">Hello, from <%= @current_pid %></h1>
     """
   end
 end

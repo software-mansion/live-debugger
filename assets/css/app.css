@@ -1,3 +1,5 @@
-body {
-  background-color: pink;
-}
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* You can add custom styles here */
