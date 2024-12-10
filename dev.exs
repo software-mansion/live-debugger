@@ -1,56 +1,35 @@
-defmodule CounterLive do
-  use Phoenix.LiveView
+# Configures the endpoint
+Application.put_env(:live_debugger_dev_app, LiveDebuggerDev.Endpoint,
+  url: [host: "localhost"],
+  secret_key_base: "Hu4qQN3iKzTV4fJxhorPQlA/osH9fAMtbtjVS58PFgfw3ja5Z18Q/WSNR9wP4OfW",
+  live_view: [signing_salt: "hMegieSe"],
+  http: [port: System.get_env("PORT") || 4004],
+  debug_errors: true,
+  check_origin: false,
+  pubsub_server: LiveDebugger.PubSub,
+  adapter: Bandit.PhoenixAdapter
+  # watchers: [
+  #   esbuild: {Esbuild, :install_and_run, [:default, ~w(--watch)]},
+  #   sass: {DartSass, :install_and_run, [:default, ~w(--watch)]}
+  # ],
+  # live_reload: [
+  #   patterns: [
+  #     ~r"dist/.*(js|css|png|jpeg|jpg|gif|svg)$",
+  #     ~r"lib/phoenix/live_dashboard/(live|views)/.*(ex)$",
+  #     ~r"lib/phoenix/live_dashboard/templates/.*(ex)$"
+  #   ]
+  # ]
+)
 
-  def mount(_params, _session, socket) do
-    {:ok, assign(socket, count: 0)}
-  end
+Application.put_env(:phoenix, :serve_endpoints, true)
 
-  def render(assigns) do
-    ~H"""
-    <span>{@count}</span>
-    <button phx-click="inc">+</button>
-    <button phx-click="dec">-</button>
+Task.async(fn ->
+  children = [
+    {Phoenix.PubSub, name: LiveDebuggerDev.PubSub},
+    LiveDebuggerDev.Endpoint
+  ]
 
-    <style type="text/css">
-      body { padding: 1em; }
-    </style>
-    """
-  end
-
-  def handle_event("inc", _params, socket) do
-    {:noreply, assign(socket, count: socket.assigns.count + 1)}
-  end
-
-  def handle_event("dec", _params, socket) do
-    {:noreply, assign(socket, count: socket.assigns.count - 1)}
-  end
-end
-
-defmodule DemoRouter do
-  use Phoenix.Router
-  import Phoenix.LiveView.Router
-  import LiveDebugger.Router
-
-  pipeline :browser do
-    plug(:accepts, ["html"])
-    plug(:fetch_session)
-    plug(:put_root_layout, html: {PhoenixPlayground.Layout, :root})
-    plug(:put_secure_browser_headers)
-  end
-
-  scope "/" do
-    pipe_through(:browser)
-
-    live("/", CounterLive)
-    live_debugger("/dbg")
-  end
-end
-
-secret_key_length = 64
-
-secret_key_base =
-  :crypto.strong_rand_bytes(secret_key_length)
-  |> Base.encode64(padding: false)
-  |> binary_part(0, secret_key_length)
-
-PhoenixPlayground.start(plug: DemoRouter, endpoint_options: [secret_key_base: secret_key_base])
+  {:ok, _} = Supervisor.start_link(children, strategy: :one_for_one)
+  Process.sleep(:infinity)
+end)
+|> Task.await(:infinity)
