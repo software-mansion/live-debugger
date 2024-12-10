@@ -40,6 +40,8 @@ mix setup
 mix dev
 ```
 
+It'll run application declared in `dev/` directory with library debugger installed.
+
 For now when you change something in `app.css`, `app.js`, or add a new tailwind class you'll have rebuild assets with the following command:
 
 ```bash
