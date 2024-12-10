@@ -44,8 +44,7 @@ defmodule LiveDebugger.MixProject do
        compile: false,
        sparse: "optimized"},
       {:esbuild, "~> 0.7", only: :dev},
-      {:tailwind, "~> 0.2", only: :dev},
-      {:phoenix_playground, "~> 0.1.7", only: :dev}
+      {:tailwind, "~> 0.2", only: :dev}
     ]
   end
 end
