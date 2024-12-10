@@ -5,32 +5,27 @@ defmodule LiveDebugger.LiveElements do
 
   @type live_element() :: LiveViewElement.t() | LiveComponentElement.t()
 
-  @forbidden_assigns_keys ~w(__changed__ live_debug live_action)a
-
   @doc """
   Returns LiveView root elment and all its children live elements
   """
   @spec live_elements(state :: map()) ::
           {:ok, {LiveViewElement.t(), [live_element()]}} | {:error, term()}
-  def live_elements(state) do
-    with {:ok, root} <- get_root_element(state),
-         {components, _, _} <- Map.get(state, :components, {:error, :invalid_state}) do
+  def live_elements(%{socket: socket, components: components}) do
+    with {:ok, root} <- LiveViewElement.parse(socket),
+         {components, _, _} <- components do
       elements =
-        Enum.map(components, fn {cid, element} ->
-          {module, id, assigns, _, _} = element
-
-          %LiveComponentElement{
-            id: id,
-            cid: cid,
-            module: module,
-            assigns: filter_assigns(assigns),
-            children: []
-          }
+        Enum.map(components, fn component ->
+          case LiveComponentElement.parse(component) do
+            {:ok, live_component} -> live_component
+            {:error, _} -> nil
+          end
         end)
 
       {:ok, {root, elements}}
     end
   end
+
+  def live_elements(_), do: {:error, :invalid_state}
 
   @doc """
   Creates tree using LiveElemets where root is a LiveView
@@ -64,47 +59,28 @@ defmodule LiveDebugger.LiveElements do
   end
 
   defp components_cids_tree(components_cids_map, parent_cid) do
-    {children_cids, components_cids_map} = Map.pop(components_cids_map, parent_cid, nil)
+    case Map.pop(components_cids_map, parent_cid) do
+      {nil, _} ->
+        nil
 
-    if children_cids do
-      Enum.map(children_cids, fn cid ->
-        {cid, components_cids_tree(components_cids_map, cid)}
-      end)
-      |> Enum.into(%{})
-    else
-      nil
+      {children_cids, components_cids_map} ->
+        Enum.map(children_cids, fn cid ->
+          {cid, components_cids_tree(components_cids_map, cid)}
+        end)
+        |> Enum.into(%{})
     end
   end
 
-  defp add_children(parent_element, nil, _elements), do: parent_element
+  defp add_children(parent_element, nil, _live_components), do: parent_element
 
-  defp add_children(parent_element, children_cids_map, elements) do
+  defp add_children(parent_element, children_cids_map, live_components) do
     Enum.reduce(children_cids_map, parent_element, fn {cid, children_cids_map}, parent_element ->
       child =
-        elements
+        live_components
         |> Enum.find(fn element -> element.cid == cid end)
-        |> add_children(children_cids_map, elements)
+        |> add_children(children_cids_map, live_components)
 
       LiveElement.add_child(parent_element, child)
     end)
-  end
-
-  defp get_root_element(%{socket: %{id: id, view: view, assigns: assigns}}) do
-    {:ok,
-     %LiveViewElement{
-       id: id,
-       module: view,
-       assigns: filter_assigns(assigns),
-       children: []
-     }}
-  end
-
-  defp get_root_element(_), do: {:error, :invalid_state}
-
-  defp filter_assigns(assigns) do
-    assigns
-    |> Map.to_list()
-    |> Enum.reject(fn {key, _} -> key in @forbidden_assigns_keys end)
-    |> Enum.into(%{})
   end
 end
