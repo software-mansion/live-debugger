@@ -7,7 +7,7 @@ defmodule CounterLive do
 
   def render(assigns) do
     ~H"""
-    <span><%= @count %></span>
+    <span>{@count}</span>
     <button phx-click="inc">+</button>
     <button phx-click="dec">-</button>
 

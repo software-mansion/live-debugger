@@ -11,4 +11,15 @@ if config_env() == :dev do
       cd: Path.expand("../assets", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ]
+
+  config :tailwind,
+    version: "3.4.3",
+    live_debugger: [
+      args: ~w(
+      --config=tailwind.config.js
+      --input=css/app.css
+      --output=../dist/app.css
+    ),
+      cd: Path.expand("../assets", __DIR__)
+    ]
 end

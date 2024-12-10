@@ -1,5 +1,5 @@
 defmodule LiveDebugger.LiveViews.HelloLive do
-  use Phoenix.LiveView
+  use LiveDebugger, :live_view
 
   @impl true
   def mount(_params, _session, socket) do
@@ -9,7 +9,11 @@ defmodule LiveDebugger.LiveViews.HelloLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <h1>Hello, from <%= @current_pid %></h1>
+    <.container max_width="full" class="mt-5 flex justify-center">
+      <.card>
+        <.h1 class="m-2">Hello, from {@current_pid}</.h1>
+      </.card>
+    </.container>
     """
   end
 end

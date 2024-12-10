@@ -21,9 +21,10 @@ defmodule LiveDebugger.MixProject do
 
   defp aliases do
     [
-      setup: ["deps.get", "cmd --cd assets npm install", "assets.build"],
+      setup: ["deps.get", "cmd --cd assets npm install", "assets.setup", "assets.build"],
       dev: "run --no-halt dev.exs",
-      "assets.build": ["esbuild default --minify"]
+      "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
+      "assets.build": ["esbuild default --minify", "tailwind live_debugger --minify"]
     ]
   end
 
@@ -31,7 +32,15 @@ defmodule LiveDebugger.MixProject do
   defp deps do
     [
       {:phoenix_live_view, "~> 1.0"},
+      {:petal_components, "~> 2.7"},
+      {:heroicons,
+       github: "tailwindlabs/heroicons",
+       tag: "v2.1.5",
+       app: false,
+       compile: false,
+       sparse: "optimized"},
       {:esbuild, "~> 0.7", only: :dev},
+      {:tailwind, "~> 0.2", only: :dev},
       {:phoenix_playground, "~> 0.1.7", only: :dev}
     ]
   end

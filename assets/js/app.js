@@ -22,10 +22,6 @@ import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 
-// Esbuild can handle CSS files, so we can import them directly in our JS.
-// We might want to change it to something else e.g. tailwind
-import "../css/app.css";
-
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");
