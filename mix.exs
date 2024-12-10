@@ -7,6 +7,7 @@ defmodule LiveDebugger.MixProject do
       version: "0.0.1",
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       aliases: aliases()
     ]
@@ -18,6 +19,9 @@ defmodule LiveDebugger.MixProject do
       extra_applications: [:logger]
     ]
   end
+
+  defp elixirc_paths(:dev), do: ["lib", "dev"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp aliases do
     [
