@@ -43,6 +43,7 @@ defmodule LiveDebugger.MixProject do
        app: false,
        compile: false,
        sparse: "optimized"},
+      {:bandit, "~> 1.6"},
       {:esbuild, "~> 0.7", only: :dev},
       {:tailwind, "~> 0.2", only: :dev}
     ]
