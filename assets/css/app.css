@@ -1,4 +1,5 @@
 @import "tailwindcss/base";
+@import "../../deps/petal_components/assets/default.css";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 

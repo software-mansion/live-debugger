@@ -1,5 +1,5 @@
 defmodule LiveDebugger.LiveViews.GreetLive do
-  use Phoenix.LiveView
+  use LiveDebugger, :live_view
 
   @impl true
   def mount(params, _session, socket) do
@@ -9,7 +9,9 @@ defmodule LiveDebugger.LiveViews.GreetLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <h1>Greetings, <%= @name %>!</h1>
+    <.container max_width="lg">
+      Greetings, {@name}! <.icon name="hero-home" class="text-gray-700 dark:text-gray-300" />
+    </.container>
     """
   end
 end

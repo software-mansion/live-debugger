@@ -14,24 +14,26 @@ defmodule LiveDebugger.Layout do
     ~H"""
     <!DOCTYPE html>
     <html lang="en">
-    <head>
-    <%= custom_head_tags(assigns, :after_opening_head_tag) %>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no, user-scalable=no"/>
-    <meta name="csrf-token" content={Phoenix.Controller.get_csrf_token()} />
-    <title>LiveDebugger</title>
-    <link rel="stylesheet" href={asset_path(@conn, :css)}>
-    <script src={asset_path(@conn, :js)} defer></script>
-    <%= custom_head_tags(assigns, :before_closing_head_tag) %>
-    </head>
-    <body>
-    <div class="d-flex flex-column align-items-stretch layout-wrapper">
-      <div class="flex-grow-1">
-        <%= @inner_content %>
-      </div>
-    </div>
-    </body>
+      <head>
+        {custom_head_tags(assigns, :after_opening_head_tag)}
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no, user-scalable=no"
+        />
+        <meta name="csrf-token" content={Phoenix.Controller.get_csrf_token()} />
+        <title>LiveDebugger</title>
+        <link rel="stylesheet" href={asset_path(@conn, :css)} />
+        <script src={asset_path(@conn, :js)} defer>
+        </script>
+        {custom_head_tags(assigns, :before_closing_head_tag)}
+      </head>
+      <body>
+        <div class="h-screen">
+          {@inner_content}
+        </div>
+      </body>
     </html>
     """
   end
@@ -58,7 +60,7 @@ defmodule LiveDebugger.Layout do
 
         ~H"""
         <%= for component <- @components do %>
-          <%= component.(assigns) %>
+          {component.(assigns)}
         <% end %>
         """
 

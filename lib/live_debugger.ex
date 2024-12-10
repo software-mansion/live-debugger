@@ -1,18 +1,36 @@
 defmodule LiveDebugger do
-  @moduledoc """
-  Documentation for `LiveDebugger`.
-  """
+  def live_view do
+    quote do
+      use Phoenix.LiveView
 
-  @doc """
-  Hello world.
+      import Phoenix.HTML
 
-  ## Examples
+      unquote(petal_components())
+    end
+  end
 
-      iex> LiveDebugger.hello()
-      :world
+  def live_component do
+    quote do
+      use Phoenix.LiveComponent
 
-  """
-  def hello do
-    :world
+      import Phoenix.HTML
+
+      unquote(petal_components())
+    end
+  end
+
+  defp petal_components do
+    quote do
+      import PetalComponents.{
+        Typography,
+        Card,
+        Icon,
+        Container
+      }
+    end
+  end
+
+  defmacro __using__(which) when is_atom(which) do
+    apply(__MODULE__, which, [])
   end
 end
