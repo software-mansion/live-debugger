@@ -7,6 +7,16 @@ defmodule LiveDebugger.LiveElements do
 
   @doc """
   Returns LiveView root elment and all its children live elements
+
+  ## Example:
+  ```elixir
+
+  state = :sys.get_state(pid)
+  case LiveDebugger.LiveElements.live_elements(state) do
+    {:ok, {root, elements}} -> IO.inspect(root, pretty: true)
+    {:error, _} -> IO.puts("Error")
+  end
+  ```
   """
   @spec live_elements(state :: map()) ::
           {:ok, {LiveViewElement.t(), [live_element()]}} | {:error, term()}
@@ -29,6 +39,16 @@ defmodule LiveDebugger.LiveElements do
 
   @doc """
   Creates tree using LiveElemets where root is a LiveView
+
+  ## Example:
+  ```elixir
+
+  state = :sys.get_state(pid)
+  case LiveDebugger.LiveElements.build_tree(state) do
+    {:ok, root} -> IO.inspect(root, pretty: true)
+    {:error, _} -> IO.puts("Error")
+  end
+  ```
   """
   @spec build_tree(state :: map()) :: {:ok, live_element()} | {:error, term()}
   def build_tree(state) do
