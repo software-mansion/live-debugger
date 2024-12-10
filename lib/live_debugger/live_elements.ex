@@ -10,25 +10,26 @@ defmodule LiveDebugger.LiveElements do
   @doc """
   Returns LiveView root elment and all its children live elements
   """
-  @spec live_elements(state :: map()) :: {:ok, {LiveViewElement.t(), [live_element()]}} | {:error, term()}
+  @spec live_elements(state :: map()) ::
+          {:ok, {LiveViewElement.t(), [live_element()]}} | {:error, term()}
   def live_elements(state) do
     with {:ok, root} <- get_root_element(state),
-        {components, _, _} <- Map.get(state, :components, {:error, :invalid_state}) do
-          elements =
-            Enum.map(components, fn {cid, element} ->
-              {module, id, assigns, _, _} = element
+         {components, _, _} <- Map.get(state, :components, {:error, :invalid_state}) do
+      elements =
+        Enum.map(components, fn {cid, element} ->
+          {module, id, assigns, _, _} = element
 
-              %LiveComponentElement{
-                id: id,
-                cid: cid,
-                module: module,
-                assigns: filter_assigns(assigns),
-                children: []
-              }
-            end)
+          %LiveComponentElement{
+            id: id,
+            cid: cid,
+            module: module,
+            assigns: filter_assigns(assigns),
+            children: []
+          }
+        end)
 
-          {:ok, {root, elements}}
-        end
+      {:ok, {root, elements}}
+    end
   end
 
   @doc """
@@ -89,12 +90,13 @@ defmodule LiveDebugger.LiveElements do
   end
 
   defp get_root_element(%{socket: %{id: id, view: view, assigns: assigns}}) do
-    {:ok, %LiveViewElement{
-      id: id,
-      module: view,
-      assigns: filter_assigns(assigns),
-      children: []
-    }}
+    {:ok,
+     %LiveViewElement{
+       id: id,
+       module: view,
+       assigns: filter_assigns(assigns),
+       children: []
+     }}
   end
 
   defp get_root_element(_), do: {:error, :invalid_state}
