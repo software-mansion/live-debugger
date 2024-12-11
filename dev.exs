@@ -8,10 +8,10 @@ Application.put_env(:live_debugger_dev_app, LiveDebuggerDev.Endpoint,
   check_origin: false,
   pubsub_server: LiveDebuggerDev.PubSub,
   adapter: Bandit.PhoenixAdapter,
-  # watchers: [
-  #   esbuild: {Esbuild, :install_and_run, [:default, ~w(--watch)]},
-  #   tailwind: {Tailwind, :install_and_run, [:phello, ~w(--watch)]}
-  # ]
+  watchers: [
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--watch)]},
+    tailwind: {Tailwind, :install_and_run, [:live_debugger, ~w(--watch)]}
+  ],
   live_reload: [
     patterns: [
       ~r"dist/.*(js|css)$",
