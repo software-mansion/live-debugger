@@ -29,7 +29,12 @@ defmodule LiveDebugger do
     assigns = assign(assigns, :style, style)
 
     ~H"""
-    <a id="live-debug" style={@style} href={"#{@redirect_url}/#{@socket_id}"} target="_blank">
+    <a
+      id="live-debugger-button"
+      style={@style}
+      href={"#{@redirect_url}/#{@socket_id}"}
+      target="_blank"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
