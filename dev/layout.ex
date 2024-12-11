@@ -67,4 +67,12 @@ defmodule LiveDebuggerDev.Layout do
     </html>
     """
   end
+
+  def render("app.html", assigns) do
+    ~H"""
+    <main>
+      {@inner_content}
+    </main>
+    """
+  end
 end

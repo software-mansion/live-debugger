@@ -1,5 +1,5 @@
 defmodule LiveDebuggerDev.LiveViews.Main do
-  use Phoenix.LiveView
+  use DevWeb, :live_view
 
   import LiveDebuggerDev.Components
 
