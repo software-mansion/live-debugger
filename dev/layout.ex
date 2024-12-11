@@ -13,6 +13,8 @@ defmodule LiveDebuggerDev.Layout do
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>LiveDebugger</title>
         <link rel="shortcut icon" href="#" />
+        <script src="https://cdn.tailwindcss.com">
+        </script>
       </head>
       <body>
         <script src="/assets/phoenix/phoenix.js">
