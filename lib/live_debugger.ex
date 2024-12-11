@@ -29,14 +29,14 @@ defmodule LiveDebugger do
     assigns = assign(assigns, :style, style)
 
     ~H"""
-    <a style={@style} href={"#{@redirect_url}/#{@socket_id}"} target="_blank">
+    <a id="live-debug" style={@style} href={"#{@redirect_url}/#{@socket_id}"} target="_blank">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
         stroke-width="1.5"
         stroke="currentColor"
-        class="size-6"
+        style="width: 25px; height: 25px;"
       >
         <path
           stroke-linecap="round"
@@ -48,9 +48,9 @@ defmodule LiveDebugger do
     """
   end
 
-  defp corner_style(:top_left), do: "top: 10px; left: 10px;"
-  defp corner_style(:top_right), do: "top: 10px; right: 10px;"
-  defp corner_style(:bottom_left), do: "bottom: 10px; left: 10px;"
-  defp corner_style(:bottom_right), do: "bottom: 10px; right: 10px;"
+  defp corner_style(:top_left), do: "top: 20px; left: 20px;"
+  defp corner_style(:top_right), do: "top: 20px; right: 20px;"
+  defp corner_style(:bottom_left), do: "bottom: 20px; left: 20px;"
+  defp corner_style(:bottom_right), do: "bottom: 20px; right: 20px;"
   defp corner_style(_), do: ""
 end
