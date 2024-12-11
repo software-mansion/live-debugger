@@ -6,7 +6,7 @@ Application.put_env(:live_debugger_dev_app, LiveDebuggerDev.Endpoint,
   http: [port: System.get_env("PORT") || 4004],
   debug_errors: true,
   check_origin: false,
-  pubsub_server: LiveDebugger.PubSub,
+  pubsub_server: LiveDebuggerDev.PubSub,
   adapter: Bandit.PhoenixAdapter
   # watchers: [
   #   esbuild: {Esbuild, :install_and_run, [:default, ~w(--watch)]},

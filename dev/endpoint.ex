@@ -12,7 +12,10 @@ defmodule LiveDebuggerDev.Endpoint do
     max_age: 14 * 24 * 60 * 60
   ]
 
-  socket("/live", Phoenix.LiveView.Socket)
+  socket("/live", Phoenix.LiveView.Socket,
+    websocket: true,
+    longpoll: true
+  )
 
   plug(Plug.Static, from: {:phoenix, "priv/static"}, at: "/assets/phoenix")
   plug(Plug.Static, from: {:phoenix_live_view, "priv/static"}, at: "/assets/phoenix_live_view")
