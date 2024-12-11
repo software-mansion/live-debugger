@@ -1,5 +1,5 @@
 defmodule LiveDebugger.LiveViews.HelloLive do
-  use LiveDebugger, :live_view
+  use LiveDebuggerWeb, :live_view
 
   @impl true
   def mount(_params, _session, socket) do

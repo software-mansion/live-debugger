@@ -1,36 +1,5 @@
 defmodule LiveDebugger do
-  def live_view do
-    quote do
-      use Phoenix.LiveView
-
-      import Phoenix.HTML
-
-      unquote(petal_components())
-    end
-  end
-
-  def live_component do
-    quote do
-      use Phoenix.LiveComponent
-
-      import Phoenix.HTML
-
-      unquote(petal_components())
-    end
-  end
-
-  defp petal_components do
-    quote do
-      import PetalComponents.{
-        Typography,
-        Card,
-        Icon,
-        Container
-      }
-    end
-  end
-
-  defmacro __using__(which) when is_atom(which) do
-    apply(__MODULE__, which, [])
+  def tmp() do
+    :ok
   end
 end
