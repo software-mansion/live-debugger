@@ -11,7 +11,7 @@ defmodule LiveDebuggerDev.Layout do
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>LiveDebugger</title>
+        <title>DevApp</title>
         <link rel="shortcut icon" href="#" />
         <script src="https://cdn.tailwindcss.com">
         </script>
