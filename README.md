@@ -46,7 +46,7 @@ For those planning to contribute to this project, you can run a dev version of t
 
 ```bash
 mix setup
-mix dev
+iex -S mix
 ```
 
 It'll run application declared in `dev/` directory with library debugger installed.
