@@ -8,8 +8,6 @@ defmodule LiveDebugger.Service.TreeNode do
   @type state_component() ::
           {cid :: integer(), {module :: atom(), id :: String.t(), assigns :: map(), any(), any()}}
 
-  @forbidden_assigns_keys ~w(__changed__ live_action)a
-
   @spec add_child(parent :: t(), child :: t()) :: t()
   def add_child(parent, child) do
     %{parent | children: parent.children ++ [child]}
@@ -50,7 +48,7 @@ defmodule LiveDebugger.Service.TreeNode do
        id: id,
        pid: pid,
        module: view,
-       assigns: filter_assigns(assigns),
+       assigns: assigns,
        children: []
      }}
   end
@@ -81,17 +79,10 @@ defmodule LiveDebugger.Service.TreeNode do
        id: id,
        cid: cid,
        module: module,
-       assigns: filter_assigns(assigns),
+       assigns: assigns,
        children: []
      }}
   end
 
   def live_component_node(_), do: {:error, :invalid_component}
-
-  defp filter_assigns(assigns) do
-    assigns
-    |> Map.to_list()
-    |> Enum.reject(fn {key, _} -> key in @forbidden_assigns_keys end)
-    |> Enum.into(%{})
-  end
 end
