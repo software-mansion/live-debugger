@@ -7,8 +7,14 @@ defmodule LiveDebugger.Services.TreeNode do
 
   @type t() :: LiveViewNode.t() | LiveComponentNode.t()
   @type id() :: integer() | pid()
-  @type state_socket() :: %{id: String.t(), root_pid: pid(), view: atom(), assigns: map()}
-  @type state_component() ::
+  @typedoc """
+  Value of channel_state's `socket` field.
+  """
+  @type channel_state_socket() :: %{id: String.t(), root_pid: pid(), view: atom(), assigns: map()}
+  @typedoc """
+  A key-value pair from channel_state's `components` map
+  """
+  @type channel_state_component() ::
           {cid :: integer(), {module :: atom(), id :: String.t(), assigns :: map(), any(), any()}}
 
   @spec add_child(parent :: t(), child :: t()) :: t()
@@ -38,11 +44,11 @@ defmodule LiveDebugger.Services.TreeNode do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Services.State.channel_state_from_pid(pid)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewScrapper.channel_state_from_pid(pid)
       iex> LiveDebugger.Services.TreeNode.live_view_node(state.socket)
       {:ok, %LiveDebugger.Services.TreeNode.LiveView{...}}
   """
-  @spec live_view_node(view :: state_socket()) :: {:ok, t()} | {:error, term()}
+  @spec live_view_node(socket :: channel_state_socket()) :: {:ok, t()} | {:error, term()}
   def live_view_node(socket)
 
   def live_view_node(%{id: id, root_pid: pid, view: view, assigns: assigns}) do
@@ -63,7 +69,7 @@ defmodule LiveDebugger.Services.TreeNode do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Services.State.channel_state_from_pid(pid)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewScrapper.channel_state_from_pid(pid)
       iex> {components, _, _} <- Map.get(state, :components) do
       iex> Enum.map(components, fn component ->
       ...> {:ok, live_component} = live_component_node(component)
@@ -73,7 +79,8 @@ defmodule LiveDebugger.Services.TreeNode do
         {:ok, %LiveDebugger.Services.TreeNode.LiveComponent{...}}
       ]
   """
-  @spec live_component_node(component :: state_component()) :: {:ok, t()} | {:error, term()}
+  @spec live_component_node(component :: channel_state_component()) ::
+          {:ok, t()} | {:error, term()}
   def live_component_node(component)
 
   def live_component_node({cid, {module, id, assigns, _, _}}) do

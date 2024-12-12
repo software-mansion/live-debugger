@@ -10,7 +10,7 @@ defmodule LiveDebugger.Services.ChannelStateScrapper do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Services.State.channel_state_from_pid(pid)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewScrapper.channel_state_from_pid(pid)
       iex> LiveDebugger.Services.ChannelStateScrapper.get_node_from_pid(pid, 2)
       %LiveDebugger.Services.TreeNode.LiveComponent{...}
   """
@@ -47,7 +47,7 @@ defmodule LiveDebugger.Services.ChannelStateScrapper do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Services.State.channel_state_from_pid(pid)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewScrapper.channel_state_from_pid(pid)
       iex> tree = LiveDebugger.Services.ChannelStateScrapper.build_tree(state)
       iex> LiveDebugger.Services.ChannelStateScrapper.get_node_by_id(tree, 1)
       %LiveDebugger.Services.TreeNode.LiveComponent{...}
@@ -76,7 +76,7 @@ defmodule LiveDebugger.Services.ChannelStateScrapper do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Services.State.channel_state_from_pid(pid)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewScrapper.channel_state_from_pid(pid)
       iex> LiveDebugger.Services.ChannelStateScrapper.build_tree(state)
       {:ok, %LiveDebugger.Services.TreeNode.LiveView{...}}
   """
