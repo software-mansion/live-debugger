@@ -23,12 +23,21 @@ After that you can add LiveDebugger to your router:
 ```elixir
 import LiveDebugger.Router
 
-  scope "/" do
-    pipe_through :browser
+scope "/" do
+  pipe_through :browser
 
-    live "/", CounterLive
-    live_debugger "/dbg"
-  end
+  live "/", CounterLive
+  live_debugger "/dbg"
+end
+```
+
+And add the debug button to your app layout:
+
+```Elixir
+<main>
+  <LiveDebugger.debug_button redirect_url="/dbg" socket_id={@socket.id} />
+  {@inner_content}
+</main>
 ```
 
 ## Contributing
