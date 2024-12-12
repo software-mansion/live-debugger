@@ -14,7 +14,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div :if={@debugged_pid.status == :loading} class="h-full flex items-center justify-center ">
+    <div :if={@debugged_pid.status == :loading} class="h-full flex items-center justify-center">
       <.spinner size="md" />
     </div>
     <div :if={@debugged_pid.status == :ok}>
@@ -23,7 +23,16 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
         <div>Debugged PID: <span class="text-blue-500">{inspect(@debugged_pid.result)}</span></div>
       </.container>
     </div>
-    <div :if={@debugged_pid.status == :not_found}>Process not found - debugger disconnected</div>
+    <div
+      :if={@debugged_pid.status == :not_found}
+      class="h-full flex flex-col items-center justify-center mx-8"
+    >
+      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.h2 class="text-center">Debugger disconnected</.h2>
+      <.h5 class="text-center">
+        We couldn't find any LiveView associated with the given socket id - you can close this window.
+      </.h5>
+    </div>
     """
   end
 
