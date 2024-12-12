@@ -1,19 +1,7 @@
 defmodule LiveDebugger.Service.SocketScraper do
   alias LiveDebugger.Service.TreeNode
 
-  @doc """
-  Returns the state of the process with the given PID.
-  """
-  @spec state_from_pid(pid :: pid()) :: {:ok, map()} | {:error, term()}
-  def state_from_pid(pid) when is_pid(pid) do
-    try do
-      {:ok, :sys.get_state(pid)}
-    rescue
-      _ -> {:error, "Could not get state from pid: #{inspect(pid)}"}
-    end
-  end
-
-
+  import LiveDebugger.Service.LiveViewApi
 
   @doc """
   Returns a node of tree which has the given PID or CID from the given PID.
@@ -21,17 +9,19 @@ defmodule LiveDebugger.Service.SocketScraper do
 
   ## Examples
 
-      iex> state = :sys.get_state(pid)
+      iex> {:ok, state} = LiveDebugger.Service.State.state_from_pid(pid)
       iex> LiveDebugger.Service.SocketScraper.get_node_from_pid(pid, 2)
       %LiveDebugger.Service.TreeNode.LiveComponent{...}
   """
-  @spec get_node_from_pid(pid :: pid(), id :: TreeNode.id()) :: {:ok, TreeNode.t() | nil} | {:error, term()}
+  @spec get_node_from_pid(pid :: pid(), id :: TreeNode.id()) ::
+          {:ok, TreeNode.t() | nil} | {:error, term()}
   def get_node_from_pid(pid, id) do
     with {:ok, state} <- state_from_pid(pid) do
       case id do
         id when is_pid(id) ->
           TreeNode.live_view_node(state.socket)
-        id when is_binary(id) ->
+
+        id when is_integer(id) ->
           live_component_from_state(state, id)
       end
     end
@@ -42,7 +32,9 @@ defmodule LiveDebugger.Service.SocketScraper do
     |> get_state_components()
     |> Enum.find(fn {component_cid, _} -> component_cid == cid end)
     |> case do
-      nil -> {:ok, nil}
+      nil ->
+        {:ok, nil}
+
       component ->
         TreeNode.live_component_node(component)
     end
@@ -53,7 +45,7 @@ defmodule LiveDebugger.Service.SocketScraper do
 
   ## Examples
 
-      iex> state = :sys.get_state(pid)
+      iex> {:ok, state} = LiveDebugger.Service.State.state_from_pid(pid)
       iex> tree = LiveDebugger.Service.SocketScraper.build_tree(state)
       iex> LiveDebugger.Service.SocketScraper.get_node_by_id(tree, 1)
       %LiveDebugger.Service.TreeNode.LiveComponent{...}
@@ -89,15 +81,14 @@ defmodule LiveDebugger.Service.SocketScraper do
 
   ## Examples
 
-      iex> state = :sys.get_state(pid)
+      iex> {:ok, state} = LiveDebugger.Service.State.state_from_pid(pid)
       iex> LiveDebugger.Service.SocketScraper.build_tree(state)
       {:ok, %LiveDebugger.Service.TreeNode.LiveView{...}}
   """
   @spec build_tree(pid) :: {:ok, TreeNode.t()} | {:error, term()}
   def build_tree(pid) when is_pid(pid) do
-
     with {:ok, state} <- state_from_pid(pid),
-    {:ok, {root, live_elements}} <- get_tree_nodes(state) do
+         {:ok, {root, live_elements}} <- get_tree_nodes(state) do
       cids_tree =
         state
         |> children_cids_mapping()
@@ -123,7 +114,6 @@ defmodule LiveDebugger.Service.SocketScraper do
     end
   end
 
-
   defp children_cids_mapping(channel_state) do
     components = get_state_components(channel_state)
 
@@ -134,7 +124,6 @@ defmodule LiveDebugger.Service.SocketScraper do
   end
 
   defp get_state_components(%{components: {components, _, _}}), do: components
-
 
   defp get_base_parent_cids_mapping(components) do
     components

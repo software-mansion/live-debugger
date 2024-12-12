@@ -3,12 +3,12 @@ defmodule LiveDebugger.Service.TreeNode do
   alias LiveDebugger.Service.TreeNode.LiveComponent, as: LiveComponentNode
 
   @type t() :: LiveViewNode.t() | LiveComponentNode.t()
-  @type id() :: String.t() | pid()
+  @type id() :: integer() | pid()
   @type state_socket() :: %{id: String.t(), root_pid: pid(), view: atom(), assigns: map()}
   @type state_component() ::
           {cid :: integer(), {module :: atom(), id :: String.t(), assigns :: map(), any(), any()}}
 
-  @forbidden_assigns_keys ~w(__changed__ live_debug live_action)a
+  @forbidden_assigns_keys ~w(__changed__ live_action)a
 
   @spec add_child(parent :: t(), child :: t()) :: t()
   def add_child(parent, child) do
@@ -37,7 +37,7 @@ defmodule LiveDebugger.Service.TreeNode do
 
   ## Examples
 
-      iex> state = :sys.get_state(pid)
+      iex> {:ok, state} = LiveDebugger.Service.State.state_from_pid(pid)
       iex> LiveDebugger.Service.TreeNode.live_view_node(state.socket)
       {:ok, %LiveDebugger.Service.TreeNode.LiveView{...}}
   """
@@ -62,7 +62,7 @@ defmodule LiveDebugger.Service.TreeNode do
 
   ## Examples
 
-      iex> state = :sys.get_state(pid)
+      iex> {:ok, state} = LiveDebugger.Service.State.state_from_pid(pid)
       iex> {components, _, _} <- Map.get(state, :components) do
       iex> Enum.map(components, fn component ->
       ...> {:ok, live_component} = live_component_node(component)
