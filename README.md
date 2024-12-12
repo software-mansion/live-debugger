@@ -27,7 +27,7 @@ scope "/" do
   pipe_through :browser
 
   live "/", CounterLive
-  live_debugger "/dbg"
+  live_debugger "/live_debug"
 end
 ```
 
@@ -35,7 +35,7 @@ And add the debug button to your app layout:
 
 ```Elixir
 <main>
-  <LiveDebugger.debug_button redirect_url="/dbg" socket_id={@socket.id} />
+  <LiveDebugger.debug_button redirect_url="/live_debug" socket_id={@socket.id} />
   {@inner_content}
 </main>
 ```

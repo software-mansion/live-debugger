@@ -11,7 +11,7 @@ defmodule LiveDebuggerDev.Layout do
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>LiveDebugger</title>
+        <title>DevApp</title>
         <link rel="shortcut icon" href="#" />
         <script src="https://cdn.tailwindcss.com">
         </script>
@@ -71,7 +71,7 @@ defmodule LiveDebuggerDev.Layout do
   def render("app.html", assigns) do
     ~H"""
     <main>
-      <LiveDebugger.debug_button redirect_url="/dbg" socket_id={@socket.id} />
+      <LiveDebugger.debug_button redirect_url="/live_debug" socket_id={@socket.id} />
       {@inner_content}
     </main>
     """
