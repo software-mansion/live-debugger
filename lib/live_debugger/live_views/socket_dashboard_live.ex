@@ -90,9 +90,9 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     socket
     |> assign(:debugged_pid, %{status: :loading})
     |> start_async(:fetch_debugged_pid, fn ->
-      with nil <- fetch_pid_with_after(socket_id, 200),
-           nil <- fetch_pid_with_after(socket_id, 800),
-           nil <- fetch_pid_with_after(socket_id, 1000) do
+      with nil <- fetch_pid_after(socket_id, 200),
+           nil <- fetch_pid_after(socket_id, 800),
+           nil <- fetch_pid_after(socket_id, 1000) do
         nil
       else
         pid -> pid
@@ -100,7 +100,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     end)
   end
 
-  defp fetch_pid_with_after(socket_id, milliseconds) do
+  defp fetch_pid_after(socket_id, milliseconds) do
     Process.sleep(milliseconds)
     LiveViewScraper.pid_by_socket_id(socket_id)
   end
