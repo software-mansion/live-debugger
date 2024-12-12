@@ -18,7 +18,7 @@ defmodule LiveDebugger.Service.TreeNode do
   @spec get_child(parent :: t(), child_id :: id()) :: t() | nil
   def get_child(parent, child_id)
 
-  def get_child(parent, child_cid) when is_binary(child_cid) do
+  def get_child(parent, child_cid) when is_integer(child_cid) do
     Enum.find(parent.children, fn
       %LiveComponentNode{cid: cid} -> cid == child_cid
       _ -> false
