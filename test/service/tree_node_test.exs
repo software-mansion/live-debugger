@@ -1,7 +1,7 @@
-defmodule LiveDebugger.Service.TreeNodeTest do
+defmodule LiveDebugger.Services.TreeNodeTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebugger.Service.TreeNode
+  alias LiveDebugger.Services.TreeNode
 
   test "add_child/2" do
     parent = %TreeNode.LiveView{children: []}

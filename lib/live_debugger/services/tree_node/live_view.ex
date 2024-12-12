@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Service.TreeNode.LiveView do
+defmodule LiveDebugger.Services.TreeNode.LiveView do
   defstruct [:id, :pid, :module, :assigns, :children]
 
   @type t() :: %__MODULE__{

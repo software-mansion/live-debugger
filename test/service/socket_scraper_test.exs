@@ -1,8 +1,8 @@
-defmodule LiveDebugger.Service.SocketScraperTest do
+defmodule LiveDebugger.Services.SocketScraperTest do
   use LiveDebugger.ProcessCase, async: true
 
-  alias LiveDebugger.Service.SocketScraper
-  alias LiveDebugger.Service.TreeNode
+  alias LiveDebugger.Services.SocketScraper
+  alias LiveDebugger.Services.TreeNode
 
   test "build_tree/1 creates tree of components", %{pid: pid} do
     assert {:ok,

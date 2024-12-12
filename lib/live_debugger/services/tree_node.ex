@@ -1,6 +1,6 @@
-defmodule LiveDebugger.Service.TreeNode do
-  alias LiveDebugger.Service.TreeNode.LiveView, as: LiveViewNode
-  alias LiveDebugger.Service.TreeNode.LiveComponent, as: LiveComponentNode
+defmodule LiveDebugger.Services.TreeNode do
+  alias LiveDebugger.Services.TreeNode.LiveView, as: LiveViewNode
+  alias LiveDebugger.Services.TreeNode.LiveComponent, as: LiveComponentNode
 
   @type t() :: LiveViewNode.t() | LiveComponentNode.t()
   @type id() :: integer() | pid()
@@ -31,13 +31,13 @@ defmodule LiveDebugger.Service.TreeNode do
   end
 
   @doc """
-  Parses state's socket to LiveDebugger.Service.TreeNode.LiveView.
+  Parses state's socket to LiveDebugger.Services.TreeNode.LiveView.
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Service.State.state_from_pid(pid)
-      iex> LiveDebugger.Service.TreeNode.live_view_node(state.socket)
-      {:ok, %LiveDebugger.Service.TreeNode.LiveView{...}}
+      iex> {:ok, state} = LiveDebugger.Services.State.state_from_pid(pid)
+      iex> LiveDebugger.Services.TreeNode.live_view_node(state.socket)
+      {:ok, %LiveDebugger.Services.TreeNode.LiveView{...}}
   """
   @spec live_view_node(view :: state_socket()) :: {:ok, t()} | {:error, term()}
   def live_view_node(socket)
@@ -56,18 +56,18 @@ defmodule LiveDebugger.Service.TreeNode do
   def live_view_node(_), do: {:error, :invalid_view}
 
   @doc """
-  Parses component from state to LiveDebugger.Service.TreeNode.LiveComponent.
+  Parses component from state to LiveDebugger.Services.TreeNode.LiveComponent.
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Service.State.state_from_pid(pid)
+      iex> {:ok, state} = LiveDebugger.Services.State.state_from_pid(pid)
       iex> {components, _, _} <- Map.get(state, :components) do
       iex> Enum.map(components, fn component ->
       ...> {:ok, live_component} = live_component_node(component)
       ...> end
       [
-        {:ok, %LiveDebugger.Service.TreeNode.LiveComponent{...}},
-        {:ok, %LiveDebugger.Service.TreeNode.LiveComponent{...}}
+        {:ok, %LiveDebugger.Services.TreeNode.LiveComponent{...}},
+        {:ok, %LiveDebugger.Services.TreeNode.LiveComponent{...}}
       ]
   """
   @spec live_component_node(component :: state_component()) :: {:ok, t()} | {:error, term()}

@@ -1,7 +1,7 @@
-defmodule LiveDebugger.Service.SocketScraper do
-  alias LiveDebugger.Service.TreeNode
+defmodule LiveDebugger.Services.SocketScraper do
+  alias LiveDebugger.Services.TreeNode
 
-  import LiveDebugger.Service.LiveViewApi
+  import LiveDebugger.Services.LiveViewApi
 
   @doc """
   Returns a node of tree which has the given PID or CID from the given PID.
@@ -9,9 +9,9 @@ defmodule LiveDebugger.Service.SocketScraper do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Service.State.state_from_pid(pid)
-      iex> LiveDebugger.Service.SocketScraper.get_node_from_pid(pid, 2)
-      %LiveDebugger.Service.TreeNode.LiveComponent{...}
+      iex> {:ok, state} = LiveDebugger.Services.State.state_from_pid(pid)
+      iex> LiveDebugger.Services.SocketScraper.get_node_from_pid(pid, 2)
+      %LiveDebugger.Services.TreeNode.LiveComponent{...}
   """
   @spec get_node_from_pid(pid :: pid(), id :: TreeNode.id()) ::
           {:ok, TreeNode.t() | nil} | {:error, term()}
@@ -45,10 +45,10 @@ defmodule LiveDebugger.Service.SocketScraper do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Service.State.state_from_pid(pid)
-      iex> tree = LiveDebugger.Service.SocketScraper.build_tree(state)
-      iex> LiveDebugger.Service.SocketScraper.get_node_by_id(tree, 1)
-      %LiveDebugger.Service.TreeNode.LiveComponent{...}
+      iex> {:ok, state} = LiveDebugger.Services.State.state_from_pid(pid)
+      iex> tree = LiveDebugger.Services.SocketScraper.build_tree(state)
+      iex> LiveDebugger.Services.SocketScraper.get_node_by_id(tree, 1)
+      %LiveDebugger.Services.TreeNode.LiveComponent{...}
   """
   @spec get_node_by_id(tree :: TreeNode.t(), id :: TreeNode.id()) :: TreeNode.t() | nil
   def get_node_by_id(tree, id) do
@@ -70,13 +70,13 @@ defmodule LiveDebugger.Service.SocketScraper do
   end
 
   @doc """
-  Creates tree using LiveDebugger.Service.TreeNode where root is a  LiveDebugger.Service.TreeNode.LiveView.
+  Creates tree using LiveDebugger.Services.TreeNode where root is a  LiveDebugger.Services.TreeNode.LiveView.
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Service.State.state_from_pid(pid)
-      iex> LiveDebugger.Service.SocketScraper.build_tree(state)
-      {:ok, %LiveDebugger.Service.TreeNode.LiveView{...}}
+      iex> {:ok, state} = LiveDebugger.Services.State.state_from_pid(pid)
+      iex> LiveDebugger.Services.SocketScraper.build_tree(state)
+      {:ok, %LiveDebugger.Services.TreeNode.LiveView{...}}
   """
   @spec build_tree(pid) :: {:ok, TreeNode.t()} | {:error, term()}
   def build_tree(pid) when is_pid(pid) do
