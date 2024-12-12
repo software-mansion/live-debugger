@@ -1,5 +1,15 @@
-defmodule LiveDebugger.Service.Monitor do
-  def liveview_pids() do
+defmodule LiveDebugger.Service.LiveViewScraper do
+  def pid_by_socket_id(socket_id) do
+    pids()
+    |> Enum.map(fn pid -> {pid, :sys.get_state(pid)} end)
+    |> Enum.find(fn {_, %{socket: %{id: id}}} -> id == socket_id end)
+    |> case do
+      {pid, _} -> pid
+      nil -> nil
+    end
+  end
+
+  def pids() do
     Process.list()
     |> Enum.reject(&(&1 == self()))
     |> Enum.map(&{&1, process_initial_call(&1)})
