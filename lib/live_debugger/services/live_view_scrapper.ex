@@ -1,18 +1,19 @@
-defmodule LiveDebugger.Services.LiveViewApi do
+defmodule LiveDebugger.Services.LiveViewScrapper do
   @callback state_from_pid(pid :: pid()) :: {:ok, map()} | {:error, term()}
 
   def state_from_pid(pid), do: impl().state_from_pid(pid)
 
-  defp impl(),
-    do: Application.get_env(:live_debugger, :live_view_api, LiveDebugger.Services.LiveViewApiImpl)
+  defp impl() do
+    Application.get_env(:live_debugger, :live_view_api, LiveDebugger.Services.LiveViewScrapperImpl)
+  end
 end
 
-defmodule LiveDebugger.Services.LiveViewApiImpl do
+defmodule LiveDebugger.Services.LiveViewScrapperImpl do
   @moduledoc """
   This module provides functions to work with the state of the LiveView process.
   """
 
-  @behaviour LiveDebugger.Services.LiveViewApi
+  @behaviour LiveDebugger.Services.LiveViewScrapper
 
   @doc """
   Returns the state of the process with the given PID.

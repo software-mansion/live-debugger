@@ -1,7 +1,7 @@
 defmodule LiveDebugger.Services.SocketScraper do
   alias LiveDebugger.Services.TreeNode
 
-  import LiveDebugger.Services.LiveViewApi
+  import LiveDebugger.Services.LiveViewScrapper
 
   @doc """
   Returns a node of tree which has the given PID or CID from the given PID.
