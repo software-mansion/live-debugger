@@ -3,7 +3,9 @@ defmodule LiveDebugger.ProcessCase do
 
   import Mox
 
-  setup do
+  setup _ do
+    pid = :c.pid(0, 0, 0)
+
     stub(LiveDebugger.MockLiveViewApi, :state_from_pid, fn _pid ->
       {:ok,
        %{
@@ -14,7 +16,7 @@ defmodule LiveDebugger.ProcessCase do
              name: "David",
              socket_id: "phx-socket-id"
            },
-           root_pid: "PID"
+           root_pid: pid
          },
          components:
            {%{
@@ -75,6 +77,7 @@ defmodule LiveDebugger.ProcessCase do
             }, 6}
        }}
     end)
-    :ok
+
+    {:ok, pid: pid}
   end
 end

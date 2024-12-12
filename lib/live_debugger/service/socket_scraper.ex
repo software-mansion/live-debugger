@@ -51,19 +51,12 @@ defmodule LiveDebugger.Service.SocketScraper do
       %LiveDebugger.Service.TreeNode.LiveComponent{...}
   """
   @spec get_node_by_id(tree :: TreeNode.t(), id :: TreeNode.id()) :: TreeNode.t() | nil
-  def get_node_by_id(tree, id)
-
-  def get_node_by_id(tree, id) when is_binary(id) do
-    case tree do
-      %TreeNode.LiveComponent{cid: ^id} -> tree
-      %TreeNode.LiveComponent{children: children} -> check_children(children, id)
-    end
-  end
-
-  def get_node_by_id(tree, id) when is_pid(id) do
+  def get_node_by_id(tree, id) do
     case tree do
       %TreeNode.LiveView{pid: ^id} -> tree
+      %TreeNode.LiveComponent{cid: ^id} -> tree
       %TreeNode.LiveView{children: children} -> check_children(children, id)
+      %TreeNode.LiveComponent{children: children} -> check_children(children, id)
     end
   end
 
