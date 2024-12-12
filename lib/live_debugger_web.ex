@@ -6,6 +6,7 @@ defmodule LiveDebuggerWeb do
       import Phoenix.HTML
 
       unquote(petal_components())
+      unquote(helpers())
     end
   end
 
@@ -16,6 +17,7 @@ defmodule LiveDebuggerWeb do
       import Phoenix.HTML
 
       unquote(petal_components())
+      unquote(helpers())
     end
   end
 
@@ -25,8 +27,16 @@ defmodule LiveDebuggerWeb do
         Typography,
         Card,
         Icon,
-        Container
+        Container,
+        Loading
       }
+    end
+  end
+
+  defp helpers do
+    quote do
+      def ok(socket), do: {:ok, socket}
+      def noreply(socket), do: {:noreply, socket}
     end
   end
 
