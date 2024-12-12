@@ -1,6 +1,8 @@
 defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   use LiveDebuggerWeb, :live_view
 
+  require Logger
+
   alias LiveDebugger.Service.LiveViewScraper
 
   @impl true
@@ -30,8 +32,20 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
       <.icon name="hero-exclamation-circle" class="w-16 h-16" />
       <.h2 class="text-center">Debugger disconnected</.h2>
       <.h5 class="text-center">
-        We couldn't find any LiveView associated with the given socket id - you can close this window.
+        We couldn't find any LiveView associated with the given socket id
       </.h5>
+      <span>You can close this window</span>
+    </div>
+    <div
+      :if={@debugged_pid.status == :error}
+      class="h-full flex flex-col items-center justify-center mx-8"
+    >
+      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.h2 class="text-center">Unexpected error</.h2>
+      <.h5 class="text-center">
+        Debugger encountered unexpected error - check logs for more
+      </.h5>
+      <span>You can close this window</span>
     </div>
     """
   end
@@ -49,6 +63,17 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
     socket
     |> assign(:debugged_pid, %{status: :ok, result: fetched_pid})
+    |> noreply()
+  end
+
+  @impl true
+  def handle_async(:fetch_debugged_pid, {:exit, reason}, socket) do
+    Logger.error(
+      "LiveDebugger encountered unexpected error while fetching debugged pid: #{inspect(reason)}"
+    )
+
+    socket
+    |> assign(:debugged_pid, %{status: :error, result: nil})
     |> noreply()
   end
 
