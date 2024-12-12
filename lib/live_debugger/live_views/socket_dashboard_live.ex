@@ -14,14 +14,16 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.container max_width="full">
-      <div :if={@debugged_pid.status == :loading}><.spinner /></div>
-      <div :if={@debugged_pid.status == :ok}>
+    <div :if={@debugged_pid.status == :loading} class="h-full flex items-center justify-center ">
+      <.spinner size="md" />
+    </div>
+    <div :if={@debugged_pid.status == :ok}>
+      <.container max_width="full">
         <div>Monitored socket: <span class="text-blue-500">{@socket_id}</span></div>
         <div>Debugged PID: <span class="text-blue-500">{inspect(@debugged_pid.result)}</span></div>
-      </div>
-      <div :if={@debugged_pid.status == :not_found}>Process not found - debugger disconnected</div>
-    </.container>
+      </.container>
+    </div>
+    <div :if={@debugged_pid.status == :not_found}>Process not found - debugger disconnected</div>
     """
   end
 
