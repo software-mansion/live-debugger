@@ -2,11 +2,16 @@ defmodule LiveDebugger do
   use Phoenix.Component
 
   attr(:redirect_url, :string, required: true, doc: "The URL of the debugger, e.g. `/dbg`")
-  attr(:socket_id, :string, required: true, doc: "The socket ID of the debugged LiveView")
+
+  attr(:socket_id, :string,
+    required: true,
+    doc: "The socket ID of the debugged LiveView"
+  )
 
   attr(:corner, :atom,
     default: :bottom_right,
-    doc: "The corner of the screen to place the button"
+    doc:
+      "The corner of the screen to place the button (possible values: `:top_left`, `:top_right`, `:bottom_left`, `:bottom_right`)"
   )
 
   def debug_button(assigns) do
