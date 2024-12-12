@@ -1,6 +1,7 @@
 defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   use LiveDebuggerWeb, :live_view
 
+  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Service.LiveViewScraper
 
   @impl true
@@ -24,11 +25,25 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     """
   end
 
+  @impl true
+  def handle_async(:fetch_debugged_pid, {:ok, nil}, socket) do
+    socket
+    |> assign(:debugged_pid, AsyncResult.ok(socket.assigns.debugged_pid, nil))
+    |> noreply()
+  end
+
+  @impl true
+  def handle_async(:fetch_debugged_pid, {:ok, fetched_pid}, socket) do
+    socket
+    |> assign(:debugged_pid, AsyncResult.ok(socket.assigns.debugged_pid, fetched_pid))
+    |> noreply()
+  end
+
   defp assign_async_debugged_pid(socket) do
     socket_id = socket.assigns.socket_id
 
-    assign_async(socket, :debugged_pid, fn ->
-      {:ok, %{debugged_pid: LiveViewScraper.pid_by_socket_id(socket_id)}}
-    end)
+    socket
+    |> assign(:debugged_pid, AsyncResult.loading())
+    |> start_async(:fetch_debugged_pid, fn -> LiveViewScraper.pid_by_socket_id(socket_id) end)
   end
 end
