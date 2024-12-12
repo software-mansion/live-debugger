@@ -1,10 +1,14 @@
 defmodule LiveDebugger.Services.LiveViewScrapper do
-  @callback state_from_pid(pid :: pid()) :: {:ok, map()} | {:error, term()}
+  @callback channel_state_from_pid(pid :: pid()) :: {:ok, map()} | {:error, term()}
 
-  def state_from_pid(pid), do: impl().state_from_pid(pid)
+  def channel_state_from_pid(pid), do: impl().channel_state_from_pid(pid)
 
   defp impl() do
-    Application.get_env(:live_debugger, :live_view_api, LiveDebugger.Services.LiveViewScrapperImpl)
+    Application.get_env(
+      :live_debugger,
+      :live_view_api,
+      LiveDebugger.Services.LiveViewScrapperImpl
+    )
   end
 end
 
@@ -19,7 +23,7 @@ defmodule LiveDebugger.Services.LiveViewScrapperImpl do
   Returns the state of the process with the given PID.
   """
   @impl true
-  def state_from_pid(pid) when is_pid(pid) do
+  def channel_state_from_pid(pid) when is_pid(pid) do
     try do
       {:ok, :sys.get_state(pid)}
     rescue

@@ -6,7 +6,7 @@ defmodule LiveDebugger.ProcessCase do
   setup _ do
     pid = :c.pid(0, 0, 0)
 
-    stub(LiveDebugger.MockLiveViewScrapper, :state_from_pid, fn _pid ->
+    stub(LiveDebugger.MockLiveViewScrapper, :channel_state_from_pid, fn _pid ->
       {:ok,
        %{
          socket: %{

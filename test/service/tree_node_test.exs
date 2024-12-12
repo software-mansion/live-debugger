@@ -25,6 +25,7 @@ defmodule LiveDebugger.Services.TreeNodeTest do
 
   test "live_view_node/1" do
     pid = :c.pid(0, 0, 0)
+
     state = %{
       id: 1,
       root_pid: pid,
@@ -32,7 +33,8 @@ defmodule LiveDebugger.Services.TreeNodeTest do
       assigns: %{}
     }
 
-    assert {:ok, %TreeNode.LiveView{id: 1, pid: ^pid, module: :view, assigns: %{}, children: []}} = TreeNode.live_view_node(state)
+    assert {:ok, %TreeNode.LiveView{id: 1, pid: ^pid, module: :view, assigns: %{}, children: []}} =
+             TreeNode.live_view_node(state)
   end
 
   test "live_view_node/1 with invalid view" do
@@ -48,6 +50,7 @@ defmodule LiveDebugger.Services.TreeNodeTest do
   test "live_component_node/1 with valid component" do
     component = {1, {:module, "component-id", %{}, nil, nil}}
 
-    assert {:ok, %TreeNode.LiveComponent{cid: 1, module: :module}} = TreeNode.live_component_node(component)
+    assert {:ok, %TreeNode.LiveComponent{cid: 1, module: :module}} =
+             TreeNode.live_component_node(component)
   end
 end
