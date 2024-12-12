@@ -4,7 +4,8 @@ defmodule LiveDebugger.Services.SocketScraper do
   import LiveDebugger.Services.LiveViewScrapper
 
   @doc """
-  Returns a node of tree which has the given PID or CID from the given PID.
+  Retrieves a TreeNode with the given `id` from the process identified by `pid`.
+  The `id` can be either a PID or a CID.
   Returned node doesn't have children.
 
   ## Examples
@@ -41,7 +42,8 @@ defmodule LiveDebugger.Services.SocketScraper do
   end
 
   @doc """
-  Returns a node of tree which has the given CID or PID.
+  Retrieves a TreeNode with the given `id` from the tree.
+  The `id` can be either a PID or a CID.
 
   ## Examples
 
@@ -70,7 +72,7 @@ defmodule LiveDebugger.Services.SocketScraper do
   end
 
   @doc """
-  Creates tree using LiveDebugger.Services.TreeNode where root is a  LiveDebugger.Services.TreeNode.LiveView.
+  Creates a tree with the root being a LiveDebugger.Services.TreeNode.LiveView.
 
   ## Examples
 
