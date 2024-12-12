@@ -1,7 +1,8 @@
 defmodule LiveDebuggerWeb do
   def live_view do
     quote do
-      use Phoenix.LiveView
+      use Phoenix.LiveView,
+        layout: {LiveDebugger.Layout, :app}
 
       import Phoenix.HTML
 
