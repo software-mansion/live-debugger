@@ -2,6 +2,89 @@ defmodule LiveDebugger.Service.SocketScraper do
   alias LiveDebugger.Service.TreeNode
 
   @doc """
+  Returns the state of the process with the given PID.
+  """
+  @spec state_from_pid(pid :: pid()) :: {:ok, map()} | {:error, term()}
+  def state_from_pid(pid) when is_pid(pid) do
+    try do
+      {:ok, :sys.get_state(pid)}
+    rescue
+      _ -> {:error, "Could not get state from pid: #{inspect(pid)}"}
+    end
+  end
+
+
+
+  @doc """
+  Returns a node of tree which has the given PID or CID from the given PID.
+  Returned node doesn't have children.
+
+  ## Examples
+
+      iex> state = :sys.get_state(pid)
+      iex> LiveDebugger.Service.SocketScraper.get_node_from_pid(pid, 2)
+      %LiveDebugger.Service.TreeNode.LiveComponent{...}
+  """
+  @spec get_node_from_pid(pid :: pid(), id :: TreeNode.id()) :: {:ok, TreeNode.t() | nil} | {:error, term()}
+  def get_node_from_pid(pid, id) do
+    with {:ok, state} <- state_from_pid(pid) do
+      case id do
+        id when is_pid(id) ->
+          TreeNode.live_view_node(state.socket)
+        id when is_binary(id) ->
+          live_component_from_state(state, id)
+      end
+    end
+  end
+
+  defp live_component_from_state(state, cid) do
+    state
+    |> get_state_components()
+    |> Enum.find(fn {component_cid, _} -> component_cid == cid end)
+    |> case do
+      nil -> {:ok, nil}
+      component ->
+        TreeNode.live_component_node(component)
+    end
+  end
+
+  @doc """
+  Returns a node of tree which has the given CID or PID.
+
+  ## Examples
+
+      iex> state = :sys.get_state(pid)
+      iex> tree = LiveDebugger.Service.SocketScraper.build_tree(state)
+      iex> LiveDebugger.Service.SocketScraper.get_node_by_id(tree, 1)
+      %LiveDebugger.Service.TreeNode.LiveComponent{...}
+  """
+  @spec get_node_by_id(tree :: TreeNode.t(), id :: TreeNode.id()) :: TreeNode.t() | nil
+  def get_node_by_id(tree, id)
+
+  def get_node_by_id(tree, id) when is_binary(id) do
+    case tree do
+      %TreeNode.LiveComponent{cid: ^id} -> tree
+      %TreeNode.LiveComponent{children: children} -> check_children(children, id)
+    end
+  end
+
+  def get_node_by_id(tree, id) when is_pid(id) do
+    case tree do
+      %TreeNode.LiveView{pid: ^id} -> tree
+      %TreeNode.LiveView{children: children} -> check_children(children, id)
+    end
+  end
+
+  defp check_children(children, id) do
+    Enum.reduce_while(children, nil, fn child, _ ->
+      case get_node_by_id(child, id) do
+        nil -> {:cont, nil}
+        child -> {:halt, child}
+      end
+    end)
+  end
+
+  @doc """
   Creates tree using LiveDebugger.Service.TreeNode where root is a  LiveDebugger.Service.TreeNode.LiveView.
 
   ## Examples
@@ -12,9 +95,9 @@ defmodule LiveDebugger.Service.SocketScraper do
   """
   @spec build_tree(pid) :: {:ok, TreeNode.t()} | {:error, term()}
   def build_tree(pid) when is_pid(pid) do
-    state = :sys.get_state(pid)
 
-    with {:ok, {root, live_elements}} <- get_tree_nodes(state) do
+    with {:ok, state} <- state_from_pid(pid),
+    {:ok, {root, live_elements}} <- get_tree_nodes(state) do
       cids_tree =
         state
         |> children_cids_mapping()
@@ -24,11 +107,12 @@ defmodule LiveDebugger.Service.SocketScraper do
     end
   end
 
-  defp get_tree_nodes(%{socket: socket, components: components}) do
-    with {:ok, root} <- TreeNode.live_view_node(socket),
-         {components, _, _} <- components do
+  defp get_tree_nodes(%{socket: socket} = state) do
+    with {:ok, root} <- TreeNode.live_view_node(socket) do
       elements =
-        Enum.map(components, fn component ->
+        state
+        |> get_state_components()
+        |> Enum.map(fn component ->
           case TreeNode.live_component_node(component) do
             {:ok, live_component} -> live_component
             {:error, _} -> nil
@@ -39,14 +123,18 @@ defmodule LiveDebugger.Service.SocketScraper do
     end
   end
 
+
   defp children_cids_mapping(channel_state) do
-    {components, _, _} = channel_state.components
+    components = get_state_components(channel_state)
 
     components
     |> get_base_parent_cids_mapping()
     |> fill_parent_cids_mapping(components)
     |> reverse_mapping()
   end
+
+  defp get_state_components(%{components: {components, _, _}}), do: components
+
 
   defp get_base_parent_cids_mapping(components) do
     components
