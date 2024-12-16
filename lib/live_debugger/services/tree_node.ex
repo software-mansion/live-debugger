@@ -6,7 +6,8 @@ defmodule LiveDebugger.Services.TreeNode do
   alias LiveDebugger.Services.TreeNode.LiveComponent, as: LiveComponentNode
 
   @type t() :: LiveViewNode.t() | LiveComponentNode.t()
-  @type id() :: integer() | pid()
+  @type cid() :: integer()
+  @type id() :: cid() | pid()
   @typedoc """
   Value of channel_state's `socket` field.
   """
@@ -15,7 +16,12 @@ defmodule LiveDebugger.Services.TreeNode do
   A key-value pair from channel_state's `components` map
   """
   @type channel_state_component() ::
-          {cid :: integer(), {module :: atom(), id :: String.t(), assigns :: map(), any(), any()}}
+          {cid :: cid(), {module :: atom(), id :: String.t(), assigns :: map(), any(), any()}}
+
+  @type channel_state() :: %{
+          socket: channel_state_socket(),
+          components: {%{cid() => channel_state_component()}, any(), any()}
+        }
 
   @spec add_child(parent :: t(), child :: t()) :: t()
   def add_child(parent, child) do
@@ -40,18 +46,18 @@ defmodule LiveDebugger.Services.TreeNode do
   end
 
   @doc """
-  Parses state's socket to LiveDebugger.Services.TreeNode.LiveView.
+  Parses channel_state to LiveDebugger.Services.TreeNode.LiveView.
 
   ## Examples
 
       iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
-      iex> LiveDebugger.Services.TreeNode.live_view_node(state.socket)
+      iex> LiveDebugger.Services.TreeNode.live_view_node(state)
       {:ok, %LiveDebugger.Services.TreeNode.LiveView{...}}
   """
-  @spec live_view_node(socket :: channel_state_socket()) :: {:ok, t()} | {:error, term()}
-  def live_view_node(socket)
+  @spec live_view_node(channel_state :: channel_state()) :: {:ok, t()} | {:error, term()}
+  def live_view_node(channel_state)
 
-  def live_view_node(%{id: id, root_pid: pid, view: view, assigns: assigns}) do
+  def live_view_node(%{socket: %{id: id, root_pid: pid, view: view, assigns: assigns}}) do
     {:ok,
      %LiveViewNode{
        id: id,
@@ -62,28 +68,68 @@ defmodule LiveDebugger.Services.TreeNode do
      }}
   end
 
-  def live_view_node(_), do: {:error, :invalid_view}
+  def live_view_node(_), do: {:error, :invalid_channel_view}
 
   @doc """
-  Parses component from state to LiveDebugger.Services.TreeNode.LiveComponent.
+  Parses channel_state state to LiveDebugger.Services.TreeNode.LiveComponent of given CID.
+  If the component is not found, returns `nil`.
 
   ## Examples
 
       iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
-      iex> {components, _, _} <- Map.get(state, :components) do
-      iex> Enum.map(components, fn component ->
-      ...> {:ok, live_component} = live_component_node(component)
-      ...> end
-      [
-        {:ok, %LiveDebugger.Services.TreeNode.LiveComponent{...}},
-        {:ok, %LiveDebugger.Services.TreeNode.LiveComponent{...}}
-      ]
-  """
-  @spec live_component_node(component :: channel_state_component()) ::
-          {:ok, t()} | {:error, term()}
-  def live_component_node(component)
+      iex> LiveDebugger.Services.TreeNode.live_component_node(state, 2)
+      {:ok, %LiveDebugger.Services.TreeNode.LiveComponent{cid: 2, ...}}
 
-  def live_component_node({cid, {module, id, assigns, _, _}}) do
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
+      iex> LiveDebugger.Services.TreeNode.live_component_node(state, 999)
+      {:ok, nil}
+  """
+  @spec live_component_node(channel_state :: channel_state(), cid :: cid()) ::
+          {:ok, t() | nil} | {:error, term()}
+  def live_component_node(channel_state, cid)
+
+  def live_component_node(%{components: {components_map, _, _}}, cid) do
+    components_map
+    |> Enum.find(fn {component_cid, _} -> component_cid == cid end)
+    |> case do
+      nil ->
+        {:ok, nil}
+
+      channel_live_compoenet ->
+        parse_channel_live_compoennt(channel_live_compoenet)
+    end
+  end
+
+  def live_component_node(_, _), do: {:error, :invalid_channel_state}
+
+  @doc """
+  Parses channel_state to a list of all LiveDebugger.Services.TreeNode.LiveComponent nodes
+
+  ## Examples
+
+      iex> {:ok, state} = LiveDebugger.Services.get_channel_state(pid)
+      iex> LiveDebugger.Services.TreeNode.live_component_nodes(state)
+      {:ok, [%LiveDebugger.Services.TreeNode.LiveComponent{...}, ...]}
+  """
+  @spec live_component_nodes(channel_state :: channel_state()) :: {:ok, [t()]} | {:error, term()}
+  def live_component_nodes(channel_state)
+
+  def live_component_nodes(%{components: {components_map, _, _}}) do
+    Enum.reduce_while(components_map, {:ok, []}, fn channel_component, acc ->
+      case parse_channel_live_compoennt(channel_component) do
+        {:ok, component} ->
+          {:ok, acc_components} = acc
+          {:cont, {:ok, [component | acc_components]}}
+
+        {:error, _} ->
+          {:halt, {:error, :invalid_channel_component}}
+      end
+    end)
+  end
+
+  def live_component_nodes(_), do: {:error, :invalid_channel_state}
+
+  defp parse_channel_live_compoennt({cid, {module, id, assigns, _, _}}) do
     {:ok,
      %LiveComponentNode{
        id: id,
@@ -94,5 +140,5 @@ defmodule LiveDebugger.Services.TreeNode do
      }}
   end
 
-  def live_component_node(_), do: {:error, :invalid_component}
+  defp parse_channel_live_compoennt(_), do: {:error, :invalid_channel_component}
 end

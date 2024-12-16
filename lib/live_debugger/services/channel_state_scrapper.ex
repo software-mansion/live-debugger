@@ -19,25 +19,12 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
   def get_node_from_pid(pid, id) do
     with {:ok, channel_state} <- channel_state_from_pid(pid) do
       case id do
-        id when is_pid(id) ->
-          TreeNode.live_view_node(channel_state.socket)
+        pid when is_pid(pid) ->
+          TreeNode.live_view_node(channel_state)
 
-        id when is_integer(id) ->
-          live_component_from_state(channel_state, id)
+        cid when is_integer(cid) ->
+          TreeNode.live_component_node(channel_state, cid)
       end
-    end
-  end
-
-  defp live_component_from_state(channel_state, cid) do
-    channel_state
-    |> get_state_components()
-    |> Enum.find(fn {component_cid, _} -> component_cid == cid end)
-    |> case do
-      nil ->
-        {:ok, nil}
-
-      component ->
-        TreeNode.live_component_node(component)
     end
   end
 
@@ -62,15 +49,6 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
     end
   end
 
-  defp check_children(children, id) do
-    Enum.reduce_while(children, nil, fn child, _ ->
-      case get_node_by_id(child, id) do
-        nil -> {:cont, nil}
-        child -> {:halt, child}
-      end
-    end)
-  end
-
   @doc """
   Creates a tree with the root being a LiveDebugger.Services.TreeNode.LiveView.
 
@@ -82,31 +60,38 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
   """
   @spec build_tree(pid) :: {:ok, TreeNode.t()} | {:error, term()}
   def build_tree(pid) when is_pid(pid) do
-    with {:ok, state} <- channel_state_from_pid(pid),
-         {:ok, {root, live_elements}} <- get_tree_nodes(state) do
+    with {:ok, channel_state} <- channel_state_from_pid(pid),
+         {:ok, live_view} <- TreeNode.live_view_node(channel_state),
+         {:ok, live_components} <- TreeNode.live_component_nodes(channel_state) do
       cids_tree =
-        state
+        channel_state
         |> children_cids_mapping()
         |> tree_merge(nil)
 
-      {:ok, add_children(root, cids_tree, live_elements)}
+      {:ok, add_children(live_view, cids_tree, live_components)}
     end
   end
 
-  defp get_tree_nodes(%{socket: socket} = channel_state) do
-    with {:ok, root} <- TreeNode.live_view_node(socket) do
-      elements =
-        channel_state
-        |> get_state_components()
-        |> Enum.map(fn component ->
-          case TreeNode.live_component_node(component) do
-            {:ok, live_component} -> live_component
-            {:error, _} -> nil
-          end
-        end)
+  defp add_children(parent_element, nil, _live_components), do: parent_element
 
-      {:ok, {root, elements}}
-    end
+  defp add_children(parent_element, children_cids_map, live_components) do
+    Enum.reduce(children_cids_map, parent_element, fn {cid, children_cids_map}, parent_element ->
+      child =
+        live_components
+        |> Enum.find(fn element -> element.cid == cid end)
+        |> add_children(children_cids_map, live_components)
+
+      TreeNode.add_child(parent_element, child)
+    end)
+  end
+
+  defp check_children(children, id) do
+    Enum.reduce_while(children, nil, fn child, _ ->
+      case get_node_by_id(child, id) do
+        nil -> {:cont, nil}
+        child -> {:halt, child}
+      end
+    end)
   end
 
   defp children_cids_mapping(channel_state) do
@@ -154,18 +139,5 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
         end)
         |> Enum.into(%{})
     end
-  end
-
-  defp add_children(parent_element, nil, _live_components), do: parent_element
-
-  defp add_children(parent_element, children_cids_map, live_components) do
-    Enum.reduce(children_cids_map, parent_element, fn {cid, children_cids_map}, parent_element ->
-      child =
-        live_components
-        |> Enum.find(fn element -> element.cid == cid end)
-        |> add_children(children_cids_map, live_components)
-
-      TreeNode.add_child(parent_element, child)
-    end)
   end
 end
