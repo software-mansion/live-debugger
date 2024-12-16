@@ -16,37 +16,13 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div :if={@debugged_pid.status == :loading} class="h-full flex items-center justify-center">
-      <.spinner size="md" />
-    </div>
-    <div :if={@debugged_pid.status == :ok}>
-      <.container max_width="full">
-        <div>Monitored socket: <span class="text-blue-500">{@socket_id}</span></div>
-        <div>Debugged PID: <span class="text-blue-500">{inspect(@debugged_pid.result)}</span></div>
-      </.container>
-    </div>
-    <div
-      :if={@debugged_pid.status == :not_found}
-      class="h-full flex flex-col items-center justify-center mx-8"
-    >
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
-      <.h2 class="text-center">Debugger disconnected</.h2>
-      <.h5 class="text-center">
-        We couldn't find any LiveView associated with the given socket id
-      </.h5>
-      <span>You can close this window</span>
-    </div>
-    <div
-      :if={@debugged_pid.status == :error}
-      class="h-full flex flex-col items-center justify-center mx-8"
-    >
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
-      <.h2 class="text-center">Unexpected error</.h2>
-      <.h5 class="text-center">
-        Debugger encountered unexpected error - check logs for more
-      </.h5>
-      <span>You can close this window</span>
-    </div>
+    <.loading_variant :if={@debugged_pid.status == :loading} />
+    <.not_found_component :if={@debugged_pid.status == :not_found} />
+    <.error_component :if={@debugged_pid.status == :error} />
+    <.container :if={@debugged_pid.status == :ok} max_width="full">
+      <div>Monitored socket: <span class="text-blue-500">{@socket_id}</span></div>
+      <div>Debugged PID: <span class="text-blue-500">{inspect(@debugged_pid.result)}</span></div>
+    </.container>
     """
   end
 
@@ -82,6 +58,40 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     socket
     |> assign_async_debugged_pid()
     |> noreply()
+  end
+
+  defp loading_variant(assigns) do
+    ~H"""
+    <div class="h-full flex items-center justify-center">
+      <.spinner size="md" />
+    </div>
+    """
+  end
+
+  defp not_found_component(assigns) do
+    ~H"""
+    <div class="h-full flex flex-col items-center justify-center mx-8">
+      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.h2 class="text-center">Debugger disconnected</.h2>
+      <.h5 class="text-center">
+        We couldn't find any LiveView associated with the given socket id
+      </.h5>
+      <span>You can close this window</span>
+    </div>
+    """
+  end
+
+  defp error_component(assigns) do
+    ~H"""
+    <div class="h-full flex flex-col items-center justify-center mx-8">
+      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.h2 class="text-center">Unexpected error</.h2>
+      <.h5 class="text-center">
+        Debugger encountered unexpected error - check logs for more
+      </.h5>
+      <span>You can close this window</span>
+    </div>
+    """
   end
 
   defp assign_async_debugged_pid(socket) do
