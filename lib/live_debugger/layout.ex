@@ -30,11 +30,17 @@ defmodule LiveDebugger.Layout do
         {custom_head_tags(assigns, :before_closing_head_tag)}
       </head>
       <body>
-        <div class="h-screen">
-          {@inner_content}
-        </div>
+        {@inner_content}
       </body>
     </html>
+    """
+  end
+
+  def render("app.html", assigns) do
+    ~H"""
+    <main class="h-screen w-screen">
+      {@inner_content}
+    </main>
     """
   end
 
