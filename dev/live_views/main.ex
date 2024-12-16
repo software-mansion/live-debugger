@@ -46,6 +46,9 @@ defmodule LiveDebuggerDev.LiveViews.Main do
           </.live_component>
         </div>
       </.box>
+      <div class="mt-10">
+        <.link navigate="/side" class="text-blue-500 underline">Go to side</.link>
+      </div>
     </div>
     """
   end

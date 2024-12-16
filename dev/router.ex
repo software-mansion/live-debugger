@@ -14,6 +14,7 @@ defmodule LiveDebuggerDev.Router do
     pipe_through(:browser)
 
     live("/", LiveDebuggerDev.LiveViews.Main)
+    live("/side", LiveDebuggerDev.LiveViews.Side)
     live_debugger("/live_debug")
   end
 end
