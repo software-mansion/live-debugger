@@ -1,7 +1,7 @@
-defmodule LiveDebugger.Services.ChannelStateScrapper do
+defmodule LiveDebugger.Services.ChannelStateScraper do
   alias LiveDebugger.Services.TreeNode
 
-  import LiveDebugger.Services.LiveViewScrapper
+  import LiveDebugger.Services.LiveViewScraper
 
   @doc """
   Retrieves a TreeNode with the given `id` from the process identified by `pid`.
@@ -10,8 +10,8 @@ defmodule LiveDebugger.Services.ChannelStateScrapper do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Services.LiveViewScrapper.channel_state_from_pid(pid)
-      iex> LiveDebugger.Services.ChannelStateScrapper.get_node_from_pid(pid, 2)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
+      iex> LiveDebugger.Services.ChannelStateScraper.get_node_from_pid(pid, 2)
       %LiveDebugger.Services.TreeNode.LiveComponent{...}
   """
   @spec get_node_from_pid(pid :: pid(), id :: TreeNode.id()) ::
@@ -47,9 +47,9 @@ defmodule LiveDebugger.Services.ChannelStateScrapper do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Services.LiveViewScrapper.channel_state_from_pid(pid)
-      iex> tree = LiveDebugger.Services.ChannelStateScrapper.build_tree(state)
-      iex> LiveDebugger.Services.ChannelStateScrapper.get_node_by_id(tree, 1)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
+      iex> tree = LiveDebugger.Services.ChannelStateScraper.build_tree(state)
+      iex> LiveDebugger.Services.ChannelStateScraper.get_node_by_id(tree, 1)
       %LiveDebugger.Services.TreeNode.LiveComponent{...}
   """
   @spec get_node_by_id(tree :: TreeNode.t(), id :: TreeNode.id()) :: TreeNode.t() | nil
@@ -76,8 +76,8 @@ defmodule LiveDebugger.Services.ChannelStateScrapper do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Services.LiveViewScrapper.channel_state_from_pid(pid)
-      iex> LiveDebugger.Services.ChannelStateScrapper.build_tree(state)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
+      iex> LiveDebugger.Services.ChannelStateScraper.build_tree(state)
       {:ok, %LiveDebugger.Services.TreeNode.LiveView{...}}
   """
   @spec build_tree(pid) :: {:ok, TreeNode.t()} | {:error, term()}

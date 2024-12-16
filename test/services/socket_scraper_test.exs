@@ -1,7 +1,7 @@
-defmodule LiveDebugger.Services.ChannelStateScrapperTest do
+defmodule LiveDebugger.Services.ChannelStateScraperTest do
   use LiveDebugger.ProcessCase, async: true
 
-  alias LiveDebugger.Services.ChannelStateScrapper
+  alias LiveDebugger.Services.ChannelStateScraper
   alias LiveDebugger.Services.TreeNode
 
   test "build_tree/1 creates tree of components", %{pid: pid} do
@@ -32,37 +32,37 @@ defmodule LiveDebugger.Services.ChannelStateScrapperTest do
                   children: []
                 }
               ]
-            }} = ChannelStateScrapper.build_tree(pid)
+            }} = ChannelStateScraper.build_tree(pid)
   end
 
   describe "get_node_from_pid/2 " do
     test "returns live view node", %{pid: pid} do
-      assert {:ok, live_view} = ChannelStateScrapper.get_node_from_pid(pid, pid)
+      assert {:ok, live_view} = ChannelStateScraper.get_node_from_pid(pid, pid)
       assert %TreeNode.LiveView{pid: ^pid} = live_view
     end
 
     test "returns live component node", %{pid: pid} do
-      assert {:ok, live_component} = ChannelStateScrapper.get_node_from_pid(pid, 1)
+      assert {:ok, live_component} = ChannelStateScraper.get_node_from_pid(pid, 1)
       assert %TreeNode.LiveComponent{id: "live_first"} = live_component
     end
   end
 
   describe "get_node_by_id " do
     test "returns live view node", %{pid: pid} do
-      {:ok, tree} = ChannelStateScrapper.build_tree(pid)
-      assert %TreeNode.LiveView{pid: ^pid} = ChannelStateScrapper.get_node_by_id(tree, pid)
+      {:ok, tree} = ChannelStateScraper.build_tree(pid)
+      assert %TreeNode.LiveView{pid: ^pid} = ChannelStateScraper.get_node_by_id(tree, pid)
     end
 
     test "returns live component node", %{pid: pid} do
-      {:ok, tree} = ChannelStateScrapper.build_tree(pid)
+      {:ok, tree} = ChannelStateScraper.build_tree(pid)
 
       assert %TreeNode.LiveComponent{id: "live_first"} =
-               ChannelStateScrapper.get_node_by_id(tree, 1)
+               ChannelStateScraper.get_node_by_id(tree, 1)
     end
 
     test "returns `nil` when node is not found", %{pid: pid} do
-      {:ok, tree} = ChannelStateScrapper.build_tree(pid)
-      assert is_nil(ChannelStateScrapper.get_node_by_id(tree, 100))
+      {:ok, tree} = ChannelStateScraper.build_tree(pid)
+      assert is_nil(ChannelStateScraper.get_node_by_id(tree, 100))
     end
   end
 end

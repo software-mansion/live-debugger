@@ -44,7 +44,7 @@ defmodule LiveDebugger.Services.TreeNode do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Services.LiveViewScrapper.channel_state_from_pid(pid)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
       iex> LiveDebugger.Services.TreeNode.live_view_node(state.socket)
       {:ok, %LiveDebugger.Services.TreeNode.LiveView{...}}
   """
@@ -69,7 +69,7 @@ defmodule LiveDebugger.Services.TreeNode do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Services.LiveViewScrapper.channel_state_from_pid(pid)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
       iex> {components, _, _} <- Map.get(state, :components) do
       iex> Enum.map(components, fn component ->
       ...> {:ok, live_component} = live_component_node(component)

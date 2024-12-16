@@ -3,7 +3,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
   require Logger
 
-  alias LiveDebugger.Service.LiveViewScraper
+  alias LiveDebugger.Services.LiveViewScraper
 
   @impl true
   def mount(%{"socket_id" => socket_id}, _session, socket) do
