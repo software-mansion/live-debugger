@@ -22,9 +22,11 @@ defmodule LiveDebuggerDev.Components do
   defp text_color("red"), do: "text-red-500"
   defp text_color("green"), do: "text-green-500"
   defp text_color("purple"), do: "text-purple-500"
+  defp text_color("gray"), do: "text-gray-500"
 
   defp border_color("blue"), do: "border-blue-500"
   defp border_color("red"), do: "border-red-500"
   defp border_color("green"), do: "border-green-500"
   defp border_color("purple"), do: "border-purple-500"
+  defp border_color("gray"), do: "border-gray-500"
 end

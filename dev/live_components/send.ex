@@ -1,11 +1,5 @@
 defmodule LiveDebuggerDev.LiveComponents.Send do
-  use Phoenix.LiveComponent
-
-  import LiveDebuggerDev.Components
-
-  def mount(socket) do
-    {:ok, socket}
-  end
+  use DevWeb, :live_component
 
   slot(:inner_block)
 

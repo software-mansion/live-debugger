@@ -28,6 +28,7 @@ defmodule LiveDebugger.MixProject do
     [
       setup: ["deps.get", "cmd --cd assets npm install", "assets.setup", "assets.build"],
       dev: "run --no-halt dev.exs",
+      "js.format": ["cmd --cd assets prettier . --write"],
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
       "assets.build": ["esbuild default --minify", "tailwind live_debugger --minify"]
     ]

@@ -1,11 +1,5 @@
 defmodule LiveDebuggerDev.LiveComponents.Name do
-  use Phoenix.LiveComponent
-
-  import LiveDebuggerDev.Components
-
-  def mount(socket) do
-    {:ok, socket}
-  end
+  use DevWeb, :live_component
 
   def update(assigns, socket) do
     {:ok, assign(socket, name: assigns.name)}
