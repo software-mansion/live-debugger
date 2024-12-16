@@ -104,8 +104,6 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
            nil <- fetch_pid_after(socket_id, 800),
            nil <- fetch_pid_after(socket_id, 1000) do
         nil
-      else
-        pid -> pid
       end
     end)
   end
