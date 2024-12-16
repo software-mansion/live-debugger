@@ -5,9 +5,9 @@ defmodule LiveDebuggerWeb do
         layout: {LiveDebugger.Layout, :app}
 
       import Phoenix.HTML
+      import LiveDebuggerWeb.Helpers
 
       unquote(petal_components())
-      unquote(helpers())
     end
   end
 
@@ -16,9 +16,9 @@ defmodule LiveDebuggerWeb do
       use Phoenix.LiveComponent
 
       import Phoenix.HTML
+      import LiveDebuggerWeb.Helpers
 
       unquote(petal_components())
-      unquote(helpers())
     end
   end
 
@@ -34,14 +34,12 @@ defmodule LiveDebuggerWeb do
     end
   end
 
-  defp helpers do
-    quote do
-      def ok(socket), do: {:ok, socket}
-      def noreply(socket), do: {:noreply, socket}
-    end
-  end
-
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
   end
+end
+
+defmodule LiveDebuggerWeb.Helpers do
+  def ok(socket), do: {:ok, socket}
+  def noreply(socket), do: {:noreply, socket}
 end
