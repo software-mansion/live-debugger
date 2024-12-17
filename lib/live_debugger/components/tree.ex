@@ -7,38 +7,22 @@ defmodule LiveDebugger.Components.Tree do
   alias LiveDebugger.Services.TreeNode
 
   @doc """
-  Tree component to render tree of live view and it's live components.
+  Tree component to recursively render tree of live view and its live components.
   You need to pass TreeNode struct to render the tree.
   This component emits `select_node` event with 'selected_id` param when a node is clicked.
   """
 
-  attr(:tree, :any, required: true, doc: "The TreeNode struct to render")
+  attr(:tree_node, :any, required: true, doc: "The TreeNode struct to render")
   attr(:event_target, :any, required: true, doc: "The target for the click event")
+  attr(:add_padding?, :boolean, default: false, doc: "Add padding to the tree node")
   attr(:selected_node_id, :string, default: nil, doc: "The id of the selected node")
 
   def tree(assigns) do
-    assigns = assign(assigns, :tree, format_tree(assigns.tree))
-
-    ~H"""
-    <.tree_node
-      node={@tree}
-      event_target={@event_target}
-      add_padding?={false}
-      selected_node_id={@selected_node_id}
-    />
-    """
-  end
-
-  attr(:node, :any, required: true)
-  attr(:event_target, :any, required: true)
-  attr(:add_padding?, :boolean, default: true)
-  attr(:selected_node_id, :string)
-
-  defp tree_node(assigns) do
     assigns =
       assigns
-      |> assign(:collapsible?, length(assigns.node.children) > 0)
-      |> assign(:selected?, assigns.node.id == assigns.selected_node_id)
+      |> assign(:tree_node, format_tree_node(assigns.tree_node))
+      |> assign(:collapsible?, length(assigns.tree_node.children) > 0)
+      |> assign(:selected?, assigns.tree_node.id == assigns.selected_node_id)
 
     ~H"""
     <div class="relative flex flex-row">
@@ -49,16 +33,22 @@ defmodule LiveDebugger.Components.Tree do
         if(@selected?, do: "bg-primary-100"),
         if(@add_padding?, do: "ml-3")
       ]}>
-        <.collapsible :if={@collapsible?} id={@node.id} open={true} chevron_class="text-primary-500">
+        <.collapsible
+          :if={@collapsible?}
+          id={@tree_node.id}
+          open={true}
+          chevron_class="text-primary-500"
+        >
           <:label>
-            <.label selected?={@selected?} event_target={@event_target} node={@node} />
+            <.label selected?={@selected?} event_target={@event_target} node={@tree_node} />
           </:label>
           <div class="flex flex-col">
-            <.tree_node
-              :for={child <- @node.children}
+            <.tree
+              :for={child <- @tree_node.children}
+              tree_node={child}
               selected_node_id={@selected_node_id}
-              node={child}
               event_target={@event_target}
+              add_padding?={true}
             />
           </div>
         </.collapsible>
@@ -66,7 +56,7 @@ defmodule LiveDebugger.Components.Tree do
           :if={not @collapsible?}
           selected?={@selected?}
           event_target={@event_target}
-          node={@node}
+          node={@tree_node}
         />
       </div>
     </div>
@@ -93,28 +83,24 @@ defmodule LiveDebugger.Components.Tree do
     """
   end
 
-  defp format_tree(tree) do
-    children = Enum.map(tree.children, &format_tree/1)
+  defp format_tree_node(node = %TreeNode.LiveView{}) do
+    %{
+      id: node.id,
+      label: short_name(node.module),
+      tooltip: Atom.to_string(node.module),
+      children: node.children,
+      icon: "hero-tv"
+    }
+  end
 
-    case tree do
-      %TreeNode.LiveView{} ->
-        %{
-          id: tree.id,
-          label: short_name(tree.module),
-          tooltip: Atom.to_string(tree.module),
-          children: children,
-          icon: "hero-tv"
-        }
-
-      %TreeNode.LiveComponent{} ->
-        %{
-          id: tree.id,
-          label: "#{short_name(tree.module)} (#{tree.cid})",
-          tooltip: Atom.to_string(tree.module),
-          children: children,
-          icon: "hero-cube"
-        }
-    end
+  defp format_tree_node(node = %TreeNode.LiveComponent{}) do
+    %{
+      id: node.id,
+      label: "#{short_name(node.module)} (#{node.cid})",
+      tooltip: Atom.to_string(node.module),
+      children: node.children,
+      icon: "hero-cube"
+    }
   end
 
   defp short_name(module) when is_atom(module) do

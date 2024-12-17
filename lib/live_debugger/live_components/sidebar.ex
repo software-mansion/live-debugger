@@ -30,7 +30,12 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     ~H"""
     <div class="w-[20vw] h-screen p-2 border-r-2 border-primary-500 ">
       <.h3 class="text-primary-500">Components Tree</.h3>
-      <.tree :if={@tree} selected_node_id={@selected_node_id} tree={@tree} event_target={@myself} />
+      <.tree
+        :if={@tree}
+        selected_node_id={@selected_node_id}
+        tree_node={@tree}
+        event_target={@myself}
+      />
     </div>
     """
   end
