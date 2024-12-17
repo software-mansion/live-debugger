@@ -25,39 +25,48 @@ defmodule LiveDebugger.Components.Tree do
       |> assign(:selected?, assigns.tree_node.id == assigns.selected_node_id)
 
     ~H"""
-    <div class="relative flex flex-row min-w-max">
-      <div :if={@add_padding?} class="absolute top-0 left-2 h-full border-l-2 border-primary-300">
+    <div class="relative flex max-w-full">
+      <div
+        :if={@add_padding? and not @selected?}
+        class="absolute top-0 left-2 h-full border-l-2 border-primary-300"
+      >
       </div>
       <div class={[
-        "w-full rounded-lg p-1",
-        if(@selected?, do: "bg-primary-100"),
-        if(@add_padding?, do: "ml-3")
+        "w-full",
+        if(@add_padding?, do: "pl-2")
       ]}>
-        <.collapsible
-          :if={@collapsible?}
-          id={@tree_node.id}
-          open={true}
-          chevron_class="text-primary-500 mb-1"
-        >
-          <:label>
-            <.label selected?={@selected?} event_target={@event_target} node={@tree_node} />
-          </:label>
-          <div class="flex flex-col">
-            <.tree
-              :for={child <- @tree_node.children}
-              tree_node={child}
-              selected_node_id={@selected_node_id}
-              event_target={@event_target}
-              add_padding?={true}
-            />
-          </div>
-        </.collapsible>
-        <.label
-          :if={not @collapsible?}
-          selected?={@selected?}
-          event_target={@event_target}
-          node={@tree_node}
-        />
+        <div class={[
+          "w-full rounded-lg p-1",
+          if(@selected?, do: "bg-primary-100")
+        ]}>
+          <.collapsible
+            :if={@collapsible?}
+            id={@tree_node.id}
+            open={true}
+            chevron_class="text-primary-500 mb-1"
+            class="w-full"
+          >
+            <:label>
+              <.label selected?={@selected?} event_target={@event_target} node={@tree_node} />
+            </:label>
+            <div class="flex flex-col">
+              <.tree
+                :for={child <- @tree_node.children}
+                tree_node={child}
+                selected_node_id={@selected_node_id}
+                event_target={@event_target}
+                add_padding?={true}
+              />
+            </div>
+          </.collapsible>
+          <.label
+            :if={not @collapsible?}
+            selected?={@selected?}
+            event_target={@event_target}
+            node={@tree_node}
+            class="pl-[1.8rem]"
+          />
+        </div>
       </div>
     </div>
     """
@@ -66,14 +75,20 @@ defmodule LiveDebugger.Components.Tree do
   attr(:node, :any, required: true)
   attr(:event_target, :any, required: true)
   attr(:selected?, :boolean, default: false)
+  attr(:class, :string, default: nil)
 
   defp label(assigns) do
     ~H"""
-    <button phx-click="select_node" phx-value-selected_id={@node.id} phx-target={@event_target}>
-      <.tooltip>
-        <div class="flex gap-1 items-center">
+    <button
+      phx-click="select_node"
+      phx-value-selected_id={@node.id}
+      phx-target={@event_target}
+      class={["flex w-full", @class]}
+    >
+      <.tooltip class="flex w-full">
+        <div class="flex gap-1 items-center" style="width: calc(100% - 1rem)">
           <.icon name={@node.icon} class="shrink-0" />
-          <.h5 no_margin={true} class={["", if(@selected?, do: "text-primary-500")]}>
+          <.h5 no_margin={true} class={["truncate", if(@selected?, do: "text-primary-500")]}>
             {@node.label}
           </.h5>
         </div>
