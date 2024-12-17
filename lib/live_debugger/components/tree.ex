@@ -6,56 +6,90 @@ defmodule LiveDebugger.Components.Tree do
 
   alias LiveDebugger.Services.TreeNode
 
+  @doc """
+  Tree component to render tree of live view and it's live components.
+  You need to pass TreeNode struct to render the tree.
+  This component emits `select_node` event with 'selected_id` param when a node is clicked.
+  """
+
   attr(:tree, :any, required: true, doc: "The TreeNode struct to render")
+  attr(:event_target, :any, required: true, doc: "The target for the click event")
+  attr(:selected_node_id, :string, default: nil, doc: "The id of the selected node")
 
   def tree(assigns) do
     assigns = assign(assigns, :tree, format_tree(assigns.tree))
 
     ~H"""
-    <.tree_node node={@tree} padding={0} />
+    <.tree_node
+      node={@tree}
+      event_target={@event_target}
+      add_padding?={false}
+      selected_node_id={@selected_node_id}
+    />
     """
   end
 
   attr(:node, :any, required: true)
-  attr(:padding, :integer, default: 0)
+  attr(:event_target, :any, required: true)
+  attr(:add_padding?, :boolean, default: true)
+  attr(:selected_node_id, :string)
 
   defp tree_node(assigns) do
-    assigns = assign(assigns, :collapsible?, length(assigns.node.children) > 0)
+    assigns =
+      assigns
+      |> assign(:collapsible?, length(assigns.node.children) > 0)
+      |> assign(:selected?, assigns.node.id == assigns.selected_node_id)
 
     ~H"""
-    <div style={"padding-left: #{@padding}rem;"} class="w-full">
-      <.collapsible
-        :if={@collapsible?}
-        id={@node.id}
-        style="padding-left: #{@padding}rem;"
-        open={true}
-        chevron_class="text-primary-500"
-      >
-        <:label>
-          <.label node={@node} />
-        </:label>
-        <div class="flex flex-col" style="padding-left: #{@padding}rem;">
-          <.tree_node :for={child <- @node.children} node={child} padding={@padding + 1} />
-        </div>
-      </.collapsible>
-      <.label :if={not @collapsible?} node={@node} />
+    <div class="relative flex flex-row">
+      <div :if={@add_padding?} class="absolute top-0 left-2 h-full border-l-2 border-primary-300">
+      </div>
+      <div class={[
+        "w-full rounded-lg p-1",
+        if(@selected?, do: "bg-primary-100"),
+        if(@add_padding?, do: "ml-3")
+      ]}>
+        <.collapsible :if={@collapsible?} id={@node.id} open={true} chevron_class="text-primary-500">
+          <:label>
+            <.label selected?={@selected?} event_target={@event_target} node={@node} />
+          </:label>
+          <div class="flex flex-col">
+            <.tree_node
+              :for={child <- @node.children}
+              selected_node_id={@selected_node_id}
+              node={child}
+              event_target={@event_target}
+            />
+          </div>
+        </.collapsible>
+        <.label
+          :if={not @collapsible?}
+          selected?={@selected?}
+          event_target={@event_target}
+          node={@node}
+        />
+      </div>
     </div>
     """
   end
 
   attr(:node, :any, required: true)
+  attr(:event_target, :any, required: true)
+  attr(:selected?, :boolean, default: false)
 
   defp label(assigns) do
     ~H"""
-    <.tooltip class="hover:bg-primary-100 hover:p-1 rounded-lg">
-      <div class="flex gap-1">
-        <.icon name={@node.icon} />
-        <.h5 no_margin={true}>{@node.label}</.h5>
-      </div>
-      <.tooltip_content side="bottom" align="start" class="bg-white">
-        {@node.tooltip}
-      </.tooltip_content>
-    </.tooltip>
+    <button phx-click="select_node" phx-value-selected_id={@node.id} phx-target={@event_target}>
+      <.tooltip>
+        <div class="flex gap-1 items-center">
+          <.icon name={@node.icon} />
+          <.h5 no_margin={true} class={if(@selected?, do: "text-primary-500")}>{@node.label}</.h5>
+        </div>
+        <.tooltip_content side="bottom" align="start" class="bg-white">
+          {@node.tooltip}
+        </.tooltip_content>
+      </.tooltip>
+    </button>
     """
   end
 

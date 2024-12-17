@@ -8,14 +8,19 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   alias LiveDebugger.Services.ChannelStateScraper
 
+  @impl true
   def mount(socket) do
-    {:ok, socket}
+    socket
+    |> assign(selected_node_id: nil)
+    |> ok()
   end
 
+  @impl true
   def update(assigns, socket) do
     socket
     |> assign(assigns)
     |> assign_tree()
+    |> maybe_assign_selected_node()
     |> ok()
   end
 
@@ -23,11 +28,16 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   def render(assigns) do
     ~H"""
-    <div class="min-w-max h-screen p-2 border-r-2 border-primary-500 ">
-      <.h4 class="text-primary-500">LiveView Tree</.h4>
-      <.tree :if={@tree} tree={@tree} />
+    <div class="w-[20vw] h-screen p-2 border-r-2 border-primary-500 ">
+      <.h3 class="text-primary-500">Components Tree</.h3>
+      <.tree :if={@tree} selected_node_id={@selected_node_id} tree={@tree} event_target={@myself} />
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("select_node", %{"selected_id" => selected_id}, socket) do
+    {:noreply, assign(socket, selected_node_id: selected_id)}
   end
 
   defp assign_tree(socket) do
@@ -37,6 +47,13 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
       {:error, _} ->
         assign(socket, tree: nil)
+    end
+  end
+
+  defp maybe_assign_selected_node(socket) do
+    case socket.assigns.selected_node_id do
+      nil -> assign(socket, selected_node_id: socket.assigns.tree.id)
+      _ -> socket
     end
   end
 end
