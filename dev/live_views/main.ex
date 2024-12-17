@@ -44,6 +44,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
           <.live_component id="send_outer" module={LiveComponents.Send}>
             <.live_component id="name_inner" name={@name} module={LiveComponents.Name} />
           </.live_component>
+          <.live_component id="reccursive" counter={5} module={LiveComponents.Reccursive} />
         </div>
       </.box>
       <div class="mt-10">

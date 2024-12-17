@@ -28,7 +28,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   def render(assigns) do
     ~H"""
-    <div class="w-[20vw] h-screen p-2 border-r-2 border-primary-500 ">
+    <div class="w-[20vw] min-w-56 h-screen p-2 border-r-2 border-primary-500 overflow-y-auto">
       <.h3 class="text-primary-500">Components Tree</.h3>
       <.tree
         :if={@tree}

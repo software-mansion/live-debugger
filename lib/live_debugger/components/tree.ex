@@ -25,7 +25,7 @@ defmodule LiveDebugger.Components.Tree do
       |> assign(:selected?, assigns.tree_node.id == assigns.selected_node_id)
 
     ~H"""
-    <div class="relative flex flex-row">
+    <div class="relative flex flex-row min-w-max">
       <div :if={@add_padding?} class="absolute top-0 left-2 h-full border-l-2 border-primary-300">
       </div>
       <div class={[
@@ -73,7 +73,9 @@ defmodule LiveDebugger.Components.Tree do
       <.tooltip>
         <div class="flex gap-1 items-center">
           <.icon name={@node.icon} />
-          <.h5 no_margin={true} class={if(@selected?, do: "text-primary-500")}>{@node.label}</.h5>
+          <.h5 no_margin={true} class={["truncate max-w-max", if(@selected?, do: "text-primary-500")]}>
+            {@node.label}
+          </.h5>
         </div>
         <.tooltip_content side="bottom" align="start" class="bg-white">
           {@node.tooltip}
@@ -87,7 +89,7 @@ defmodule LiveDebugger.Components.Tree do
     %{
       id: node.id,
       label: short_name(node.module),
-      tooltip: Atom.to_string(node.module),
+      tooltip: "#{Atom.to_string(node.module)} (#{inspect(node.pid)})",
       children: node.children,
       icon: "hero-tv"
     }
@@ -97,7 +99,7 @@ defmodule LiveDebugger.Components.Tree do
     %{
       id: node.id,
       label: "#{short_name(node.module)} (#{node.cid})",
-      tooltip: Atom.to_string(node.module),
+      tooltip: "#{Atom.to_string(node.module)} (#{node.cid})",
       children: node.children,
       icon: "hero-cube"
     }
