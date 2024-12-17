@@ -1,0 +1,79 @@
+defmodule LiveDebugger.Services.TreeNodeTest do
+  use ExUnit.Case, async: true
+
+  alias LiveDebugger.Services.TreeNode
+
+  test "add_child/2" do
+    parent = %TreeNode.LiveView{children: []}
+    child = %TreeNode.LiveComponent{cid: 1}
+
+    assert TreeNode.add_child(parent, child) == %TreeNode.LiveView{children: [child]}
+  end
+
+  test "get_child/2 with cid" do
+    parent = %TreeNode.LiveView{children: [%TreeNode.LiveComponent{cid: 1}]}
+
+    assert [TreeNode.get_child(parent, 1)] == parent.children
+  end
+
+  test "get_child/2 with pid" do
+    pid = :c.pid(0, 0, 0)
+    parent = %TreeNode.LiveView{children: [%TreeNode.LiveView{pid: pid}]}
+
+    assert parent.children == [TreeNode.get_child(parent, pid)]
+  end
+
+  test "live_view_node/1 with valid channel_state" do
+    pid = :c.pid(0, 0, 0)
+
+    state = %{
+      socket: %{
+        id: 1,
+        root_pid: pid,
+        view: :view,
+        assigns: %{}
+      }
+    }
+
+    assert {:ok, %TreeNode.LiveView{id: 1, pid: ^pid, module: :view, assigns: %{}, children: []}} =
+             TreeNode.live_view_node(state)
+  end
+
+  test "live_view_node/1 with invalid view" do
+    assert TreeNode.live_view_node(%{}) == {:error, :invalid_channel_view}
+  end
+
+  test "live_component_node/2 with valid channel_state and existing live_compoennt" do
+    channel_state = %{components: {%{1 => {:module, "component-id", %{}, nil, nil}}, nil, nil}}
+
+    assert {:ok, %TreeNode.LiveComponent{cid: 1, module: :module}} =
+             TreeNode.live_component_node(channel_state, 1)
+  end
+
+  test "live_component_node/2 with valid channel_state and non-existing live_compoennt" do
+    channel_state = %{components: {%{1 => {:module, "component-id", %{}, nil, nil}}, nil, nil}}
+
+    assert {:ok, nil} = TreeNode.live_component_node(channel_state, 2)
+  end
+
+  test "live_component_node/2 with invalid channel_state" do
+    component = %{}
+
+    assert {:error, :invalid_channel_state} = TreeNode.live_component_node(component, 1)
+  end
+
+  test "live_component_nodes/1 with valid channel_state" do
+    channel_state = %{
+      components:
+        {%{
+           1 => {:module, "component-id-2", %{}, nil, nil},
+           2 => {:module, "component-id-2", %{}, nil, nil}
+         }, nil, nil}
+    }
+
+    assert {:ok, live_components} =
+             TreeNode.live_component_nodes(channel_state)
+
+    assert length(live_components) == 2
+  end
+end

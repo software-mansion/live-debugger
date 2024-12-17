@@ -21,6 +21,7 @@ defmodule LiveDebugger.MixProject do
   end
 
   defp elixirc_paths(:dev), do: ["lib", "dev"]
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
   defp aliases do
@@ -46,7 +47,8 @@ defmodule LiveDebugger.MixProject do
       {:bandit, "~> 1.6"},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:esbuild, "~> 0.7", only: :dev},
-      {:tailwind, "~> 0.2", only: :dev}
+      {:tailwind, "~> 0.2", only: :dev},
+      {:mox, "~> 1.2", only: :test}
     ]
   end
 end
