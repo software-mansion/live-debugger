@@ -18,13 +18,23 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.loading_variant :if={@debugged_pid.status == :loading} />
-    <.not_found_component :if={@debugged_pid.status == :not_found} />
-    <.error_component :if={@debugged_pid.status == :error} />
-    <.container :if={@debugged_pid.status == :ok} max_width="full">
-      <div>Monitored socket: <span class="text-blue-500">{@socket_id}</span></div>
-      <div>Debugged PID: <span class="text-blue-500">{inspect(@debugged_pid.result)}</span></div>
-    </.container>
+    <div class="w-full flex flex-row">
+      <.live_component
+        :if={@debugged_pid.status == :ok}
+        id="sidebar"
+        module={LiveDebugger.LiveComponents.Sidebar}
+        pid={@debugged_pid.result}
+      />
+      <div>
+        <.loading_variant :if={@debugged_pid.status == :loading} />
+        <.not_found_component :if={@debugged_pid.status == :not_found} />
+        <.error_component :if={@debugged_pid.status == :error} />
+        <.container :if={@debugged_pid.status == :ok} max_width="full">
+          <div>Monitored socket: <span class="text-blue-500">{@socket_id}</span></div>
+          <div>Debugged PID: <span class="text-blue-500">{inspect(@debugged_pid.result)}</span></div>
+        </.container>
+      </div>
+    </div>
     """
   end
 
