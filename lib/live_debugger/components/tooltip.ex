@@ -81,7 +81,7 @@ defmodule LiveDebugger.Components.Tooltip do
     }
   }
 
-  defp side_variant(side, align \\ "center") do
+  defp side_variant(side, align) do
     Enum.map_join(%{side: side, align: align(align, side)}, " ", fn {key, value} ->
       @variants[key][value]
     end)
