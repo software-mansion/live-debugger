@@ -64,9 +64,6 @@ defmodule LiveDebugger.Components.Tooltip do
     """
   end
 
-  @doc """
-  Variant helper for generating classes based on side and align
-  """
   @variants %{
     side: %{
       "top" => "bottom-full mb-2",
@@ -84,8 +81,7 @@ defmodule LiveDebugger.Components.Tooltip do
     }
   }
 
-  @spec side_variant(String.t(), String.t()) :: String.t()
-  def side_variant(side, align \\ "center") do
+  defp side_variant(side, align \\ "center") do
     Enum.map_join(%{side: side, align: align(align, side)}, " ", fn {key, value} ->
       @variants[key][value]
     end)
