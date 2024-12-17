@@ -37,7 +37,7 @@ defmodule LiveDebugger.Components.Tree do
           :if={@collapsible?}
           id={@tree_node.id}
           open={true}
-          chevron_class="text-primary-500"
+          chevron_class="text-primary-500 mb-1"
         >
           <:label>
             <.label selected?={@selected?} event_target={@event_target} node={@tree_node} />
@@ -72,8 +72,8 @@ defmodule LiveDebugger.Components.Tree do
     <button phx-click="select_node" phx-value-selected_id={@node.id} phx-target={@event_target}>
       <.tooltip>
         <div class="flex gap-1 items-center">
-          <.icon name={@node.icon} />
-          <.h5 no_margin={true} class={["truncate max-w-max", if(@selected?, do: "text-primary-500")]}>
+          <.icon name={@node.icon} class="shrink-0" />
+          <.h5 no_margin={true} class={["", if(@selected?, do: "text-primary-500")]}>
             {@node.label}
           </.h5>
         </div>

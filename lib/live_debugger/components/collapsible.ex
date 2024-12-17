@@ -21,8 +21,7 @@ defmodule LiveDebugger.Components.Collapsible do
     ~H"""
     <div id={@id} class={@class} {@rest} {js_attributes("container", @id, @open)}>
       <div {js_attributes("item", @id, @open)} data-open={if @open, do: "true", else: "false"}>
-        <div id={content_panel_header_id(@id)} class="flex flex-row items-center gap-1">
-          {render_slot(@label)}
+        <div id={content_panel_header_id(@id)} class="flex items-center gap-1">
           <button type="button" {js_attributes("button", @id, @open)}>
             <.icon
               name="hero-chevron-down-solid"
@@ -30,6 +29,7 @@ defmodule LiveDebugger.Components.Collapsible do
               {js_attributes("icon", @id, @open)}
             />
           </button>
+          {render_slot(@label)}
         </div>
         <div {js_attributes("content_container", @id, @open)}>
           {render_slot(@inner_block)}
