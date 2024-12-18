@@ -29,13 +29,16 @@ defmodule LiveDebugger.Services.CallbackTracer do
   defp prepare_tracing(monitored_pid) do
     recipient_pid = self()
 
-    :dbg.start()
-    :dbg.tracer(:process, {fn msg, n -> tracer_function(msg, n, recipient_pid) end, 0})
-    :dbg.p(monitored_pid, :c)
+    s = :dbg.session_create(:cool_session)
 
-    ModuleDiscovery.find_live_modules()
-    |> CallbackUtils.tracing_callbacks()
-    |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
+    :dbg.session(s, fn ->
+      :dbg.tracer(:process, {fn msg, n -> tracer_function(msg, n, recipient_pid) end, 0}) |> dbg
+      :dbg.p(monitored_pid, :c)
+
+      ModuleDiscovery.find_live_modules()
+      |> CallbackUtils.tracing_callbacks()
+      |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
+    end)
   end
 
   defp tracer_function(message, n, recipient_pid) do
