@@ -10,6 +10,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   def mount(%{"socket_id" => socket_id}, _session, socket) do
     socket
     |> assign(:socket_id, socket_id)
+    |> assign(:tracing_session, nil)
     |> assign_async_debugged_pid()
     |> ok()
   end
@@ -37,10 +38,13 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   @impl true
   def handle_async(:fetch_debugged_pid, {:ok, fetched_pid}, socket) do
     Process.monitor(fetched_pid)
-    CallbackTracer.start_link(%{monitored_pid: fetched_pid, socket_id: socket.id}) |> dbg()
+
+    {:ok, tracing_session} =
+      CallbackTracer.start_tracing_session(socket.assigns.socket_id, fetched_pid)
 
     socket
     |> assign(:debugged_pid, %{status: :ok, result: fetched_pid})
+    |> assign(:tracing_session, tracing_session)
     |> noreply()
   end
 
@@ -57,6 +61,8 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
   @impl true
   def handle_info({:DOWN, _, :process, _closed_pid, _}, socket) do
+    CallbackTracer.stop_tracing_session(socket.assigns.tracing_session)
+
     socket
     |> assign_async_debugged_pid()
     |> noreply()

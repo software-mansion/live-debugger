@@ -1,43 +1,51 @@
 defmodule LiveDebugger.Services.CallbackTracer do
-  use GenServer
-
   alias LiveDebugger.Services.ModuleDiscovery
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
 
-  def start_link(%{monitored_pid: _, socket_id: _} = args) do
-    GenServer.start_link(__MODULE__, args)
-  end
+  @id_prefix "lvdbg"
 
-  @impl true
-  def init(%{monitored_pid: monitored_pid, socket_id: socket_id}) do
-    prepare_tracing(monitored_pid, socket_id)
+  require Logger
 
-    {:ok, %{monitored_pid: monitored_pid, traces: []}}
-  end
+  def start_tracing_session(socket_id, monitored_pid) do
+    ets_table_id = ets_table_id(socket_id)
+    init_ets(ets_table_id)
 
-  @impl true
-  def terminate(_reason, _state) do
-    :dbg.stop()
-  end
+    tracing_session =
+      monitored_pid
+      |> tracing_session_id()
+      |> :dbg.session_create()
 
-  defp prepare_tracing(monitored_pid, socket_id) do
-    ets_name = String.to_atom("lvdbg-#{socket_id}")
-    dbg(ets_name)
-    :ets.new(ets_name, [:ordered_set, :public, :named_table])
-
-    s = :dbg.session_create(:cool_session)
-
-    :dbg.session(s, fn ->
-      :dbg.tracer(:process, {fn msg, n -> tracer_function(msg, n, ets_name) end, 0}) |> dbg
+    :dbg.session(tracing_session, fn ->
+      :dbg.tracer(:process, {fn msg, n -> trace_handler(msg, n, ets_table_id) end, 0})
       :dbg.p(monitored_pid, :c)
 
       ModuleDiscovery.find_live_modules()
       |> CallbackUtils.tracing_callbacks()
       |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
     end)
+
+    {:ok, tracing_session}
   end
 
-  defp tracer_function({_, pid, _, {module, function, args}}, n, ets_name) do
+  def stop_tracing_session(session) do
+    :dbg.session_destroy(session)
+  end
+
+  def ets_table_id(socket_id), do: String.to_atom("#{@id_prefix}-#{socket_id}")
+
+  defp init_ets(ets_table_id) do
+    if :ets.whereis(ets_table_id) == :undefined do
+      Logger.debug("Creating a new ETS table with id: #{ets_table_id}")
+      :ets.new(ets_table_id, [:ordered_set, :public, :named_table])
+    end
+  end
+
+  defp tracing_session_id(monitored_pid) do
+    parsed_pid = monitored_pid |> :erlang.pid_to_list() |> to_string()
+    String.to_atom("#{@id_prefix}-#{parsed_pid}")
+  end
+
+  defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id) do
     trace = %{
       module: module,
       function: function,
@@ -47,7 +55,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
       timestamp: :os.system_time(:microsecond)
     }
 
-    :ets.insert(ets_name, {n, trace})
+    :ets.insert(ets_table_id, {n, trace})
 
     n + 1
   end
