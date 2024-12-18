@@ -4,21 +4,15 @@ defmodule LiveDebugger.Services.CallbackTracer do
   alias LiveDebugger.Services.ModuleDiscovery
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
 
-  def start_link(%{monitored_pid: _, debugger_pid: _} = args) do
+  def start_link(%{monitored_pid: _, socket_id: _} = args) do
     GenServer.start_link(__MODULE__, args)
   end
 
   @impl true
-  def init(%{monitored_pid: monitored_pid, debugger_pid: debugger_pid}) do
-    prepare_tracing(monitored_pid)
+  def init(%{monitored_pid: monitored_pid, socket_id: socket_id}) do
+    prepare_tracing(monitored_pid, socket_id)
 
-    {:ok, %{monitored_pid: monitored_pid, debugger_pid: debugger_pid, traces: []}}
-  end
-
-  @impl true
-  def handle_cast({:new_trace, trace}, state) do
-    updated_state = Map.put(state, :traces, [trace | state.traces])
-    {:noreply, updated_state}
+    {:ok, %{monitored_pid: monitored_pid, traces: []}}
   end
 
   @impl true
@@ -26,13 +20,15 @@ defmodule LiveDebugger.Services.CallbackTracer do
     :dbg.stop()
   end
 
-  defp prepare_tracing(monitored_pid) do
-    recipient_pid = self()
+  defp prepare_tracing(monitored_pid, socket_id) do
+    ets_name = String.to_atom("lvdbg-#{socket_id}")
+    dbg(ets_name)
+    :ets.new(ets_name, [:ordered_set, :public, :named_table])
 
     s = :dbg.session_create(:cool_session)
 
     :dbg.session(s, fn ->
-      :dbg.tracer(:process, {fn msg, n -> tracer_function(msg, n, recipient_pid) end, 0}) |> dbg
+      :dbg.tracer(:process, {fn msg, n -> tracer_function(msg, n, ets_name) end, 0}) |> dbg
       :dbg.p(monitored_pid, :c)
 
       ModuleDiscovery.find_live_modules()
@@ -41,8 +37,18 @@ defmodule LiveDebugger.Services.CallbackTracer do
     end)
   end
 
-  defp tracer_function(message, n, recipient_pid) do
-    GenServer.cast(recipient_pid, {:new_trace, message})
+  defp tracer_function({_, pid, _, {module, function, args}}, n, ets_name) do
+    trace = %{
+      module: module,
+      function: function,
+      arity: length(args),
+      args: args,
+      pid: pid,
+      timestamp: :os.system_time(:microsecond)
+    }
+
+    :ets.insert(ets_name, {n, trace})
+
     n + 1
   end
 end
