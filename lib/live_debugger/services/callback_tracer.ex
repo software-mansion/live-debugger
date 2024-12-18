@@ -8,7 +8,8 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
   def start_tracing_session(socket_id, monitored_pid) do
     ets_table_id = ets_table_id(socket_id)
-    init_ets(ets_table_id)
+    maybe_init_ets(ets_table_id)
+    init_id = ets_init_id(ets_table_id)
 
     tracing_session =
       monitored_pid
@@ -16,7 +17,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
       |> :dbg.session_create()
 
     :dbg.session(tracing_session, fn ->
-      :dbg.tracer(:process, {fn msg, n -> trace_handler(msg, n, ets_table_id) end, 0})
+      :dbg.tracer(:process, {fn msg, n -> trace_handler(msg, n, ets_table_id) end, init_id})
       :dbg.p(monitored_pid, :c)
 
       ModuleDiscovery.find_live_modules()
@@ -33,10 +34,17 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
   def ets_table_id(socket_id), do: String.to_atom("#{@id_prefix}-#{socket_id}")
 
-  defp init_ets(ets_table_id) do
+  defp maybe_init_ets(ets_table_id) do
     if :ets.whereis(ets_table_id) == :undefined do
       Logger.debug("Creating a new ETS table with id: #{ets_table_id}")
       :ets.new(ets_table_id, [:ordered_set, :public, :named_table])
+    end
+  end
+
+  defp ets_init_id(ets_table_id) do
+    case :ets.last(ets_table_id) do
+      :"$end_of_table" -> 0
+      last_id -> last_id + 1
     end
   end
 
