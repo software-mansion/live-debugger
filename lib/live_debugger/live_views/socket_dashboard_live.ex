@@ -4,6 +4,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   require Logger
 
   alias LiveDebugger.Services.LiveViewScraper
+  alias LiveDebugger.Services.CallbackTracer
 
   @impl true
   def mount(%{"socket_id" => socket_id}, _session, socket) do
@@ -36,6 +37,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   @impl true
   def handle_async(:fetch_debugged_pid, {:ok, fetched_pid}, socket) do
     Process.monitor(fetched_pid)
+    CallbackTracer.start_link(%{monitored_pid: fetched_pid, debugger_pid: self()}) |> dbg()
 
     socket
     |> assign(:debugged_pid, %{status: :ok, result: fetched_pid})
