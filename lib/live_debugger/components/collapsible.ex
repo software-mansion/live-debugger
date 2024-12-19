@@ -3,10 +3,9 @@ defmodule LiveDebugger.Components.Collapsible do
   A collapsible component inspired by the PetalComponents Accordion component.
   """
 
-  use Phoenix.Component
-  import PetalComponents.Icon
+  use LiveDebuggerWeb, :component
 
-  attr(:id, :string)
+  attr(:id, :string, required: true)
   attr(:class, :any, default: nil, doc: "CSS class for parent container")
   attr(:chevron_class, :string, doc: "CSS class for the chevron icon")
   attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
@@ -16,8 +15,6 @@ defmodule LiveDebugger.Components.Collapsible do
   slot(:inner_block, required: true)
 
   def collapsible(assigns) do
-    assigns = assign_new(assigns, :id, fn -> "collapsible_#{Ecto.UUID.generate()}" end)
-
     ~H"""
     <div id={@id} class={@class} {@rest} {js_attributes("container", @id, @open)}>
       <div {js_attributes("item", @id, @open)} data-open={if @open, do: "true", else: "false"}>
@@ -39,38 +36,30 @@ defmodule LiveDebugger.Components.Collapsible do
     """
   end
 
-  defp js_attributes(type, id, open) do
-    case type do
-      "container" ->
-        %{"x-data": "{ expanded: #{open} }"}
+  defp js_attributes("container", _id, open), do: %{"x-data": "{ expanded: #{open} }"}
+  defp js_attributes("item", _id, _open), do: %{}
 
-      "item" ->
-        %{}
-
-      "button" ->
-        %{
-          "x-on:click": "expanded = !expanded",
-          ":aria-expanded": "expanded",
-          "aria-controls": content_panel_id(id)
-        }
-
-      "content_container" ->
-        %{
-          id: content_panel_id(id),
-          role: "region",
-          "aria-labelledby": content_panel_header_id(id),
-          "x-show": "expanded",
-          "x-cloak": true,
-          "x-collapse": true
-        }
-
-      "icon" ->
-        %{":class": "{ 'rotate-180': expanded }"}
-
-      _ ->
-        %{}
-    end
+  defp js_attributes("button", id, _open) do
+    %{
+      "x-on:click": "expanded = !expanded",
+      ":aria-expanded": "expanded",
+      "aria-controls": content_panel_id(id)
+    }
   end
+
+  defp js_attributes("content_container", id, _open) do
+    %{
+      id: content_panel_id(id),
+      role: "region",
+      "aria-labelledby": content_panel_header_id(id),
+      "x-show": "expanded",
+      "x-cloak": true,
+      "x-collapse": true
+    }
+  end
+
+  defp js_attributes("icon", _id, _open), do: %{":class": "{ 'rotate-180': expanded }"}
+  defp js_attributes(_type, _id, _open), do: %{}
 
   defp content_panel_header_id(id), do: "collapsible-header-#{id}"
   defp content_panel_id(id), do: "collapsible-content-panel-#{id}"
