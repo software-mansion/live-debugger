@@ -4,6 +4,7 @@ defmodule DevWeb do
       use Phoenix.LiveView,
         layout: {LiveDebuggerDev.Layout, :app}
 
+      import LiveDebuggerDev.Components
       import Phoenix.HTML
     end
   end
@@ -12,6 +13,7 @@ defmodule DevWeb do
     quote do
       use Phoenix.LiveComponent
 
+      import LiveDebuggerDev.Components
       import Phoenix.HTML
     end
   end

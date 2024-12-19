@@ -95,8 +95,8 @@ defmodule LiveDebugger.Services.TreeNode do
       nil ->
         {:ok, nil}
 
-      channel_live_compoenet ->
-        parse_channel_live_compoennt(channel_live_compoenet)
+      channel_live_component ->
+        parse_channel_live_component(channel_live_component)
     end
   end
 
@@ -116,7 +116,7 @@ defmodule LiveDebugger.Services.TreeNode do
 
   def live_component_nodes(%{components: {components_map, _, _}}) do
     Enum.reduce_while(components_map, {:ok, []}, fn channel_component, acc ->
-      case parse_channel_live_compoennt(channel_component) do
+      case parse_channel_live_component(channel_component) do
         {:ok, component} ->
           {:ok, acc_components} = acc
           {:cont, {:ok, [component | acc_components]}}
@@ -129,7 +129,7 @@ defmodule LiveDebugger.Services.TreeNode do
 
   def live_component_nodes(_), do: {:error, :invalid_channel_state}
 
-  defp parse_channel_live_compoennt({cid, {module, id, assigns, _, _}}) do
+  defp parse_channel_live_component({cid, {module, id, assigns, _, _}}) do
     {:ok,
      %LiveComponentNode{
        id: id,
@@ -140,5 +140,5 @@ defmodule LiveDebugger.Services.TreeNode do
      }}
   end
 
-  defp parse_channel_live_compoennt(_), do: {:error, :invalid_channel_component}
+  defp parse_channel_live_component(_), do: {:error, :invalid_channel_component}
 end

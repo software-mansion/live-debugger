@@ -1,7 +1,5 @@
 defmodule LiveDebuggerDev.LiveComponents.LiveComponentWithVeryVeryLongName do
-  use Phoenix.LiveComponent
-
-  import LiveDebuggerDev.Components
+  use DevWeb, :live_component
 
   def render(assigns) do
     ~H"""

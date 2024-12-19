@@ -1,10 +1,11 @@
 defmodule LiveDebuggerDev.LiveComponents.Reccursive do
-  use Phoenix.LiveComponent
-
-  import LiveDebuggerDev.Components
+  use DevWeb, :live_component
 
   def update(assigns, socket) do
-    {:ok, assign(socket, assigns)}
+    socket
+    |> assign(:id, assigns.id)
+    |> assign(:counter, assigns.counter)
+    |> then(&{:ok, &1})
   end
 
   attr(:id, :string, required: true)
