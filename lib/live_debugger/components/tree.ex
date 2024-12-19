@@ -1,8 +1,8 @@
 defmodule LiveDebugger.Components.Tree do
   use LiveDebuggerWeb, :component
 
-  import LiveDebugger.Components.Collapsible
-  import LiveDebugger.Components.Tooltip
+  alias LiveDebugger.Components.Collapsible
+  alias LiveDebugger.Components.Tooltip
 
   alias LiveDebugger.Services.TreeNode
 
@@ -14,7 +14,6 @@ defmodule LiveDebugger.Components.Tree do
 
   attr(:tree_node, :any, required: true, doc: "The TreeNode struct to render")
   attr(:event_target, :any, required: true, doc: "The target for the click event")
-  attr(:add_padding?, :boolean, default: false, doc: "Add padding to the tree node")
   attr(:selected_node_id, :string, default: nil, doc: "The id of the selected node")
 
   def tree(assigns) do
@@ -26,20 +25,14 @@ defmodule LiveDebugger.Components.Tree do
 
     ~H"""
     <div class="relative flex max-w-full">
-      <div
-        :if={@add_padding? and not @selected?}
-        class="absolute top-0 left-2 h-full border-l-2 border-primary-300"
-      >
+      <div :if={not @selected?} class="absolute top-0 left-2 h-full border-l-2 border-primary-300">
       </div>
-      <div class={[
-        "w-full",
-        if(@add_padding?, do: "pl-2")
-      ]}>
+      <div class="w-full pl-2">
         <div class={[
           "w-full rounded-lg p-1",
           if(@selected?, do: "bg-primary-100")
         ]}>
-          <.collapsible
+          <Collapsible.collapsible
             :if={@collapsible?}
             id={@tree_node.id}
             open={true}
@@ -55,10 +48,9 @@ defmodule LiveDebugger.Components.Tree do
                 tree_node={child}
                 selected_node_id={@selected_node_id}
                 event_target={@event_target}
-                add_padding?={true}
               />
             </div>
-          </.collapsible>
+          </Collapsible.collapsible>
           <.label
             :if={not @collapsible?}
             selected?={@selected?}
@@ -85,17 +77,17 @@ defmodule LiveDebugger.Components.Tree do
       phx-target={@event_target}
       class={["flex w-full", @class]}
     >
-      <.tooltip class="flex w-full">
+      <Tooltip.tooltip class="flex w-full">
         <div class="flex gap-1 items-center" style="width: calc(100% - 1rem)">
           <.icon name={@node.icon} class="shrink-0" />
           <.h5 no_margin={true} class={["truncate", if(@selected?, do: "text-primary-500")]}>
             {@node.label}
           </.h5>
         </div>
-        <.tooltip_content side="bottom" align="start" class="bg-white">
+        <Tooltip.tooltip_content side="bottom" align="start" class="bg-white">
           {@node.tooltip}
-        </.tooltip_content>
-      </.tooltip>
+        </Tooltip.tooltip_content>
+      </Tooltip.tooltip>
     </button>
     """
   end

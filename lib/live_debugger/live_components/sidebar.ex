@@ -4,7 +4,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   """
   use LiveDebuggerWeb, :live_component
 
-  import LiveDebugger.Components.Tree
+  alias LiveDebugger.Components.Tree
 
   alias LiveDebugger.Services.ChannelStateScraper
 
@@ -26,11 +26,12 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   attr(:pid, :any, required: true)
 
+  @impl true
   def render(assigns) do
     ~H"""
     <div class="w-[20vw] min-w-56 h-screen p-2 border-r-2 border-primary-500 overflow-y-auto">
       <.h3 class="text-primary-500">Components Tree</.h3>
-      <.tree
+      <Tree.tree
         :if={@tree}
         selected_node_id={@selected_node_id}
         tree_node={@tree}
