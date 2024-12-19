@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@alpinejs/collapse": "^3.14.7",
     "alpinejs": "^3.14.7",
     "phoenix": "^1.7.17",
     "phoenix_html": "^3.3.4",

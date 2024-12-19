@@ -21,6 +21,13 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
+import Alpine from "alpinejs";
+import collapse from "@alpinejs/collapse";
+
+Alpine.start();
+Alpine.plugin(collapse);
+window.Alpine = Alpine;
+
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")

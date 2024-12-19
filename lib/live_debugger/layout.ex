@@ -27,10 +27,6 @@ defmodule LiveDebugger.Layout do
         <link rel="stylesheet" href={asset_path(@conn, :css)} />
         <script src={asset_path(@conn, :js)} defer>
         </script>
-        <script defer src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js">
-        </script>
-        <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js">
-        </script>
         {custom_head_tags(assigns, :before_closing_head_tag)}
       </head>
       <body>
