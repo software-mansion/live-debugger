@@ -3,13 +3,12 @@ defmodule LiveDebuggerDev.LiveComponents.Reccursive do
 
   import LiveDebuggerDev.Components
 
-  def mount(socket) do
-    {:ok, socket}
-  end
-
   def update(assigns, socket) do
     {:ok, assign(socket, assigns)}
   end
+
+  attr(:id, :string, required: true)
+  attr(:counter, :integer, required: true)
 
   def render(assigns) do
     assigns = assign(assigns, :render?, assigns.counter > 0)

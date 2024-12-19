@@ -3,18 +3,10 @@ defmodule LiveDebuggerDev.LiveComponents.LiveComponentWithVeryVeryLongName do
 
   import LiveDebuggerDev.Components
 
-  def mount(socket) do
-    {:ok, socket}
-  end
-
-  def update(assigns, socket) do
-    {:ok, assign(socket, assigns)}
-  end
-
   def render(assigns) do
     ~H"""
     <div>
-      <.box title="Very Long Name [LiveComponent]" color="red"></.box>
+      <.box title="Very Long Name [LiveComponent]" color="gray"></.box>
     </div>
     """
   end
