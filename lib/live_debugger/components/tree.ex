@@ -15,6 +15,8 @@ defmodule LiveDebugger.Components.Tree do
   attr(:tree_node, :any, required: true, doc: "The TreeNode struct to render")
   attr(:event_target, :any, required: true, doc: "The target for the click event")
   attr(:selected_node_id, :string, default: nil, doc: "The id of the selected node")
+  attr(:root?, :boolean, default: true, doc: "Whether the node is the root node")
+  attr(:highlight_bar?, :boolean, default: false, doc: false)
 
   def tree(assigns) do
     assigns =
@@ -25,18 +27,21 @@ defmodule LiveDebugger.Components.Tree do
 
     ~H"""
     <div class="relative flex max-w-full">
-      <div :if={not @selected?} class="absolute top-0 left-2 h-full border-l-2 border-primary-300">
+      <div
+        :if={not @root?}
+        class={[
+          "absolute top-0 left-2 h-full border-l-2",
+          if(@highlight_bar?, do: "border-swm-blue", else: "border-transparent")
+        ]}
+      >
       </div>
-      <div class="w-full pl-2">
-        <div class={[
-          "w-full rounded-lg p-1",
-          if(@selected?, do: "bg-primary-100")
-        ]}>
+      <div class={["w-full", unless(@root?, do: "pl-2")]}>
+        <div class="w-full rounded-lg p-1 pb-0">
           <Collapsible.collapsible
             :if={@collapsible?}
             id={@tree_node.id}
             open={true}
-            chevron_class="text-primary-500 mb-1"
+            chevron_class="text-swm-blue h-5 w-5 mb-1 stroke-2"
             class="w-full"
           >
             <:label>
@@ -48,6 +53,8 @@ defmodule LiveDebugger.Components.Tree do
                 tree_node={child}
                 selected_node_id={@selected_node_id}
                 event_target={@event_target}
+                root?={false}
+                highlight_bar?={@selected?}
               />
             </div>
           </Collapsible.collapsible>
@@ -56,7 +63,7 @@ defmodule LiveDebugger.Components.Tree do
             selected?={@selected?}
             event_target={@event_target}
             node={@tree_node}
-            class="pl-[1.8rem]"
+            class="pl-[1.4rem]"
           />
         </div>
       </div>
@@ -78,9 +85,12 @@ defmodule LiveDebugger.Components.Tree do
       class={["flex w-full", @class]}
     >
       <Tooltip.tooltip class="flex w-full">
-        <div class="flex gap-1 items-center" style="width: calc(100% - 1rem)">
-          <.icon name={@node.icon} class="shrink-0" />
-          <.h5 no_margin={true} class={["truncate", if(@selected?, do: "text-primary-500")]}>
+        <div class="flex w-full gap-0.5 items-center">
+          <.icon name={@node.icon} class="w-5 h-5 shrink-0" />
+          <.h5
+            no_margin={true}
+            class={["truncate text-sm", if(@selected?, do: "text-swm-blue font-bold underline")]}
+          >
             {@node.label}
           </.h5>
         </div>

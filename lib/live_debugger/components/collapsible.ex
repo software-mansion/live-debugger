@@ -7,7 +7,7 @@ defmodule LiveDebugger.Components.Collapsible do
 
   attr(:id, :string, required: true)
   attr(:class, :any, default: nil, doc: "CSS class for parent container")
-  attr(:chevron_class, :string, doc: "CSS class for the chevron icon")
+  attr(:chevron_class, :string, default: nil, doc: "CSS class for the chevron icon")
   attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
   attr(:rest, :global)
 

@@ -22,6 +22,13 @@ module.exports = {
         warning: colors.yellow,
         info: colors.sky,
         gray: colors.gray,
+       'swm': {
+          'blue': 'rgb(0, 26, 114)',
+          'yellow': 'rgb(255, 231, 128)',
+          'pink': 'rgb(255, 163, 161)',
+          'mint': 'rgb(177, 223, 208)',
+          'light-blue': 'rgb(135 204 232)'
+        }
       },
     },
   },

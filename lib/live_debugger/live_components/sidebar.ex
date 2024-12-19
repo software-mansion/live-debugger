@@ -29,15 +29,25 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-[20vw] min-w-56 h-screen p-2 border-r-2 border-primary-500 overflow-y-auto">
-      <.h3 class="text-primary-500">Components Tree</.h3>
+    <div class="w-[20vw] min-w-56 h-screen bg-swm-blue p-2 rounded-r-xl">
+      <.h3 class="text-white">Live Debugger</.h3>
+      <div class="border-b border-white my-2"></div>
+      <.component_tree tree={@tree} selected_node_id={@selected_node_id} myself={@myself} />
+    </div>
+    """
+  end
+
+  defp component_tree(assigns) do
+    ~H"""
+    <.h4 class="text-white">Components Tree</.h4>
+    <.card class="h-full max-h-max py-1">
       <Tree.tree
         :if={@tree}
         selected_node_id={@selected_node_id}
         tree_node={@tree}
         event_target={@myself}
       />
-    </div>
+    </.card>
     """
   end
 
