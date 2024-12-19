@@ -6,7 +6,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
   require Logger
 
-  def start_tracing_session(socket_id, monitored_pid) do
+  def start_tracing_session(socket_id, monitored_pid, recipient_pid) do
     ets_table_id = ets_table_id(socket_id)
     maybe_init_ets(ets_table_id)
     init_id = ets_init_id(ets_table_id)
@@ -17,7 +17,11 @@ defmodule LiveDebugger.Services.CallbackTracer do
       |> :dbg.session_create()
 
     :dbg.session(tracing_session, fn ->
-      :dbg.tracer(:process, {fn msg, n -> trace_handler(msg, n, ets_table_id) end, init_id})
+      :dbg.tracer(
+        :process,
+        {fn msg, n -> trace_handler(msg, n, ets_table_id, recipient_pid) end, init_id}
+      )
+
       :dbg.p(monitored_pid, :c)
 
       ModuleDiscovery.find_live_modules()
@@ -53,7 +57,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
     String.to_atom("#{@id_prefix}-#{parsed_pid}")
   end
 
-  defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id) do
+  defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
     trace = %{
       module: module,
       function: function,
@@ -64,6 +68,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
     }
 
     :ets.insert(ets_table_id, {n, trace})
+    send(recipient_pid, {:new_trace, trace})
 
     n + 1
   end

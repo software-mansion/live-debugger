@@ -40,7 +40,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     Process.monitor(fetched_pid)
 
     {:ok, tracing_session} =
-      CallbackTracer.start_tracing_session(socket.assigns.socket_id, fetched_pid)
+      CallbackTracer.start_tracing_session(socket.assigns.socket_id, fetched_pid, self())
 
     socket
     |> assign(:debugged_pid, %{status: :ok, result: fetched_pid})
@@ -66,6 +66,12 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     socket
     |> assign_async_debugged_pid()
     |> noreply()
+  end
+
+  def handle_info({:new_trace, trace}, socket) do
+    Logger.debug("Received a new trace: \n#{inspect(trace)}")
+
+    {:noreply, socket}
   end
 
   defp loading_variant(assigns) do
