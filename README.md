@@ -18,7 +18,7 @@ def deps do
 end
 ```
 
-After that you can add LiveDebugger to your router:
+After that you can add LiveDebugger to your router (do not put it into any `scope`):
 
 ```elixir
 import LiveDebugger.Router
@@ -27,8 +27,9 @@ scope "/" do
   pipe_through :browser
 
   live "/", CounterLive
-  live_debugger "/live_debug"
 end
+
+live_debugger "/live_debug"
 ```
 
 And add the debug button to your app layout:
