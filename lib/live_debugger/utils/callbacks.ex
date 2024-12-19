@@ -1,4 +1,6 @@
 defmodule LiveDebugger.Utils.Callbacks do
+  alias LiveDebugger.Services.ModuleDiscovery
+
   @common_callbacks [
     {:render, 1},
     {:handle_event, 3},
@@ -20,24 +22,21 @@ defmodule LiveDebugger.Utils.Callbacks do
                               {:update_many, 1}
                             ] ++ @common_callbacks
 
+  @doc """
+  Generates a list of callbacks for LiveViews and LiveComponents in form of MFA for the given module.
+  """
+
+  @spec tracing_callbacks(ModuleDiscovery.live_modules()) :: [{module(), atom(), integer()}]
   def tracing_callbacks(%{live_views: live_views, live_components: live_components}) do
     Enum.flat_map(live_views, &live_view_callbacks/1) ++
       Enum.flat_map(live_components, &live_component_callbacks/1)
   end
 
-  def live_view_callbacks() do
-    @live_view_callbacks
+  defp live_view_callbacks(module) do
+    Enum.map(@live_view_callbacks, fn {callback, arity} -> {module, callback, arity} end)
   end
 
-  def live_view_callbacks(module) do
-    Enum.map(@live_component_callbacks, fn {callback, arity} -> {module, callback, arity} end)
-  end
-
-  def live_component_callbacks() do
-    @live_component_callbacks
-  end
-
-  def live_component_callbacks(module) do
+  defp live_component_callbacks(module) do
     Enum.map(@live_component_callbacks, fn {callback, arity} -> {module, callback, arity} end)
   end
 end

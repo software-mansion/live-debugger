@@ -2,7 +2,9 @@ defmodule LiveDebugger.Services.ModuleDiscovery do
   @live_view_behaviour Phoenix.LiveView
   @live_component_behaviour Phoenix.LiveComponent
 
-  @spec find_live_modules() :: %{live_views: [module()], live_components: [module()]}
+  @type live_modules() :: %{live_views: [module()], live_components: [module()]}
+
+  @spec find_live_modules() :: live_modules()
   def find_live_modules() do
     loaded_modules = :code.all_loaded()
 
