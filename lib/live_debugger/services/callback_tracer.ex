@@ -17,7 +17,8 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
   @type raw_trace :: {atom(), pid(), atom(), {atom(), atom(), [term()]}}
 
-  @spec start_tracing_session(String.t(), pid(), pid()) :: {:ok, :dbg.session()}
+  @spec start_tracing_session(String.t(), pid(), pid()) ::
+          {:ok, :dbg.session()} | {:error, term()}
   def start_tracing_session(socket_id, monitored_pid, recipient_pid) do
     with ets_table_id <- ets_table_id(socket_id),
          _table <- init_ets(ets_table_id),
@@ -39,6 +40,10 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
       {:ok, tracing_session}
     end
+  rescue
+    err ->
+      Logger.error("Error while starting tracing session: #{inspect(err)}")
+      {:error, err}
   end
 
   @spec stop_tracing_session(:dbg.session()) :: :ok
