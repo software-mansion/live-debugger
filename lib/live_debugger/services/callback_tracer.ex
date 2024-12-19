@@ -8,12 +8,12 @@ defmodule LiveDebugger.Services.CallbackTracer do
   The session should be stopped when monitored process is killed with `stop_tracing_session/1`.
   """
 
+  require Logger
+
   alias LiveDebugger.Services.ModuleDiscovery
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
 
   @id_prefix "lvdbg"
-
-  require Logger
 
   @type raw_trace :: {atom(), pid(), atom(), {atom(), atom(), [term()]}}
 
