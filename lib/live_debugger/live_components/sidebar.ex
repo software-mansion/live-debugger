@@ -5,7 +5,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   use LiveDebuggerWeb, :live_component
 
   alias LiveDebugger.Components.Tree
-
   alias LiveDebugger.Services.ChannelStateScraper
 
   @impl true
@@ -29,25 +28,17 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-[20vw] min-w-56 h-screen bg-swm-blue p-2 rounded-r-xl">
+    <div class="w-[20vw] min-w-56 h-screen bg-swm-blue flex flex-col gap-1 pt-4 p-2 pr-3 rounded-r-xl">
       <.h3 class="text-white">Live Debugger</.h3>
-      <div class="border-b border-white my-2"></div>
-      <.component_tree tree={@tree} selected_node_id={@selected_node_id} myself={@myself} />
-    </div>
-    """
-  end
-
-  defp component_tree(assigns) do
-    ~H"""
-    <.h4 class="text-white">Components Tree</.h4>
-    <.card class="h-full max-h-max py-1">
+      <div class="border-b h-0 border-white my-4"></div>
       <Tree.tree
         :if={@tree}
+        title="Components Tree"
         selected_node_id={@selected_node_id}
         tree_node={@tree}
         event_target={@myself}
       />
-    </.card>
+    </div>
     """
   end
 

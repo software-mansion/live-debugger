@@ -13,12 +13,33 @@ defmodule LiveDebugger.Components.Tree do
   """
 
   attr(:tree_node, :any, required: true, doc: "The TreeNode struct to render")
+  attr(:title, :string, required: true, doc: "The title of the tree")
   attr(:event_target, :any, required: true, doc: "The target for the click event")
   attr(:selected_node_id, :string, default: nil, doc: "The id of the selected node")
-  attr(:root?, :boolean, default: true, doc: "Whether the node is the root node")
-  attr(:highlight_bar?, :boolean, default: false, doc: false)
 
   def tree(assigns) do
+    ~H"""
+    <.card class="h-full max-h-max" variant="outline">
+      <.h4 class="text-swm-blue pt-2 pl-2">{@title}</.h4>
+      <.card_content class="px-1 pb-4 pt-0">
+        <.tree_node
+          tree_node={@tree_node}
+          selected_node_id={@selected_node_id}
+          event_target={@event_target}
+          root?={true}
+        />
+      </.card_content>
+    </.card>
+    """
+  end
+
+  attr(:tree_node, :any, required: true)
+  attr(:event_target, :any, required: true)
+  attr(:selected_node_id, :string, default: nil)
+  attr(:root?, :boolean, default: false)
+  attr(:highlight_bar?, :boolean, default: false)
+
+  defp tree_node(assigns) do
     assigns =
       assigns
       |> assign(:tree_node, format_tree_node(assigns.tree_node))
@@ -48,7 +69,7 @@ defmodule LiveDebugger.Components.Tree do
               <.label selected?={@selected?} event_target={@event_target} node={@tree_node} />
             </:label>
             <div class="flex flex-col">
-              <.tree
+              <.tree_node
                 :for={child <- @tree_node.children}
                 tree_node={child}
                 selected_node_id={@selected_node_id}
