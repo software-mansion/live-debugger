@@ -63,7 +63,7 @@ defmodule LiveDebugger.Components.Tree do
             :if={@collapsible?}
             id={@tree_node.id}
             open={true}
-            chevron_class="text-swm-blue h-5 w-5 mb-1 stroke-2"
+            chevron_class="text-swm-blue h-5 w-5 mb-1"
             class="w-full"
           >
             <:label>
@@ -104,7 +104,7 @@ defmodule LiveDebugger.Components.Tree do
       phx-click="select_node"
       phx-value-selected_id={@node.id}
       phx-target={@event_target}
-      class={["flex w-full tooltip", @class]}
+      class={["flex w-full", @class]}
     >
       <Tooltip.tooltip content={@node.tooltip} class="w-full">
         <div class="flex w-full gap-0.5 items-center">
