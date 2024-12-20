@@ -30,6 +30,11 @@ defmodule LiveDebugger.Layout do
         {custom_head_tags(assigns, :before_closing_head_tag)}
       </head>
       <body>
+        <span
+          id="tooltip"
+          class="absolute hidden p-1 text-xs bg-white border-1 border-swm-blue rounded-md shadow-md"
+        >
+        </span>
         {@inner_content}
       </body>
     </html>

@@ -20,7 +20,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     ~H"""
     <.loading_variant :if={@debugged_pid.status == :loading} />
 
-    <div class="w-full flex flex-row h-screen">
+    <div class="w-full flex flex-row">
       <.live_component
         :if={@debugged_pid.status == :ok}
         id="sidebar"

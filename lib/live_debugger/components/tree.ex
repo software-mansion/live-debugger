@@ -1,9 +1,8 @@
 defmodule LiveDebugger.Components.Tree do
   use LiveDebuggerWeb, :component
 
-  alias LiveDebugger.Components.Collapsible
   alias LiveDebugger.Components.Tooltip
-
+  alias LiveDebugger.Components.Collapsible
   alias LiveDebugger.Services.TreeNode
 
   @doc """
@@ -19,7 +18,7 @@ defmodule LiveDebugger.Components.Tree do
 
   def tree(assigns) do
     ~H"""
-    <.card class="h-full max-h-max" variant="outline">
+    <.card class="h-full max-h-max opacity-90" variant="outline">
       <.h4 class="text-swm-blue pt-2 pl-2">{@title}</.h4>
       <.card_content class="px-1 pb-4 pt-0">
         <.tree_node
@@ -103,9 +102,9 @@ defmodule LiveDebugger.Components.Tree do
       phx-click="select_node"
       phx-value-selected_id={@node.id}
       phx-target={@event_target}
-      class={["flex w-full", @class]}
+      class={["flex w-full tooltip", @class]}
     >
-      <Tooltip.tooltip class="flex w-full">
+      <Tooltip.tooltip content={@node.tooltip} class="w-full">
         <div class="flex w-full gap-0.5 items-center">
           <.icon name={@node.icon} class="w-5 h-5 shrink-0" />
           <.h5
@@ -115,9 +114,6 @@ defmodule LiveDebugger.Components.Tree do
             {@node.label}
           </.h5>
         </div>
-        <Tooltip.tooltip_content side="bottom" align="start" class="bg-white">
-          {@node.tooltip}
-        </Tooltip.tooltip_content>
       </Tooltip.tooltip>
     </button>
     """
