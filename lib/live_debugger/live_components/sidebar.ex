@@ -16,7 +16,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   @impl true
-  @spec update(maybe_improper_list() | map(), any()) :: {:ok, any()}
   def update(assigns, socket) do
     socket
     |> assign(assigns)
