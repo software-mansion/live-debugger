@@ -47,10 +47,10 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   defp basic_info(assigns) do
     ~H"""
     <.card class="p-4 flex flex-col gap-1 opacity-90 text-black">
-      <div class="font-semibold">Monitored socket:</div>
-      <pre class="text-swm-blue">{@socket_id}</pre>
-      <div class="font-semibold">Debugged PID:</div>
-      <pre class="text-swm-blue">{inspect(@pid)}</pre>
+      <div class="font-semibold text-swm-blue">Monitored socket:</div>
+      <pre>{@socket_id}</pre>
+      <div class="font-semibold text-swm-blue">Debugged PID:</div>
+      <pre>{inspect(@pid)}</pre>
     </.card>
     """
   end
