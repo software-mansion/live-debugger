@@ -28,7 +28,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
         pid={@debugged_pid.result}
         socket_id={@socket_id}
       />
-      <div class="flex items-center justify-center w-full">
+      <div class="flex items-center justify-center w-full h-screen">
         <.not_found_component :if={@debugged_pid.status == :not_found} />
         <.error_component :if={@debugged_pid.status == :error} />
       </div>
