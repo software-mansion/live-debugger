@@ -1,8 +1,8 @@
 defmodule LiveDebugger.Components.Tree do
   use LiveDebuggerWeb, :component
 
-  alias LiveDebugger.Components.Tooltip
   alias LiveDebugger.Components.Collapsible
+  alias LiveDebugger.Components.Tooltip
   alias LiveDebugger.Services.TreeNode
 
   @doc """
