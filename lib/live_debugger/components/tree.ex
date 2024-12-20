@@ -6,9 +6,9 @@ defmodule LiveDebugger.Components.Tree do
   alias LiveDebugger.Services.TreeNode
 
   @doc """
-  Tree component to recursively render tree of live view and its live components.
+  Tree component which show nested tree of live view and live components.
   You need to pass TreeNode struct to render the tree.
-  This component emits `select_node` event with 'selected_id` param when a node is clicked.
+  This component emits `select_node` event with 'selected_id` param to the `event_target` when a node is clicked.
   """
 
   attr(:tree_node, :any, required: true, doc: "The TreeNode struct to render")
