@@ -26,14 +26,11 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
         id="sidebar"
         module={LiveDebugger.LiveComponents.Sidebar}
         pid={@debugged_pid.result}
+        socket_id={@socket_id}
       />
       <div class="flex items-center justify-center w-full">
         <.not_found_component :if={@debugged_pid.status == :not_found} />
         <.error_component :if={@debugged_pid.status == :error} />
-        <.card :if={@debugged_pid.status == :ok} class="p-4">
-          <div>Monitored socket: <span class="text-blue-500">{@socket_id}</span></div>
-          <div>Debugged PID: <span class="text-blue-500">{inspect(@debugged_pid.result)}</span></div>
-        </.card>
       </div>
     </div>
     """
