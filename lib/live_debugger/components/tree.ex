@@ -17,6 +17,8 @@ defmodule LiveDebugger.Components.Tree do
   attr(:selected_node_id, :string, default: nil, doc: "The id of the selected node")
 
   def tree(assigns) do
+    assigns = assign(assigns, :selected_node_id, assigns.selected_node_id || assigns.tree_node.id)
+
     ~H"""
     <.card class="h-full max-h-max opacity-90" variant="outline">
       <.h4 class="text-swm-blue pt-2 pl-2">{@title}</.h4>
