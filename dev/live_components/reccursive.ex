@@ -5,7 +5,7 @@ defmodule LiveDebuggerDev.LiveComponents.Reccursive do
     socket
     |> assign(:id, assigns.id)
     |> assign(:counter, assigns.counter)
-    |> then(&{:ok, &1})
+    |> ok()
   end
 
   attr(:id, :string, required: true)
