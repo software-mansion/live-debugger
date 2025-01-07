@@ -10,8 +10,18 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
   @impl true
   def update(%{new_trace: trace}, socket) do
-    socket
-    |> assign(existing_traces: [trace | socket.assigns.existing_traces])
+    debugged_node_id = socket.assigns.debugged_node_id
+
+    cond do
+      is_nil(trace.cid) and trace.pid == debugged_node_id ->
+        assign(socket, existing_traces: [trace | socket.assigns.existing_traces])
+
+      not is_nil(trace.cid) and trace.cid == debugged_node_id ->
+        assign(socket, existing_traces: [trace | socket.assigns.existing_traces])
+
+      true ->
+        socket
+    end
     |> ok()
   end
 
