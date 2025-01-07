@@ -12,6 +12,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
   alias LiveDebugger.Services.ModuleDiscovery
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
+  alias LiveDebugger.Structs.Trace
 
   @id_prefix "lvdbg"
 
@@ -80,14 +81,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
   @spec trace_handler(raw_trace(), non_neg_integer(), :ets.table(), pid()) :: non_neg_integer()
   defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
-    trace = %{
-      module: module,
-      function: function,
-      arity: length(args),
-      args: args,
-      pid: pid,
-      timestamp: :os.system_time(:microsecond)
-    }
+    trace = Trace.new(module, function, args, pid)
 
     :ets.insert(ets_table_id, {n, trace})
     send(recipient_pid, {:new_trace, trace})
