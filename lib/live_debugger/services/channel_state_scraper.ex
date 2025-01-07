@@ -1,7 +1,6 @@
 defmodule LiveDebugger.Services.ChannelStateScraper do
   alias LiveDebugger.Services.TreeNode
-
-  import LiveDebugger.Services.LiveViewScraper
+  alias LiveDebugger.Services.LiveViewScraper
 
   @doc """
   Retrieves a TreeNode with the given `id` from the process identified by `pid`.
@@ -17,7 +16,7 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
   @spec get_node_from_pid(pid :: pid(), id :: TreeNode.id()) ::
           {:ok, TreeNode.t() | nil} | {:error, term()}
   def get_node_from_pid(pid, id) do
-    with {:ok, channel_state} <- channel_state_from_pid(pid) do
+    with {:ok, channel_state} <- LiveViewScraper.channel_state_from_pid(pid) do
       case id do
         pid when is_pid(pid) ->
           TreeNode.live_view_node(channel_state)
@@ -60,7 +59,7 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
   """
   @spec build_tree(pid) :: {:ok, TreeNode.t()} | {:error, term()}
   def build_tree(pid) when is_pid(pid) do
-    with {:ok, channel_state} <- channel_state_from_pid(pid),
+    with {:ok, channel_state} <- LiveViewScraper.channel_state_from_pid(pid),
          {:ok, live_view} <- TreeNode.live_view_node(channel_state),
          {:ok, live_components} <- TreeNode.live_component_nodes(channel_state) do
       cids_tree =
