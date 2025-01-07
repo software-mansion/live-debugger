@@ -72,9 +72,9 @@ defmodule LiveDebugger.Services.CallbackTracer do
   # If it wasn't calculated then events from the previous session would be overwritten since `dbg` would start from 0.
   @spec next_tuple_id(atom()) :: non_neg_integer()
   defp next_tuple_id(ets_table_id) do
-    case :ets.last(ets_table_id) do
+    case :ets.first(ets_table_id) do
       :"$end_of_table" -> 0
-      last_id -> last_id + 1
+      last_id -> last_id - 1
     end
   end
 
@@ -91,6 +91,6 @@ defmodule LiveDebugger.Services.CallbackTracer do
     :ets.insert(ets_table_id, {n, trace})
     send(recipient_pid, {:new_trace, trace})
 
-    n + 1
+    n - 1
   end
 end

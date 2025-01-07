@@ -11,7 +11,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   @impl true
   def update(%{new_trace: trace}, socket) do
     socket
-    |> assign(existing_traces: socket.assigns.existing_traces ++ [trace])
+    |> assign(existing_traces: [trace | socket.assigns.existing_traces])
     |> ok()
   end
 
