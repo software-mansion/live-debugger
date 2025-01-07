@@ -24,6 +24,12 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     <.container :if={@debugged_pid.status == :ok} max_width="full">
       <div>Monitored socket: <span class="text-blue-500">{@socket_id}</span></div>
       <div>Debugged PID: <span class="text-blue-500">{inspect(@debugged_pid.result)}</span></div>
+      <.live_component
+        id="event-list"
+        module={LiveDebugger.LiveComponents.EventsList}
+        debugged_node_id={@debugged_pid.result}
+        socket_id={@socket_id}
+      />
     </.container>
     """
   end
