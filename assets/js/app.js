@@ -30,12 +30,12 @@ Alpine.plugin(collapse);
 window.Alpine = Alpine;
 
 let csrfToken = document
-    .querySelector("meta[name='csrf-token']")
-    .getAttribute('content');
+  .querySelector("meta[name='csrf-token']")
+  .getAttribute('content');
 let liveSocket = new LiveSocket('/live', Socket, {
-    longPollFallbackMs: 2500,
-    params: { _csrf_token: csrfToken },
-    hooks: Hooks,
+  longPollFallbackMs: 2500,
+  params: { _csrf_token: csrfToken },
+  hooks: Hooks,
 });
 
 // Show progress bar on live navigation and form submits
