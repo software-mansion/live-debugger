@@ -23,13 +23,13 @@ defmodule LiveDebugger.Services.CallbackTracer do
   def start_tracing_session(socket_id, monitored_pid, recipient_pid) do
     with ets_table_id <- ets_table_id(socket_id),
          _table <- init_ets(ets_table_id),
-         ets_init_id <- ets_init_id(ets_table_id),
+         next_tuple_id <- next_tuple_id(ets_table_id),
          tracing_session_id <- tracing_session_id(monitored_pid),
          tracing_session <- :dbg.session_create(tracing_session_id) do
       :dbg.session(tracing_session, fn ->
         :dbg.tracer(
           :process,
-          {fn msg, n -> trace_handler(msg, n, ets_table_id, recipient_pid) end, ets_init_id}
+          {fn msg, n -> trace_handler(msg, n, ets_table_id, recipient_pid) end, next_tuple_id}
         )
 
         :dbg.p(monitored_pid, :c)
@@ -65,8 +65,13 @@ defmodule LiveDebugger.Services.CallbackTracer do
     end
   end
 
-  @spec ets_init_id(atom()) :: non_neg_integer()
-  defp ets_init_id(ets_table_id) do
+  # When new session is started we need to calculate the id of the next tuple that will be placed in given ETS table.
+  #
+  # When user is redirected to another LiveView in the same browser tab (PID changes) we start a new tracing session.
+  # Since we still want to keep events from the previous session we need to calculate the next tuple id based on the last tuple id in the table.
+  # If it wasn't calculated then events from the previous session would be overwritten since `dbg` would start from 0.
+  @spec next_tuple_id(atom()) :: non_neg_integer()
+  defp next_tuple_id(ets_table_id) do
     case :ets.last(ets_table_id) do
       :"$end_of_table" -> 0
       last_id -> last_id + 1
