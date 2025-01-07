@@ -70,7 +70,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
   # When user is redirected to another LiveView in the same browser tab (PID changes) we start a new tracing session.
   # Since we still want to keep events from the previous session we need to calculate the next tuple id based on the last tuple id in the table.
   # If it wasn't calculated then events from the previous session would be overwritten since `dbg` would start from 0.
-  @spec next_tuple_id(atom()) :: non_neg_integer()
+  @spec next_tuple_id(atom()) :: integer()
   defp next_tuple_id(ets_table_id) do
     case :ets.first(ets_table_id) do
       :"$end_of_table" -> 0
@@ -84,7 +84,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
     String.to_atom("#{@id_prefix}-#{parsed_pid}")
   end
 
-  @spec trace_handler(raw_trace(), non_neg_integer(), :ets.table(), pid()) :: non_neg_integer()
+  @spec trace_handler(raw_trace(), integer(), :ets.table(), pid()) :: integer()
   defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
     trace = Trace.new(module, function, args, pid)
 
