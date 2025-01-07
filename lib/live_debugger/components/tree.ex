@@ -49,14 +49,7 @@ defmodule LiveDebugger.Components.Tree do
 
     ~H"""
     <div class="relative flex max-w-full">
-      <div
-        :if={not @root?}
-        class={[
-          "absolute top-0 left-2 h-full border-l-2",
-          if(@highlight_bar?, do: "border-swm-blue", else: "border-transparent")
-        ]}
-      >
-      </div>
+      <.vertical_bar :if={!@root?} highlight_bar?={@highlight_bar?} />
       <div class={["w-full", unless(@root?, do: "pl-2")]}>
         <div class="w-full rounded-lg p-1 pb-0">
           <Collapsible.collapsible
@@ -89,6 +82,18 @@ defmodule LiveDebugger.Components.Tree do
           />
         </div>
       </div>
+    </div>
+    """
+  end
+
+  attr(:highlight_bar?, :boolean, required: true)
+
+  defp vertical_bar(assigns) do
+    ~H"""
+    <div class={[
+      "absolute top-0 left-2 h-full border-l-2",
+      if(@highlight_bar?, do: "border-swm-blue", else: "border-transparent")
+    ]}>
     </div>
     """
   end
