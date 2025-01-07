@@ -9,6 +9,12 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   end
 
   @impl true
+  def update(%{new_trace: trace}, socket) do
+    socket
+    |> assign(existing_traces: socket.assigns.existing_traces ++ [trace])
+    |> ok()
+  end
+
   def update(assigns, socket) do
     socket
     |> assign(debugged_node_id: assigns.debugged_node_id)
@@ -23,7 +29,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     <div>
       Events for {inspect(assigns.debugged_node_id)}
       <ul>
-        <%= for {_id, trace} <- assigns.existing_traces do %>
+        <%= for trace <- assigns.existing_traces do %>
           <li>{trace.module}.{trace.function}/{trace.arity}</li>
         <% end %>
       </ul>
@@ -32,7 +38,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   end
 
   defp assign_existing_traces(socket) do
-    existing_traces = :ets.tab2list(socket.assigns.ets_table_id)
+    existing_traces = socket.assigns.ets_table_id |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
 
     assign(socket, existing_traces: existing_traces)
   end

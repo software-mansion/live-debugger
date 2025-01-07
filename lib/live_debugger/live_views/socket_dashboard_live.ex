@@ -76,6 +76,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
   def handle_info({:new_trace, trace}, socket) do
     Logger.debug("Received a new trace: \n#{inspect(trace)}")
+    send_update(LiveDebugger.LiveComponents.EventsList, %{id: "event-list", new_trace: trace})
 
     {:noreply, socket}
   end
