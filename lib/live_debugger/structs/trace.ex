@@ -17,6 +17,7 @@ defmodule LiveDebugger.Structs.Trace do
 
   @doc """
   Creates a new trace struct.
+  PID is always present, CID is optional - it is filled when trace comes from LiveComponent.
   """
   @spec new(atom(), atom(), list(), pid()) :: t()
   def new(module, function, args, pid) do
