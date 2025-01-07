@@ -74,6 +74,11 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     {:noreply, socket}
   end
 
+  @impl true
+  def terminate(_reason, socket) do
+    CallbackTracer.stop_tracing_session(socket.assigns.tracing_session)
+  end
+
   defp loading_variant(assigns) do
     ~H"""
     <div class="h-full flex items-center justify-center">
