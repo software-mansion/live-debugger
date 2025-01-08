@@ -128,17 +128,25 @@ defmodule LiveDebugger.Components.Tree do
     """
   end
 
-  defp format_tree_node(node) do
-    id = TreeNode.id(node)
-    parsed_id = TreeNode.parse_id(id)
-
+  defp format_tree_node(node = %TreeNode.LiveView{}) do
     %{
-      id: id,
-      parsed_id: parsed_id,
+      id: node.pid,
+      parsed_id: TreeNode.parse_id(node.pid),
       label: short_name(node.module),
-      tooltip: "#{Atom.to_string(node.module)} (#{parsed_id})",
+      tooltip: "#{Atom.to_string(node.module)}",
       children: node.children,
       icon: "hero-tv"
+    }
+  end
+
+  defp format_tree_node(node = %TreeNode.LiveComponent{}) do
+    %{
+      id: node.cid,
+      parsed_id: TreeNode.parse_id(node.cid),
+      label: "#{short_name(node.module)} (#{node.cid})",
+      tooltip: "#{Atom.to_string(node.module)} (#{node.cid})",
+      children: node.children,
+      icon: "hero-cube"
     }
   end
 
