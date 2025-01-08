@@ -17,6 +17,7 @@ defmodule LiveDebugger.Services.ModuleDiscovery do
   defp find_modules_by_behaviour(loaded_modules, behaviour) do
     loaded_modules
     |> Enum.map(fn {module, _} -> module end)
+    |> Enum.reject(&debugger?/1)
     |> Enum.filter(&loaded?/1)
     |> Enum.filter(&behaviour?(&1, behaviour))
   end
@@ -26,5 +27,11 @@ defmodule LiveDebugger.Services.ModuleDiscovery do
   defp behaviour?(module, behaviour_to_find) do
     module_behaviours = module.module_info(:attributes)[:behaviour] || []
     Enum.member?(module_behaviours, behaviour_to_find)
+  end
+
+  defp debugger?(module) do
+    module
+    |> Atom.to_string()
+    |> String.starts_with?("LiveDebugger.")
   end
 end
