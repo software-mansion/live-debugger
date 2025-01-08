@@ -35,7 +35,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
         :dbg.p(monitored_pid, :c)
 
         ModuleDiscovery.find_live_modules()
-               |> CallbackUtils.tracing_callbacks()
+        |> CallbackUtils.tracing_callbacks()
         |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
       end)
 
