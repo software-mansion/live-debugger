@@ -86,7 +86,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
   @spec trace_handler(raw_trace(), integer(), :ets.table(), pid()) :: integer()
   defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
-    trace = Trace.new(module, function, args, pid)
+    trace = Trace.new(abs(n), module, function, args, pid)
 
     :ets.insert(ets_table_id, {n, trace})
     send(recipient_pid, {:new_trace, trace})

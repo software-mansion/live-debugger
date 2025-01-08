@@ -3,9 +3,10 @@ defmodule LiveDebugger.Structs.Trace do
   This module provides a struct to represent a trace.
   """
 
-  defstruct [:module, :function, :arity, :args, :pid, :cid, :timestamp]
+  defstruct [:id, :module, :function, :arity, :args, :pid, :cid, :timestamp]
 
   @type t() :: %__MODULE__{
+          id: non_neg_integer(),
           module: atom(),
           function: atom(),
           arity: non_neg_integer(),
@@ -19,9 +20,10 @@ defmodule LiveDebugger.Structs.Trace do
   Creates a new trace struct.
   PID is always present, CID is optional - it is filled when trace comes from LiveComponent.
   """
-  @spec new(atom(), atom(), list(), pid()) :: t()
-  def new(module, function, args, pid) do
+  @spec new(non_neg_integer(), atom(), atom(), list(), pid()) :: t()
+  def new(id, module, function, args, pid) do
     %__MODULE__{
+      id: id,
       module: module,
       function: function,
       arity: length(args),
