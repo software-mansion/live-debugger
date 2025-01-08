@@ -39,7 +39,7 @@ jobs:
         run: mix format --check-formatted
       - name: Check credo
         run: mix credo
-      - name Check prettier
+      - name: Check prettier
         run: cmd --cd assets prettier . --check
       - name: Run tests
         run: mix test
