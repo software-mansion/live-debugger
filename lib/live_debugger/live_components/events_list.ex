@@ -45,22 +45,24 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      Events for {inspect(assigns.debugged_node_id)}
-      <.alert
-        :if={@loading_error?}
-        with_icon
-        color="danger"
-        heading="Error fetching historical events"
-      >
-        The new events still will be displayed as they come. Check logs for more
-      </.alert>
-
-      <ul id={"#{assigns.id}-stream"} phx-update="stream">
-        <%= for {dom_id, trace} <- @streams.existing_traces do %>
-          <li id={dom_id}>{trace.module}.{trace.function}/{trace.arity} : {trace.timestamp}</li>
-        <% end %>
-      </ul>
+    <div class="w-full">
+      <.card variant="outline">
+        <.alert
+          :if={@loading_error?}
+          with_icon
+          color="danger"
+          heading="Error fetching historical events"
+        >
+          The new events still will be displayed as they come. Check logs for more
+        </.alert>
+        <.card_content heading="Events">
+          <ul id={"#{assigns.id}-stream"} phx-update="stream">
+            <%= for {dom_id, trace} <- @streams.existing_traces do %>
+              <li id={dom_id}>{trace.module}.{trace.function}/{trace.arity} : {trace.timestamp}</li>
+            <% end %>
+          </ul>
+        </.card_content>
+      </.card>
     </div>
     """
   end

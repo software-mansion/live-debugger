@@ -26,12 +26,14 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
         pid={@debugged_pid.result}
         socket_id={@socket_id}
       />
-      <.live_component
-        id="event-list"
-        module={LiveDebugger.LiveComponents.EventsList}
-        debugged_node_id={@debugged_pid.result}
-        socket_id={@socket_id}
-      />
+      <div class="w-full m-4">
+        <.live_component
+          id="event-list"
+          module={LiveDebugger.LiveComponents.EventsList}
+          debugged_node_id={@debugged_pid.result}
+          socket_id={@socket_id}
+        />
+      </div>
     </div>
     <.not_found_component :if={@debugged_pid.status == :not_found} />
     <.error_component :if={@debugged_pid.status == :error} />
