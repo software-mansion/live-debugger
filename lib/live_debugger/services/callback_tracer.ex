@@ -55,6 +55,15 @@ defmodule LiveDebugger.Services.CallbackTracer do
   @spec ets_table_id(String.t()) :: :ets.table()
   def ets_table_id(socket_id), do: String.to_atom("#{@id_prefix}-#{socket_id}")
 
+  @spec get_existing_traces(atom() | String.t()) :: list(Trace.t())
+  def get_existing_traces(table_id) when is_atom(table_id) do
+    table_id |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
+  end
+
+  def get_existing_traces(socket_id) when is_binary(socket_id) do
+    socket_id |> ets_table_id() |> get_existing_traces()
+  end
+
   @spec init_ets(atom()) :: :ets.table()
   defp init_ets(ets_table_id) do
     if :ets.whereis(ets_table_id) == :undefined do
