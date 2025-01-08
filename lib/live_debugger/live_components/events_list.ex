@@ -4,6 +4,8 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   require Logger
 
   alias LiveDebugger.Services.CallbackTracer
+  alias LiveDebugger.Components.Collapsible
+  alias LiveDebugger.Utils.Parsers
 
   @impl true
   def mount(socket) do
@@ -56,11 +58,19 @@ defmodule LiveDebugger.LiveComponents.EventsList do
           The new events still will be displayed as they come. Check logs for more
         </.alert>
         <.card_content heading="Events">
-          <ul id={"#{assigns.id}-stream"} phx-update="stream">
+          <div id={"#{assigns.id}-stream"} phx-update="stream">
             <%= for {dom_id, trace} <- @streams.existing_traces do %>
-              <li id={dom_id}>{trace.module}.{trace.function}/{trace.arity} : {trace.timestamp}</li>
+              <Collapsible.collapsible id={dom_id} icon="hero-chevron-down-micro">
+                <:label>
+                  <div class="w-full flex justify-between">
+                    <p class="font-medium">{trace.function}/{trace.arity}</p>
+                    <p class="w-32">{Parsers.parse_timestamp(trace.timestamp)}</p>
+                  </div>
+                </:label>
+                <div class="ml-5">Asd</div>
+              </Collapsible.collapsible>
             <% end %>
-          </ul>
+          </div>
         </.card_content>
       </.card>
     </div>

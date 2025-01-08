@@ -8,6 +8,7 @@ defmodule LiveDebugger.Components.Collapsible do
   attr(:id, :string, required: true)
   attr(:class, :any, default: nil, doc: "CSS class for parent container")
   attr(:chevron_class, :string, default: nil, doc: "CSS class for the chevron icon")
+  attr(:icon, :string, default: "hero-chevron-down-solid", doc: "Icon name")
   attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
   attr(:rest, :global)
 
@@ -19,7 +20,7 @@ defmodule LiveDebugger.Components.Collapsible do
     <div id={@id} class={@class} {@rest} x-data={"{ expanded: #{@open} }"}>
       <div data-open={if @open, do: "true", else: "false"}>
         <div id={content_panel_header_id(@id)} class="flex items-center gap-1">
-          <.icon_button open={@open} id={@id} chevron_class={@chevron_class} />
+          <.icon_button open={@open} id={@id} icon={@icon} chevron_class={@chevron_class} />
           {render_slot(@label)}
         </div>
         <.content_container id={@id}>
@@ -32,6 +33,7 @@ defmodule LiveDebugger.Components.Collapsible do
 
   attr(:id, :string, required: true)
   attr(:chevron_class, :string, required: true)
+  attr(:icon, :string, required: true)
   attr(:open, :boolean, required: true)
 
   defp icon_button(assigns) do
@@ -43,7 +45,7 @@ defmodule LiveDebugger.Components.Collapsible do
       aria-controls={content_panel_id(@id)}
     >
       <.icon
-        name="hero-chevron-down-solid"
+        name={@icon}
         class={[@chevron_class, if(@open, do: "rotate-180")]}
         {%{":class": "{'rotate-180': expanded}"}}
       />
