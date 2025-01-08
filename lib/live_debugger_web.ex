@@ -29,7 +29,8 @@ defmodule LiveDebuggerWeb do
         Card,
         Icon,
         Container,
-        Loading
+        Loading,
+        Alert
       }
     end
   end

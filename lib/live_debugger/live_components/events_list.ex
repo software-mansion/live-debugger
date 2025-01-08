@@ -7,7 +7,9 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
   @impl true
   def mount(socket) do
-    {:ok, socket}
+    socket
+    |> assign(:loading_error?, false)
+    |> ok()
   end
 
   @impl true
@@ -16,10 +18,14 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
     cond do
       is_nil(trace.cid) and trace.pid == debugged_node_id ->
-        stream_insert(socket, :existing_traces, trace, at: 0)
+        socket
+        |> stream_insert(:existing_traces, trace, at: 0)
+        |> assign(loading_error?: false)
 
       not is_nil(trace.cid) and trace.cid == debugged_node_id ->
-        stream_insert(socket, :existing_traces, trace, at: 0)
+        socket
+        |> stream_insert(:existing_traces, trace, at: 0)
+        |> assign(loading_error?: false)
 
       true ->
         socket
@@ -41,6 +47,15 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     ~H"""
     <div>
       Events for {inspect(assigns.debugged_node_id)}
+      <.alert
+        :if={@loading_error?}
+        with_icon
+        color="danger"
+        heading="Error fetching historical events"
+      >
+        The new events still will be displayed as they come. Check logs for more
+      </.alert>
+
       <ul id={"#{assigns.id}-stream"} phx-update="stream">
         <%= for {dom_id, trace} <- @streams.existing_traces do %>
           <li id={dom_id}>{trace.module}.{trace.function}/{trace.arity} : {trace.timestamp}</li>
@@ -62,7 +77,9 @@ defmodule LiveDebugger.LiveComponents.EventsList do
       "LiveDebugger encountered unexpected error while fetching existing traces: #{inspect(reason)}"
     )
 
-    {:noreply, socket}
+    socket
+    |> assign(loading_error?: true)
+    |> noreply()
   end
 
   defp assign_existing_traces(socket) do
@@ -72,7 +89,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     |> stream_configure(:existing_traces, dom_id: &"trace-#{&1.id}")
     |> stream(:existing_traces, [])
     |> start_async(:fetch_existing_traces, fn ->
-      ets_table_id |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
+      CallbackTracer.get_existing_traces(ets_table_id)
     end)
   end
 end
