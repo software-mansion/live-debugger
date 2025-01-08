@@ -1,4 +1,8 @@
 defmodule LiveDebugger do
+  @moduledoc """
+  Debugger for LiveView applications.
+  """
+
   use Phoenix.Component
 
   attr(:redirect_url, :string, required: true, doc: "The URL of the debugger, e.g. `/dbg`")

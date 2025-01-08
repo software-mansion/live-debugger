@@ -1,4 +1,8 @@
 defmodule LiveDebugger.Components.Tree do
+  @moduledoc """
+  Tree component which show nested tree of live view and live components.
+  """
+
   use LiveDebuggerWeb, :component
 
   alias LiveDebugger.Components.Collapsible

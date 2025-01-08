@@ -28,7 +28,6 @@ defmodule LiveDebugger.MixProject do
     [
       setup: ["deps.get", "cmd --cd assets npm install", "assets.setup", "assets.build"],
       dev: "run --no-halt dev.exs",
-      "js.format": ["cmd --cd assets prettier . --write"],
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
       "assets.build": ["esbuild default --minify", "tailwind live_debugger --minify"]
     ]
@@ -49,7 +48,8 @@ defmodule LiveDebugger.MixProject do
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:esbuild, "~> 0.7", only: :dev},
       {:tailwind, "~> 0.2", only: :dev},
-      {:mox, "~> 1.2", only: :test}
+      {:mox, "~> 1.2", only: :test},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 end

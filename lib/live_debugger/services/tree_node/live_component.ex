@@ -1,4 +1,6 @@
 defmodule LiveDebugger.Services.TreeNode.LiveComponent do
+  @moduledoc false
+
   defstruct [:id, :cid, :module, :assigns, :children]
 
   @type cid() :: integer() | nil

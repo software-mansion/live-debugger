@@ -1,4 +1,6 @@
 defmodule LiveDebugger.Services.LiveViewScraper do
+  @moduledoc false
+
   @callback channel_state_from_pid(pid :: pid()) :: {:ok, map()} | {:error, term()}
   @callback pid_by_socket_id(socket_id :: String.t()) :: pid() | nil
   @callback pids() :: [pid()]

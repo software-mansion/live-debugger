@@ -1,4 +1,8 @@
 defmodule LiveDebugger.Services.ChannelStateScraper do
+  @moduledoc """
+  This module provides functions that performs operation on state of LiveView channel.
+  """
+
   alias LiveDebugger.Services.TreeNode
   alias LiveDebugger.Services.LiveViewScraper
 
