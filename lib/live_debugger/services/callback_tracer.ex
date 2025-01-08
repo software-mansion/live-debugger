@@ -5,6 +5,9 @@ defmodule LiveDebugger.Services.CallbackTracer do
   When session is started sends traces to the recipient PID via message {:new_trace, trace}.
   It stores traces in an ETS table with id created by `CallbackTracer.ets_table_id/1`.
 
+  Traces ids starts from 0 and are decremented by 1 to make sure that they are ordered from the newest to the oldest.
+  This is how ets ordered set works. It does not allow you to change the order manually, it is always ordered by the key.
+
   The session should be stopped when monitored process is killed with `stop_tracing_session/1`.
   """
 
@@ -95,7 +98,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
   @spec trace_handler(raw_trace(), integer(), :ets.table(), pid()) :: integer()
   defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
-    trace = Trace.new(abs(n), module, function, args, pid)
+    trace = Trace.new(n, module, function, args, pid)
 
     :ets.insert(ets_table_id, {n, trace})
     send(recipient_pid, {:new_trace, trace})
