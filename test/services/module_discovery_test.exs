@@ -28,6 +28,7 @@ defmodule LiveDebugger.Services.ModuleDiscoveryTest do
 
       assert Enum.any?(live_views, &(&1 == LiveDebuggerTest.TestView))
       assert Enum.any?(live_components, &(&1 == LiveDebuggerTest.TestComponent))
+      refute Enum.any?(live_views, &(&1 == LiveDebuggerTest.OtherModule))
     end
   end
 
