@@ -49,40 +49,46 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def render(assigns) do
     ~H"""
     <div class="w-full">
-      <.card variant="outline">
-        <.alert
-          :if={@loading_error?}
-          with_icon
-          color="danger"
-          heading="Error fetching historical events"
-        >
-          The new events still will be displayed as they come. Check logs for more
-        </.alert>
-        <.card_content heading="Events">
-          <div id={"#{assigns.id}-stream"} phx-update="stream">
-            <%= for {dom_id, trace} <- @streams.existing_traces do %>
-              <Collapsible.collapsible
-                id={dom_id}
-                icon="hero-chevron-down-micro"
-                chevron_class="text-swm-blue"
-              >
-                <:label>
-                  <div class="w-full flex justify-between">
-                    <Tooltip.tooltip
-                      position="top"
-                      content={"#{trace.module}.#{trace.function}/#{trace.arity}"}
-                    >
-                      <p class="text-swm-blue font-medium">{trace.function}/{trace.arity}</p>
-                    </Tooltip.tooltip>
-                    <p class="w-32">{Parsers.parse_timestamp(trace.timestamp)}</p>
-                  </div>
-                </:label>
-                <div class="ml-5">Asd</div>
-              </Collapsible.collapsible>
-            <% end %>
-          </div>
-        </.card_content>
-      </.card>
+      <.h3>Events</.h3>
+      <.alert
+        :if={@loading_error?}
+        with_icon
+        color="danger"
+        heading="Error fetching historical events"
+      >
+        The new events still will be displayed as they come. Check logs for more
+      </.alert>
+
+      <div id={"#{assigns.id}-stream"} phx-update="stream">
+        <%= for {dom_id, trace} <- @streams.existing_traces do %>
+          <Collapsible.collapsible
+            id={dom_id}
+            icon="hero-chevron-down-micro"
+            chevron_class="text-swm-blue"
+          >
+            <:label>
+              <div class="w-full flex justify-between">
+                <Tooltip.tooltip
+                  position="top"
+                  content={"#{trace.module}.#{trace.function}/#{trace.arity}"}
+                >
+                  <p class="text-swm-blue font-medium">{trace.function}/{trace.arity}</p>
+                </Tooltip.tooltip>
+                <p class="w-32">{Parsers.parse_timestamp(trace.timestamp)}</p>
+              </div>
+            </:label>
+            <div class="ml-5">
+              <.card variant="outline">
+                <.card_content class="flex flex-col gap-3">
+                  <%= for args <- trace.args do %>
+                    <div class="whitespace-pre">{inspect(args, pretty: true)}</div>
+                  <% end %>
+                </.card_content>
+              </.card>
+            </div>
+          </Collapsible.collapsible>
+        <% end %>
+      </div>
     </div>
     """
   end
