@@ -19,9 +19,8 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   def render(assigns) do
     ~H"""
     <.loading_variant :if={@debugged_pid.status == :loading} />
-    <div class="w-full flex flex-row">
+    <div :if={@debugged_pid.status == :ok} class="w-full flex flex-row">
       <.live_component
-        :if={@debugged_pid.status == :ok}
         id="sidebar"
         module={LiveDebugger.LiveComponents.Sidebar}
         pid={@debugged_pid.result}
@@ -33,11 +32,9 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
         debugged_node_id={@debugged_pid.result}
         socket_id={@socket_id}
       />
-      <div class="flex items-center justify-center w-full h-screen">
-        <.not_found_component :if={@debugged_pid.status == :not_found} />
-        <.error_component :if={@debugged_pid.status == :error} />
-      </div>
     </div>
+    <.not_found_component :if={@debugged_pid.status == :not_found} />
+    <.error_component :if={@debugged_pid.status == :error} />
     """
   end
 
