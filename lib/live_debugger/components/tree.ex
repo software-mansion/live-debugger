@@ -12,7 +12,7 @@ defmodule LiveDebugger.Components.Tree do
   @doc """
   Tree component which show nested tree of live view and live components.
   You need to pass TreeNode struct to render the tree.
-  This component emits `select_node` event with 'node_id` param to the `event_target` when a node is clicked. `node_id` is a parsed to string.
+  This component emits `select_node` event with 'node_id` param to the `event_target` when a node is clicked. `node_id` is parsed.
   """
 
   attr(:tree_node, :any, required: true, doc: "The TreeNode struct to render")
