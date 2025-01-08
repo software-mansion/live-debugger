@@ -38,6 +38,34 @@ defmodule LiveDebuggerDev.LiveViews.Main do
             Message from <span class="text-green-500">second component</span> {@datetime}
           </div>
 
+          <.live_component
+            id="many_assigns"
+            {%{
+            a: 1,
+            b: 2,
+            c: "some value",
+            d: %{nested: "value"},
+            e: [1, 2, 3],
+            f: [a: 1, b: 2],
+            g: [a: 1, b: 2, c: [1, 2, 3]],
+            h: [a: 1, b: 2, c: [a: 1, b: 2]],
+            i: 56,
+            j: 78,
+            k: 90,
+            l: 12,
+            m: 34,
+            n: 56,
+            o: "Some Long value which should be splitted to multiple lines.",
+            p: 213,
+            q: :abf,
+            r: :cde,
+            s: :fgh,
+            t: :ijk,
+            u: :lmn,
+            v: :very_long_atom_whith_multiple_words_xxxxx_xxxxxxx_xxxxxxxxxxxxx
+          }}
+            module={LiveComponents.ManyAssigns}
+          />
           <.live_component id="name_outer" name={@name} module={LiveComponents.Name} />
           <.live_component id="send_outer" module={LiveComponents.Send}>
             <.live_component id="name_inner" name={@name} module={LiveComponents.Name} />
