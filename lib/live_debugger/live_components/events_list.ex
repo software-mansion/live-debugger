@@ -69,6 +69,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     ets_table_id = socket.assigns.ets_table_id
 
     socket
+    |> stream_configure(:existing_traces, dom_id: &"trace-#{&1.id}")
     |> stream(:existing_traces, [])
     |> start_async(:fetch_existing_traces, fn ->
       ets_table_id |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
