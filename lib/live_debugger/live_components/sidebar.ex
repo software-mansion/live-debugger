@@ -1,19 +1,15 @@
 defmodule LiveDebugger.LiveComponents.Sidebar do
   @moduledoc """
   Sidebar component which displays tree of live view and it's live components.
+  It changes path to `/node/:node_id` when a node is selected.
   """
   use LiveDebuggerWeb, :live_component
 
+  alias Phoenix.LiveView.AsyncResult
+  alias LiveDebugger.Services.TreeNode
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelStateScraper
   alias PetalComponents.Alert
-
-  @impl true
-  def mount(socket) do
-    socket
-    |> assign(selected_node_id: nil)
-    |> ok()
-  end
 
   @impl true
   def update(assigns, socket) do
@@ -25,6 +21,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   attr(:pid, :any, required: true)
   attr(:socket_id, :string, required: true)
+  attr(:base_uri, :string, required: true)
+  attr(:node_id, :any, required: true)
 
   @impl true
   def render(assigns) do
@@ -34,14 +32,33 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       <.separate_bar />
       <.basic_info pid={@pid} socket_id={@socket_id} />
       <.separate_bar />
-      <.component_tree tree={@tree} selected_node_id={@selected_node_id} target={@myself} />
+      <.component_tree tree={@tree} selected_node_id={@node_id} target={@myself} />
     </div>
     """
   end
 
   @impl true
-  def handle_event("select_node", %{"selected_id" => selected_id}, socket) do
-    {:noreply, assign(socket, selected_node_id: selected_id)}
+  def handle_event("select_node", %{"node_id" => node_id}, socket) do
+    socket
+    |> push_selected_node_id(node_id)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_async(:tree, {:ok, tree}, socket) do
+    node_id = TreeNode.parsed_id(tree)
+
+    socket
+    |> assign(:tree, AsyncResult.ok(tree))
+    |> push_selected_node_id(node_id)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_async(:tree, {:exit, reason}, socket) do
+    socket
+    |> assign(:tree, AsyncResult.failed(socket.assigns.tree, reason))
+    |> noreply()
   end
 
   defp basic_info(assigns) do
@@ -81,14 +98,26 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     """
   end
 
+  defp assign_async_tree(%{assigns: %{tree: %AsyncResult{ok?: true, result: _}}} = socket),
+    do: socket
+
   defp assign_async_tree(socket) do
     pid = socket.assigns.pid
 
-    assign_async(socket, :tree, fn ->
+    socket
+    |> assign(:tree, AsyncResult.loading())
+    |> start_async(:tree, fn ->
       case ChannelStateScraper.build_tree(pid) do
-        {:ok, tree} -> {:ok, %{tree: tree}}
-        error -> error
+        {:ok, tree} ->
+          tree
+
+        error ->
+          error
       end
     end)
+  end
+
+  defp push_selected_node_id(socket, node_id) do
+    push_patch(socket, to: "/live_debug/#{socket.assigns.socket_id}/#{node_id}")
   end
 end

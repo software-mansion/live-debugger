@@ -23,6 +23,37 @@ defmodule LiveDebugger.Services.TreeNode do
           components: {%{cid() => channel_state_component()}, any(), any()}
         }
 
+  @spec id(node :: t()) :: id()
+  def id(%LiveViewNode{pid: pid}), do: pid
+  def id(%LiveComponentNode{cid: cid}), do: cid
+
+  @spec parsed_id(node :: t()) :: String.t()
+  def parsed_id(node), do: node |> id() |> parse_id()
+
+  @doc """
+  Returnes parsed PID or CID of the node.
+  PID has format `0.123.0`.
+  """
+
+  @spec parse_id(id :: id()) :: String.t()
+  def parse_id(pid) when is_pid(pid) do
+    pid |> inspect() |> String.replace_prefix("#PID<", "") |> String.replace_suffix(">", "")
+  end
+
+  def parse_id(cid) when is_integer(cid), do: Integer.to_string(cid)
+
+  @spec parse_to_id(id :: String.t()) :: {:ok, id()} | :error
+  def parse_to_id(id) when is_binary(id) do
+    if String.match?(id, ~r/[0-9]+\.[0-9]+\.[0-9]+/) do
+      {:ok, IEx.Helpers.pid(id)}
+    else
+      case Integer.parse(id) do
+        {id, _} -> {:ok, id}
+        _ -> {:error, :invalid_id_format}
+      end
+    end
+  end
+
   @spec add_child(parent :: t(), child :: t()) :: t()
   def add_child(parent, child) do
     %{parent | children: parent.children ++ [child]}

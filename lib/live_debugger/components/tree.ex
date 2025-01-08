@@ -12,7 +12,7 @@ defmodule LiveDebugger.Components.Tree do
   @doc """
   Tree component which show nested tree of live view and live components.
   You need to pass TreeNode struct to render the tree.
-  This component emits `select_node` event with 'selected_id` param to the `event_target` when a node is clicked.
+  This component emits `select_node` event with 'node_id` param to the `event_target` when a node is clicked. `node_id` is a parsed to string.
   """
 
   attr(:tree_node, :any, required: true, doc: "The TreeNode struct to render")
@@ -21,8 +21,6 @@ defmodule LiveDebugger.Components.Tree do
   attr(:selected_node_id, :string, default: nil, doc: "The id of the selected node")
 
   def tree(assigns) do
-    assigns = assign(assigns, :selected_node_id, assigns.selected_node_id || assigns.tree_node.id)
-
     ~H"""
     <.card class="h-full max-h-max opacity-90" variant="outline">
       <.h4 class="text-swm-blue pt-2 pl-2">{@title}</.h4>
@@ -45,11 +43,17 @@ defmodule LiveDebugger.Components.Tree do
   attr(:highlight_bar?, :boolean, default: false)
 
   defp tree_node(assigns) do
+    selected? =
+      assigns.tree_node
+      |> TreeNode.id()
+      |> TreeNode.parse_id()
+      |> Kernel.==(assigns.selected_node_id)
+
     assigns =
       assigns
       |> assign(:tree_node, format_tree_node(assigns.tree_node))
       |> assign(:collapsible?, length(assigns.tree_node.children) > 0)
-      |> assign(:selected?, assigns.tree_node.id == assigns.selected_node_id)
+      |> assign(:selected?, selected?)
 
     ~H"""
     <div class="relative flex max-w-full">
@@ -58,7 +62,7 @@ defmodule LiveDebugger.Components.Tree do
         <div class="w-full rounded-lg p-1 pb-0">
           <Collapsible.collapsible
             :if={@collapsible?}
-            id={@tree_node.id}
+            id={"collapsible-" <> @tree_node.parsed_id}
             open={true}
             chevron_class="text-swm-blue h-5 w-5 mb-1"
             class="w-full"
@@ -111,7 +115,7 @@ defmodule LiveDebugger.Components.Tree do
     ~H"""
     <button
       phx-click="select_node"
-      phx-value-selected_id={@node.id}
+      phx-value-node_id={@node.parsed_id}
       phx-target={@event_target}
       class={["flex w-full", @class]}
     >
@@ -130,23 +134,17 @@ defmodule LiveDebugger.Components.Tree do
     """
   end
 
-  defp format_tree_node(node = %TreeNode.LiveView{}) do
+  defp format_tree_node(node) do
+    id = TreeNode.id(node)
+    parsed_id = TreeNode.parse_id(id)
+
     %{
-      id: node.id,
+      id: id,
+      parsed_id: parsed_id,
       label: short_name(node.module),
-      tooltip: "#{Atom.to_string(node.module)} (#{inspect(node.pid)})",
+      tooltip: "#{Atom.to_string(node.module)} (#{parsed_id})",
       children: node.children,
       icon: "hero-tv"
-    }
-  end
-
-  defp format_tree_node(node = %TreeNode.LiveComponent{}) do
-    %{
-      id: node.id,
-      label: "#{short_name(node.module)} (#{node.cid})",
-      tooltip: "#{Atom.to_string(node.module)} (#{node.cid})",
-      children: node.children,
-      icon: "hero-cube"
     }
   end
 
