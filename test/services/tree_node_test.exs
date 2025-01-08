@@ -43,14 +43,14 @@ defmodule LiveDebugger.Services.TreeNodeTest do
     assert TreeNode.live_view_node(%{}) == {:error, :invalid_channel_view}
   end
 
-  test "live_component_node/2 with valid channel_state and existing live_compoennt" do
+  test "live_component_node/2 with valid channel_state and existing live_component" do
     channel_state = %{components: {%{1 => {:module, "component-id", %{}, nil, nil}}, nil, nil}}
 
     assert {:ok, %TreeNode.LiveComponent{cid: 1, module: :module}} =
              TreeNode.live_component_node(channel_state, 1)
   end
 
-  test "live_component_node/2 with valid channel_state and non-existing live_compoennt" do
+  test "live_component_node/2 with valid channel_state and non-existing live_component" do
     channel_state = %{components: {%{1 => {:module, "component-id", %{}, nil, nil}}, nil, nil}}
 
     assert {:ok, nil} = TreeNode.live_component_node(channel_state, 2)

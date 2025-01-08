@@ -1,6 +1,6 @@
-@import "tailwindcss/base";
-@import "../../deps/petal_components/assets/default.css";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@import 'tailwindcss/base';
+@import '../../deps/petal_components/assets/default.css';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
 /* You can add custom styles here */

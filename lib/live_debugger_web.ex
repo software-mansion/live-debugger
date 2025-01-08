@@ -22,6 +22,17 @@ defmodule LiveDebuggerWeb do
     end
   end
 
+  def component do
+    quote do
+      use Phoenix.Component
+
+      import Phoenix.HTML
+      import LiveDebuggerWeb.Helpers
+
+      unquote(petal_components())
+    end
+  end
+
   defp petal_components do
     quote do
       import PetalComponents.{
