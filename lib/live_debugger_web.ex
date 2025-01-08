@@ -1,4 +1,6 @@
 defmodule LiveDebuggerWeb do
+  @moduledoc false
+
   def live_view do
     quote do
       use Phoenix.LiveView,
@@ -52,6 +54,8 @@ defmodule LiveDebuggerWeb do
 end
 
 defmodule LiveDebuggerWeb.Helpers do
+  @moduledoc false
+
   def ok(socket), do: {:ok, socket}
   def noreply(socket), do: {:noreply, socket}
 end

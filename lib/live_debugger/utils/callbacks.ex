@@ -1,4 +1,8 @@
 defmodule LiveDebugger.Utils.Callbacks do
+  @moduledoc """
+  This module provides functions to generate a list of callbacks for LiveViews and LiveComponents.
+  """
+
   alias LiveDebugger.Services.ModuleDiscovery
 
   @common_callbacks [

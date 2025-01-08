@@ -1,4 +1,8 @@
 defmodule LiveDebugger.Components.Tooltip do
+  @moduledoc """
+  This module provides a Tooltip component.
+  """
+
   use LiveDebuggerWeb, :component
 
   @doc """

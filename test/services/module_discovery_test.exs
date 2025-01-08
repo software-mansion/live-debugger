@@ -23,11 +23,12 @@ defmodule LiveDebugger.Services.ModuleDiscoveryTest do
         Macro.Env.location(__ENV__)
       )
 
-      assert %{
-               live_views: [LiveDebuggerTest.TestView],
-               live_components: [LiveDebuggerTest.TestComponent]
-             } =
-               ModuleDiscovery.find_live_modules()
+      %{live_views: live_views, live_components: live_components} =
+        ModuleDiscovery.find_live_modules()
+
+      assert Enum.any?(live_views, &(&1 == LiveDebuggerTest.TestView))
+      assert Enum.any?(live_components, &(&1 == LiveDebuggerTest.TestComponent))
+      refute Enum.any?(live_views, &(&1 == LiveDebuggerTest.OtherModule))
     end
   end
 

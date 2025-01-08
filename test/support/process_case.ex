@@ -1,4 +1,6 @@
 defmodule LiveDebugger.ProcessCase do
+  @moduledoc false
+
   use ExUnit.CaseTemplate
 
   import Mox

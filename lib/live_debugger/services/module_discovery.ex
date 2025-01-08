@@ -1,4 +1,8 @@
 defmodule LiveDebugger.Services.ModuleDiscovery do
+  @moduledoc """
+  This module provides functions to discover LiveViews and LiveComponents in the current application.
+  """
+
   @live_view_behaviour Phoenix.LiveView
   @live_component_behaviour Phoenix.LiveComponent
 
@@ -18,6 +22,7 @@ defmodule LiveDebugger.Services.ModuleDiscovery do
     loaded_modules
     |> Enum.map(fn {module, _} -> module end)
     |> Enum.filter(&loaded?/1)
+    |> Enum.reject(&debugger?/1)
     |> Enum.filter(&behaviour?(&1, behaviour))
   end
 
@@ -26,5 +31,12 @@ defmodule LiveDebugger.Services.ModuleDiscovery do
   defp behaviour?(module, behaviour_to_find) do
     module_behaviours = module.module_info(:attributes)[:behaviour] || []
     Enum.member?(module_behaviours, behaviour_to_find)
+  end
+
+  defp debugger?(module) do
+    stringified_module = Atom.to_string(module)
+
+    String.starts_with?(stringified_module, "LiveDebugger.") or
+      String.starts_with?(stringified_module, "Elixir.LiveDebugger.")
   end
 end
