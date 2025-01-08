@@ -25,7 +25,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col w-full h-screen gap-4 p-4">
+    <div class="flex flex-col w-full h-screen max-h-screen gap-4">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
@@ -47,8 +47,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp detail_view(assigns) do
     ~H"""
-    <div class="flex gap-4 w-full h-full">
-      <div class="flex flex-col gap-4 basis-1/2">
+    <div class="flex gap-4 w-full h-full p-4">
+      <div class="flex flex-col gap-4 basis-1/2 w-full max-h-max">
         <.basic_info node={@node} />
         <.assigns_table assigns_list={@node.assigns} />
       </div>
@@ -63,8 +63,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     assigns = assign(assigns, :type, TreeNode.type(assigns.node))
 
     ~H"""
-    <.segment_card title={title(@type)}>
-      <div class="flex flex-col gap-1">
+    <.segment_card title={title(@type)} class="min-h-max">
+      <div class="max-w-full flex flex-col gap-1">
         <.info_row name={id_type(@type)} value={TreeNode.parsed_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
         <.info_row name="HTML ID" value={@node.id} />
@@ -78,11 +78,11 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_row(assigns) do
     ~H"""
-    <div class="w-full flex gap-1">
+    <div class="max-w-full flex gap-1 overflow-x-hidden">
       <div class="font-bold w-20">
         {@name}
       </div>
-      <div>
+      <div class="max-w-full break-words">
         {@value}
       </div>
     </div>
@@ -99,13 +99,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp assigns_table(assigns) do
     ~H"""
-    <.segment_card title="Assigns">
-      <div class="grid grid-cols-2 max-w-max gap-1">
-        <%= for {key, value} <- @assigns_list do %>
-          <div class="font-bold">{key}</div>
-          <div>{inspect(value)}</div>
-        <% end %>
-      </div>
+    <.segment_card title="Assigns" class="h-max max-h-full">
+      <div class="whitespace-pre">{inspect(@assigns_list, pretty: true)}</div>
     </.segment_card>
     """
   end
@@ -123,12 +118,15 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp segment_card(assigns) do
     ~H"""
-    <.card class={["flex flex-col gap-4 p-4 w-full bg-swm-blue text-white", @class]} variant="outline">
+    <div class={[
+      "flex flex-col gap-4 p-4 w-full max-h-full bg-swm-blue text-white rounded-xl shadow-lg",
+      @class
+    ]}>
       <.h3 class="text-white">{@title}</.h3>
-      <div class="w-full rounded-md bg-white opacity-90 text-black p-2">
+      <div class="w-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2">
         {render_slot(@inner_block)}
       </div>
-    </.card>
+    </div>
     """
   end
 

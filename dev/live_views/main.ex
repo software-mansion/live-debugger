@@ -62,7 +62,10 @@ defmodule LiveDebuggerDev.LiveViews.Main do
             s: :fgh,
             t: :ijk,
             u: :lmn,
-            v: :very_long_atom_whith_multiple_words_xxxxx_xxxxxxx_xxxxxxxxxxxxx
+            v: :very_long_atom_whith_multiple_words_xxxxx_xxxxxxx_xxxxxxxxxxxxx,
+            w: :short_atom,
+            x: :short,
+            y: "Last long value of string with example text to be shown on the propoer component"
           }}
             module={LiveComponents.ManyAssigns}
           />
