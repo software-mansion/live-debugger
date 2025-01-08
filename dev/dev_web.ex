@@ -7,6 +7,7 @@ defmodule DevWeb do
       import LiveDebuggerDev.Components
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers
+      import LiveDebuggerDev.Helpers
     end
   end
 
@@ -17,6 +18,7 @@ defmodule DevWeb do
       import LiveDebuggerDev.Components
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers
+      import LiveDebuggerDev.Helpers
     end
   end
 
