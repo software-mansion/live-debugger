@@ -1,4 +1,8 @@
 defmodule LiveDebugger.Services.ModuleDiscovery do
+  @moduledoc """
+  This module provides functions to discover LiveViews and LiveComponents in the current application.
+  """
+
   @live_view_behaviour Phoenix.LiveView
   @live_component_behaviour Phoenix.LiveComponent
 
@@ -18,8 +22,8 @@ defmodule LiveDebugger.Services.ModuleDiscovery do
     loaded_modules
     |> Enum.map(fn {module, _} -> module end)
     |> Enum.filter(&loaded?/1)
-    |> Enum.filter(&behaviour?(&1, behaviour))
     |> Enum.reject(&debugger?/1)
+    |> Enum.filter(&behaviour?(&1, behaviour))
   end
 
   defp loaded?(module), do: Code.ensure_loaded?(module)

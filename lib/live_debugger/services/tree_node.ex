@@ -1,5 +1,5 @@
 defmodule LiveDebugger.Services.TreeNode do
-  @doc """
+  @moduledoc """
   This module provides functions to work with the tree of LiveView and LiveComponent nodes (TreeNodes).
   """
   alias LiveDebugger.Services.TreeNode.LiveView, as: LiveViewNode

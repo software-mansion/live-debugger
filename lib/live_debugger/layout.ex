@@ -49,7 +49,6 @@ defmodule LiveDebugger.Layout do
     """
   end
 
-  # TODO: Remove this and the conditional on Phoenix v1.7+
   @compile {:no_warn_undefined, Phoenix.VerifiedRoutes}
 
   defp asset_path(conn, asset) when asset in [:css, :js] do
