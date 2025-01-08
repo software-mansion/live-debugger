@@ -27,6 +27,16 @@ defmodule LiveDebugger.Services.TreeNode do
   def id(%LiveViewNode{pid: pid}), do: pid
   def id(%LiveComponentNode{cid: cid}), do: cid
 
+  @doc """
+  Gives type of the node.
+  Types:
+    * `:live_view`
+    * `:live_component`
+  """
+  @spec type(node :: t()) :: atom()
+  def type(%LiveViewNode{}), do: :live_view
+  def type(%LiveComponentNode{}), do: :live_component
+
   @spec parsed_id(node :: t()) :: String.t()
   def parsed_id(node), do: node |> id() |> parse_id()
 
@@ -42,14 +52,14 @@ defmodule LiveDebugger.Services.TreeNode do
 
   def parse_id(cid) when is_integer(cid), do: Integer.to_string(cid)
 
-  @spec parse_to_id(id :: String.t()) :: {:ok, id()} | :error
+  @spec parse_to_id(id :: String.t()) :: id() | nil
   def parse_to_id(id) when is_binary(id) do
     if String.match?(id, ~r/[0-9]+\.[0-9]+\.[0-9]+/) do
-      {:ok, IEx.Helpers.pid(id)}
+      IEx.Helpers.pid(id)
     else
       case Integer.parse(id) do
-        {id, _} -> {:ok, id}
-        _ -> {:error, :invalid_id_format}
+        {cid, _} -> cid
+        _ -> nil
       end
     end
   end

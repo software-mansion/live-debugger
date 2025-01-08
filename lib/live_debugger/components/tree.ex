@@ -43,17 +43,11 @@ defmodule LiveDebugger.Components.Tree do
   attr(:highlight_bar?, :boolean, default: false)
 
   defp tree_node(assigns) do
-    selected? =
-      assigns.tree_node
-      |> TreeNode.id()
-      |> TreeNode.parse_id()
-      |> Kernel.==(assigns.selected_node_id)
-
     assigns =
       assigns
       |> assign(:tree_node, format_tree_node(assigns.tree_node))
       |> assign(:collapsible?, length(assigns.tree_node.children) > 0)
-      |> assign(:selected?, selected?)
+      |> assign(:selected?, TreeNode.id(assigns.tree_node) == assigns.selected_node_id)
 
     ~H"""
     <div class="relative flex max-w-full">

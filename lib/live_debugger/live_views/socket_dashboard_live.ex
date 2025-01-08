@@ -3,6 +3,8 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
   require Logger
 
+  alias LiveDebugger.Services.TreeNode
+  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewScraper
   alias LiveDebugger.Services.CallbackTracer
 
@@ -16,22 +18,49 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   end
 
   @impl true
+  def handle_params(params, _url, socket) do
+    socket
+    |> assign_node_id(params)
+    |> noreply()
+  end
+
+  @impl true
   def render(assigns) do
     ~H"""
-    <.loading_variant :if={@debugged_pid.status == :loading} />
-    <.not_found_component :if={@debugged_pid.status == :not_found} />
-    <.error_component :if={@debugged_pid.status == :error} />
-    <.container :if={@debugged_pid.status == :ok} max_width="full">
-      <div>Monitored socket: <span class="text-blue-500">{@socket_id}</span></div>
-      <div>Debugged PID: <span class="text-blue-500">{inspect(@debugged_pid.result)}</span></div>
-    </.container>
+    <.async_result :let={debugged_pid} assign={@debugged_pid}>
+      <:loading><.loading_variant /></:loading>
+
+      <:failed :let={reason}>
+        <div class="flex items-center justify-center w-full h-screen">
+          <.not_found_component :if={reason == :not_found} />
+          <.error_component :if={reason != :not_found} />
+        </div>
+      </:failed>
+
+      <div class="flex flex-row w-full min-h-screen">
+        <.live_component
+          module={LiveDebugger.LiveComponents.Sidebar}
+          id="sidebar"
+          pid={debugged_pid}
+          socket_id={@socket_id}
+          send_selected_node_id={{LiveDebugger.LiveComponents.DetailView, "detail_view"}}
+          node_id={@node_id}
+        />
+        <.live_component
+          module={LiveDebugger.LiveComponents.DetailView}
+          id="detail_view"
+          pid={debugged_pid}
+          node_id={@node_id}
+        />
+      </div>
+    </.async_result>
     """
   end
 
   @impl true
   def handle_async(:fetch_debugged_pid, {:ok, nil}, socket) do
     socket
-    |> assign(:debugged_pid, %{status: :not_found, result: nil})
+    |> assign(:debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, :not_found))
     |> noreply()
   end
 
@@ -43,7 +72,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
       CallbackTracer.start_tracing_session(socket.assigns.socket_id, fetched_pid, self())
 
     socket
-    |> assign(:debugged_pid, %{status: :ok, result: fetched_pid})
+    |> assign(:debugged_pid, AsyncResult.ok(fetched_pid))
     |> assign(:tracing_session, tracing_session)
     |> noreply()
   end
@@ -55,7 +84,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     )
 
     socket
-    |> assign(:debugged_pid, %{status: :error, result: nil})
+    |> assign(:debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, reason))
     |> noreply()
   end
 
@@ -113,12 +142,20 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     """
   end
 
+  defp assign_node_id(socket, %{"node_id" => node_id}) do
+    assign(socket, :node_id, TreeNode.parse_to_id(node_id))
+  end
+
+  defp assign_node_id(socket, _params) do
+    assign(socket, :node_id, nil)
+  end
+
   defp assign_async_debugged_pid(socket) do
     socket_id = socket.assigns.socket_id
 
     # credo:disable-for-lines:9
     socket
-    |> assign(:debugged_pid, %{status: :loading})
+    |> assign(:debugged_pid, AsyncResult.loading())
     |> start_async(:fetch_debugged_pid, fn ->
       with nil <- fetch_pid_after(socket_id, 200),
            nil <- fetch_pid_after(socket_id, 800),
