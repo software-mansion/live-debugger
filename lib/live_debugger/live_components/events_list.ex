@@ -1,4 +1,8 @@
 defmodule LiveDebugger.LiveComponents.EventsList do
+  @moduledoc """
+  This module provides a LiveComponent to display events.
+  """
+
   use LiveDebuggerWeb, :live_component
 
   require Logger
