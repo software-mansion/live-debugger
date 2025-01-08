@@ -6,6 +6,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   alias LiveDebugger.Services.CallbackTracer
   alias LiveDebugger.Components.Collapsible
   alias LiveDebugger.Utils.Parsers
+  alias LiveDebugger.Components.Tooltip
 
   @impl true
   def mount(socket) do
@@ -60,10 +61,19 @@ defmodule LiveDebugger.LiveComponents.EventsList do
         <.card_content heading="Events">
           <div id={"#{assigns.id}-stream"} phx-update="stream">
             <%= for {dom_id, trace} <- @streams.existing_traces do %>
-              <Collapsible.collapsible id={dom_id} icon="hero-chevron-down-micro">
+              <Collapsible.collapsible
+                id={dom_id}
+                icon="hero-chevron-down-micro"
+                chevron_class="text-swm-blue"
+              >
                 <:label>
                   <div class="w-full flex justify-between">
-                    <p class="font-medium">{trace.function}/{trace.arity}</p>
+                    <Tooltip.tooltip
+                      position="top"
+                      content={"#{trace.module}.#{trace.function}/#{trace.arity}"}
+                    >
+                      <p class="text-swm-blue font-medium">{trace.function}/{trace.arity}</p>
+                    </Tooltip.tooltip>
                     <p class="w-32">{Parsers.parse_timestamp(trace.timestamp)}</p>
                   </div>
                 </:label>

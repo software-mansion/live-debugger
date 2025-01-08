@@ -4,8 +4,10 @@ Hooks.Tooltip = {
   mounted() {
     this.handleMouseEnter = () => {
       const rect = this.el.getBoundingClientRect();
+      const topOffset = this.el.dataset.position === 'top' ? -45 : 0;
+
       tooltipEl.style.display = 'block';
-      tooltipEl.style.top = `${rect.bottom}px`;
+      tooltipEl.style.top = `${rect.bottom + topOffset}px`;
       tooltipEl.style.left = `${rect.left}px`;
       tooltipEl.style.zIndex = 100;
       tooltipEl.innerHTML = this.el.dataset.tooltip;
