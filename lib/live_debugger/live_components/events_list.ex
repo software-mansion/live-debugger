@@ -77,15 +77,14 @@ defmodule LiveDebugger.LiveComponents.EventsList do
                 <p class="w-32">{Parsers.parse_timestamp(trace.timestamp)}</p>
               </div>
             </:label>
-            <div class="ml-5">
-              <.card variant="outline">
-                <.card_content class="flex flex-col gap-3">
-                  <%= for args <- trace.args do %>
-                    <div class="whitespace-pre">{inspect(args, pretty: true)}</div>
-                  <% end %>
-                </.card_content>
-              </.card>
-            </div>
+
+            <.card variant="outline">
+              <.card_content class="flex flex-col gap-4">
+                <%= for args <- trace.args do %>
+                  <div class="whitespace-pre">{inspect(args, pretty: true, structs: false)}</div>
+                <% end %>
+              </.card_content>
+            </.card>
           </Collapsible.collapsible>
         <% end %>
       </div>
