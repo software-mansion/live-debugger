@@ -3,6 +3,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
   require Logger
 
+  alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Services.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewScraper
@@ -82,33 +83,29 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   end
 
   def handle_info({:new_trace, trace}, socket) do
-    Logger.debug("Received a new trace: \n#{inspect(trace)}")
-
     debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
 
-    cond do
-      is_nil(trace.cid) and trace.pid == debugged_node_id ->
-        send_update(LiveDebugger.LiveComponents.EventsList, %{id: "event-list", new_trace: trace})
+    # This has to be changed when we unify cids
+    debugged_node_id =
+      if is_integer(debugged_node_id) do
+        %Phoenix.LiveComponent.CID{cid: debugged_node_id}
+      else
+        debugged_node_id
+      end
 
-        send_update(LiveDebugger.LiveComponents.DetailView, %{
-          id: "detail_view",
-          pid: socket.assigns.debugged_pid.result,
-          socket_id: socket.assigns.socket_id,
-          node_id: debugged_node_id
-        })
+    if Trace.node_id(trace) |> dbg() == debugged_node_id |> dbg() do
+      Logger.debug("Received a new trace: \n#{inspect(trace)}")
 
-      not is_nil(trace.cid) and trace.cid.cid == debugged_node_id ->
-        send_update(LiveDebugger.LiveComponents.EventsList, %{id: "event-list", new_trace: trace})
+      send_update(LiveDebugger.LiveComponents.EventsList, %{id: "event-list", new_trace: trace})
 
-        send_update(LiveDebugger.LiveComponents.DetailView, %{
-          id: "detail_view",
-          pid: socket.assigns.debugged_pid.result,
-          socket_id: socket.assigns.socket_id,
-          node_id: debugged_node_id
-        })
-
-      true ->
-        :ok
+      send_update(LiveDebugger.LiveComponents.DetailView, %{
+        id: "detail_view",
+        pid: socket.assigns.debugged_pid.result,
+        socket_id: socket.assigns.socket_id,
+        node_id: if(is_pid(debugged_node_id), do: debugged_node_id, else: debugged_node_id.cid)
+      })
+    else
+      Logger.debug("Ignoring a trace from different node: #{inspect(trace)}")
     end
 
     {:noreply, socket}
