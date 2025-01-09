@@ -47,7 +47,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             <.info_card node={node} />
             <.assigns_card assigns={node.assigns} />
           </div>
-          <.events_card pid={@pid} socket_id={@socket_id} />
+          <.events_card node_id={@node_id} socket_id={@socket_id} />
         </div>
       </.async_result>
     </div>
@@ -110,7 +110,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       <.live_component
         id="event-list"
         module={LiveDebugger.LiveComponents.EventsList}
-        debugged_node_id={@pid}
+        debugged_node_id={@node_id}
         socket_id={@socket_id}
       />
     </.basic_card>

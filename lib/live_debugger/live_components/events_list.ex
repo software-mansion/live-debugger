@@ -101,12 +101,18 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
   defp assign_existing_traces(socket) do
     ets_table_id = socket.assigns.ets_table_id
+    node_id = socket.assigns.debugged_node_id
 
+    # This needs to be change in the future to ets query
     socket
-    |> stream_configure(:existing_traces, dom_id: &"trace-#{&1.id}")
-    |> stream(:existing_traces, [])
+    |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
-      CallbackTracer.get_existing_traces(ets_table_id)
+      ets_table_id
+      |> CallbackTracer.get_existing_traces()
+      |> Enum.filter(fn trace ->
+        (is_nil(trace.cid) and trace.pid == node_id) or
+          (not is_nil(trace.cid) and trace.cid.cid == node_id)
+      end)
     end)
   end
 end
