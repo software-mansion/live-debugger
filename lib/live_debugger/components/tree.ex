@@ -22,7 +22,7 @@ defmodule LiveDebugger.Components.Tree do
 
   def tree(assigns) do
     ~H"""
-    <.card class="h-full max-h-max opacity-90" variant="outline">
+    <.card class="h-max opacity-90" variant="outline">
       <.h4 class="text-swm-blue pt-2 pl-2">{@title}</.h4>
       <.card_content class="px-1 pb-4 pt-0">
         <.tree_node
