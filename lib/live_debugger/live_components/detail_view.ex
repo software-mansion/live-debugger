@@ -97,9 +97,9 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     <.section title="Assigns" class="border-b-2 md:border-b-0 border-swm-blue h-max overflow-y-hidden">
       <div class="w-full flex flex-col gap-1 overflow-y-auto">
         <%= for {key, value} <- @assigns do %>
-          <div class="overflow-x-hidden whitespace-pre-wrap break-words flex flex gap-2 min-h-max">
+          <div class="overflow-x-hidden w-full flex flex gap-2 min-h-max">
             <div class="text-swm-blue font-bold">{key}</div>
-            <div class="whitespace-pre-wrap">{inspect(value)}</div>
+            <div class="w-full overflow-x-hidden break-words">{inspect(value)}</div>
           </div>
         <% end %>
       </div>
