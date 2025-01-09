@@ -53,7 +53,6 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def render(assigns) do
     ~H"""
     <div class="w-full">
-      <.h3>Events</.h3>
       <.alert
         :if={@loading_error?}
         with_icon

@@ -150,6 +150,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
         id="detail_view"
         pid={@pid}
         node_id={@node_id}
+        socket_id={@socket_id}
       />
     </div>
     """
