@@ -163,7 +163,9 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   end
 
   defp assign_base_url(socket) do
-    assign(socket, :base_url, live_path(socket, __MODULE__, socket.assigns.socket_id))
+    prefix = socket.router.live_debugger_prefix()
+
+    assign(socket, :base_url, "#{prefix}/#{socket.assigns.socket_id}")
   end
 
   defp assign_async_debugged_pid(socket) do
