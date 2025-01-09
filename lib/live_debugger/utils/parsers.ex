@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Utils.Parseers do
+defmodule LiveDebugger.Utils.Parsers do
   @moduledoc """
   This module provides functions to parse some structs to string representation and vice versa.
   """
