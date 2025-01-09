@@ -8,7 +8,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelStateScraper
-  alias PetalComponents.Alert
 
   require Logger
 
@@ -33,7 +32,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-[20vw] min-w-60 h-screen bg-swm-blue flex flex-col gap-1 pt-4 p-2 pr-3 rounded-r-xl">
+    <div class="w-[20vw] min-w-60 min-h-max h-screen bg-swm-blue flex flex-col gap-1 pt-4 p-2 pr-3 rounded-r-xl">
       <.h3 class="text-white">Live Debugger</.h3>
       <.separate_bar />
       <.basic_info pid={@pid} socket_id={@socket_id} />
@@ -75,7 +74,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         <div class="w-full flex justify-center mt-5"><.spinner class="text-white" /></div>
       </:loading>
       <:failed :let={_error}>
-        <Alert.alert color="danger">Couldn't load a tree</Alert.alert>
+        <.alert color="danger">Couldn't load a tree</.alert>
       </:failed>
       <Tree.tree
         :if={tree}

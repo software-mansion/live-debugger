@@ -6,7 +6,6 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   alias LiveDebugger.Services.TreeNode
   alias Phoenix.LiveView.AsyncResult
-  alias PetalComponents.Alert
   alias LiveDebugger.Services.ChannelStateScraper
 
   use LiveDebuggerWeb, :live_component
@@ -30,7 +29,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col w-full h-screen max-h-screen gap-4 p-2 overflow-x-hidden overflow-y-auto md:overflow-y-hidden">
+    <div class="flex flex-col w-full h-screen max-h-screen p-2 overflow-x-hidden overflow-y-auto md:overflow-y-hidden">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
@@ -38,12 +37,12 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           </div>
         </:loading>
         <:failed :let={reason}>
-          <Alert.alert color="danger">
+          <.alert color="danger">
             Failed to fetch node details: {inspect(reason)}
-          </Alert.alert>
+          </.alert>
         </:failed>
-        <div class="grid grid-cols-1 gap-2 md:grid-cols-2 md:h-full">
-          <div class="flex flex-col gap-4 max">
+        <div class="grid grid-cols-1 md:grid-cols-2 md:h-full">
+          <div class="flex flex-col max md:border-r-2 border-swm-blue md:overflow-y-hidden">
             <.info_card node={node} node_type={@node_type.result} />
             <.assigns_card assigns={node.assigns} />
           </div>
@@ -59,13 +58,13 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_card(assigns) do
     ~H"""
-    <.basic_card title={title(@node_type)}>
+    <.section title={title(@node_type)} class="border-b-2 border-swm-blue">
       <div class=" flex flex-col gap-1">
         <.info_row name={id_type(@node_type)} value={TreeNode.parsed_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
         <.info_row name="HTML ID" value={@node.id} />
       </div>
-    </.basic_card>
+    </.section>
     """
   end
 
@@ -75,7 +74,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   defp info_row(assigns) do
     ~H"""
     <div class="flex gap-1 overflow-x-hidden">
-      <div class="font-bold text-swm-blue">
+      <div class="font-bold w-20 text-swm-blue">
         {@name}
       </div>
       <div class="break-all">
@@ -95,24 +94,29 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp assigns_card(assigns) do
     ~H"""
-    <.basic_card title="Assigns">
-      <div class="w-full whitespace-pre-wrap break-words overflow-y-auto">
-        {inspect(@assigns, pretty: true)}
+    <.section title="Assigns" class="border-b-2 md:border-b-0 border-swm-blue h-max overflow-y-hidden">
+      <div class="w-full flex flex-col gap-1 overflow-y-auto">
+        <%= for {key, value} <- @assigns do %>
+          <div class="overflow-x-hidden whitespace-pre-wrap break-words flex flex gap-2 min-h-max">
+            <div class="text-swm-blue font-bold">{key}</div>
+            <div class="whitespace-pre-wrap">{inspect(value)}</div>
+          </div>
+        <% end %>
       </div>
-    </.basic_card>
+    </.section>
     """
   end
 
   defp events_card(assigns) do
     ~H"""
-    <.basic_card title="Events" class="h-full">
+    <.section title="Events" class="h-full md:overflow-y-auto">
       <.live_component
         id="event-list"
         module={LiveDebugger.LiveComponents.EventsList}
         debugged_node_id={@pid}
         socket_id={@socket_id}
       />
-    </.basic_card>
+    </.section>
     """
   end
 
@@ -121,13 +125,13 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   slot(:inner_block)
 
-  defp basic_card(assigns) do
+  defp section(assigns) do
     ~H"""
     <div class={[
-      "flex flex-col gap-4 p-4 bg-swm-blue text-white rounded-xl shadow-xl",
+      "flex flex-col p-4",
       @class
     ]}>
-      <.h3 class="text-white">{@title}</.h3>
+      <.h3 class="text-swm-blue">{@title}</.h3>
       <div class="flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2">
         {render_slot(@inner_block)}
       </div>
