@@ -205,13 +205,13 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         phx-click="toggle-visibility"
         phx-value-section={@id}
         phx-target={@myself}
-        class="flex gap-2 items-center md:pointer-events-none"
+        class="flex gap-2 items-center md:pointer-events-none md:cursor-default cursor-pointer"
       >
         <.h3 class="text-swm-blue" no_margin={true}>{@title}</.h3>
         <.icon
           name="hero-chevron-down-solid"
           class={[
-            "text-swm-blue md:hidden cursor-pointer md:cursor-default",
+            "text-swm-blue md:hidden",
             if(@hide?, do: "transform rotate-180")
           ]}
         />
