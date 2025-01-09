@@ -93,7 +93,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
         debugged_node_id
       end
 
-    if Trace.node_id(trace) |> dbg() == debugged_node_id |> dbg() do
+    if Trace.node_id(trace) == debugged_node_id do
       Logger.debug("Received a new trace: \n#{inspect(trace)}")
 
       send_update(LiveDebugger.LiveComponents.EventsList, %{id: "event-list", new_trace: trace})
