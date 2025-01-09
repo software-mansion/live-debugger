@@ -2,6 +2,7 @@ defmodule LiveDebugger.Services.TreeNode do
   @moduledoc """
   This module provides functions to work with the tree of LiveView and LiveComponent nodes (TreeNodes).
   """
+  alias LiveDebugger.Utils.Parseers
   alias LiveDebugger.Services.TreeNode.LiveView, as: LiveViewNode
   alias LiveDebugger.Services.TreeNode.LiveComponent, as: LiveComponentNode
 
@@ -46,16 +47,14 @@ defmodule LiveDebugger.Services.TreeNode do
   """
 
   @spec parse_id(id :: id()) :: String.t()
-  def parse_id(pid) when is_pid(pid) do
-    pid |> inspect() |> String.replace_prefix("#PID<", "") |> String.replace_suffix(">", "")
-  end
+  def parse_id(pid) when is_pid(pid), do: Parseers.pid_to_string(pid)
 
   def parse_id(cid) when is_integer(cid), do: Integer.to_string(cid)
 
   @spec parse_to_id(id :: String.t()) :: id() | nil
   def parse_to_id(id) when is_binary(id) do
     if String.match?(id, ~r/[0-9]+\.[0-9]+\.[0-9]+/) do
-      IEx.Helpers.pid(id)
+      Parseers.string_to_pid(id)
     else
       case Integer.parse(id) do
         {cid, _} -> cid
