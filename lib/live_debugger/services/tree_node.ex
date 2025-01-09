@@ -2,6 +2,7 @@ defmodule LiveDebugger.Services.TreeNode do
   @moduledoc """
   This module provides functions to work with the tree of LiveView and LiveComponent nodes (TreeNodes).
   """
+  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Services.TreeNode.LiveView, as: LiveViewNode
   alias LiveDebugger.Services.TreeNode.LiveComponent, as: LiveComponentNode
 
@@ -22,6 +23,45 @@ defmodule LiveDebugger.Services.TreeNode do
           socket: channel_state_socket(),
           components: {%{cid() => channel_state_component()}, any(), any()}
         }
+
+  @spec id(node :: t()) :: id()
+  def id(%LiveViewNode{pid: pid}), do: pid
+  def id(%LiveComponentNode{cid: cid}), do: cid
+
+  @doc """
+  Gives type of the node.
+  Types:
+    * `:live_view`
+    * `:live_component`
+  """
+  @spec type(node :: t()) :: atom()
+  def type(%LiveViewNode{}), do: :live_view
+  def type(%LiveComponentNode{}), do: :live_component
+
+  @spec parsed_id(node :: t()) :: String.t()
+  def parsed_id(node), do: node |> id() |> parse_id()
+
+  @doc """
+  Returnes parsed PID or CID of the node.
+  PID has format `0.123.0`.
+  """
+
+  @spec parse_id(id :: id()) :: String.t()
+  def parse_id(pid) when is_pid(pid), do: Parsers.pid_to_string(pid)
+
+  def parse_id(cid) when is_integer(cid), do: Integer.to_string(cid)
+
+  @spec parse_to_id(id :: String.t()) :: id() | nil
+  def parse_to_id(id) when is_binary(id) do
+    if String.match?(id, ~r/[0-9]+\.[0-9]+\.[0-9]+/) do
+      Parsers.string_to_pid(id)
+    else
+      case Integer.parse(id) do
+        {cid, _} -> cid
+        _ -> nil
+      end
+    end
+  end
 
   @spec add_child(parent :: t(), child :: t()) :: t()
   def add_child(parent, child) do

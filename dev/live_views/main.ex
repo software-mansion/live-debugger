@@ -38,6 +38,11 @@ defmodule LiveDebuggerDev.LiveViews.Main do
             Message from <span class="text-green-500">second component</span> {@datetime}
           </div>
 
+          <.live_component
+            id="many_assigns"
+            {very_long_assigns_map()}
+            module={LiveComponents.ManyAssigns}
+          />
           <.live_component id="name_outer" name={@name} module={LiveComponents.Name} />
           <.live_component id="send_outer" module={LiveComponents.Send}>
             <.live_component id="name_inner" name={@name} module={LiveComponents.Name} />

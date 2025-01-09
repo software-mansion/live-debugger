@@ -26,6 +26,7 @@ defmodule LiveDebugger.Router do
 
         live("/", LiveDebugger.LiveViews.HomeLive)
         live("/:socket_id", LiveDebugger.LiveViews.SocketDashboardLive)
+        live("/:socket_id/:node_id", LiveDebugger.LiveViews.SocketDashboardLive)
       end
 
       def live_debugger_prefix(), do: unquote(path)
