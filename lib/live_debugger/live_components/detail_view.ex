@@ -25,19 +25,19 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col w-full h-screen max-h-screen gap-4">
+    <div class="flex flex-col w-full h-screen max-h-screen gap-4 p-2">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
             <.spinner size="md" />
           </div>
         </:loading>
-        <:failed :let={node_reason}>
-          <Alert.alert type="error">
-            Failed to fetch node details: {inspect(node_reason)}
+        <:failed :let={reason}>
+          <Alert.alert color="danger">
+            Failed to fetch node details: {inspect(reason)}
           </Alert.alert>
         </:failed>
-        <div class="flex gap-4 w-full h-full p-4">
+        <div class="flex gap-4 w-full h-full">
           <div class="flex flex-col gap-4 basis-1/2 w-full max-h-max">
             <.basic_info node={node} />
             <.assigns_table assigns={node.assigns} />

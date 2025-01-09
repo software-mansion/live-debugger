@@ -6,10 +6,11 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   use LiveDebuggerWeb, :live_component
 
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebugger.Services.TreeNode
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelStateScraper
   alias PetalComponents.Alert
+
+  require Logger
 
   @impl true
   def update(assigns, socket) do
@@ -40,23 +41,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def handle_event("select_node", %{"node_id" => node_id}, socket) do
     socket
     |> push_selected_node_id(node_id)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_async(:tree, {:ok, tree}, socket) do
-    node_id = TreeNode.parsed_id(tree)
-
-    socket
-    |> assign(:tree, AsyncResult.ok(tree))
-    |> push_selected_node_id(node_id)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_async(:tree, {:exit, reason}, socket) do
-    socket
-    |> assign(:tree, AsyncResult.failed(socket.assigns.tree, reason))
     |> noreply()
   end
 
@@ -110,15 +94,14 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   defp assign_async_tree(socket) do
     pid = socket.assigns.pid
 
-    socket
-    |> assign(:tree, AsyncResult.loading())
-    |> start_async(:tree, fn ->
+    assign_async(socket, :tree, fn ->
       case ChannelStateScraper.build_tree(pid) do
         {:ok, tree} ->
-          tree
+          {:ok, %{tree: tree}}
 
-        error ->
-          error
+        {:error, error} ->
+          Logger.error("Failed to build tree: #{inspect(error)}")
+          {:error, error}
       end
     end)
   end

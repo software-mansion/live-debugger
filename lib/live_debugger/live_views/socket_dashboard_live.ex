@@ -3,6 +3,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
   require Logger
 
+  alias LiveDebugger.Utils.Parseers
   alias LiveDebugger.Services.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewScraper
@@ -30,22 +31,12 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     <.loading_variant :if={@debugged_pid.loading} />
     <.not_found_component :if={@debugged_pid.failed == :not_found} />
     <.error_component :if={not @debugged_pid.ok? and @debugged_pid.failed != :not_found} />
-    <div :if={@debugged_pid.ok?} class="flex flex-row w-full min-h-screen">
-      <.live_component
-        module={LiveDebugger.LiveComponents.Sidebar}
-        id="sidebar"
-        pid={@debugged_pid.result}
-        socket_id={@socket_id}
-        send_selected_node_id={{LiveDebugger.LiveComponents.DetailView, "detail_view"}}
-        node_id={@node_id}
-      />
-      <.live_component
-        module={LiveDebugger.LiveComponents.DetailView}
-        id="detail_view"
-        pid={@debugged_pid.result}
-        node_id={@node_id}
-      />
-    </div>
+    <.content
+      :if={@debugged_pid.ok?}
+      pid={@debugged_pid.result}
+      node_id={@node_id}
+      socket_id={@socket_id}
+    />
     """
   end
 
@@ -130,6 +121,32 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
         Debugger encountered unexpected error - check logs for more
       </.h5>
       <span>You can close this window</span>
+    </div>
+    """
+  end
+
+  attr(:pid, :any, required: true)
+  attr(:socket_id, :string, required: true)
+  attr(:node_id, :string, required: true)
+
+  defp content(assigns) do
+    assigns = assign(assigns, :node_id, assigns.node_id || assigns.pid)
+
+    ~H"""
+    <div class="flex flex-row w-full min-h-screen">
+      <.live_component
+        module={LiveDebugger.LiveComponents.Sidebar}
+        id="sidebar"
+        pid={@pid}
+        socket_id={@socket_id}
+        node_id={@node_id}
+      />
+      <.live_component
+        module={LiveDebugger.LiveComponents.DetailView}
+        id="detail_view"
+        pid={@pid}
+        node_id={@node_id}
+      />
     </div>
     """
   end
