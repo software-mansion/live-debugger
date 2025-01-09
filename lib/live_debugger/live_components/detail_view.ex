@@ -19,7 +19,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       pid: assigns.pid,
       socket_id: assigns.socket_id
     })
-    |> assign_async_node()
+    |> assign_async_node_with_type()
     |> ok()
   end
 
@@ -44,7 +44,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         </:failed>
         <div class="grid grid-cols-1 gap-2 md:grid-cols-2 md:h-full">
           <div class="flex flex-col gap-4 max">
-            <.info_card node={node} />
+            <.info_card node={node} node_type={@node_type.result} />
             <.assigns_card assigns={node.assigns} />
           </div>
           <.events_card pid={@pid} socket_id={@socket_id} />
@@ -55,14 +55,13 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   end
 
   attr(:node, :any, required: true)
+  attr(:node_type, :atom, required: true)
 
   defp info_card(assigns) do
-    assigns = assign(assigns, :type, TreeNode.type(assigns.node))
-
     ~H"""
-    <.basic_card title={title(@type)}>
+    <.basic_card title={title(@node_type)}>
       <div class=" flex flex-col gap-1">
-        <.info_row name={id_type(@type)} value={TreeNode.parsed_id(@node)} />
+        <.info_row name={id_type(@node_type)} value={TreeNode.parsed_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
         <.info_row name="HTML ID" value={@node.id} />
       </div>
@@ -136,16 +135,18 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     """
   end
 
-  defp assign_async_node(%{assigns: %{node_id: node_id, pid: pid}} = socket)
+  defp assign_async_node_with_type(%{assigns: %{node_id: node_id, pid: pid}} = socket)
        when not is_nil(node_id) do
-    assign_async(socket, :node, fn ->
+    assign_async(socket, [:node, :node_type], fn ->
       with {:ok, node} <- ChannelStateScraper.get_node_from_pid(pid, node_id) do
-        {:ok, %{node: node}}
+        {:ok, %{node: node, node_type: TreeNode.type(node)}}
       end
     end)
   end
 
-  defp assign_async_node(socket) do
-    assign(socket, :node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
+  defp assign_async_node_with_type(socket) do
+    socket
+    |> assign(:node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
+    |> assign(:node_type, AsyncResult.failed(%AsyncResult{}, :no_node_id))
   end
 end
