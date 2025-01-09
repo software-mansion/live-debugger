@@ -195,14 +195,12 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   defp assign_async_debugged_pid(socket) do
     socket_id = socket.assigns.socket_id
 
-    # credo:disable-for-lines:9
     socket
     |> assign(:debugged_pid, AsyncResult.loading())
     |> start_async(:fetch_debugged_pid, fn ->
       with nil <- fetch_pid_after(socket_id, 200),
-           nil <- fetch_pid_after(socket_id, 800),
-           nil <- fetch_pid_after(socket_id, 1000) do
-        nil
+           nil <- fetch_pid_after(socket_id, 800) do
+        fetch_pid_after(socket_id, 1000)
       end
     end)
   end
