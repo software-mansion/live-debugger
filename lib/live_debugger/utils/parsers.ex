@@ -23,8 +23,25 @@ defmodule LiveDebugger.Utils.Parsers do
     pid |> :erlang.pid_to_list() |> to_string() |> String.slice(1..-2//1)
   end
 
-  @spec string_to_pid(string :: String.t()) :: pid()
+  @spec string_to_pid(string :: String.t()) :: {:ok, pid()} | :error
   def string_to_pid(string) when is_binary(string) do
-    :erlang.list_to_pid(~c"<#{string}>")
+    if String.match?(string, ~r/[0-9]+\.[0-9]+\.[0-9]+/) do
+      {:ok, :erlang.list_to_pid(~c"<#{string}>")}
+    else
+      :error
+    end
+  end
+
+  @spec cid_to_string(cid :: struct()) :: String.t()
+  def cid_to_string(%Phoenix.LiveComponent.CID{cid: cid}) do
+    Integer.to_string(cid)
+  end
+
+  @spec string_to_cid(string :: String.t()) :: {:ok, struct()} | :error
+  def string_to_cid(string) when is_binary(string) do
+    case Integer.parse(string) do
+      {cid, _} -> {:ok, %Phoenix.LiveComponent.CID{cid: cid}}
+      _ -> :error
+    end
   end
 end

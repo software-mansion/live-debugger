@@ -7,7 +7,7 @@ defmodule LiveDebugger.Services.TreeNode do
   alias LiveDebugger.Services.TreeNode.LiveComponent, as: LiveComponentNode
 
   @type t() :: LiveViewNode.t() | LiveComponentNode.t()
-  @type cid() :: integer()
+  @type cid() :: LiveComponentNode.cid()
   @type id() :: cid() | pid()
   @typedoc """
   Value of channel_state's `socket` field.
@@ -17,11 +17,11 @@ defmodule LiveDebugger.Services.TreeNode do
   A key-value pair from channel_state's `components` map
   """
   @type channel_state_component() ::
-          {cid :: cid(), {module :: atom(), id :: String.t(), assigns :: map(), any(), any()}}
+          {cid :: integer(), {module :: atom(), id :: String.t(), assigns :: map(), any(), any()}}
 
   @type channel_state() :: %{
           socket: channel_state_socket(),
-          components: {%{cid() => channel_state_component()}, any(), any()}
+          components: {%{integer() => channel_state_component()}, any(), any()}
         }
 
   @spec id(node :: t()) :: id()
@@ -42,24 +42,29 @@ defmodule LiveDebugger.Services.TreeNode do
   def parsed_id(node), do: node |> id() |> parse_id()
 
   @doc """
-  Returnes parsed PID or CID of the node.
+  Returns parsed PID or CID of the node.
   PID has format `0.123.0`.
   """
 
   @spec parse_id(id :: id()) :: String.t()
   def parse_id(pid) when is_pid(pid), do: Parsers.pid_to_string(pid)
 
-  def parse_id(cid) when is_integer(cid), do: Integer.to_string(cid)
+  def parse_id(cid) when is_struct(cid), do: Parsers.cid_to_string(cid)
 
-  @spec parse_to_id(id :: String.t()) :: id() | nil
-  def parse_to_id(id) when is_binary(id) do
-    if String.match?(id, ~r/[0-9]+\.[0-9]+\.[0-9]+/) do
-      Parsers.string_to_pid(id)
-    else
-      case Integer.parse(id) do
-        {cid, _} -> cid
-        _ -> nil
-      end
+  @spec id_from_string(id :: String.t()) :: {:ok, id()} | :error
+  def id_from_string(id) when is_binary(id) do
+    cond do
+      {:ok, cid} = Parsers.string_to_cid(id) -> {:ok, cid}
+      {:ok, pid} = Parsers.string_to_pid(id) -> {:ok, pid}
+      true -> :error
+    end
+  end
+
+  @spec id_from_string!(id :: String.t()) :: id()
+  def id_from_string!(string) do
+    case id_from_string(string) do
+      {:ok, id} -> id
+      :error -> raise ArgumentError, "Invalid ID: #{inspect(string)}"
     end
   end
 
@@ -71,7 +76,7 @@ defmodule LiveDebugger.Services.TreeNode do
   @spec get_child(parent :: t(), child_id :: id()) :: t() | nil
   def get_child(parent, child_id)
 
-  def get_child(parent, child_cid) when is_integer(child_cid) do
+  def get_child(parent, child_cid) when is_struct(child_cid) do
     Enum.find(parent.children, fn
       %LiveComponentNode{cid: cid} -> cid == child_cid
       _ -> false
@@ -130,7 +135,7 @@ defmodule LiveDebugger.Services.TreeNode do
 
   def live_component_node(%{components: {components_map, _, _}}, cid) do
     components_map
-    |> Enum.find(fn {component_cid, _} -> component_cid == cid end)
+    |> Enum.find(fn {integer_cid, _} -> integer_cid == cid.cid end)
     |> case do
       nil ->
         {:ok, nil}
@@ -143,7 +148,8 @@ defmodule LiveDebugger.Services.TreeNode do
   def live_component_node(_, _), do: {:error, :invalid_channel_state}
 
   @doc """
-  Parses channel_state to a list of all LiveDebugger.Services.TreeNode.LiveComponent nodes
+  Parses channel_state to a list of all LiveDebugger.Services.TreeNode.LiveComponent nodes.
+  It doesn't include children.
 
   ## Examples
 
@@ -169,11 +175,11 @@ defmodule LiveDebugger.Services.TreeNode do
 
   def live_component_nodes(_), do: {:error, :invalid_channel_state}
 
-  defp parse_channel_live_component({cid, {module, id, assigns, _, _}}) do
+  defp parse_channel_live_component({integer_cid, {module, id, assigns, _, _}}) do
     {:ok,
      %LiveComponentNode{
        id: id,
-       cid: cid,
+       cid: %Phoenix.LiveComponent.CID{cid: integer_cid},
        module: module,
        assigns: assigns,
        children: []

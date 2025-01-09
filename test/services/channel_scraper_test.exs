@@ -42,7 +42,9 @@ defmodule LiveDebugger.Services.ChannelStateScraperTest do
     end
 
     test "returns live component node", %{pid: pid} do
-      assert {:ok, live_component} = ChannelStateScraper.get_node_from_pid(pid, 1)
+      assert {:ok, live_component} =
+               ChannelStateScraper.get_node_from_pid(pid, %Phoenix.LiveComponent.CID{cid: 1})
+
       assert %TreeNode.LiveComponent{id: "live_first"} = live_component
     end
   end
@@ -57,12 +59,15 @@ defmodule LiveDebugger.Services.ChannelStateScraperTest do
       {:ok, tree} = ChannelStateScraper.build_tree(pid)
 
       assert %TreeNode.LiveComponent{id: "live_first"} =
-               ChannelStateScraper.get_node_by_id(tree, 1)
+               ChannelStateScraper.get_node_by_id(tree, %Phoenix.LiveComponent.CID{cid: 1})
     end
 
     test "returns `nil` when node is not found", %{pid: pid} do
       {:ok, tree} = ChannelStateScraper.build_tree(pid)
-      assert is_nil(ChannelStateScraper.get_node_by_id(tree, 100))
+
+      assert is_nil(
+               ChannelStateScraper.get_node_by_id(tree, %Phoenix.LiveComponent.CID{cid: 100})
+             )
     end
   end
 end
