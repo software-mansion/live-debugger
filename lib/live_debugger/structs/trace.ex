@@ -34,6 +34,9 @@ defmodule LiveDebugger.Structs.Trace do
     }
   end
 
+  def node_id(%__MODULE__{cid: cid}) when not is_nil(cid), do: cid
+  def node_id(%__MODULE__{pid: pid}), do: pid
+
   defp get_cid_from_args(args) do
     args
     |> Enum.map(&maybe_get_cid(&1))
