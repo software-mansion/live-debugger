@@ -85,14 +85,6 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   def handle_info({:new_trace, trace}, socket) do
     debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
 
-    # This has to be changed when we unify cids
-    debugged_node_id =
-      if is_integer(debugged_node_id) do
-        %Phoenix.LiveComponent.CID{cid: debugged_node_id}
-      else
-        debugged_node_id
-      end
-
     if Trace.node_id(trace) == debugged_node_id do
       Logger.debug("Received a new trace: \n#{inspect(trace)}")
 
@@ -180,7 +172,14 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   end
 
   defp assign_node_id(socket, %{"node_id" => node_id}) do
-    assign(socket, :node_id, TreeNode.parse_to_id(node_id))
+    case TreeNode.id_from_string(node_id) do
+      {:ok, id} ->
+        assign(socket, :node_id, id)
+
+      :error ->
+        Logger.error("Invalid node_id: #{inspect(node_id)}")
+        assign(socket, :node_id, nil)
+    end
   end
 
   defp assign_node_id(socket, _params) do

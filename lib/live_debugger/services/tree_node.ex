@@ -53,10 +53,9 @@ defmodule LiveDebugger.Services.TreeNode do
 
   @spec id_from_string(id :: String.t()) :: {:ok, id()} | :error
   def id_from_string(id) when is_binary(id) do
-    cond do
-      {:ok, cid} = Parsers.string_to_cid(id) -> {:ok, cid}
-      {:ok, pid} = Parsers.string_to_pid(id) -> {:ok, pid}
-      true -> :error
+    with :error <- Parsers.string_to_pid(id),
+         :error <- Parsers.string_to_cid(id) do
+      :error
     end
   end
 

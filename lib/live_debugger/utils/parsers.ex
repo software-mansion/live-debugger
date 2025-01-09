@@ -40,7 +40,7 @@ defmodule LiveDebugger.Utils.Parsers do
   @spec string_to_cid(string :: String.t()) :: {:ok, struct()} | :error
   def string_to_cid(string) when is_binary(string) do
     case Integer.parse(string) do
-      {cid, _} -> {:ok, %Phoenix.LiveComponent.CID{cid: cid}}
+      {cid, ""} -> {:ok, %Phoenix.LiveComponent.CID{cid: cid}}
       _ -> :error
     end
   end

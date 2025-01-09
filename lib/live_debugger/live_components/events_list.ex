@@ -34,6 +34,10 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     |> ok()
   end
 
+  attr(:id, :string, required: true)
+  attr(:debugged_node_id, :map, required: true)
+  attr(:socket_id, :string, required: true)
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -78,8 +82,6 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   defp assign_existing_traces(socket) do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.debugged_node_id
-    # This will have to be changed, ideally we want node_id to always be a struct
-    node_id = if is_integer(node_id), do: %Phoenix.LiveComponent.CID{cid: node_id}, else: node_id
 
     socket
     |> stream(:existing_traces, [], reset: true)

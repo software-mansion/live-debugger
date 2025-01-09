@@ -1,7 +1,6 @@
 defmodule LiveDebugger.LiveComponents.DetailView do
   @moduledoc """
   This module is responsible for rendering the detail view of the TreeNode.
-  It requires the node_id to be passed as an assign or in update function to render the detail view.
   """
 
   alias LiveDebugger.Services.TreeNode
