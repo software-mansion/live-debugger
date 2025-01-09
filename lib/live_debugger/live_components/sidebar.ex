@@ -15,7 +15,12 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def update(assigns, socket) do
     socket
-    |> assign(assigns)
+    |> assign(%{
+      pid: assigns.pid,
+      socket_id: assigns.socket_id,
+      node_id: assigns.node_id,
+      base_url: assigns.base_url
+    })
     |> assign_async_tree()
     |> ok()
   end

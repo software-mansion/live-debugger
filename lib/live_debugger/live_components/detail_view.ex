@@ -14,7 +14,10 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   @impl true
   def update(assigns, socket) do
     socket
-    |> assign(assigns)
+    |> assign(%{
+      node_id: assigns.node_id,
+      pid: assigns.pid
+    })
     |> assign_async_node()
     |> ok()
   end
