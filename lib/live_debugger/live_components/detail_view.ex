@@ -37,22 +37,14 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             Failed to fetch node details: {inspect(node_reason)}
           </Alert.alert>
         </:failed>
-        <.detail_view node={node} />
+        <div class="flex gap-4 w-full h-full p-4">
+          <div class="flex flex-col gap-4 basis-1/2 w-full max-h-max">
+            <.basic_info node={node} />
+            <.assigns_table assigns={node.assigns} />
+          </div>
+          <.events />
+        </div>
       </.async_result>
-    </div>
-    """
-  end
-
-  attr(:node, :map, required: true)
-
-  defp detail_view(assigns) do
-    ~H"""
-    <div class="flex gap-4 w-full h-full p-4">
-      <div class="flex flex-col gap-4 basis-1/2 w-full max-h-max">
-        <.basic_info node={@node} />
-        <.assigns_table assigns_list={@node.assigns} />
-      </div>
-      <.events />
     </div>
     """
   end
@@ -95,12 +87,12 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   defp id_type(:live_component), do: "CID"
   defp id_type(:live_view), do: "PID"
 
-  attr(:assigns_list, :list, required: true)
+  attr(:assigns, :list, required: true)
 
   defp assigns_table(assigns) do
     ~H"""
-    <.segment_card title="Assigns" class="h-max max-h-full">
-      <div class="whitespace-pre">{inspect(@assigns_list, pretty: true)}</div>
+    <.segment_card title="Assigns" class="h-max">
+      <div class="whitespace-pre">{inspect(@assigns, pretty: true)}</div>
     </.segment_card>
     """
   end
@@ -123,7 +115,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       @class
     ]}>
       <.h3 class="text-white">{@title}</.h3>
-      <div class="w-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2">
+      <div class="flex w-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2">
         {render_slot(@inner_block)}
       </div>
     </div>
