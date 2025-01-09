@@ -82,11 +82,12 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   end
 
   def handle_info({:new_trace, trace}, socket) do
+    Logger.debug("Received a new trace: \n#{inspect(trace)}")
+
     debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
 
     cond do
       is_nil(trace.cid) and trace.pid == debugged_node_id ->
-        Logger.debug("Received a new trace: \n#{inspect(trace)}")
         send_update(LiveDebugger.LiveComponents.EventsList, %{id: "event-list", new_trace: trace})
 
         send_update(LiveDebugger.LiveComponents.DetailView, %{
@@ -96,8 +97,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
           node_id: debugged_node_id
         })
 
-      not is_nil(trace.cid) and trace.cid == debugged_node_id ->
-        Logger.debug("Received a new trace: \n#{inspect(trace)}")
+      not is_nil(trace.cid) and trace.cid.cid == debugged_node_id ->
         send_update(LiveDebugger.LiveComponents.EventsList, %{id: "event-list", new_trace: trace})
 
         send_update(LiveDebugger.LiveComponents.DetailView, %{
