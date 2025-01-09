@@ -89,8 +89,9 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     """
   end
 
-  defp assign_async_tree(%{assigns: %{tree: %AsyncResult{ok?: true, result: _}}} = socket),
-    do: socket
+  defp assign_async_tree(%{assigns: %{tree: %AsyncResult{ok?: true, result: _}}} = socket) do
+    socket
+  end
 
   defp assign_async_tree(socket) do
     pid = socket.assigns.pid
