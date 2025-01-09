@@ -61,7 +61,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             <.assigns_card assigns={node.assigns} myself={@myself} hide?={@hide_assigns_section?} />
           </div>
           <.events_card
-            pid={@pid}
+            node_id={@node_id}
             socket_id={@socket_id}
             myself={@myself}
             hide?={@hide_events_section?}
@@ -151,7 +151,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     """
   end
 
-  attr(:pid, :any, required: true)
+  attr(:node_id, :string, required: true)
   attr(:socket_id, :string, required: true)
   attr(:myself, :any, required: true)
   attr(:hide?, :boolean, required: true)
@@ -168,7 +168,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       <.live_component
         id="event-list"
         module={LiveDebugger.LiveComponents.EventsList}
-        debugged_node_id={@pid}
+        debugged_node_id={@node_id}
         socket_id={@socket_id}
       />
     </.section>

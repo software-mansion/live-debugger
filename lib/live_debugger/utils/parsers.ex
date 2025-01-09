@@ -1,6 +1,6 @@
 defmodule LiveDebugger.Utils.Parsers do
   @moduledoc """
-    This module provides functions to parse some structs to string representation and vice versa.
+  This module provides functions to parse some structs to string representation and vice versa.
   """
 
   @spec parse_timestamp(non_neg_integer()) :: String.t()

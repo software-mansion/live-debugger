@@ -8,9 +8,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   require Logger
 
   alias LiveDebugger.Services.CallbackTracer
-  alias LiveDebugger.Components.Collapsible
-  alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.Components.Tooltip
+  alias LiveDebugger.Components.Trace
 
   @impl true
   def mount(socket) do
@@ -21,22 +19,9 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
   @impl true
   def update(%{new_trace: trace}, socket) do
-    debugged_node_id = socket.assigns.debugged_node_id
-
-    cond do
-      is_nil(trace.cid) and trace.pid == debugged_node_id ->
-        socket
-        |> stream_insert(:existing_traces, trace, at: 0)
-        |> assign(loading_error?: false)
-
-      not is_nil(trace.cid) and trace.cid == debugged_node_id ->
-        socket
-        |> stream_insert(:existing_traces, trace, at: 0)
-        |> assign(loading_error?: false)
-
-      true ->
-        socket
-    end
+    socket
+    |> stream_insert(:existing_traces, trace, at: 0)
+    |> assign(loading_error?: false)
     |> ok()
   end
 
@@ -64,29 +49,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
       <div id={"#{assigns.id}-stream"} phx-update="stream">
         <%= for {dom_id, trace} <- @streams.existing_traces do %>
-          <Collapsible.collapsible
-            id={dom_id}
-            icon="hero-chevron-down-micro"
-            chevron_class="text-swm-blue"
-          >
-            <:label>
-              <div class="w-full flex justify-between">
-                <Tooltip.tooltip
-                  position="top"
-                  content={"#{trace.module}.#{trace.function}/#{trace.arity}"}
-                >
-                  <p class="text-swm-blue font-medium">{trace.function}/{trace.arity}</p>
-                </Tooltip.tooltip>
-                <p class="w-32">{Parsers.parse_timestamp(trace.timestamp)}</p>
-              </div>
-            </:label>
-
-            <pre class="flex flex-col gap-4 overflow-x-auto h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
-              <%= for args <- trace.args do %>
-                <div class="whitespace-pre">{inspect(args, pretty: true, structs: false)}</div>
-              <% end %>
-            </pre>
-          </Collapsible.collapsible>
+          <Trace.trace id={dom_id} trace={trace} />
         <% end %>
       </div>
     </div>
@@ -114,12 +77,14 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
   defp assign_existing_traces(socket) do
     ets_table_id = socket.assigns.ets_table_id
+    node_id = socket.assigns.debugged_node_id
+    # This will have to be changed, ideally we want node_id to always be a struct
+    node_id = if is_integer(node_id), do: %Phoenix.LiveComponent.CID{cid: node_id}, else: node_id
 
     socket
-    |> stream_configure(:existing_traces, dom_id: &"trace-#{&1.id}")
-    |> stream(:existing_traces, [])
+    |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
-      CallbackTracer.get_existing_traces(ets_table_id)
+      CallbackTracer.get_existing_traces(ets_table_id, node_id)
     end)
   end
 end
