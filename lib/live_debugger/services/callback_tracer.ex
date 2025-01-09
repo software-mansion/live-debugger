@@ -5,6 +5,9 @@ defmodule LiveDebugger.Services.CallbackTracer do
   When session is started sends traces to the recipient PID via message {:new_trace, trace}.
   It stores traces in an ETS table with id created by `CallbackTracer.ets_table_id/1`.
 
+  Traces ids starts from 0 and are decremented by 1 to make sure that they are ordered from the newest to the oldest.
+  This is how ets ordered set works. It does not allow you to change the order manually, it is always ordered by the key.
+
   The session should be stopped when monitored process is killed with `stop_tracing_session/1`.
   """
 
@@ -55,6 +58,15 @@ defmodule LiveDebugger.Services.CallbackTracer do
   @spec ets_table_id(String.t()) :: :ets.table()
   def ets_table_id(socket_id), do: String.to_atom("#{@id_prefix}-#{socket_id}")
 
+  @spec get_existing_traces(atom() | String.t()) :: list(Trace.t())
+  def get_existing_traces(table_id) when is_atom(table_id) do
+    table_id |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
+  end
+
+  def get_existing_traces(socket_id) when is_binary(socket_id) do
+    socket_id |> ets_table_id() |> get_existing_traces()
+  end
+
   @spec init_ets(atom()) :: :ets.table()
   defp init_ets(ets_table_id) do
     if :ets.whereis(ets_table_id) == :undefined do
@@ -70,11 +82,11 @@ defmodule LiveDebugger.Services.CallbackTracer do
   # When user is redirected to another LiveView in the same browser tab (PID changes) we start a new tracing session.
   # Since we still want to keep events from the previous session we need to calculate the next tuple id based on the last tuple id in the table.
   # If it wasn't calculated then events from the previous session would be overwritten since `dbg` would start from 0.
-  @spec next_tuple_id(atom()) :: non_neg_integer()
+  @spec next_tuple_id(atom()) :: integer()
   defp next_tuple_id(ets_table_id) do
-    case :ets.last(ets_table_id) do
+    case :ets.first(ets_table_id) do
       :"$end_of_table" -> 0
-      last_id -> last_id + 1
+      last_id -> last_id - 1
     end
   end
 
@@ -84,13 +96,13 @@ defmodule LiveDebugger.Services.CallbackTracer do
     String.to_atom("#{@id_prefix}-#{parsed_pid}")
   end
 
-  @spec trace_handler(raw_trace(), non_neg_integer(), :ets.table(), pid()) :: non_neg_integer()
+  @spec trace_handler(raw_trace(), integer(), :ets.table(), pid()) :: integer()
   defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
-    trace = Trace.new(module, function, args, pid)
+    trace = Trace.new(n, module, function, args, pid)
 
     :ets.insert(ets_table_id, {n, trace})
     send(recipient_pid, {:new_trace, trace})
 
-    n + 1
+    n - 1
   end
 end

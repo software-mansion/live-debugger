@@ -16,7 +16,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     socket
     |> assign(%{
       node_id: assigns.node_id,
-      pid: assigns.pid
+      pid: assigns.pid,
+      socket_id: assigns.socket_id
     })
     |> assign_async_node()
     |> ok()
@@ -24,6 +25,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   attr(:node_id, :any, required: true)
   attr(:pid, :any, required: true)
+  attr(:socket_id, :string, required: true)
 
   @impl true
   def render(assigns) do
@@ -45,7 +47,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             <.info_card node={node} />
             <.assigns_card assigns={node.assigns} />
           </div>
-          <.events_card />
+          <.events_card pid={@pid} socket_id={@socket_id} />
         </div>
       </.async_result>
     </div>
@@ -104,7 +106,14 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp events_card(assigns) do
     ~H"""
-    <.basic_card title="Events" class="h-full" />
+    <.basic_card title="Events" class="h-full">
+      <.live_component
+        id="event-list"
+        module={LiveDebugger.LiveComponents.EventsList}
+        debugged_node_id={@pid}
+        socket_id={@socket_id}
+      />
+    </.basic_card>
     """
   end
 

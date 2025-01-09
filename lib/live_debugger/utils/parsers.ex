@@ -1,7 +1,22 @@
 defmodule LiveDebugger.Utils.Parsers do
   @moduledoc """
-  This module provides functions to parse some structs to string representation and vice versa.
+    This module provides functions to parse some structs to string representation and vice versa.
   """
+
+  @spec parse_timestamp(non_neg_integer()) :: String.t()
+  def parse_timestamp(timestamp) do
+    timestamp
+    |> DateTime.from_unix(:microsecond)
+    |> case do
+      {:ok, %DateTime{hour: hour, minute: minute, second: second, microsecond: {micro, _}}} ->
+        "~2..0B:~2..0B:~2..0B.~6..0B"
+        |> :io_lib.format([hour, minute, second, micro])
+        |> IO.iodata_to_binary()
+
+      _ ->
+        "Invalid timestamp"
+    end
+  end
 
   @spec pid_to_string(pid :: pid()) :: String.t()
   def pid_to_string(pid) when is_pid(pid) do

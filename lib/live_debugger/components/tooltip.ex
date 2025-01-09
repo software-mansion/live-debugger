@@ -9,6 +9,7 @@ defmodule LiveDebugger.Components.Tooltip do
   Render a tooltip using Tooltip hook.
   """
   attr(:content, :string, default: nil)
+  attr(:position, :string, default: "bottom", values: ["top", "bottom"])
   attr(:rest, :global)
   slot(:inner_block, required: true)
 
@@ -16,7 +17,7 @@ defmodule LiveDebugger.Components.Tooltip do
     assigns = assign(assigns, :id, "tooltip_" <> Ecto.UUID.generate())
 
     ~H"""
-    <div id={@id} phx-hook="Tooltip" data-tooltip={@content} {@rest}>
+    <div id={@id} phx-hook="Tooltip" data-tooltip={@content} data-position={@position} {@rest}>
       {render_slot(@inner_block)}
     </div>
     """
