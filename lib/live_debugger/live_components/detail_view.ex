@@ -11,6 +11,15 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   use LiveDebuggerWeb, :live_component
 
   @impl true
+  def mount(socket) do
+    socket
+    |> assign(:hide_assigns_section?, false)
+    |> assign(:hide_info_section?, false)
+    |> assign(:hide_events_section?, false)
+    |> ok()
+  end
+
+  @impl true
   def update(assigns, socket) do
     socket
     |> assign(%{
@@ -43,22 +52,61 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         </:failed>
         <div class="grid grid-cols-1 md:grid-cols-2 md:h-full">
           <div class="flex flex-col max md:border-r-2 border-swm-blue md:overflow-y-hidden">
-            <.info_card node={node} node_type={@node_type.result} />
-            <.assigns_card assigns={node.assigns} />
+            <.info_card
+              node={node}
+              node_type={@node_type.result}
+              myself={@myself}
+              hide?={@hide_info_section?}
+            />
+            <.assigns_card assigns={node.assigns} myself={@myself} hide?={@hide_assigns_section?} />
           </div>
-          <.events_card pid={@pid} socket_id={@socket_id} />
+          <.events_card
+            pid={@pid}
+            socket_id={@socket_id}
+            myself={@myself}
+            hide?={@hide_events_section?}
+          />
         </div>
       </.async_result>
     </div>
     """
   end
 
+  @impl true
+  def handle_event("toggle-visibility", %{"section" => "info"}, socket) do
+    socket
+    |> assign(hide_info_section?: not socket.assigns.hide_info_section?)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("toggle-visibility", %{"section" => "assigns"}, socket) do
+    socket
+    |> assign(hide_assigns_section?: not socket.assigns.hide_assigns_section?)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("toggle-visibility", %{"section" => "events"}, socket) do
+    socket
+    |> assign(hide_events_section?: not socket.assigns.hide_events_section?)
+    |> noreply()
+  end
+
   attr(:node, :any, required: true)
   attr(:node_type, :atom, required: true)
+  attr(:myself, :any, required: true)
+  attr(:hide?, :boolean, required: true)
 
   defp info_card(assigns) do
     ~H"""
-    <.section title={title(@node_type)} class="border-b-2 border-swm-blue">
+    <.section
+      id="info"
+      title={title(@node_type)}
+      class="border-b-2 border-swm-blue"
+      hide?={@hide?}
+      myself={@myself}
+    >
       <div class=" flex flex-col gap-1">
         <.info_row name={id_type(@node_type)} value={TreeNode.parsed_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
@@ -91,10 +139,18 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   defp id_type(:live_view), do: "PID"
 
   attr(:assigns, :list, required: true)
+  attr(:myself, :any, required: true)
+  attr(:hide?, :boolean, required: true)
 
   defp assigns_card(assigns) do
     ~H"""
-    <.section title="Assigns" class="border-b-2 md:border-b-0 border-swm-blue h-max overflow-y-hidden">
+    <.section
+      id="assigns"
+      class="border-b-2 md:border-b-0 border-swm-blue h-max overflow-y-hidden"
+      hide?={@hide?}
+      myself={@myself}
+      title="Assigns"
+    >
       <div class="w-full flex flex-col gap-1 overflow-y-auto">
         <%= for {key, value} <- @assigns do %>
           <div class="overflow-x-hidden w-full flex flex gap-2 min-h-max">
@@ -107,9 +163,20 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     """
   end
 
+  attr(:pid, :any, required: true)
+  attr(:socket_id, :string, required: true)
+  attr(:myself, :any, required: true)
+  attr(:hide?, :boolean, required: true)
+
   defp events_card(assigns) do
     ~H"""
-    <.section title="Events" class="h-full md:overflow-y-auto">
+    <.section
+      title="Events"
+      id="events"
+      class="h-full md:overflow-y-auto"
+      myself={@myself}
+      hide?={@hide?}
+    >
       <.live_component
         id="event-list"
         module={LiveDebugger.LiveComponents.EventsList}
@@ -120,8 +187,11 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     """
   end
 
-  attr(:title, :string, required: true)
+  attr(:id, :string, required: true)
+  attr(:myself, :any, required: true)
+  attr(:title, :string, default: nil)
   attr(:class, :string, default: "")
+  attr(:hide?, :boolean, default: false)
 
   slot(:inner_block)
 
@@ -131,8 +201,25 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       "flex flex-col p-4",
       @class
     ]}>
-      <.h3 class="text-swm-blue">{@title}</.h3>
-      <div class="flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2">
+      <div
+        phx-click="toggle-visibility"
+        phx-value-section={@id}
+        phx-target={@myself}
+        class="flex gap-2 items-center md:pointer-events-none"
+      >
+        <.h3 class="text-swm-blue" no_margin={true}>{@title}</.h3>
+        <.icon
+          name="hero-chevron-down-solid"
+          class={[
+            "text-swm-blue md:hidden cursor-pointer md:cursor-default",
+            if(@hide?, do: "transform rotate-180")
+          ]}
+        />
+      </div>
+      <div class={[
+        "flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2",
+        if(@hide?, do: "hidden md:flex")
+      ]}>
         {render_slot(@inner_block)}
       </div>
     </div>
