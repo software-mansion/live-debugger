@@ -73,23 +73,16 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   end
 
   @impl true
-  def handle_event("toggle-visibility", %{"section" => "info"}, socket) do
-    socket
-    |> assign(hide_info_section?: not socket.assigns.hide_info_section?)
-    |> noreply()
-  end
+  def handle_event("toggle-visibility", %{"section" => section}, socket) do
+    hide_section_key =
+      case section do
+        "info" -> :hide_info_section?
+        "assigns" -> :hide_assigns_section?
+        "events" -> :hide_events_section?
+      end
 
-  @impl true
-  def handle_event("toggle-visibility", %{"section" => "assigns"}, socket) do
     socket
-    |> assign(hide_assigns_section?: not socket.assigns.hide_assigns_section?)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_event("toggle-visibility", %{"section" => "events"}, socket) do
-    socket
-    |> assign(hide_events_section?: not socket.assigns.hide_events_section?)
+    |> assign(hide_section_key, not socket.assigns[hide_section_key])
     |> noreply()
   end
 
