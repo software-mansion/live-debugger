@@ -21,22 +21,9 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
   @impl true
   def update(%{new_trace: trace}, socket) do
-    debugged_node_id = socket.assigns.debugged_node_id
-
-    cond do
-      is_nil(trace.cid) and trace.pid == debugged_node_id ->
-        socket
-        |> stream_insert(:existing_traces, trace, at: 0)
-        |> assign(loading_error?: false)
-
-      not is_nil(trace.cid) and trace.cid == debugged_node_id ->
-        socket
-        |> stream_insert(:existing_traces, trace, at: 0)
-        |> assign(loading_error?: false)
-
-      true ->
-        socket
-    end
+    socket
+    |> stream_insert(:existing_traces, trace, at: 0)
+    |> assign(loading_error?: false)
     |> ok()
   end
 
