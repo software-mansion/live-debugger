@@ -14,6 +14,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     |> assign(:socket_id, socket_id)
     |> assign(:tracing_session, nil)
     |> assign_async_debugged_pid()
+    |> assign_base_url()
     |> ok()
   end
 
@@ -35,6 +36,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
       pid={@debugged_pid.result}
       node_id={@node_id}
       socket_id={@socket_id}
+      base_url={@base_url}
     />
     """
   end
@@ -127,6 +129,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   attr(:pid, :any, required: true)
   attr(:socket_id, :string, required: true)
   attr(:node_id, :string, required: true)
+  attr(:base_url, :string, required: true)
 
   defp content(assigns) do
     assigns = assign(assigns, :node_id, assigns.node_id || assigns.pid)
@@ -139,6 +142,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
         pid={@pid}
         socket_id={@socket_id}
         node_id={@node_id}
+        base_url={@base_url}
       />
       <.live_component
         module={LiveDebugger.LiveComponents.DetailView}
@@ -156,6 +160,10 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
   defp assign_node_id(socket, _params) do
     assign(socket, :node_id, nil)
+  end
+
+  defp assign_base_url(socket) do
+    assign(socket, :base_url, live_path(socket, __MODULE__, socket.assigns.socket_id))
   end
 
   defp assign_async_debugged_pid(socket) do

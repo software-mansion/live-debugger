@@ -23,6 +23,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   attr(:pid, :any, required: true)
   attr(:socket_id, :string, required: true)
   attr(:node_id, :any, required: true)
+  attr(:base_url, :string, required: true)
 
   @impl true
   def render(assigns) do
@@ -40,7 +41,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def handle_event("select_node", %{"node_id" => node_id}, socket) do
     socket
-    |> push_selected_node_id(node_id)
+    |> push_patch(to: "#{socket.assigns.base_url}/#{node_id}")
     |> noreply()
   end
 
@@ -104,9 +105,5 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           {:error, error}
       end
     end)
-  end
-
-  defp push_selected_node_id(socket, node_id) do
-    push_patch(socket, to: "/live_debug/#{socket.assigns.socket_id}/#{node_id}")
   end
 end

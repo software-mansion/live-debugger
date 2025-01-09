@@ -57,4 +57,10 @@ defmodule LiveDebuggerWeb.Helpers do
 
   def ok(socket), do: {:ok, socket}
   def noreply(socket), do: {:noreply, socket}
+
+  @spec live_path(Phoenix.LiveView.Socket.t(), atom(), list()) :: String.t()
+  def live_path(%Phoenix.LiveView.Socket{} = socket, module, args \\ []) do
+    helpers_module = (Atom.to_string(socket.router) <> ".Helpers") |> String.to_atom()
+    helpers_module.live_path(socket.endpoint, module, args)
+  end
 end
