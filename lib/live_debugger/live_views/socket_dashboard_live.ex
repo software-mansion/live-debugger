@@ -3,7 +3,6 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
   require Logger
 
-  alias LiveDebugger.Utils.Parseers
   alias LiveDebugger.Services.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewScraper

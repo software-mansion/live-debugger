@@ -128,7 +128,7 @@ defmodule LiveDebugger.Components.Tree do
     """
   end
 
-  defp format_tree_node(node = %TreeNode.LiveView{}) do
+  defp format_tree_node(%TreeNode.LiveView{} = node) do
     %{
       id: node.pid,
       parsed_id: TreeNode.parse_id(node.pid),
@@ -139,7 +139,7 @@ defmodule LiveDebugger.Components.Tree do
     }
   end
 
-  defp format_tree_node(node = %TreeNode.LiveComponent{}) do
+  defp format_tree_node(%TreeNode.LiveComponent{} = node) do
     %{
       id: node.cid,
       parsed_id: TreeNode.parse_id(node.cid),
