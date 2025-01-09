@@ -144,14 +144,9 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       myself={@myself}
       title="Assigns"
     >
-      <div class="w-full flex flex-col gap-1 overflow-y-auto">
-        <%= for {key, value} <- @assigns do %>
-          <div class="overflow-x-hidden w-full flex flex gap-2 min-h-max">
-            <div class="text-swm-blue font-bold">{key}</div>
-            <div class="w-full overflow-x-hidden break-words">{inspect(value)}</div>
-          </div>
-        <% end %>
-      </div>
+      <pre class="w-full max-h-full border-2 border-gray-200 rounded-lg px-2 overflow-y-auto text-gray-600">
+        <div class="whitespace-pre">{inspect(@assigns, pretty: true, structs: false)}</div>
+      </pre>
     </.section>
     """
   end
