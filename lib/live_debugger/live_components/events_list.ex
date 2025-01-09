@@ -81,13 +81,11 @@ defmodule LiveDebugger.LiveComponents.EventsList do
               </div>
             </:label>
 
-            <.card variant="outline">
-              <.card_content class="flex flex-col gap-4">
-                <%= for args <- trace.args do %>
-                  <div class="whitespace-pre">{inspect(args, pretty: true, structs: false)}</div>
-                <% end %>
-              </.card_content>
-            </.card>
+            <pre class="flex flex-col gap-4 overflow-x-auto h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
+              <%= for args <- trace.args do %>
+                <div class="whitespace-pre">{inspect(args, pretty: true, structs: false)}</div>
+              <% end %>
+            </pre>
           </Collapsible.collapsible>
         <% end %>
       </div>
@@ -96,6 +94,8 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   end
 
   @impl true
+  @spec handle_async(:fetch_existing_traces, {:exit, any()} | {:ok, any()}, any()) ::
+          {:noreply, any()}
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
     socket
     |> stream(:existing_traces, trace_list)
