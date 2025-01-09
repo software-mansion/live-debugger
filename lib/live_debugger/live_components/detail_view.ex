@@ -22,7 +22,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   def update(assigns, socket) do
     socket
     |> assign(%{
-      node_id: assigns.node_id,
+      node_id: assigns.node_id || assigns.pid,
       pid: assigns.pid,
       socket_id: assigns.socket_id
     })

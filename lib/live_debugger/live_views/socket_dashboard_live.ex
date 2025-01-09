@@ -94,7 +94,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
         id: "detail_view",
         pid: socket.assigns.debugged_pid.result,
         socket_id: socket.assigns.socket_id,
-        node_id: if(is_pid(debugged_node_id), do: debugged_node_id, else: debugged_node_id.cid)
+        node_id: debugged_node_id
       })
     else
       Logger.debug("Ignoring a trace from different node: #{inspect(trace)}")
