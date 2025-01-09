@@ -8,9 +8,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   require Logger
 
   alias LiveDebugger.Services.CallbackTracer
-  alias LiveDebugger.Components.Collapsible
-  alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.Components.Tooltip
+  alias LiveDebugger.Components.Trace
 
   @impl true
   def mount(socket) do
@@ -51,29 +49,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
       <div id={"#{assigns.id}-stream"} phx-update="stream">
         <%= for {dom_id, trace} <- @streams.existing_traces do %>
-          <Collapsible.collapsible
-            id={dom_id}
-            icon="hero-chevron-down-micro"
-            chevron_class="text-swm-blue"
-          >
-            <:label>
-              <div class="w-full flex justify-between">
-                <Tooltip.tooltip
-                  position="top"
-                  content={"#{trace.module}.#{trace.function}/#{trace.arity}"}
-                >
-                  <p class="text-swm-blue font-medium">{trace.function}/{trace.arity}</p>
-                </Tooltip.tooltip>
-                <p class="w-32">{Parsers.parse_timestamp(trace.timestamp)}</p>
-              </div>
-            </:label>
-
-            <pre class="flex flex-col gap-4 overflow-x-auto h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
-              <%= for args <- trace.args do %>
-                <div class="whitespace-pre">{inspect(args, pretty: true, structs: false)}</div>
-              <% end %>
-            </pre>
-          </Collapsible.collapsible>
+          <Trace.trace id={dom_id} trace={trace} />
         <% end %>
       </div>
     </div>
