@@ -5,6 +5,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   """
   use LiveDebuggerWeb, :live_component
 
+  alias LiveDebugger.Utils.Parsers
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelStateScraper
@@ -55,10 +56,13 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   defp basic_info(assigns) do
     ~H"""
     <.card class="p-4 flex flex-col gap-1 opacity-90 text-black">
-      <div class="font-semibold text-swm-blue">Monitored socket:</div>
-      <pre>{@socket_id}</pre>
-      <div class="font-semibold text-swm-blue">Debugged PID:</div>
-      <pre>{inspect(@pid)}</pre>
+      <%= for {text, value} <- [
+        {"Monitored socket:", @socket_id},
+        {"Debugged PID:", Parsers.pid_to_string(@pid)}
+      ] do %>
+        <div class="font-semibold text-swm-blue">{text}</div>
+        <div>{value}</div>
+      <% end %>
     </.card>
     """
   end

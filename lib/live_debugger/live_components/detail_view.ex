@@ -118,7 +118,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       <div class="font-bold w-20 text-swm-blue">
         {@name}
       </div>
-      <div class="break-all">
+      <div class="font-semibold break-all">
         {@value}
       </div>
     </div>
