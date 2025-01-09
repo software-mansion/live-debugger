@@ -102,17 +102,13 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   defp assign_existing_traces(socket) do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.debugged_node_id
+    # This will have to be changed, ideally we want node_id to always be a struct
+    node_id = if is_integer(node_id), do: %Phoenix.LiveComponent.CID{cid: node_id}, else: node_id
 
-    # This needs to be change in the future to ets query
     socket
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
-      ets_table_id
-      |> CallbackTracer.get_existing_traces()
-      |> Enum.filter(fn trace ->
-        (is_nil(trace.cid) and trace.pid == node_id) or
-          (not is_nil(trace.cid) and trace.cid.cid == node_id)
-      end)
+      CallbackTracer.get_existing_traces(ets_table_id, node_id)
     end)
   end
 end
