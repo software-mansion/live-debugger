@@ -34,6 +34,12 @@ defmodule LiveDebugger.Structs.Trace do
     }
   end
 
+  @doc """
+  Returns the node id from the trace.
+  It is PID if trace comes from a LiveView, CID if trace comes from a LiveComponent.
+  """
+
+  @spec node_id(t()) :: pid() | struct()
   def node_id(%__MODULE__{cid: cid}) when not is_nil(cid), do: cid
   def node_id(%__MODULE__{pid: pid}), do: pid
 
