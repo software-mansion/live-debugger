@@ -25,7 +25,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col w-full h-screen max-h-screen gap-4 p-2">
+    <div class="flex flex-col w-full h-screen max-h-screen gap-4 p-2 overflow-x-hidden overflow-y-auto md:overflow-y-hidden">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
@@ -37,12 +37,12 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             Failed to fetch node details: {inspect(reason)}
           </Alert.alert>
         </:failed>
-        <div class="flex gap-4 w-full h-full">
-          <div class="flex flex-col gap-4 basis-1/2 w-full max-h-max">
-            <.basic_info node={node} />
-            <.assigns_table assigns={node.assigns} />
+        <div class="grid grid-cols-1 gap-2 md:grid-cols-2 md:h-full">
+          <div class="flex flex-col gap-4 max">
+            <.info_card node={node} />
+            <.assigns_card assigns={node.assigns} />
           </div>
-          <.events />
+          <.events_card />
         </div>
       </.async_result>
     </div>
@@ -51,17 +51,17 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   attr(:node, :any, required: true)
 
-  defp basic_info(assigns) do
+  defp info_card(assigns) do
     assigns = assign(assigns, :type, TreeNode.type(assigns.node))
 
     ~H"""
-    <.segment_card title={title(@type)} class="min-h-max">
-      <div class="max-w-full flex flex-col gap-1">
+    <.basic_card title={title(@type)}>
+      <div class=" flex flex-col gap-1">
         <.info_row name={id_type(@type)} value={TreeNode.parsed_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
         <.info_row name="HTML ID" value={@node.id} />
       </div>
-    </.segment_card>
+    </.basic_card>
     """
   end
 
@@ -70,11 +70,11 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_row(assigns) do
     ~H"""
-    <div class="max-w-full flex gap-1 overflow-x-hidden">
-      <div class="font-bold w-20">
+    <div class="flex gap-1 overflow-x-hidden">
+      <div class="font-bold text-swm-blue">
         {@name}
       </div>
-      <div class="max-w-full break-words">
+      <div class="break-all">
         {@value}
       </div>
     </div>
@@ -89,17 +89,19 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   attr(:assigns, :list, required: true)
 
-  defp assigns_table(assigns) do
+  defp assigns_card(assigns) do
     ~H"""
-    <.segment_card title="Assigns" class="h-max">
-      <div class="whitespace-pre">{inspect(@assigns, pretty: true)}</div>
-    </.segment_card>
+    <.basic_card title="Assigns">
+      <div class="w-full whitespace-pre-wrap break-words overflow-y-auto">
+        {inspect(@assigns, pretty: true)}
+      </div>
+    </.basic_card>
     """
   end
 
-  defp events(assigns) do
+  defp events_card(assigns) do
     ~H"""
-    <.segment_card title="Events" class="basis-1/2" />
+    <.basic_card title="Events" class="h-full" />
     """
   end
 
@@ -108,14 +110,14 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   slot(:inner_block)
 
-  defp segment_card(assigns) do
+  defp basic_card(assigns) do
     ~H"""
     <div class={[
-      "flex flex-col gap-4 p-4 w-full max-h-full bg-swm-blue text-white rounded-xl shadow-lg",
+      "flex flex-col gap-4 p-4 bg-swm-blue text-white rounded-xl shadow-xl",
       @class
     ]}>
       <.h3 class="text-white">{@title}</.h3>
-      <div class="flex w-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2">
+      <div class="flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2">
         {render_slot(@inner_block)}
       </div>
     </div>

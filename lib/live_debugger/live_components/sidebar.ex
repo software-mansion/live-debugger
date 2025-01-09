@@ -1,7 +1,7 @@
 defmodule LiveDebugger.LiveComponents.Sidebar do
   @moduledoc """
   Sidebar component which displays tree of live view and it's live components.
-  It changes path to `/:node_id` when a node is selected.
+  It changes path to `<base_url>/<node_id>` when a node is selected.
   """
   use LiveDebuggerWeb, :live_component
 
