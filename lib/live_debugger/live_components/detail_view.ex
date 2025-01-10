@@ -164,6 +164,9 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       myself={@myself}
       hide?={@hide?}
     >
+      <:right_panel>
+        <.button size="xs" color="light" label="Clear" variant="outline" />
+      </:right_panel>
       <.live_component
         id="event-list"
         module={LiveDebugger.LiveComponents.EventsList}
@@ -180,6 +183,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   attr(:class, :string, default: "")
   attr(:hide?, :boolean, default: false)
 
+  slot(:right_panel)
   slot(:inner_block)
 
   defp section(assigns) do
@@ -188,20 +192,22 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       "flex flex-col p-4",
       @class
     ]}>
-      <div
-        phx-click="toggle-visibility"
-        phx-value-section={@id}
-        phx-target={@myself}
-        class="flex gap-2 items-center md:pointer-events-none md:cursor-default cursor-pointer"
-      >
-        <.icon
-          name="hero-chevron-down-solid"
-          class={[
-            "text-swm-blue md:hidden",
-            if(@hide?, do: "transform rotate-180")
-          ]}
-        />
-        <.h3 class="text-swm-blue" no_margin={true}>{@title}</.h3>
+      <div class="flex justify-between">
+        <div class="flex gap-2 items-center">
+          <!-- Replace it with petal icon_button -->
+          <.icon
+            phx-click="toggle-visibility"
+            phx-value-section={@id}
+            phx-target={@myself}
+            name="hero-chevron-down-solid"
+            class={[
+              "text-swm-blue md:hidden cursor-pointer",
+              if(@hide?, do: "transform rotate-180")
+            ]}
+          />
+          <.h3 class="text-swm-blue" no_margin={true}>{@title}</.h3>
+        </div>
+        {render_slot(@right_panel)}
       </div>
       <div class={[
         "flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2",

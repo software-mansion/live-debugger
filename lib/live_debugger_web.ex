@@ -43,7 +43,8 @@ defmodule LiveDebuggerWeb do
         Icon,
         Container,
         Loading,
-        Alert
+        Alert,
+        Button
       }
     end
   end
