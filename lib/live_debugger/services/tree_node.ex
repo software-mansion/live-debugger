@@ -14,14 +14,15 @@ defmodule LiveDebugger.Services.TreeNode do
   """
   @type channel_state_socket() :: %{id: String.t(), root_pid: pid(), view: atom(), assigns: map()}
   @typedoc """
-  A key-value pair from channel_state's `components` map
+  A key-value pair from `channel_state`'s `components` map.
+  In the `channel_state` CID is represented as integer.
   """
   @type channel_state_component() ::
           {cid :: integer(), {module :: atom(), id :: String.t(), assigns :: map(), any(), any()}}
 
   @type channel_state() :: %{
           socket: channel_state_socket(),
-          components: {%{integer() => channel_state_component()}, any(), any()}
+          components: {map(), any(), any()}
         }
 
   @spec id(node :: t()) :: id()
