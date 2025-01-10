@@ -5,6 +5,8 @@ defmodule LiveDebuggerDev.LiveComponents.Conditional do
     {:ok, assign(socket, :show_child?, false)}
   end
 
+  slot(:inner_block)
+
   def render(assigns) do
     ~H"""
     <div>
@@ -21,11 +23,9 @@ defmodule LiveDebuggerDev.LiveComponents.Conditional do
 
             <span>child LiveComponent below</span>
           </div>
-          <.live_component
-            :if={@show_child?}
-            id="conditional-many-assigns"
-            module={LiveDebuggerDev.LiveComponents.ManyAssigns}
-          />
+          <div :if={@show_child?}>
+            {render_slot(@inner_block)}
+          </div>
         </div>
       </.box>
     </div>
