@@ -85,14 +85,6 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   def handle_info({:new_trace, trace}, socket) do
     debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
 
-    # This has to be changed when we unify cids
-    debugged_node_id =
-      if is_integer(debugged_node_id) do
-        %Phoenix.LiveComponent.CID{cid: debugged_node_id}
-      else
-        debugged_node_id
-      end
-
     if Trace.node_id(trace) == debugged_node_id do
       Logger.debug("Received a new trace: \n#{inspect(trace)}")
 
@@ -102,7 +94,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
         id: "detail_view",
         pid: socket.assigns.debugged_pid.result,
         socket_id: socket.assigns.socket_id,
-        node_id: if(is_pid(debugged_node_id), do: debugged_node_id, else: debugged_node_id.cid)
+        node_id: debugged_node_id
       })
     else
       Logger.debug("Ignoring a trace from different node: #{inspect(trace)}")
@@ -180,7 +172,14 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   end
 
   defp assign_node_id(socket, %{"node_id" => node_id}) do
-    assign(socket, :node_id, TreeNode.parse_to_id(node_id))
+    case TreeNode.id_from_string(node_id) do
+      {:ok, id} ->
+        assign(socket, :node_id, id)
+
+      :error ->
+        Logger.error("Invalid node_id: #{inspect(node_id)}")
+        assign(socket, :node_id, nil)
+    end
   end
 
   defp assign_node_id(socket, _params) do
@@ -196,14 +195,12 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   defp assign_async_debugged_pid(socket) do
     socket_id = socket.assigns.socket_id
 
-    # credo:disable-for-lines:9
     socket
     |> assign(:debugged_pid, AsyncResult.loading())
     |> start_async(:fetch_debugged_pid, fn ->
       with nil <- fetch_pid_after(socket_id, 200),
-           nil <- fetch_pid_after(socket_id, 800),
-           nil <- fetch_pid_after(socket_id, 1000) do
-        nil
+           nil <- fetch_pid_after(socket_id, 800) do
+        fetch_pid_after(socket_id, 1000)
       end
     end)
   end

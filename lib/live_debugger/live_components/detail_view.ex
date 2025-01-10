@@ -1,7 +1,6 @@
 defmodule LiveDebugger.LiveComponents.DetailView do
   @moduledoc """
   This module is responsible for rendering the detail view of the TreeNode.
-  It requires the node_id to be passed as an assign or in update function to render the detail view.
   """
 
   alias LiveDebugger.Services.TreeNode
@@ -23,7 +22,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   def update(assigns, socket) do
     socket
     |> assign(%{
-      node_id: assigns.node_id,
+      node_id: assigns.node_id || assigns.pid,
       pid: assigns.pid,
       socket_id: assigns.socket_id
     })

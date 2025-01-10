@@ -3,7 +3,7 @@ defmodule LiveDebugger.Services.TreeNode.LiveComponent do
 
   defstruct [:id, :cid, :module, :assigns, :children]
 
-  @type cid() :: integer() | nil
+  @type cid() :: %Phoenix.LiveComponent.CID{cid: integer()}
 
   @type t() :: %__MODULE__{
           id: String.t(),

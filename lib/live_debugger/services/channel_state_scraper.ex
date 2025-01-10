@@ -12,10 +12,11 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
   Returned node doesn't have children.
 
   ## Examples
-
-      iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
-      iex> LiveDebugger.Services.ChannelStateScraper.get_node_from_pid(pid, 2)
+      iex> LiveDebugger.Services.ChannelStateScraper.get_node_from_pid(pid, %Phoenix.LiveComponent.CID{cid: 1})
       %LiveDebugger.Services.TreeNode.LiveComponent{...}
+
+      iex> LiveDebugger.Services.ChannelStateScraper.get_node_from_pid(pid, pid)
+      %LiveDebugger.Services.TreeNode.LiveView{...}
   """
   @spec get_node_from_pid(pid :: pid(), id :: TreeNode.id()) ::
           {:ok, TreeNode.t() | nil} | {:error, term()}
@@ -25,7 +26,7 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
         pid when is_pid(pid) ->
           TreeNode.live_view_node(channel_state)
 
-        cid when is_integer(cid) ->
+        %Phoenix.LiveComponent.CID{} = cid ->
           TreeNode.live_component_node(channel_state, cid)
       end
     end
@@ -39,7 +40,7 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
 
       iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
       iex> tree = LiveDebugger.Services.ChannelStateScraper.build_tree(state)
-      iex> LiveDebugger.Services.ChannelStateScraper.get_node_by_id(tree, 1)
+      iex> LiveDebugger.Services.ChannelStateScraper.get_node_by_id(tree, %Phoenix.LiveComponent.CID{cid: 1})
       %LiveDebugger.Services.TreeNode.LiveComponent{...}
   """
   @spec get_node_by_id(tree :: TreeNode.t(), id :: TreeNode.id()) :: TreeNode.t() | nil
@@ -47,8 +48,7 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
     case tree do
       %TreeNode.LiveView{pid: ^id} -> tree
       %TreeNode.LiveComponent{cid: ^id} -> tree
-      %TreeNode.LiveView{children: children} -> check_children(children, id)
-      %TreeNode.LiveComponent{children: children} -> check_children(children, id)
+      node -> check_children(node.children, id)
     end
   end
 
@@ -81,7 +81,7 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
     Enum.reduce(children_cids_map, parent_element, fn {cid, children_cids_map}, parent_element ->
       child =
         live_components
-        |> Enum.find(fn element -> element.cid == cid end)
+        |> Enum.find(fn element -> element.cid.cid == cid end)
         |> add_children(children_cids_map, live_components)
 
       TreeNode.add_child(parent_element, child)
