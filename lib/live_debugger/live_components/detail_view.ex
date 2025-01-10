@@ -19,6 +19,12 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   end
 
   @impl true
+  def update(%{new_trace: _new_trace}, socket) do
+    socket
+    |> assign_async_node_with_type()
+    |> ok()
+  end
+
   def update(assigns, socket) do
     socket
     |> assign(%{
