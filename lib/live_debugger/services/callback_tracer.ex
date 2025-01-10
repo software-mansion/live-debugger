@@ -72,6 +72,15 @@ defmodule LiveDebugger.Services.CallbackTracer do
     table_id |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
   end
 
+  @spec clear_traces(atom(), pid() | struct()) :: true
+  def clear_traces(table_id, %Phoenix.LiveComponent.CID{} = cid) do
+    table_id |> :ets.match_delete({:_, %{cid: cid}})
+  end
+
+  def clear_traces(table_id, pid) when is_pid(pid) do
+    table_id |> :ets.match_delete({:_, %{pid: pid, cid: nil}})
+  end
+
   @spec init_ets(atom()) :: :ets.table()
   defp init_ets(ets_table_id) do
     if :ets.whereis(ets_table_id) == :undefined do
