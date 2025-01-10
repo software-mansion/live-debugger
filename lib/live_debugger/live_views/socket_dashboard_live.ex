@@ -86,19 +86,15 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
 
     if Trace.node_id(trace) == debugged_node_id do
-      Logger.debug("Received a new trace: \n#{inspect(trace)}")
+      Logger.debug("New trace matched debugged node: \n#{inspect(trace)}")
 
       send_update(LiveDebugger.LiveComponents.EventsList, %{id: "event-list", new_trace: trace})
-
-      send_update(LiveDebugger.LiveComponents.DetailView, %{
-        id: "detail_view",
-        pid: socket.assigns.debugged_pid.result,
-        socket_id: socket.assigns.socket_id,
-        node_id: debugged_node_id
-      })
+      send_update(LiveDebugger.LiveComponents.DetailView, %{id: "detail_view", new_trace: trace})
     else
-      Logger.debug("Ignoring a trace from different node: #{inspect(trace)}")
+      Logger.debug("New trace coming from different node - ignoring: #{inspect(trace)}")
     end
+
+    send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", new_trace: trace})
 
     {:noreply, socket}
   end
