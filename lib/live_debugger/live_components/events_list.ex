@@ -93,7 +93,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
     socket
     |> stream(:existing_traces, trace_list)
-    |> assign(:no_events?, Enum.empty?(trace_list))
+    |> maybe_assign_no_events(Enum.empty?(trace_list))
     |> noreply()
   end
 
@@ -134,5 +134,13 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     |> start_async(:fetch_existing_traces, fn ->
       CallbackTracer.get_existing_traces(ets_table_id, node_id)
     end)
+  end
+
+  defp maybe_assign_no_events(%{assigns: %{no_events?: false}} = socket, _) do
+    socket
+  end
+
+  defp maybe_assign_no_events(socket, no_events?) do
+    assign(socket, no_events?: no_events?)
   end
 end
