@@ -194,7 +194,6 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         phx-target={@myself}
         class="flex gap-2 items-center md:pointer-events-none md:cursor-default cursor-pointer"
       >
-        <.h3 class="text-swm-blue" no_margin={true}>{@title}</.h3>
         <.icon
           name="hero-chevron-down-solid"
           class={[
@@ -202,6 +201,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             if(@hide?, do: "transform rotate-180")
           ]}
         />
+        <.h3 class="text-swm-blue" no_margin={true}>{@title}</.h3>
       </div>
       <div class={[
         "flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2",
