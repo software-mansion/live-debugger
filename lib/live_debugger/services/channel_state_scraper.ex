@@ -75,6 +75,23 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
     end
   end
 
+  # We'll have to refactor this module so the functions will accept the channel state, not pid
+  # Thanks to this approach we'll have more control on channel state scraping
+  # In this module we'll just parse the state
+
+  @doc """
+  Returns node ids that are present in the channel state where node can be both LiveView or LiveComponent.
+  For LiveView, the id is the PID of the process. For LiveComponent, the id is the CID.
+  """
+
+  @spec all_node_ids(pid :: pid()) :: {:ok, [TreeNode.id()]} | {:error, term()}
+  def all_node_ids(pid) do
+    with {:ok, channel_state} <- LiveViewScraper.channel_state_from_pid(pid),
+         component_cids <- channel_state |> get_state_components() |> Map.keys() do
+      {:ok, Enum.map(component_cids, fn cid -> %Phoenix.LiveComponent.CID{cid: cid} end) ++ [pid]}
+    end
+  end
+
   defp add_children(parent_element, nil, _live_components), do: parent_element
 
   defp add_children(parent_element, children_cids_map, live_components) do
