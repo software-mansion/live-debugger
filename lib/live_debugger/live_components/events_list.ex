@@ -73,7 +73,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
           >
             The new events still will be displayed as they come. Check logs for more
           </.alert>
-          <div :if={@no_events?} class="text-gray-500">
+          <div :if={@no_events?} class="text-gray-700">
             No events have been recorded yet.
           </div>
           <div id={"#{assigns.id}-stream"} phx-update="stream">
