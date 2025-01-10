@@ -3,15 +3,17 @@ defmodule LiveDebugger.Services.TreeNodeTest do
 
   alias LiveDebugger.Services.TreeNode
 
+  @cid_1 %Phoenix.LiveComponent.CID{cid: 1}
+
   test "add_child/2" do
     parent = %TreeNode.LiveView{children: []}
-    child = %TreeNode.LiveComponent{cid: %Phoenix.LiveComponent.CID{cid: 1}}
+    child = %TreeNode.LiveComponent{cid: @cid_1}
 
     assert TreeNode.add_child(parent, child) == %TreeNode.LiveView{children: [child]}
   end
 
   test "get_child/2 with cid" do
-    cid = %Phoenix.LiveComponent.CID{cid: 1}
+    cid = @cid_1
 
     parent = %TreeNode.LiveView{
       children: [%TreeNode.LiveComponent{cid: cid}]
@@ -50,7 +52,7 @@ defmodule LiveDebugger.Services.TreeNodeTest do
   test "live_component_node/2 with valid channel_state and existing live_component" do
     channel_state = %{components: {%{1 => {:module, "component-id", %{}, nil, nil}}, nil, nil}}
 
-    cid = %Phoenix.LiveComponent.CID{cid: 1}
+    cid = @cid_1
 
     assert {:ok, %TreeNode.LiveComponent{cid: ^cid, module: :module}} =
              TreeNode.live_component_node(channel_state, cid)
@@ -67,7 +69,7 @@ defmodule LiveDebugger.Services.TreeNodeTest do
     component = %{}
 
     assert {:error, :invalid_channel_state} =
-             TreeNode.live_component_node(component, %Phoenix.LiveComponent.CID{cid: 1})
+             TreeNode.live_component_node(component, @cid_1)
   end
 
   test "live_component_nodes/1 with valid channel_state" do
