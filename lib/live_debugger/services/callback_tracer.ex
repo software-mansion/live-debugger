@@ -105,8 +105,13 @@ defmodule LiveDebugger.Services.CallbackTracer do
   defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
     trace = Trace.new(n, module, function, args, pid)
 
-    :ets.insert(ets_table_id, {n, trace})
-    send(recipient_pid, {:new_trace, trace})
+    try do
+      :ets.insert(ets_table_id, {n, trace})
+      send(recipient_pid, {:new_trace, trace})
+    rescue
+      err ->
+        Logger.error("Error while handling trace: #{inspect(err)}")
+    end
 
     n - 1
   end
