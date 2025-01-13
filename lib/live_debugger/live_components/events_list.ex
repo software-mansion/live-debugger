@@ -122,6 +122,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
     socket
     |> stream(:existing_traces, [], reset: true)
+    |> assign(no_events?: true)
     |> noreply()
   end
 
