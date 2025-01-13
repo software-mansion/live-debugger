@@ -5,14 +5,42 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   """
   use LiveDebuggerWeb, :live_component
 
+  alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Parsers
-  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelStateScraper
 
   require Logger
 
   @impl true
+  def update(%{new_trace: trace}, socket) do
+    existing_node_ids = socket.assigns.existing_node_ids
+    trace_node_id = Trace.node_id(trace)
+
+    cond do
+      existing_node_ids.ok? and not MapSet.member?(existing_node_ids.result, trace_node_id) ->
+        Logger.debug("New node detected #{inspect(trace_node_id)} refreshing the tree")
+        updated_map_set = MapSet.put(existing_node_ids.result, trace_node_id)
+
+        socket
+        |> assign_async_tree()
+        |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
+
+      match?(%{module: Phoenix.LiveView.Diff, function: :delete_component, arity: 2}, trace) ->
+        Logger.debug("LiveComponent deleted #{inspect(trace_node_id)} refreshing the tree")
+
+        updated_map_set = MapSet.delete(existing_node_ids.result, trace_node_id)
+
+        socket
+        |> assign_async_tree()
+        |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
+
+      true ->
+        socket
+    end
+    |> ok()
+  end
+
   def update(assigns, socket) do
     socket
     |> assign(%{
@@ -22,6 +50,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       base_url: assigns.base_url
     })
     |> assign_async_tree()
+    |> assign_async_existing_node_ids()
     |> ok()
   end
 
@@ -97,8 +126,19 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     """
   end
 
-  defp assign_async_tree(%{assigns: %{tree: %AsyncResult{ok?: true, result: _}}} = socket) do
-    socket
+  defp assign_async_existing_node_ids(socket) do
+    pid = socket.assigns.pid
+
+    assign_async(socket, :existing_node_ids, fn ->
+      case ChannelStateScraper.all_node_ids(pid) do
+        {:ok, node_ids} ->
+          {:ok, %{existing_node_ids: MapSet.new(node_ids)}}
+
+        {:error, error} ->
+          Logger.error("Failed to get existing node ids: #{inspect(error)}")
+          {:error, error}
+      end
+    end)
   end
 
   defp assign_async_tree(socket) do

@@ -37,9 +37,12 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
         :dbg.p(monitored_pid, :c)
 
-        ModuleDiscovery.find_live_modules()
-        |> CallbackUtils.tracing_callbacks()
-        |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
+        result =
+          ModuleDiscovery.find_live_modules()
+          |> CallbackUtils.tracing_callbacks()
+          |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
+
+        [:dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, []) | result]
       end)
 
       {:ok, tracing_session}
@@ -72,6 +75,17 @@ defmodule LiveDebugger.Services.CallbackTracer do
     table_id |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
   end
 
+  # credo:disable-for-next-line
+  # TODO Replace it with CID typing after refactor
+  @spec clear_traces(atom(), pid() | struct()) :: true
+  def clear_traces(table_id, %Phoenix.LiveComponent.CID{} = cid) do
+    table_id |> :ets.match_delete({:_, %{cid: cid}})
+  end
+
+  def clear_traces(table_id, pid) when is_pid(pid) do
+    table_id |> :ets.match_delete({:_, %{pid: pid, cid: nil}})
+  end
+
   @spec init_ets(atom()) :: :ets.table()
   defp init_ets(ets_table_id) do
     if :ets.whereis(ets_table_id) == :undefined do
@@ -102,9 +116,27 @@ defmodule LiveDebugger.Services.CallbackTracer do
   end
 
   @spec trace_handler(raw_trace(), integer(), :ets.table(), pid()) :: integer()
-  defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
-    trace = Trace.new(n, module, function, args, pid)
 
+  defp trace_handler(
+         {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid_int | _] = args}},
+         n,
+         ets_table_id,
+         recipient_pid
+       ) do
+    cid = %Phoenix.LiveComponent.CID{cid: cid_int}
+
+    n
+    |> Trace.new(Phoenix.LiveView.Diff, :delete_component, args, pid, cid)
+    |> do_handle(recipient_pid, ets_table_id, n)
+  end
+
+  defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
+    n
+    |> Trace.new(module, function, args, pid)
+    |> do_handle(recipient_pid, ets_table_id, n)
+  end
+
+  defp do_handle(trace, recipient_pid, ets_table_id, n) do
     try do
       :ets.insert(ets_table_id, {n, trace})
       send(recipient_pid, {:new_trace, trace})

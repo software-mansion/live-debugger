@@ -9,11 +9,13 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
   alias LiveDebugger.Services.CallbackTracer
   alias LiveDebugger.Components.Trace
+  alias LiveDebugger.Components
 
   @impl true
   def mount(socket) do
     socket
     |> assign(:loading_error?, false)
+    |> assign(:hide_section?, false)
     |> ok()
   end
 
@@ -37,25 +39,46 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   attr(:id, :string, required: true)
   attr(:debugged_node_id, :map, required: true)
   attr(:socket_id, :string, required: true)
+  attr(:hide_section?, :boolean, required: true)
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full">
-      <.alert
-        :if={@loading_error?}
-        with_icon
-        color="danger"
-        heading="Error fetching historical events"
+    <div>
+      <Components.collapsible_section
+        title="Events"
+        id="events"
+        class="h-full md:overflow-y-auto"
+        myself={@myself}
+        hide?={@hide_section?}
       >
-        The new events still will be displayed as they come. Check logs for more
-      </.alert>
+        <:right_panel>
+          <.button
+            size="xs"
+            color="light"
+            label="Clear"
+            variant="outline"
+            phx-click="clear-events"
+            phx-target={@myself}
+          />
+        </:right_panel>
+        <div class="w-full">
+          <.alert
+            :if={@loading_error?}
+            with_icon
+            color="danger"
+            heading="Error fetching historical events"
+          >
+            The new events still will be displayed as they come. Check logs for more
+          </.alert>
 
-      <div id={"#{assigns.id}-stream"} phx-update="stream">
-        <%= for {dom_id, trace} <- @streams.existing_traces do %>
-          <Trace.trace id={dom_id} trace={trace} />
-        <% end %>
-      </div>
+          <div id={"#{assigns.id}-stream"} phx-update="stream">
+            <%= for {dom_id, trace} <- @streams.existing_traces do %>
+              <Trace.trace id={dom_id} trace={trace} />
+            <% end %>
+          </div>
+        </div>
+      </Components.collapsible_section>
     </div>
     """
   end
@@ -76,6 +99,24 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
     socket
     |> assign(loading_error?: true)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("toggle-visibility", _, socket) do
+    socket
+    |> assign(hide_section?: not socket.assigns.hide_section?)
+    |> noreply()
+  end
+
+  def handle_event("clear-events", _, socket) do
+    ets_table_id = socket.assigns.ets_table_id
+    node_id = socket.assigns.debugged_node_id
+
+    CallbackTracer.clear_traces(ets_table_id, node_id)
+
+    socket
+    |> stream(:existing_traces, [], reset: true)
     |> noreply()
   end
 
