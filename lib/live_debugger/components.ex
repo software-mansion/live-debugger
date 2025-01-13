@@ -22,7 +22,7 @@ defmodule LiveDebugger.Components do
     ]}>
       <div class="flex justify-between">
         <div class="flex gap-2 items-center">
-          <!-- Replace it with petal icon_button -->
+          <!-- TODO: Replace it with petal icon_button -->
           <.icon
             phx-click="toggle-visibility"
             phx-value-section={@id}

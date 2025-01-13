@@ -72,6 +72,8 @@ defmodule LiveDebugger.Services.CallbackTracer do
     table_id |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
   end
 
+  # credo:disable-for-next-line
+  # TODO Replace it with CID typing after refactor
   @spec clear_traces(atom(), pid() | struct()) :: true
   def clear_traces(table_id, %Phoenix.LiveComponent.CID{} = cid) do
     table_id |> :ets.match_delete({:_, %{cid: cid}})
