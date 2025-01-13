@@ -3,6 +3,8 @@ defmodule LiveDebugger.Components do
 
   @doc """
   Collapsible section, it throws a toggle-visibility event when the user clicks on the title.
+  Payload of toggle visibility event:
+    %{"section" => id_passed_in_assigns}
   """
 
   attr(:id, :string, required: true)
