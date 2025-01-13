@@ -24,6 +24,7 @@ defmodule LiveDebuggerDev.Components do
   defp text_color("purple"), do: "text-purple-500"
   defp text_color("gray"), do: "text-gray-500"
   defp text_color("teal"), do: "text-teal-500"
+  defp text_color("orange"), do: "text-orange-500"
 
   defp border_color("blue"), do: "border-blue-500"
   defp border_color("red"), do: "border-red-500"
@@ -31,4 +32,5 @@ defmodule LiveDebuggerDev.Components do
   defp border_color("purple"), do: "border-purple-500"
   defp border_color("gray"), do: "border-gray-500"
   defp border_color("teal"), do: "border-teal-500"
+  defp border_color("orange"), do: "border-orange-500"
 end

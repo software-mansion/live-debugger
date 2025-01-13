@@ -48,6 +48,23 @@ defmodule LiveDebuggerDev.LiveViews.Main do
             <.live_component id="name_inner" name={@name} module={LiveComponents.Name} />
             <.live_component id="long_name" module={LiveComponents.LiveComponentWithVeryVeryLongName} />
           </.live_component>
+          <.live_component id="conditional" module={LiveComponents.Conditional}>
+            <.live_component
+              id="conditional-many-assigns"
+              module={LiveDebuggerDev.LiveComponents.ManyAssigns}
+            />
+          </.live_component>
+
+          <.live_component id="conditional-rec-1" module={LiveComponents.Conditional}>
+            <.live_component id="conditional-rec-2" module={LiveComponents.Conditional}>
+              <.live_component id="conditional-rec-3" module={LiveComponents.Conditional}>
+                <.live_component
+                  id="conditional-many-assigns-rec"
+                  module={LiveDebuggerDev.LiveComponents.ManyAssigns}
+                />
+              </.live_component>
+            </.live_component>
+          </.live_component>
           <.live_component id="reccursive" counter={5} module={LiveComponents.Reccursive} />
         </div>
       </.box>

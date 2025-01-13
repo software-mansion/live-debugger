@@ -19,6 +19,12 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   end
 
   @impl true
+  def update(%{new_trace: _new_trace}, socket) do
+    socket
+    |> assign_async_node_with_type()
+    |> ok()
+  end
+
   def update(assigns, socket) do
     socket
     |> assign(%{
@@ -216,8 +222,12 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   defp assign_async_node_with_type(%{assigns: %{node_id: node_id, pid: pid}} = socket)
        when not is_nil(node_id) do
     assign_async(socket, [:node, :node_type], fn ->
-      with {:ok, node} <- ChannelStateScraper.get_node_from_pid(pid, node_id) do
+      with {:ok, node} <- ChannelStateScraper.get_node_from_pid(pid, node_id),
+           true <- not is_nil(node) do
         {:ok, %{node: node, node_type: TreeNode.type(node)}}
+      else
+        false -> {:error, :node_deleted}
+        err -> err
       end
     end)
   end
