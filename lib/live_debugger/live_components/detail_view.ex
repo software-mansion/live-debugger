@@ -151,7 +151,6 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       myself={@myself}
       title="Assigns"
     >
-
       <div class="w-full max-h-full border-2 border-gray-200 rounded-lg px-2 overflow-y-auto text-gray-600">
         <.live_component
           id="assigns-display"
