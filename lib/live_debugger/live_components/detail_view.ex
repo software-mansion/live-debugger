@@ -6,6 +6,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   alias LiveDebugger.Services.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.ChannelStateScraper
+  alias LiveDebugger.LiveComponents.ElixirDisplay
 
   use LiveDebuggerWeb, :live_component
 
@@ -143,9 +144,12 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       myself={@myself}
       title="Assigns"
     >
-      <pre class="w-full max-h-full border-2 border-gray-200 rounded-lg px-2 overflow-y-auto text-gray-600">
-        <div class="whitespace-pre">{inspect(@assigns, pretty: true, structs: false)}</div>
-      </pre>
+      <.live_component
+        id="assigns-display"
+        module={ElixirDisplay}
+        node={ElixirDisplay.to_node(@assigns, [])}
+        level={1}
+      />
     </.section>
     """
   end

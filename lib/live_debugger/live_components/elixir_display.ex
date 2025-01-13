@@ -157,7 +157,7 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
   end
 
   def to_node(%module{} = struct, suffix) when is_struct(struct) do
-    if Inspect.impl_for(struct) != Inspect.Any do
+    if Inspect.impl_for(struct) not in [Inspect.Any, Inspect.Phoenix.LiveView.Socket] do
       leaf_node("struct", [black(inspect(struct)) | suffix])
     else
       map = Map.from_struct(struct)
