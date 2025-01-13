@@ -5,6 +5,7 @@ defmodule LiveDebugger.Components.Trace do
 
   use LiveDebuggerWeb, :component
 
+  alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Components.Collapsible
   alias LiveDebugger.Components.Tooltip
   alias LiveDebugger.Utils.Parsers
@@ -27,11 +28,16 @@ defmodule LiveDebugger.Components.Trace do
         </div>
       </:label>
 
-      <pre class="flex flex-col gap-4 overflow-x-auto h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
-        <%= for args <- @trace.args do %>
-          <div class="whitespace-pre">{inspect(args, pretty: true, structs: false)}</div>
-          <% end %>
-      </pre>
+      <div class="flex flex-col gap-4 overflow-x-auto h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
+        <%= for {args, index} <- Enum.with_index(@trace.args) do %>
+          <.live_component
+            id={@id <> "-#{index}"}
+            module={LiveDebugger.LiveComponents.ElixirDisplay}
+            node={TermParser.term_to_display_tree(args)}
+            level={1}
+          />
+        <% end %>
+      </div>
     </Collapsible.collapsible>
     """
   end
