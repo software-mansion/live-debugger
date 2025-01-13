@@ -155,11 +155,4 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       end
     end)
   end
-
-  defp maybe_redirect_to_base_url(%{assigns: %{node_id: node_id}} = socket, node_id) do
-    send(self(), :redirect_to_base_url)
-    socket
-  end
-
-  defp maybe_redirect_to_base_url(socket, _node_id), do: socket
 end
