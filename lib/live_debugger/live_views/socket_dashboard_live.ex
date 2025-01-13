@@ -78,6 +78,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     CallbackTracer.stop_tracing_session(socket.assigns.tracing_session)
 
     socket
+    |> push_patch(to: socket.assigns.base_url)
     |> assign_async_debugged_pid()
     |> noreply()
   end
