@@ -97,6 +97,13 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
     send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", new_trace: trace})
 
+    socket =
+      if Trace.live_component_delete?(trace) and Trace.node_id(trace) == debugged_node_id do
+        push_patch(socket, to: socket.assigns.base_url)
+      else
+        socket
+      end
+
     {:noreply, socket}
   end
 
