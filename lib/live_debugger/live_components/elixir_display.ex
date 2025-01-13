@@ -19,14 +19,25 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      <div class="font-mono text-sm text-gray-500">
+    <div class="font-mono text-sm text-gray-500">
+      <div>
         <div
           class={"flex #{if has_children?(@node), do: "cursor-pointer"}"}
-          phx-click="expand-click"
+          phx-click={if has_children?(@node), do: "expand-click"}
           phx-target={@myself}
         >
-          <%!-- Place for arrow icon --%>
+          <div class="mr-0.5 inline-block w-[2ch] flex-shrink-0">
+            <.icon
+              :if={has_children?(@node) and @expanded?}
+              name="hero-chevron-up-micro"
+              class="w-4 h-4"
+            />
+            <.icon
+              :if={has_children?(@node) and not @expanded?}
+              name="hero-chevron-right-micro"
+              class="w-4 h-4"
+            />
+          </div>
           <div>
             <%= if has_children?(@node) and @expanded? do %>
               <.text_items items={@node.expanded_before} />
@@ -37,14 +48,14 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
         </div>
       </div>
       <div :if={has_children?(@node) and @expanded?}>
-        <ol>
+        <ol class="m-0 ml-[2ch] block list-none p-0">
           <%= for child <- @node.children do %>
-            <li className="flex flex-col">
+            <li class="flex flex-col">
               <.live_component id={tmp_id()} module={__MODULE__} node={child} level={@level + 1} />
             </li>
           <% end %>
         </ol>
-        <div>
+        <div class="ml-[2ch]">
           <.text_items items={@node.expanded_after} />
         </div>
       </div>
@@ -63,14 +74,16 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
 
   defp text_items(assigns) do
     ~H"""
-    <%= for item <- @items do %>
-      <span class="whitespace-pre" style={text_items_style(item)}>{item.text}</span>
-    <% end %>
+    <div class="flex">
+      <%= for item <- @items do %>
+        <span class="whitespace-pre" style={text_items_style(item)}>{item.text}</span>
+      <% end %>
+    </div>
     """
   end
 
   defp text_items_style(item) do
-    if item.color, do: "color: #{item.color}", else: ""
+    if item.color, do: "color: #{item.color};", else: ""
   end
 
   defp tmp_id() do
@@ -83,10 +96,10 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
     node.kind == "tuple" and children_number(node) <= @max_auto_expand_size
   end
 
-  defp has_children?({%{children: nil} = _node}), do: false
+  defp has_children?(%{children: nil} = _node), do: false
   defp has_children?(_node), do: true
 
-  defp children_number({%{children: nil} = _node}), do: 0
+  defp children_number(%{children: nil} = _node), do: 0
   defp children_number(%{children: children}), do: length(children)
 
   def parse_item(item) do
@@ -239,8 +252,8 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
   end
 
   defp black(text), do: %{text: text, color: nil}
-  defp red(text), do: %{text: text, color: "var(--ansi-color-red)"}
-  defp green(text), do: %{text: text, color: "var(--ansi-color-green)"}
-  defp blue(text), do: %{text: text, color: "var(--ansi-color-blue)"}
-  defp magenta(text), do: %{text: text, color: "var(--ansi-color-magenta)"}
+  defp red(text), do: %{text: text, color: "red"}
+  defp green(text), do: %{text: text, color: "green"}
+  defp blue(text), do: %{text: text, color: "blue"}
+  defp magenta(text), do: %{text: text, color: "magenta"}
 end
