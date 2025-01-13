@@ -17,15 +17,24 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     existing_node_ids = socket.assigns.existing_node_ids
     trace_node_id = Trace.node_id(trace)
 
-    if existing_node_ids.ok? and not MapSet.member?(existing_node_ids.result, trace_node_id) do
-      Logger.debug("New node detected #{inspect(trace_node_id)} refreshing the tree")
-      updated_map_set = MapSet.put(existing_node_ids.result, trace_node_id)
+    cond do
+      existing_node_ids.ok? and not MapSet.member?(existing_node_ids.result, trace_node_id) ->
+        Logger.debug("New node detected #{inspect(trace_node_id)} refreshing the tree")
+        updated_map_set = MapSet.put(existing_node_ids.result, trace_node_id)
 
-      socket
-      |> assign_async_tree()
-      |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
-    else
-      socket
+        socket
+        |> assign_async_tree()
+        |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
+
+      match?(%{module: Phoenix.LiveView.Diff, function: :delete_component, arity: 2}, trace) ->
+        updated_map_set = MapSet.delete(existing_node_ids.result, trace_node_id)
+
+        socket
+        |> assign_async_tree()
+        |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
+
+      true ->
+        socket
     end
     |> ok()
   end
