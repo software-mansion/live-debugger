@@ -3,6 +3,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   This module is responsible for rendering the detail view of the TreeNode.
   """
 
+  alias LiveDebugger.Components
   alias LiveDebugger.Services.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.ChannelStateScraper
@@ -65,11 +66,11 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             />
             <.assigns_card assigns={node.assigns} myself={@myself} hide?={@hide_assigns_section?} />
           </div>
-          <.events_card
-            node_id={@node_id}
+          <.live_component
+            id="event-list"
+            module={LiveDebugger.LiveComponents.EventsList}
+            debugged_node_id={@node_id}
             socket_id={@socket_id}
-            myself={@myself}
-            hide?={@hide_events_section?}
           />
         </div>
       </.async_result>
@@ -98,7 +99,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_card(assigns) do
     ~H"""
-    <.section
+    <Components.collapsible_section
       id="info"
       title={title(@node_type)}
       class="border-b-2 border-swm-blue"
@@ -110,7 +111,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         <.info_row name="Module" value={inspect(@node.module)} />
         <.info_row name="HTML ID" value={@node.id} />
       </div>
-    </.section>
+    </Components.collapsible_section>
     """
   end
 
@@ -142,7 +143,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp assigns_card(assigns) do
     ~H"""
-    <.section
+    <Components.collapsible_section
       id="assigns"
       class="border-b-2 md:border-b-0 border-swm-blue h-max overflow-y-hidden"
       hide?={@hide?}
@@ -152,70 +153,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       <pre class="w-full max-h-full border-2 border-gray-200 rounded-lg px-2 overflow-y-auto text-gray-600">
         <div class="whitespace-pre">{inspect(@assigns, pretty: true, structs: false)}</div>
       </pre>
-    </.section>
-    """
-  end
-
-  attr(:node_id, :string, required: true)
-  attr(:socket_id, :string, required: true)
-  attr(:myself, :any, required: true)
-  attr(:hide?, :boolean, required: true)
-
-  defp events_card(assigns) do
-    ~H"""
-    <.section
-      title="Events"
-      id="events"
-      class="h-full md:overflow-y-auto"
-      myself={@myself}
-      hide?={@hide?}
-    >
-      <.live_component
-        id="event-list"
-        module={LiveDebugger.LiveComponents.EventsList}
-        debugged_node_id={@node_id}
-        socket_id={@socket_id}
-      />
-    </.section>
-    """
-  end
-
-  attr(:id, :string, required: true)
-  attr(:myself, :any, required: true)
-  attr(:title, :string, default: nil)
-  attr(:class, :string, default: "")
-  attr(:hide?, :boolean, default: false)
-
-  slot(:inner_block)
-
-  defp section(assigns) do
-    ~H"""
-    <div class={[
-      "flex flex-col p-4",
-      @class
-    ]}>
-      <div
-        phx-click="toggle-visibility"
-        phx-value-section={@id}
-        phx-target={@myself}
-        class="flex gap-2 items-center md:pointer-events-none md:cursor-default cursor-pointer"
-      >
-        <.h3 class="text-swm-blue" no_margin={true}>{@title}</.h3>
-        <.icon
-          name="hero-chevron-down-solid"
-          class={[
-            "text-swm-blue md:hidden",
-            if(@hide?, do: "transform rotate-180")
-          ]}
-        />
-      </div>
-      <div class={[
-        "flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2",
-        if(@hide?, do: "hidden md:flex")
-      ]}>
-        {render_slot(@inner_block)}
-      </div>
-    </div>
+    </Components.collapsible_section>
     """
   end
 

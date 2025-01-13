@@ -20,7 +20,7 @@ defmodule LiveDebugger.Components.Collapsible do
     <div id={@id} class={@class} {@rest} x-data={"{ expanded: #{@open} }"}>
       <div data-open={if @open, do: "true", else: "false"}>
         <div id={content_panel_header_id(@id)} class="flex items-center gap-1">
-          <.icon_button open={@open} id={@id} icon={@icon} chevron_class={@chevron_class} />
+          <.custom_icon_button open={@open} id={@id} icon={@icon} chevron_class={@chevron_class} />
           {render_slot(@label)}
         </div>
         <.content_container id={@id}>
@@ -31,12 +31,14 @@ defmodule LiveDebugger.Components.Collapsible do
     """
   end
 
+  # Replace it with petal icon_button
+
   attr(:id, :string, required: true)
   attr(:chevron_class, :string, required: true)
   attr(:icon, :string, required: true)
   attr(:open, :boolean, required: true)
 
-  defp icon_button(assigns) do
+  defp custom_icon_button(assigns) do
     ~H"""
     <button
       type="button"
