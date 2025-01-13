@@ -6,7 +6,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   alias LiveDebugger.Services.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.ChannelStateScraper
-  alias LiveDebugger.LiveComponents.ElixirDisplay
+  alias LiveDebugger.Utils.TermParser
 
   use LiveDebuggerWeb, :live_component
 
@@ -146,8 +146,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     >
       <.live_component
         id="assigns-display"
-        module={ElixirDisplay}
-        node={ElixirDisplay.to_node(@assigns, [])}
+        module={LiveDebugger.LiveComponents.ElixirDisplay}
+        node={TermParser.term_to_display_tree(@assigns)}
         level={1}
       />
     </.section>
