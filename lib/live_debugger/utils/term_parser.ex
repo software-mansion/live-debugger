@@ -69,9 +69,7 @@ defmodule LiveDebugger.Utils.TermParser do
   end
 
   defp to_node(%module{} = struct, suffix) when is_struct(struct) do
-    if Inspect.impl_for(struct) not in [Inspect.Any, Inspect.Phoenix.LiveView.Socket] do
-      leaf_node("struct", [black(inspect(struct)) | suffix])
-    else
+    if Inspect.impl_for(struct) in [Inspect.Any, Inspect.Phoenix.LiveView.Socket] do
       map = Map.from_struct(struct)
       size = map_size(map)
       children = to_key_value_children(map, size)
@@ -83,6 +81,8 @@ defmodule LiveDebugger.Utils.TermParser do
         [black("%"), blue(inspect(module)), black("{")],
         [black("}") | suffix]
       )
+    else
+      leaf_node("struct", [black(inspect(struct)) | suffix])
     end
   end
 
