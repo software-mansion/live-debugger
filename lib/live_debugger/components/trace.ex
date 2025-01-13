@@ -5,10 +5,10 @@ defmodule LiveDebugger.Components.Trace do
 
   use LiveDebuggerWeb, :component
 
+  alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Components.Collapsible
   alias LiveDebugger.Components.Tooltip
   alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.LiveComponents.ElixirDisplay
 
   attr(:id, :string, required: true)
   attr(:trace, :map, required: true, doc: "The Trace struct to render")
@@ -29,11 +29,11 @@ defmodule LiveDebugger.Components.Trace do
       </:label>
 
       <div class="flex flex-col gap-4 overflow-x-auto h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
-        <%= for args <- @trace.args do %>
+        <%= for {args, index} <- Enum.with_index(@trace.args) do %>
           <.live_component
-            id={to_string(:erlang.ref_to_list(:erlang.make_ref()))}
-            module={ElixirDisplay}
-            node={ElixirDisplay.to_node(args, [])}
+            id={@id <> "-#{index}"}
+            module={LiveDebugger.LiveComponents.ElixirDisplay}
+            node={TermParser.term_to_display_tree(args)}
             level={1}
           />
         <% end %>
