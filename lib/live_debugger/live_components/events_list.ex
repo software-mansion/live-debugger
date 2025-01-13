@@ -24,6 +24,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     socket
     |> stream_insert(:existing_traces, trace, at: 0)
     |> assign(loading_error?: false)
+    |> assign(no_events?: false)
     |> ok()
   end
 
@@ -31,6 +32,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     socket
     |> assign(debugged_node_id: assigns.debugged_node_id)
     |> assign(id: assigns.id)
+    |> assign(:no_events?, true)
     |> assign(ets_table_id: CallbackTracer.ets_table_id(assigns.socket_id))
     |> assign_existing_traces()
     |> ok()
@@ -71,7 +73,9 @@ defmodule LiveDebugger.LiveComponents.EventsList do
           >
             The new events still will be displayed as they come. Check logs for more
           </.alert>
-
+          <div :if={@no_events?} class="text-gray-700">
+            No events have been recorded yet.
+          </div>
           <div id={"#{assigns.id}-stream"} phx-update="stream">
             <%= for {dom_id, trace} <- @streams.existing_traces do %>
               <Trace.trace id={dom_id} trace={trace} />
@@ -89,6 +93,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
     socket
     |> stream(:existing_traces, trace_list)
+    |> maybe_assign_no_events(Enum.empty?(trace_list))
     |> noreply()
   end
 
@@ -117,6 +122,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
     socket
     |> stream(:existing_traces, [], reset: true)
+    |> assign(no_events?: true)
     |> noreply()
   end
 
@@ -129,5 +135,13 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     |> start_async(:fetch_existing_traces, fn ->
       CallbackTracer.get_existing_traces(ets_table_id, node_id)
     end)
+  end
+
+  defp maybe_assign_no_events(%{assigns: %{no_events?: false}} = socket, _) do
+    socket
+  end
+
+  defp maybe_assign_no_events(socket, no_events?) do
+    assign(socket, no_events?: no_events?)
   end
 end
