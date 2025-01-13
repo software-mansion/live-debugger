@@ -40,6 +40,8 @@ defmodule LiveDebugger.Services.CallbackTracer do
         ModuleDiscovery.find_live_modules()
         |> CallbackUtils.tracing_callbacks()
         |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
+
+        :dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
       end)
 
       {:ok, tracing_session}
@@ -102,9 +104,27 @@ defmodule LiveDebugger.Services.CallbackTracer do
   end
 
   @spec trace_handler(raw_trace(), integer(), :ets.table(), pid()) :: integer()
-  defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
-    trace = Trace.new(n, module, function, args, pid)
 
+  defp trace_handler(
+         {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid_int | _] = args}},
+         n,
+         ets_table_id,
+         recipient_pid
+       ) do
+    cid = %Phoenix.LiveComponent.CID{cid: cid_int}
+
+    n
+    |> Trace.new(Phoenix.LiveView.Diff, :delete_component, args, pid, cid)
+    |> do_handle(recipient_pid, ets_table_id, n)
+  end
+
+  defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
+    n
+    |> Trace.new(module, function, args, pid)
+    |> do_handle(recipient_pid, ets_table_id, n)
+  end
+
+  defp do_handle(trace, recipient_pid, ets_table_id, n) do
     try do
       :ets.insert(ets_table_id, {n, trace})
       send(recipient_pid, {:new_trace, trace})
