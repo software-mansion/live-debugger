@@ -1,4 +1,8 @@
 defmodule LiveDebugger.Components do
+  @moduledoc """
+  This module provides reusable components for LiveDebugger.
+  """
+
   use LiveDebuggerWeb, :component
 
   @doc """
