@@ -50,6 +50,19 @@ defmodule LiveDebugger.Structs.Trace do
   def node_id(%__MODULE__{cid: cid}) when not is_nil(cid), do: cid
   def node_id(%__MODULE__{pid: pid}), do: pid
 
+  @doc """
+  Checks if the trace is a delete live component trace.
+  """
+  @spec live_component_delete?(t()) :: boolean()
+  def live_component_delete?(%__MODULE__{
+        module: Phoenix.LiveView.Diff,
+        function: :delete_component,
+        arity: 2
+      }),
+      do: true
+
+  def live_component_delete?(_), do: false
+
   defp get_cid_from_args(args) do
     args
     |> Enum.map(&maybe_get_cid(&1))
