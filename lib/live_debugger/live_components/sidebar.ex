@@ -27,6 +27,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
 
       match?(%{module: Phoenix.LiveView.Diff, function: :delete_component, arity: 2}, trace) ->
+        Logger.debug("LiveComponent deleted #{inspect(trace_node_id)} refreshing the tree")
+
         updated_map_set = MapSet.delete(existing_node_ids.result, trace_node_id)
 
         socket
