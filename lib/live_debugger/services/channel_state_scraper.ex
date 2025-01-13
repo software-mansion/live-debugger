@@ -75,7 +75,8 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
     end
   end
 
-  # We'll have to refactor this module so the functions will accept the channel state, not pid
+  # credo:disable-for-next-line
+  # TODO Refactor this module so the functions will accept the channel state, not pid
   # Thanks to this approach we'll have more control on channel state scraping
   # In this module we'll just parse the state
 
