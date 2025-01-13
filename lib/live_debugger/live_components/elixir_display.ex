@@ -11,6 +11,7 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
   @impl true
   def update(assigns, socket) do
     socket
+    |> assign(:id, assigns.id)
     |> assign(:node, assigns.node)
     |> assign(:level, assigns.level)
     |> assign(:expanded?, auto_expand?(assigns.node, assigns.level))
@@ -54,9 +55,14 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
       </div>
       <div :if={has_children?(@node) and @expanded?}>
         <ol class="m-0 ml-[2ch] block list-none p-0">
-          <%= for child <- @node.children do %>
+          <%= for {child, index} <- Enum.with_index(@node.children) do %>
             <li class="flex flex-col">
-              <.live_component id={tmp_id()} module={__MODULE__} node={child} level={@level + 1} />
+              <.live_component
+                id={@id <> "-#{index}"}
+                module={__MODULE__}
+                node={child}
+                level={@level + 1}
+              />
             </li>
           <% end %>
         </ol>
@@ -89,10 +95,6 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
 
   defp text_items_style(item) do
     if item.color, do: "color: #{item.color};", else: ""
-  end
-
-  defp tmp_id() do
-    to_string(:erlang.ref_to_list(:erlang.make_ref()))
   end
 
   defp auto_expand?(_node, 1), do: true
