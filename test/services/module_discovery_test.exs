@@ -1,52 +1,81 @@
 defmodule LiveDebugger.Services.ModuleDiscoveryTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebugger.Services.ModuleDiscovery
+  import Mox
 
-  describe "find_live_modules/0" do
-    test "finds LiveViews and LiveComponents correctly" do
-      Module.create(
-        LiveDebuggerTest.TestView,
-        live_view_contents(),
-        Macro.Env.location(__ENV__)
-      )
+  alias LiveDebugger.Services.ModuleDiscoveryService
 
-      Module.create(
-        LiveDebuggerTest.TestComponent,
-        live_component_contents(),
-        Macro.Env.location(__ENV__)
-      )
+  describe "live_view_modules/1" do
+    test "filters LiveView modules correctly" do
+      modules = [
+        CoolApp.LiveViews.UserDashboard,
+        CoolApp.Service.UserService,
+        CoolApp.LiveComponent.UserElement
+      ]
 
-      Module.create(
-        LiveDebuggerTest.OtherModule,
-        other_contents(),
-        Macro.Env.location(__ENV__)
-      )
+      LiveDebugger.MockModuleService
+      |> expect(:loaded?, 3, fn _module -> true end)
+      |> expect(:behaviours, 3, fn module ->
+        case module do
+          CoolApp.LiveViews.UserDashboard -> [Phoenix.LiveView]
+          CoolApp.Service.UserService -> []
+          CoolApp.LiveComponent.UserElement -> [Phoenix.LiveComponent]
+        end
+      end)
 
-      %{live_views: live_views, live_components: live_components} =
-        ModuleDiscovery.find_live_modules()
+      result = ModuleDiscoveryService.live_view_modules(modules)
+      assert result == [CoolApp.LiveViews.UserDashboard]
+    end
 
-      assert Enum.any?(live_views, &(&1 == LiveDebuggerTest.TestView))
-      assert Enum.any?(live_components, &(&1 == LiveDebuggerTest.TestComponent))
-      refute Enum.any?(live_views, &(&1 == LiveDebuggerTest.OtherModule))
+    test "filters unloaded modules correctly" do
+      modules = [
+        CoolApp.LiveViews.UserDashboard,
+        CoolApp.Service.UserService,
+        CoolApp.LiveComponent.UserElement
+      ]
+
+      LiveDebugger.MockModuleService
+      |> expect(:loaded?, 3, fn _module -> false end)
+
+      result = ModuleDiscoveryService.live_view_modules(modules)
+      assert result == []
     end
   end
 
-  defp live_view_contents() do
-    quote do
-      @behaviour Phoenix.LiveView
-    end
-  end
+  describe "live_component_modules/1" do
+    test "filters LiveComponent modules correctly" do
+      loaded_modules = [
+        CoolApp.LiveViews.UserDashboard,
+        CoolApp.Service.UserService,
+        CoolApp.LiveComponent.UserElement
+      ]
 
-  defp live_component_contents() do
-    quote do
-      @behaviour Phoenix.LiveComponent
-    end
-  end
+      LiveDebugger.MockModuleService
+      |> expect(:loaded?, 3, fn _module -> true end)
+      |> expect(:behaviours, 3, fn module ->
+        case module do
+          CoolApp.LiveViews.UserDashboard -> [Phoenix.LiveView]
+          CoolApp.Service.UserService -> []
+          CoolApp.LiveComponent.UserElement -> [Phoenix.LiveComponent]
+        end
+      end)
 
-  defp other_contents() do
-    quote do
-      @behaviour Other.Behaviour
+      result = ModuleDiscoveryService.live_component_modules(loaded_modules)
+      assert result == [CoolApp.LiveComponent.UserElement]
+    end
+
+    test "filters unloaded modules correctly" do
+      modules = [
+        CoolApp.LiveViews.UserDashboard,
+        CoolApp.Service.UserService,
+        CoolApp.LiveComponent.UserElement
+      ]
+
+      LiveDebugger.MockModuleService
+      |> expect(:loaded?, 3, fn _module -> false end)
+
+      result = ModuleDiscoveryService.live_component_modules(modules)
+      assert result == []
     end
   end
 end

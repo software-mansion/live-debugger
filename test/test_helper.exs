@@ -1,3 +1,4 @@
-Mox.defmock(LiveDebugger.MockLiveViewScraper, for: LiveDebugger.Services.LiveViewScraper)
-Application.put_env(:live_debugger, :live_view_api, LiveDebugger.MockLiveViewScraper)
+Mox.defmock(LiveDebugger.MockModuleService, for: LiveDebugger.Services.System.ModuleService)
+Application.put_env(:live_debugger, :module_service, LiveDebugger.MockModuleService)
+
 ExUnit.start()
