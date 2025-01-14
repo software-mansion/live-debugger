@@ -3,6 +3,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
   require Logger
 
+  alias LiveDebugger.Components
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
@@ -29,16 +30,35 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.loading_variant :if={@debugged_pid.loading} />
-    <.not_found_component :if={@debugged_pid.failed == :not_found} />
-    <.error_component :if={not @debugged_pid.ok? and @debugged_pid.failed != :not_found} />
-    <.content
-      :if={@debugged_pid.ok?}
-      pid={@debugged_pid.result}
-      node_id={@node_id}
-      socket_id={@socket_id}
-      base_url={@base_url}
-    />
+    <.async_result :let={pid} assign={@debugged_pid}>
+      <:loading>
+        <div class="h-full flex items-center justify-center">
+          <.spinner size="md" />
+        </div>
+      </:loading>
+      <:failed :let={reason}>
+        <Components.not_found_component :if={reason == :not_found} />
+        <Components.error_component :if={reason != :not_found} />
+      </:failed>
+
+      <div class="flex flex-row w-full min-h-screen">
+        <.live_component
+          module={LiveDebugger.LiveComponents.Sidebar}
+          id="sidebar"
+          pid={pid}
+          socket_id={@socket_id}
+          node_id={@node_id || pid}
+          base_url={@base_url}
+        />
+        <.live_component
+          module={LiveDebugger.LiveComponents.DetailView}
+          id="detail_view"
+          pid={@debugged_pid.result}
+          node_id={@node_id || pid}
+          socket_id={@socket_id}
+        />
+      </div>
+    </.async_result>
     """
   end
 
@@ -83,6 +103,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     |> noreply()
   end
 
+  @impl true
   def handle_info({:new_trace, trace}, socket) do
     debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
 
@@ -110,69 +131,6 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   @impl true
   def terminate(_reason, socket) do
     CallbackTracingService.stop_tracing_session(socket.assigns.tracing_session)
-  end
-
-  defp loading_variant(assigns) do
-    ~H"""
-    <div class="h-full flex items-center justify-center">
-      <.spinner size="md" />
-    </div>
-    """
-  end
-
-  defp not_found_component(assigns) do
-    ~H"""
-    <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
-      <.h2 class="text-center">Debugger disconnected</.h2>
-      <.h5 class="text-center">
-        We couldn't find any LiveView associated with the given socket id
-      </.h5>
-      <span>You can close this window</span>
-    </div>
-    """
-  end
-
-  defp error_component(assigns) do
-    ~H"""
-    <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
-      <.h2 class="text-center">Unexpected error</.h2>
-      <.h5 class="text-center">
-        Debugger encountered unexpected error - check logs for more
-      </.h5>
-      <span>You can close this window</span>
-    </div>
-    """
-  end
-
-  attr(:pid, :any, required: true)
-  attr(:socket_id, :string, required: true)
-  attr(:node_id, :string, required: true)
-  attr(:base_url, :string, required: true)
-
-  defp content(assigns) do
-    assigns = assign(assigns, :node_id, assigns.node_id || assigns.pid)
-
-    ~H"""
-    <div class="flex flex-row w-full min-h-screen">
-      <.live_component
-        module={LiveDebugger.LiveComponents.Sidebar}
-        id="sidebar"
-        pid={@pid}
-        socket_id={@socket_id}
-        node_id={@node_id}
-        base_url={@base_url}
-      />
-      <.live_component
-        module={LiveDebugger.LiveComponents.DetailView}
-        id="detail_view"
-        pid={@pid}
-        node_id={@node_id}
-        socket_id={@socket_id}
-      />
-    </div>
-    """
   end
 
   defp assign_node_id(socket, %{"node_id" => node_id}) do
