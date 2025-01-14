@@ -33,6 +33,7 @@ defmodule LiveDebugger.Services.System.ProcessService do
   end
 
   defmodule Impl do
+    @moduledoc false
     @behaviour LiveDebugger.Services.System.ProcessService
 
     @impl true

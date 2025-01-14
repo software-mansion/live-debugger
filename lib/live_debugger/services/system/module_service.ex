@@ -34,6 +34,7 @@ defmodule LiveDebugger.Services.System.ModuleService do
   end
 
   defmodule Impl do
+    @moduledoc false
     @behaviour LiveDebugger.Services.System.ModuleService
 
     @impl true
