@@ -5,51 +5,124 @@ defmodule LiveDebugger.Components do
 
   use LiveDebuggerWeb, :component
 
-  @doc """
-  Collapsible section, it throws a toggle-visibility event when the user clicks on the title.
-  Payload of toggle visibility event:
-    %{"section" => id_passed_in_assigns}
-  """
+  alias LiveDebugger.Utils.Parsers
+  alias LiveDebugger.Utils.TermParser
 
   attr(:id, :string, required: true)
-  attr(:myself, :any, required: true)
-  attr(:title, :string, default: nil)
-  attr(:class, :string, default: "")
-  attr(:hide?, :boolean, default: false)
+  attr(:trace, :map, required: true, doc: "The Trace struct to render")
 
-  slot(:right_panel)
-  slot(:inner_block)
-
-  def collapsible_section(assigns) do
+  def trace(assigns) do
     ~H"""
-    <div class={[
-      "flex flex-col p-4",
-      @class
-    ]}>
-      <div class="flex justify-between">
-        <div class="flex gap-2 items-center">
-          <!-- TODO: Replace it with petal icon_button -->
-          <.icon
-            phx-click="toggle-visibility"
-            phx-value-section={@id}
-            phx-target={@myself}
-            name="hero-chevron-down-solid"
-            class={[
-              "text-swm-blue md:hidden cursor-pointer",
-              if(@hide?, do: "transform rotate-180")
-            ]}
-          />
-          <.h3 class="text-swm-blue" no_margin={true}>{@title}</.h3>
+    <.collapsible id={@id} icon="hero-chevron-down-micro" chevron_class="text-swm-blue">
+      <:label>
+        <div class="w-full flex justify-between">
+          <.tooltip position="top" content={"#{@trace.module}.#{@trace.function}/#{@trace.arity}"}>
+            <p class="text-swm-blue font-medium">{@trace.function}/{@trace.arity}</p>
+          </.tooltip>
+          <p class="w-32">{Parsers.parse_timestamp(@trace.timestamp)}</p>
         </div>
-        {render_slot(@right_panel)}
+      </:label>
+
+      <div class="flex flex-col gap-4 overflow-x-auto h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
+        <%= for {args, index} <- Enum.with_index(@trace.args) do %>
+          <.live_component
+            id={@id <> "-#{index}"}
+            module={LiveDebugger.LiveComponents.ElixirDisplay}
+            node={TermParser.term_to_display_tree(args)}
+            level={1}
+          />
+        <% end %>
       </div>
-      <div class={[
-        "flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2",
-        if(@hide?, do: "hidden md:flex")
-      ]}>
-        {render_slot(@inner_block)}
+    </.collapsible>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:class, :any, default: nil, doc: "CSS class for parent container")
+  attr(:chevron_class, :string, default: nil, doc: "CSS class for the chevron icon")
+  attr(:icon, :string, default: "hero-chevron-down-solid", doc: "Icon name")
+  attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
+  attr(:rest, :global)
+
+  slot(:label, required: true)
+  slot(:inner_block, required: true)
+
+  def collapsible(assigns) do
+    ~H"""
+    <div id={@id} class={@class} {@rest} x-data={"{ expanded: #{@open} }"}>
+      <div data-open={if @open, do: "true", else: "false"}>
+        <div id={content_panel_header_id(@id)} class="flex items-center gap-1">
+          <.custom_icon_button open={@open} id={@id} icon={@icon} chevron_class={@chevron_class} />
+          {render_slot(@label)}
+        </div>
+        <.content_container id={@id}>
+          {render_slot(@inner_block)}
+        </.content_container>
       </div>
     </div>
     """
   end
+
+  @doc """
+  Renders a tooltip using Tooltip hook.
+  """
+  attr(:content, :string, default: nil)
+  attr(:position, :string, default: "bottom", values: ["top", "bottom"])
+  attr(:rest, :global)
+  slot(:inner_block, required: true)
+
+  def tooltip(assigns) do
+    assigns = assign(assigns, :id, "tooltip_" <> Ecto.UUID.generate())
+
+    ~H"""
+    <div id={@id} phx-hook="Tooltip" data-tooltip={@content} data-position={@position} {@rest}>
+      {render_slot(@inner_block)}
+    </div>
+    """
+  end
+
+  # # Replace it with petal icon_button
+
+  attr(:id, :string, required: true)
+  attr(:chevron_class, :string, required: true)
+  attr(:icon, :string, required: true)
+  attr(:open, :boolean, required: true)
+
+  defp custom_icon_button(assigns) do
+    ~H"""
+    <button
+      type="button"
+      x-on:click="expanded = !expanded"
+      aria-expanded="expanded"
+      aria-controls={content_panel_id(@id)}
+    >
+      <.icon
+        name={@icon}
+        class={[@chevron_class, if(@open, do: "rotate-180")]}
+        {%{":class": "{'rotate-180': expanded}"}}
+      />
+    </button>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  slot(:inner_block)
+
+  defp content_container(assigns) do
+    ~H"""
+    <div
+      id={content_panel_id(@id)}
+      role="region"
+      aria-labelledby={content_panel_header_id(@id)}
+      x-show="expanded"
+      x-cloak={true}
+      x-collapse={true}
+    >
+      {render_slot(@inner_block)}
+    </div>
+    """
+  end
+
+  defp content_panel_header_id(id), do: "collapsible-header-#{id}"
+  defp content_panel_id(id), do: "collapsible-content-panel-#{id}"
 end

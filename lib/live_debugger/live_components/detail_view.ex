@@ -3,7 +3,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   This module is responsible for rendering the detail view of the TreeNode.
   """
 
-  alias LiveDebugger.Components
+  alias LiveDebugger.Components.CollapsibleSection
   alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.ChannelService
@@ -100,7 +100,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_card(assigns) do
     ~H"""
-    <Components.collapsible_section
+    <CollapsibleSection.section
       id="info"
       title={title(@node_type)}
       class="border-b-2 border-swm-blue"
@@ -112,7 +112,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         <.info_row name="Module" value={inspect(@node.module)} />
         <.info_row name="HTML ID" value={@node.id} />
       </div>
-    </Components.collapsible_section>
+    </CollapsibleSection.section>
     """
   end
 
@@ -144,7 +144,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp assigns_card(assigns) do
     ~H"""
-    <Components.collapsible_section
+    <CollapsibleSection.section
       id="assigns"
       class="border-b-2 md:border-b-0 border-swm-blue h-max overflow-y-hidden"
       hide?={@hide?}
@@ -159,7 +159,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           level={1}
         />
       </div>
-    </Components.collapsible_section>
+    </CollapsibleSection.section>
     """
   end
 

@@ -7,8 +7,8 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
   require Logger
 
+  alias LiveDebugger.Components.CollapsibleSection
   alias LiveDebugger.Services.TraceService
-  alias LiveDebugger.Components.Trace
   alias LiveDebugger.Components
 
   @impl true
@@ -47,7 +47,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def render(assigns) do
     ~H"""
     <div>
-      <Components.collapsible_section
+      <CollapsibleSection.section
         title="Events"
         id="events"
         class="h-full md:overflow-y-auto"
@@ -78,11 +78,11 @@ defmodule LiveDebugger.LiveComponents.EventsList do
           </div>
           <div id={"#{assigns.id}-stream"} phx-update="stream">
             <%= for {dom_id, trace} <- @streams.existing_traces do %>
-              <Trace.trace id={dom_id} trace={trace} />
+              <Components.trace id={dom_id} trace={trace} />
             <% end %>
           </div>
         </div>
-      </Components.collapsible_section>
+      </CollapsibleSection.section>
     </div>
     """
   end
