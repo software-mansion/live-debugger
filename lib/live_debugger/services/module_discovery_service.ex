@@ -3,7 +3,7 @@ defmodule LiveDebugger.Services.ModuleDiscoveryService do
   This module provides functions to discover LiveViews and LiveComponents in the current application.
   """
 
-  alias LiveDebugger.Services.ModuleService
+  alias LiveDebugger.Services.System.ModuleService
 
   @live_view_behaviour Phoenix.LiveView
   @live_component_behaviour Phoenix.LiveComponent

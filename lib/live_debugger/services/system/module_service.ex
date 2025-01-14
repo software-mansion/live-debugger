@@ -1,12 +1,10 @@
-defmodule LiveDebugger.Services.ModuleService do
+defmodule LiveDebugger.Services.System.ModuleService do
   @moduledoc """
   This module provides functions that queries the modules in the current application.
   """
 
   @callback all() :: [{module(), charlist()}]
-
   @callback loaded?(module :: module()) :: boolean()
-
   @callback behaviours(module :: module()) :: [module()]
 
   @doc """
@@ -31,12 +29,12 @@ defmodule LiveDebugger.Services.ModuleService do
     Application.get_env(
       :live_debugger,
       :module_service,
-      LiveDebugger.Services.ModuleService.Impl
+      __MODULE__.Impl
     )
   end
 
   defmodule Impl do
-    @behaviour LiveDebugger.Services.ModuleService
+    @behaviour LiveDebugger.Services.System.ModuleService
 
     @impl true
     def all() do
