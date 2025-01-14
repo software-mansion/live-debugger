@@ -6,7 +6,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   alias LiveDebugger.Components
   alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebugger.Services.ChannelStateScraper
+  alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
 
   use LiveDebuggerWeb, :live_component
@@ -166,7 +166,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   defp assign_async_node_with_type(%{assigns: %{node_id: node_id, pid: pid}} = socket)
        when not is_nil(node_id) do
     assign_async(socket, [:node, :node_type], fn ->
-      with {:ok, node} <- ChannelStateScraper.get_node_from_pid(pid, node_id),
+      with {:ok, channel_state} <- ChannelService.state(pid),
+           {:ok, node} <- ChannelService.get_node(channel_state, node_id),
            true <- not is_nil(node) do
         {:ok, %{node: node, node_type: TreeNode.type(node)}}
       else

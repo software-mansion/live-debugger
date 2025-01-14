@@ -8,7 +8,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
-  alias LiveDebugger.Services.ChannelStateScraper
+  alias LiveDebugger.Services.ChannelService
 
   require Logger
 
@@ -130,10 +130,10 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     pid = socket.assigns.pid
 
     assign_async(socket, :existing_node_ids, fn ->
-      case ChannelStateScraper.all_node_ids(pid) do
-        {:ok, node_ids} ->
-          {:ok, %{existing_node_ids: MapSet.new(node_ids)}}
-
+      with {:ok, channel_state} <- ChannelService.state(pid),
+           {:ok, node_ids} <- ChannelService.node_ids(channel_state) do
+        {:ok, %{existing_node_ids: MapSet.new(node_ids)}}
+      else
         {:error, error} ->
           Logger.error("Failed to get existing node ids: #{inspect(error)}")
           {:error, error}
@@ -145,10 +145,10 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     pid = socket.assigns.pid
 
     assign_async(socket, :tree, fn ->
-      case ChannelStateScraper.build_tree(pid) do
-        {:ok, tree} ->
-          {:ok, %{tree: tree}}
-
+      with {:ok, channel_state} <- ChannelService.state(pid),
+           {:ok, tree} <- ChannelService.build_tree(channel_state) do
+        {:ok, %{tree: tree}}
+      else
         {:error, error} ->
           Logger.error("Failed to build tree: #{inspect(error)}")
           {:error, error}

@@ -6,7 +6,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebugger.Services.LiveViewScraper
+  alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.CallbackTracer
 
   @impl true
@@ -211,6 +211,6 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
   defp fetch_pid_after(socket_id, milliseconds) do
     Process.sleep(milliseconds)
-    LiveViewScraper.pid_by_socket_id(socket_id)
+    LiveViewDiscoveryService.live_pid(socket_id)
   end
 end

@@ -11,20 +11,8 @@ defmodule LiveDebugger.Structs.TreeNode do
   @type cid() :: LiveComponentNode.cid()
   @type id() :: cid() | pid()
 
-  @typedoc """
-  Value of channel_state's `socket` field.
-  """
-  @type channel_state_socket() :: %{id: String.t(), root_pid: pid(), view: atom(), assigns: map()}
-
-  @typedoc """
-  A key-value pair from `channel_state`'s `components` map.
-  In the `channel_state` CID is represented as integer.
-  """
-  @type channel_state_component() ::
-          {cid :: integer(), {module :: atom(), id :: String.t(), assigns :: map(), any(), any()}}
-
   @type channel_state() :: %{
-          socket: channel_state_socket(),
+          socket: %Phoenix.LiveView.Socket{},
           components: {map(), any(), any()}
         }
 
@@ -106,7 +94,7 @@ defmodule LiveDebugger.Structs.TreeNode do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewDiscoveryService.channel_state_from_pid(pid)
       iex> LiveDebugger.Structs.TreeNode.live_view_node(state)
       {:ok, %LiveDebugger.Structs.TreeNode.LiveView{...}}
   """
@@ -132,11 +120,11 @@ defmodule LiveDebugger.Structs.TreeNode do
 
   ## Examples
 
-      iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewDiscoveryService.channel_state_from_pid(pid)
       iex> LiveDebugger.Structs.TreeNode.live_component_node(state, 2)
       {:ok, %LiveDebugger.Structs.TreeNode.LiveComponent{cid: 2, ...}}
 
-      iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
+      iex> {:ok, state} = LiveDebugger.Services.LiveViewDiscoveryService.channel_state_from_pid(pid)
       iex> LiveDebugger.Structs.TreeNode.live_component_node(state, 999)
       {:ok, nil}
   """
