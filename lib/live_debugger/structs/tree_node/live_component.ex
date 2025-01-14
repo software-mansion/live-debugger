@@ -1,5 +1,7 @@
 defmodule LiveDebugger.Structs.TreeNode.LiveComponent do
-  @moduledoc false
+  @moduledoc """
+  This module provides a struct to represent a LiveComponent in the tree.
+  """
 
   defstruct [:id, :cid, :module, :assigns, :children]
 

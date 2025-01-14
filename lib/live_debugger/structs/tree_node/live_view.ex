@@ -1,4 +1,8 @@
 defmodule LiveDebugger.Structs.TreeNode.LiveView do
+  @moduledoc """
+  This module provides a struct to represent a LiveView in the tree.
+  """
+
   defstruct [:id, :pid, :module, :assigns, :children]
 
   @type t() :: %__MODULE__{

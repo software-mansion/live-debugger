@@ -2,6 +2,7 @@ defmodule LiveDebugger.Structs.TreeNode do
   @moduledoc """
   This module provides functions to work with the tree of LiveView and LiveComponent nodes (TreeNodes).
   """
+
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode.LiveView, as: LiveViewNode
   alias LiveDebugger.Structs.TreeNode.LiveComponent, as: LiveComponentNode
@@ -9,10 +10,12 @@ defmodule LiveDebugger.Structs.TreeNode do
   @type t() :: LiveViewNode.t() | LiveComponentNode.t()
   @type cid() :: LiveComponentNode.cid()
   @type id() :: cid() | pid()
+
   @typedoc """
   Value of channel_state's `socket` field.
   """
   @type channel_state_socket() :: %{id: String.t(), root_pid: pid(), view: atom(), assigns: map()}
+
   @typedoc """
   A key-value pair from `channel_state`'s `components` map.
   In the `channel_state` CID is represented as integer.
@@ -25,8 +28,11 @@ defmodule LiveDebugger.Structs.TreeNode do
           components: {map(), any(), any()}
         }
 
+  @doc """
+  Returns PID or CID of the node.
+  """
   @spec id(node :: t()) :: id()
-  def id(%LiveViewNode{pid: pid}), do: pid
+  def id(%LiveViewNode{pid: pid} = _node), do: pid
   def id(%LiveComponentNode{cid: cid}), do: cid
 
   @doc """
@@ -39,19 +45,16 @@ defmodule LiveDebugger.Structs.TreeNode do
   def type(%LiveViewNode{}), do: :live_view
   def type(%LiveComponentNode{}), do: :live_component
 
-  @spec parsed_id(node :: t()) :: String.t()
-  def parsed_id(node), do: node |> id() |> parse_id()
+  @doc """
+  Returns string representation of the node's ID, ready to be displayed in the UI.
+  """
+  @spec display_id(node :: t()) :: String.t()
+  def display_id(%LiveViewNode{pid: pid}), do: pid |> Parsers.pid_to_string()
+  def display_id(%LiveComponentNode{cid: cid}), do: cid |> Parsers.cid_to_string()
 
   @doc """
-  Returns parsed PID or CID of the node.
-  PID has format `0.123.0`.
+  Parses ID from string to PID or CID.
   """
-
-  @spec parse_id(id :: id()) :: String.t()
-  def parse_id(pid) when is_pid(pid), do: Parsers.pid_to_string(pid)
-
-  def parse_id(cid) when is_struct(cid), do: Parsers.cid_to_string(cid)
-
   @spec id_from_string(id :: String.t()) :: {:ok, id()} | :error
   def id_from_string(id) when is_binary(id) do
     with :error <- Parsers.string_to_pid(id) do
@@ -59,6 +62,9 @@ defmodule LiveDebugger.Structs.TreeNode do
     end
   end
 
+  @doc """
+  Same as `id_from_string/1`, but raises an ArgumentError if the ID is invalid.
+  """
   @spec id_from_string!(id :: String.t()) :: id()
   def id_from_string!(string) do
     case id_from_string(string) do
@@ -67,11 +73,17 @@ defmodule LiveDebugger.Structs.TreeNode do
     end
   end
 
+  @doc """
+  Adds a child to the parent node.
+  """
   @spec add_child(parent :: t(), child :: t()) :: t()
   def add_child(parent, child) do
     %{parent | children: parent.children ++ [child]}
   end
 
+  @doc """
+  Returns a child of the parent node by PID or CID.
+  """
   @spec get_child(parent :: t(), child_id :: id()) :: t() | nil
   def get_child(parent, child_id)
 
