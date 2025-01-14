@@ -7,7 +7,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
   require Logger
 
-  alias LiveDebugger.Services.CallbackTracer
+  alias LiveDebugger.Services.CallbackTracingService
   alias LiveDebugger.Components.Trace
   alias LiveDebugger.Components
 
@@ -33,7 +33,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     |> assign(debugged_node_id: assigns.debugged_node_id)
     |> assign(id: assigns.id)
     |> assign(:no_events?, true)
-    |> assign(ets_table_id: CallbackTracer.ets_table_id(assigns.socket_id))
+    |> assign(ets_table_id: CallbackTracingService.ets_table_id(assigns.socket_id))
     |> assign_existing_traces()
     |> ok()
   end
@@ -118,7 +118,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.debugged_node_id
 
-    CallbackTracer.clear_traces(ets_table_id, node_id)
+    CallbackTracingService.clear_traces(ets_table_id, node_id)
 
     socket
     |> stream(:existing_traces, [], reset: true)
@@ -133,7 +133,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     socket
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
-      CallbackTracer.get_existing_traces(ets_table_id, node_id)
+      CallbackTracingService.existing_traces(ets_table_id, node_id)
     end)
   end
 

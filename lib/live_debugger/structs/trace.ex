@@ -11,7 +11,7 @@ defmodule LiveDebugger.Structs.Trace do
   There cannot be a trace with CID and without PID.
   """
 
-  alias LiveDebugger.Structs.TreeNode.LiveComponent, as: LiveComponentNode
+  alias Phoenix.LiveComponent.CID
 
   defstruct [:id, :module, :function, :arity, :args, :pid, :cid, :timestamp]
 
@@ -34,7 +34,7 @@ defmodule LiveDebugger.Structs.Trace do
     new(id, module, function, args, pid, get_cid_from_args(args))
   end
 
-  @spec new(integer(), atom(), atom(), list(), pid(), LiveComponentNode.cid()) :: t()
+  @spec new(integer(), atom(), atom(), list(), pid(), %CID{}) :: t()
   def new(id, module, function, args, pid, cid) do
     %__MODULE__{
       id: id,
@@ -52,7 +52,7 @@ defmodule LiveDebugger.Structs.Trace do
   Returns the node id from the trace.
   It is PID if trace comes from a LiveView, CID if trace comes from a LiveComponent.
   """
-  @spec node_id(t()) :: pid() | LiveComponentNode.cid()
+  @spec node_id(t()) :: pid() | %CID{}
   def node_id(%__MODULE__{cid: cid}) when not is_nil(cid), do: cid
   def node_id(%__MODULE__{pid: pid}), do: pid
 
@@ -73,7 +73,7 @@ defmodule LiveDebugger.Structs.Trace do
   defp get_cid_from_args(args) do
     args
     |> Enum.map(&maybe_get_cid(&1))
-    |> Enum.find(fn elem -> is_struct(elem, Phoenix.LiveComponent.CID) end)
+    |> Enum.find(fn elem -> is_struct(elem, CID) end)
   end
 
   defp maybe_get_cid(%{myself: cid}), do: cid

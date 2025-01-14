@@ -7,7 +7,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
-  alias LiveDebugger.Services.CallbackTracer
+  alias LiveDebugger.Services.CallbackTracingService
 
   @impl true
   def mount(%{"socket_id" => socket_id}, _session, socket) do
@@ -54,7 +54,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
     Process.monitor(fetched_pid)
 
     {:ok, tracing_session} =
-      CallbackTracer.start_tracing_session(socket.assigns.socket_id, fetched_pid, self())
+      CallbackTracingService.start_tracing_session(socket.assigns.socket_id, fetched_pid, self())
 
     socket
     |> assign(:debugged_pid, AsyncResult.ok(fetched_pid))
@@ -75,7 +75,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
   @impl true
   def handle_info({:DOWN, _, :process, _closed_pid, _}, socket) do
-    CallbackTracer.stop_tracing_session(socket.assigns.tracing_session)
+    CallbackTracingService.stop_tracing_session(socket.assigns.tracing_session)
 
     socket
     |> push_patch(to: socket.assigns.base_url)
@@ -109,7 +109,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
 
   @impl true
   def terminate(_reason, socket) do
-    CallbackTracer.stop_tracing_session(socket.assigns.tracing_session)
+    CallbackTracingService.stop_tracing_session(socket.assigns.tracing_session)
   end
 
   defp loading_variant(assigns) do
