@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveViews.SocketDashboardLive do
+defmodule LiveDebugger.LiveViews.ChannelDashboard do
   use LiveDebuggerWeb, :live_view
 
   require Logger
