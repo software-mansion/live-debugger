@@ -6,15 +6,11 @@ defmodule LiveDebugger.Structs.TreeNode do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode.LiveView, as: LiveViewNode
   alias LiveDebugger.Structs.TreeNode.LiveComponent, as: LiveComponentNode
+  alias LiveDebugger.CommonTypes
 
   @type t() :: LiveViewNode.t() | LiveComponentNode.t()
   @type cid() :: LiveComponentNode.cid()
   @type id() :: cid() | pid()
-
-  @type channel_state() :: %{
-          socket: %Phoenix.LiveView.Socket{},
-          components: {map(), any(), any()}
-        }
 
   @doc """
   Returns PID or CID of the node.
@@ -98,7 +94,8 @@ defmodule LiveDebugger.Structs.TreeNode do
       iex> LiveDebugger.Structs.TreeNode.live_view_node(state)
       {:ok, %LiveDebugger.Structs.TreeNode.LiveView{...}}
   """
-  @spec live_view_node(channel_state :: channel_state()) :: {:ok, t()} | {:error, term()}
+  @spec live_view_node(channel_state :: CommonTypes.channel_state()) ::
+          {:ok, t()} | {:error, term()}
   def live_view_node(channel_state)
 
   def live_view_node(%{socket: %{id: id, root_pid: pid, view: view, assigns: assigns}}) do
@@ -128,7 +125,7 @@ defmodule LiveDebugger.Structs.TreeNode do
       iex> LiveDebugger.Structs.TreeNode.live_component_node(state, 999)
       {:ok, nil}
   """
-  @spec live_component_node(channel_state :: channel_state(), cid :: cid()) ::
+  @spec live_component_node(channel_state :: CommonTypes.channel_state(), cid :: cid()) ::
           {:ok, t() | nil} | {:error, term()}
   def live_component_node(channel_state, cid)
 
@@ -156,7 +153,8 @@ defmodule LiveDebugger.Structs.TreeNode do
       iex> LiveDebugger.Structs.TreeNode.live_component_nodes(state)
       {:ok, [%LiveDebugger.Structs.TreeNode.LiveComponent{...}, ...]}
   """
-  @spec live_component_nodes(channel_state :: channel_state()) :: {:ok, [t()]} | {:error, term()}
+  @spec live_component_nodes(channel_state :: CommonTypes.channel_state()) ::
+          {:ok, [t()]} | {:error, term()}
   def live_component_nodes(channel_state)
 
   def live_component_nodes(%{components: {components_map, _, _}}) do
