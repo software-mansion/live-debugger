@@ -1,10 +1,10 @@
-defmodule LiveDebugger.Services.TreeNode do
+defmodule LiveDebugger.Structs.TreeNode do
   @moduledoc """
   This module provides functions to work with the tree of LiveView and LiveComponent nodes (TreeNodes).
   """
   alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.Services.TreeNode.LiveView, as: LiveViewNode
-  alias LiveDebugger.Services.TreeNode.LiveComponent, as: LiveComponentNode
+  alias LiveDebugger.Structs.TreeNode.LiveView, as: LiveViewNode
+  alias LiveDebugger.Structs.TreeNode.LiveComponent, as: LiveComponentNode
 
   @type t() :: LiveViewNode.t() | LiveComponentNode.t()
   @type cid() :: LiveComponentNode.cid()
@@ -90,13 +90,13 @@ defmodule LiveDebugger.Services.TreeNode do
   end
 
   @doc """
-  Parses channel_state to LiveDebugger.Services.TreeNode.LiveView.
+  Parses channel_state to LiveDebugger.Structs.TreeNode.LiveView.
 
   ## Examples
 
       iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
-      iex> LiveDebugger.Services.TreeNode.live_view_node(state)
-      {:ok, %LiveDebugger.Services.TreeNode.LiveView{...}}
+      iex> LiveDebugger.Structs.TreeNode.live_view_node(state)
+      {:ok, %LiveDebugger.Structs.TreeNode.LiveView{...}}
   """
   @spec live_view_node(channel_state :: channel_state()) :: {:ok, t()} | {:error, term()}
   def live_view_node(channel_state)
@@ -115,17 +115,17 @@ defmodule LiveDebugger.Services.TreeNode do
   def live_view_node(_), do: {:error, :invalid_channel_view}
 
   @doc """
-  Parses channel_state state to LiveDebugger.Services.TreeNode.LiveComponent of given CID.
+  Parses channel_state state to LiveDebugger.Structs.TreeNode.LiveComponent of given CID.
   If the component is not found, returns `nil`.
 
   ## Examples
 
       iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
-      iex> LiveDebugger.Services.TreeNode.live_component_node(state, 2)
-      {:ok, %LiveDebugger.Services.TreeNode.LiveComponent{cid: 2, ...}}
+      iex> LiveDebugger.Structs.TreeNode.live_component_node(state, 2)
+      {:ok, %LiveDebugger.Structs.TreeNode.LiveComponent{cid: 2, ...}}
 
       iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
-      iex> LiveDebugger.Services.TreeNode.live_component_node(state, 999)
+      iex> LiveDebugger.Structs.TreeNode.live_component_node(state, 999)
       {:ok, nil}
   """
   @spec live_component_node(channel_state :: channel_state(), cid :: cid()) ::
@@ -147,14 +147,14 @@ defmodule LiveDebugger.Services.TreeNode do
   def live_component_node(_, _), do: {:error, :invalid_channel_state}
 
   @doc """
-  Parses channel_state to a list of all LiveDebugger.Services.TreeNode.LiveComponent nodes.
+  Parses channel_state to a list of all LiveDebugger.Structs.TreeNode.LiveComponent nodes.
   It doesn't include children.
 
   ## Examples
 
       iex> {:ok, state} = LiveDebugger.Services.get_channel_state(pid)
-      iex> LiveDebugger.Services.TreeNode.live_component_nodes(state)
-      {:ok, [%LiveDebugger.Services.TreeNode.LiveComponent{...}, ...]}
+      iex> LiveDebugger.Structs.TreeNode.live_component_nodes(state)
+      {:ok, [%LiveDebugger.Structs.TreeNode.LiveComponent{...}, ...]}
   """
   @spec live_component_nodes(channel_state :: channel_state()) :: {:ok, [t()]} | {:error, term()}
   def live_component_nodes(channel_state)

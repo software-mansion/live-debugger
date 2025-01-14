@@ -7,7 +7,7 @@ defmodule LiveDebugger.Components.Tree do
 
   alias LiveDebugger.Components.Collapsible
   alias LiveDebugger.Components.Tooltip
-  alias LiveDebugger.Services.TreeNode
+  alias LiveDebugger.Structs.TreeNode
 
   @doc """
   Tree component which show nested tree of live view and live components.

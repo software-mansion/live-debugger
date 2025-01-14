@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Services.TreeNode.LiveComponent do
+defmodule LiveDebugger.Structs.TreeNode.LiveComponent do
   @moduledoc false
 
   defstruct [:id, :cid, :module, :assigns, :children]

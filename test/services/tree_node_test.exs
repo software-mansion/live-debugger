@@ -1,7 +1,7 @@
-defmodule LiveDebugger.Services.TreeNodeTest do
+defmodule LiveDebugger.Structs.TreeNodeTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebugger.Services.TreeNode
+  alias LiveDebugger.Structs.TreeNode
 
   @cid_1 %Phoenix.LiveComponent.CID{cid: 1}
 

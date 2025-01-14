@@ -4,7 +4,7 @@ defmodule LiveDebugger.LiveViews.SocketDashboardLive do
   require Logger
 
   alias LiveDebugger.Structs.Trace
-  alias LiveDebugger.Services.TreeNode
+  alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewScraper
   alias LiveDebugger.Services.CallbackTracer

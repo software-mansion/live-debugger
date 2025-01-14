@@ -3,7 +3,7 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
   This module provides functions that performs operation on state of LiveView channel.
   """
 
-  alias LiveDebugger.Services.TreeNode
+  alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Services.LiveViewScraper
 
   @doc """
@@ -13,10 +13,10 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
 
   ## Examples
       iex> LiveDebugger.Services.ChannelStateScraper.get_node_from_pid(pid, %Phoenix.LiveComponent.CID{cid: 1})
-      %LiveDebugger.Services.TreeNode.LiveComponent{...}
+      %LiveDebugger.Structs.TreeNode.LiveComponent{...}
 
       iex> LiveDebugger.Services.ChannelStateScraper.get_node_from_pid(pid, pid)
-      %LiveDebugger.Services.TreeNode.LiveView{...}
+      %LiveDebugger.Structs.TreeNode.LiveView{...}
   """
   @spec get_node_from_pid(pid :: pid(), id :: TreeNode.id()) ::
           {:ok, TreeNode.t() | nil} | {:error, term()}
@@ -41,7 +41,7 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
       iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
       iex> tree = LiveDebugger.Services.ChannelStateScraper.build_tree(state)
       iex> LiveDebugger.Services.ChannelStateScraper.get_node_by_id(tree, %Phoenix.LiveComponent.CID{cid: 1})
-      %LiveDebugger.Services.TreeNode.LiveComponent{...}
+      %LiveDebugger.Structs.TreeNode.LiveComponent{...}
   """
   @spec get_node_by_id(tree :: TreeNode.t(), id :: TreeNode.id()) :: TreeNode.t() | nil
   def get_node_by_id(tree, id) do
@@ -53,13 +53,13 @@ defmodule LiveDebugger.Services.ChannelStateScraper do
   end
 
   @doc """
-  Creates a tree with the root being a LiveDebugger.Services.TreeNode.LiveView.
+  Creates a tree with the root being a LiveDebugger.Structs.TreeNode.LiveView.
 
   ## Examples
 
       iex> {:ok, state} = LiveDebugger.Services.LiveViewScraper.channel_state_from_pid(pid)
       iex> LiveDebugger.Services.ChannelStateScraper.build_tree(state)
-      {:ok, %LiveDebugger.Services.TreeNode.LiveView{...}}
+      {:ok, %LiveDebugger.Structs.TreeNode.LiveView{...}}
   """
   @spec build_tree(pid) :: {:ok, TreeNode.t()} | {:error, term()}
   def build_tree(pid) when is_pid(pid) do

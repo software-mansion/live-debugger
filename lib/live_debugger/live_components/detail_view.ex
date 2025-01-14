@@ -4,7 +4,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   """
 
   alias LiveDebugger.Components
-  alias LiveDebugger.Services.TreeNode
+  alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.ChannelStateScraper
   alias LiveDebugger.Utils.TermParser

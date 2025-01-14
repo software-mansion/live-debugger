@@ -2,7 +2,7 @@ defmodule LiveDebugger.Services.ChannelStateScraperTest do
   use LiveDebugger.ProcessCase, async: true
 
   alias LiveDebugger.Services.ChannelStateScraper
-  alias LiveDebugger.Services.TreeNode
+  alias LiveDebugger.Structs.TreeNode
 
   @cid_1 %Phoenix.LiveComponent.CID{cid: 1}
 

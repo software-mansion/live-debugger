@@ -3,7 +3,7 @@ defmodule LiveDebugger.Structs.Trace do
   This module provides a struct to represent a trace.
   """
 
-  alias LiveDebugger.Services.TreeNode.LiveComponent
+  alias LiveDebugger.Structs.TreeNode.LiveComponent
 
   defstruct [:id, :module, :function, :arity, :args, :pid, :cid, :timestamp]
 
