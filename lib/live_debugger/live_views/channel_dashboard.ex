@@ -1,4 +1,6 @@
 defmodule LiveDebugger.LiveViews.ChannelDashboard do
+  @moduledoc false
+
   use LiveDebuggerWeb, :live_view
 
   require Logger
