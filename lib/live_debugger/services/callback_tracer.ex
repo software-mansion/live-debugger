@@ -37,12 +37,21 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
         :dbg.p(monitored_pid, :c)
 
-        result =
-          ModuleDiscovery.find_live_modules()
-          |> CallbackUtils.tracing_callbacks()
+        loaded_modules = ModuleDiscovery.load_modules()
+
+        callbacks =
+          loaded_modules
+          |> ModuleDiscovery.live_view_modules()
+          |> CallbackUtils.live_view_callbacks()
+
+        tracer_patterns =
+          loaded_modules
+          |> ModuleDiscovery.live_component_modules()
+          |> CallbackUtils.live_component_callbacks()
+          |> Enum.concat(callbacks)
           |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
 
-        [:dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, []) | result]
+        [:dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, []) | tracer_patterns]
       end)
 
       {:ok, tracing_session}

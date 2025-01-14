@@ -6,16 +6,28 @@ defmodule LiveDebugger.Services.ModuleDiscovery do
   @live_view_behaviour Phoenix.LiveView
   @live_component_behaviour Phoenix.LiveComponent
 
-  @type live_modules() :: %{live_views: [module()], live_components: [module()]}
+  @doc """
+  Wrapper for `:code.all_loaded/0` that returns a list of loaded modules.
+  """
+  @spec load_modules() :: [{module(), charlist()}]
+  def load_modules() do
+    :code.all_loaded()
+  end
 
-  @spec find_live_modules() :: live_modules()
-  def find_live_modules() do
-    loaded_modules = :code.all_loaded()
+  @doc """
+  Returns a list of loaded LiveView modules.
+  """
+  @spec live_view_modules(loaded_modules :: [{module(), charlist()}]) :: [module()]
+  def live_view_modules(loaded_modules) do
+    find_modules_by_behaviour(loaded_modules, @live_view_behaviour)
+  end
 
-    %{
-      live_views: find_modules_by_behaviour(loaded_modules, @live_view_behaviour),
-      live_components: find_modules_by_behaviour(loaded_modules, @live_component_behaviour)
-    }
+  @doc """
+  Returns a list of loaded LiveComponent modules.
+  """
+  @spec live_component_modules(loaded_modules :: [{module(), charlist()}]) :: [module()]
+  def live_component_modules(loaded_modules) do
+    find_modules_by_behaviour(loaded_modules, @live_component_behaviour)
   end
 
   defp find_modules_by_behaviour(loaded_modules, behaviour) do

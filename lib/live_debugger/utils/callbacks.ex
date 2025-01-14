@@ -3,8 +3,6 @@ defmodule LiveDebugger.Utils.Callbacks do
   This module provides functions to generate a list of callbacks for LiveViews and LiveComponents.
   """
 
-  alias LiveDebugger.Services.ModuleDiscovery
-
   @common_callbacks [
     {:render, 1},
     {:handle_event, 3},
@@ -27,20 +25,28 @@ defmodule LiveDebugger.Utils.Callbacks do
                             ] ++ @common_callbacks
 
   @doc """
-  Generates a list of callbacks for LiveViews and LiveComponents in form of MFA for the given module.
+  Generates a list of callbacks for LiveViews in form of {module, callback, arity}.
+  Accept a single module or a list of modules.
   """
-
-  @spec tracing_callbacks(ModuleDiscovery.live_modules()) :: [{module(), atom(), integer()}]
-  def tracing_callbacks(%{live_views: live_views, live_components: live_components}) do
-    Enum.flat_map(live_views, &live_view_callbacks/1) ++
-      Enum.flat_map(live_components, &live_component_callbacks/1)
+  @spec live_view_callbacks(module() | [module()]) :: [mfa()]
+  def live_view_callbacks(modules) when is_list(modules) do
+    Enum.flat_map(modules, &live_view_callbacks/1)
   end
 
-  defp live_view_callbacks(module) do
+  def live_view_callbacks(module) when is_atom(module) do
     Enum.map(@live_view_callbacks, fn {callback, arity} -> {module, callback, arity} end)
   end
 
-  defp live_component_callbacks(module) do
+  @doc """
+  Generates a list of callbacks for LiveComponents in form of {module, callback, arity}.
+  Accepts a single module or a list of modules.
+  """
+  @spec live_component_callbacks(module() | [module()]) :: [mfa()]
+  def live_component_callbacks(modules) when is_list(modules) do
+    Enum.flat_map(modules, &live_component_callbacks/1)
+  end
+
+  def live_component_callbacks(module) when is_atom(module) do
     Enum.map(@live_component_callbacks, fn {callback, arity} -> {module, callback, arity} end)
   end
 end
