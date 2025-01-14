@@ -1,6 +1,6 @@
 defmodule LiveDebugger.Services.System.ModuleService do
   @moduledoc """
-  This module provides functions that queries the modules in the current application.
+  This module provides wrappers for system functions that queries modules in the current application.
   """
 
   @callback all() :: [{module(), charlist()}]
