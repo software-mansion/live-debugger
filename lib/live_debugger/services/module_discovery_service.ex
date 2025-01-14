@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Services.ModuleDiscovery do
+defmodule LiveDebugger.Services.ModuleDiscoveryService do
   @moduledoc """
   This module provides functions to discover LiveViews and LiveComponents in the current application.
   """
@@ -10,9 +10,7 @@ defmodule LiveDebugger.Services.ModuleDiscovery do
   Wrapper for `:code.all_loaded/0` that returns a list of loaded modules.
   """
   @spec load_modules() :: [{module(), charlist()}]
-  def load_modules() do
-    :code.all_loaded()
-  end
+  def load_modules(), do: :code.all_loaded()
 
   @doc """
   Returns a list of loaded LiveView modules.

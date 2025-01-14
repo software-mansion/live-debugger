@@ -13,7 +13,7 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
   require Logger
 
-  alias LiveDebugger.Services.ModuleDiscovery
+  alias LiveDebugger.Services.ModuleDiscoveryService
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Structs.Trace
 
@@ -37,16 +37,16 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
         :dbg.p(monitored_pid, :c)
 
-        loaded_modules = ModuleDiscovery.load_modules()
+        loaded_modules = ModuleDiscoveryService.load_modules()
 
         callbacks =
           loaded_modules
-          |> ModuleDiscovery.live_view_modules()
+          |> ModuleDiscoveryService.live_view_modules()
           |> CallbackUtils.live_view_callbacks()
 
         tracer_patterns =
           loaded_modules
-          |> ModuleDiscovery.live_component_modules()
+          |> ModuleDiscoveryService.live_component_modules()
           |> CallbackUtils.live_component_callbacks()
           |> Enum.concat(callbacks)
           |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
