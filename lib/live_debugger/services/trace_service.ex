@@ -7,6 +7,7 @@ defmodule LiveDebugger.Services.TraceService do
   require Logger
 
   alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.CommonTypes
   alias Phoenix.LiveComponent.CID
 
   @id_prefix "lvdbg-traces"
@@ -55,7 +56,7 @@ defmodule LiveDebugger.Services.TraceService do
   @doc """
   Returns all existing traces for the given table id and CID or PID.
   """
-  @spec existing_traces(atom(), pid() | %CID{}) :: [Trace.t()]
+  @spec existing_traces(atom(), pid() | CommonTypes.cid()) :: [Trace.t()]
   def existing_traces(table_id, %CID{} = cid) do
     table_id |> :ets.match_object({:_, %{cid: cid}}) |> Enum.map(&elem(&1, 1))
   end
@@ -75,7 +76,7 @@ defmodule LiveDebugger.Services.TraceService do
   @doc """
   Deletes all traces for the given table id and CID or PID.
   """
-  @spec clear_traces(atom(), pid() | %CID{}) :: true
+  @spec clear_traces(atom(), pid() | CommonTypes.cid()) :: true
   def clear_traces(table_id, %CID{} = cid) do
     table_id |> :ets.match_delete({:_, %{cid: cid}})
   end

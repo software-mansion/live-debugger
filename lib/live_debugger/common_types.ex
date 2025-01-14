@@ -10,4 +10,6 @@ defmodule LiveDebugger.CommonTypes do
           socket: %Phoenix.LiveView.Socket{},
           components: {map(), any(), any()}
         }
+
+  @type cid() :: %Phoenix.LiveComponent.CID{}
 end

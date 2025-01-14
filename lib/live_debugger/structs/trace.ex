@@ -11,7 +11,7 @@ defmodule LiveDebugger.Structs.Trace do
   There cannot be a trace with CID and without PID.
   """
 
-  alias Phoenix.LiveComponent.CID
+  alias LiveDebugger.CommonTypes
 
   defstruct [:id, :module, :function, :arity, :args, :pid, :cid, :timestamp]
 
@@ -34,7 +34,7 @@ defmodule LiveDebugger.Structs.Trace do
     new(id, module, function, args, pid, get_cid_from_args(args))
   end
 
-  @spec new(integer(), atom(), atom(), list(), pid(), %CID{}) :: t()
+  @spec new(integer(), atom(), atom(), list(), pid(), CommonTypes.cid()) :: t()
   def new(id, module, function, args, pid, cid) do
     %__MODULE__{
       id: id,
@@ -52,7 +52,7 @@ defmodule LiveDebugger.Structs.Trace do
   Returns the node id from the trace.
   It is PID if trace comes from a LiveView, CID if trace comes from a LiveComponent.
   """
-  @spec node_id(t()) :: pid() | %CID{}
+  @spec node_id(t()) :: pid() | CommonTypes.cid()
   def node_id(%__MODULE__{cid: cid}) when not is_nil(cid), do: cid
   def node_id(%__MODULE__{pid: pid}), do: pid
 
