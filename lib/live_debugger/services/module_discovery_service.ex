@@ -3,43 +3,52 @@ defmodule LiveDebugger.Services.ModuleDiscoveryService do
   This module provides functions to discover LiveViews and LiveComponents in the current application.
   """
 
+  alias LiveDebugger.Services.ModuleService
+
   @live_view_behaviour Phoenix.LiveView
   @live_component_behaviour Phoenix.LiveComponent
 
-  @doc """
-  Wrapper for `:code.all_loaded/0` that returns a list of loaded modules.
-  """
-  @spec load_modules() :: [{module(), charlist()}]
-  def load_modules(), do: :code.all_loaded()
+  @spec all_modules() :: [module()]
+  def all_modules() do
+    ModuleService.all()
+    |> Enum.map(fn {module, _} -> module end)
+  end
 
   @doc """
+  Accepts a list of all modules from ModuleService.all/0
   Returns a list of loaded LiveView modules.
   """
-  @spec live_view_modules(loaded_modules :: [{module(), charlist()}]) :: [module()]
+
+  @spec live_view_modules(loaded_modules :: [module()]) :: [module()]
   def live_view_modules(loaded_modules) do
     find_modules_by_behaviour(loaded_modules, @live_view_behaviour)
   end
 
   @doc """
+  Accepts a list of all modules from ModuleService.all/0
   Returns a list of loaded LiveComponent modules.
+
+  ## Examples
+  iex> services = LiveDebugger.Services.ModuleService.all()
+  [{MyAppWeb.LiveComponent, 'lib/my_app_web/live_component.ex'}, ...]
+
+  iex> LiveDebugger.Services.ModuleDiscoveryService.live_view_modules(services)
+  [MyAppWeb.LiveComponent, ...]
   """
-  @spec live_component_modules(loaded_modules :: [{module(), charlist()}]) :: [module()]
+  @spec live_component_modules(loaded_modules :: [module()]) :: [module()]
   def live_component_modules(loaded_modules) do
     find_modules_by_behaviour(loaded_modules, @live_component_behaviour)
   end
 
   defp find_modules_by_behaviour(loaded_modules, behaviour) do
     loaded_modules
-    |> Enum.map(fn {module, _} -> module end)
-    |> Enum.filter(&loaded?/1)
+    |> Enum.filter(&ModuleService.loaded?/1)
     |> Enum.reject(&debugger?/1)
     |> Enum.filter(&behaviour?(&1, behaviour))
   end
 
-  defp loaded?(module), do: Code.ensure_loaded?(module)
-
   defp behaviour?(module, behaviour_to_find) do
-    module_behaviours = module.module_info(:attributes)[:behaviour] || []
+    module_behaviours = ModuleService.behaviours(module)
     Enum.member?(module_behaviours, behaviour_to_find)
   end
 

@@ -37,15 +37,15 @@ defmodule LiveDebugger.Services.CallbackTracer do
 
         :dbg.p(monitored_pid, :c)
 
-        loaded_modules = ModuleDiscoveryService.load_modules()
+        all_modules = ModuleDiscoveryService.all_modules()
 
         callbacks =
-          loaded_modules
+          all_modules
           |> ModuleDiscoveryService.live_view_modules()
           |> CallbackUtils.live_view_callbacks()
 
         tracer_patterns =
-          loaded_modules
+          all_modules
           |> ModuleDiscoveryService.live_component_modules()
           |> CallbackUtils.live_component_callbacks()
           |> Enum.concat(callbacks)
