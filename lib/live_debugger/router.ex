@@ -24,7 +24,7 @@ defmodule LiveDebugger.Router do
         get("/css-:md5", LiveDebugger.Controllers.Assets, :css)
         get("/js-:md5", LiveDebugger.Controllers.Assets, :js)
 
-        live("/", LiveDebugger.LiveViews.HomeLive)
+        live("/", LiveDebugger.LiveViews.SessionsDashboard)
         live("/:socket_id", LiveDebugger.LiveViews.ChannelDashboard)
         live("/:socket_id/:node_id", LiveDebugger.LiveViews.ChannelDashboard)
       end

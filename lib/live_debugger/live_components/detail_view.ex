@@ -132,8 +132,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     """
   end
 
-  defp title(:live_component), do: "Live Component"
-  defp title(:live_view), do: "Live View"
+  defp title(:live_component), do: "LiveComponent"
+  defp title(:live_view), do: "LiveView"
 
   defp id_type(:live_component), do: "CID"
   defp id_type(:live_view), do: "PID"

@@ -39,7 +39,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
         </div>
       </:loading>
       <:failed :let={reason}>
-        <Components.not_found_component :if={reason == :not_found} />
+        <Components.not_found_component :if={reason == :not_found} socket={@socket} />
         <Components.error_component :if={reason != :not_found} />
       </:failed>
 
@@ -151,9 +151,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   end
 
   defp assign_base_url(socket) do
-    prefix = socket.router.live_debugger_prefix()
-
-    assign(socket, :base_url, "#{prefix}/#{socket.assigns.socket_id}")
+    assign(socket, :base_url, "#{live_debugger_base_url(socket)}/#{socket.assigns.socket_id}")
   end
 
   defp assign_async_debugged_pid(socket) do

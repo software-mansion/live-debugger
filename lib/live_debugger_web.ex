@@ -59,4 +59,8 @@ defmodule LiveDebuggerWeb.Helpers do
 
   def ok(socket), do: {:ok, socket}
   def noreply(socket), do: {:noreply, socket}
+
+  def live_debugger_base_url(socket) do
+    socket.router.live_debugger_prefix()
+  end
 end

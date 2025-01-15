@@ -81,6 +81,8 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  attr(:socket, :any, required: true)
+
   def not_found_component(assigns) do
     ~H"""
     <div class="h-full flex flex-col items-center justify-center mx-8">
@@ -89,7 +91,9 @@ defmodule LiveDebugger.Components do
       <.h5 class="text-center">
         We couldn't find any LiveView associated with the given socket id
       </.h5>
-      <span>You can close this window</span>
+      <.link class="text-gray-600 underline" navigate={live_debugger_base_url(@socket)}>
+        See available LiveSessions
+      </.link>
     </div>
     """
   end
