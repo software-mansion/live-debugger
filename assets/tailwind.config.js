@@ -53,7 +53,7 @@ module.exports = {
       ])
     ),
     plugin(function ({ matchComponents, theme }) {
-      let iconsDir = path.join(__dirname, '../deps/heroicons/optimized');
+      let iconsDir = path.join(__dirname, '../deps/heroicons_petal/optimized');
       let values = {};
       let icons = [
         ['', '/24/outline'],
