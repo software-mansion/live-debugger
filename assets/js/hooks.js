@@ -20,6 +20,7 @@ Hooks.Tooltip = {
     this.el.addEventListener('mouseleave', this.handleMouseLeave);
   },
   destroyed() {
+    document.querySelector('#tooltip').style.display = 'none';
     this.el.removeEventListener('mouseenter', this.handleMouseEnter);
     this.el.removeEventListener('mouseleave', this.handleMouseLeave);
   },
