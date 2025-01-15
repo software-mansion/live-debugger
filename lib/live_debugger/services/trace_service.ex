@@ -62,7 +62,7 @@ defmodule LiveDebugger.Services.TraceService do
   end
 
   def existing_traces(table_id, pid) when is_pid(pid) do
-    :ets.match_object(table_id, {:_, %{pid: pid}}) |> Enum.map(&elem(&1, 1))
+    :ets.match_object(table_id, {:_, %{pid: pid, cid: nil}}) |> Enum.map(&elem(&1, 1))
   end
 
   @doc """
