@@ -1,4 +1,8 @@
 defmodule LiveDebugger.LiveViews.SessionsDashboard do
+  @moduledoc """
+  It displays all active LiveView sessions in the debugged application.
+  """
+
   use LiveDebuggerWeb, :live_view
 
   alias Phoenix.LiveView.AsyncResult
