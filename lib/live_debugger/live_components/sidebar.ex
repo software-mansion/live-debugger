@@ -63,7 +63,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def render(assigns) do
     ~H"""
     <div class="w-[20vw] min-w-60 min-h-max h-screen bg-swm-blue flex flex-col gap-1 pt-4 p-2 pr-3 rounded-r-xl">
-      <.h3 class="text-white">Live Debugger</.h3>
+      <.h3 class="text-white">LiveDebugger</.h3>
       <.separate_bar />
       <.basic_info pid={@pid} socket_id={@socket_id} />
       <.separate_bar />
