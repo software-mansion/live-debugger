@@ -73,7 +73,7 @@ defmodule LiveDebugger.Structs.Trace do
   defp get_cid_from_args(args) do
     args
     |> Enum.map(&maybe_get_cid(&1))
-    |> Enum.find(fn elem -> is_struct(elem, CID) end)
+    |> Enum.find(fn elem -> is_struct(elem, Phoenix.LiveComponent.CID) end)
   end
 
   defp maybe_get_cid(%{myself: cid}), do: cid
