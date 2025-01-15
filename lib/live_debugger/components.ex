@@ -81,19 +81,6 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  def not_found_component(assigns) do
-    ~H"""
-    <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
-      <.h2 class="text-center">Debugger disconnected</.h2>
-      <.h5 class="text-center">
-        We couldn't find any LiveView associated with the given socket id
-      </.h5>
-      <span>You can close this window</span>
-    </div>
-    """
-  end
-
   def error_component(assigns) do
     ~H"""
     <div class="h-full flex flex-col items-center justify-center mx-8">
@@ -102,7 +89,6 @@ defmodule LiveDebugger.Components do
       <.h5 class="text-center">
         Debugger encountered unexpected error - check logs for more
       </.h5>
-      <span>You can close this window</span>
     </div>
     """
   end
