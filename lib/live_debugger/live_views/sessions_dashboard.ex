@@ -34,17 +34,23 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
         <div :if={Enum.empty?(live_sessions)} class="text-gray-600">
           No LiveSessions found - try refreshing.
         </div>
-
-        <%= for session <- live_sessions do %>
-          <Components.tooltip content={"Module: #{session.module}<br/>PID: #{Parsers.pid_to_string(session.pid)}"}>
-            <.link
-              class="text-swm-blue"
-              patch={"#{live_debugger_base_url(@socket)}/#{session.socket_id}"}
-            >
-              {session[:socket_id]}
-            </.link>
-          </Components.tooltip>
-        <% end %>
+        <.ul>
+          <%= for session <- live_sessions do %>
+            <li>
+              <Components.tooltip
+                class="inline-block"
+                content={"Module: #{session.module}<br/>PID: #{Parsers.pid_to_string(session.pid)}"}
+              >
+                <.link
+                  class="text-swm-blue"
+                  patch={"#{live_debugger_base_url(@socket)}/#{session.socket_id}"}
+                >
+                  {session[:socket_id]}
+                </.link>
+              </Components.tooltip>
+            </li>
+          <% end %>
+        </.ul>
       </.async_result>
     </div>
     """
