@@ -31,7 +31,7 @@ defmodule LiveDebugger.Components.CollapsibleSection do
             phx-target={@myself}
             name="hero-chevron-down-solid"
             class={[
-              "text-primary md:hidden cursor-pointer",
+              "text-primary lg:hidden cursor-pointer",
               if(@hide?, do: "transform rotate-180")
             ]}
           />
@@ -41,7 +41,7 @@ defmodule LiveDebugger.Components.CollapsibleSection do
       </div>
       <div class={[
         "flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2",
-        if(@hide?, do: "hidden md:flex")
+        if(@hide?, do: "hidden lg:flex")
       ]}>
         {render_slot(@inner_block)}
       </div>

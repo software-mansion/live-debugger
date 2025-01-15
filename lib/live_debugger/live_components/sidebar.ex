@@ -71,7 +71,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def render(assigns) do
     ~H"""
     <div class="w-max h-max flex">
-      <div class="hidden md:flex flex-col w-60 min-h-max h-screen bg-primary  gap-1 pt-4 p-2 pr-3 rounded-r-xl">
+      <div class="hidden sm:flex flex-col w-60 min-h-max h-screen bg-primary  gap-1 pt-4 p-2 pr-3 rounded-r-xl">
         <.link navigate={live_debugger_base_url(@socket)}>
           <.h3 class="text-white">LiveDebugger</.h3>
         </.link>
@@ -84,7 +84,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           myself={@myself}
         />
       </div>
-      <div class="flex md:hidden flex-col gap-2 w-14 pt-4 p-1 rounded-r-md h-screen bg-primary items-center justify-start">
+      <div class="flex sm:hidden flex-col gap-2 w-14 pt-4 p-1 rounded-r-md h-screen bg-primary items-center justify-start">
         <.sidebar_icon_button icon="hero-home-solid" to="/live_debug/" link_type="a" />
         <.sidebar_icon_button icon="hero-bars-3" phx-click="show_mobile_content" phx-target={@myself} />
         <.sidebar_slide_over :if={not @hidden?} myself={@myself}>
