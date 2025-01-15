@@ -11,5 +11,5 @@ defmodule LiveDebugger.CommonTypes do
           components: {map(), any(), any()}
         }
 
-  @type cid() :: %Phoenix.LiveComponent.CID{}
+  @type cid() :: %Phoenix.LiveComponent.CID{cid: integer()}
 end

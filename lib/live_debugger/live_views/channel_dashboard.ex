@@ -55,7 +55,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
         <.live_component
           module={LiveDebugger.LiveComponents.DetailView}
           id="detail_view"
-          pid={@debugged_pid.result}
+          pid={pid}
           node_id={@node_id || pid}
           socket_id={@socket_id}
         />
@@ -100,7 +100,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     CallbackTracingService.stop_tracing_session(socket.assigns.tracing_session)
 
     socket
-    |> push_navigate(to: socket.assigns.base_url)
+    |> push_patch(to: socket.assigns.base_url)
     |> assign_async_debugged_pid()
     |> noreply()
   end

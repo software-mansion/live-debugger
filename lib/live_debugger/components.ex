@@ -81,18 +81,6 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  def error_component(assigns) do
-    ~H"""
-    <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
-      <.h2 class="text-center">Unexpected error</.h2>
-      <.h5 class="text-center">
-        Debugger encountered unexpected error - check logs for more
-      </.h5>
-    </div>
-    """
-  end
-
   attr(:socket, :any, required: true)
 
   def not_found_component(assigns) do
@@ -106,6 +94,19 @@ defmodule LiveDebugger.Components do
       <.link class="text-gray-600 underline" navigate={live_debugger_base_url(@socket)}>
         See available LiveSessions
       </.link>
+    </div>
+    """
+  end
+
+  def error_component(assigns) do
+    ~H"""
+    <div class="h-full flex flex-col items-center justify-center mx-8">
+      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.h2 class="text-center">Unexpected error</.h2>
+      <.h5 class="text-center">
+        Debugger encountered unexpected error - check logs for more
+      </.h5>
+      <span>You can close this window</span>
     </div>
     """
   end
