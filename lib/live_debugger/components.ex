@@ -93,6 +93,23 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  attr(:socket, :any, required: true)
+
+  def not_found_component(assigns) do
+    ~H"""
+    <div class="h-full flex flex-col items-center justify-center mx-8">
+      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.h2 class="text-center">Debugger disconnected</.h2>
+      <.h5 class="text-center">
+        We couldn't find any LiveView associated with the given socket id
+      </.h5>
+      <.link class="text-gray-600 underline" navigate={live_debugger_base_url(@socket)}>
+        See available LiveSessions
+      </.link>
+    </div>
+    """
+  end
+
   attr(:id, :string, required: true)
   attr(:chevron_class, :string, required: true)
   attr(:icon, :string, required: true)

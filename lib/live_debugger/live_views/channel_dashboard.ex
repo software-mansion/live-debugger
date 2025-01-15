@@ -38,7 +38,10 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
           <.spinner size="md" />
         </div>
       </:loading>
-      <:failed><Components.error_component /></:failed>
+      <:failed :let={reason}>
+        <Components.not_found_component :if={reason == :not_found} socket={@socket} />
+        <Components.error_component :if={reason != :not_found} />
+      </:failed>
 
       <div class="flex flex-row w-full min-h-screen">
         <.live_component
@@ -64,7 +67,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   @impl true
   def handle_async(:fetch_debugged_pid, {:ok, nil}, socket) do
     socket
-    |> push_navigate(to: live_debugger_base_url(socket))
+    |> assign(:debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, :not_found))
     |> noreply()
   end
 
