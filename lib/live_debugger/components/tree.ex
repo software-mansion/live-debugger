@@ -79,7 +79,7 @@ defmodule LiveDebugger.Components.Tree do
             selected?={@selected?}
             event_target={@event_target}
             node={@tree_node}
-            class="pl-[1.4rem]"
+            class="pl-[1.5rem]"
           />
         </div>
       </div>
