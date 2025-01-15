@@ -38,7 +38,7 @@ defmodule LiveDebugger.MixProject do
     [
       {:phoenix_live_view, "~> 1.0"},
       {:petal_components, "~> 2.7"},
-      {:heroicons,
+      {:heroicons_petal,
        github: "tailwindlabs/heroicons",
        tag: "v2.1.5",
        app: false,
