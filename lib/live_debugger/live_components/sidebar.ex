@@ -9,8 +9,16 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
+  alias PetalComponents.Button
 
   require Logger
+
+  @impl true
+  def mount(socket) do
+    socket
+    |> assign(:hidden?, true)
+    |> ok()
+  end
 
   @impl true
   def update(%{new_trace: trace}, socket) do
@@ -62,15 +70,38 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-[20vw] min-w-60 min-h-max h-screen bg-swm-blue flex flex-col gap-1 pt-4 p-2 pr-3 rounded-r-xl">
-      <.link navigate={live_debugger_base_url(@socket)}>
-        <.h3 class="text-white">LiveDebugger</.h3>
-      </.link>
-
-      <.separate_bar />
-      <.basic_info pid={@pid} socket_id={@socket_id} />
-      <.separate_bar />
-      <.component_tree tree={@tree} selected_node_id={@node_id} target={@myself} />
+    <div class="w-max h-max flex">
+      <div class="hidden md:flex flex-col w-60 min-h-max h-screen bg-primary  gap-1 pt-4 p-2 pr-3 rounded-r-xl">
+        <.link navigate={live_debugger_base_url(@socket)}>
+          <.h3 class="text-white">LiveDebugger</.h3>
+        </.link>
+        <.separate_bar />
+        <.sidebar_content
+          pid={@pid}
+          socket_id={@socket_id}
+          tree={@tree}
+          node_id={@node_id}
+          myself={@myself}
+        />
+      </div>
+      <div class="flex md:hidden flex-col gap-2 w-14 pt-4 p-1 rounded-r-md h-screen bg-primary items-center justify-start">
+        <.sidebar_icon_button icon="hero-home-solid" to="/live_debug/" link_type="a" />
+        <.sidebar_icon_button icon="hero-bars-3" phx-click="show_mobile_content" phx-target={@myself} />
+        <.sidebar_slide_over :if={not @hidden?} myself={@myself}>
+          <:header>
+            <.link navigate={live_debugger_base_url(@socket)}>
+              <.h3 class="text-white">LiveDebugger</.h3>
+            </.link>
+          </:header>
+          <.sidebar_content
+            pid={@pid}
+            socket_id={@socket_id}
+            tree={@tree}
+            node_id={@node_id}
+            myself={@myself}
+          />
+        </.sidebar_slide_over>
+      </div>
     </div>
     """
   end
@@ -82,17 +113,67 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     |> noreply()
   end
 
+  def handle_event("show_mobile_content", _params, socket) do
+    socket
+    |> assign(:hidden?, false)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("close_mobile_content", _params, socket) do
+    socket
+    |> assign(:hidden?, true)
+    |> noreply()
+  end
+
+  attr(:socket_id, :string, required: true)
+  attr(:pid, :any, required: true)
+  attr(:tree, :any, required: true)
+  attr(:node_id, :any, required: true)
+  attr(:myself, :any, required: true)
+
+  defp sidebar_content(assigns) do
+    ~H"""
+    <div class="flex flex-col gap-2 p-2">
+      <.basic_info pid={@pid} socket_id={@socket_id} />
+      <.separate_bar />
+      <.component_tree tree={@tree} selected_node_id={@node_id} target={@myself} />
+    </div>
+    """
+  end
+
+  attr(:myself, :string, required: true)
+  slot(:header)
+  slot(:inner_block)
+
+  defp sidebar_slide_over(assigns) do
+    ~H"""
+    <div class="absolute z-20 top-0 left-0 w-full h-screen bg-primary text-white p-2">
+      <div class="w-full flex justify-between p-2">
+        {render_slot(@header)}
+        <.sidebar_icon_button
+          icon="hero-x-mark"
+          phx-click="close_mobile_content"
+          phx-target={@myself}
+        />
+      </div>
+      <.separate_bar />
+      {render_slot(@inner_block)}
+    </div>
+    """
+  end
+
   attr(:pid, :any, required: true)
   attr(:socket_id, :string, required: true)
 
   defp basic_info(assigns) do
     ~H"""
-    <.card class="p-4 flex flex-col gap-1 opacity-90 text-black">
+    <.card class="p-4 flex flex-col gap-1 bg-gray-200 text-black">
       <%= for {text, value} <- [
         {"Monitored socket:", @socket_id},
         {"Debugged PID:", Parsers.pid_to_string(@pid)}
       ] do %>
-        <div class="font-semibold text-swm-blue">{text}</div>
+        <div class="font-semibold text-primary">{text}</div>
         <div>{value}</div>
       <% end %>
     </.card>
@@ -118,8 +199,24 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         selected_node_id={@selected_node_id}
         tree_node={tree}
         event_target={@target}
+        class="bg-gray-200"
       />
     </.async_result>
+    """
+  end
+
+  attr(:icon, :string, required: true)
+  attr(:rest, :global, include: ~w(to link_type disabled))
+
+  defp sidebar_icon_button(assigns) do
+    ~H"""
+    <Button.button
+      color="white"
+      variant="outline"
+      class="w-max h-max p-1 text-white"
+      icon={@icon}
+      {@rest}
+    />
     """
   end
 
