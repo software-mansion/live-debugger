@@ -44,7 +44,8 @@ defmodule LiveDebuggerWeb do
         Container,
         Loading,
         Alert,
-        Button
+        Button,
+        Link
       }
     end
   end

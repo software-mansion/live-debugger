@@ -9,7 +9,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
-  alias PetalComponents.Button
 
   require Logger
 
@@ -72,9 +71,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     ~H"""
     <div class="w-max h-max flex">
       <div class="hidden sm:flex flex-col w-60 min-h-max h-screen bg-primary  gap-1 pt-4 p-2 pr-3 rounded-r-xl">
-        <.link navigate={live_debugger_base_url(@socket)}>
-          <.h3 class="text-white">LiveDebugger</.h3>
-        </.link>
+        <.sidebar_label socket={@socket} />
         <.separate_bar />
         <.sidebar_content
           pid={@pid}
@@ -89,9 +86,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         <.sidebar_icon_button icon="hero-bars-3" phx-click="show_mobile_content" phx-target={@myself} />
         <.sidebar_slide_over :if={not @hidden?} myself={@myself}>
           <:header>
-            <.link navigate={live_debugger_base_url(@socket)}>
-              <.h3 class="text-white">LiveDebugger</.h3>
-            </.link>
+            <.sidebar_label socket={@socket} />
           </:header>
           <.sidebar_content
             pid={@pid}
@@ -124,6 +119,16 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     socket
     |> assign(:hidden?, true)
     |> noreply()
+  end
+
+  attr(:socket, :any, required: true)
+
+  defp sidebar_label(assigns) do
+    ~H"""
+    <.a to={live_debugger_base_url(@socket)}>
+      <.h3 class="text-white">LiveDebugger</.h3>
+    </.a>
+    """
   end
 
   attr(:socket_id, :string, required: true)
@@ -210,13 +215,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp sidebar_icon_button(assigns) do
     ~H"""
-    <Button.button
-      color="white"
-      variant="outline"
-      class="w-max h-max p-1 text-white"
-      icon={@icon}
-      {@rest}
-    />
+    <.button color="white" variant="outline" class="w-max h-max p-1 text-white" icon={@icon} {@rest} />
     """
   end
 
