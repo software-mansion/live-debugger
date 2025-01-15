@@ -31,11 +31,11 @@ defmodule LiveDebugger.Components.CollapsibleSection do
             phx-target={@myself}
             name="hero-chevron-down-solid"
             class={[
-              "text-swm-blue md:hidden cursor-pointer",
+              "text-primary md:hidden cursor-pointer",
               if(@hide?, do: "transform rotate-180")
             ]}
           />
-          <.h3 class="text-swm-blue" no_margin={true}>{@title}</.h3>
+          <.h3 class="text-primary" no_margin={true}>{@title}</.h3>
         </div>
         {render_slot(@right_panel)}
       </div>
