@@ -1,25 +1,36 @@
 defmodule LiveDebugger.LiveViews.SessionsDashboard do
   use LiveDebuggerWeb, :live_view
 
+  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.ChannelService
+  alias LiveDebugger.Components
 
   @impl true
-  def mount(_params, _session, socket) do
+  def handle_params(_unsigned_params, _uri, socket) do
     socket
     |> assign_live_sessions()
-    |> ok()
+    |> noreply()
   end
 
   @impl true
+  @spec render(any()) :: Phoenix.LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <div class="w-full p-2">
-      <h1>Sessions Dashboard</h1>
+      <div class="pt-2">
+        <.h2 class="text-swm-blue">Active LiveSessions</.h2>
+      </div>
+
       <%= for session <- @live_sessions do %>
-        <.link patch={"#{live_debugger_base_url(@socket)}/#{session.socket_id}"}>
-          {session[:view]}
-        </.link>
+        <Components.tooltip content={"Module: #{session.module}<br/>PID: #{Parsers.pid_to_string(session.pid)}"}>
+          <.link
+            class="text-swm-blue p-1font-medium "
+            patch={"#{live_debugger_base_url(@socket)}/#{session.socket_id}"}
+          >
+            {session[:socket_id]}
+          </.link>
+        </Components.tooltip>
       <% end %>
     </div>
     """
@@ -37,7 +48,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
     pid
     |> ChannelService.state()
     |> case do
-      {:ok, %{socket: %{id: id, view: view}}} -> %{socket_id: id, view: view}
+      {:ok, %{socket: %{id: id, view: module}}} -> %{socket_id: id, module: module, pid: pid}
       _ -> :error
     end
   end
