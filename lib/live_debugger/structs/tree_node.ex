@@ -33,8 +33,8 @@ defmodule LiveDebugger.Structs.TreeNode do
   Returns string representation of the node's ID, ready to be displayed in the UI.
   """
   @spec display_id(node :: t()) :: String.t()
-  def display_id(%LiveViewNode{pid: pid}), do: pid |> Parsers.pid_to_string()
-  def display_id(%LiveComponentNode{cid: cid}), do: cid |> Parsers.cid_to_string()
+  def display_id(%LiveViewNode{pid: pid}), do: Parsers.pid_to_string(pid)
+  def display_id(%LiveComponentNode{cid: cid}), do: Parsers.cid_to_string(cid)
 
   @doc """
   Parses ID from string to PID or CID.
