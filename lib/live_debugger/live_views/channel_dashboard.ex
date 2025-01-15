@@ -55,7 +55,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
         <.live_component
           module={LiveDebugger.LiveComponents.DetailView}
           id="detail_view"
-          pid={@debugged_pid.result}
+          pid={pid}
           node_id={@node_id || pid}
           socket_id={@socket_id}
         />
