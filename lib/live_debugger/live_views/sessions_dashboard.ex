@@ -1,6 +1,7 @@
 defmodule LiveDebugger.LiveViews.SessionsDashboard do
   use LiveDebuggerWeb, :live_view
 
+  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.ChannelService
@@ -18,8 +19,9 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   def render(assigns) do
     ~H"""
     <div class="w-full h-full p-2">
-      <div class="pt-2">
+      <div class="flex gap-4 items-center pt-2">
         <.h2 class="text-swm-blue">Active LiveSessions</.h2>
+        <.icon phx-click="refresh" name="hero-arrow-path" class="text-swm-blue mb-3 cursor-pointer" />
       </div>
 
       <.async_result :let={live_sessions} assign={@live_sessions}>
@@ -30,13 +32,13 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
         </:loading>
         <:failed><Components.error_component /></:failed>
         <div :if={Enum.empty?(live_sessions)} class="text-gray-600">
-          No LiveSessions found - try refreshing the page
+          No LiveSessions found - try refreshing.
         </div>
 
         <%= for session <- live_sessions do %>
           <Components.tooltip content={"Module: #{session.module}<br/>PID: #{Parsers.pid_to_string(session.pid)}"}>
             <.link
-              class="text-swm-blue p-1font-medium "
+              class="text-swm-blue"
               patch={"#{live_debugger_base_url(@socket)}/#{session.socket_id}"}
             >
               {session[:socket_id]}
@@ -46,6 +48,14 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
       </.async_result>
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("refresh", _params, socket) do
+    socket
+    |> assign(:live_sessions, AsyncResult.loading())
+    |> assign_async_live_sessions()
+    |> noreply()
   end
 
   defp assign_async_live_sessions(socket) do
