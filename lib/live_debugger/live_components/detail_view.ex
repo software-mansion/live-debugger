@@ -3,10 +3,10 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   This module is responsible for rendering the detail view of the TreeNode.
   """
 
-  alias LiveDebugger.Components
-  alias LiveDebugger.Services.TreeNode
+  alias LiveDebugger.Components.CollapsibleSection
+  alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebugger.Services.ChannelStateScraper
+  alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
 
   use LiveDebuggerWeb, :live_component
@@ -100,7 +100,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_card(assigns) do
     ~H"""
-    <Components.collapsible_section
+    <CollapsibleSection.section
       id="info"
       title={title(@node_type)}
       class="border-b-2 border-swm-blue"
@@ -108,11 +108,11 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       myself={@myself}
     >
       <div class=" flex flex-col gap-1">
-        <.info_row name={id_type(@node_type)} value={TreeNode.parsed_id(@node)} />
+        <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
         <.info_row name="HTML ID" value={@node.id} />
       </div>
-    </Components.collapsible_section>
+    </CollapsibleSection.section>
     """
   end
 
@@ -144,7 +144,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp assigns_card(assigns) do
     ~H"""
-    <Components.collapsible_section
+    <CollapsibleSection.section
       id="assigns"
       class="border-b-2 md:border-b-0 border-swm-blue h-max overflow-y-hidden"
       hide?={@hide?}
@@ -159,14 +159,15 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           level={1}
         />
       </div>
-    </Components.collapsible_section>
+    </CollapsibleSection.section>
     """
   end
 
   defp assign_async_node_with_type(%{assigns: %{node_id: node_id, pid: pid}} = socket)
        when not is_nil(node_id) do
     assign_async(socket, [:node, :node_type], fn ->
-      with {:ok, node} <- ChannelStateScraper.get_node_from_pid(pid, node_id),
+      with {:ok, channel_state} <- ChannelService.state(pid),
+           {:ok, node} <- ChannelService.get_node(channel_state, node_id),
            true <- not is_nil(node) do
         {:ok, %{node: node, node_type: TreeNode.type(node)}}
       else

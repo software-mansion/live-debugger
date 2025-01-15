@@ -25,8 +25,8 @@ defmodule LiveDebugger.Router do
         get("/js-:md5", LiveDebugger.Controllers.Assets, :js)
 
         live("/", LiveDebugger.LiveViews.HomeLive)
-        live("/:socket_id", LiveDebugger.LiveViews.SocketDashboardLive)
-        live("/:socket_id/:node_id", LiveDebugger.LiveViews.SocketDashboardLive)
+        live("/:socket_id", LiveDebugger.LiveViews.ChannelDashboard)
+        live("/:socket_id/:node_id", LiveDebugger.LiveViews.ChannelDashboard)
       end
 
       def live_debugger_prefix(), do: unquote(path)

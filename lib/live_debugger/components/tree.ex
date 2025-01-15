@@ -5,9 +5,8 @@ defmodule LiveDebugger.Components.Tree do
 
   use LiveDebuggerWeb, :component
 
-  alias LiveDebugger.Components.Collapsible
-  alias LiveDebugger.Components.Tooltip
-  alias LiveDebugger.Services.TreeNode
+  alias LiveDebugger.Components
+  alias LiveDebugger.Structs.TreeNode
 
   @doc """
   Tree component which show nested tree of live view and live components.
@@ -54,7 +53,7 @@ defmodule LiveDebugger.Components.Tree do
       <.vertical_bar :if={!@root?} highlight_bar?={@highlight_bar?} />
       <div class={["w-full", unless(@root?, do: "pl-2")]}>
         <div class="w-full rounded-lg p-1 pb-0">
-          <Collapsible.collapsible
+          <Components.collapsible
             :if={@collapsible?}
             id={"collapsible-" <> @tree_node.parsed_id}
             open={true}
@@ -74,7 +73,7 @@ defmodule LiveDebugger.Components.Tree do
                 highlight_bar?={@selected?}
               />
             </div>
-          </Collapsible.collapsible>
+          </Components.collapsible>
           <.label
             :if={not @collapsible?}
             selected?={@selected?}
@@ -113,7 +112,7 @@ defmodule LiveDebugger.Components.Tree do
       phx-target={@event_target}
       class={["flex w-full", @class]}
     >
-      <Tooltip.tooltip content={@node.tooltip} class="w-full">
+      <Components.tooltip content={@node.tooltip} class="w-full">
         <div class="flex w-full gap-0.5 items-center">
           <.icon name={@node.icon} class="w-5 h-5 shrink-0" />
           <.h5
@@ -123,15 +122,15 @@ defmodule LiveDebugger.Components.Tree do
             {@node.label}
           </.h5>
         </div>
-      </Tooltip.tooltip>
+      </Components.tooltip>
     </button>
     """
   end
 
   defp format_tree_node(%TreeNode.LiveView{} = node) do
     %{
-      id: node.pid,
-      parsed_id: TreeNode.parse_id(node.pid),
+      id: TreeNode.id(node),
+      parsed_id: TreeNode.display_id(node),
       label: short_name(node.module),
       tooltip: "#{Atom.to_string(node.module)}",
       children: node.children,
@@ -141,8 +140,8 @@ defmodule LiveDebugger.Components.Tree do
 
   defp format_tree_node(%TreeNode.LiveComponent{} = node) do
     %{
-      id: node.cid,
-      parsed_id: TreeNode.parse_id(node.cid),
+      id: TreeNode.id(node),
+      parsed_id: TreeNode.display_id(node),
       label: "#{short_name(node.module)} (#{node.cid})",
       tooltip: "#{Atom.to_string(node.module)} (#{node.cid})",
       children: node.children,

@@ -7,8 +7,8 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
   require Logger
 
-  alias LiveDebugger.Services.CallbackTracer
-  alias LiveDebugger.Components.Trace
+  alias LiveDebugger.Components.CollapsibleSection
+  alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Components
 
   @impl true
@@ -33,7 +33,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     |> assign(debugged_node_id: assigns.debugged_node_id)
     |> assign(id: assigns.id)
     |> assign(:no_events?, true)
-    |> assign(ets_table_id: CallbackTracer.ets_table_id(assigns.socket_id))
+    |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
     |> assign_existing_traces()
     |> ok()
   end
@@ -47,7 +47,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def render(assigns) do
     ~H"""
     <div>
-      <Components.collapsible_section
+      <CollapsibleSection.section
         title="Events"
         id="events"
         class="h-full md:overflow-y-auto"
@@ -78,11 +78,11 @@ defmodule LiveDebugger.LiveComponents.EventsList do
           </div>
           <div id={"#{assigns.id}-stream"} phx-update="stream">
             <%= for {dom_id, trace} <- @streams.existing_traces do %>
-              <Trace.trace id={dom_id} trace={trace} />
+              <Components.trace id={dom_id} trace={trace} />
             <% end %>
           </div>
         </div>
-      </Components.collapsible_section>
+      </CollapsibleSection.section>
     </div>
     """
   end
@@ -118,7 +118,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.debugged_node_id
 
-    CallbackTracer.clear_traces(ets_table_id, node_id)
+    TraceService.clear_traces(ets_table_id, node_id)
 
     socket
     |> stream(:existing_traces, [], reset: true)
@@ -133,7 +133,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     socket
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
-      CallbackTracer.get_existing_traces(ets_table_id, node_id)
+      TraceService.existing_traces(ets_table_id, node_id)
     end)
   end
 
