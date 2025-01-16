@@ -31,17 +31,17 @@ defmodule LiveDebugger.Components.CollapsibleSection do
             phx-target={@myself}
             name="hero-chevron-down-solid"
             class={[
-              "text-swm-blue md:hidden cursor-pointer",
+              "text-primary lg:hidden cursor-pointer",
               if(@hide?, do: "transform rotate-180")
             ]}
           />
-          <.h3 class="text-swm-blue" no_margin={true}>{@title}</.h3>
+          <.h3 class="text-primary" no_margin={true}>{@title}</.h3>
         </div>
         {render_slot(@right_panel)}
       </div>
       <div class={[
         "flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2",
-        if(@hide?, do: "hidden md:flex")
+        if(@hide?, do: "hidden lg:flex")
       ]}>
         {render_slot(@inner_block)}
       </div>

@@ -24,8 +24,8 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
     ~H"""
     <div class="w-full h-full p-2">
       <div class="flex gap-4 items-center pt-2">
-        <.h2 class="text-swm-blue">Active LiveSessions</.h2>
-        <.icon phx-click="refresh" name="hero-arrow-path" class="text-swm-blue mb-3 cursor-pointer" />
+        <.h2 class="text-primary">Active LiveSessions</.h2>
+        <.icon phx-click="refresh" name="hero-arrow-path" class="text-primary mb-3 cursor-pointer" />
       </div>
 
       <.async_result :let={live_sessions} assign={@live_sessions}>
@@ -45,7 +45,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
               content={"Module: #{session.module}<br/>PID: #{Parsers.pid_to_string(session.pid)}"}
             >
               <.link
-                class="text-swm-blue"
+                class="text-primary"
                 patch={"#{live_debugger_base_url(@socket)}/#{session.socket_id}"}
               >
                 {session[:socket_id]}

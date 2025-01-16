@@ -45,7 +45,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col w-full h-screen max-h-screen p-2 overflow-x-hidden overflow-y-auto md:overflow-y-hidden">
+    <div class="flex flex-col w-full h-screen max-h-screen p-2 overflow-x-hidden overflow-y-auto lg:overflow-y-hidden">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
@@ -57,8 +57,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             Failed to fetch node details: {inspect(reason)}
           </.alert>
         </:failed>
-        <div class="grid grid-cols-1 md:grid-cols-2 md:h-full">
-          <div class="flex flex-col max md:border-r-2 border-swm-blue md:overflow-y-hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-2 lg:h-full">
+          <div class="flex flex-col max lg:border-r-2 border-primary lg:overflow-y-hidden">
             <.info_card
               node={node}
               node_type={@node_type.result}
@@ -103,7 +103,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     <CollapsibleSection.section
       id="info"
       title={title(@node_type)}
-      class="border-b-2 border-swm-blue"
+      class="border-b-2 border-primary"
       hide?={@hide?}
       myself={@myself}
     >
@@ -122,7 +122,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   defp info_row(assigns) do
     ~H"""
     <div class="flex gap-1 overflow-x-hidden">
-      <div class="font-bold w-20 text-swm-blue">
+      <div class="font-bold w-20 text-primary">
         {@name}
       </div>
       <div class="font-semibold break-all">
@@ -146,7 +146,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     ~H"""
     <CollapsibleSection.section
       id="assigns"
-      class="border-b-2 md:border-b-0 border-swm-blue h-max overflow-y-hidden"
+      class="border-b-2 lg:border-b-0 border-primary h-max overflow-y-hidden"
       hide?={@hide?}
       myself={@myself}
       title="Assigns"
