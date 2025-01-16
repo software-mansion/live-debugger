@@ -111,9 +111,34 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
         <.info_row name="HTML ID" value={@node.id} />
+        <button
+          phx-click="highlight"
+          phx-value-search_attribute={get_search_attribute(@node)}
+          phx-value-search_value={get_search_value(@node)}
+        >
+          Highlight
+        </button>
       </div>
     </CollapsibleSection.section>
     """
+  end
+
+  defp get_search_value(node) do
+    node
+    |> TreeNode.id()
+    |> case do
+      %Phoenix.LiveComponent.CID{cid: cid} -> cid
+      pid when is_pid(pid) -> node.id
+    end
+  end
+
+  defp get_search_attribute(node) do
+    node
+    |> TreeNode.id()
+    |> case do
+      %Phoenix.LiveComponent.CID{} -> "data-phx-component"
+      pid when is_pid(pid) -> "id"
+    end
   end
 
   attr(:name, :string, required: true)

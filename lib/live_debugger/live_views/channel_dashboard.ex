@@ -44,8 +44,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
         <Components.error_component :if={reason != :not_found} />
       </:failed>
 
-      <button phx-click="highlight">Highlight</button>
-
       <div class="flex flex-row w-full min-h-screen">
         <.live_component
           module={LiveDebugger.LiveComponents.Sidebar}
@@ -134,19 +132,18 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   end
 
   @impl true
-  def handle_event("highlight", _, socket) do
+  def handle_event(
+        "highlight",
+        %{"search_attribute" => attr, "search_value" => val},
+        socket
+      ) do
     pid = socket.assigns.debugged_pid.result
     {:ok, state} = LiveDebugger.Services.ChannelService.state(pid)
-
-    transport_pid = state.socket.transport_pid
-    serializer = state.serializer
-    dbg(transport_pid)
-    dbg(serializer)
 
     message = %Message{
       topic: state.topic,
       event: "diff",
-      payload: %{e: [["highlight", %{id: "phx-GBskDarpB2PwqzkC"}]]},
+      payload: %{e: [["highlight", %{attr: attr, val: val}]]},
       join_ref: state.join_ref
     }
 
