@@ -1,4 +1,6 @@
 defmodule LiveDebugger.SystemCase do
+  @moduledoc false
+
   use ExUnit.CaseTemplate
 
   alias LiveDebugger.MockProcessService
