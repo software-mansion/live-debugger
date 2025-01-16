@@ -121,7 +121,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     |> noreply()
   end
 
-  attr(:socket, :any, required: true)
+  attr(:socket, :map, required: true)
 
   defp sidebar_label(assigns) do
     ~H"""
@@ -147,7 +147,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     """
   end
 
-  attr(:myself, :string, required: true)
+  attr(:myself, :any, required: true)
   slot(:header)
   slot(:inner_block)
 
