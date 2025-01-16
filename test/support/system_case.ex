@@ -5,13 +5,14 @@ defmodule LiveDebugger.SystemCase do
 
   setup do
     live_view_pid = :c.pid(0, 0, 0)
+    socket_id = "phx-GBsi_6M7paYhySQj"
 
     Mox.stub(MockProcessService, :state, fn pid ->
       if live_view_pid == pid do
         {:ok,
          %{
            socket: %Phoenix.LiveView.Socket{
-             id: "phx-GBsi_6M7paYhySQj",
+             id: socket_id,
              endpoint: LiveDebuggerDev.Endpoint,
              view: LiveDebuggerDev.LiveViews.Main,
              parent_pid: nil,
@@ -143,14 +144,13 @@ defmodule LiveDebugger.SystemCase do
                 LiveDebuggerDev.LiveComponents.ManyAssigns => %{"many_assigns" => 1},
                 LiveDebuggerDev.LiveComponents.Conditional => %{"conditional" => 3},
                 LiveDebuggerDev.LiveComponents.Send => %{"send_outer" => 2}
-              }, 9},
-           topic: "lv:phx-GBsi_6M7paYhySQj"
+              }, 9}
          }}
       else
         {:ok, :not_live_view}
       end
     end)
 
-    {:ok, pid: live_view_pid}
+    {:ok, pid: live_view_pid, socket_id: socket_id}
   end
 end
