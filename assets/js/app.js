@@ -42,12 +42,12 @@ let liveSocket = new LiveSocket('/live', Socket, {
 topbar.config({ barColors: { 0: '#29d' }, shadowColor: 'rgba(0, 0, 0, .3)' });
 window.addEventListener('phx:page-loading-start', (_info) => topbar.show(300));
 window.addEventListener('phx:page-loading-stop', (_info) => topbar.hide());
+window.addEventListener('phx:highlight', (msg) => console.log(msg));
 
 // connect if there are any LiveViews on the page
 liveSocket.connect();
-
 // expose liveSocket on window for web console debug logs and latency simulation:
 // >> liveSocket.enableDebug()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
-window.liveSocket = liveSocket;
+liveSocket.window.liveSocket = liveSocket;

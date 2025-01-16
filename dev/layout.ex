@@ -35,6 +35,7 @@ defmodule LiveDebuggerDev.Layout do
             )
           liveSocket.connect()
 
+          window.addEventListener('phx:highlight', (msg) => console.log(msg));
           window.addEventListener("phx:live_reload:attached", ({detail: reloader}) => {
             // Enable server log streaming to client. Disable with reloader.disableServerLogs()
             reloader.enableServerLogs()

@@ -11,6 +11,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.CallbackTracingService
+  alias Phoenix.Socket.Message
 
   @impl true
   def mount(%{"socket_id" => socket_id}, _session, socket) do
@@ -42,6 +43,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
         <Components.not_found_component :if={reason == :not_found} socket={@socket} />
         <Components.error_component :if={reason != :not_found} />
       </:failed>
+
+      <button phx-click="highlight">Highlight</button>
 
       <div class="flex flex-row w-full min-h-screen">
         <.live_component
@@ -126,6 +129,28 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
       else
         socket
       end
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("highlight", _, socket) do
+    pid = socket.assigns.debugged_pid.result
+    {:ok, state} = LiveDebugger.Services.ChannelService.state(pid)
+
+    transport_pid = state.socket.transport_pid
+    serializer = state.serializer
+    dbg(transport_pid)
+    dbg(serializer)
+
+    message = %Message{
+      topic: state.topic,
+      event: "diff",
+      payload: %{e: [["highlight", %{id: "phx-GBskDarpB2PwqzkC"}]]},
+      join_ref: state.join_ref
+    }
+
+    send(state.socket.transport_pid, state.serializer.encode!(message))
 
     {:noreply, socket}
   end
