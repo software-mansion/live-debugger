@@ -7,10 +7,13 @@ const path = require('path');
 
 module.exports = {
   darkMode: 'selector',
-  content: [
-    './js/**/*.js',
-    '../lib/**/*.ex',
-    '../deps/petal_components/**/*.*ex',
+  content: ['./js/**/*.js', '../lib/**/*.ex'],
+  safelist: [
+    {
+      pattern:
+        /(text|bg|border)-(primary|secondary|success|danger|warning|info|gray)-(50|100|200|300|400|500|600|700|800|900|950)/,
+      variants: ['hover', 'focus', 'active', 'md', 'lg', 'sm'],
+    },
   ],
   theme: {
     extend: {
@@ -39,27 +42,9 @@ module.exports = {
     },
   },
   plugins: [
-    require('@tailwindcss/forms'),
-    plugin(({ addVariant }) =>
-      addVariant('phx-click-loading', [
-        '&.phx-click-loading',
-        '.phx-click-loading &',
-      ])
-    ),
-    plugin(({ addVariant }) =>
-      addVariant('phx-submit-loading', [
-        '&.phx-submit-loading',
-        '.phx-submit-loading &',
-      ])
-    ),
-    plugin(({ addVariant }) =>
-      addVariant('phx-change-loading', [
-        '&.phx-change-loading',
-        '.phx-change-loading &',
-      ])
-    ),
+    // Plugin for adding Heroicons
     plugin(function ({ matchComponents, theme }) {
-      let iconsDir = path.join(__dirname, '../deps/heroicons_petal/optimized');
+      let iconsDir = path.join(__dirname, './icons/');
       let values = {};
       let icons = [
         ['', '/24/outline'],
