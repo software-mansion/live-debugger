@@ -43,7 +43,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
         <Components.error_component :if={reason != :not_found} />
       </:failed>
 
-      <div class="flex flex-row w-full min-h-screen">
+      <div :if={@tracing_session != :session_limit} class="flex flex-row w-full min-h-screen">
         <.live_component
           module={LiveDebugger.LiveComponents.Sidebar}
           id="sidebar"
@@ -60,6 +60,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
           socket_id={@socket_id}
         />
       </div>
+
+      <Components.session_limit_component :if={@tracing_session == :session_limit} />
     </.async_result>
     """
   end
@@ -75,7 +77,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   def handle_async(:fetch_debugged_pid, {:ok, fetched_pid}, socket) do
     Process.monitor(fetched_pid)
 
-    {:ok, tracing_session} =
+    {_, tracing_session} =
       CallbackTracingService.start_tracing(socket.assigns.socket_id, fetched_pid, self())
 
     socket
