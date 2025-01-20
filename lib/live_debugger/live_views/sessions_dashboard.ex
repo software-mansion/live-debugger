@@ -42,7 +42,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
         <ul>
           <li :for={{session, id} <- Enum.with_index(live_sessions)}>
             <.tooltip
-              id={"session_" <> id}
+              id={"session_" <> Integer.to_string(id)}
               class="inline-block"
               content={"Module: #{session.module}<br/>PID: #{Parsers.pid_to_string(session.pid)}"}
             >

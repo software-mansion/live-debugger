@@ -37,7 +37,7 @@ defmodule LiveDebugger.Components do
   """
   attr(:color, :string,
     default: "primary",
-    values: ["primary", "secondary", "danger", "success", "warning", "info", "gray"]
+    values: ["primary", "secondary", "danger", "success", "warning", "info", "gray", "white"]
   )
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
@@ -46,9 +46,19 @@ defmodule LiveDebugger.Components do
 
   def button(assigns) do
     ~H"""
-    <button class={["w-4 bg-#{@color}-200 border-#{@color}-900" | List.wrap(@class)]} {@rest}>
+    <div
+      class={
+        [
+          "w-max h-max p-1 border-2 rounded-lg cursor-pointer hover:shadow",
+          button_color_classes(@color)
+        ] ++
+          List.wrap(@class)
+      }
+      role="button"
+      {@rest}
+    >
       {render_slot(@inner_block)}
-    </button>
+    </div>
     """
   end
 
@@ -66,7 +76,10 @@ defmodule LiveDebugger.Components do
 
   def card(assigns) do
     ~H"""
-    <div class={["border-2 border-#{@color}-600 shadow-2xl p-2" | List.wrap(@class)]} {@rest}>
+    <div
+      class={["border-2 border-#{@color}-600 shadow-2xl p-2 rounded-lg" | List.wrap(@class)]}
+      {@rest}
+    >
       {render_slot(@inner_block)}
     </div>
     """
@@ -82,7 +95,13 @@ defmodule LiveDebugger.Components do
 
   def h1(assigns) do
     ~H"""
-    <h1 class={["m-5 mb-6" | List.wrap(@class)]} {@rest}>
+    <h1
+      class={[
+        "text-4xl font-extrabold leading-10 sm:text-5xl sm:tracking-tight lg:text-6xl"
+        | List.wrap(@class)
+      ]}
+      {@rest}
+    >
       {render_slot(@inner_block)}
     </h1>
     """
@@ -94,7 +113,7 @@ defmodule LiveDebugger.Components do
 
   def h2(assigns) do
     ~H"""
-    <h2 class={["m-5 mb-6" | List.wrap(@class)]} {@rest}>
+    <h2 class={["text-2xl font-extrabold leading-10 sm:text-3xl" | List.wrap(@class)]} {@rest}>
       {render_slot(@inner_block)}
     </h2>
     """
@@ -106,7 +125,7 @@ defmodule LiveDebugger.Components do
 
   def h3(assigns) do
     ~H"""
-    <h3 class={["m-5 mb-6" | List.wrap(@class)]} {@rest}>
+    <h3 class={["text-xl font-bold leading-7 sm:text-2xl" | List.wrap(@class)]} {@rest}>
       {render_slot(@inner_block)}
     </h3>
     """
@@ -118,7 +137,7 @@ defmodule LiveDebugger.Components do
 
   def h4(assigns) do
     ~H"""
-    <h4 class={["m-5 mb-6" | List.wrap(@class)]} {@rest}>
+    <h4 class={["text-lg font-bold leading-6" | List.wrap(@class)]} {@rest}>
       {render_slot(@inner_block)}
     </h4>
     """
@@ -130,7 +149,13 @@ defmodule LiveDebugger.Components do
 
   def h5(assigns) do
     ~H"""
-    <h5 class={["m-5 mb-6" | List.wrap(@class)]} {@rest}>
+    <h5
+      class={[
+        "text-lg font-medium leading-6"
+        | List.wrap(@class)
+      ]}
+      {@rest}
+    >
       {render_slot(@inner_block)}
     </h5>
     """
@@ -213,5 +238,18 @@ defmodule LiveDebugger.Components do
       <span>You can close this window</span>
     </div>
     """
+  end
+
+  defp button_color_classes(color) do
+    case color do
+      "white" ->
+        "bg-white hover:bg-gray-300 border-white hover:border-gray-300 text-black hover:text-black"
+
+      "gray" ->
+        "bg-gray-500 hover:bg-gray-800 border-gray-500 hover:border-gray-800 text-black hover:text-white"
+
+      _ ->
+        "bg-#{color}-500 hover:bg-#{color}-800 border-#{color}-500 hover:border-#{color}-800 text-white"
+    end
   end
 end

@@ -58,17 +58,12 @@ defmodule LiveDebugger.LiveComponents.EventsList do
         hide?={@hide_section?}
       >
         <:right_panel>
-          <.button color="primary" phx-click="clear-events" phx-target={@myself}>
+          <.button color="primary" variant="outline" phx-click="clear-events" phx-target={@myself}>
             Clear
           </.button>
         </:right_panel>
         <div class="w-full">
-          <.alert
-            :if={@loading_error?}
-            with_icon
-            color="danger"
-            heading="Error fetching historical events"
-          >
+          <.alert :if={@loading_error?} color="danger" heading="Error fetching historical events">
             The new events still will be displayed as they come. Check logs for more
           </.alert>
           <div :if={@no_events?} class="text-gray-700">
