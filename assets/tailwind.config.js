@@ -63,7 +63,7 @@ module.exports = {
     ),
     // Plugin for adding Heroicons
     plugin(function ({ matchComponents, theme }) {
-      let iconsDir = path.join(__dirname, './icons/heroicons/');
+      let iconsDir = path.join(__dirname, './icons/heroicons/optimized');
       let values = {};
       let icons = [
         ['', '/24/outline'],
