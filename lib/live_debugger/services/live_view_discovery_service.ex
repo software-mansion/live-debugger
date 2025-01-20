@@ -7,13 +7,20 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   @doc """
   Returns pids of all LiveView processes in the debugged application.
   """
-  @spec live_pids() :: [pid()]
-  def live_pids() do
-    ProcessService.list()
-    |> Enum.reject(&(&1 == self()))
-    |> Enum.map(&{&1, ProcessService.initial_call(&1)})
-    |> Enum.filter(fn {_, initial_call} -> liveview?(initial_call) end)
+  @spec debugged_live_pids() :: [pid()]
+  def debugged_live_pids() do
+    live_pids()
     |> Enum.reject(fn {_, initial_call} -> debugger?(initial_call) end)
+    |> Enum.map(&elem(&1, 0))
+  end
+
+  @doc """
+  Returns pids of all LiveView processes in the live deb application.
+  """
+  @spec debugger_live_pids() :: [pid()]
+  def debugger_live_pids() do
+    live_pids()
+    |> Enum.filter(fn {_, initial_call} -> debugger?(initial_call) end)
     |> Enum.map(&elem(&1, 0))
   end
 
@@ -22,7 +29,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   """
   @spec live_pid(socket_id :: binary()) :: pid() | nil
   def live_pid(socket_id) do
-    live_pids()
+    debugged_live_pids()
     |> Enum.map(fn pid -> {pid, ProcessService.state(pid)} end)
     |> Enum.find(fn
       {_, {:ok, %{socket: %{id: id}}}} -> id == socket_id
@@ -32,6 +39,13 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
       {pid, _} -> pid
       nil -> nil
     end
+  end
+
+  defp live_pids() do
+    ProcessService.list()
+    |> Enum.reject(&(&1 == self()))
+    |> Enum.map(&{&1, ProcessService.initial_call(&1)})
+    |> Enum.filter(fn {_, initial_call} -> liveview?(initial_call) end)
   end
 
   defp liveview?(initial_call) when initial_call not in [nil, {}] do

@@ -81,7 +81,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   defp fetch_live_sessions_after(milliseconds) do
     Process.sleep(milliseconds)
 
-    LiveViewDiscoveryService.live_pids()
+    LiveViewDiscoveryService.debugged_live_pids()
     |> Enum.map(&live_session_info/1)
     |> Enum.reject(&(&1 == :error))
   end
