@@ -37,7 +37,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     <.async_result :let={pid} assign={@debugged_pid}>
       <:loading>
         <div class="h-full flex items-center justify-center">
-          <.spinner size="md" />
+          <.spinner size="xl" />
         </div>
       </:loading>
       <:failed :let={reason}>

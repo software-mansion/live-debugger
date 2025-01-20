@@ -169,6 +169,7 @@ defmodule LiveDebugger.Components do
 
   @doc """
   Renders a [Heroicon](https://heroicons.com).
+  Not all icons are available. If you want to use an icon check if it exists in the `assets/icons` folder.
   ## Examples
 
       <.icon name="hero-x-mark-solid" />
@@ -183,13 +184,47 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the spinner.")
-  attr(:size, :string, default: "md", values: ["xs", "sm", "md", "lg", "xl"])
+  attr(:class, :any, default: nil, doc: "CSS class")
+
+  attr(:size, :string,
+    default: "md",
+    values: ["xs", "sm", "md", "lg", "xl"],
+    doc: "Size of the spinner"
+  )
+
+  attr(:show, :boolean, default: true, doc: "show or hide spinner")
   attr(:rest, :global)
 
   def spinner(assigns) do
+    size_class =
+      case assigns.size do
+        "xs" -> "h-4 w-4"
+        "sm" -> "h-6 w-6"
+        "md" -> "h-8 w-8"
+        "lg" -> "h-10 w-10"
+        "xl" -> "h-12 w-12"
+      end
+
+    assigns = assign(assigns, :size_class, size_class)
+
     ~H"""
-    <span class={["flex" | List.wrap(@class)]} {@rest}></span>
+    <svg
+      {@rest}
+      class={
+        ["animate-spin text-primary", @size_class, unless(@show, do: "hidden")] ++
+          List.wrap(@class)
+      }
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <circle class="opacity-10" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+      <path
+        class="none"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+      />
+    </svg>
     """
   end
 
