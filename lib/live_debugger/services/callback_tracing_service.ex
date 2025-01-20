@@ -34,7 +34,9 @@ defmodule LiveDebugger.Services.CallbackTracingService do
   More info here https://www.erlang.org/docs/27/apps/runtime_tools/dbg#session/2
   """
 
-  if Code.ensure_compiled(:dbg) && function_exported?(:dbg, :session, 2) do
+  @dbg_sessions_available Code.ensure_compiled(:dbg) && function_exported?(:dbg, :session, 2)
+
+  if @dbg_sessions_available do
     @spec start_tracing(
             socket_id :: String.t(),
             monitored_pid :: pid(),
@@ -73,10 +75,6 @@ defmodule LiveDebugger.Services.CallbackTracingService do
         do_trace(ets_table_id, monitored_pid, recipient_pid, next_tuple_id)
 
         {:ok, nil}
-      else
-        {:error, :session_limit} ->
-          Logger.error("Error while starting tracing: session limit reached")
-          {:error, :session_limit}
       end
     rescue
       err ->
@@ -96,7 +94,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
   @doc """
   Stops tracing.
   """
-  if Code.ensure_compiled(:dbg) && function_exported?(:dbg, :session, 2) do
+  if @dbg_sessions_available do
     @spec stop_tracing_session(:dbg.session()) :: :ok
     def stop_tracing_session(session) do
       :dbg.session_destroy(session)
@@ -108,7 +106,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
     end
   end
 
-  if Code.ensure_compiled(:dbg) && function_exported?(:dbg, :session, 2) do
+  if @dbg_sessions_available do
     @id_prefix "lvdbg"
 
     defp tracing_session_id(monitored_pid) do
