@@ -63,7 +63,12 @@ defmodule LiveDebugger.LiveComponents.EventsList do
           </.button>
         </:right_panel>
         <div class="w-full">
-          <.alert :if={@loading_error?} color="danger" heading="Error fetching historical events">
+          <.alert
+            :if={@loading_error?}
+            variant="danger"
+            with_icon
+            heading="Error fetching historical events"
+          >
             The new events still will be displayed as they come. Check logs for more
           </.alert>
           <div :if={@no_events?} class="text-gray-700">

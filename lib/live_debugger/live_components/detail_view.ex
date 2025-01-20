@@ -55,7 +55,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           </div>
         </:loading>
         <:failed :let={reason}>
-          <.alert color="danger">
+          <.alert variant="danger">
             Failed to fetch node details: {inspect(reason)}
           </.alert>
         </:failed>

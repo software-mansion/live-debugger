@@ -8,12 +8,14 @@ defmodule LiveDebugger.Components do
   @doc """
   Renders an alert with
   """
-  attr(:color, :string,
-    default: "primary",
-    values: ["primary", "secondary", "danger", "success", "warning", "info", "gray"]
+  attr(:variant, :string,
+    required: true,
+    values: ["danger", "success", "warning", "info"]
   )
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the alert.")
+  attr(:with_icon, :boolean, default: false, doc: "Whether to show an icon.")
+  attr(:heading, :string, default: nil, doc: "Heading for the alert.")
   attr(:rest, :global)
   slot(:inner_block, required: true)
 
@@ -21,11 +23,15 @@ defmodule LiveDebugger.Components do
     ~H"""
     <div
       class={[
-        "bg-#{@color}-100 border border-#{@color}-400 text-#{@color}-700 px-4 py-3 rounded-lg"
+        "bg-#{@variant}-100 border border-#{@variant}-400 text-#{@variant}-700 p-2 flex flex-col gap-1 text-sm rounded-lg"
         | List.wrap(@class)
       ]}
       {@rest}
     >
+      <div class="flex items-center gap-2">
+        <.alert_icon :if={@with_icon} variant={@variant} />
+        <.h5 class="font-bold">{@heading}</.h5>
+      </div>
       {render_slot(@inner_block)}
     </div>
     """
@@ -237,6 +243,24 @@ defmodule LiveDebugger.Components do
       </.h5>
       <span>You can close this window</span>
     </div>
+    """
+  end
+
+  attr(:variant, :string, required: true, values: ["danger", "success", "warning", "info"])
+
+  defp alert_icon(assigns) do
+    icon_name =
+      case assigns.variant do
+        "danger" -> "hero-x-circle"
+        "success" -> "hero-check-circle"
+        "warning" -> "hero-exclamation-circle"
+        "info" -> "hero-information-circle"
+      end
+
+    assigns = assign(assigns, :name, icon_name)
+
+    ~H"""
+    <.icon name={@name} class="text-{@variant}-700" />
     """
   end
 
