@@ -44,28 +44,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
          tracing_session_id <- tracing_session_id(monitored_pid),
          tracing_session <- :dbg.session_create(tracing_session_id) do
       :dbg.session(tracing_session, fn ->
-        :dbg.tracer(
-          :process,
-          {fn msg, n -> trace_handler(msg, n, ets_table_id, recipient_pid) end, next_tuple_id}
-        )
-
-        :dbg.p(monitored_pid, :c)
-
-        all_modules = ModuleDiscoveryService.all_modules()
-
-        callbacks =
-          all_modules
-          |> ModuleDiscoveryService.live_view_modules()
-          |> CallbackUtils.live_view_callbacks()
-
-        tracer_patterns =
-          all_modules
-          |> ModuleDiscoveryService.live_component_modules()
-          |> CallbackUtils.live_component_callbacks()
-          |> Enum.concat(callbacks)
-          |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
-
-        [:dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, []) | tracer_patterns]
+        do_trace(ets_table_id, monitored_pid, recipient_pid, next_tuple_id)
       end)
 
       {:ok, tracing_session}
@@ -82,6 +61,31 @@ defmodule LiveDebugger.Services.CallbackTracingService do
   @spec stop_tracing_session(:dbg.session()) :: :ok
   def stop_tracing_session(session) do
     :dbg.session_destroy(session)
+  end
+
+  defp do_trace(ets_table_id, monitored_pid, recipient_pid, next_tuple_id) do
+    :dbg.tracer(
+      :process,
+      {fn msg, n -> trace_handler(msg, n, ets_table_id, recipient_pid) end, next_tuple_id}
+    )
+
+    :dbg.p(monitored_pid, :c)
+
+    all_modules = ModuleDiscoveryService.all_modules()
+
+    callbacks =
+      all_modules
+      |> ModuleDiscoveryService.live_view_modules()
+      |> CallbackUtils.live_view_callbacks()
+
+    tracer_patterns =
+      all_modules
+      |> ModuleDiscoveryService.live_component_modules()
+      |> CallbackUtils.live_component_callbacks()
+      |> Enum.concat(callbacks)
+      |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
+
+    [:dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, []) | tracer_patterns]
   end
 
   defp tracing_session_id(monitored_pid) do
