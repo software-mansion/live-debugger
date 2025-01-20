@@ -37,13 +37,6 @@ defmodule LiveDebugger.MixProject do
   defp deps do
     [
       {:phoenix_live_view, "~> 1.0"},
-      {:petal_components, "~> 2.7"},
-      {:heroicons_petal,
-       github: "tailwindlabs/heroicons",
-       tag: "v2.1.5",
-       app: false,
-       compile: false,
-       sparse: "optimized"},
       {:bandit, "~> 1.6"},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:esbuild, "~> 0.7", only: :dev},

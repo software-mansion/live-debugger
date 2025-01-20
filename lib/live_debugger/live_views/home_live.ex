@@ -1,12 +1,12 @@
 defmodule LiveDebugger.LiveViews.HomeLive do
   use LiveDebuggerWeb, :live_view
 
+  import LiveDebugger.Components
+
   @impl true
   def render(assigns) do
     ~H"""
-    <.container max_width="full">
-      <.h1 class="m-5 mb-6">Hello from LiveDebugger</.h1>
-    </.container>
+    <.h1 class="m-5 mb-6">Hello from LiveDebugger</.h1>
     """
   end
 end

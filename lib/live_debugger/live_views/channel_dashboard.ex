@@ -3,6 +3,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
   use LiveDebuggerWeb, :live_view
 
+  import LiveDebugger.Components
+
   require Logger
 
   alias LiveDebugger.Components

@@ -5,77 +5,181 @@ defmodule LiveDebugger.Components do
 
   use LiveDebuggerWeb, :component
 
-  alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.Utils.TermParser
+  @doc """
+  Renders an alert with
+  """
+  attr(:color, :string,
+    default: "primary",
+    values: ["primary", "secondary", "danger", "success", "warning", "info", "gray"]
+  )
 
-  attr(:id, :string, required: true)
-  attr(:trace, :map, required: true, doc: "The Trace struct to render")
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the alert.")
+  attr(:rest, :global)
+  slot(:inner_block, required: true)
 
-  def trace(assigns) do
+  def alert(assigns) do
     ~H"""
-    <.collapsible id={@id} icon="hero-chevron-down-micro" chevron_class="text-primary">
-      <:label>
-        <div class="w-full flex justify-between">
-          <.tooltip position="top" content={"#{@trace.module}.#{@trace.function}/#{@trace.arity}"}>
-            <p class="text-primary font-medium">{@trace.function}/{@trace.arity}</p>
-          </.tooltip>
-          <p class="w-32">{Parsers.parse_timestamp(@trace.timestamp)}</p>
-        </div>
-      </:label>
-
-      <div class="flex flex-col gap-4 overflow-x-auto h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
-        <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-          <.live_component
-            id={@id <> "-#{index}"}
-            module={LiveDebugger.LiveComponents.ElixirDisplay}
-            node={TermParser.term_to_display_tree(args)}
-            level={1}
-          />
-        <% end %>
-      </div>
-    </.collapsible>
+    <div
+      class={[
+        "bg-#{@color}-100 border border-#{@color}-400 text-#{@color}-700 px-4 py-3 rounded-lg"
+        | List.wrap(@class)
+      ]}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </div>
     """
   end
 
-  attr(:id, :string, required: true)
-  attr(:class, :any, default: nil, doc: "CSS class for parent container")
-  attr(:chevron_class, :string, default: nil, doc: "CSS class for the chevron icon")
-  attr(:icon, :string, default: "hero-chevron-down-solid", doc: "Icon name")
-  attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
-  attr(:rest, :global)
+  @doc """
+  Renders a button.
 
-  slot(:label, required: true)
+  """
+  attr(:color, :string,
+    default: "primary",
+    values: ["primary", "secondary", "danger", "success", "warning", "info", "gray"]
+  )
+
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
+  attr(:rest, :global)
   slot(:inner_block, required: true)
 
-  def collapsible(assigns) do
+  def button(assigns) do
     ~H"""
-    <div id={@id} class={@class} {@rest} x-data={"{ expanded: #{@open} }"}>
-      <div data-open={if @open, do: "true", else: "false"}>
-        <div id={content_panel_header_id(@id)} class="flex items-center gap-1">
-          <.custom_icon_button open={@open} id={@id} icon={@icon} chevron_class={@chevron_class} />
-          {render_slot(@label)}
-        </div>
-        <.content_container id={@id}>
-          {render_slot(@inner_block)}
-        </.content_container>
-      </div>
+    <button class={["w-4 bg-#{@color}-200 border-#{@color}-900" | List.wrap(@class)]} {@rest}>
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
+  @doc """
+  Renders a card.
+  """
+  attr(:color, :string,
+    default: "primary",
+    values: ["primary", "secondary", "danger", "success", "warning", "info", "gray"]
+  )
+
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the card.")
+  attr(:rest, :global)
+  slot(:inner_block, required: true)
+
+  def card(assigns) do
+    ~H"""
+    <div class={["border-2 border-#{@color}-600 shadow-2xl p-2" | List.wrap(@class)]} {@rest}>
+      {render_slot(@inner_block)}
     </div>
+    """
+  end
+
+  @doc """
+  Typography component to render headings.
+  """
+
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
+  attr(:rest, :global)
+  slot(:inner_block, required: true)
+
+  def h1(assigns) do
+    ~H"""
+    <h1 class={["m-5 mb-6" | List.wrap(@class)]} {@rest}>
+      {render_slot(@inner_block)}
+    </h1>
+    """
+  end
+
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
+  attr(:rest, :global)
+  slot(:inner_block, required: true)
+
+  def h2(assigns) do
+    ~H"""
+    <h2 class={["m-5 mb-6" | List.wrap(@class)]} {@rest}>
+      {render_slot(@inner_block)}
+    </h2>
+    """
+  end
+
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
+  attr(:rest, :global)
+  slot(:inner_block, required: true)
+
+  def h3(assigns) do
+    ~H"""
+    <h3 class={["m-5 mb-6" | List.wrap(@class)]} {@rest}>
+      {render_slot(@inner_block)}
+    </h3>
+    """
+  end
+
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
+  attr(:rest, :global)
+  slot(:inner_block, required: true)
+
+  def h4(assigns) do
+    ~H"""
+    <h4 class={["m-5 mb-6" | List.wrap(@class)]} {@rest}>
+      {render_slot(@inner_block)}
+    </h4>
+    """
+  end
+
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
+  attr(:rest, :global)
+  slot(:inner_block, required: true)
+
+  def h5(assigns) do
+    ~H"""
+    <h5 class={["m-5 mb-6" | List.wrap(@class)]} {@rest}>
+      {render_slot(@inner_block)}
+    </h5>
+    """
+  end
+
+  @doc """
+  Renders a [Heroicon](https://heroicons.com).
+  ## Examples
+
+      <.icon name="hero-x-mark-solid" />
+  """
+  attr(:name, :string, required: true, doc: "The name of the icon. Must start with `hero-`.")
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the icon.")
+  attr(:rest, :global)
+
+  def icon(%{name: "hero-" <> _} = assigns) do
+    ~H"""
+    <span class={[@name, List.wrap(@class)]} {@rest}></span>
+    """
+  end
+
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the spinner.")
+  attr(:size, :string, default: "md", values: ["xs", "sm", "md", "lg", "xl"])
+  attr(:rest, :global)
+
+  def spinner(assigns) do
+    ~H"""
+    <span class={["flex" | List.wrap(@class)]} {@rest}></span>
     """
   end
 
   @doc """
   Renders a tooltip using Tooltip hook.
   """
+  attr(:id, :string, required: true)
   attr(:content, :string, default: nil)
   attr(:position, :string, default: "bottom", values: ["top", "bottom"])
   attr(:rest, :global)
   slot(:inner_block, required: true)
 
   def tooltip(assigns) do
-    assigns = assign(assigns, :id, "tooltip_" <> Ecto.UUID.generate())
-
     ~H"""
-    <div id={@id} phx-hook="Tooltip" data-tooltip={@content} data-position={@position} {@rest}>
+    <div
+      id={"tooltip_" <> @id}
+      phx-hook="Tooltip"
+      data-tooltip={@content}
+      data-position={@position}
+      {@rest}
+    >
       {render_slot(@inner_block)}
     </div>
     """
@@ -110,47 +214,4 @@ defmodule LiveDebugger.Components do
     </div>
     """
   end
-
-  attr(:id, :string, required: true)
-  attr(:chevron_class, :string, required: true)
-  attr(:icon, :string, required: true)
-  attr(:open, :boolean, required: true)
-
-  defp custom_icon_button(assigns) do
-    ~H"""
-    <button
-      type="button"
-      x-on:click="expanded = !expanded"
-      aria-expanded="expanded"
-      aria-controls={content_panel_id(@id)}
-    >
-      <.icon
-        name={@icon}
-        class={[@chevron_class, if(@open, do: "rotate-180")]}
-        {%{":class": "{'rotate-180': expanded}"}}
-      />
-    </button>
-    """
-  end
-
-  attr(:id, :string, required: true)
-  slot(:inner_block)
-
-  defp content_container(assigns) do
-    ~H"""
-    <div
-      id={content_panel_id(@id)}
-      role="region"
-      aria-labelledby={content_panel_header_id(@id)}
-      x-show="expanded"
-      x-cloak={true}
-      x-collapse={true}
-    >
-      {render_slot(@inner_block)}
-    </div>
-    """
-  end
-
-  defp content_panel_header_id(id), do: "collapsible-header-#{id}"
-  defp content_panel_id(id), do: "collapsible-content-panel-#{id}"
 end

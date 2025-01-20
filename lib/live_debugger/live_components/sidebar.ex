@@ -5,12 +5,14 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   """
   use LiveDebuggerWeb, :live_component
 
+  import LiveDebugger.Components
+
+  require Logger
+
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
-
-  require Logger
 
   @impl true
   def mount(socket) do
@@ -125,9 +127,9 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp sidebar_label(assigns) do
     ~H"""
-    <.a to={live_debugger_base_url(@socket)}>
+    <.link patch={live_debugger_base_url(@socket)}>
       <.h3 class="text-white">LiveDebugger</.h3>
-    </.a>
+    </.link>
     """
   end
 
@@ -215,7 +217,9 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp sidebar_icon_button(assigns) do
     ~H"""
-    <.button color="white" variant="outline" class="w-max h-max p-1 text-white" icon={@icon} {@rest} />
+    <.button color="gray" class="w-max h-max p-1 text-white" {@rest}>
+      <.icon name={@icon} class="text-white" />
+    </.button>
     """
   end
 
