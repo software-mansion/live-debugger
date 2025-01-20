@@ -1,8 +1,6 @@
 defmodule LiveDebugger.LiveViews.HomeLive do
   use LiveDebuggerWeb, :live_view
 
-  import LiveDebugger.Components
-
   @impl true
   def render(assigns) do
     ~H"""

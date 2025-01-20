@@ -5,8 +5,6 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
   use LiveDebuggerWeb, :live_component
 
-  import LiveDebugger.Components
-
   require Logger
 
   alias LiveDebugger.Components.Collapsible

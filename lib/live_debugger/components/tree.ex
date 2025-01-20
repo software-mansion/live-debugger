@@ -5,8 +5,6 @@ defmodule LiveDebugger.Components.Tree do
 
   use LiveDebuggerWeb, :component
 
-  import LiveDebugger.Components
-
   alias LiveDebugger.Components.Collapsible
   alias LiveDebugger.Structs.TreeNode
 

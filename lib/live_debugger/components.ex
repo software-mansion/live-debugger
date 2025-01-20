@@ -3,7 +3,9 @@ defmodule LiveDebugger.Components do
   This module provides reusable components for LiveDebugger.
   """
 
-  use LiveDebuggerWeb, :component
+  use Phoenix.Component
+
+  import LiveDebuggerWeb.Helpers
 
   @doc """
   Renders an alert with

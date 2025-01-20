@@ -3,8 +3,6 @@ defmodule LiveDebugger.Components.Collapsible do
 
   use LiveDebuggerWeb, :component
 
-  import LiveDebugger.Components
-
   @doc """
   Collapsible section, it throws a toggle-visibility event when the user clicks on the title.
   Payload of toggle visibility event:

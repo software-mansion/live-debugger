@@ -6,8 +6,6 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
 
   use LiveDebuggerWeb, :live_component
 
-  import LiveDebugger.Components
-
   @max_auto_expand_size 6
 
   @impl true

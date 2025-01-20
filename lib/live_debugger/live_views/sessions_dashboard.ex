@@ -5,8 +5,6 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
 
   use LiveDebuggerWeb, :live_view
 
-  import LiveDebugger.Components
-
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Services.LiveViewDiscoveryService

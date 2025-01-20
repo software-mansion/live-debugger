@@ -5,8 +5,6 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   use LiveDebuggerWeb, :live_component
 
-  import LiveDebugger.Components
-
   alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.ChannelService
