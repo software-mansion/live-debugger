@@ -76,7 +76,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     Process.monitor(fetched_pid)
 
     {:ok, tracing_session} =
-      CallbackTracingService.start_tracing_session(socket.assigns.socket_id, fetched_pid, self())
+      CallbackTracingService.start_tracing(socket.assigns.socket_id, fetched_pid, self())
 
     socket
     |> assign(:debugged_pid, AsyncResult.ok(fetched_pid))

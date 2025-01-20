@@ -1,6 +1,6 @@
 defmodule LiveDebugger.Services.CallbackTracingService do
   @moduledoc """
-  It starts a tracing session for the given monitored PID via `start_tracing_session/3`.
+  It starts a tracing session for the given monitored PID via `start_tracing/3`.
   When session is started sends traces to the recipient PID via message {:new_trace, trace}.
   It stores traces in an ETS table with id created by `CallbackTracingService.ets_table_id/1`.
 
@@ -26,18 +26,26 @@ defmodule LiveDebugger.Services.CallbackTracingService do
   """
   @type raw_trace :: {atom(), pid(), atom(), {atom(), atom(), [term()]}}
 
+  Code.ensure_compiled(:dbg)
+
+  if function_exported?(:dbg, :session, 2) do
+    Logger.warning("The :dbg module is available. Callback tracing will work.")
+  else
+    Logger.error("The :dbg module is not available. Callback tracing will not work.")
+  end
+
   @doc """
   Starts a tracing session for the given monitored PID.
   It sends traces to the recipient PID via message {:new_trace, trace}.
   It stores traces in an ETS table with id created by `CallbackTracingService.ets_table_id/1`.
   """
-  @spec start_tracing_session(
+  @spec start_tracing(
           socket_id :: String.t(),
           monitored_pid :: pid(),
           recipient_pid :: pid()
         ) ::
           {:ok, :dbg.session()} | {:error, term()}
-  def start_tracing_session(socket_id, monitored_pid, recipient_pid) do
+  def start_tracing(socket_id, monitored_pid, recipient_pid) do
     with ets_table_id <- TraceService.ets_table_id(socket_id),
          _table <- TraceService.init_ets(ets_table_id),
          next_tuple_id <- TraceService.next_tuple_id(ets_table_id),
