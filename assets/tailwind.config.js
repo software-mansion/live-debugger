@@ -42,9 +42,28 @@ module.exports = {
     },
   },
   plugins: [
+    require('@tailwindcss/forms'),
+    plugin(({ addVariant }) =>
+      addVariant('phx-click-loading', [
+        '&.phx-click-loading',
+        '.phx-click-loading &',
+      ])
+    ),
+    plugin(({ addVariant }) =>
+      addVariant('phx-submit-loading', [
+        '&.phx-submit-loading',
+        '.phx-submit-loading &',
+      ])
+    ),
+    plugin(({ addVariant }) =>
+      addVariant('phx-change-loading', [
+        '&.phx-change-loading',
+        '.phx-change-loading &',
+      ])
+    ),
     // Plugin for adding Heroicons
     plugin(function ({ matchComponents, theme }) {
-      let iconsDir = path.join(__dirname, './icons/');
+      let iconsDir = path.join(__dirname, './icons/heroicons/optimized');
       let values = {};
       let icons = [
         ['', '/24/outline'],
