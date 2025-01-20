@@ -58,7 +58,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
         hide?={@hide_section?}
       >
         <:right_panel>
-          <.button color="primary" variant="outline" phx-click="clear-events" phx-target={@myself}>
+          <.button color="primary" phx-click="clear-events" phx-target={@myself}>
             Clear
           </.button>
         </:right_panel>

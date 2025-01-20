@@ -84,7 +84,9 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         />
       </div>
       <div class="flex sm:hidden flex-col gap-2 w-14 pt-4 p-1 rounded-r-md h-screen bg-primary items-center justify-start">
-        <.sidebar_icon_button icon="hero-home-solid" to="/live_debug/" link_type="a" />
+        <.link patch="/live_debug/">
+          <.sidebar_icon_button icon="hero-home-solid" />
+        </.link>
         <.sidebar_icon_button icon="hero-bars-3" phx-click="show_mobile_content" phx-target={@myself} />
         <.sidebar_slide_over :if={not @hidden?} myself={@myself}>
           <:header>
@@ -213,7 +215,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   attr(:icon, :string, required: true)
-  attr(:rest, :global, include: ~w(to link_type disabled))
+  attr(:link, :string, default: nil)
+  attr(:rest, :global)
 
   defp sidebar_icon_button(assigns) do
     ~H"""
