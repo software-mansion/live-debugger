@@ -40,7 +40,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
       </:loading>
       <:failed :let={reason}>
         <Components.not_found_component :if={reason == :not_found} socket={@socket} />
-        <Components.error_component :if={reason != :not_found} />
+        <Components.session_limit_component :if={reason == :session_limit} />
+        <Components.error_component :if={reason not in [:not_found, :session_limit]} />
       </:failed>
 
       <div :if={@tracing_session != :session_limit} class="flex flex-row w-full min-h-screen">
@@ -60,8 +61,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
           socket_id={@socket_id}
         />
       </div>
-
-      <Components.session_limit_component :if={@tracing_session == :session_limit} />
     </.async_result>
     """
   end
@@ -77,12 +76,18 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   def handle_async(:fetch_debugged_pid, {:ok, fetched_pid}, socket) do
     Process.monitor(fetched_pid)
 
-    {_, tracing_session} =
-      CallbackTracingService.start_tracing(socket.assigns.socket_id, fetched_pid, self())
+    socket.assigns.socket_id
+    |> CallbackTracingService.start_tracing(fetched_pid, self())
+    |> case do
+      {:ok, tracing_session} ->
+        socket
+        |> assign(:debugged_pid, AsyncResult.ok(fetched_pid))
+        |> assign(:tracing_session, tracing_session)
 
-    socket
-    |> assign(:debugged_pid, AsyncResult.ok(fetched_pid))
-    |> assign(:tracing_session, tracing_session)
+      {:error, reason} ->
+        socket
+        |> assign(:debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, reason))
+    end
     |> noreply()
   end
 
