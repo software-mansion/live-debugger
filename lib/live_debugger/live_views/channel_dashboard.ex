@@ -11,6 +11,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.CallbackTracingService
+  alias LiveDebugger.Services.ChannelService
 
   @impl true
   def mount(%{"socket_id" => socket_id}, _session, socket) do
@@ -66,9 +67,17 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
   @impl true
   def handle_async(:fetch_debugged_pid, {:ok, nil}, socket) do
-    socket
-    |> assign(:debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, :not_found))
-    |> noreply()
+    with [live_pid] <- LiveViewDiscoveryService.live_pids(),
+         {:ok, %{socket: %{id: socket_id}}} <- ChannelService.state(live_pid) do
+      socket
+      |> push_navigate(to: "#{live_debugger_base_url(socket)}/#{socket_id}")
+      |> noreply()
+    else
+      _ ->
+        socket
+        |> assign(:debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, :not_found))
+        |> noreply()
+    end
   end
 
   @impl true
