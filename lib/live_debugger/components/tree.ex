@@ -5,7 +5,7 @@ defmodule LiveDebugger.Components.Tree do
 
   use LiveDebuggerWeb, :component
 
-  alias LiveDebugger.Components
+  alias LiveDebugger.Components.Collapsible
   alias LiveDebugger.Structs.TreeNode
 
   @doc """
@@ -22,16 +22,16 @@ defmodule LiveDebugger.Components.Tree do
 
   def tree(assigns) do
     ~H"""
-    <.card class={["h-max bg-gray-200 text-primary", @class]} variant="outline">
+    <.card class={["h-max bg-gray-200 text-primary", @class]}>
       <.h4 class="text-primary pt-2 pl-2">{@title}</.h4>
-      <.card_content class="px-1 pb-4 pt-0">
+      <div class="px-1 pb-4 pt-0">
         <.tree_node
           tree_node={@tree_node}
           selected_node_id={@selected_node_id}
           event_target={@event_target}
           root?={true}
         />
-      </.card_content>
+      </div>
     </.card>
     """
   end
@@ -54,7 +54,7 @@ defmodule LiveDebugger.Components.Tree do
       <.vertical_bar :if={!@root?} highlight_bar?={@highlight_bar?} />
       <div class={["w-full", unless(@root?, do: "pl-2")]}>
         <div class="w-full rounded-lg p-1 pb-0">
-          <Components.collapsible
+          <Collapsible.collapsible
             :if={@collapsible?}
             id={"collapsible-" <> @tree_node.parsed_id}
             open={true}
@@ -74,7 +74,7 @@ defmodule LiveDebugger.Components.Tree do
                 highlight_bar?={@selected?}
               />
             </div>
-          </Components.collapsible>
+          </Collapsible.collapsible>
           <.label
             :if={not @collapsible?}
             selected?={@selected?}
@@ -113,20 +113,17 @@ defmodule LiveDebugger.Components.Tree do
       phx-target={@event_target}
       class={["flex w-full", @class]}
     >
-      <Components.tooltip content={@node.tooltip} class="w-full">
+      <.tooltip id={"tree_node_" <> @node.parsed_id} content={@node.tooltip} class="w-full">
         <div class="flex w-full gap-0.5 items-center text-black">
           <.icon name={@node.icon} class="w-5 h-5 shrink-0" />
-          <.h5
-            no_margin={true}
-            class={[
-              "truncate text-sm",
-              if(@selected?, do: "text-primary font-bold underline", else: "text-black")
-            ]}
-          >
+          <.h5 class={[
+            "truncate text-sm",
+            if(@selected?, do: "text-primary font-bold underline", else: "text-black")
+          ]}>
             {@node.label}
           </.h5>
         </div>
-      </Components.tooltip>
+      </.tooltip>
     </button>
     """
   end

@@ -8,8 +8,7 @@ defmodule LiveDebuggerWeb do
 
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers
-
-      unquote(petal_components())
+      import LiveDebugger.Components
     end
   end
 
@@ -19,8 +18,7 @@ defmodule LiveDebuggerWeb do
 
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers
-
-      unquote(petal_components())
+      import LiveDebugger.Components
     end
   end
 
@@ -30,23 +28,7 @@ defmodule LiveDebuggerWeb do
 
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers
-
-      unquote(petal_components())
-    end
-  end
-
-  defp petal_components do
-    quote do
-      import PetalComponents.{
-        Typography,
-        Card,
-        Icon,
-        Container,
-        Loading,
-        Alert,
-        Button,
-        Link
-      }
+      import LiveDebugger.Components
     end
   end
 
