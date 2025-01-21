@@ -297,6 +297,7 @@ defmodule LiveDebugger.Components do
   end
 
   attr(:variant, :string, required: true, values: ["danger", "success", "warning", "info"])
+
   defp alert_icon(assigns) do
     icon_name =
       case assigns.variant do
