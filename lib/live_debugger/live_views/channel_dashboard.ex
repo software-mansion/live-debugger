@@ -85,8 +85,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
         |> assign(:tracing_session, tracing_session)
 
       {:error, reason} ->
-        socket
-        |> assign(:debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, reason))
+        assign(socket, :debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, reason))
     end
     |> noreply()
   end

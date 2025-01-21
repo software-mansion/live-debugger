@@ -15,7 +15,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   end
 
   @doc """
-  Returns pids of all LiveView processes in the live deb application.
+  Returns pids of all LiveView processes in the LiveDebugger application
   """
   @spec debugger_live_pids() :: [pid()]
   def debugger_live_pids() do
