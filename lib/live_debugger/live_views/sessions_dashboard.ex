@@ -9,7 +9,6 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.ChannelService
-  alias LiveDebugger.Components
 
   @impl true
   def handle_params(_unsigned_params, _uri, socket) do
@@ -31,16 +30,17 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
       <.async_result :let={live_sessions} assign={@live_sessions}>
         <:loading>
           <div class="h-full flex items-center justify-center">
-            <.spinner size="md" />
+            <.spinner size="xl" />
           </div>
         </:loading>
-        <:failed><Components.error_component /></:failed>
+        <:failed><.error_component /></:failed>
         <div :if={Enum.empty?(live_sessions)} class="text-gray-600">
           No LiveSessions found - try refreshing.
         </div>
-        <.ul>
-          <li :for={session <- live_sessions}>
-            <Components.tooltip
+        <ul>
+          <li :for={{session, id} <- Enum.with_index(live_sessions)}>
+            <.tooltip
+              id={"session_" <> Integer.to_string(id)}
               class="inline-block"
               content={"Module: #{session.module}<br/>PID: #{Parsers.pid_to_string(session.pid)}"}
             >
@@ -50,9 +50,9 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
               >
                 {session[:socket_id]}
               </.link>
-            </Components.tooltip>
+            </.tooltip>
           </li>
-        </.ul>
+        </ul>
       </.async_result>
     </div>
     """

@@ -7,9 +7,10 @@ defmodule LiveDebugger.LiveComponents.EventsList do
 
   require Logger
 
-  alias LiveDebugger.Components.CollapsibleSection
+  alias LiveDebugger.Components.Collapsible
   alias LiveDebugger.Services.TraceService
-  alias LiveDebugger.Components
+  alias LiveDebugger.Utils.TermParser
+  alias LiveDebugger.Utils.Parsers
 
   @impl true
   def mount(socket) do
@@ -47,7 +48,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def render(assigns) do
     ~H"""
     <div>
-      <CollapsibleSection.section
+      <Collapsible.section
         title="Events"
         id="events"
         class="h-full md:overflow-y-auto"
@@ -55,20 +56,15 @@ defmodule LiveDebugger.LiveComponents.EventsList do
         hide?={@hide_section?}
       >
         <:right_panel>
-          <.button
-            size="xs"
-            color="light"
-            label="Clear"
-            variant="outline"
-            phx-click="clear-events"
-            phx-target={@myself}
-          />
+          <.button color="primary" phx-click="clear-events" phx-target={@myself}>
+            Clear
+          </.button>
         </:right_panel>
         <div class="w-full">
           <.alert
             :if={@loading_error?}
+            variant="danger"
             with_icon
-            color="danger"
             heading="Error fetching historical events"
           >
             The new events still will be displayed as they come. Check logs for more
@@ -78,11 +74,11 @@ defmodule LiveDebugger.LiveComponents.EventsList do
           </div>
           <div id={"#{assigns.id}-stream"} phx-update="stream">
             <%= for {dom_id, trace} <- @streams.existing_traces do %>
-              <Components.trace id={dom_id} trace={trace} />
+              <.trace id={dom_id} trace={trace} />
             <% end %>
           </div>
         </div>
-      </CollapsibleSection.section>
+      </Collapsible.section>
     </div>
     """
   end
@@ -124,6 +120,39 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     |> stream(:existing_traces, [], reset: true)
     |> assign(no_events?: true)
     |> noreply()
+  end
+
+  attr(:id, :string, required: true)
+  attr(:trace, :map, required: true, doc: "The Trace struct to render")
+
+  defp trace(assigns) do
+    ~H"""
+    <Collapsible.collapsible id={@id} icon="hero-chevron-down-micro" chevron_class="text-primary">
+      <:label>
+        <div class="w-full flex justify-between">
+          <.tooltip
+            id={"trace_" <> @id}
+            position="top"
+            content={"#{@trace.module}.#{@trace.function}/#{@trace.arity}"}
+          >
+            <p class="text-primary font-medium">{@trace.function}/{@trace.arity}</p>
+          </.tooltip>
+          <p class="w-32">{Parsers.parse_timestamp(@trace.timestamp)}</p>
+        </div>
+      </:label>
+
+      <div class="flex flex-col gap-4 overflow-x-auto h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
+        <%= for {args, index} <- Enum.with_index(@trace.args) do %>
+          <.live_component
+            id={@id <> "-#{index}"}
+            module={LiveDebugger.LiveComponents.ElixirDisplay}
+            node={TermParser.term_to_display_tree(args)}
+            level={1}
+          />
+        <% end %>
+      </div>
+    </Collapsible.collapsible>
+    """
   end
 
   defp assign_existing_traces(socket) do

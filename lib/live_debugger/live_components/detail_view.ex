@@ -3,13 +3,13 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   This module is responsible for rendering the detail view of the TreeNode.
   """
 
-  alias LiveDebugger.Components.CollapsibleSection
+  use LiveDebuggerWeb, :live_component
+
   alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
-
-  use LiveDebuggerWeb, :live_component
+  alias LiveDebugger.Components.Collapsible
 
   @impl true
   def mount(socket) do
@@ -53,7 +53,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           </div>
         </:loading>
         <:failed :let={reason}>
-          <.alert color="danger">
+          <.alert variant="danger">
             Failed to fetch node details: {inspect(reason)}
           </.alert>
         </:failed>
@@ -100,7 +100,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_card(assigns) do
     ~H"""
-    <CollapsibleSection.section
+    <Collapsible.section
       id="info"
       title={title(@node_type)}
       class="border-b-2 border-primary"
@@ -112,7 +112,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         <.info_row name="Module" value={inspect(@node.module)} />
         <.info_row name="HTML ID" value={@node.id} />
       </div>
-    </CollapsibleSection.section>
+    </Collapsible.section>
     """
   end
 
@@ -144,7 +144,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp assigns_card(assigns) do
     ~H"""
-    <CollapsibleSection.section
+    <Collapsible.section
       id="assigns"
       class="border-b-2 lg:border-b-0 border-primary h-max overflow-y-hidden"
       hide?={@hide?}
@@ -159,7 +159,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           level={1}
         />
       </div>
-    </CollapsibleSection.section>
+    </Collapsible.section>
     """
   end
 
