@@ -84,7 +84,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
     end
   end
 
-  if not @dbg_sessions_available do
+  unless @dbg_sessions_available do
     defp start_tracing_impl(socket_id, monitored_pid, recipient_pid) do
       with :ok <- check_session_limit(),
            ets_table_id <- TraceService.ets_table_id(socket_id),
