@@ -110,7 +110,6 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       <div class=" flex flex-col gap-1">
         <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
-        <.info_row name="Node ID" value={@node.id} />
       </div>
     </CollapsibleSection.section>
     """
