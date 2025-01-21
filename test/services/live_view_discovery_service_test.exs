@@ -6,7 +6,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.MockProcessService
 
-  describe "live_pids/0" do
+  describe "debugged_live_pids/0" do
     test "returns list of LiveView processes" do
       live_view_pid_1 = :c.pid(0, 0, 1)
       live_view_pid_2 = :c.pid(0, 0, 2)
@@ -15,7 +15,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       |> expect(:list, fn -> [live_view_pid_1, live_view_pid_2] end)
       |> expect(:initial_call, 2, fn _ -> {:"Elixir.SomeLiveView", :mount} end)
 
-      assert LiveViewDiscoveryService.live_pids() == [live_view_pid_1, live_view_pid_2]
+      assert LiveViewDiscoveryService.debugged_live_pids() == [live_view_pid_1, live_view_pid_2]
     end
 
     test "doesn't return LiveDebugger processes" do
@@ -27,7 +27,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       |> expect(:initial_call, fn _ -> {:"Elixir.SomeLiveView", :mount} end)
       |> expect(:initial_call, fn _ -> {:"Elixir.LiveDebugger.Debugger", :mount} end)
 
-      assert LiveViewDiscoveryService.live_pids() == [live_view_pid]
+      assert LiveViewDiscoveryService.debugged_live_pids() == [live_view_pid]
     end
   end
 

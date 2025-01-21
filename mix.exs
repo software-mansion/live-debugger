@@ -36,8 +36,8 @@ defmodule LiveDebugger.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:phoenix_live_view, "~> 1.0"},
-      {:bandit, "~> 1.6"},
+      {:phoenix_live_view, "~> 0.20 or ~> 1.0"},
+      {:bandit, "~> 1.6", only: :dev},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:esbuild, "~> 0.7", only: :dev},
       {:tailwind, "~> 0.2", only: :dev},

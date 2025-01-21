@@ -283,6 +283,19 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  def session_limit_component(assigns) do
+    ~H"""
+    <div class="h-full flex flex-col items-center justify-center mx-8">
+      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.h2 class="text-center">Session limit reached</.h2>
+      <.h5 class="text-center">
+        In OTP 26 and older versions you can open only one debugger window.
+      </.h5>
+      <span>You can close this window</span>
+    </div>
+    """
+  end
+
   attr(:variant, :string, required: true, values: ["danger", "success", "warning", "info"])
 
   defp alert_icon(assigns) do

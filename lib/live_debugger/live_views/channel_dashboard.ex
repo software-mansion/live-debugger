@@ -40,7 +40,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
       </:loading>
       <:failed :let={reason}>
         <Components.not_found_component :if={reason == :not_found} socket={@socket} />
-        <Components.error_component :if={reason != :not_found} />
+        <Components.session_limit_component :if={reason == :session_limit} />
+        <Components.error_component :if={reason not in [:not_found, :session_limit]} />
       </:failed>
 
       <div class="flex flex-row w-full min-h-screen">
@@ -75,12 +76,17 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   def handle_async(:fetch_debugged_pid, {:ok, fetched_pid}, socket) do
     Process.monitor(fetched_pid)
 
-    {:ok, tracing_session} =
-      CallbackTracingService.start_tracing_session(socket.assigns.socket_id, fetched_pid, self())
+    socket.assigns.socket_id
+    |> CallbackTracingService.start_tracing(fetched_pid, self())
+    |> case do
+      {:ok, tracing_session} ->
+        socket
+        |> assign(:debugged_pid, AsyncResult.ok(fetched_pid))
+        |> assign(:tracing_session, tracing_session)
 
-    socket
-    |> assign(:debugged_pid, AsyncResult.ok(fetched_pid))
-    |> assign(:tracing_session, tracing_session)
+      {:error, reason} ->
+        assign(socket, :debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, reason))
+    end
     |> noreply()
   end
 
@@ -97,7 +103,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
   @impl true
   def handle_info({:DOWN, _, :process, _closed_pid, _}, socket) do
-    CallbackTracingService.stop_tracing_session(socket.assigns.tracing_session)
+    CallbackTracingService.stop_tracing(socket.assigns.tracing_session)
 
     socket
     |> push_patch(to: socket.assigns.base_url)
@@ -132,7 +138,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
   @impl true
   def terminate(_reason, socket) do
-    CallbackTracingService.stop_tracing_session(socket.assigns.tracing_session)
+    CallbackTracingService.stop_tracing(socket.assigns.tracing_session)
   end
 
   defp assign_node_id(socket, %{"node_id" => node_id}) do
