@@ -18,11 +18,12 @@ defmodule LiveDebugger.Components.Tree do
   attr(:title, :string, required: true, doc: "The title of the tree")
   attr(:event_target, :any, required: true, doc: "The target for the click event")
   attr(:selected_node_id, :string, required: true, doc: "The id of the selected node")
+  attr(:class, :string, default: nil, doc: "CSS class")
 
   def tree(assigns) do
     ~H"""
-    <.card class="h-max opacity-90" variant="outline">
-      <.h4 class="text-swm-blue pt-2 pl-2">{@title}</.h4>
+    <.card class={["h-max bg-gray-200 text-primary", @class]} variant="outline">
+      <.h4 class="text-primary pt-2 pl-2">{@title}</.h4>
       <.card_content class="px-1 pb-4 pt-0">
         <.tree_node
           tree_node={@tree_node}
@@ -57,7 +58,7 @@ defmodule LiveDebugger.Components.Tree do
             :if={@collapsible?}
             id={"collapsible-" <> @tree_node.parsed_id}
             open={true}
-            chevron_class="text-swm-blue h-5 w-5 mb-1"
+            chevron_class="text-primary h-5 w-5 mb-1"
             class="w-full"
           >
             <:label>
@@ -79,7 +80,7 @@ defmodule LiveDebugger.Components.Tree do
             selected?={@selected?}
             event_target={@event_target}
             node={@tree_node}
-            class="pl-[1.4rem]"
+            class="pl-[1.5rem]"
           />
         </div>
       </div>
@@ -93,7 +94,7 @@ defmodule LiveDebugger.Components.Tree do
     ~H"""
     <div class={[
       "absolute top-0 left-2 h-full border-l-2",
-      if(@highlight_bar?, do: "border-swm-blue", else: "border-transparent")
+      if(@highlight_bar?, do: "border-primary", else: "border-transparent")
     ]}>
     </div>
     """
@@ -113,11 +114,14 @@ defmodule LiveDebugger.Components.Tree do
       class={["flex w-full", @class]}
     >
       <Components.tooltip content={@node.tooltip} class="w-full">
-        <div class="flex w-full gap-0.5 items-center">
+        <div class="flex w-full gap-0.5 items-center text-black">
           <.icon name={@node.icon} class="w-5 h-5 shrink-0" />
           <.h5
             no_margin={true}
-            class={["truncate text-sm", if(@selected?, do: "text-swm-blue font-bold underline")]}
+            class={[
+              "truncate text-sm",
+              if(@selected?, do: "text-primary font-bold underline", else: "text-black")
+            ]}
           >
             {@node.label}
           </.h5>

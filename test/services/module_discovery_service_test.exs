@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Services.ModuleDiscoveryTest do
+defmodule LiveDebugger.Services.ModuleDiscoveryServiceTest do
   use ExUnit.Case, async: true
 
   import Mox

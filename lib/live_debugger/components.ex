@@ -13,11 +13,11 @@ defmodule LiveDebugger.Components do
 
   def trace(assigns) do
     ~H"""
-    <.collapsible id={@id} icon="hero-chevron-down-micro" chevron_class="text-swm-blue">
+    <.collapsible id={@id} icon="hero-chevron-down-micro" chevron_class="text-primary">
       <:label>
         <div class="w-full flex justify-between">
           <.tooltip position="top" content={"#{@trace.module}.#{@trace.function}/#{@trace.arity}"}>
-            <p class="text-swm-blue font-medium">{@trace.function}/{@trace.arity}</p>
+            <p class="text-primary font-medium">{@trace.function}/{@trace.arity}</p>
           </.tooltip>
           <p class="w-32">{Parsers.parse_timestamp(@trace.timestamp)}</p>
         </div>
