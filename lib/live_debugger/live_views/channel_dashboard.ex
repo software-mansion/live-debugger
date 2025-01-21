@@ -103,7 +103,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
   @impl true
   def handle_info({:DOWN, _, :process, _closed_pid, _}, socket) do
-    CallbackTracingService.stop_tracing_session(socket.assigns.tracing_session)
+    CallbackTracingService.stop_tracing(socket.assigns.tracing_session)
 
     socket
     |> push_patch(to: socket.assigns.base_url)
@@ -138,7 +138,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
   @impl true
   def terminate(_reason, socket) do
-    CallbackTracingService.stop_tracing_session(socket.assigns.tracing_session)
+    CallbackTracingService.stop_tracing(socket.assigns.tracing_session)
   end
 
   defp assign_node_id(socket, %{"node_id" => node_id}) do

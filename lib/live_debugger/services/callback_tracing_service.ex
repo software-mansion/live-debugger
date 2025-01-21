@@ -7,7 +7,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
   Traces ids starts from 0 and are decremented by 1 to make sure that they are ordered from the newest to the oldest.
   This is how ets ordered set works. It does not allow you to change the order manually, it is always ordered by the key.
 
-  The session should be stopped when monitored process is killed with `stop_tracing_session/1`.
+  The session should be stopped when monitored process is killed with `stop_tracing/1`.
   """
 
   require Logger
@@ -24,6 +24,8 @@ defmodule LiveDebugger.Services.CallbackTracingService do
   """
   @type raw_trace :: {atom(), pid(), atom(), {atom(), atom(), [term()]}}
 
+  @dbg_sessions_available Code.ensure_compiled(:dbg) && function_exported?(:dbg, :session, 2)
+
   @doc """
   Starts a tracing for the given monitored PID.
   It sends traces to the recipient PID via message {:new_trace, trace}.
@@ -34,16 +36,26 @@ defmodule LiveDebugger.Services.CallbackTracingService do
   More info here https://www.erlang.org/docs/27/apps/runtime_tools/dbg#session/2
   """
 
-  @dbg_sessions_available Code.ensure_compiled(:dbg) && function_exported?(:dbg, :session, 2)
+  @spec start_tracing(
+          socket_id :: String.t(),
+          monitored_pid :: pid(),
+          recipient_pid :: pid()
+        ) ::
+          {:ok, term()} | {:error, term()}
+  def start_tracing(socket_id, monitored_pid, recipient_pid) do
+    start_tracing_impl(socket_id, monitored_pid, recipient_pid)
+  end
+
+  @doc """
+  Stops tracing.
+  """
+  @spec stop_tracing(term()) :: :ok
+  def stop_tracing(session) do
+    stop_tracing_impl(session)
+  end
 
   if @dbg_sessions_available do
-    @spec start_tracing(
-            socket_id :: String.t(),
-            monitored_pid :: pid(),
-            recipient_pid :: pid()
-          ) ::
-            {:ok, :dbg.session()} | {:error, term()}
-    def start_tracing(socket_id, monitored_pid, recipient_pid) do
+    defp start_tracing_impl(socket_id, monitored_pid, recipient_pid) do
       with ets_table_id <- TraceService.ets_table_id(socket_id),
            _table <- TraceService.init_ets(ets_table_id),
            next_tuple_id <- TraceService.next_tuple_id(ets_table_id),
@@ -60,14 +72,18 @@ defmodule LiveDebugger.Services.CallbackTracingService do
         Logger.error("Error while starting tracing: #{inspect(err)}")
         {:error, err}
     end
+
+    defp stop_tracing_impl(session) do
+      :dbg.session_destroy(session)
+    end
+
+    defp tracing_session_id(monitored_pid) do
+      id_prefix = "lvdbg"
+      parsed_pid = monitored_pid |> :erlang.pid_to_list() |> to_string()
+      String.to_atom("#{id_prefix}-#{parsed_pid}")
+    end
   else
-    @spec start_tracing(
-            socket_id :: String.t(),
-            monitored_pid :: pid(),
-            recipient_pid :: pid()
-          ) ::
-            {:ok, nil} | {:error, term()}
-    def start_tracing(socket_id, monitored_pid, recipient_pid) do
+    defp start_tracing_impl(socket_id, monitored_pid, recipient_pid) do
       with :ok <- check_session_limit(),
            ets_table_id <- TraceService.ets_table_id(socket_id),
            _table <- TraceService.init_ets(ets_table_id),
@@ -82,36 +98,16 @@ defmodule LiveDebugger.Services.CallbackTracingService do
         {:error, err}
     end
 
+    defp stop_tracing_impl(nil) do
+      :dbg.stop()
+    end
+
     defp check_session_limit() do
       if LiveDebugger.Services.LiveViewDiscoveryService.debugger_live_pids() == [] do
         :ok
       else
         {:error, :session_limit}
       end
-    end
-  end
-
-  @doc """
-  Stops tracing.
-  """
-  if @dbg_sessions_available do
-    @spec stop_tracing_session(:dbg.session()) :: :ok
-    def stop_tracing_session(session) do
-      :dbg.session_destroy(session)
-    end
-  else
-    @spec stop_tracing_session(nil) :: :ok
-    def stop_tracing_session(nil) do
-      :dbg.stop()
-    end
-  end
-
-  if @dbg_sessions_available do
-    @id_prefix "lvdbg"
-
-    defp tracing_session_id(monitored_pid) do
-      parsed_pid = monitored_pid |> :erlang.pid_to_list() |> to_string()
-      String.to_atom("#{@id_prefix}-#{parsed_pid}")
     end
   end
 
