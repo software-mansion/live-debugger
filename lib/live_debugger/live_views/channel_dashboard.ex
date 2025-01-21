@@ -44,7 +44,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
         <Components.error_component :if={reason not in [:not_found, :session_limit]} />
       </:failed>
 
-      <div :if={@tracing_session != :session_limit} class="flex flex-row w-full min-h-screen">
+      <div class="flex flex-row w-full min-h-screen">
         <.live_component
           module={LiveDebugger.LiveComponents.Sidebar}
           id="sidebar"

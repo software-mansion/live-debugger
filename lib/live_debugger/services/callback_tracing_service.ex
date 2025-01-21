@@ -82,7 +82,9 @@ defmodule LiveDebugger.Services.CallbackTracingService do
       parsed_pid = monitored_pid |> :erlang.pid_to_list() |> to_string()
       String.to_atom("#{id_prefix}-#{parsed_pid}")
     end
-  else
+  end
+
+  if not @dbg_sessions_available do
     defp start_tracing_impl(socket_id, monitored_pid, recipient_pid) do
       with :ok <- check_session_limit(),
            ets_table_id <- TraceService.ets_table_id(socket_id),
