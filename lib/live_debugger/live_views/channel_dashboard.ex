@@ -68,7 +68,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
   @impl true
   def handle_async(:fetch_debugged_pid, {:ok, nil}, socket) do
-    with [live_pid] <- LiveViewDiscoveryService.live_pids(),
+    with [live_pid] <- LiveViewDiscoveryService.debugged_live_pids(),
          {:ok, %{socket: %{id: socket_id}}} <- ChannelService.state(live_pid) do
       socket
       |> push_navigate(to: "#{live_debugger_base_url(socket)}/#{socket_id}")
