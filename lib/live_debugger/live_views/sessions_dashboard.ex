@@ -34,7 +34,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
           <.icon phx-click="refresh" name="hero-arrow-path" class="text-primary cursor-pointer" />
         </div>
 
-        <div class="mt-2 lg:mt-4 ml-1">
+        <div class="mt-2 lg:mt-4 mx-1">
           <%= if Enum.empty?(live_sessions)  do %>
             <div class="text-gray-600">
               No LiveSessions found - try refreshing.
