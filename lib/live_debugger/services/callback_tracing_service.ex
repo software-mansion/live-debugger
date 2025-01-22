@@ -96,7 +96,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
       end
     rescue
       err ->
-        Logger.error("Error while starting : #{inspect(err)}")
+        Logger.error("Error while starting tracing: #{inspect(err)}")
         {:error, err}
     end
 
