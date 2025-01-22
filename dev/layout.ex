@@ -71,8 +71,11 @@ defmodule LiveDebuggerDev.Layout do
   def render("app.html", assigns) do
     ~H"""
     <main>
-      <LiveDebugger.debug_button redirect_url="/live_debug" socket_id={@socket.id} />
-      {@inner_content}
+      <%!-- <LiveDebugger.debug_button redirect_url="/live_debug" socket_id={@socket.id} />
+      {@inner_content} --%>
+      <LiveDebugger.debug_panel redirect_url="/live_debug" socket_id={@socket.id}>
+        {@inner_content}
+      </LiveDebugger.debug_panel>
     </main>
     """
   end
