@@ -73,9 +73,14 @@ defmodule LiveDebuggerDev.Layout do
     <main>
       <%!-- <LiveDebugger.debug_button redirect_url="/live_debug" socket_id={@socket.id} />
       {@inner_content} --%>
-      <LiveDebugger.debug_panel redirect_url="/live_debug" socket_id={@socket.id}>
+      <.live_component
+        module={LiveDebugger.DebugPanel}
+        id="live-debugger-panel"
+        redirect_url="/live_debug"
+        socket_id={@socket.id}
+      >
         {@inner_content}
-      </LiveDebugger.debug_panel>
+      </.live_component>
     </main>
     """
   end

@@ -36,43 +36,51 @@ defmodule LiveDebugger do
     """
   end
 
-  attr(:redirect_url, :string, required: true, doc: "The URL of the debugger, e.g. `/dbg`")
+  defmodule DebugPanel do
+    use Phoenix.LiveComponent
 
-  attr(:socket_id, :string,
-    required: true,
-    doc: "The socket ID of the debugged LiveView"
-  )
+    @impl true
+    def mount(socket) do
+      {:ok, assign(socket, hidden: true)}
+    end
 
-  attr(:corner, :atom,
-    default: :bottom_right,
-    doc:
-      "The corner of the screen to place the button (possible values: `:top_left`, `:top_right`, `:bottom_left`, `:bottom_right`)"
-  )
+    attr(:id, :string, required: true)
+    attr(:redirect_url, :string, required: true)
+    attr(:corner, :atom, default: :bottom_right)
 
-  slot(:inner_block)
+    slot(:inner_block)
 
-  def debug_panel(assigns) do
-    assigns = assign(assigns, :button_style, button_style(assigns))
+    @impl true
+    def render(assigns) do
+      assigns = assign(assigns, :button_style, LiveDebugger.button_style(assigns))
+      assigns = assign(assigns, :display, if(assigns.hidden, do: "none", else: "block"))
 
-    ~H"""
-    <button style={@button_style} onclick={display_panel_js()}>
-      <.bug_icon />
-    </button>
+      ~H"""
+      <div id={@id}>
+        <button style={@button_style} phx-click="toggle-debugger" phx-target={@myself}>
+          <LiveDebugger.bug_icon />
+        </button>
+        <div style={unless @hidden, do: "display: grid; grid-template-columns: 70% 30%;"}>
+          <div>{render_slot(@inner_block)}</div>
+          <iframe
+            id="live-debugger-iframe"
+            src={"#{@redirect_url}"}
+            title="LiveDebugger"
+            style={"width: 100%; height: 100%; border-left: 2px solid #041c74; display: #{@display}"}
+          >
+          </iframe>
+        </div>
+      </div>
+      """
+    end
 
-    <div id="live-debugger-wrapper">
-      <div>{render_slot(@inner_block)}</div>
-      <iframe
-        id="live-debugger-iframe"
-        src={"#{@redirect_url}/#{@socket_id}"}
-        title="LiveDebugger"
-        style="width: 100%; height: 100%; border-left: 2px solid #041c74; display: none;"
-      >
-      </iframe>
-    </div>
-    """
+    @impl true
+    def handle_event("toggle-debugger", _, socket) do
+      {:noreply, assign(socket, hidden: not socket.assigns.hidden)}
+    end
   end
 
-  defp bug_icon(assigns) do
+  def bug_icon(assigns) do
     ~H"""
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -91,21 +99,7 @@ defmodule LiveDebugger do
     """
   end
 
-  defp display_panel_js() do
-    """
-    if (document.getElementById('live-debugger-iframe').style.display === 'none') {
-      document.getElementById('live-debugger-wrapper').style.display = 'grid';
-      document.getElementById('live-debugger-wrapper').style.gridTemplateColumns = '75% 25%';
-      document.getElementById('live-debugger-iframe').style.display = 'block';
-    } else {
-      document.getElementById('live-debugger-wrapper').style.display = 'block';
-      document.getElementById('live-debugger-wrapper').style.gridTemplateColumns = '';
-      document.getElementById('live-debugger-iframe').style.display = 'none';
-    }
-    """
-  end
-
-  defp button_style(assigns) do
+  def button_style(assigns) do
     corner_css = corner_style(assigns.corner)
 
     """
