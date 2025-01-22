@@ -39,6 +39,9 @@ module.exports = {
         info: colors.sky,
         gray: colors.gray,
       },
+      screens: {
+        xs: '380px',
+      },
     },
   },
   plugins: [
