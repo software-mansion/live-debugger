@@ -31,6 +31,3 @@ live_debugger-*.tar
 
 node_modules/
 
-# FYI in Phoenix LiveDashboard they have these compiled files on repo
-# https://github.com/phoenixframework/phoenix_live_dashboard/tree/main/dist
-dist/
