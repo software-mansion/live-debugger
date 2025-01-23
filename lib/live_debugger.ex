@@ -61,7 +61,7 @@ defmodule LiveDebugger do
           />
         </svg>
       </a>
-      <span :if={@display_socket_id} style="font-size: small;">{@socket_id}</span>
+      <span :if={@display_socket_id} style="font-size: small;"><%= @socket_id %></span>
     </div>
     """
   end

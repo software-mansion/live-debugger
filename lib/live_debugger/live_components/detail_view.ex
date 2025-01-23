@@ -54,7 +54,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         </:loading>
         <:failed :let={reason}>
           <.alert variant="danger">
-            Failed to fetch node details: {inspect(reason)}
+            Failed to fetch node details: <%= inspect(reason) %>
           </.alert>
         </:failed>
         <div class="grid grid-cols-1 lg:grid-cols-2 lg:h-full">
@@ -122,10 +122,10 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     ~H"""
     <div class="flex gap-1 overflow-x-hidden">
       <div class="font-bold w-20 text-primary">
-        {@name}
+        <%= @name %>
       </div>
       <div class="font-semibold break-all">
-        {@value}
+        <%= @value %>
       </div>
     </div>
     """

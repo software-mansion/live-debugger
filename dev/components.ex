@@ -10,9 +10,9 @@ defmodule LiveDebuggerDev.Components do
   def box(assigns) do
     ~H"""
     <div>
-      <span class={"text-sm #{text_color(@color)}"}>{@title}</span>
+      <span class={"text-sm #{text_color(@color)}"}><%= @title %></span>
       <div class={"border-2 #{border_color(@color)} rounded-md p-8 #{@class}"}>
-        {render_slot(@inner_block)}
+        <%= render_slot(@inner_block) %>
       </div>
     </div>
     """

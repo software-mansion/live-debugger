@@ -87,7 +87,7 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
     ~H"""
     <div class="flex">
       <%= for item <- @items do %>
-        <span class="whitespace-pre" style={text_items_style(item)}>{item.text}</span>
+        <span class="whitespace-pre" style={text_items_style(item)}><%= item.text %></span>
       <% end %>
     </div>
     """

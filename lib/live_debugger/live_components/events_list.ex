@@ -135,9 +135,9 @@ defmodule LiveDebugger.LiveComponents.EventsList do
             position="top"
             content={"#{@trace.module}.#{@trace.function}/#{@trace.arity}"}
           >
-            <p class="text-primary font-medium">{@trace.function}/{@trace.arity}</p>
+            <p class="text-primary font-medium"><%= @trace.function %>/<%= @trace.arity %></p>
           </.tooltip>
-          <p class="w-32">{Parsers.parse_timestamp(@trace.timestamp)}</p>
+          <p class="w-32"><%= Parsers.parse_timestamp(@trace.timestamp) %></p>
         </div>
       </:label>
 

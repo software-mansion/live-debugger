@@ -34,7 +34,7 @@ defmodule LiveDebugger.Components do
         <.alert_icon :if={@with_icon} variant={@variant} />
         <.h5 class="font-bold">{@heading}</.h5>
       </div>
-      {render_slot(@inner_block)}
+      <%= render_slot(@inner_block) %>
     </div>
     """
   end
@@ -65,7 +65,7 @@ defmodule LiveDebugger.Components do
       role="button"
       {@rest}
     >
-      {render_slot(@inner_block)}
+      <%= render_slot(@inner_block) %>
     </div>
     """
   end
@@ -88,7 +88,7 @@ defmodule LiveDebugger.Components do
       class={["border-2 border-#{@color}-600 shadow-2xl p-2 rounded-lg" | List.wrap(@class)]}
       {@rest}
     >
-      {render_slot(@inner_block)}
+      <%= render_slot(@inner_block) %>
     </div>
     """
   end
@@ -110,7 +110,7 @@ defmodule LiveDebugger.Components do
       ]}
       {@rest}
     >
-      {render_slot(@inner_block)}
+      <%= render_slot(@inner_block) %>
     </h1>
     """
   end
@@ -122,7 +122,7 @@ defmodule LiveDebugger.Components do
   def h2(assigns) do
     ~H"""
     <h2 class={["text-2xl font-extrabold leading-10 sm:text-3xl" | List.wrap(@class)]} {@rest}>
-      {render_slot(@inner_block)}
+      <%= render_slot(@inner_block) %>
     </h2>
     """
   end
@@ -134,7 +134,7 @@ defmodule LiveDebugger.Components do
   def h3(assigns) do
     ~H"""
     <h3 class={["text-xl font-bold leading-7 sm:text-2xl" | List.wrap(@class)]} {@rest}>
-      {render_slot(@inner_block)}
+      <%= render_slot(@inner_block) %>
     </h3>
     """
   end
@@ -146,7 +146,7 @@ defmodule LiveDebugger.Components do
   def h4(assigns) do
     ~H"""
     <h4 class={["text-lg font-bold leading-6" | List.wrap(@class)]} {@rest}>
-      {render_slot(@inner_block)}
+      <%= render_slot(@inner_block) %>
     </h4>
     """
   end
@@ -164,7 +164,7 @@ defmodule LiveDebugger.Components do
       ]}
       {@rest}
     >
-      {render_slot(@inner_block)}
+      <%= render_slot(@inner_block) %>
     </h5>
     """
   end
@@ -248,7 +248,7 @@ defmodule LiveDebugger.Components do
       data-position={@position}
       {@rest}
     >
-      {render_slot(@inner_block)}
+      <%= render_slot(@inner_block) %>
     </div>
     """
   end

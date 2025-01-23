@@ -22,7 +22,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
             <button phx-click="increment" class="bg-blue-500 text-white py-1 px-2 rounded">
               Increment
             </button>
-            <span class="text-xl">{@counter}</span>
+            <span class="text-xl"><%= @counter %></span>
           </div>
           <div class="flex items-center gap-1">
             <button phx-click="change_name" class="bg-red-500 text-white py-1 px-2 rounded">
@@ -32,10 +32,10 @@ defmodule LiveDebuggerDev.LiveViews.Main do
               variable shared with <span class="text-red-500">first component</span>
               - favorite person:
             </div>
-            <div class="italic">{@name}</div>
+            <div class="italic"><%= @name %></div>
           </div>
           <div>
-            Message from <span class="text-green-500">second component</span> {@datetime}
+            Message from <span class="text-green-500">second component</span> <%= @datetime %>
           </div>
 
           <.live_component

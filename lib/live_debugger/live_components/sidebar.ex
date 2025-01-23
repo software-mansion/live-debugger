@@ -157,7 +157,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     ~H"""
     <div class="absolute z-20 top-0 left-0 w-full h-screen bg-primary text-white p-2">
       <div class="w-full flex justify-between p-2">
-        {render_slot(@header)}
+        <%= render_slot(@header) %>
         <.sidebar_icon_button
           icon="hero-x-mark"
           phx-click="close_mobile_content"
@@ -165,7 +165,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         />
       </div>
       <.separate_bar />
-      {render_slot(@inner_block)}
+      <%= render_slot(@inner_block) %>
     </div>
     """
   end
@@ -180,8 +180,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         {"Monitored socket:", @socket_id},
         {"Debugged PID:", Parsers.pid_to_string(@pid)}
       ] do %>
-        <div class="font-semibold text-primary">{text}</div>
-        <div>{value}</div>
+        <div class="font-semibold text-primary"><%= text %></div>
+        <div><%= value %></div>
       <% end %>
     </.card>
     """

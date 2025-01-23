@@ -22,7 +22,7 @@ defmodule LiveDebuggerDev.LiveComponents.Send do
             </span>
           </div>
           <div>
-            {render_slot(@inner_block)}
+            <%= render_slot(@inner_block) %>
           </div>
         </div>
       </.box>

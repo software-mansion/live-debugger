@@ -53,13 +53,13 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                       class="text-primary"
                       patch={"#{live_debugger_base_url(@socket)}/#{session.socket_id}"}
                     >
-                      {session.module}
+                      <%= session.module %>
                     </.link>
                   </td>
                   <td class="hidden xs:table-cell text-center">
-                    {Parsers.pid_to_string(session.pid)}
+                    <%= Parsers.pid_to_string(session.pid) %>
                   </td>
-                  <td class="hidden sm:table-cell text-center">{session.socket_id}</td>
+                  <td class="hidden sm:table-cell text-center"><%= session.socket_id %></td>
                 </tr>
               </table>
             </div>
