@@ -46,6 +46,7 @@ defmodule LiveDebugger.Components do
     values: ["primary", "secondary", "danger", "success", "warning", "info", "gray", "white"]
   )
 
+  attr(:variant, :string, default: "solid", values: ["solid", "simple"])
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
   attr(:rest, :global)
   slot(:inner_block, required: true)
@@ -55,8 +56,9 @@ defmodule LiveDebugger.Components do
     <div
       class={
         [
-          "w-max h-max p-1 border-2 rounded-lg cursor-pointer hover:shadow",
-          button_color_classes(@color)
+          "w-max h-max p-1 cursor-pointer",
+          if(@variant != "simple", do: "border-2 rounded-lg hover:shadow"),
+          button_color_classes(@color, @variant)
         ] ++
           List.wrap(@class)
       }
@@ -189,7 +191,7 @@ defmodule LiveDebugger.Components do
   If you want to open modal from a button, you can use `phx-hook="OpenModal"` and `data-modal-id` attributes.
   You can close the modal using X button or by pressing ESC key.
   """
-  attr(:id, :string, required: true)
+  attr(:id, :string, required: true, doc: "Unique id for the modal.")
   attr(:class, :any, default: nil, doc: "Additional classes to be added to the modal.")
   slot(:inner_block, required: true)
 
@@ -341,7 +343,17 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  defp button_color_classes(color) do
+  defp button_color_classes(color, "simple") do
+    case color do
+      "white" ->
+        "text-white hover:text-gray-300"
+
+      color ->
+        "text-#{color}-500 hover:text-#{color}-900"
+    end
+  end
+
+  defp button_color_classes(color, "solid") do
     case color do
       "white" ->
         "bg-white hover:bg-gray-300 border-white hover:border-gray-300 text-black hover:text-black"
@@ -349,7 +361,7 @@ defmodule LiveDebugger.Components do
       "gray" ->
         "bg-gray-500 hover:bg-gray-800 border-gray-500 hover:border-gray-800 text-black hover:text-white"
 
-      _ ->
+      color ->
         "bg-#{color}-500 hover:bg-#{color}-800 border-#{color}-500 hover:border-#{color}-800 text-white"
     end
   end
