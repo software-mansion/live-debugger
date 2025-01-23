@@ -26,4 +26,45 @@ Hooks.Tooltip = {
   },
 };
 
+Hooks.OpenModal = {
+  mounted() {
+    const modalId = this.el.dataset.modalId;
+    let modal = document.querySelector(`#${modalId}`);
+    this.el.addEventListener('click', () => {
+      modal.showModal();
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    });
+  },
+  destroyed() {
+    this.el.removeEventListener('click');
+  },
+};
+
+Hooks.CloseModal = {
+  mounted() {
+    const modalId = this.el.dataset.modalId;
+    let modal = document.querySelector(`#${modalId}`);
+    this.el.addEventListener('click', () => {
+      modal.close();
+    });
+  },
+  destroyed() {
+    this.el.removeEventListener('click');
+  },
+};
+
+Hooks.Modal = {
+  mounted() {
+    let modal = this.el;
+    modal.addEventListener('close', (_e) => {
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    });
+  },
+  destroyed() {
+    this.el.removeEventListener('close');
+  },
+};
+
 export default Hooks;
