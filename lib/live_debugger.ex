@@ -65,35 +65,37 @@ defmodule LiveDebugger do
     </div>
     <script>
       window.addEventListener('phx:highlight', (msg) => {
-              const activeElementID = `live-debugger-highlight-element-${msg.detail.val}`
-              const activeElementClassName = "live-debugger-highlight-element"
+        const highlightElementID = 'live-debugger-highlight-element';
 
-              const activeElement = document.querySelector(`[${msg.detail.attr}="${msg.detail.val}"]`);
-              const highlightElement = document.getElementsByClassName(activeElementClassName)[0];
+        const highlightElement = document.getElementById(highlightElementID);
+        const activeElement = document.querySelector(
+          `[${msg.detail.attr}="${msg.detail.val}"]`
+        );
 
-              if (highlightElement) {
-                highlightElement.remove();
-                if (highlightElement.id === activeElementID) {
-                  return;
-                }
-              }
+        if (highlightElement) {
+          highlightElement.remove();
+          if (highlightElement.dataset.val === msg.detail.val) {
+            return;
+          }
+        }
 
-              if (activeElement) {
-                const rect = activeElement.getBoundingClientRect();
-                const highlight = document.createElement("div");
-                highlight.id = activeElementID;
-                highlight.className = activeElementClassName;
-                highlight.style.position = "absolute";
-                highlight.style.top = `${rect.top}px`;
-                highlight.style.left = `${rect.left}px`;
-                highlight.style.width = `${rect.width}px`;
-                highlight.style.height = `${rect.height}px`;
-                highlight.style.backgroundColor = "rgba(255, 255, 0, 0.2)";
-                highlight.style.pointerEvents = "none";
-                document.body.appendChild(highlight);
-              }
+        if (activeElement) {
+          const rect = activeElement.getBoundingClientRect();
+          const highlight = document.createElement('div');
+          highlight.id = highlightElementID;
+          highlight.dataset.attr = msg.detail.attr;
+          highlight.dataset.val = msg.detail.val;
 
-            });
+          highlight.style.position = 'absolute';
+          highlight.style.top = `${activeElement.offsetTop}px`;
+          highlight.style.left = `${activeElement.offsetLeft}px`;
+          highlight.style.width = `${activeElement.offsetWidth}px`;
+          highlight.style.height = `${activeElement.offsetHeight}px`;
+          highlight.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
+          highlight.style.pointerEvents = 'none';
+          document.body.appendChild(highlight);
+        }
+      });
     </script>
     """
   end
