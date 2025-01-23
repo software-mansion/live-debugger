@@ -64,9 +64,9 @@ defmodule LiveDebugger do
       <span :if={@display_socket_id} style="font-size: small;"><%= @socket_id %></span>
     </div>
     <script>
-      window.addEventListener('phx:highlight', (msg) => {
-        const highlightElementID = 'live-debugger-highlight-element';
+      const highlightElementID = 'live-debugger-highlight-element';
 
+      window.addEventListener('phx:highlight', (msg) => {
         const highlightElement = document.getElementById(highlightElementID);
         const activeElement = document.querySelector(
           `[${msg.detail.attr}="${msg.detail.val}"]`
@@ -94,6 +94,20 @@ defmodule LiveDebugger do
           highlight.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
           highlight.style.pointerEvents = 'none';
           document.body.appendChild(highlight);
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        const highlightElement = document.getElementById(highlightElementID);
+        if (highlightElement) {
+          const activeElement = document.querySelector(
+            `[${highlightElement.dataset.attr}="${highlightElement.dataset.val}"]`
+          );
+
+          highlightElement.style.top = `${activeElement.offsetTop}px`;
+          highlightElement.style.left = `${activeElement.offsetLeft}px`;
+          highlightElement.style.width = `${activeElement.offsetWidth}px`;
+          highlightElement.style.height = `${activeElement.offsetHeight}px`;
         }
       });
     </script>
