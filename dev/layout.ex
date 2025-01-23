@@ -36,8 +36,26 @@ defmodule LiveDebuggerDev.Layout do
           liveSocket.connect()
 
           window.addEventListener('phx:highlight', (msg) => {
-            const element = document.querySelector(`[${msg.detail.attr}="${msg.detail.val}"]`);
-            element.style.backgroundColor = 'pink';
+            const active_element = document.querySelector(`[${msg.detail.attr}="${msg.detail.val}"]`);
+            const highlight_element = document.getElementById("live-debugger-highlight-element");
+
+            if (highlight_element) {
+              highlight_element.remove();
+            }
+
+            if (active_element) {
+              const rect = active_element.getBoundingClientRect();
+              const highlight = document.createElement("div");
+              highlight.id = "live-debugger-highlight-element";
+              highlight.style.position = "absolute";
+              highlight.style.top = `${rect.top}px`;
+              highlight.style.left = `${rect.left}px`;
+              highlight.style.width = `${rect.width}px`;
+              highlight.style.height = `${rect.height}px`;
+              highlight.style.backgroundColor = "rgba(255, 255, 0, 0.2)";
+              document.body.appendChild(highlight);
+            }
+
           });
 
           window.addEventListener("phx:live_reload:attached", ({detail: reloader}) => {
