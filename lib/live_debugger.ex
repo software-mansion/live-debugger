@@ -79,7 +79,7 @@ defmodule LiveDebugger do
           }
         }
 
-        if (activeElement) {
+        if (isElementVisible(activeElement)) {
           const rect = activeElement.getBoundingClientRect();
           const highlight = document.createElement('div');
           highlight.id = highlightElementID;
@@ -92,6 +92,7 @@ defmodule LiveDebugger do
           highlight.style.width = `${activeElement.offsetWidth}px`;
           highlight.style.height = `${activeElement.offsetHeight}px`;
           highlight.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
+          highlight.style.zIndex = '9999';
           highlight.style.pointerEvents = 'none';
           document.body.appendChild(highlight);
         }
@@ -110,6 +111,13 @@ defmodule LiveDebugger do
           highlightElement.style.height = `${activeElement.offsetHeight}px`;
         }
       });
+
+      function isElementVisible(element) {
+        if (!element) return false;
+
+        const style = window.getComputedStyle(element);
+        return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+      }
     </script>
     """
   end
