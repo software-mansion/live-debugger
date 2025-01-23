@@ -35,37 +35,6 @@ defmodule LiveDebuggerDev.Layout do
             )
           liveSocket.connect()
 
-          window.addEventListener('phx:highlight', (msg) => {
-            const activeElementID = `live-debugger-highlight-element-${msg.detail.val}`
-            const activeElementClassName = "live-debugger-highlight-element"
-
-            const activeElement = document.querySelector(`[${msg.detail.attr}="${msg.detail.val}"]`);
-            const highlightElement = document.getElementsByClassName(activeElementClassName)[0];
-
-            if (highlightElement) {
-              highlightElement.remove();
-              if (highlightElement.id === activeElementID) {
-                return;
-              }
-            }
-
-            if (activeElement) {
-              const rect = activeElement.getBoundingClientRect();
-              const highlight = document.createElement("div");
-              highlight.id = activeElementID;
-              highlight.className = activeElementClassName;
-              highlight.style.position = "absolute";
-              highlight.style.top = `${rect.top}px`;
-              highlight.style.left = `${rect.left}px`;
-              highlight.style.width = `${rect.width}px`;
-              highlight.style.height = `${rect.height}px`;
-              highlight.style.backgroundColor = "rgba(255, 255, 0, 0.2)";
-              highlight.style.pointerEvents = "none";
-              document.body.appendChild(highlight);
-            }
-
-          });
-
           window.addEventListener("phx:live_reload:attached", ({detail: reloader}) => {
             // Enable server log streaming to client. Disable with reloader.disableServerLogs()
             reloader.enableServerLogs()
