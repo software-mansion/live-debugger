@@ -84,8 +84,6 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   end
 
   @impl true
-  @spec handle_async(:fetch_existing_traces, {:exit, any()} | {:ok, any()}, any()) ::
-          {:noreply, any()}
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
     socket
     |> stream(:existing_traces, trace_list)
