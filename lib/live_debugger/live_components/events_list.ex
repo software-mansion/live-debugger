@@ -84,8 +84,6 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   end
 
   @impl true
-  @spec handle_async(:fetch_existing_traces, {:exit, any()} | {:ok, any()}, any()) ::
-          {:noreply, any()}
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
     socket
     |> stream(:existing_traces, trace_list)
@@ -135,9 +133,9 @@ defmodule LiveDebugger.LiveComponents.EventsList do
             position="top"
             content={"#{@trace.module}.#{@trace.function}/#{@trace.arity}"}
           >
-            <p class="text-primary font-medium">{@trace.function}/{@trace.arity}</p>
+            <p class="text-primary font-medium"><%= @trace.function %>/<%= @trace.arity %></p>
           </.tooltip>
-          <p class="w-32">{Parsers.parse_timestamp(@trace.timestamp)}</p>
+          <p class="w-32"><%= Parsers.parse_timestamp(@trace.timestamp) %></p>
         </div>
       </:label>
 

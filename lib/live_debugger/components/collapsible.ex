@@ -35,15 +35,15 @@ defmodule LiveDebugger.Components.Collapsible do
               if(@hide?, do: "transform rotate-180")
             ]}
           />
-          <.h3 class="text-primary">{@title}</.h3>
+          <.h3 class="text-primary"><%= @title %></.h3>
         </div>
-        {render_slot(@right_panel)}
+        <%= render_slot(@right_panel) %>
       </div>
       <div class={[
         "flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2",
         if(@hide?, do: "hidden lg:flex")
       ]}>
-        {render_slot(@inner_block)}
+        <%= render_slot(@inner_block) %>
       </div>
     </div>
     """
@@ -65,10 +65,10 @@ defmodule LiveDebugger.Components.Collapsible do
       <div data-open={if @open, do: "true", else: "false"}>
         <div id={content_panel_header_id(@id)} class="flex items-center gap-1">
           <.custom_icon_button open={@open} id={@id} icon={@icon} chevron_class={@chevron_class} />
-          {render_slot(@label)}
+          <%= render_slot(@label) %>
         </div>
         <.content_container id={@id}>
-          {render_slot(@inner_block)}
+          <%= render_slot(@inner_block) %>
         </.content_container>
       </div>
     </div>
@@ -110,7 +110,7 @@ defmodule LiveDebugger.Components.Collapsible do
       x-cloak={true}
       x-collapse={true}
     >
-      {render_slot(@inner_block)}
+      <%= render_slot(@inner_block) %>
     </div>
     """
   end

@@ -24,7 +24,7 @@ defmodule LiveDebuggerDev.LiveComponents.Conditional do
             <span>child LiveComponent below</span>
           </div>
           <div :if={@show_child?}>
-            {render_slot(@inner_block)}
+            <%= render_slot(@inner_block) %>
           </div>
         </div>
       </.box>

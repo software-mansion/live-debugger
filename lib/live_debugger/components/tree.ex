@@ -23,7 +23,7 @@ defmodule LiveDebugger.Components.Tree do
   def tree(assigns) do
     ~H"""
     <.card class={["h-max bg-gray-200 text-primary", @class]}>
-      <.h4 class="text-primary pt-2 pl-2">{@title}</.h4>
+      <.h4 class="text-primary pt-2 pl-2"><%= @title %></.h4>
       <div class="px-1 pb-4 pt-0">
         <.tree_node
           tree_node={@tree_node}
@@ -120,7 +120,7 @@ defmodule LiveDebugger.Components.Tree do
             "truncate text-sm",
             if(@selected?, do: "text-primary font-bold underline", else: "text-black")
           ]}>
-            {@node.label}
+            <%= @node.label %>
           </.h5>
         </div>
       </.tooltip>

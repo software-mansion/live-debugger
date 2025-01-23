@@ -15,7 +15,7 @@ defmodule LiveDebugger.Layout do
     <!DOCTYPE html>
     <html lang="en">
       <head>
-        {custom_head_tags(assigns, :after_opening_head_tag)}
+        <%= custom_head_tags(assigns, :after_opening_head_tag) %>
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta
@@ -27,7 +27,7 @@ defmodule LiveDebugger.Layout do
         <link rel="stylesheet" href={asset_path(@conn, :css)} />
         <script src={asset_path(@conn, :js)} defer>
         </script>
-        {custom_head_tags(assigns, :before_closing_head_tag)}
+        <%= custom_head_tags(assigns, :before_closing_head_tag) %>
       </head>
       <body>
         <span
@@ -35,7 +35,7 @@ defmodule LiveDebugger.Layout do
           class="absolute hidden p-1 text-xs bg-white border-1 border-primary rounded-md shadow-md"
         >
         </span>
-        {@inner_content}
+        <%= @inner_content %>
       </body>
     </html>
     """
@@ -44,7 +44,7 @@ defmodule LiveDebugger.Layout do
   def render("app.html", assigns) do
     ~H"""
     <main class="h-screen w-screen">
-      {@inner_content}
+      <%= @inner_content %>
     </main>
     """
   end
@@ -70,7 +70,7 @@ defmodule LiveDebugger.Layout do
 
         ~H"""
         <%= for component <- @components do %>
-          {component.(assigns)}
+          <%= component.(assigns) %>
         <% end %>
         """
 

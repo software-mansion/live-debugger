@@ -62,7 +62,7 @@ defmodule LiveDebuggerDev.Layout do
           })
         </script>
 
-        {@inner_content}
+        <%= @inner_content %>
       </body>
     </html>
     """
@@ -72,7 +72,7 @@ defmodule LiveDebuggerDev.Layout do
     ~H"""
     <main>
       <LiveDebugger.debug_button redirect_url="/live_debug" socket_id={@socket.id} />
-      {@inner_content}
+      <%= @inner_content %>
     </main>
     """
   end
