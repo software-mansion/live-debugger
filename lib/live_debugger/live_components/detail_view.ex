@@ -3,13 +3,13 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   This module is responsible for rendering the detail view of the TreeNode.
   """
 
-  alias LiveDebugger.Components.CollapsibleSection
+  use LiveDebuggerWeb, :live_component
+
   alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
-
-  use LiveDebuggerWeb, :live_component
+  alias LiveDebugger.Components.Collapsible
 
   @impl true
   def mount(socket) do
@@ -53,8 +53,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           </div>
         </:loading>
         <:failed :let={reason}>
-          <.alert color="danger">
-            Failed to fetch node details: {inspect(reason)}
+          <.alert variant="danger">
+            Failed to fetch node details: <%= inspect(reason) %>
           </.alert>
         </:failed>
         <div class="grid grid-cols-1 lg:grid-cols-2 lg:h-full">
@@ -100,7 +100,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_card(assigns) do
     ~H"""
-    <CollapsibleSection.section
+    <Collapsible.section
       id="info"
       title={title(@node_type)}
       class="border-b-2 border-primary"
@@ -110,7 +110,6 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       <div class=" flex flex-col gap-1">
         <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
-        <.info_row name="HTML ID" value={@node.id} />
         <button
           phx-click="highlight"
           phx-value-search_attribute={get_search_attribute(@node)}
@@ -119,7 +118,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           Highlight
         </button>
       </div>
-    </CollapsibleSection.section>
+    </Collapsible.section>
     """
   end
 
@@ -148,10 +147,10 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     ~H"""
     <div class="flex gap-1 overflow-x-hidden">
       <div class="font-bold w-20 text-primary">
-        {@name}
+        <%= @name %>
       </div>
       <div class="font-semibold break-all">
-        {@value}
+        <%= @value %>
       </div>
     </div>
     """
@@ -169,7 +168,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp assigns_card(assigns) do
     ~H"""
-    <CollapsibleSection.section
+    <Collapsible.section
       id="assigns"
       class="border-b-2 lg:border-b-0 border-primary h-max overflow-y-hidden"
       hide?={@hide?}
@@ -184,7 +183,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           level={1}
         />
       </div>
-    </CollapsibleSection.section>
+    </Collapsible.section>
     """
   end
 

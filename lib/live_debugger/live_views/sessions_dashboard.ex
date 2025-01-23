@@ -9,7 +9,6 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.ChannelService
-  alias LiveDebugger.Components
 
   @impl true
   def handle_params(_unsigned_params, _uri, socket) do
@@ -23,36 +22,49 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   def render(assigns) do
     ~H"""
     <div class="w-full h-full p-2">
-      <div class="flex gap-4 items-center pt-2">
-        <.h2 class="text-primary">Active LiveSessions</.h2>
-        <.icon phx-click="refresh" name="hero-arrow-path" class="text-primary mb-3 cursor-pointer" />
-      </div>
-
       <.async_result :let={live_sessions} assign={@live_sessions}>
         <:loading>
           <div class="h-full flex items-center justify-center">
-            <.spinner size="md" />
+            <.spinner size="xl" />
           </div>
         </:loading>
-        <:failed><Components.error_component /></:failed>
-        <div :if={Enum.empty?(live_sessions)} class="text-gray-600">
-          No LiveSessions found - try refreshing.
+        <:failed><.error_component /></:failed>
+        <div class="flex gap-4 items-center pt-2">
+          <.h2 class="text-primary">Active LiveSessions</.h2>
+          <.icon phx-click="refresh" name="hero-arrow-path" class="text-primary cursor-pointer" />
         </div>
-        <.ul>
-          <li :for={session <- live_sessions}>
-            <Components.tooltip
-              class="inline-block"
-              content={"Module: #{session.module}<br/>PID: #{Parsers.pid_to_string(session.pid)}"}
-            >
-              <.link
-                class="text-primary"
-                patch={"#{live_debugger_base_url(@socket)}/#{session.socket_id}"}
-              >
-                {session[:socket_id]}
-              </.link>
-            </Components.tooltip>
-          </li>
-        </.ul>
+
+        <div class="mt-2 lg:mt-4 mx-1">
+          <%= if Enum.empty?(live_sessions)  do %>
+            <div class="text-gray-600">
+              No LiveSessions found - try refreshing.
+            </div>
+          <% else %>
+            <div class="border-2 border-primary rounded-md w-full lg:w-3/4 2xl:w-1/2 ">
+              <table class="w-full">
+                <tr class="border-b-2 border-primary">
+                  <th>Module</th>
+                  <th class="hidden xs:table-cell">PID</th>
+                  <th class="hidden sm:table-cell">Socket ID</th>
+                </tr>
+                <tr :for={session <- live_sessions}>
+                  <td class="text-center ">
+                    <.link
+                      class="text-primary"
+                      patch={"#{live_debugger_base_url(@socket)}/#{session.socket_id}"}
+                    >
+                      <%= session.module %>
+                    </.link>
+                  </td>
+                  <td class="hidden xs:table-cell text-center">
+                    <%= Parsers.pid_to_string(session.pid) %>
+                  </td>
+                  <td class="hidden sm:table-cell text-center"><%= session.socket_id %></td>
+                </tr>
+              </table>
+            </div>
+          <% end %>
+        </div>
       </.async_result>
     </div>
     """
@@ -81,7 +93,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   defp fetch_live_sessions_after(milliseconds) do
     Process.sleep(milliseconds)
 
-    LiveViewDiscoveryService.live_pids()
+    LiveViewDiscoveryService.debugged_live_pids()
     |> Enum.map(&live_session_info/1)
     |> Enum.reject(&(&1 == :error))
   end

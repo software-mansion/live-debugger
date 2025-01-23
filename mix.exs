@@ -4,7 +4,7 @@ defmodule LiveDebugger.MixProject do
   def project do
     [
       app: :live_debugger,
-      version: "0.0.1",
+      version: "0.0.2",
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -36,15 +36,8 @@ defmodule LiveDebugger.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:phoenix_live_view, "~> 1.0"},
-      {:petal_components, "~> 2.7"},
-      {:heroicons_petal,
-       github: "tailwindlabs/heroicons",
-       tag: "v2.1.5",
-       app: false,
-       compile: false,
-       sparse: "optimized"},
-      {:bandit, "~> 1.6"},
+      {:phoenix_live_view, "~> 0.20 or ~> 1.0"},
+      {:bandit, "~> 1.6", only: :dev},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:esbuild, "~> 0.7", only: :dev},
       {:tailwind, "~> 0.2", only: :dev},

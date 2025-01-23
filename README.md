@@ -1,19 +1,13 @@
 # LiveDebugger
 
-## Local installation
-
-Clone repository with:
-
-```bash
-git clone https://github.com/software-mansion-labs/live_debugger.git
-```
+## Installation
 
 Add `live_debugger` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:live_debugger, path: "../path/to/library"}
+    {:live_debugger, git: "git@github.com:software-mansion-labs/live-debugger.git", tag: "v0.0.2", only: :dev}
   ]
 end
 ```
@@ -23,16 +17,16 @@ After that you can add LiveDebugger to your router (do not put it into any `scop
 ```elixir
 import LiveDebugger.Router
 
+live_debugger "/live_debug"
+
 scope "/" do
   pipe_through :browser
 
   live "/", CounterLive
 end
-
-live_debugger "/live_debug"
 ```
 
-And add the debug button to your app layout:
+And add the debug button to your live layout:
 
 ```Elixir
 <main>
@@ -57,3 +51,8 @@ LiveReload is working both for `.ex` files and static files, but if some styles 
 ```bash
 mix assets.build
 ```
+
+### Heroicons
+
+Heroicons are not used as dependency but copied from [Heroicons](https://github.com/tailwindlabs/heroicons) .
+To copy them you can use `copy_heroicons.sh` script which requires you to have heroicons cloned in folder next to `live_debugger` folder.
