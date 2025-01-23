@@ -107,16 +107,19 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       hide?={@hide?}
       myself={@myself}
     >
-      <div class=" flex flex-col gap-1">
-        <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
-        <.info_row name="Module" value={inspect(@node.module)} />
-        <button
+      <:right_panel>
+        <.button
+          color="primary"
           phx-click="highlight"
           phx-value-search_attribute={get_search_attribute(@node)}
           phx-value-search_value={get_search_value(@node)}
         >
           Highlight
-        </button>
+        </.button>
+      </:right_panel>
+      <div class=" flex flex-col gap-1">
+        <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
+        <.info_row name="Module" value={inspect(@node.module)} />
       </div>
     </Collapsible.section>
     """
