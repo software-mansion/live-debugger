@@ -184,6 +184,35 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  @doc """
+  Renders a modal using Modal hook.
+  If you want to open modal from a button, you can use `phx-hook="OpenModal"` and `data-modal-id` attributes.
+  You can close the modal using X button or by pressing ESC key.
+  """
+  attr(:id, :string, required: true)
+  attr(:class, :any, default: nil, doc: "Additional classes to be added to the modal.")
+  slot(:inner_block, required: true)
+
+  def modal(assigns) do
+    ~H"""
+    <dialog
+      id={@id}
+      phx-hook="Modal"
+      class={[
+        "relative w-full h-full overflow-auto hidden justify-center items-center rounded-lg backdrop:bg-black backdrop:opacity-50"
+        | List.wrap(@class)
+      ]}
+    >
+      <div class="absolute top-6 right-5">
+        <.button id={"#{@id}-close"} phx-hook="CloseModal" data-modal-id={@id}>
+          <.icon name="hero-x-mark-solid" class="h-5 w-5" />
+        </.button>
+      </div>
+      <%= render_slot(@inner_block) %>
+    </dialog>
+    """
+  end
+
   attr(:class, :any, default: nil, doc: "CSS class")
 
   attr(:size, :string,
