@@ -60,6 +60,7 @@ defmodule LiveDebuggerDev.Layout do
               highlight.style.width = `${rect.width}px`;
               highlight.style.height = `${rect.height}px`;
               highlight.style.backgroundColor = "rgba(255, 255, 0, 0.2)";
+              highlight.style.pointerEvents = "none";
               document.body.appendChild(highlight);
             }
 
