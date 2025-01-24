@@ -191,7 +191,7 @@ defmodule LiveDebugger.Components do
   If you want to open modal from a button, you can use `phx-hook="OpenModal"` and `data-modal-id` attributes.
   You can close the modal using X button or by pressing ESC key.
   """
-  attr(:id, :string, required: true, doc: "Unique id for the modal.")
+  attr(:id, :string, required: true)
   attr(:class, :any, default: nil, doc: "Additional classes to be added to the modal.")
   slot(:inner_block, required: true)
 
@@ -201,17 +201,53 @@ defmodule LiveDebugger.Components do
       id={@id}
       phx-hook="Modal"
       class={[
-        "relative w-full h-full overflow-auto hidden justify-center items-center rounded-lg backdrop:bg-black backdrop:opacity-50"
+        "relative w-full h-full p-2 overflow-auto hidden flex-col rounded-lg backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
       ]}
     >
-      <div class="absolute top-6 right-5">
+      <div class="flex justify-end items-center h-max w-full">
         <.button id={"#{@id}-close"} phx-hook="CloseModal" data-modal-id={@id}>
           <.icon name="hero-x-mark-solid" class="h-5 w-5" />
         </.button>
       </div>
-      <%= render_slot(@inner_block) %>
+      <div class="w-full h-full overflow-auto flex flex-col gap-2">
+        <%= render_slot(@inner_block) %>
+      </div>
     </dialog>
+    """
+  end
+
+  @doc """
+  Renders a button which will show a modal when clicked.
+  Content of the modal is passed as `:inner_block` slot.
+  """
+  attr(:id, :string, required: true)
+  attr(:modal_class, :any, default: nil, doc: "Additional classes to be added to the modal.")
+  attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
+
+  attr(:icon, :string,
+    default: "hero-arrow-top-right-on-square",
+    doc: "Icon to be displayed as a button"
+  )
+
+  slot(:inner_block, required: true)
+
+  def modal_button(assigns) do
+    ~H"""
+    <div>
+      <.button
+        id={"modal_#{@id}_button"}
+        phx-hook="OpenModal"
+        data-modal-id={"modal_#{@id}"}
+        class={["flex items-center justify-center w-max h-max" | List.wrap(@class)]}
+        variant="simple"
+      >
+        <.icon name={@icon} class="w-5 h-5" />
+      </.button>
+      <.modal id={"modal_#{@id}"} class={@modal_class}>
+        <%= render_slot(@inner_block) %>
+      </.modal>
+    </div>
     """
   end
 
