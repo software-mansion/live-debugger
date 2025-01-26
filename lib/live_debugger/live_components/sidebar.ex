@@ -15,7 +15,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def mount(socket) do
     socket
-    |> assign(:hidden?, true)
+    |> hide_sidebar_side_over()
     |> ok()
   end
 
@@ -107,19 +107,20 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def handle_event("select_node", %{"node_id" => node_id}, socket) do
     socket
     |> push_patch(to: "#{socket.assigns.base_url}/#{node_id}")
+    |> hide_sidebar_side_over()
     |> noreply()
   end
 
   def handle_event("show_mobile_content", _params, socket) do
     socket
-    |> assign(:hidden?, false)
+    |> show_sidebar_slide_over()
     |> noreply()
   end
 
   @impl true
   def handle_event("close_mobile_content", _params, socket) do
     socket
-    |> assign(:hidden?, true)
+    |> hide_sidebar_side_over()
     |> noreply()
   end
 
@@ -168,6 +169,14 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       <%= render_slot(@inner_block) %>
     </div>
     """
+  end
+
+  defp show_sidebar_slide_over(socket) do
+    assign(socket, :hidden?, false)
+  end
+
+  defp hide_sidebar_side_over(socket) do
+    assign(socket, :hidden?, true)
   end
 
   attr(:pid, :any, required: true)
