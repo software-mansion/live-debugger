@@ -7,7 +7,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:live_debugger, git: "git@github.com:software-mansion-labs/live-debugger.git", tag: "v0.0.3", only: :dev}
+    {:live_debugger, git: "git@github.com:software-mansion-labs/live-debugger.git", tag: "v0.0.2", only: :dev}
   ]
 end
 ```
