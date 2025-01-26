@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "LVD DevTools",
+  "version": "0.0.0.1",
+  "description": "LiveViewDebugger panel in DevTools",
+  "author": "SWM",
+  "permissions": ["storage"],
+  "icons": {
+    "16": "images/icon-16.png",
+    "32": "images/icon-32.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
+  },
+  "devtools_page": "./devtools.html",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["hook.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
