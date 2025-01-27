@@ -8,7 +8,11 @@ defmodule LiveDebugger.Router do
     quote bind_quoted: binding() do
       pipeline :dbg_browser do
         plug(:accepts, ["html"])
+        plug(:fetch_session)
+        plug(:fetch_live_flash)
         plug(:put_root_layout, html: {LiveDebugger.Layout, :root})
+        plug(:protect_from_forgery)
+        plug(:put_secure_browser_headers)
       end
 
       scope path do
