@@ -5,8 +5,6 @@ defmodule LiveDebugger do
 
   use Phoenix.Component
 
-  attr(:redirect_url, :string, required: true, doc: "The URL of the debugger, e.g. `/dbg`")
-
   attr(:socket_id, :string,
     required: true,
     doc: "The socket ID of the debugged LiveView"
@@ -42,7 +40,10 @@ defmodule LiveDebugger do
       #{corner_css}
     """
 
-    assigns = assign(assigns, :style, style)
+    assigns =
+      assigns
+      |> assign(:style, style)
+      |> assign(:redirect_url, LiveDebugger.Endpoint.url())
 
     ~H"""
     <div style={@style}>
