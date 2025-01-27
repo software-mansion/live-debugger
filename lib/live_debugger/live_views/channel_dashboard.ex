@@ -71,7 +71,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     with [live_pid] <- LiveViewDiscoveryService.debugged_live_pids(),
          {:ok, %{socket: %{id: socket_id}}} <- ChannelService.state(live_pid) do
       socket
-      |> push_navigate(to: "#{live_debugger_base_url(socket)}/#{socket_id}")
+      |> push_navigate(to: "/#{socket_id}")
       |> noreply()
     else
       _ ->
@@ -166,7 +166,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   end
 
   defp assign_base_url(socket) do
-    assign(socket, :base_url, "#{live_debugger_base_url(socket)}/#{socket.assigns.socket_id}")
+    assign(socket, :base_url, "/#{socket.assigns.socket_id}")
   end
 
   defp assign_async_debugged_pid(socket) do

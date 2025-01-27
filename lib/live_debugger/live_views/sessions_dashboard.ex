@@ -49,10 +49,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                 </tr>
                 <tr :for={session <- live_sessions}>
                   <td class="text-center ">
-                    <.link
-                      class="text-primary"
-                      patch={"#{live_debugger_base_url(@socket)}/#{session.socket_id}"}
-                    >
+                    <.link class="text-primary" patch={"/#{session.socket_id}"}>
                       <%= session.module %>
                     </.link>
                   </td>

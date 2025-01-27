@@ -5,8 +5,6 @@ defmodule LiveDebugger.Components do
 
   use Phoenix.Component
 
-  import LiveDebuggerWeb.Helpers
-
   @doc """
   Renders an alert with
   """
@@ -263,7 +261,7 @@ defmodule LiveDebugger.Components do
       <.h5 class="text-center">
         We couldn't find any LiveView associated with the given socket id
       </.h5>
-      <.link class="text-gray-600 underline" navigate={live_debugger_base_url(@socket)}>
+      <.link class="text-gray-600 underline" navigate="/">
         See available LiveSessions
       </.link>
     </div>
