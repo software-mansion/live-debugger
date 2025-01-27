@@ -50,7 +50,7 @@ For easy navigation add the debug button to your live layout:
 
 ```Elixir
 <main>
-  <LiveDebugger.debug_button redirect_url="/live_debug" socket_id={@socket.id} />
+  <LiveDebugger.debug_button socket_id={@socket.id} />
   {@inner_content}
 </main>
 ```
