@@ -82,7 +82,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         />
       </div>
       <div class="flex sm:hidden flex-col gap-2 w-14 pt-4 p-1 h-screen bg-primary items-center justify-start">
-        <.link patch="/live_debug/">
+        <.link patch="/">
           <.sidebar_icon_button icon="hero-home-solid" />
         </.link>
         <.sidebar_icon_button icon="hero-bars-3" phx-click="show_mobile_content" phx-target={@myself} />
@@ -128,7 +128,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp sidebar_label(assigns) do
     ~H"""
-    <.link patch={live_debugger_base_url(@socket)}>
+    <.link patch="/">
       <.h3 class="text-white">LiveDebugger</.h3>
     </.link>
     """

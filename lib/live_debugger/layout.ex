@@ -54,12 +54,10 @@ defmodule LiveDebugger.Layout do
   defp asset_path(conn, asset) when asset in [:css, :js] do
     hash = LiveDebugger.Controllers.Assets.current_hash(asset)
 
-    prefix = conn.private.phoenix_router.live_debugger_prefix()
-
     Phoenix.VerifiedRoutes.unverified_path(
       conn,
       conn.private.phoenix_router,
-      "#{prefix}/#{asset}-#{hash}"
+      "/#{asset}-#{hash}"
     )
   end
 
