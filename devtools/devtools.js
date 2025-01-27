@@ -1,12 +1,14 @@
-let lvd_socket_id = null;
+let lvd_url = null;
 
 chrome.devtools.inspectedWindow.eval(
-  "window.liveSocket.main.id",
+  'document.querySelector("#live-debugger-button").href',
   function (result, isException) {
     if (isException) {
-      console.log("Couldn't find socket id");
+      console.log(
+        "Couldn't find url. Ensure you've added LiveDebugger.debug_button/1 to your layout."
+      );
     } else {
-      lvd_socket_id = result;
+      lvd_url = result;
     }
   }
 );
@@ -17,7 +19,7 @@ chrome.devtools.panels.create(
   "panel.html",
   function (panel) {
     panel.onShown.addListener(function (window) {
-      window.set_socket_id(lvd_socket_id);
+      window.set_iframe_url(lvd_url);
     });
   }
 );
