@@ -49,6 +49,8 @@ config :live_debugger, LiveDebugger.Endpoint,
 For easy navigation add the debug button to your live layout:
 
 ```Elixir
+# lib/my_app_web/components/app.html.heex
+
 <main>
   <LiveDebugger.debug_button socket_id={@socket.id} />
   {@inner_content}
