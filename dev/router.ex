@@ -1,7 +1,6 @@
 defmodule LiveDebuggerDev.Router do
   use Phoenix.Router
   import Phoenix.LiveView.Router
-  import LiveDebugger.Router
 
   pipeline :browser do
     plug(:accepts, ["html"])
@@ -15,6 +14,5 @@ defmodule LiveDebuggerDev.Router do
 
     live("/", LiveDebuggerDev.LiveViews.Main)
     live("/side", LiveDebuggerDev.LiveViews.Side)
-    live_debugger("/live_debug")
   end
 end
