@@ -12,21 +12,41 @@ def deps do
 end
 ```
 
-After that you can add LiveDebugger to your router (do not put it into any `scope`):
+After that you need to add `LiveDebugger.Supervisor` under your supervision tree:
 
 ```elixir
-import LiveDebugger.Router
+# lib/my_app/application.ex
 
-live_debugger "/live_debug"
+  @impl true
+  def start(_type, _args) do
+    children = [
+      {Phoenix.PubSub, name: MyApp.PubSub},
+      LiveDebugger.Supervisor,
+      LvdTestWeb.Endpoint
+    ]
 
-scope "/" do
-  pipe_through :browser
+    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
+    Supervisor.start_link(children, opts)
+  end
 
-  live "/", CounterLive
-end
 ```
 
-And add the debug button to your live layout:
+Then you need to configure it inside your config file:
+
+```elixir
+# config/dev.exs
+
+config :live_debugger, LiveDebugger.Endpoint,
+  http: [ip: {127, 0, 0, 1}, port: <PORT>],
+  check_origin: false,
+  secret_key_base: <SECRET KEY BASE>,
+  adapter: Bandit.PhoenixAdapter,
+  pubsub_server: LiveDebugger.PubSub,
+  live_view: [signing_salt: <SIGNING SALT>]
+
+```
+
+For easy navigation add the debug button to your live layout:
 
 ```Elixir
 <main>
