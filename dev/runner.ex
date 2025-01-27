@@ -27,11 +27,23 @@ defmodule LiveDebuggerDev.Runner do
       ]
     )
 
+    Application.put_env(:live_debugger, LiveDebugger.Endpoint,
+      url: [host: "localhost"],
+      secret_key_base: "Hu4qQN3iKzTV4fJxhorPQlA/osH9fAMtbtjVS58PFgfw3ja5Z18Q/WSNR9wP4OfW",
+      live_view: [signing_salt: "hMegieSe"],
+      http: [port: System.get_env("LIVE_DEBUGGER_PORT") || 4005],
+      debug_errors: true,
+      check_origin: false,
+      pubsub_server: LiveDebugger.PubSub,
+      adapter: Bandit.PhoenixAdapter
+    )
+
     Application.put_env(:phoenix, :serve_endpoints, true)
 
     Task.async(fn ->
       children = [
         {Phoenix.PubSub, name: LiveDebuggerDev.PubSub},
+        LiveDebugger.Supervisor,
         LiveDebuggerDev.Endpoint
       ]
 
