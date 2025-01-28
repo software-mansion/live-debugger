@@ -42,8 +42,7 @@ defmodule LiveDebugger.MixProject do
       {:esbuild, "~> 0.7", only: :dev},
       {:tailwind, "~> 0.2", only: :dev},
       {:mox, "~> 1.2", only: :test},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:phoenix_live_dashboard, "~> 0.7"}
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 end

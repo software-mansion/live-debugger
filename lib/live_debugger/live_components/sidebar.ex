@@ -24,8 +24,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     existing_node_ids = socket.assigns.existing_node_ids
     trace_node_id = Trace.node_id(trace)
 
-    nil
-
     cond do
       existing_node_ids.ok? and not MapSet.member?(existing_node_ids.result, trace_node_id) ->
         Logger.debug("New node detected #{inspect(trace_node_id)} refreshing the tree")
