@@ -21,27 +21,37 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Elixir
         uses: erlef/setup-beam@v1.18.0
         with:
           elixir-version: "1.17.3" # [Required] Define the Elixir version
           otp-version: "27.1.2" # [Required] Define the Erlang/OTP version
-      - name: Restore dependencies cache
-        uses: actions/cache@v3
+
+      - name: Cache Mix
+        uses: actions/cache@v4
         with:
-          path: deps
+          path: |
+            deps
+            _build
           key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
           restore-keys: ${{ runner.os }}-mix-
 
-      - name: Setup project
-        run: mix setup
-      - name: Compile project
-        run: mix compile --warnings-as-errors
+      - name: Install Dependencies
+        run: mix deps.get --only test
+
       - name: Check formatting
         run: mix format --check-formatted
+
       - name: Check credo
         run: mix credo
-      - name: Check prettier
-        run: (cd assets && npx prettier . --check)
+
+      - name: Compile project
+        run: mix compile --warnings-as-errors
+
       - name: Run tests
         run: mix test
+
+      - name: Check prettier
+        working-directory: ./assets
+        run: npx prettier . --check
