@@ -1,10 +1,5 @@
 defmodule LiveDebugger.Router do
-
-
-
-
-
-           @moduledoc """
+  @moduledoc """
   Inspiration was taken from Phoenix LiveDashboard
   https://github.com/phoenixframework/phoenix_live_dashboard/blob/main/lib/phoenix/live_dashboard/router.ex
   """
