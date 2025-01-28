@@ -20,6 +20,7 @@ chrome.devtools.panels.create(
   function (panel) {
     panel.onShown.addListener(function (window) {
       window.set_iframe_url(lvd_url);
+      window.set_base_url(lvd_url);
     });
   }
 );
