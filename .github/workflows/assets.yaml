@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - improve-github-workflows-caching # Delete this after checking the caching works
 
 jobs:
   build:
