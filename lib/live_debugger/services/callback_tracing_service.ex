@@ -100,8 +100,25 @@ defmodule LiveDebugger.Services.CallbackTracingService do
         {:error, err}
     end
 
+    # Why don't you simply use `:dbg.stop/0`?
+    # As you can see this function is basically a `:dbg.stop/0` rewritten to Elixir.
+    # The reason for that is the fact that `:dbg.ctp/0` (used in `:dbg.stop/0`) interferes with Phoenix LiveView
+    # and sometimes LiveView modules cannot find implementation of the callbacks.
+    # I have no idea why it happens, but this seems to be a workaround for that.
     defp stop_tracing_impl(nil) do
-      :dbg.stop()
+      case Process.whereis(:dbg) do
+        pid when is_pid(pid) ->
+          mref = Process.monitor(:dbg)
+
+          send(pid, {self(), :stop})
+
+          receive do
+            {:DOWN, ^mref, _, _, _} -> :ok
+          end
+
+        _ ->
+          :ok
+      end
     end
 
     defp check_session_limit() do
