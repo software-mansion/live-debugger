@@ -21,9 +21,13 @@ After that you need to add `LiveDebugger.Supervisor` under your supervision tree
   def start(_type, _args) do
     children = [
       {Phoenix.PubSub, name: MyApp.PubSub},
-      LiveDebugger.Supervisor,
-      LvdTestWeb.Endpoint
+      MyApp.Endpoint
     ]
+
+    children =
+      if Mix.env() == :dev,
+        do: [LiveDebugger.Supervisor | children],
+        else: children
 
     opts = [strategy: :one_for_one, name: MyApp.Supervisor]
     Supervisor.start_link(children, opts)
@@ -40,13 +44,17 @@ config :live_debugger, LiveDebugger.Endpoint, http: [ip: {127, 0, 0, 1}, port: 4
 
 ```
 
-For easy navigation add the debug button to your live layout:
+For easy navigation add the debug button to your live layout
 
 ```Elixir
 # lib/my_app_web/components/app.html.heex
 
 <main>
-  <LiveDebugger.debug_button socket_id={@socket.id} />
+  <LiveDebugger.debug_button
+    :if={Mix.env() == :dev}
+    redirect_url="/live_debug"
+    socket_id={@socket.id}
+  />
   {@inner_content}
 </main>
 ```
