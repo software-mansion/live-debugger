@@ -33,8 +33,6 @@ defmodule LiveDebuggerDev.Runner do
       live_view: [signing_salt: "hMegieSe"],
       http: [port: System.get_env("LIVE_DEBUGGER_PORT") || 4005],
       debug_errors: true,
-      check_origin: false,
-      pubsub_server: LiveDebugger.PubSub,
       adapter: Bandit.PhoenixAdapter
     )
 
