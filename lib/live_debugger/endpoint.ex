@@ -15,6 +15,8 @@ defmodule LiveDebugger.Endpoint do
     longpoll: true
   )
 
+  plug(Plug.Static, at: "/assets", from: :live_debugger, gzip: false)
+
   plug(Plug.Session, @session_options)
 
   plug(Plug.RequestId)
