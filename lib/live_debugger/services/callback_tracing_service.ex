@@ -103,7 +103,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
     # This function is basically a `:dbg.stop/0` rewritten to Elixir.
     # The reason for that is the fact that `:dbg.ctp/0` (used in `:dbg.stop/0`) interferes with Phoenix LiveView.
     # In result LiveView modules sometimes cannot find implementation of its callbacks.
-    # This is seems to be a workaround for that issue.
+    # This seems to be a workaround for that issue.
     defp stop_tracing_impl(nil) do
       case Process.whereis(:dbg) do
         pid when is_pid(pid) ->
