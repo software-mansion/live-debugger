@@ -1,5 +1,8 @@
 defmodule LiveDebugger do
-  @moduledoc false
+  @moduledoc """
+  Debugger for LiveView applications.
+  """
+
   use Application
 
   def start(_type, _args) do
