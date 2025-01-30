@@ -14,7 +14,11 @@ defmodule LiveDebugger.Router do
   scope "/" do
     pipe_through([:dbg_browser])
 
+    import Phoenix.Router
     import Phoenix.LiveView.Router
+
+    get("/css-:md5", LiveDebugger.Controllers.Assets, :css)
+    get("/js-:md5", LiveDebugger.Controllers.Assets, :js)
 
     live("/", LiveDebugger.LiveViews.SessionsDashboard)
     live("/:socket_id", LiveDebugger.LiveViews.ChannelDashboard)

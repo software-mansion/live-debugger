@@ -7,8 +7,7 @@ if config_env() == :dev do
   config :esbuild,
     version: "0.18.6",
     default: [
-      args:
-        ~w(js/app.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/),
+      args: ~w(js/app.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../dist),
       cd: Path.expand("../assets", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ]
@@ -19,7 +18,7 @@ if config_env() == :dev do
       args: ~w(
       --config=tailwind.config.js
       --input=css/app.css
-      --output=../priv/static/app.css
+      --output=../dist/app.css
       --minify
     ),
       cd: Path.expand("../assets", __DIR__)
