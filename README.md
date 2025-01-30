@@ -24,7 +24,11 @@ config :live_debugger, LiveDebugger.Endpoint,
   adapter: Bandit.PhoenixAdapter # Change to your adapter if other is used (see your Endpoint config)
 ```
 
-For easy navigation add the debug button to your live layout
+Live debugger will be running at separate port which you've provided.
+
+## Adding button
+
+For easy navigation add the debug button to your live layout. Remember to use it only in `:dev` environment if `:live_debugger` is installed as `only: :dev`.
 
 ```Elixir
 # lib/my_app_web/components/app.html.heex
