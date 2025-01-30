@@ -35,13 +35,16 @@ After that you need to add `LiveDebugger.Supervisor` under your supervision tree
 
 ```
 
-Then you need to configure http address for the debugger:
+Then you need to configure `LiveDebugger.Endpoint`. To generate secret keys use [phx.gen.secret](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Secret.html).
 
 ```elixir
 # config/dev.exs
 
-config :live_debugger, LiveDebugger.Endpoint, http: [ip: {127, 0, 0, 1}, port: 4001]
-
+config :live_debugger, LiveDebugger.Endpoint,
+  http: [ip: {127, 0, 0, 1}, port: 4001], # Add port on which you want debugger to run
+  secret_key_base: <SECRET_KEY_BASE>, # Generate 64 letter key
+  live_view: [signing_salt: <SIGNING_SALT>], # Generate 12 letter key
+  adapter: <ADAPTER_MODULE> # Use your adapter (e.g `Bandit.PhoenixAdapter`)
 ```
 
 For easy navigation add the debug button to your live layout

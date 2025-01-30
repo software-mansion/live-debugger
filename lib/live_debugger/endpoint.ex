@@ -1,12 +1,10 @@
 defmodule LiveDebugger.Endpoint do
   use Phoenix.Endpoint, otp_app: :live_debugger
 
-  @signing_salt "wWTDRK9x"
-
   @session_options [
     store: :cookie,
     key: "_live_debugger",
-    signing_salt: @signing_salt,
+    signing_salt: "lvd_debug",
     same_site: "Lax",
     # 14 days
     max_age: 14 * 24 * 60 * 60
