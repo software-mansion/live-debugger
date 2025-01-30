@@ -24,7 +24,7 @@ config :live_debugger, LiveDebugger.Endpoint,
   adapter: Bandit.PhoenixAdapter # Change to your adapter if other is used (see your Endpoint config)
 ```
 
-Live debugger will be running at separate port which you've provided.
+Live debugger will be running at separate port which you've provided e.g. http://localhost:4007 .
 
 ## Adding button
 
