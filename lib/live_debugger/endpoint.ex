@@ -17,13 +17,6 @@ defmodule LiveDebugger.Endpoint do
     longpoll: true
   )
 
-  plug(Plug.Static, from: {:live_debugger, "priv/static"}, at: "/assets/phoenix")
-
-  plug(Plug.Static,
-    from: {:live_debugger_live_view, "priv/static"},
-    at: "/assets/phoenix_live_view"
-  )
-
   plug(Plug.Session, @session_options)
 
   plug(Plug.RequestId)

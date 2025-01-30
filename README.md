@@ -31,18 +31,12 @@ After that you need to add `LiveDebugger.Supervisor` under your supervision tree
 
 ```
 
-Then you need to configure it inside your config file:
+Then you need to configure http address for the debugger:
 
 ```elixir
 # config/dev.exs
 
-config :live_debugger, LiveDebugger.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: <PORT>],
-  check_origin: false,
-  secret_key_base: <SECRET KEY BASE>,
-  adapter: Bandit.PhoenixAdapter,
-  pubsub_server: LiveDebugger.PubSub,
-  live_view: [signing_salt: <SIGNING SALT>]
+config :live_debugger, LiveDebugger.Endpoint, http: [ip: {127, 0, 0, 1}, port: 4001]
 
 ```
 
