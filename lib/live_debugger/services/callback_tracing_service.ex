@@ -107,7 +107,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
     defp stop_tracing_impl(nil) do
       case Process.whereis(:dbg) do
         pid when is_pid(pid) ->
-          mref = Process.monitor(:dbg)
+          mref = Process.monitor(pid)
 
           send(pid, {self(), :stop})
 
