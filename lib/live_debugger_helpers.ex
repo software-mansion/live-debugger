@@ -45,8 +45,6 @@ defmodule LiveDebugger.Helpers do
       |> assign(:style, style)
       |> assign(:redirect_url, LiveDebugger.Endpoint.url())
 
-    IO.inspect(LiveDebugger.Endpoint.url())
-
     ~H"""
     <div style={@style}>
       <a id="live-debugger-button" href={"#{@redirect_url}/#{@socket_id}"} target="_blank">
