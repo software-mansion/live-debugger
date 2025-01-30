@@ -206,8 +206,14 @@ defmodule LiveDebugger.Components do
       ]}
     >
       <div class="flex justify-end items-center h-max w-full">
-        <.button id={"#{@id}-close"} phx-hook="CloseModal" data-modal-id={@id}>
-          <.icon name="hero-x-mark-solid" class="h-5 w-5" />
+        <.button
+          id={"#{@id}-close"}
+          phx-hook="CloseModal"
+          data-modal-id={@id}
+          variant="simple"
+          class="hover:bg-primary-500 hover:bg-opacity-10 rounded-full"
+        >
+          <.icon name="hero-x-mark-solid" class="h-7 w-7" />
         </.button>
       </div>
       <div class="w-full h-full overflow-auto flex flex-col gap-2">
