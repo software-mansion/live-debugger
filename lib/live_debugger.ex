@@ -38,6 +38,7 @@ defmodule LiveDebugger do
       gap: 5px;
       justify-content: center;
       align-items: center;
+      z-index: 9999;
       #{corner_css}
     """
 
