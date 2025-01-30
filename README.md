@@ -35,16 +35,16 @@ After that you need to add `LiveDebugger.Supervisor` under your supervision tree
 
 ```
 
-Then you need to configure `LiveDebugger.Endpoint`. To generate secret keys use [phx.gen.secret](https://hexdocs.pm/phoenix/Mix.Tasks.Phx.Gen.Secret.html).
+Then you need to configure `LiveDebugger.Endpoint`. .
 
 ```elixir
 # config/dev.exs
 
 config :live_debugger, LiveDebugger.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4001], # Add port on which you want debugger to run
-  secret_key_base: <SECRET_KEY_BASE>, # Generate 64 letter key
-  live_view: [signing_salt: <SIGNING_SALT>], # Generate 12 letter key
-  adapter: <ADAPTER_MODULE> # Use your adapter (e.g `Bandit.PhoenixAdapter`)
+  secret_key_base: <SECRET_KEY_BASE>, # Generate secret using `mix phx.gen.secret`
+  live_view: [signing_salt: <SIGNING_SALT>], # Random 12 letter salt
+  adapter: Bandit.PhoenixAdapter # Change to your adapter if other is used (see your Endpoint config)
 ```
 
 For easy navigation add the debug button to your live layout
@@ -53,11 +53,9 @@ For easy navigation add the debug button to your live layout
 # lib/my_app_web/components/app.html.heex
 
 <main>
-  <LiveDebugger.debug_button
-    :if={Mix.env() == :dev}
-    redirect_url="/live_debug"
-    socket_id={@socket.id}
-  />
+  <%= if Mix.env() == :dev do %>
+    <LiveDebugger.debug_button socket_id={@socket.id} />
+  <% end %>
   {@inner_content}
 </main>
 ```
