@@ -12,36 +12,13 @@ def deps do
 end
 ```
 
-After that you need to add `LiveDebugger.Supervisor` under your supervision tree:
-
-```elixir
-# lib/my_app/application.ex
-
-  @impl true
-  def start(_type, _args) do
-    children = [
-      {Phoenix.PubSub, name: MyApp.PubSub},
-      MyApp.Endpoint
-    ]
-
-    children =
-      if Mix.env() == :dev,
-        do: [LiveDebugger.Supervisor | children],
-        else: children
-
-    opts = [strategy: :one_for_one, name: MyApp.Supervisor]
-    Supervisor.start_link(children, opts)
-  end
-
-```
-
-Then you need to configure `LiveDebugger.Endpoint`. .
+Then you need to configure `LiveDebugger.Endpoint` similarly to `YourApplication.Endpoint`
 
 ```elixir
 # config/dev.exs
 
 config :live_debugger, LiveDebugger.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: 4001], # Add port on which you want debugger to run
+  http: [port: 4007], # Add port on which you want debugger to run
   secret_key_base: <SECRET_KEY_BASE>, # Generate secret using `mix phx.gen.secret`
   live_view: [signing_salt: <SIGNING_SALT>], # Random 12 letter salt
   adapter: Bandit.PhoenixAdapter # Change to your adapter if other is used (see your Endpoint config)
@@ -54,7 +31,7 @@ For easy navigation add the debug button to your live layout
 
 <main>
   <%= if Mix.env() == :dev do %>
-    <LiveDebugger.debug_button socket_id={@socket.id} />
+    <LiveDebugger.Helpers.debug_button socket_id={@socket.id} />
   <% end %>
   {@inner_content}
 </main>
