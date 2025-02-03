@@ -51,7 +51,7 @@ defmodule LiveDebugger.Services.System.ProcessService do
       if Process.alive?(pid) do
         {:ok, :sys.get_state(pid)}
       else
-        {:error, "Process is not alive"}
+        {:error, :not_alive}
       end
     rescue
       _ -> {:error, "Could not get state from pid: #{inspect(pid)}"}
