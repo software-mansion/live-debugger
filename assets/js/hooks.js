@@ -31,7 +31,7 @@ Hooks.OpenFullscreen = {
     const fullscreenId = this.el.dataset.fullscreenId;
     let fullscreen = document.querySelector(`#${fullscreenId}`);
     this.el.addEventListener('click', () => {
-      fullscreen.showFullscreen();
+      fullscreen.showModal();
       fullscreen.classList.remove('hidden');
       fullscreen.classList.add('flex');
     });
