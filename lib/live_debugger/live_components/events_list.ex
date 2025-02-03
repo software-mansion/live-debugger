@@ -35,7 +35,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     |> assign(id: assigns.id)
     |> assign(:no_events?, true)
     |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
-    |> assign_existing_traces()
+    |> assign_async_existing_traces()
     |> ok()
   end
 
@@ -153,7 +153,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     """
   end
 
-  defp assign_existing_traces(socket) do
+  defp assign_async_existing_traces(socket) do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.debugged_node_id
 
