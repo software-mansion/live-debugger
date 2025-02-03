@@ -15,6 +15,7 @@ defmodule LiveDebugger.Services.ChannelService do
     case ProcessService.state(pid) do
       {:ok, %{socket: %Phoenix.LiveView.Socket{}, components: _} = state} -> {:ok, state}
       {:ok, _} -> {:error, "PID: #{inspect(pid)} is not a LiveView process"}
+      {:error, :not_alive} -> {:error, :not_alive}
       {:error, _} -> {:error, "Could not get state from pid: #{inspect(pid)}"}
     end
   end

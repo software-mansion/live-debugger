@@ -247,9 +247,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
            {:ok, node_ids} <- ChannelService.node_ids(channel_state) do
         {:ok, %{existing_node_ids: MapSet.new(node_ids)}}
       else
-        {:error, error} ->
-          Logger.error("Failed to get existing node ids: #{inspect(error)}")
-          {:error, error}
+        error -> handle_error(error, pid, "Failed to get existing node ids: ")
       end
     end)
   end
@@ -262,10 +260,18 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
            {:ok, tree} <- ChannelService.build_tree(channel_state) do
         {:ok, %{tree: tree}}
       else
-        {:error, error} ->
-          Logger.error("Failed to build tree: #{inspect(error)}")
-          {:error, error}
+        error -> handle_error(error, pid, "Failed to build tree: ")
       end
     end)
+  end
+
+  defp handle_error({:error, :not_alive} = error, pid, _) do
+    Logger.info("Process #{pid} is not alive")
+    error
+  end
+
+  defp handle_error(error, _, error_message) do
+    Logger.error(error_message <> inspect(error))
+    error
   end
 end
