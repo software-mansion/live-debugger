@@ -125,12 +125,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
 
     if Trace.node_id(trace) == debugged_node_id do
-      Logger.debug("New trace matched debugged node: \n#{inspect(trace)}")
-
       send_update(LiveDebugger.LiveComponents.EventsList, %{id: "event-list", new_trace: trace})
       send_update(LiveDebugger.LiveComponents.DetailView, %{id: "detail_view", new_trace: trace})
-    else
-      Logger.debug("New trace coming from different node - ignoring: #{inspect(trace)}")
     end
 
     send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", new_trace: trace})

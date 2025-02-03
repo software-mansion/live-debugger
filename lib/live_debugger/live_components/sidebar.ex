@@ -26,7 +26,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
     cond do
       existing_node_ids.ok? and not MapSet.member?(existing_node_ids.result, trace_node_id) ->
-        Logger.debug("New node detected #{inspect(trace_node_id)} refreshing the tree")
         updated_map_set = MapSet.put(existing_node_ids.result, trace_node_id)
 
         socket
@@ -34,8 +33,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
 
       Trace.live_component_delete?(trace) ->
-        Logger.debug("LiveComponent deleted #{inspect(trace_node_id)} refreshing the tree")
-
         updated_map_set = MapSet.delete(existing_node_ids.result, trace_node_id)
 
         socket
