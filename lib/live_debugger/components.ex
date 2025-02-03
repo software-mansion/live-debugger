@@ -187,19 +187,24 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
-  Renders a modal using Modal hook.
-  If you want to open modal from a button, you can use `phx-hook="OpenModal"` and `data-modal-id` attributes.
-  You can close the modal using X button or by pressing ESC key.
+  Renders a fullscreen using Fullscreen hook.
+  If you want to open fullscreen from a button, you can use `phx-hook="OpenFullscreen"` and `data-fullscreen-id` attributes.
+  You can close the fullscreen using X button or by pressing ESC key.
   """
   attr(:id, :string, required: true)
-  attr(:class, :any, default: nil, doc: "Additional classes to be added to the modal.")
+
+  attr(:class, :any,
+    default: nil,
+    doc: "Additional classes to be added to the fullscreen element."
+  )
+
   slot(:inner_block, required: true)
 
-  def modal(assigns) do
+  def fullscreen(assigns) do
     ~H"""
     <dialog
       id={@id}
-      phx-hook="Modal"
+      phx-hook="Fullscreen"
       class={[
         "relative w-full h-full p-2 overflow-auto hidden flex-col rounded-lg backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
@@ -208,8 +213,8 @@ defmodule LiveDebugger.Components do
       <div class="flex justify-end items-center h-max w-full">
         <.button
           id={"#{@id}-close"}
-          phx-hook="CloseModal"
-          data-modal-id={@id}
+          phx-hook="CloseFullscreen"
+          data-fullscreen-id={@id}
           variant="simple"
           class="hover:bg-primary-500 hover:bg-opacity-10 rounded-full"
         >
@@ -224,11 +229,22 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
-  Renders a button which will show a modal when clicked.
-  Content of the modal is passed as `:inner_block` slot.
+  Renders a button which will show a fullscreen when clicked.
+  Content of the fullscreen is passed as `:inner_block` slot.
+
+  ## Examples
+
+      <.fullscreen_wrapper id="my_fullscreen">
+        <.h1>Hello World</.h1>
+      </.fullscreen_wrapper>
   """
   attr(:id, :string, required: true)
-  attr(:modal_class, :any, default: nil, doc: "Additional classes to be added to the modal.")
+
+  attr(:fullscreen_class, :any,
+    default: nil,
+    doc: "Additional classes to be added to the fullscreen."
+  )
+
   attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
   attr(:icon, :string,
@@ -238,21 +254,21 @@ defmodule LiveDebugger.Components do
 
   slot(:inner_block, required: true)
 
-  def modal_button(assigns) do
+  def fullscreen_wrapper(assigns) do
     ~H"""
     <div>
       <.button
-        id={"modal_#{@id}_button"}
-        phx-hook="OpenModal"
-        data-modal-id={"modal_#{@id}"}
+        id={"fullscreen_#{@id}_button"}
+        phx-hook="OpenFullscreen"
+        data-fullscreen-id={"fullscreen_#{@id}"}
         class={["flex items-center justify-center w-max h-max" | List.wrap(@class)]}
         variant="simple"
       >
         <.icon name={@icon} class="w-5 h-5" />
       </.button>
-      <.modal id={"modal_#{@id}"} class={@modal_class}>
+      <.fullscreen id={"fullscreen_#{@id}"} class={@fullscreen_class}>
         <%= render_slot(@inner_block) %>
-      </.modal>
+      </.fullscreen>
     </div>
     """
   end

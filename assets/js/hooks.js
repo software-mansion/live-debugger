@@ -26,14 +26,14 @@ Hooks.Tooltip = {
   },
 };
 
-Hooks.OpenModal = {
+Hooks.OpenFullscreen = {
   mounted() {
-    const modalId = this.el.dataset.modalId;
-    let modal = document.querySelector(`#${modalId}`);
+    const fullscreenId = this.el.dataset.fullscreenId;
+    let fullscreen = document.querySelector(`#${fullscreenId}`);
     this.el.addEventListener('click', () => {
-      modal.showModal();
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      fullscreen.showFullscreen();
+      fullscreen.classList.remove('hidden');
+      fullscreen.classList.add('flex');
     });
   },
   destroyed() {
@@ -41,12 +41,12 @@ Hooks.OpenModal = {
   },
 };
 
-Hooks.CloseModal = {
+Hooks.CloseFullscreen = {
   mounted() {
-    const modalId = this.el.dataset.modalId;
-    let modal = document.querySelector(`#${modalId}`);
+    const fullscreenId = this.el.dataset.fullscreenId;
+    let fullscreen = document.querySelector(`#${fullscreenId}`);
     this.el.addEventListener('click', () => {
-      modal.close();
+      fullscreen.close();
     });
   },
   destroyed() {
@@ -54,12 +54,12 @@ Hooks.CloseModal = {
   },
 };
 
-Hooks.Modal = {
+Hooks.Fullscreen = {
   mounted() {
-    let modal = this.el;
-    modal.addEventListener('close', (_e) => {
-      modal.classList.remove('flex');
-      modal.classList.add('hidden');
+    let fullscreen = this.el;
+    fullscreen.addEventListener('close', (_e) => {
+      fullscreen.classList.remove('flex');
+      fullscreen.classList.add('hidden');
     });
   },
   destroyed() {
