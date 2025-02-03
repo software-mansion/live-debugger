@@ -18,6 +18,6 @@ defmodule LiveDebugger do
        ]}
     ]
 
-    Supervisor.start_link(children, strategy: :one_for_one)
+    Supervisor.start_link(children, strategy: :one_for_one, name: LiveDebugger.Supervisor)
   end
 end

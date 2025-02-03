@@ -24,7 +24,9 @@ if config_env() == :dev do
     ),
       cd: Path.expand("../assets", __DIR__)
     ]
+end
 
+if config_env() in [:dev, :test] do
   config :live_debugger, LiveDebugger.Endpoint,
     http: [port: 4007],
     secret_key_base: "Hu4qQN3iKzTV4fJxhorPQlA/osH9fAMtbtjVS58PFgfw3ja5Z18Q/WSNR9wP4OfW",
