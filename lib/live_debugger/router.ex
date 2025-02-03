@@ -1,35 +1,23 @@
 defmodule LiveDebugger.Router do
-  @moduledoc """
-  Inspiration was taken from Phoenix LiveDashboard
-  https://github.com/phoenixframework/phoenix_live_dashboard/blob/main/lib/phoenix/live_dashboard/router.ex
-  """
+  use Phoenix.Router
 
-  defmacro live_debugger(path, opts \\ []) do
-    quote bind_quoted: binding() do
-      pipeline :dbg_browser do
-        plug(:accepts, ["html"])
-        plug(:fetch_session)
-        plug(:fetch_live_flash)
-        plug(:put_root_layout, html: {LiveDebugger.Layout, :root})
-        plug(:protect_from_forgery)
-        plug(:put_secure_browser_headers)
-      end
+  import Phoenix.LiveView.Router
 
-      scope path do
-        pipe_through([:dbg_browser])
+  pipeline :dbg_browser do
+    plug(:accepts, ["html"])
+    plug(:fetch_session)
+    plug(:put_root_layout, html: {LiveDebugger.Layout, :root})
+    plug(:protect_from_forgery)
+    plug(:put_secure_browser_headers)
+  end
 
-        import Phoenix.Router
-        import Phoenix.LiveView.Router
+  scope "/" do
+    pipe_through([:dbg_browser])
 
-        get("/css-:md5", LiveDebugger.Controllers.Assets, :css)
-        get("/js-:md5", LiveDebugger.Controllers.Assets, :js)
+    import Phoenix.LiveView.Router
 
-        live("/", LiveDebugger.LiveViews.SessionsDashboard)
-        live("/:socket_id", LiveDebugger.LiveViews.ChannelDashboard)
-        live("/:socket_id/:node_id", LiveDebugger.LiveViews.ChannelDashboard)
-      end
-
-      def live_debugger_prefix(), do: unquote(path)
-    end
+    live("/", LiveDebugger.LiveViews.SessionsDashboard)
+    live("/:socket_id", LiveDebugger.LiveViews.ChannelDashboard)
+    live("/:socket_id/:node_id", LiveDebugger.LiveViews.ChannelDashboard)
   end
 end

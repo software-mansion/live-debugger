@@ -12,25 +12,31 @@ def deps do
 end
 ```
 
-After that you can add LiveDebugger to your router (do not put it into any `scope`):
+Then you need to configure `LiveDebugger.Endpoint` similarly to `YourApplication.Endpoint`
 
 ```elixir
-import LiveDebugger.Router
+# config/dev.exs
 
-live_debugger "/live_debug"
-
-scope "/" do
-  pipe_through :browser
-
-  live "/", CounterLive
-end
+config :live_debugger, LiveDebugger.Endpoint,
+  http: [port: 4007], # Add port on which you want debugger to run
+  secret_key_base: <SECRET_KEY_BASE>, # Generate secret using `mix phx.gen.secret`
+  live_view: [signing_salt: "your_signing_salt"],
+  adapter: Bandit.PhoenixAdapter # Change to your adapter if other is used
 ```
 
-And add the debug button to your live layout:
+Live debugger will be running at separate port which you've provided e.g. http://localhost:4007 .
+
+## Adding button
+
+For easy navigation add the debug button to your live layout. Remember to use it only in `:dev` environment if `:live_debugger` is installed as `only: :dev`.
 
 ```Elixir
+# lib/my_app_web/components/app.html.heex
+
 <main>
-  <LiveDebugger.debug_button redirect_url="/live_debug" socket_id={@socket.id} />
+  <%= if Mix.env() == :dev do %>
+    <LiveDebugger.Helpers.debug_button socket_id={@socket.id} />
+  <% end %>
   {@inner_content}
 </main>
 ```
