@@ -15,7 +15,6 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   @impl true
   def mount(socket) do
     socket
-    |> assign(:loading_error?, false)
     |> assign(:hide_section?, false)
     |> ok()
   end
@@ -24,7 +23,6 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def update(%{new_trace: trace}, socket) do
     socket
     |> stream_insert(:existing_traces, trace, at: 0)
-    |> assign(loading_error?: false)
     |> ok()
   end
 
@@ -59,17 +57,25 @@ defmodule LiveDebugger.LiveComponents.EventsList do
           </.button>
         </:right_panel>
         <div class="w-full">
-          <.alert
-            :if={@loading_error?}
-            variant="danger"
-            with_icon
-            heading="Error fetching historical events"
-          >
-            The new events still will be displayed as they come. Check logs for more
-          </.alert>
           <div id={"#{assigns.id}-stream"} phx-update="stream">
             <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-gray-700">
-              No events have been recorded yet.
+              <div :if={@existing_traces_status == :ok}>
+                No events have been recorded yet.
+              </div>
+              <div
+                :if={@existing_traces_status == :loading}
+                class="w-full flex items-center justify-center"
+              >
+                <.spinner size="sm" />
+              </div>
+              <.alert
+                :if={@existing_traces_status == :error}
+                variant="danger"
+                with_icon
+                heading="Error fetching historical events"
+              >
+                The new events still will be displayed as they come. Check logs for more
+              </.alert>
             </div>
             <%= for {dom_id, trace} <- @streams.existing_traces do %>
               <.trace id={dom_id} trace={trace} />
@@ -84,6 +90,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   @impl true
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
     socket
+    |> assign(existing_traces_status: :ok)
     |> stream(:existing_traces, trace_list)
     |> noreply()
   end
@@ -94,7 +101,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     )
 
     socket
-    |> assign(loading_error?: true)
+    |> assign(existing_traces_status: :error)
     |> noreply()
   end
 
@@ -154,6 +161,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     node_id = socket.assigns.debugged_node_id
 
     socket
+    |> assign(:existing_traces_status, :loading)
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
       TraceService.existing_traces(ets_table_id, node_id)
