@@ -248,7 +248,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         {:ok, %{existing_node_ids: MapSet.new(node_ids)}}
       else
         {:error, error} ->
-          Logger.error("Failed to get existing node ids: #{inspect(error)}")
+          Logger.debug("Failed to get existing node ids: #{inspect(error)}")
           {:error, error}
       end
     end)
@@ -263,7 +263,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         {:ok, %{tree: tree}}
       else
         {:error, error} ->
-          Logger.error("Failed to build tree: #{inspect(error)}")
+          Logger.debug("Failed to build tree: #{inspect(error)}")
           {:error, error}
       end
     end)
