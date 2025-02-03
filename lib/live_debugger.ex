@@ -7,14 +7,13 @@ defmodule LiveDebugger do
 
   def start(_type, _args) do
     check_origin = Application.get_env(:live_debugger, :check_origin, false)
-    pubsub_server = Application.get_env(:live_debugger, :pubsub_server, LiveDebugger.PubSub)
 
     children = [
       {Phoenix.PubSub, name: LiveDebugger.PubSub},
       {LiveDebugger.Endpoint,
        [
          check_origin: check_origin,
-         pubsub_server: pubsub_server
+         pubsub_server: LiveDebugger.PubSub
        ]}
     ]
 
