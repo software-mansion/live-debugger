@@ -12,6 +12,8 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
 
+  @stream_limit 100
+
   @impl true
   def mount(socket) do
     socket
@@ -22,7 +24,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   @impl true
   def update(%{new_trace: trace}, socket) do
     socket
-    |> stream_insert(:existing_traces, trace, at: 0)
+    |> stream_insert(:existing_traces, trace, at: 0, limit: @stream_limit)
     |> ok()
   end
 
@@ -91,7 +93,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
     socket
     |> assign(existing_traces_status: :ok)
-    |> stream(:existing_traces, trace_list)
+    |> stream(:existing_traces, trace_list, limit: @stream_limit)
     |> noreply()
   end
 
@@ -136,7 +138,15 @@ defmodule LiveDebugger.LiveComponents.EventsList do
             position="top"
             content={"#{@trace.module}.#{@trace.function}/#{@trace.arity}"}
           >
-            <p class="text-primary font-medium"><%= @trace.function %>/<%= @trace.arity %></p>
+            <div class="flex gap-4">
+              <p class="text-primary font-medium"><%= @trace.function %>/<%= @trace.arity %></p>
+              <p
+                :if={@trace.counter > 1}
+                class="text-sm text-gray-500 italic align-baseline mt-[0.2rem]"
+              >
+                +<%= @trace.counter - 1 %>
+              </p>
+            </div>
           </.tooltip>
           <p class="w-32"><%= Parsers.parse_timestamp(@trace.timestamp) %></p>
         </div>

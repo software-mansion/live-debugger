@@ -122,7 +122,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   end
 
   @impl true
-  def handle_info({:new_trace, trace, _counter}, socket) do
+  def handle_info({:new_trace, trace}, socket) do
     debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
 
     if Trace.node_id(trace) == debugged_node_id do

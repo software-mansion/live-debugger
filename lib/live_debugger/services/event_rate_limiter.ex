@@ -1,7 +1,7 @@
 defmodule LiveDebugger.Services.EventRateLimiter do
   use GenServer
 
-  @events_number 20
+  @events_number 10
   @period_ms 1000
   @interval_ms div(@period_ms, @events_number)
 
@@ -22,7 +22,7 @@ defmodule LiveDebugger.Services.EventRateLimiter do
     state.events
     |> Enum.reverse()
     |> Enum.each(fn {_key, %{last_event: event, counter: counter}} ->
-      send(state.target_pid, {:new_trace, event, counter})
+      send(state.target_pid, {:new_trace, %{event | counter: counter}})
     end)
 
     {:noreply, %{state | events: []}}
