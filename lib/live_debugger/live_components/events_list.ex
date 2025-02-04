@@ -60,12 +60,14 @@ defmodule LiveDebugger.LiveComponents.EventsList do
         hide?={@hide_section?}
       >
         <:right_panel>
-          <.button color="primary" phx-click="switch-tracing" phx-target={@myself}>
-            <%= if @tracing_started?, do: "Stop", else: "Start" %>
-          </.button>
-          <.button color="primary" phx-click="clear-events" phx-target={@myself}>
-            Clear
-          </.button>
+          <div class="flex gap-2 items-center">
+            <.button color="primary" phx-click="switch-tracing" phx-target={@myself}>
+              <%= if @tracing_started?, do: "Stop", else: "Start" %>
+            </.button>
+            <.button variant="simple" color="primary" phx-click="clear-events" phx-target={@myself}>
+              Clear
+            </.button>
+          </div>
         </:right_panel>
         <div class="w-full">
           <div id={"#{assigns.id}-stream"} phx-update="stream">
