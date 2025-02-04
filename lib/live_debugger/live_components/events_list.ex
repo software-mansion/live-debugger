@@ -12,7 +12,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
 
-  @stream_limit 100
+  @stream_limit 32
 
   @impl true
   def mount(socket) do
