@@ -18,14 +18,20 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def mount(socket) do
     socket
     |> assign(:hide_section?, false)
+    |> assign(:tracing_started?, true)
     |> ok()
   end
 
   @impl true
-  def update(%{new_trace: trace}, socket) do
+  def update(%{new_trace: trace}, %{assigns: %{tracing_started?: true}} = socket) do
     socket
     |> stream_insert(:existing_traces, trace, at: 0, limit: @stream_limit)
     |> ok()
+  end
+
+  @impl true
+  def update(%{new_trace: _trace}, %{assigns: %{tracing_started?: false}} = socket) do
+    {:ok, socket}
   end
 
   def update(assigns, socket) do
@@ -54,6 +60,9 @@ defmodule LiveDebugger.LiveComponents.EventsList do
         hide?={@hide_section?}
       >
         <:right_panel>
+          <.button color="primary" phx-click="switch-tracing" phx-target={@myself}>
+            <%= if @tracing_started?, do: "Stop", else: "Start" %>
+          </.button>
           <.button color="primary" phx-click="clear-events" phx-target={@myself}>
             Clear
           </.button>
@@ -111,6 +120,12 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def handle_event("toggle-visibility", _, socket) do
     socket
     |> assign(hide_section?: not socket.assigns.hide_section?)
+    |> noreply()
+  end
+
+  def handle_event("switch-tracing", _, socket) do
+    socket
+    |> assign(tracing_started?: not socket.assigns.tracing_started?)
     |> noreply()
   end
 
