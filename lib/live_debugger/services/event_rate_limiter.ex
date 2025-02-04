@@ -1,4 +1,10 @@
 defmodule LiveDebugger.Services.EventRateLimiter do
+  @moduledoc """
+  This module provides a rate limiter for events.
+  It should be used as a proxy between the `:dbg` tracer and LiveDebugger dashboard.
+  It limits the number of events that are sent to the dashboard.
+  You can configure the number of events and the period in which they are counted via module attributes.
+  """
   use GenServer
 
   @events_number 10
