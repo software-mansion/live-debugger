@@ -15,7 +15,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def mount(socket) do
     socket
-    |> assign(:hidden?, true)
+    |> hide_sidebar_side_over()
     |> ok()
   end
 
@@ -26,7 +26,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
     cond do
       existing_node_ids.ok? and not MapSet.member?(existing_node_ids.result, trace_node_id) ->
-        Logger.debug("New node detected #{inspect(trace_node_id)} refreshing the tree")
         updated_map_set = MapSet.put(existing_node_ids.result, trace_node_id)
 
         socket
@@ -34,8 +33,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
 
       Trace.live_component_delete?(trace) ->
-        Logger.debug("LiveComponent deleted #{inspect(trace_node_id)} refreshing the tree")
-
         updated_map_set = MapSet.delete(existing_node_ids.result, trace_node_id)
 
         socket
@@ -82,7 +79,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         />
       </div>
       <div class="flex sm:hidden flex-col gap-2 w-14 pt-4 p-1 h-screen bg-primary items-center justify-start">
-        <.link patch="/live_debug/">
+        <.link patch="/">
           <.sidebar_icon_button icon="hero-home-solid" />
         </.link>
         <.sidebar_icon_button icon="hero-bars-3" phx-click="show_mobile_content" phx-target={@myself} />
@@ -107,19 +104,20 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def handle_event("select_node", %{"node_id" => node_id}, socket) do
     socket
     |> push_patch(to: "#{socket.assigns.base_url}/#{node_id}")
+    |> hide_sidebar_side_over()
     |> noreply()
   end
 
   def handle_event("show_mobile_content", _params, socket) do
     socket
-    |> assign(:hidden?, false)
+    |> show_sidebar_slide_over()
     |> noreply()
   end
 
   @impl true
   def handle_event("close_mobile_content", _params, socket) do
     socket
-    |> assign(:hidden?, true)
+    |> hide_sidebar_side_over()
     |> noreply()
   end
 
@@ -127,7 +125,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp sidebar_label(assigns) do
     ~H"""
-    <.link patch={live_debugger_base_url(@socket)}>
+    <.link patch="/">
       <.h3 class="text-white">LiveDebugger</.h3>
     </.link>
     """
@@ -168,6 +166,14 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       <%= render_slot(@inner_block) %>
     </div>
     """
+  end
+
+  defp show_sidebar_slide_over(socket) do
+    assign(socket, :hidden?, false)
+  end
+
+  defp hide_sidebar_side_over(socket) do
+    assign(socket, :hidden?, true)
   end
 
   attr(:pid, :any, required: true)
@@ -238,9 +244,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
            {:ok, node_ids} <- ChannelService.node_ids(channel_state) do
         {:ok, %{existing_node_ids: MapSet.new(node_ids)}}
       else
-        {:error, error} ->
-          Logger.error("Failed to get existing node ids: #{inspect(error)}")
-          {:error, error}
+        error -> handle_error(error, pid, "Failed to get existing node ids: ")
       end
     end)
   end
@@ -253,10 +257,18 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
            {:ok, tree} <- ChannelService.build_tree(channel_state) do
         {:ok, %{tree: tree}}
       else
-        {:error, error} ->
-          Logger.error("Failed to build tree: #{inspect(error)}")
-          {:error, error}
+        error -> handle_error(error, pid, "Failed to build tree: ")
       end
     end)
+  end
+
+  defp handle_error({:error, :not_alive} = error, pid, _) do
+    Logger.info("Process #{pid} is not alive")
+    error
+  end
+
+  defp handle_error(error, _, error_message) do
+    Logger.error(error_message <> inspect(error))
+    error
   end
 end

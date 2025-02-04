@@ -2,7 +2,8 @@ name: Assets
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
 
 jobs:
   build:
@@ -11,16 +12,45 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Elixir
         uses: erlef/setup-beam@v1.18.0
         with:
           elixir-version: "1.17.3"
           otp-version: "27.1.2"
-      - name: Setup project
-        run: mix setup
+
+      - name: Cache Mix
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Install Dependencies
+        run: mix deps.get
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v2
+        with:
+          path: ./assets/node_modules
+          key: ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-
+
+      - name: Install npm dependencies
+        working-directory: ./assets
+        run: npm install
+
+      - name: Setup assets
+        run: mix "assets.setup"
+
+      - name: Build assets
+        run: mix "assets.build"
+
       - name: Push updated assets
         id: push_assets
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Update assets
-          file_pattern: dist
+          file_pattern: priv

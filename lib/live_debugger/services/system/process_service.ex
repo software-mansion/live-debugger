@@ -2,14 +2,14 @@ defmodule LiveDebugger.Services.System.ProcessService do
   @moduledoc """
   This module provides wrappers for system functions that queries processes in the current application.
   """
-  @callback initial_call(pid :: pid()) :: mfa()
+  @callback initial_call(pid :: pid()) :: mfa() | nil
   @callback state(pid :: pid()) :: {:ok, term()} | {:error, term()}
   @callback list() :: [pid()]
 
   @doc """
   Wrapper for `Process.info/2` with some additional logic that returns the initial call of the process.
   """
-  @spec initial_call(pid :: pid()) :: mfa()
+  @spec initial_call(pid :: pid()) :: mfa() | nil
   def initial_call(pid), do: impl().initial_call(pid)
 
   @doc """
@@ -40,14 +40,19 @@ defmodule LiveDebugger.Services.System.ProcessService do
     def initial_call(pid) do
       pid
       |> Process.info([:dictionary])
-      |> hd()
-      |> elem(1)
-      |> Keyword.get(:"$initial_call", {})
+      |> case do
+        nil -> nil
+        result -> get_in(result, [:dictionary, :"$initial_call"])
+      end
     end
 
     @impl true
     def state(pid) do
-      {:ok, :sys.get_state(pid)}
+      if Process.alive?(pid) do
+        {:ok, :sys.get_state(pid)}
+      else
+        {:error, :not_alive}
+      end
     rescue
       _ -> {:error, "Could not get state from pid: #{inspect(pid)}"}
     end

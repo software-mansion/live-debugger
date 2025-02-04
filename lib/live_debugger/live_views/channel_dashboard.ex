@@ -72,7 +72,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     with [live_pid] <- LiveViewDiscoveryService.debugged_live_pids(),
          {:ok, %{socket: %{id: socket_id}}} <- ChannelService.state(live_pid) do
       socket
-      |> push_navigate(to: "#{live_debugger_base_url(socket)}/#{socket_id}")
+      |> push_navigate(to: "/#{socket_id}")
       |> noreply()
     else
       _ ->
@@ -126,12 +126,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
 
     if Trace.node_id(trace) == debugged_node_id do
-      Logger.debug("New trace matched debugged node: \n#{inspect(trace)}")
-
       send_update(LiveDebugger.LiveComponents.EventsList, %{id: "event-list", new_trace: trace})
       send_update(LiveDebugger.LiveComponents.DetailView, %{id: "detail_view", new_trace: trace})
-    else
-      Logger.debug("New trace coming from different node - ignoring: #{inspect(trace)}")
     end
 
     send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", new_trace: trace})
@@ -188,7 +184,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   end
 
   defp assign_base_url(socket) do
-    assign(socket, :base_url, "#{live_debugger_base_url(socket)}/#{socket.assigns.socket_id}")
+    assign(socket, :base_url, "/#{socket.assigns.socket_id}")
   end
 
   defp assign_async_debugged_pid(socket) do

@@ -24,8 +24,6 @@ defmodule LiveDebugger.Services.TraceService do
   @spec init_ets(:ets.table()) :: :ets.table()
   def init_ets(ets_table_id) do
     if :ets.whereis(ets_table_id) == :undefined do
-      Logger.debug("Creating a new ETS table with id: #{ets_table_id}")
-
       :ets.new(ets_table_id, [:ordered_set, :public, :named_table])
     else
       ets_table_id

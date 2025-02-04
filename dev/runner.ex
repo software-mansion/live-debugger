@@ -36,6 +36,11 @@ defmodule LiveDebuggerDev.Runner do
       ]
 
       {:ok, _} = Supervisor.start_link(children, strategy: :one_for_one)
+
+      # For some reason `Application.put_env` doesn't work and LiveDebugger starts without config
+      Application.stop(:live_debugger)
+      Application.start(:live_debugger)
+
       Process.sleep(:infinity)
     end)
   end
