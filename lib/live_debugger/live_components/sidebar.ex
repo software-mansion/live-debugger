@@ -263,7 +263,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   defp handle_error({:error, :not_alive} = error, pid, _) do
-    Logger.info("Process #{pid} is not alive")
+    Logger.info("Process #{inspect(pid)} is not alive")
     error
   end
 
