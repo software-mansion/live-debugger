@@ -16,6 +16,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   def render(assigns) do
     ~H"""
     <div class="p-5">
+      <.navbar />
       <.box title="Main [LiveView]" color="blue">
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
@@ -68,9 +69,6 @@ defmodule LiveDebuggerDev.LiveViews.Main do
           <.live_component id="reccursive" counter={5} module={LiveComponents.Reccursive} />
         </div>
       </.box>
-      <div class="mt-10">
-        <.link navigate="/side" class="text-blue-500 underline">Go to side</.link>
-      </div>
     </div>
     """
   end
