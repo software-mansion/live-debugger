@@ -168,10 +168,16 @@ defmodule LiveDebugger.Services.CallbackTracingService do
   end
 
   defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
-    n
-    |> Trace.new(module, function, args, pid)
-    |> do_handle(recipient_pid, ets_table_id, n)
+    if function in CallbackUtils.callbacks_functions() do
+      n
+      |> Trace.new(module, function, args, pid)
+      |> do_handle(recipient_pid, ets_table_id, n)
+    else
+      n
+    end
   end
+
+  defp trace_handler(_, n, _, _), do: n
 
   defp do_handle(trace, recipient_pid, ets_table_id, n) do
     try do
