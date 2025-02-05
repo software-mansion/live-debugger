@@ -2,6 +2,7 @@
 
 LiveDebugger is a browser-based tool for debugging LiveView applications.
 It provides insights into your LiveViews, their LiveComponents, events, state transitions, and more.
+![output](https://github.com/user-attachments/assets/ba35716e-162b-4edd-a56e-de83294510f1)
 
 ## Installation
 
@@ -69,3 +70,4 @@ mix assets.build
 
 Heroicons are not used as dependency but copied from [Heroicons](https://github.com/tailwindlabs/heroicons) .
 To copy them you can use `copy_heroicons.sh` script which requires you to have heroicons cloned in folder next to `live_debugger` folder.
+
