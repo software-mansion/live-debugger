@@ -18,7 +18,7 @@ Then you need to configure `LiveDebugger.Endpoint` similarly to `YourApplication
 # config/dev.exs
 
 config :live_debugger, LiveDebugger.Endpoint,
-  http: [port: 4007], # Add port on which you want debugger to run
+  http: [port: 4007], # Add port on which ou want the debugger to run
   secret_key_base: <SECRET_KEY_BASE>, # Generate secret using `mix phx.gen.secret`
   live_view: [signing_salt: "your_signing_salt"],
   adapter: Bandit.PhoenixAdapter # Change to your adapter if other is used
@@ -30,24 +30,26 @@ Live debugger will be running at separate port which you've provided e.g. http:/
 
 For easy navigation add the optional debug button to your live layout. Make sure that it is not used in production! (`:live_debugger` is `:dev` only - this code won't compile in `:prod` environment)
 
-```Elixir
+```elixir
 # lib/my_app_web/components/app.html.heex
 
 <main>
   ...
-   <%= if Application.get_env(LiveDebugger, :debug_mode, false) do %>
-      <LiveDebugger.Helpers.debug_button socket_id={@socket.id} />
-    <% end %>
+  <%= if Application.ensure_started(:live_debugger) == :ok do %>
+    <LiveDebugger.Helpers.debug_button socket_id={@socket.id} />
+  <% end %>
 
   {@inner_content}
 </main>
 ```
 
+This code will produce a warning when compiled in `MIX_ENV=prod`
+
 ## Contributing
 
 For those planning to contribute to this project, you can run a dev version of the debugger with the following commands:
 
-```bash
+```console
 mix setup
 iex -S mix
 ```
@@ -56,7 +58,7 @@ It'll run application declared in `dev/` directory with library debugger install
 
 LiveReload is working both for `.ex` files and static files, but if some styles won't show up, try using this command
 
-```bash
+```console
 mix assets.build
 ```
 

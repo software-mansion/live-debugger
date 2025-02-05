@@ -6,8 +6,6 @@ defmodule LiveDebugger do
   use Application
 
   def start(_type, _args) do
-    Application.put_env(LiveDebugger, :debug_mode, true)
-
     check_origin = Application.get_env(:live_debugger, :check_origin, false)
 
     children = [
