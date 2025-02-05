@@ -18,7 +18,7 @@ Then you need to configure `LiveDebugger.Endpoint` similarly to `YourApplication
 # config/dev.exs
 
 config :live_debugger, LiveDebugger.Endpoint,
-  http: [port: 4007], # Add port on which ou want the debugger to run
+  http: [port: 4007], # Add port on which you want debugger to run
   secret_key_base: <SECRET_KEY_BASE>, # Generate secret using `mix phx.gen.secret`
   live_view: [signing_salt: "your_signing_salt"],
   adapter: Bandit.PhoenixAdapter # Change to your adapter if other is used
