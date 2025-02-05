@@ -53,6 +53,7 @@ defmodule LiveDebugger.Utils.Callbacks do
   @doc """
   Generates a list of all function name callbacks for LiveViews and LiveComponents.
   """
+  @spec callbacks_functions() :: [atom()]
   def callbacks_functions() do
     (@common_callbacks ++ @live_view_callbacks ++ @live_component_callbacks)
     |> Enum.map(fn {function_name, _} -> function_name end)
