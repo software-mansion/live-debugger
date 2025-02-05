@@ -167,10 +167,25 @@ defmodule LiveDebugger.Services.CallbackTracingService do
     |> do_handle(recipient_pid, ets_table_id, n)
   end
 
-  defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
+  defp trace_handler(
+         {_, pid, _, {module, function, args}} = trace,
+         n,
+         ets_table_id,
+         recipient_pid
+       ) do
+    if function in CallbackUtils.callbacks_functions() do
+      n
+      |> Trace.new(module, function, args, pid)
+      |> do_handle(recipient_pid, ets_table_id, n)
+    else
+      Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
+      n
+    end
+  end
+
+  defp trace_handler(trace, n, _, _) do
+    Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
     n
-    |> Trace.new(module, function, args, pid)
-    |> do_handle(recipient_pid, ets_table_id, n)
   end
 
   defp do_handle(trace, recipient_pid, ets_table_id, n) do
