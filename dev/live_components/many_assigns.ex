@@ -3,7 +3,7 @@ defmodule LiveDebuggerDev.LiveComponents.ManyAssigns do
 
   def update(assigns, socket) do
     socket
-    |> assign(assigns)
+    |> assign(very_long_assigns_map())
     |> ok()
   end
 
