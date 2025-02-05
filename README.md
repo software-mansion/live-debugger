@@ -28,14 +28,17 @@ Live debugger will be running at separate port which you've provided e.g. http:/
 
 ## Adding button
 
-For easy navigation add the debug button to your live layout. Do not commit it to production! (Since `:live_debugger` is `:dev` only this code won't compile in `:prod` environment)
+For easy navigation add the optional debug button to your live layout. Make sure that it is not used in production! (`:live_debugger` is `:dev` only - this code won't compile in `:prod` environment)
 
 ```Elixir
 # lib/my_app_web/components/app.html.heex
 
 <main>
   ...
-  <LiveDebugger.Helpers.debug_button socket_id={@socket.id} />
+   <%= if Application.get_env(LiveDebugger, :debug_mode, false) do %>
+      <LiveDebugger.Helpers.debug_button socket_id={@socket.id} />
+    <% end %>
+
   {@inner_content}
 </main>
 ```
