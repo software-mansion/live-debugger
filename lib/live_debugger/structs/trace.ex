@@ -13,7 +13,7 @@ defmodule LiveDebugger.Structs.Trace do
 
   alias LiveDebugger.CommonTypes
 
-  defstruct [:id, :module, :function, :arity, :args, :pid, :cid, :timestamp]
+  defstruct [:id, :module, :function, :arity, :args, :pid, :cid, :timestamp, counter: 1]
 
   @type t() :: %__MODULE__{
           id: integer(),
@@ -23,7 +23,8 @@ defmodule LiveDebugger.Structs.Trace do
           args: list(),
           pid: pid(),
           cid: struct() | nil,
-          timestamp: non_neg_integer()
+          timestamp: non_neg_integer(),
+          counter: non_neg_integer()
         }
 
   @doc """

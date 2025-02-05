@@ -12,18 +12,26 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
 
+  @stream_limit 32
+
   @impl true
   def mount(socket) do
     socket
     |> assign(:hide_section?, false)
+    |> assign(:tracing_started?, true)
     |> ok()
   end
 
   @impl true
-  def update(%{new_trace: trace}, socket) do
+  def update(%{new_trace: trace}, %{assigns: %{tracing_started?: true}} = socket) do
     socket
-    |> stream_insert(:existing_traces, trace, at: 0)
+    |> stream_insert(:existing_traces, trace, at: 0, limit: @stream_limit)
     |> ok()
+  end
+
+  @impl true
+  def update(%{new_trace: _trace}, %{assigns: %{tracing_started?: false}} = socket) do
+    {:ok, socket}
   end
 
   def update(assigns, socket) do
@@ -52,9 +60,14 @@ defmodule LiveDebugger.LiveComponents.EventsList do
         hide?={@hide_section?}
       >
         <:right_panel>
-          <.button color="primary" phx-click="clear-events" phx-target={@myself}>
-            Clear
-          </.button>
+          <div class="flex gap-2 items-center">
+            <.button color="primary" phx-click="switch-tracing" phx-target={@myself}>
+              <%= if @tracing_started?, do: "Stop", else: "Start" %>
+            </.button>
+            <.button variant="simple" color="primary" phx-click="clear-events" phx-target={@myself}>
+              Clear
+            </.button>
+          </div>
         </:right_panel>
         <div class="w-full">
           <div id={"#{assigns.id}-stream"} phx-update="stream">
@@ -91,7 +104,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
     socket
     |> assign(existing_traces_status: :ok)
-    |> stream(:existing_traces, trace_list)
+    |> stream(:existing_traces, trace_list, limit: @stream_limit)
     |> noreply()
   end
 
@@ -109,6 +122,12 @@ defmodule LiveDebugger.LiveComponents.EventsList do
   def handle_event("toggle-visibility", _, socket) do
     socket
     |> assign(hide_section?: not socket.assigns.hide_section?)
+    |> noreply()
+  end
+
+  def handle_event("switch-tracing", _, socket) do
+    socket
+    |> assign(tracing_started?: not socket.assigns.tracing_started?)
     |> noreply()
   end
 
@@ -136,7 +155,15 @@ defmodule LiveDebugger.LiveComponents.EventsList do
             position="top"
             content={"#{@trace.module}.#{@trace.function}/#{@trace.arity}"}
           >
-            <p class="text-primary font-medium"><%= @trace.function %>/<%= @trace.arity %></p>
+            <div class="flex gap-4">
+              <p class="text-primary font-medium"><%= @trace.function %>/<%= @trace.arity %></p>
+              <p
+                :if={@trace.counter > 1}
+                class="text-sm text-gray-500 italic align-baseline mt-[0.2rem]"
+              >
+                +<%= @trace.counter - 1 %>
+              </p>
+            </div>
           </.tooltip>
           <p class="w-32"><%= Parsers.parse_timestamp(@trace.timestamp) %></p>
         </div>
