@@ -6,23 +6,22 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   use LiveDebuggerWeb, :live_view
 
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Services.LiveViewDiscoveryService
-  alias LiveDebugger.Services.ChannelService
+  alias LiveDebugger.Structs.LiveViewProcess
+  alias LiveDebugger.Utils.Parsers
 
   @impl true
   def handle_params(_unsigned_params, _uri, socket) do
     socket
-    |> assign_async_live_sessions()
+    |> assign_async_live_view_processes()
     |> noreply()
   end
 
   @impl true
-  @spec render(any()) :: Phoenix.LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
     <div class="w-full h-full p-2">
-      <.async_result :let={live_sessions} assign={@live_sessions}>
+      <.async_result :let={live_view_processes} assign={@live_view_processes}>
         <:loading>
           <div class="h-full flex items-center justify-center">
             <.spinner size="xl" />
@@ -35,7 +34,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
         </div>
 
         <div class="mt-2 lg:mt-4 mx-1">
-          <%= if Enum.empty?(live_sessions)  do %>
+          <%= if Enum.empty?(live_view_processes)  do %>
             <div class="text-gray-600">
               No LiveSessions found - try refreshing.
             </div>
@@ -47,17 +46,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                   <th class="hidden xs:table-cell">PID</th>
                   <th class="hidden sm:table-cell">Socket ID</th>
                 </tr>
-                <tr :for={session <- live_sessions}>
-                  <td class="text-center ">
-                    <.link class="text-primary" patch={"/#{session.socket_id}"}>
-                      <%= session.module %>
-                    </.link>
-                  </td>
-                  <td class="hidden xs:table-cell text-center">
-                    <%= Parsers.pid_to_string(session.pid) %>
-                  </td>
-                  <td class="hidden sm:table-cell text-center"><%= session.socket_id %></td>
-                </tr>
+                <.table_row live_view_processes={live_view_processes} />
               </table>
             </div>
           <% end %>
@@ -67,40 +56,90 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
     """
   end
 
+  attr(:live_view_processes, :map, required: true)
+  attr(:indent, :integer, default: 0)
+
+  defp table_row(assigns) do
+    assigns =
+      assigns
+      |> assign(:child?, assigns.indent > 0)
+      |> assign(:padding, (assigns.indent + 1) * 0.5)
+      |> assign(:next_indent, assigns.indent + 1)
+
+    ~H"""
+    <div>
+      <%= for {process, children_processes} <- assigns.live_view_processes do %>
+        <tr>
+          <td class="text-left flex items-center" style={"padding-left: #{@padding}rem"}>
+            <.icon :if={@child?} name="hero-arrow-turn-down-right-micro" class="text-primary-500" />
+            <.link class="text-primary" patch={"/#{process.socket_id}"}>
+              <%= process.module %>
+            </.link>
+          </td>
+          <td class="hidden xs:table-cell text-center">
+            <%= Parsers.pid_to_string(process.pid) %>
+          </td>
+          <td class="hidden sm:table-cell text-center"><%= process.socket_id %></td>
+        </tr>
+        <.table_row live_view_processes={children_processes} indent={@next_indent} />
+      <% end %>
+    </div>
+    """
+  end
+
   @impl true
   def handle_event("refresh", _params, socket) do
     socket
-    |> assign(:live_sessions, AsyncResult.loading())
-    |> assign_async_live_sessions()
+    |> assign(:live_view_processes, AsyncResult.loading())
+    |> assign_async_live_view_processes()
     |> noreply()
   end
 
-  defp assign_async_live_sessions(socket) do
-    assign_async(socket, :live_sessions, fn ->
-      live_sessions =
-        with [] <- fetch_live_sessions_after(200),
-             [] <- fetch_live_sessions_after(800) do
-          fetch_live_sessions_after(1000)
+  defp assign_async_live_view_processes(socket) do
+    assign_async(socket, :live_view_processes, fn ->
+      live_view_processes =
+        with [] <- fetch_live_view_processes_after(200),
+             [] <- fetch_live_view_processes_after(800) do
+          fetch_live_view_processes_after(1000)
         end
 
-      {:ok, %{live_sessions: live_sessions}}
+      {:ok, %{live_view_processes: merge_live_view_processes(live_view_processes)}}
     end)
   end
 
-  defp fetch_live_sessions_after(milliseconds) do
+  @spec fetch_live_view_processes_after(integer) :: [LiveViewProcess.t()]
+  defp fetch_live_view_processes_after(milliseconds) do
     Process.sleep(milliseconds)
 
     LiveViewDiscoveryService.debugged_live_pids()
-    |> Enum.map(&live_session_info/1)
-    |> Enum.reject(&(&1 == :error))
+    |> LiveViewDiscoveryService.live_view_processes()
   end
 
-  defp live_session_info(pid) do
-    pid
-    |> ChannelService.state()
-    |> case do
-      {:ok, %{socket: %{id: id, view: module}}} -> %{socket_id: id, module: module, pid: pid}
-      _ -> :error
+  @spec merge_live_view_processes([LiveViewProcess.t()], LiveViewProcess.t() | nil) ::
+          {LiveViewProcess.t(), [map()]}
+  defp merge_live_view_processes(live_view_processes, parent_process \\ nil) do
+    root? = parent_process == nil
+
+    filter_children_fn =
+      if root? do
+        fn process -> process.root? end
+      else
+        fn process -> process.parent_pid == parent_process.pid end
+      end
+
+    children_processes =
+      live_view_processes
+      |> Enum.filter(filter_children_fn)
+      |> Enum.map(fn child_process ->
+        live_view_processes
+        |> merge_live_view_processes(child_process)
+      end)
+      |> Enum.into(%{})
+
+    if root? do
+      children_processes
+    else
+      {parent_process, children_processes}
     end
   end
 end

@@ -32,7 +32,7 @@ defmodule LiveDebuggerDev.Components do
       <.link
         :for={{link, name} <- @routes}
         navigate={link}
-        class="text-blue-500 hover:text-blue-900 underline"
+        class="text-blue-500 hover:text-blue-900 hover:underline"
       >
         <%= name %>
       </.link>

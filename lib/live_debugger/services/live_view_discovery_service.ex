@@ -32,7 +32,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   """
   @spec live_pids(socket_id :: String.t()) :: [pid()]
   def live_pids(socket_id) do
-    all_lv_processes = debugged_live_pids() |> structs_from_pids()
+    all_lv_processes = debugged_live_pids() |> live_view_processes()
 
     socket_process_pid =
       all_lv_processes
@@ -54,8 +54,12 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
     end
   end
 
-  @spec structs_from_pids([pid()]) :: [LiveViewProcess.t()]
-  defp structs_from_pids(pids) do
+  @doc """
+  Returns list of LiveView processes information based on the given pids.
+  If omits the processes which states couldn't be fetched.
+  """
+  @spec live_view_processes([pid()]) :: [LiveViewProcess.t()]
+  def live_view_processes(pids) do
     pids
     |> Enum.map(fn pid ->
       case ProcessService.state(pid) do
