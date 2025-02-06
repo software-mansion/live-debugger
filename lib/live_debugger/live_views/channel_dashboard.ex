@@ -190,6 +190,11 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
   defp fetch_pid_after(socket_id, milliseconds) do
     Process.sleep(milliseconds)
-    LiveViewDiscoveryService.live_pid(socket_id)
+
+    case LiveViewDiscoveryService.live_pids(socket_id) do
+      [pid] -> pid
+      [pid | _] -> pid
+      [] -> nil
+    end
   end
 end
