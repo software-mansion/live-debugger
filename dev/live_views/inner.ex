@@ -14,6 +14,9 @@ defmodule LiveDebuggerDev.LiveViews.Inner do
     <.box title="Inner [LiveView]" color="yellow">
       <div class="text-bold text-yellow-500">Info: <%= @info %></div>
       <.live_component id="very_long_name" module={LiveComponents.LiveComponentWithVeryVeryLongName} />
+      <.live_component id="conditional" module={LiveComponents.Conditional}>
+        <.live_component id="many_assigns" module={LiveComponents.ManyAssigns} />
+      </.live_component>
     </.box>
     """
   end
