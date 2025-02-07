@@ -1,13 +1,11 @@
 defmodule LiveDebuggerDev.LiveComponents.ManyAssigns do
   use DevWeb, :live_component
 
-  def update(assigns, socket) do
+  def update(_assigns, socket) do
     socket
     |> assign(very_long_assigns_map())
     |> ok()
   end
-
-  attr(:rest, :global)
 
   def render(assigns) do
     ~H"""

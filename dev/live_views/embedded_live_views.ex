@@ -11,13 +11,16 @@ defmodule LiveDebuggerDev.LiveViews.EmbeddedLiveViews do
       <.box title="Embedded Live Views [LiveView]" color="blue">
         <%= live_render(@socket, LiveViews.Inner,
           id: "inner",
-          session: %{"info" => "Embedded Live View"}
+          session: %{"info" => "Embedded Live View", "id" => "inner"}
         ) %>
 
         <.live_component id="conditional" module={LiveComponents.Conditional}>
           <%= live_render(@socket, LiveViews.Inner,
             id: "inner_in_conditional",
-            session: %{"info" => "Live View embedded in conditional component"}
+            session: %{
+              "info" => "Live View embedded in conditional component",
+              "id" => "inner_in_conditional"
+            }
           ) %>
         </.live_component>
       </.box>

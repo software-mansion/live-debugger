@@ -37,7 +37,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
   end
 
   describe "live_pids/1" do
-    test "returns pid based on socket_id" do
+    test "returns pids of LiveView processes based on socket_id" do
       pid = :c.pid(0, 1, 0)
       socket_id = "phx-socket-id"
       live_view_pid_1 = :c.pid(0, 0, 1)
@@ -53,7 +53,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       assert LiveViewDiscoveryService.live_pids(socket_id) == [pid]
     end
 
-    test "returns nil if no LiveView process of given socket_id" do
+    test "returns empty list if no LiveView process of given socket_id" do
       pid = :c.pid(0, 0, 0)
       bad_socket_id = "phx-no-such-socket"
 
