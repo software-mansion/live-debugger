@@ -89,28 +89,31 @@ defmodule LiveDebugger.Helpers do
           highlight.dataset.val = msg.detail.val;
 
           highlight.style.position = 'absolute';
-          highlight.style.top = `${activeElement.offsetTop}px`;
-          highlight.style.left = `${activeElement.offsetLeft}px`;
+          highlight.style.top = `${rect.top + window.scrollY}px`;
+          highlight.style.left = `${rect.left + window.scrollX}px`;
           highlight.style.width = `${activeElement.offsetWidth}px`;
           highlight.style.height = `${activeElement.offsetHeight}px`;
           highlight.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
-          highlight.style.zIndex = '9999';
+          highlight.style.zIndex = '10000';
           highlight.style.pointerEvents = 'none';
+
+          console.log(highlight)
           document.body.appendChild(highlight);
         }
       });
 
       window.addEventListener('resize', () => {
-        const highlightElement = document.getElementById(highlightElementID);
-        if (highlightElement) {
+        const highlight = document.getElementById(highlightElementID);
+        if (highlight) {
           const activeElement = document.querySelector(
-            `[${highlightElement.dataset.attr}="${highlightElement.dataset.val}"]`
+            `[${highlight.dataset.attr}="${highlight.dataset.val}"]`
           );
+          const rect = activeElement.getBoundingClientRect();
 
-          highlightElement.style.top = `${activeElement.offsetTop}px`;
-          highlightElement.style.left = `${activeElement.offsetLeft}px`;
-          highlightElement.style.width = `${activeElement.offsetWidth}px`;
-          highlightElement.style.height = `${activeElement.offsetHeight}px`;
+          highlight.style.top = `${rect.top + window.scrollY}px`;
+          highlight.style.left = `${rect.left + window.scrollX}px`;
+          highlight.style.width = `${activeElement.offsetWidth}px`;
+          highlight.style.height = `${activeElement.offsetHeight}px`;
         }
       });
 
