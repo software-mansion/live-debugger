@@ -215,8 +215,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
         lv_processes
 
       _ ->
-        Logger.warning("LiveView process for socket id #{socket_id} not found")
-
         nil
     end
   end
