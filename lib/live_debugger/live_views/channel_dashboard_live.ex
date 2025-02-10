@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveViews.ChannelDashboard do
+defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   @moduledoc false
 
   use LiveDebuggerWeb, :live_view
@@ -14,9 +14,10 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   alias LiveDebugger.Services.ChannelService
 
   @impl true
-  def mount(%{"socket_id" => socket_id}, _session, socket) do
+  def mount(%{"socket_id" => socket_id} = params, _session, socket) do
     socket
     |> assign(:socket_id, socket_id)
+    |> assign(:nested_socket_id, params["nested_socket_id"])
     |> assign(:tracing_session, nil)
     |> assign_rate_limiter_pid()
     |> assign_async_debugged_pid()
@@ -163,18 +164,25 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   end
 
   defp assign_base_url(socket) do
-    assign(socket, :base_url, "/#{socket.assigns.socket_id}")
+    base_url =
+      case socket.assigns do
+        %{nested_socket_id: nested_id, socket_id: socket_id} -> "/#{socket_id}/#{nested_id}"
+        %{socket_id: socket_id} -> "/#{socket_id}"
+      end
+
+    assign(socket, :base_url, base_url)
   end
 
   defp assign_async_debugged_pid(socket) do
     socket_id = socket.assigns.socket_id
+    nested_socket_id = Map.get(socket.assigns, :nested_socket_id)
 
     socket
     |> assign(:debugged_pid, AsyncResult.loading())
     |> start_async(:fetch_debugged_pid, fn ->
-      with nil <- fetch_pid_after(socket_id, 200),
-           nil <- fetch_pid_after(socket_id, 800) do
-        fetch_pid_after(socket_id, 1000)
+      with nil <- fetch_pid_after(socket_id, nested_socket_id, 200),
+           nil <- fetch_pid_after(socket_id, nested_socket_id, 800) do
+        fetch_pid_after(socket_id, nested_socket_id, 1000)
       end
     end)
   end
@@ -188,13 +196,28 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     end
   end
 
-  defp fetch_pid_after(socket_id, milliseconds) do
+  defp fetch_pid_after(socket_id, nested_socket_id, milliseconds) do
     Process.sleep(milliseconds)
 
     case LiveViewDiscoveryService.live_pids(socket_id) do
-      [pid] -> pid
-      [pid | _] -> pid
-      [] -> nil
+      [pid] ->
+        pid
+
+      [pid | nested_pids] ->
+        case nested_socket_id do
+          nil ->
+            pid
+
+          nested_id ->
+            nested_pids
+            |> LiveViewDiscoveryService.live_view_processes()
+            |> Enum.find_value(fn lv_process ->
+              if lv_process.socket_id == nested_id, do: lv_process.pid
+            end)
+        end
+
+      [] ->
+        nil
     end
   end
 end

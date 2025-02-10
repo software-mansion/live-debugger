@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveViews.SessionsDashboard do
+defmodule LiveDebugger.LiveViews.SessionsDashboardLive do
   @moduledoc """
   It displays all active LiveView sessions in the debugged application.
   """
@@ -72,7 +72,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
         <tr>
           <td class="text-left flex items-center" style={"padding-left: #{@padding}rem"}>
             <.icon :if={@child?} name="hero-arrow-turn-down-right-micro" class="text-primary-500" />
-            <.link class="text-primary" patch={"/#{process.socket_id}"}>
+            <.link class="text-primary" patch={redirect_url(process)}>
               <%= process.module %>
             </.link>
           </td>
@@ -115,31 +115,39 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
     |> LiveViewDiscoveryService.live_view_processes()
   end
 
-  @spec merge_live_view_processes([LiveViewProcess.t()], LiveViewProcess.t() | nil) ::
-          {LiveViewProcess.t(), [map()]}
-  defp merge_live_view_processes(live_view_processes, parent_process \\ nil) do
-    root? = parent_process == nil
+  @spec merge_live_view_processes([LiveViewProcess.t()]) :: map()
+  defp merge_live_view_processes(live_view_processes) when is_list(live_view_processes) do
+    children_live_view_processes(live_view_processes, & &1.root?)
+  end
 
-    filter_children_fn =
-      if root? do
-        fn process -> process.root? end
-      else
-        fn process -> process.parent_pid == parent_process.pid end
-      end
-
+  @spec merge_live_view_processes([LiveViewProcess.t()], LiveViewProcess.t()) ::
+          {LiveViewProcess.t(), map()}
+  defp merge_live_view_processes(live_view_processes, parent_process)
+       when is_list(live_view_processes) and is_struct(parent_process) do
     children_processes =
       live_view_processes
-      |> Enum.filter(filter_children_fn)
-      |> Enum.map(fn child_process ->
-        live_view_processes
-        |> merge_live_view_processes(child_process)
+      |> children_live_view_processes(&(&1.parent_pid == parent_process.pid))
+      |> Enum.map(fn {parent, children} ->
+        {%LiveViewProcess{parent | root_socket_id: parent_process.root_socket_id}, children}
       end)
       |> Enum.into(%{})
 
-    if root? do
-      children_processes
-    else
-      {parent_process, children_processes}
-    end
+    {parent_process, children_processes}
   end
+
+  @spec children_live_view_processes([LiveViewProcess.t()], (LiveViewProcess.t() -> boolean())) ::
+          map()
+  defp children_live_view_processes(all_live_view_processes, choose_children_fn) do
+    all_live_view_processes
+    |> Enum.filter(choose_children_fn)
+    |> Enum.map(fn child_process ->
+      merge_live_view_processes(all_live_view_processes, child_process)
+    end)
+    |> Enum.into(%{})
+  end
+
+  defp redirect_url(%LiveViewProcess{root?: true, socket_id: socket_id}), do: "/#{socket_id}"
+
+  defp redirect_url(%LiveViewProcess{root_socket_id: root_socket_id, socket_id: socket_id}),
+    do: "/#{root_socket_id}/#{socket_id}"
 end

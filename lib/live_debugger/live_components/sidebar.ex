@@ -1,7 +1,7 @@
 defmodule LiveDebugger.LiveComponents.Sidebar do
   @moduledoc """
   Sidebar component which displays tree of live view and it's live components.
-  It changes path to `<base_url>/<node_id>` when a node is selected.
+  It adds `node_id` to QueryParams when a node is selected.
   """
   use LiveDebuggerWeb, :live_component
 
@@ -103,7 +103,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def handle_event("select_node", %{"node_id" => node_id}, socket) do
     socket
-    |> push_patch(to: "#{socket.assigns.base_url}/#{node_id}")
+    |> push_patch(to: "#{socket.assigns.base_url}?node_id=#{node_id}")
     |> hide_sidebar_side_over()
     |> noreply()
   end

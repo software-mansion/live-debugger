@@ -16,8 +16,13 @@ defmodule LiveDebugger.Router do
 
     import Phoenix.LiveView.Router
 
-    live("/", LiveDebugger.LiveViews.SessionsDashboard)
-    live("/:socket_id", LiveDebugger.LiveViews.ChannelDashboard)
-    live("/:socket_id/:node_id", LiveDebugger.LiveViews.ChannelDashboard)
+    live("/", LiveDebugger.LiveViews.SessionsDashboardLive, :index)
+    live("/:socket_id", LiveDebugger.LiveViews.ChannelDashboardLive, :root)
+
+    live(
+      "/:socket_id/:nested_socket_id",
+      LiveDebugger.LiveViews.ChannelDashboardLive,
+      :nested
+    )
   end
 end
