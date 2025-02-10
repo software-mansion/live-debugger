@@ -16,7 +16,7 @@ def deps do
 end
 ```
 
-After you start your application LiveDebugger will be running at a separate port you've provided e.g. `http://localhost:4007`.
+After you start your application LiveDebugger will be running at a default port `http://localhost:4007`.
 
 ## Browser features
 
