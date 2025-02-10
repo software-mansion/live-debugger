@@ -21,6 +21,8 @@ defmodule LiveDebuggerDev.Layout do
         </script>
         <script src="/assets/phoenix_live_view/phoenix_live_view.js">
         </script>
+        <script src="http://localhost:4007/assets/client.js">
+        </script>
         <script>
           // Set global hooks and uploaders objects to be used by the LiveSocket,
           // so they can be overwritten in user provided templates.
