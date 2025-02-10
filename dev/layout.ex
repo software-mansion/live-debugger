@@ -21,10 +21,10 @@ defmodule LiveDebuggerDev.Layout do
         </script>
         <script src="/assets/phoenix_live_view/phoenix_live_view.js">
         </script>
-        <%= if Application.get_env(:live_debugger, :browser_features?, true) do %>
+        <%= if Application.get_env(:live_debugger, :browser_features?) do %>
           <script
             id="live-debugger-js"
-            src={"http://localhost:#{Application.get_env(:live_debugger, :port, 4007)}/assets/client.js"}
+            src={"http://localhost:#{Application.get_env(:live_debugger, :port)}/assets/client.js"}
           >
           </script>
         <% end %>

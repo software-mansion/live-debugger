@@ -23,6 +23,14 @@ defmodule LiveDebugger do
 
     Application.put_env(:live_debugger, LiveDebugger.Endpoint, endpoint_config)
 
+    unless Keyword.has_key?(config, :port) do
+      Application.put_env(:live_debugger, :port, @default_port)
+    end
+
+    unless Keyword.has_key?(config, :browser_features?) do
+      Application.put_env(:live_debugger, :browser_features?, true)
+    end
+
     children = [
       {Phoenix.PubSub, name: LiveDebugger.PubSub},
       {LiveDebugger.Endpoint,
