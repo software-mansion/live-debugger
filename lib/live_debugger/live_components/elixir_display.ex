@@ -27,12 +27,12 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
     ~H"""
     <div class="font-mono text-sm text-gray-500">
       <div>
-        <div
-          class={"flex #{if has_children?(@node), do: "cursor-pointer"}"}
-          phx-click={if has_children?(@node), do: "expand-click"}
-          phx-target={@myself}
-        >
-          <div class="mr-0.5 inline-block w-[2ch] flex-shrink-0">
+        <div class="flex">
+          <div
+            class={"mr-0.5 inline-block w-[2ch] flex-shrink-0 #{if has_children?(@node), do: "cursor-pointer"}"}
+            phx-click={if has_children?(@node), do: "expand-click"}
+            phx-target={@myself}
+          >
             <.icon
               :if={has_children?(@node) and @expanded?}
               name="hero-chevron-up-micro"
@@ -44,7 +44,11 @@ defmodule LiveDebugger.LiveComponents.ElixirDisplay do
               class="w-4 h-4"
             />
           </div>
-          <div>
+          <div
+            class={if has_children?(@node), do: "cursor-pointer"}
+            phx-click={if has_children?(@node), do: "expand-click"}
+            phx-target={@myself}
+          >
             <%= if has_children?(@node) and @expanded? do %>
               <.text_items items={@node.expanded_before} />
             <% else %>

@@ -46,6 +46,7 @@ defmodule LiveDebugger.Components do
     values: ["primary", "secondary", "danger", "success", "warning", "info", "gray", "white"]
   )
 
+  attr(:variant, :string, default: "solid", values: ["solid", "simple"])
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
   attr(:rest, :global)
   slot(:inner_block, required: true)
@@ -55,8 +56,9 @@ defmodule LiveDebugger.Components do
     <div
       class={
         [
-          "w-max h-max p-1 border-2 rounded-lg cursor-pointer hover:shadow",
-          button_color_classes(@color)
+          "w-max h-max p-1 cursor-pointer",
+          if(@variant != "simple", do: "border-2 rounded-lg hover:shadow"),
+          button_color_classes(@color, @variant)
         ] ++
           List.wrap(@class)
       }
@@ -181,6 +183,93 @@ defmodule LiveDebugger.Components do
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""
     <span class={[@name, List.wrap(@class)]} {@rest}></span>
+    """
+  end
+
+  @doc """
+  Renders a fullscreen using Fullscreen hook.
+  If you want to open fullscreen from a button, you can use `phx-hook="OpenFullscreen"` and `data-fullscreen-id` attributes.
+  You can close the fullscreen using X button or by pressing ESC key.
+  """
+  attr(:id, :string, required: true)
+
+  attr(:class, :any,
+    default: nil,
+    doc: "Additional classes to be added to the fullscreen element."
+  )
+
+  slot(:inner_block, required: true)
+
+  def fullscreen(assigns) do
+    ~H"""
+    <dialog
+      id={@id}
+      phx-hook="Fullscreen"
+      class={[
+        "relative w-full h-full p-2 overflow-auto hidden flex-col rounded-lg backdrop:bg-black backdrop:opacity-50"
+        | List.wrap(@class)
+      ]}
+    >
+      <div class="flex justify-end items-center h-max w-full">
+        <.button
+          id={"#{@id}-close"}
+          phx-hook="CloseFullscreen"
+          data-fullscreen-id={@id}
+          variant="simple"
+          class="hover:bg-primary-500 hover:bg-opacity-10 rounded-full"
+        >
+          <.icon name="hero-x-mark-solid" class="h-7 w-7" />
+        </.button>
+      </div>
+      <div class="w-full h-full overflow-auto flex flex-col gap-2">
+        <%= render_slot(@inner_block) %>
+      </div>
+    </dialog>
+    """
+  end
+
+  @doc """
+  Renders a button which will show a fullscreen when clicked.
+  Content of the fullscreen is passed as `:inner_block` slot.
+
+  ## Examples
+
+      <.fullscreen_wrapper id="my_fullscreen">
+        <.h1>Hello World</.h1>
+      </.fullscreen_wrapper>
+  """
+  attr(:id, :string, required: true)
+
+  attr(:fullscreen_class, :any,
+    default: nil,
+    doc: "Additional classes to be added to the fullscreen."
+  )
+
+  attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
+
+  attr(:icon, :string,
+    default: "hero-arrow-top-right-on-square",
+    doc: "Icon to be displayed as a button"
+  )
+
+  slot(:inner_block, required: true)
+
+  def fullscreen_wrapper(assigns) do
+    ~H"""
+    <div>
+      <.button
+        id={"fullscreen_#{@id}_button"}
+        phx-hook="OpenFullscreen"
+        data-fullscreen-id={"fullscreen_#{@id}"}
+        class={["flex items-center justify-center w-max h-max" | List.wrap(@class)]}
+        variant="simple"
+      >
+        <.icon name={@icon} class="w-5 h-5" />
+      </.button>
+      <.fullscreen id={"fullscreen_#{@id}"} class={@fullscreen_class}>
+        <%= render_slot(@inner_block) %>
+      </.fullscreen>
+    </div>
     """
   end
 
@@ -312,7 +401,17 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  defp button_color_classes(color) do
+  defp button_color_classes(color, "simple") do
+    case color do
+      "white" ->
+        "text-white hover:text-gray-300"
+
+      color ->
+        "text-#{color}-500 hover:text-#{color}-900"
+    end
+  end
+
+  defp button_color_classes(color, "solid") do
     case color do
       "white" ->
         "bg-white hover:bg-gray-300 border-white hover:border-gray-300 text-black hover:text-black"
@@ -320,7 +419,7 @@ defmodule LiveDebugger.Components do
       "gray" ->
         "bg-gray-500 hover:bg-gray-800 border-gray-500 hover:border-gray-800 text-black hover:text-white"
 
-      _ ->
+      color ->
         "bg-#{color}-500 hover:bg-#{color}-800 border-#{color}-500 hover:border-#{color}-800 text-white"
     end
   end

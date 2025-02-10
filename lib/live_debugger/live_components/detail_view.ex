@@ -178,7 +178,15 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       myself={@myself}
       title="Assigns"
     >
-      <div class="w-full max-h-full border-2 border-gray-200 rounded-lg px-2 overflow-y-auto text-gray-600">
+      <div class="relative w-full max-h-full border-2 border-gray-200 rounded-lg px-2 overflow-y-auto text-gray-600">
+        <.fullscreen_wrapper id="assigns-display-fullscreen" class="absolute top-0 right-0">
+          <.live_component
+            id="assigns-display-fullscreen"
+            module={LiveDebugger.LiveComponents.ElixirDisplay}
+            node={TermParser.term_to_display_tree(@assigns)}
+            level={1}
+          />
+        </.fullscreen_wrapper>
         <.live_component
           id="assigns-display"
           module={LiveDebugger.LiveComponents.ElixirDisplay}

@@ -26,4 +26,48 @@ Hooks.Tooltip = {
   },
 };
 
+Hooks.OpenFullscreen = {
+  mounted() {
+    const fullscreenId = this.el.dataset.fullscreenId;
+    let fullscreen = document.querySelector(`#${fullscreenId}`);
+    this.handleOpen = () => {
+      fullscreen.showModal();
+      fullscreen.classList.remove('hidden');
+      fullscreen.classList.add('flex');
+    };
+    this.el.addEventListener('click', this.handleOpen);
+  },
+  destroyed() {
+    this.el.removeEventListener('click', this.handleOpen);
+  },
+};
+
+Hooks.CloseFullscreen = {
+  mounted() {
+    const fullscreenId = this.el.dataset.fullscreenId;
+    let fullscreen = document.querySelector(`#${fullscreenId}`);
+    this.handleClose = () => {
+      fullscreen.close();
+    };
+    this.el.addEventListener('click', this.handleClose);
+  },
+  destroyed() {
+    this.el.removeEventListener('click', this.handleClose);
+  },
+};
+
+Hooks.Fullscreen = {
+  mounted() {
+    let fullscreen = this.el;
+    this.handleClosed = () => {
+      fullscreen.classList.remove('flex');
+      fullscreen.classList.add('hidden');
+    };
+    fullscreen.addEventListener('close', this.handleClosed);
+  },
+  destroyed() {
+    this.el.removeEventListener('close', this.handleClosed);
+  },
+};
+
 export default Hooks;

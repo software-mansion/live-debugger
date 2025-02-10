@@ -64,6 +64,13 @@ module.exports = {
         '.phx-change-loading &',
       ])
     ),
+    plugin(function ({ addVariant, e }) {
+      addVariant('backdrop', ({ modifySelectors, separator }) => {
+        modifySelectors(({ className }) => {
+          return `.${e(`backdrop${separator}${className}`)}::backdrop`;
+        });
+      });
+    }),
     // Plugin for adding Heroicons
     plugin(function ({ matchComponents, theme }) {
       let iconsDir = path.join(__dirname, './icons/heroicons/optimized');

@@ -67,7 +67,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def render(assigns) do
     ~H"""
     <div class="w-max h-max flex">
-      <div class="hidden sm:flex flex-col w-60 min-h-max h-screen bg-primary  gap-1 pt-4 p-2 pr-3">
+      <div class="hidden sm:flex flex-col w-60 min-h-max h-screen bg-primary gap-1 pt-4 p-2 pr-3">
         <.sidebar_label socket={@socket} />
         <.separate_bar />
         <.sidebar_content
@@ -125,7 +125,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp sidebar_label(assigns) do
     ~H"""
-    <.link patch="/">
+    <.link patch="/" class="flex items-center gap-2">
+      <.icon class="text-white" name="hero-chevron-left-solid" />
       <.h3 class="text-white">LiveDebugger</.h3>
     </.link>
     """
@@ -263,7 +264,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   defp handle_error({:error, :not_alive} = error, pid, _) do
-    Logger.info("Process #{pid} is not alive")
+    Logger.info("Process #{inspect(pid)} is not alive")
     error
   end
 
