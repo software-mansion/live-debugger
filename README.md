@@ -36,7 +36,7 @@ config :live_debugger, browser_features?: true
 ```elixir
 # lib/my_app_web/components/layouts/root.html.heex
 
-<body>
+<head>
   <%= if Application.get_env(:live_debugger, :browser_features?) do %>
     <script
       id="live-debugger-scripts"
@@ -44,8 +44,7 @@ config :live_debugger, browser_features?: true
     >
     </script>
   <% end %>
-  <%= @inner_content %>
-</body>
+</head>
 ```
 
 ## Optional configuration
