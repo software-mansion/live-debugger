@@ -146,11 +146,15 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   attr(:myself, :any, required: true)
 
   defp sidebar_content(assigns) do
+    assigns = assign(assigns, :show_live_views?, length(assigns.all_lvps) > 1)
+
     ~H"""
     <div class="flex flex-col gap-2 p-2">
       <.basic_info pid={@lvp.pid} socket_id={@socket_id} />
-      <.separate_bar />
-      <.other_pids_navigation lvp={@lvp} all_lvps={@all_lvps} />
+      <%= if @show_live_views? do %>
+        <.separate_bar />
+        <.live_views lvp={@lvp} all_lvps={@all_lvps} />
+      <% end %>
       <.separate_bar />
       <.component_tree tree={@tree} selected_node_id={@node_id} target={@myself} />
     </div>
@@ -231,7 +235,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   attr(:lvp, :any, required: true)
   attr(:all_lvps, :any, required: true)
 
-  defp other_pids_navigation(assigns) do
+  defp live_views(assigns) do
     lvps_info =
       Enum.map(assigns.all_lvps, fn lvp ->
         string_pid = Parsers.pid_to_string(lvp.pid)
