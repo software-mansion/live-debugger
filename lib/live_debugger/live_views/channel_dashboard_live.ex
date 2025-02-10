@@ -213,7 +213,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     case LiveViewDiscoveryService.live_view_processes(socket_id) do
       [_ | _] = lv_processes ->
         lv_processes
-        |> IO.inspect()
 
       _ ->
         Logger.warning("LiveView process for socket id #{socket_id} not found")

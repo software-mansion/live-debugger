@@ -50,7 +50,8 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       |> expect(:state, fn ^pid -> {:ok, Fakes.state(root_pid: pid, socket_id: socket_id)} end)
       |> expect(:state, 2, fn _ -> {:ok, Fakes.state(socket_id: "phx-no-such-socket")} end)
 
-      assert LiveViewDiscoveryService.live_pids(socket_id) == [pid]
+      assert [lv_process] = LiveViewDiscoveryService.live_view_processes(socket_id)
+      assert lv_process.pid == pid
     end
 
     test "returns empty list if no LiveView process of given socket_id" do
@@ -62,7 +63,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       |> expect(:initial_call, fn _ -> {:"Elixir.SomeLiveView", :mount} end)
       |> expect(:state, fn ^pid -> {:ok, Fakes.state(socket_id: "phx-socket-id")} end)
 
-      assert LiveViewDiscoveryService.live_pids(bad_socket_id) == []
+      assert LiveViewDiscoveryService.live_view_processes(bad_socket_id) == []
     end
   end
 end

@@ -35,15 +35,23 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
       debugged_live_pids()
       |> pids_to_live_view_processes()
 
-    root_pid = Enum.find_value(lv_processes, &(&1.socket_id == root_socket_id), & &1.pid)
+    root_pid =
+      Enum.find_value(
+        lv_processes,
+        &if(&1.socket_id == root_socket_id, do: &1.pid)
+      )
 
-    lv_processes
-    |> Enum.filter(fn process ->
-      process.root_pid == root_pid
-    end)
-    |> Enum.map(fn process ->
-      %LiveViewProcess{process | root_socket_id: root_socket_id}
-    end)
+    if is_nil(root_pid) do
+      []
+    else
+      lv_processes
+      |> Enum.filter(fn process ->
+        process.root_pid == root_pid
+      end)
+      |> Enum.map(fn process ->
+        %LiveViewProcess{process | root_socket_id: root_socket_id}
+      end)
+    end
   end
 
   @doc """
