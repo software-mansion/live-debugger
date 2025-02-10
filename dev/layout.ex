@@ -23,7 +23,7 @@ defmodule LiveDebuggerDev.Layout do
         </script>
         <%= if Application.get_env(:live_debugger, :browser_features?) do %>
           <script
-            id="live-debugger-js"
+            id="live-debugger-scripts"
             src={"http://localhost:#{Application.get_env(:live_debugger, :port)}/assets/client.js"}
           >
           </script>

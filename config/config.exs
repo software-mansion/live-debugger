@@ -24,4 +24,6 @@ if config_env() == :dev do
     ),
       cd: Path.expand("../assets", __DIR__)
     ]
+
+  config :live_debugger, browser_features?: true
 end
