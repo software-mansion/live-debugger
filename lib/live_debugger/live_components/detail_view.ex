@@ -30,8 +30,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   def update(assigns, socket) do
     socket
     |> assign(%{
-      node_id: assigns.node_id || assigns.pid,
-      pid: assigns.pid,
+      node_id: assigns.node_id || assigns.live_view_process.pid,
+      live_view_process: assigns.live_view_process,
       socket_id: assigns.socket_id
     })
     |> assign_async_node_with_type()
@@ -39,7 +39,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   end
 
   attr(:node_id, :any, required: true)
-  attr(:pid, :any, required: true)
+  attr(:live_view_process, :any, required: true)
   attr(:socket_id, :string, required: true)
 
   @impl true
@@ -133,9 +133,11 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp title(:live_component), do: "LiveComponent"
   defp title(:live_view), do: "LiveView"
+  defp title(:nested_live_view), do: "Nested LiveView"
 
   defp id_type(:live_component), do: "CID"
   defp id_type(:live_view), do: "PID"
+  defp id_type(:nested_live_view), do: "PID"
 
   attr(:assigns, :list, required: true)
   attr(:myself, :any, required: true)
@@ -170,13 +172,22 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     """
   end
 
-  defp assign_async_node_with_type(%{assigns: %{node_id: node_id, pid: pid}} = socket)
+  defp assign_async_node_with_type(
+         %{assigns: %{node_id: node_id, live_view_process: lv_process}} = socket
+       )
        when not is_nil(node_id) do
     assign_async(socket, [:node, :node_type], fn ->
-      with {:ok, channel_state} <- ChannelService.state(pid),
+      with {:ok, channel_state} <- ChannelService.state(lv_process.pid),
            {:ok, node} <- ChannelService.get_node(channel_state, node_id),
            true <- not is_nil(node) do
-        {:ok, %{node: node, node_type: TreeNode.type(node)}}
+        node_type =
+          cond do
+            TreeNode.type(node) == :live_component -> :live_component
+            lv_process.root? -> :live_view
+            true -> :nested_live_view
+          end
+
+        {:ok, %{node: node, node_type: node_type}}
       else
         false -> {:error, :node_deleted}
         err -> err

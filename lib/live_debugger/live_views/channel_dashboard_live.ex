@@ -20,7 +20,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     |> assign(:nested_socket_id, params["nested_socket_id"])
     |> assign(:tracing_session, nil)
     |> assign_rate_limiter_pid()
-    |> assign_async_debugged_pid()
+    |> assign_async_debugged_lvp()
     |> assign_base_url()
     |> ok()
   end
@@ -35,7 +35,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <.async_result :let={pid} assign={@debugged_pid}>
+    <.async_result :let={lvp} assign={@debugged_lvp}>
       <:loading>
         <div class="h-full flex items-center justify-center">
           <.spinner size="xl" />
@@ -51,16 +51,17 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
         <.live_component
           module={LiveDebugger.LiveComponents.Sidebar}
           id="sidebar"
-          pid={pid}
+          debugged_live_view_process={lvp}
+          all_live_view_processes={@all_lvps}
           socket_id={@socket_id}
-          node_id={@node_id || pid}
+          node_id={@node_id || lvp.pid}
           base_url={@base_url}
         />
         <.live_component
           module={LiveDebugger.LiveComponents.DetailView}
           id="detail_view"
-          pid={pid}
-          node_id={@node_id || pid}
+          live_view_process={lvp}
+          node_id={@node_id || lvp.pid}
           socket_id={@socket_id}
         />
       </div>
@@ -69,7 +70,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   end
 
   @impl true
-  def handle_async(:fetch_debugged_pid, {:ok, nil}, socket) do
+  def handle_async(:fetch_debugged_lv_processes, {:ok, nil}, socket) do
     with [live_pid] <- LiveViewDiscoveryService.debugged_live_pids(),
          {:ok, %{socket: %{id: socket_id}}} <- ChannelService.state(live_pid) do
       socket
@@ -78,37 +79,47 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     else
       _ ->
         socket
-        |> assign(:debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, :not_found))
+        |> assign(:debugged_lvp, AsyncResult.failed(socket.assigns.debugged_lvp, :not_found))
         |> noreply()
     end
   end
 
   @impl true
-  def handle_async(:fetch_debugged_pid, {:ok, fetched_pid}, socket) do
-    Process.monitor(fetched_pid)
+  def handle_async(:fetch_debugged_lv_processes, {:ok, lv_processes}, socket) do
+    debugged_socket_id = socket.assigns.nested_socket_id || socket.assigns.socket_id
 
-    socket.assigns.socket_id
-    |> CallbackTracingService.start_tracing(fetched_pid, socket.assigns.rate_limiter_pid)
-    |> case do
-      {:ok, tracing_session} ->
+    with selected_lvp when not is_nil(selected_lvp) <-
+           Enum.find(lv_processes, &(&1.socket_id == debugged_socket_id)),
+         _ <- Process.monitor(selected_lvp.pid),
+         {:ok, tracing_session} <-
+           CallbackTracingService.start_tracing(
+             socket.assigns.socket_id,
+             selected_lvp.pid,
+             socket.assigns.rate_limiter_pid
+           ) do
+      socket
+      |> assign(:debugged_lvp, AsyncResult.ok(selected_lvp))
+      |> assign(:all_lvps, lv_processes)
+      |> assign(:tracing_session, tracing_session)
+    else
+      nil ->
         socket
-        |> assign(:debugged_pid, AsyncResult.ok(fetched_pid))
-        |> assign(:tracing_session, tracing_session)
+        |> assign(:debugged_lvp, AsyncResult.failed(socket.assigns.debugged_lvp, :not_found))
 
       {:error, reason} ->
-        assign(socket, :debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, reason))
+        assign(socket, :debugged_lvp, AsyncResult.failed(socket.assigns.debugged_lvp, reason))
     end
     |> noreply()
   end
 
   @impl true
-  def handle_async(:fetch_debugged_pid, {:exit, reason}, socket) do
+  def handle_async(:fetch_debugged_lv_processes, {:exit, reason}, socket) do
     Logger.error(
       "LiveDebugger encountered unexpected error while fetching debugged pid: #{inspect(reason)}"
     )
 
     socket
-    |> assign(:debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, reason))
+    |> assign(:debugged_lvp, AsyncResult.failed(socket.assigns.debugged_lvp, reason))
     |> noreply()
   end
 
@@ -118,13 +129,13 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
 
     socket
     |> push_patch(to: socket.assigns.base_url)
-    |> assign_async_debugged_pid()
+    |> assign_async_debugged_lvp()
     |> noreply()
   end
 
   @impl true
   def handle_info({:new_trace, trace}, socket) do
-    debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
+    debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_lvp.result
 
     if Trace.node_id(trace) == debugged_node_id do
       send_update(LiveDebugger.LiveComponents.EventsList, %{id: "event-list", new_trace: trace})
@@ -173,16 +184,16 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     assign(socket, :base_url, base_url)
   end
 
-  defp assign_async_debugged_pid(socket) do
+  defp assign_async_debugged_lvp(socket) do
     socket_id = socket.assigns.socket_id
-    nested_socket_id = Map.get(socket.assigns, :nested_socket_id)
 
     socket
-    |> assign(:debugged_pid, AsyncResult.loading())
-    |> start_async(:fetch_debugged_pid, fn ->
-      with nil <- fetch_pid_after(socket_id, nested_socket_id, 200),
-           nil <- fetch_pid_after(socket_id, nested_socket_id, 800) do
-        fetch_pid_after(socket_id, nested_socket_id, 1000)
+    |> assign(:debugged_lvp, AsyncResult.loading())
+    |> assign(:all_lvp, [])
+    |> start_async(:fetch_debugged_lv_processes, fn ->
+      with nil <- fetch_lvp_after(socket_id, 200),
+           nil <- fetch_lvp_after(socket_id, 800) do
+        fetch_lvp_after(socket_id, 1000)
       end
     end)
   end
@@ -196,27 +207,17 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     end
   end
 
-  defp fetch_pid_after(socket_id, nested_socket_id, milliseconds) do
+  defp fetch_lvp_after(socket_id, milliseconds) do
     Process.sleep(milliseconds)
 
-    case LiveViewDiscoveryService.live_pids(socket_id) do
-      [pid] ->
-        pid
+    case LiveViewDiscoveryService.live_view_processes(socket_id) do
+      [_ | _] = lv_processes ->
+        lv_processes
+        |> IO.inspect()
 
-      [pid | nested_pids] ->
-        case nested_socket_id do
-          nil ->
-            pid
+      _ ->
+        Logger.warning("LiveView process for socket id #{socket_id} not found")
 
-          nested_id ->
-            nested_pids
-            |> LiveViewDiscoveryService.live_view_processes()
-            |> Enum.find_value(fn lv_process ->
-              if lv_process.socket_id == nested_id, do: lv_process.pid
-            end)
-        end
-
-      [] ->
         nil
     end
   end

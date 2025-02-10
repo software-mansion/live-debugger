@@ -7,6 +7,7 @@ defmodule LiveDebugger.Components.Tree do
 
   alias LiveDebugger.Components.Collapsible
   alias LiveDebugger.Structs.TreeNode
+  alias LiveDebugger.Utils.Formatters
 
   @doc """
   Tree component which show nested tree of live view and live components.
@@ -132,7 +133,7 @@ defmodule LiveDebugger.Components.Tree do
     %{
       id: TreeNode.id(node),
       parsed_id: TreeNode.display_id(node),
-      label: short_name(node.module),
+      label: Formatters.module_short_name(node.module),
       tooltip: "#{Atom.to_string(node.module)}",
       children: node.children,
       icon: "hero-tv"
@@ -143,17 +144,10 @@ defmodule LiveDebugger.Components.Tree do
     %{
       id: TreeNode.id(node),
       parsed_id: TreeNode.display_id(node),
-      label: "#{short_name(node.module)} (#{node.cid})",
+      label: "#{Formatters.module_short_name(node.module)} (#{node.cid})",
       tooltip: "#{Atom.to_string(node.module)} (#{node.cid})",
       children: node.children,
       icon: "hero-cube"
     }
-  end
-
-  defp short_name(module) when is_atom(module) do
-    module
-    |> Atom.to_string()
-    |> String.split(".")
-    |> List.last()
   end
 end

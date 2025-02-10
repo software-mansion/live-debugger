@@ -26,40 +26,32 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   end
 
   @doc """
-  Returns pids of the LiveView processes associated with the given `socket_id`.
-  First element of the list is the root process.
-  If the list is empty, it means that there is no LiveView process associated with the given `socket_id`.
+  Returns pids of the LiveView processes associated with the given `socket_id` and optional `nested_socket_id`.
+  These are unstructured LiveViewProcess structs. Use `merge_live_view_processes/1` to convert them into tree.
   """
-  @spec live_pids(socket_id :: String.t()) :: [pid()]
-  def live_pids(socket_id) do
-    all_lv_processes = debugged_live_pids() |> live_view_processes()
+  @spec live_view_processes(root_socket_id :: String.t()) :: [LiveViewProcess.t()]
+  def live_view_processes(root_socket_id) when is_binary(root_socket_id) do
+    lv_processes =
+      debugged_live_pids()
+      |> pids_to_live_view_processes()
 
-    socket_process_pid =
-      all_lv_processes
-      |> Enum.find(fn lv_process -> lv_process.socket_id == socket_id end)
-      |> case do
-        %LiveViewProcess{pid: pid} -> pid
-        nil -> []
-      end
+    root_pid = Enum.find_value(lv_processes, &(&1.socket_id == root_socket_id), & &1.pid)
 
-    with pid when is_pid(pid) <- socket_process_pid do
-      child_pids =
-        all_lv_processes
-        |> Enum.filter(fn lv_process ->
-          (lv_process.root_pid == pid || lv_process.parent_pid == pid) && lv_process.pid != pid
-        end)
-        |> Enum.map(& &1.pid)
-
-      [pid | child_pids]
-    end
+    lv_processes
+    |> Enum.filter(fn process ->
+      process.root_pid == root_pid
+    end)
+    |> Enum.map(fn process ->
+      %LiveViewProcess{process | root_socket_id: root_socket_id}
+    end)
   end
 
   @doc """
   Returns list of LiveView processes information based on the given pids.
   If omits the processes which states couldn't be fetched.
   """
-  @spec live_view_processes([pid()]) :: [LiveViewProcess.t()]
-  def live_view_processes(pids) do
+  @spec pids_to_live_view_processes([pid()]) :: [LiveViewProcess.t()]
+  def pids_to_live_view_processes(pids) when is_list(pids) do
     pids
     |> Enum.map(fn pid ->
       case ProcessService.state(pid) do
@@ -71,6 +63,40 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
       end
     end)
     |> Enum.reject(&is_nil/1)
+  end
+
+  @doc """
+  Merges the given list of LiveViewProcess into a tree structure.
+  """
+  @spec merge_live_view_processes([LiveViewProcess.t()]) :: map()
+  def merge_live_view_processes(live_view_processes) when is_list(live_view_processes) do
+    children_live_view_processes(live_view_processes, & &1.root?)
+  end
+
+  @spec merge_live_view_processes([LiveViewProcess.t()], LiveViewProcess.t()) ::
+          {LiveViewProcess.t(), map()}
+  defp merge_live_view_processes(live_view_processes, parent_process)
+       when is_list(live_view_processes) and is_struct(parent_process) do
+    children_processes =
+      live_view_processes
+      |> children_live_view_processes(&(&1.parent_pid == parent_process.pid))
+      |> Enum.map(fn {parent, children} ->
+        {%LiveViewProcess{parent | root_socket_id: parent_process.root_socket_id}, children}
+      end)
+      |> Enum.into(%{})
+
+    {parent_process, children_processes}
+  end
+
+  @spec children_live_view_processes([LiveViewProcess.t()], (LiveViewProcess.t() -> boolean())) ::
+          map()
+  defp children_live_view_processes(all_live_view_processes, choose_children_fn) do
+    all_live_view_processes
+    |> Enum.filter(choose_children_fn)
+    |> Enum.map(fn child_process ->
+      merge_live_view_processes(all_live_view_processes, child_process)
+    end)
+    |> Enum.into(%{})
   end
 
   @spec all_live_pids() :: [{pid(), mfa()}]

@@ -103,7 +103,11 @@ defmodule LiveDebugger.LiveViews.SessionsDashboardLive do
           fetch_live_view_processes_after(1000)
         end
 
-      {:ok, %{live_view_processes: merge_live_view_processes(live_view_processes)}}
+      {:ok,
+       %{
+         live_view_processes:
+           LiveViewDiscoveryService.merge_live_view_processes(live_view_processes)
+       }}
     end)
   end
 
@@ -112,38 +116,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboardLive do
     Process.sleep(milliseconds)
 
     LiveViewDiscoveryService.debugged_live_pids()
-    |> LiveViewDiscoveryService.live_view_processes()
-  end
-
-  @spec merge_live_view_processes([LiveViewProcess.t()]) :: map()
-  defp merge_live_view_processes(live_view_processes) when is_list(live_view_processes) do
-    children_live_view_processes(live_view_processes, & &1.root?)
-  end
-
-  @spec merge_live_view_processes([LiveViewProcess.t()], LiveViewProcess.t()) ::
-          {LiveViewProcess.t(), map()}
-  defp merge_live_view_processes(live_view_processes, parent_process)
-       when is_list(live_view_processes) and is_struct(parent_process) do
-    children_processes =
-      live_view_processes
-      |> children_live_view_processes(&(&1.parent_pid == parent_process.pid))
-      |> Enum.map(fn {parent, children} ->
-        {%LiveViewProcess{parent | root_socket_id: parent_process.root_socket_id}, children}
-      end)
-      |> Enum.into(%{})
-
-    {parent_process, children_processes}
-  end
-
-  @spec children_live_view_processes([LiveViewProcess.t()], (LiveViewProcess.t() -> boolean())) ::
-          map()
-  defp children_live_view_processes(all_live_view_processes, choose_children_fn) do
-    all_live_view_processes
-    |> Enum.filter(choose_children_fn)
-    |> Enum.map(fn child_process ->
-      merge_live_view_processes(all_live_view_processes, child_process)
-    end)
-    |> Enum.into(%{})
+    |> LiveViewDiscoveryService.pids_to_live_view_processes()
   end
 
   defp redirect_url(%LiveViewProcess{root?: true, socket_id: socket_id}), do: "/#{socket_id}"

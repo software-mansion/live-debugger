@@ -8,7 +8,9 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   require Logger
 
   alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Structs.LiveViewProcess
   alias LiveDebugger.Utils.Parsers
+  alias LiveDebugger.Utils.Formatters
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
 
@@ -48,7 +50,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def update(assigns, socket) do
     socket
     |> assign(%{
-      pid: assigns.pid,
+      debugged_live_view_process: assigns.debugged_live_view_process,
+      all_live_view_processes: assigns.all_live_view_processes,
       socket_id: assigns.socket_id,
       node_id: assigns.node_id,
       base_url: assigns.base_url
@@ -58,7 +61,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     |> ok()
   end
 
-  attr(:pid, :any, required: true)
+  attr(:debugged_live_view_process, :any, required: true)
+  attr(:all_live_view_processes, :any, required: true)
   attr(:socket_id, :string, required: true)
   attr(:node_id, :any, required: true)
   attr(:base_url, :string, required: true)
@@ -71,7 +75,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         <.sidebar_label socket={@socket} />
         <.separate_bar />
         <.sidebar_content
-          pid={@pid}
+          lvp={@debugged_live_view_process}
+          all_lvps={@all_live_view_processes}
           socket_id={@socket_id}
           tree={@tree}
           node_id={@node_id}
@@ -88,7 +93,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
             <.sidebar_label socket={@socket} />
           </:header>
           <.sidebar_content
-            pid={@pid}
+            lvp={@debugged_live_view_process}
+            all_lvps={@all_live_view_processes}
             socket_id={@socket_id}
             tree={@tree}
             node_id={@node_id}
@@ -133,7 +139,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   attr(:socket_id, :string, required: true)
-  attr(:pid, :any, required: true)
+  attr(:lvp, :any, required: true)
+  attr(:all_lvps, :any, required: true)
   attr(:tree, :any, required: true)
   attr(:node_id, :any, required: true)
   attr(:myself, :any, required: true)
@@ -141,7 +148,9 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   defp sidebar_content(assigns) do
     ~H"""
     <div class="flex flex-col gap-2 p-2">
-      <.basic_info pid={@pid} socket_id={@socket_id} />
+      <.basic_info pid={@lvp.pid} socket_id={@socket_id} />
+      <.separate_bar />
+      <.other_pids_navigation lvp={@lvp} all_lvps={@all_lvps} />
       <.separate_bar />
       <.component_tree tree={@tree} selected_node_id={@node_id} target={@myself} />
     </div>
@@ -219,6 +228,42 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     """
   end
 
+  attr(:lvp, :any, required: true)
+  attr(:all_lvps, :any, required: true)
+
+  defp other_pids_navigation(assigns) do
+    lvps_info =
+      Enum.map(assigns.all_lvps, fn lvp ->
+        string_pid = Parsers.pid_to_string(lvp.pid)
+        selected? = lvp.pid == assigns.lvp.pid
+
+        %{
+          pid: string_pid,
+          name: "#{Formatters.module_short_name(lvp.module)}",
+          redirect_url: redirect_url(lvp),
+          color: if(selected?, do: "text-primary", else: "text-black"),
+          icon_name: if(lvp.root?, do: "hero-tv", else: "hero-tv-micro"),
+          tooltip: "#{lvp.module} (#{string_pid})"
+        }
+      end)
+
+    assigns = assign(assigns, :lvps_info, lvps_info)
+
+    ~H"""
+    <.card class="p-4 flex flex-col gap-1 bg-gray-200 text-primary">
+      <.h4>Live Views</.h4>
+      <%= for info <- @lvps_info do %>
+        <.link navigate={info.redirect_url} class={["flex items-center gap-1", info.color]}>
+          <.tooltip id={info.pid} content={info.tooltip} class="flex items-center gap-1">
+            <div class="w-6 flex items-center justify-center"><.icon name={info.icon_name} /></div>
+            <div><%= info.name %></div>
+          </.tooltip>
+        </.link>
+      <% end %>
+    </.card>
+    """
+  end
+
   attr(:icon, :string, required: true)
   attr(:link, :string, default: nil)
   attr(:rest, :global)
@@ -238,7 +283,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   defp assign_async_existing_node_ids(socket) do
-    pid = socket.assigns.pid
+    pid = socket.assigns.debugged_live_view_process.pid
 
     assign_async(socket, :existing_node_ids, fn ->
       with {:ok, channel_state} <- ChannelService.state(pid),
@@ -251,7 +296,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   defp assign_async_tree(socket) do
-    pid = socket.assigns.pid
+    pid = socket.assigns.debugged_live_view_process.pid
 
     assign_async(socket, :tree, fn ->
       with {:ok, channel_state} <- ChannelService.state(pid),
@@ -271,5 +316,13 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   defp handle_error(error, _, error_message) do
     Logger.error(error_message <> inspect(error))
     error
+  end
+
+  defp redirect_url(%LiveViewProcess{socket_id: socket_id, root_socket_id: socket_id}) do
+    "/#{socket_id}"
+  end
+
+  defp redirect_url(%LiveViewProcess{socket_id: socket_id, root_socket_id: root_socket_id}) do
+    "/#{root_socket_id}/#{socket_id}"
   end
 end
