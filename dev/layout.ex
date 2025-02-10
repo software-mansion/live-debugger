@@ -21,7 +21,7 @@ defmodule LiveDebuggerDev.Layout do
         </script>
         <script src="/assets/phoenix_live_view/phoenix_live_view.js">
         </script>
-        <script src="http://localhost:4007/assets/client.js">
+        <script id="live-debugger-js" src="http://localhost:4007/assets/client.js">
         </script>
         <script>
           // Set global hooks and uploaders objects to be used by the LiveSocket,
@@ -73,7 +73,6 @@ defmodule LiveDebuggerDev.Layout do
   def render("app.html", assigns) do
     ~H"""
     <main>
-      <LiveDebugger.Helpers.debug_button socket_id={@socket.id} />
       <%= @inner_content %>
     </main>
     """
