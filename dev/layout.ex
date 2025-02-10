@@ -21,6 +21,13 @@ defmodule LiveDebuggerDev.Layout do
         </script>
         <script src="/assets/phoenix_live_view/phoenix_live_view.js">
         </script>
+        <%= if Application.get_env(:live_debugger, :browser_features?, true) do %>
+          <script
+            id="live-debugger-js"
+            src={"http://localhost:#{Application.get_env(:live_debugger, :port, 4007)}/assets/client.js"}
+          >
+          </script>
+        <% end %>
         <script>
           // Set global hooks and uploaders objects to be used by the LiveSocket,
           // so they can be overwritten in user provided templates.
@@ -71,7 +78,6 @@ defmodule LiveDebuggerDev.Layout do
   def render("app.html", assigns) do
     ~H"""
     <main>
-      <LiveDebugger.Helpers.debug_button socket_id={@socket.id} />
       <%= @inner_content %>
     </main>
     """
