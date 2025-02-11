@@ -63,8 +63,8 @@ document.addEventListener("DOMContentLoaded", function () {
     posY = posYStart - event.clientY;
     posXStart = event.clientX;
     posYStart = event.clientY;
-    debugButton.style.top = debugButton.offsetTop - posY + "px";
-    debugButton.style.left = debugButton.offsetLeft - posX + "px";
+    debugButton.style.top = `${debugButton.offsetTop - posY}px`;
+    debugButton.style.left = `${debugButton.offsetLeft - posX}px`;
   };
 
   const onMouseUp = () => {
