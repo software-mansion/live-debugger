@@ -9,11 +9,14 @@ It provides insights into your LiveViews, their LiveComponents, events, state tr
 Add `live_debugger` to your list of dependencies in `mix.exs`:
 
 ```elixir
-def deps do
-  [
-    {:live_debugger, git: "https://github.com/software-mansion-labs/live-debugger.git", tag: "v0.1.0-rc.1", only: :dev}
-  ]
-end
+  defp deps do
+    [
+      {:live_debugger,
+       git: "https://github.com/software-mansion-labs/live-debugger.git",
+       tag: "v0.1.0-rc.1",
+       only: :dev}
+    ]
+  end
 ```
 
 
