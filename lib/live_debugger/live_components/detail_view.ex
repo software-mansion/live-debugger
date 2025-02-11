@@ -68,8 +68,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             <.assigns_card assigns={node.assigns} myself={@myself} hide?={@hide_assigns_section?} />
           </div>
           <.live_component
-            id="event-list"
-            module={LiveDebugger.LiveComponents.EventsList}
+            id="trace-list"
+            module={LiveDebugger.LiveComponents.TracesList}
             debugged_node_id={@node_id}
             socket_id={@socket_id}
           />

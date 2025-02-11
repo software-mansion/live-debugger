@@ -126,7 +126,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
 
     if Trace.node_id(trace) == debugged_node_id do
-      send_update(LiveDebugger.LiveComponents.EventsList, %{id: "event-list", new_trace: trace})
+      send_update(LiveDebugger.LiveComponents.TracesList, %{id: "trace-list", new_trace: trace})
       send_update(LiveDebugger.LiveComponents.DetailView, %{id: "detail_view", new_trace: trace})
     end
 
