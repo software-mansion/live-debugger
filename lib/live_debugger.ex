@@ -5,27 +5,33 @@ defmodule LiveDebugger do
 
   use Application
 
+  @app_name :live_debugger
+
+  @default_ip {127, 0, 0, 1}
   @default_port 4007
   @default_secret_key_base "DEFAULT_SECRET_KEY_BASE_1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcd"
   @default_signing_salt "live_debugger_signing_salt"
 
+  @assets_path "assets/client.js"
+
   def start(_type, _args) do
-    config = Application.get_all_env(:live_debugger)
+    config = Application.get_all_env(@app_name)
+
     default_adapter = default_adapter()
+    ip = Keyword.get(config, :ip, @default_ip)
+    ip_string = ip |> :inet.ntoa() |> List.to_string()
+    port = Keyword.get(config, :port, @default_port)
 
     endpoint_config =
       [
-        http: [port: Keyword.get(config, :port, @default_port)],
+        http: [ip: ip, port: port],
         secret_key_base: Keyword.get(config, :secret_key_base, @default_secret_key_base),
         live_view: [signing_salt: Keyword.get(config, :signing_salt, @default_signing_salt)],
         adapter: Keyword.get(config, :adapter, default_adapter)
       ]
 
-    Application.put_env(:live_debugger, LiveDebugger.Endpoint, endpoint_config)
-
-    unless Keyword.has_key?(config, :port) do
-      Application.put_env(:live_debugger, :port, @default_port)
-    end
+    Application.put_env(@app_name, LiveDebugger.Endpoint, endpoint_config)
+    Application.put_env(@app_name, :assets_url, "http://#{ip_string}:#{port}/#{@assets_path}")
 
     children = [
       {Phoenix.PubSub, name: LiveDebugger.PubSub},
