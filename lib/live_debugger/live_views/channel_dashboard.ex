@@ -181,7 +181,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
   defp assign_rate_limiter_pid(socket) do
     if connected?(socket) do
-      {:ok, pid} = LiveDebugger.Services.EventRateLimiter.start_link()
+      {:ok, pid} = LiveDebugger.Services.TraceRateLimiter.start_link()
       assign(socket, :rate_limiter_pid, pid)
     else
       assign(socket, :rate_limiter_pid, nil)
