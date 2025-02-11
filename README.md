@@ -38,10 +38,7 @@ config :live_debugger, browser_features?: true
 
 <head>
   <%= if Application.get_env(:live_debugger, :browser_features?) do %>
-    <script
-      id="live-debugger-scripts"
-      src={"http://localhost:#{Application.get_env(:live_debugger, :port)}/assets/client.js"}
-    >
+    <script id="live-debugger-scripts" src={Application.get_env(:live_debugger, :assets_url)}>
     </script>
   <% end %>
 </head>
@@ -53,6 +50,7 @@ config :live_debugger, browser_features?: true
 # config/dev.exs
 
 config :live_debugger,
+  ip: {127, 0, 0, 1}, # IP on which LiveDebugger will be hosted
   port: 4007, # Port on which LiveDebugger will be hosted
   secret_key_base: <SECRET_KEY_BASE>, # Secret key used for LiveDebugger.Endpoint
   signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
