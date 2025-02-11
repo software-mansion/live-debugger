@@ -16,46 +16,38 @@ def deps do
 end
 ```
 
-After you start your application LiveDebugger will be running at a default port `http://localhost:4007`.
-
-## Browser features
-
-List of browser features:
-
-- Debug button
-- Components highlighting (coming soon!)
-
-Some features require injecting JS into the debugged application. To achieve that you need to turn them on in the config and add LiveDebugger scripts to your application root layout.
+Then you need to configure `LiveDebugger.Endpoint` similarly to `YourApplication.Endpoint`
 
 ```elixir
 # config/dev.exs
 
-config :live_debugger, browser_features?: true
+config :live_debugger, LiveDebugger.Endpoint,
+  http: [port: 4007], # Add a port on which you want LiveDebugger to run
+  secret_key_base: <SECRET_KEY_BASE>, # Generate secret using `mix phx.gen.secret`
+  live_view: [signing_salt: "your_signing_salt"],
+  adapter: Bandit.PhoenixAdapter # Change to your adapter if other is used
 ```
 
-```elixir
-# lib/my_app_web/components/layouts/root.html.heex
+LiveDebugger will be running at a separate port you've provided e.g. `http://localhost:4007`.
 
-<head>
-  <%= if Application.get_env(:live_debugger, :browser_features?) do %>
-    <script id="live-debugger-scripts" src={Application.get_env(:live_debugger, :assets_url)}>
-    </script>
+## Adding button
+
+For easy navigation add the optional debug button to your live layout. Make sure that it is not used in production! (`:live_debugger` is `:dev` only - this code won't compile in `:prod` environment)
+
+```elixir
+# lib/my_app_web/components/app.html.heex
+
+<main>
+  ...
+  <%= if Application.ensure_started(:live_debugger) == :ok do %>
+    <LiveDebugger.Helpers.debug_button socket_id={@socket.id} />
   <% end %>
-</head>
+
+  {@inner_content}
+</main>
 ```
 
-## Optional configuration
-
-```elixir
-# config/dev.exs
-
-config :live_debugger,
-  ip: {127, 0, 0, 1}, # IP on which LiveDebugger will be hosted
-  port: 4007, # Port on which LiveDebugger will be hosted
-  secret_key_base: <SECRET_KEY_BASE>, # Secret key used for LiveDebugger.Endpoint
-  signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
-  adapter: Bandit.PhoenixAdapter # Adapter used in LiveDebugger.Endpoint
-```
+This code will produce a warning when compiled in `MIX_ENV=prod`
 
 ## Contributing
 
