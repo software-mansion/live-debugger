@@ -1,6 +1,6 @@
-defmodule LiveDebugger.LiveComponents.EventsList do
+defmodule LiveDebugger.LiveComponents.TracesList do
   @moduledoc """
-  This module provides a LiveComponent to display events.
+  This module provides a LiveComponent to display traces.
   """
 
   use LiveDebuggerWeb, :live_component
@@ -53,8 +53,8 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     ~H"""
     <div>
       <Collapsible.section
-        title="Events"
-        id="events"
+        title="Callback traces"
+        id="traces"
         class="h-full md:overflow-y-auto"
         myself={@myself}
         hide?={@hide_section?}
@@ -64,7 +64,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
             <.button color="primary" phx-click="switch-tracing" phx-target={@myself}>
               <%= if @tracing_started?, do: "Stop", else: "Start" %>
             </.button>
-            <.button variant="simple" color="primary" phx-click="clear-events" phx-target={@myself}>
+            <.button variant="simple" color="primary" phx-click="clear-traces" phx-target={@myself}>
               Clear
             </.button>
           </div>
@@ -73,7 +73,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
           <div id={"#{assigns.id}-stream"} phx-update="stream">
             <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-gray-700">
               <div :if={@existing_traces_status == :ok}>
-                No events have been recorded yet.
+                No traces have been recorded yet.
               </div>
               <div
                 :if={@existing_traces_status == :loading}
@@ -85,9 +85,9 @@ defmodule LiveDebugger.LiveComponents.EventsList do
                 :if={@existing_traces_status == :error}
                 variant="danger"
                 with_icon
-                heading="Error fetching historical events"
+                heading="Error fetching historical traces"
               >
-                The new events still will be displayed as they come. Check logs for more
+                The new traces still will be displayed as they come. Check logs for more
               </.alert>
             </div>
             <%= for {dom_id, trace} <- @streams.existing_traces do %>
@@ -131,7 +131,7 @@ defmodule LiveDebugger.LiveComponents.EventsList do
     |> noreply()
   end
 
-  def handle_event("clear-events", _, socket) do
+  def handle_event("clear-traces", _, socket) do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.debugged_node_id
 

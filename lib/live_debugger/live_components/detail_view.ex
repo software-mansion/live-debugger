@@ -16,7 +16,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     socket
     |> assign(:hide_assigns_section?, false)
     |> assign(:hide_info_section?, false)
-    |> assign(:hide_events_section?, false)
+    |> assign(:hide_traces_section?, false)
     |> ok()
   end
 
@@ -68,8 +68,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             <.assigns_card assigns={node.assigns} myself={@myself} hide?={@hide_assigns_section?} />
           </div>
           <.live_component
-            id="event-list"
-            module={LiveDebugger.LiveComponents.EventsList}
+            id="trace-list"
+            module={LiveDebugger.LiveComponents.TracesList}
             debugged_node_id={@node_id}
             socket_id={@socket_id}
           />
@@ -85,7 +85,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       case section do
         "info" -> :hide_info_section?
         "assigns" -> :hide_assigns_section?
-        "events" -> :hide_events_section?
+        "traces" -> :hide_traces_section?
       end
 
     socket
