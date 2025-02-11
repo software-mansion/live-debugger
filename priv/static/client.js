@@ -7,7 +7,7 @@ const URL = document
 document.addEventListener("DOMContentLoaded", function () {
   const session_id = document.querySelector("[data-phx-main]").id;
   const debugButtonHtml = /*html*/ `
-      <div id="draggable-button" style="
+      <div id="debug-button" style="
         position: fixed;
         height: 40px;
         width: 40px;
@@ -37,14 +37,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = debugButtonHtml;
-  const draggableButton = tempDiv.firstElementChild;
-  document.body.appendChild(draggableButton);
+  const debugButton = tempDiv.firstElementChild;
+  document.body.appendChild(debugButton);
 
   let posX = 0,
     posY = 0,
     posXStart = 0,
     posYStart = 0;
-  let dragging = false; // Flag to track if dragging has occurred
+  let dragging = false;
 
   const onMouseDown = (event) => {
     event.preventDefault();
@@ -52,36 +52,36 @@ document.addEventListener("DOMContentLoaded", function () {
     posYStart = event.clientY;
     document.addEventListener("mousemove", onMouseMove);
     document.addEventListener("mouseup", onMouseUp);
-    draggableButton.style.cursor = "grabbing";
-    dragging = false; // Reset dragging flag on mouse down
+    debugButton.style.cursor = "grabbing";
+    dragging = false;
   };
 
   const onMouseMove = (event) => {
     if (!event.clientX || !event.clientY) return;
-    dragging = true; // Set dragging flag since movement has occurred
+    dragging = true;
     posX = posXStart - event.clientX;
     posY = posYStart - event.clientY;
     posXStart = event.clientX;
     posYStart = event.clientY;
-    draggableButton.style.top = draggableButton.offsetTop - posY + "px";
-    draggableButton.style.left = draggableButton.offsetLeft - posX + "px";
+    debugButton.style.top = debugButton.offsetTop - posY + "px";
+    debugButton.style.left = debugButton.offsetLeft - posX + "px";
   };
 
   const onMouseUp = () => {
     document.removeEventListener("mousemove", onMouseMove);
     document.removeEventListener("mouseup", onMouseUp);
-    draggableButton.style.cursor = "grab";
+    debugButton.style.cursor = "grab";
   };
 
   const onClick = (event) => {
     if (dragging) {
-      event.preventDefault(); // Prevent click action if we were dragging
-      dragging = false; // Reset the flag after handling
+      event.preventDefault();
+      dragging = false;
     }
   };
 
-  draggableButton.addEventListener("mousedown", onMouseDown);
-  draggableButton.addEventListener("click", onClick);
+  debugButton.addEventListener("mousedown", onMouseDown);
+  debugButton.addEventListener("click", onClick);
 });
 
 // Finalize
