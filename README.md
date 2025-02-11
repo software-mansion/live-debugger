@@ -11,10 +11,12 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:live_debugger, git: "git@github.com:software-mansion-labs/live-debugger.git", tag: "v0.1.0-rc.0", only: :dev}
+    {:live_debugger, git: "https://github.com/software-mansion-labs/live-debugger.git", tag: "v0.1.0-rc.1", only: :dev}
   ]
 end
 ```
+
+
 
 After you start your application LiveDebugger will be running at a default port `http://localhost:4007`.
 
