@@ -16,7 +16,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     socket
     |> assign(:hide_assigns_section?, false)
     |> assign(:hide_info_section?, false)
-    |> assign(:hide_events_section?, false)
+    |> assign(:hide_traces_section?, false)
     |> ok()
   end
 
@@ -85,7 +85,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       case section do
         "info" -> :hide_info_section?
         "assigns" -> :hide_assigns_section?
-        "events" -> :hide_events_section?
+        "traces" -> :hide_traces_section?
       end
 
     socket
