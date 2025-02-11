@@ -43,10 +43,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const debugButton = tempDiv.firstElementChild;
   document.body.appendChild(debugButton);
 
-  let posX = 0,
-    posY = 0,
-    posXStart = 0,
-    posYStart = 0;
   let dragging = false;
 
   const onMouseDown = (event) => {
