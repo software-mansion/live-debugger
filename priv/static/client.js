@@ -1,3 +1,6 @@
+// This file is being run in the client's debugged application
+// It introduces browser features that are not mandatory for LiveDebugger to run
+
 // Fetch LiveDebugger URL
 const URL = document
   .getElementById("live-debugger-scripts")
