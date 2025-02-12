@@ -5,12 +5,11 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   """
   use LiveDebuggerWeb, :live_component
 
-  require Logger
-
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
+  alias LiveDebugger.Utils.Logger
 
   @impl true
   def mount(socket) do
@@ -256,6 +255,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     assign_async(socket, :tree, fn ->
       with {:ok, channel_state} <- ChannelService.state(pid),
            {:ok, tree} <- ChannelService.build_tree(channel_state) do
+        Logger.error("Tree build")
         {:ok, %{tree: tree}}
       else
         error -> handle_error(error, pid, "Failed to build tree: ")
