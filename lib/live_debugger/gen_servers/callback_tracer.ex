@@ -3,6 +3,7 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
 
   require Logger
 
+  alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Services.ModuleDiscoveryService
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Structs.Trace
@@ -71,19 +72,24 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
   # These are not callbacks created by user
   # We trace channel events to refresh the components tree
   defp trace_handler({_, pid, _, {Phoenix.LiveView.Channel, :handle_info, [msg, _] = args}}, n) do
-    case msg do
+    msg
+    |> case do
       %{event: "cids_destroyed"} ->
-        trace = Trace.new(n, Phoenix.LiveView.Channel, :handle_info, args, pid)
+        Trace.new(n, Phoenix.LiveView.Channel, :handle_info, args, pid)
 
       _ ->
         nil
     end
+    |> publish_trace()
 
     n - 1
   end
 
   defp trace_handler({_, pid, _, {module, fun, args}}, n) when fun in @callbacks_functions do
-    trace = Trace.new(n, module, fun, args, pid)
+    with trace <- Trace.new(n, module, fun, args, pid),
+         :ok <- persist_trace(trace) do
+      publish_trace(trace)
+    end
 
     n - 1
   end
@@ -92,4 +98,20 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
     Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
     n
   end
+
+  defp persist_trace(trace) do
+    TraceService.insert(trace)
+    :ok
+  rescue
+    err ->
+      Logger.error("Error while persisting trace: #{inspect(err)}")
+      {:error, err}
+  end
+
+  defp publish_trace(%Trace{} = trace) do
+    # TODO implement
+    :ok
+  end
+
+  defp publish_trace(_), do: :ok
 end
