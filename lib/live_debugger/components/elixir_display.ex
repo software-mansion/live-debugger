@@ -1,6 +1,6 @@
 defmodule LiveDebugger.Components.ElixirDisplay do
   @moduledoc """
-  This module provides a LiveComponent to display a tree of terms.
+  This module provides a component to display a tree of terms.
   Check LiveDebugger.Utils.TermParser.
   """
 
@@ -24,7 +24,9 @@ defmodule LiveDebugger.Components.ElixirDisplay do
 
     ~H"""
     <div class="font-mono text-sm text-gray-500">
-      <.text_items :if={!@has_children?} items={@node.content} />
+      <div class="ml-[2ch]">
+        <.text_items :if={!@has_children?} items={@node.content} />
+      </div>
       <.collapsible
         :if={@has_children?}
         id={@id <> "collapsible"}
@@ -32,12 +34,13 @@ defmodule LiveDebugger.Components.ElixirDisplay do
         icon="hero-chevron-right-micro"
         class="[&>summary_.hide-on-opened]:open:hidden"
         label_class="max-w-max"
+        chevron_class="w-[2ch] mr-0"
       >
         <:label>
           <div class="flex items-center">
             <.text_items items={@node.expanded_before} />
-            <div class="flex hide-on-opened ml-[2ch]">
-              <.text_items items={@node.expanded_after} />
+            <div class="flex hide-on-opened">
+              ... <.text_items items={@node.expanded_after} />
             </div>
           </div>
         </:label>
