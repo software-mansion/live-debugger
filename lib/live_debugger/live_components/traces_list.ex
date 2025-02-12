@@ -22,23 +22,26 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     |> ok()
   end
 
-  @impl true
-  def update(%{new_trace: trace}, %{assigns: %{tracing_started?: true}} = socket) do
-    socket
-    |> stream_insert(:existing_traces, trace, at: 0, limit: @stream_limit)
-    |> ok()
-  end
+  # TODO Tracing
+
+  # def update(%{new_trace: trace}, %{assigns: %{tracing_started?: true}} = socket) do
+  #   socket
+  #   |> stream_insert(:existing_traces, trace, at: 0, limit: @stream_limit)
+  #   |> ok()
+  # end
+
+  # @impl true
+  # def update(%{new_trace: _trace}, %{assigns: %{tracing_started?: false}} = socket) do
+  #   {:ok, socket}
+  # end
 
   @impl true
-  def update(%{new_trace: _trace}, %{assigns: %{tracing_started?: false}} = socket) do
-    {:ok, socket}
-  end
-
   def update(assigns, socket) do
     socket
     |> assign(debugged_node_id: assigns.debugged_node_id)
     |> assign(id: assigns.id)
-    |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
+    # TODO tracing
+    # |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
     |> assign_async_existing_traces()
     |> ok()
   end
@@ -132,10 +135,11 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   def handle_event("clear-traces", _, socket) do
-    ets_table_id = socket.assigns.ets_table_id
-    node_id = socket.assigns.debugged_node_id
+    # TODO Tracing
+    # ets_table_id = socket.assigns.ets_table_id
+    # node_id = socket.assigns.debugged_node_id
 
-    TraceService.clear_traces(ets_table_id, node_id)
+    # TraceService.clear_traces(ets_table_id, node_id)
 
     socket
     |> stream(:existing_traces, [], reset: true)
@@ -195,15 +199,23 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     """
   end
 
-  defp assign_async_existing_traces(socket) do
-    ets_table_id = socket.assigns.ets_table_id
-    node_id = socket.assigns.debugged_node_id
+  # TODO Tracing
 
+  # defp assign_async_existing_traces(socket) do
+  #   ets_table_id = socket.assigns.ets_table_id
+  #   node_id = socket.assigns.debugged_node_id
+
+  #   socket
+  #   |> assign(:existing_traces_status, :loading)
+  #   |> stream(:existing_traces, [], reset: true)
+  #   |> start_async(:fetch_existing_traces, fn ->
+  #     TraceService.existing_traces(ets_table_id, node_id)
+  #   end)
+  # end
+
+  defp assign_async_existing_traces(socket) do
     socket
-    |> assign(:existing_traces_status, :loading)
+    |> assign(:existing_traces_status, :ok)
     |> stream(:existing_traces, [], reset: true)
-    |> start_async(:fetch_existing_traces, fn ->
-      TraceService.existing_traces(ets_table_id, node_id)
-    end)
   end
 end
