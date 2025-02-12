@@ -53,7 +53,7 @@ defmodule LiveDebugger.Components do
 
   def button(assigns) do
     ~H"""
-    <div
+    <button
       class={
         [
           "w-max h-max p-1 cursor-pointer",
@@ -66,7 +66,7 @@ defmodule LiveDebugger.Components do
       {@rest}
     >
       <%= render_slot(@inner_block) %>
-    </div>
+    </button>
     """
   end
 
@@ -116,12 +116,7 @@ defmodule LiveDebugger.Components do
 
   def collapsible(assigns) do
     ~H"""
-    <details
-      id={@id}
-      class={["relative block" | List.wrap(@class)]}
-      {show_collapsible_assign(@open)}
-      {@rest}
-    >
+    <details id={@id} class={["block" | List.wrap(@class)]} {show_collapsible_assign(@open)} {@rest}>
       <summary class={[
         "block flex items-center cursor-pointer" | List.wrap(@label_class)
       ]}>
@@ -154,7 +149,9 @@ defmodule LiveDebugger.Components do
         <:label>
           <div class="flex justify-between items-center w-full">
             <.h3 class="text-primary"><%= @title %></.h3>
-            <%= render_slot(@right_panel) %>
+            <div class="w-max !pointer-events-auto">
+              <%= render_slot(@right_panel) %>
+            </div>
           </div>
         </:label>
         <div class="flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2">
