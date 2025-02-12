@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveViews.ChannelDashboard do
+defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   @moduledoc false
 
   use LiveDebuggerWeb, :live_view

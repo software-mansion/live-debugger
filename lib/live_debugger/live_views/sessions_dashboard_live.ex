@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveViews.SessionsDashboard do
+defmodule LiveDebugger.LiveViews.SessionsDashboardLive do
   @moduledoc """
   It displays all active LiveView sessions in the debugged application.
   """

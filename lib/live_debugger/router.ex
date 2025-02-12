@@ -16,8 +16,8 @@ defmodule LiveDebugger.Router do
 
     import Phoenix.LiveView.Router
 
-    live("/", LiveDebugger.LiveViews.SessionsDashboard)
-    live("/:socket_id", LiveDebugger.LiveViews.ChannelDashboard)
-    live("/:socket_id/:node_id", LiveDebugger.LiveViews.ChannelDashboard)
+    live("/", LiveDebugger.LiveViews.SessionsDashboardLive)
+    live("/:socket_id", LiveDebugger.LiveViews.ChannelDashboardLive)
+    live("/:socket_id/:node_id", LiveDebugger.LiveViews.ChannelDashboardLive)
   end
 end
