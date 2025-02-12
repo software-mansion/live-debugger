@@ -8,6 +8,8 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Structs.Trace
 
+  alias Phoenix.PubSub
+
   @callbacks_functions CallbackUtils.callbacks_functions() ++ [:test]
 
   def start_link(args \\ []) do
@@ -109,9 +111,29 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
   end
 
   defp publish_trace(%Trace{} = trace) do
-    # TODO implement
+    do_publish(trace)
     :ok
+  rescue
+    err ->
+      Logger.error("Error while publishing trace: #{inspect(err)}")
+      {:error, err}
   end
 
   defp publish_trace(_), do: :ok
+
+  defp do_publish(%{module: Phoenix.LiveView.Channel} = trace) do
+    socket_id = trace.socket_id
+
+    PubSub.broadcast!(LiveDebugger.PubSub, "#{socket_id}/*/channel_function", {:new_trace, trace})
+  end
+
+  defp do_publish(trace) do
+    socket_id = trace.socket_id
+    node_id = inspect(Trace.node_id(trace))
+    fun = inspect(trace.function)
+
+    PubSub.broadcast!(LiveDebugger.PubSub, "#{socket_id}/#{node_id}/#{fun}", {:new_trace, trace})
+    PubSub.broadcast!(LiveDebugger.PubSub, "#{socket_id}/#{node_id}/*", {:new_trace, trace})
+    PubSub.broadcast!(LiveDebugger.PubSub, "#{socket_id}/*/*", {:new_trace, trace})
+  end
 end
