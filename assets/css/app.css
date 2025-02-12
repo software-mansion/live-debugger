@@ -3,8 +3,3 @@
 @import 'tailwindcss/utilities';
 
 /* You can add custom styles here */
-
-/* Dropdown icon rotation */
-details[open] > summary > .rotate_icon {
-  transform: rotate(90deg);
-}

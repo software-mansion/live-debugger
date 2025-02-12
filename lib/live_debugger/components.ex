@@ -116,11 +116,16 @@ defmodule LiveDebugger.Components do
 
   def collapsible(assigns) do
     ~H"""
-    <details id={@id} class={["block" | List.wrap(@class)]} {show_collapsible_assign(@open)} {@rest}>
+    <details
+      id={@id}
+      class={["block [&>summary>.rotate-icon]:open:rotate-90" | List.wrap(@class)]}
+      {show_collapsible_assign(@open)}
+      {@rest}
+    >
       <summary class={[
         "block flex items-center cursor-pointer" | List.wrap(@label_class)
       ]}>
-        <.icon name={@icon} class={["rotate_icon shrink-0 mr-1" | List.wrap(@chevron_class)]} />
+        <.icon name={@icon} class={["rotate-icon shrink-0 mr-1" | List.wrap(@chevron_class)]} />
         <%= render_slot(@label) %>
       </summary>
       <%= render_slot(@inner_block) %>
