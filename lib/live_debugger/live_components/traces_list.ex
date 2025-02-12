@@ -7,6 +7,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   require Logger
 
+  alias LiveDebugger.Components.ElixirDisplay
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
@@ -158,9 +159,8 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         <.fullscreen_wrapper id={@id <> "-fullscreen"} class="absolute top-0 right-0">
           <div class="w-full flex flex-col items-start justify-center">
             <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-              <.live_component
+              <ElixirDisplay.term
                 id={@id <> "-#{index}-fullscreen"}
-                module={LiveDebugger.LiveComponents.ElixirDisplay}
                 node={TermParser.term_to_display_tree(args)}
                 level={1}
               />
@@ -168,9 +168,8 @@ defmodule LiveDebugger.LiveComponents.TracesList do
           </div>
         </.fullscreen_wrapper>
         <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-          <.live_component
+          <ElixirDisplay.term
             id={@id <> "-#{index}"}
-            module={LiveDebugger.LiveComponents.ElixirDisplay}
             node={TermParser.term_to_display_tree(args)}
             level={1}
           />

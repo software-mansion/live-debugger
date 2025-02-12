@@ -9,6 +9,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
+  alias LiveDebugger.Components.ElixirDisplay
 
   @impl true
   def update(%{new_trace: _new_trace}, socket) do
@@ -109,18 +110,16 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       class="border-b-2 lg:border-b-0 border-primary h-max overflow-y-hidden"
       title="Assigns"
     >
-      <div class="relative w-full max-h-full border-2 border-gray-200 rounded-lg px-2 overflow-y-auto text-gray-600">
+      <div class="relative w-full max-h-full border-2 border-gray-200 rounded-lg p-4 overflow-y-auto text-gray-600">
         <.fullscreen_wrapper id="assigns-display-fullscreen" class="absolute top-0 right-0">
-          <.live_component
+          <ElixirDisplay.term
             id="assigns-display-fullscreen"
-            module={LiveDebugger.LiveComponents.ElixirDisplay}
             node={TermParser.term_to_display_tree(@assigns)}
             level={1}
           />
         </.fullscreen_wrapper>
-        <.live_component
+        <ElixirDisplay.term
           id="assigns-display"
-          module={LiveDebugger.LiveComponents.ElixirDisplay}
           node={TermParser.term_to_display_tree(@assigns)}
           level={1}
         />
