@@ -8,7 +8,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   require Logger
 
   alias LiveDebugger.Components.Collapsible
-  alias LiveDebugger.Services.TraceService
+  # alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
 
