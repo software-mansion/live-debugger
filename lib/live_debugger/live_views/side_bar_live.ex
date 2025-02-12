@@ -25,7 +25,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   @impl true
   def mount(_params, session, socket) do
     socket_id = session["socket_id"]
-    PubSub.subscribe(LiveDebugger.PubSub, "#{socket_id}/*/channel_function")
+    PubSub.subscribe(LiveDebugger.PubSub, "#{socket_id}/*/tree_updated")
 
     socket
     |> assign(pid: session["pid"])
@@ -37,17 +37,14 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
 
   @impl true
   def render(assigns) do
-    dbg(assigns)
-
     ~H"""
     <button phx-click="select_node">Sidebar</button>
     """
   end
 
   @impl true
-  def handle_info({:new_trace, _trace}, socket) do
-    dbg("New event received")
-
+  def handle_info({:new_trace, trace}, socket) do
+    dbg("Tree updated")
     {:noreply, socket}
   end
 

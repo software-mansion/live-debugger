@@ -24,7 +24,6 @@ defmodule LiveDebugger.Services.TraceService do
   @spec maybe_init_ets(ets_table_id :: :ets.table()) :: :ets.table()
   def maybe_init_ets(ets_table_id) do
     if :ets.whereis(ets_table_id) == :undefined do
-      dbg(ets_table_id)
       :ets.new(ets_table_id, [:ordered_set, :public, :named_table])
     else
       ets_table_id

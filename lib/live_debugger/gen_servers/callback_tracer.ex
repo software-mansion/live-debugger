@@ -51,8 +51,14 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
     |> Enum.concat(callbacks)
     |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
 
-    :dbg.tp({Phoenix.LiveView.Channel, :handle_info, 2}, [])
     :dbg.tp({LiveDebugger.GenServers.CallbackTracer, :test, 0}, [])
+
+    # These are not callbacks created by user
+    # We trace channel events to refresh the components tree
+    :dbg.tp({Phoenix.LiveView.Channel, :handle_info, 2}, [])
+
+    # TODO write component is not perfect (it is triggered on send for some reason...)
+    :dbg.tp({Phoenix.LiveView.Diff, :write_component, 4}, [])
 
     {:noreply, state}
   end
@@ -71,20 +77,26 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
     {:reply, :ok, state}
   end
 
-  # These are not callbacks created by user
-  # We trace channel events to refresh the components tree
-  defp trace_handler({_, pid, _, {Phoenix.LiveView.Channel, :handle_info, [msg, _] = args}}, n) do
+  defp trace_handler({_, pid, _, {Phoenix.LiveView.Channel, fun, [msg, _] = args}}, n) do
     msg
     |> case do
       %{event: "cids_destroyed"} ->
-        Trace.new(n, Phoenix.LiveView.Channel, :handle_info, args, pid)
+        Trace.new(n, Phoenix.LiveView.Channel, fun, args, pid)
 
       _ ->
         nil
     end
     |> publish_trace()
 
-    n - 1
+    n
+  end
+
+  defp trace_handler({_, pid, _, {Phoenix.LiveView.Diff, fun, args}}, n) do
+    n
+    |> Trace.new(Phoenix.LiveView.Diff, fun, args, pid)
+    |> publish_trace()
+
+    n
   end
 
   defp trace_handler({_, pid, _, {module, fun, args}}, n) when fun in @callbacks_functions do
@@ -121,10 +133,11 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
 
   defp publish_trace(_), do: :ok
 
-  defp do_publish(%{module: Phoenix.LiveView.Channel} = trace) do
+  defp do_publish(%{module: module} = trace)
+       when module in [Phoenix.LiveView.Channel, Phoenix.LiveView.Diff] do
     socket_id = trace.socket_id
 
-    PubSub.broadcast!(LiveDebugger.PubSub, "#{socket_id}/*/channel_function", {:new_trace, trace})
+    PubSub.broadcast!(LiveDebugger.PubSub, "#{socket_id}/*/tree_updated", {:new_trace, trace})
   end
 
   defp do_publish(trace) do
