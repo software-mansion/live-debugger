@@ -5,12 +5,13 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   """
   use LiveDebuggerWeb, :live_component
 
-  require Logger
-
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
+  alias LiveDebugger.Utils.Logger
+
+  @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
 
   @impl true
   def mount(socket) do
@@ -65,10 +66,14 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   @impl true
   def render(assigns) do
+    assigns = assign(assigns, :report_issue_url, @report_issue_url)
+
     ~H"""
     <div class="w-max h-max flex">
       <div class="hidden sm:flex flex-col w-60 min-h-max h-screen bg-primary gap-1 pt-4 p-2 pr-3">
         <.sidebar_label socket={@socket} />
+        <.separate_bar />
+        <.report_issue />
         <.separate_bar />
         <.sidebar_content
           pid={@pid}
@@ -83,6 +88,11 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           <.sidebar_icon_button icon="hero-home-solid" />
         </.link>
         <.sidebar_icon_button icon="hero-bars-3" phx-click="show_mobile_content" phx-target={@myself} />
+        <.link href={@report_issue_url} target="_blank">
+          <.tooltip id="" content="Report an issue">
+            <.sidebar_icon_button icon="hero-bug-ant-solid" />
+          </.tooltip>
+        </.link>
         <.sidebar_slide_over :if={not @hidden?} myself={@myself}>
           <:header>
             <.sidebar_label socket={@socket} />
@@ -237,6 +247,22 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     """
   end
 
+  defp report_issue(assigns) do
+    assigns = assign(assigns, :report_issue_url, @report_issue_url)
+
+    ~H"""
+    <div class="px-2 flex items-center gap-1 text-gray-200 text-xs">
+      <.icon class="text-white" name="hero-bug-ant-micro" />
+      <div>
+        See any issue?
+        <span>
+          Report it <.link href={@report_issue_url} target="_blank" class="underline hover:text-white">here</.link>.
+        </span>
+      </div>
+    </div>
+    """
+  end
+
   defp assign_async_existing_node_ids(socket) do
     pid = socket.assigns.pid
 
@@ -256,6 +282,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     assign_async(socket, :tree, fn ->
       with {:ok, channel_state} <- ChannelService.state(pid),
            {:ok, tree} <- ChannelService.build_tree(channel_state) do
+        Logger.error("Tree build")
         {:ok, %{tree: tree}}
       else
         error -> handle_error(error, pid, "Failed to build tree: ")

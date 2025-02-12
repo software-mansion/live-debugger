@@ -3,8 +3,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
   use LiveDebuggerWeb, :live_view
 
-  require Logger
-
   alias LiveDebugger.Components
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.TreeNode
@@ -12,6 +10,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.CallbackTracingService
   alias LiveDebugger.Services.ChannelService
+  alias LiveDebugger.Utils.Logger
 
   @impl true
   def mount(%{"socket_id" => socket_id}, _session, socket) do
