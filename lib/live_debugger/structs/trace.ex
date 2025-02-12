@@ -13,7 +13,18 @@ defmodule LiveDebugger.Structs.Trace do
 
   alias LiveDebugger.CommonTypes
 
-  defstruct [:id, :module, :function, :arity, :args, :pid, :cid, :timestamp, counter: 1]
+  defstruct [
+    :id,
+    :module,
+    :function,
+    :arity,
+    :args,
+    :socket_id,
+    :pid,
+    :cid,
+    :timestamp,
+    counter: 1
+  ]
 
   @type t() :: %__MODULE__{
           id: integer(),
@@ -21,6 +32,7 @@ defmodule LiveDebugger.Structs.Trace do
           function: atom(),
           arity: non_neg_integer(),
           args: list(),
+          socket_id: String.t(),
           pid: pid(),
           cid: struct() | nil,
           timestamp: non_neg_integer(),
@@ -43,6 +55,7 @@ defmodule LiveDebugger.Structs.Trace do
       function: function,
       arity: length(args),
       args: args,
+      socket_id: get_socket_id_from_args(args),
       pid: pid,
       cid: cid,
       timestamp: :os.system_time(:microsecond)
@@ -70,6 +83,16 @@ defmodule LiveDebugger.Structs.Trace do
   end
 
   def live_component_delete?(_), do: false
+
+  defp get_socket_id_from_args(args) do
+    args
+    |> Enum.map(&maybe_get_socket_id(&1))
+    |> Enum.find(fn elem -> is_binary(elem) end)
+  end
+
+  defp maybe_get_socket_id(%Phoenix.LiveView.Socket{id: id}), do: id
+  defp maybe_get_socket_id(%{socket: %Phoenix.LiveView.Socket{id: id}}), do: id
+  defp maybe_get_socket_id(_), do: nil
 
   defp get_cid_from_args(args) do
     args

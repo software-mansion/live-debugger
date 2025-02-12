@@ -1,8 +1,13 @@
 defmodule LiveDebugger.GenServers.CallbackTracer do
   use GenServer
 
+  require Logger
+
   alias LiveDebugger.Services.ModuleDiscoveryService
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
+  alias LiveDebugger.Structs.Trace
+
+  @callbacks_functions CallbackUtils.callbacks_functions() ++ [:test]
 
   def start_link(args \\ []) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -14,6 +19,10 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
 
   def continue_tracing() do
     GenServer.call(__MODULE__, :continue_tracing)
+  end
+
+  def test() do
+    :ok
   end
 
   @impl true
@@ -39,7 +48,8 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
     |> Enum.concat(callbacks)
     |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
 
-    :dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
+    :dbg.tp({Phoenix.LiveView.Channel, :handle_info, 2}, [])
+    :dbg.tp({LiveDebugger.GenServers.CallbackTracer, :test, 0}, [])
 
     {:noreply, state}
   end
@@ -58,9 +68,28 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
     {:reply, :ok, state}
   end
 
-  defp trace_handler(msg, n) do
-    dbg({msg, n})
+  # These are not callbacks created by user
+  # We trace channel events to refresh the components tree
+  defp trace_handler({_, pid, _, {Phoenix.LiveView.Channel, :handle_info, [msg, _] = args}}, n) do
+    case msg do
+      %{event: "cids_destroyed"} ->
+        trace = Trace.new(n, Phoenix.LiveView.Channel, :handle_info, args, pid)
+
+      _ ->
+        nil
+    end
 
     n - 1
+  end
+
+  defp trace_handler({_, pid, _, {module, fun, args}}, n) when fun in @callbacks_functions do
+    trace = Trace.new(n, module, fun, args, pid)
+
+    n - 1
+  end
+
+  defp trace_handler(trace, n) do
+    Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
+    n
   end
 end
