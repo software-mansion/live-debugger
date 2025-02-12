@@ -5,7 +5,6 @@ defmodule LiveDebugger.Components.Tree do
 
   use LiveDebuggerWeb, :component
 
-  alias LiveDebugger.Components.Collapsible
   alias LiveDebugger.Structs.TreeNode
 
   @doc """
@@ -54,11 +53,11 @@ defmodule LiveDebugger.Components.Tree do
       <.vertical_bar :if={!@root?} highlight_bar?={@highlight_bar?} />
       <div class={["w-full", unless(@root?, do: "pl-2")]}>
         <div class="w-full rounded-lg p-1 pb-0">
-          <Collapsible.collapsible
+          <.collapsible
             :if={@collapsible?}
             id={"collapsible-" <> @tree_node.parsed_id}
+            chevron_class="text-primary h-5 w-5"
             open={true}
-            chevron_class="text-primary h-5 w-5 mb-1"
             class="w-full"
           >
             <:label>
@@ -74,7 +73,7 @@ defmodule LiveDebugger.Components.Tree do
                 highlight_bar?={@selected?}
               />
             </div>
-          </Collapsible.collapsible>
+          </.collapsible>
           <.label
             :if={not @collapsible?}
             selected?={@selected?}

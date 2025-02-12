@@ -94,6 +94,84 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
+  Collapsible element that can be toggled open and closed.
+  It uses the `details` and `summary` HTML elements.
+  """
+
+  attr(:id, :string, required: true)
+  attr(:class, :any, default: nil, doc: "CSS class for parent container")
+  attr(:label_class, :any, default: nil, doc: "CSS class for the label")
+  attr(:chevron_class, :any, default: nil, doc: "CSS class for the chevron icon")
+  attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
+
+  attr(:icon, :string,
+    default: "hero-chevron-right-solid",
+    doc: "Icon for chevron. It will be rotated 90 degrees when the collapsible is open"
+  )
+
+  attr(:rest, :global)
+
+  slot(:label, required: true)
+  slot(:inner_block, required: true)
+
+  def collapsible(assigns) do
+    ~H"""
+    <details
+      id={@id}
+      class={["relative block" | List.wrap(@class)]}
+      {show_collapsible_assign(@open)}
+      {@rest}
+    >
+      <summary class={[
+        "block flex items-center cursor-pointer" | List.wrap(@label_class)
+      ]}>
+        <.icon name={@icon} class={["rotate_icon shrink-0 mr-1" | List.wrap(@chevron_class)]} />
+        <%= render_slot(@label) %>
+      </summary>
+      <%= render_slot(@inner_block) %>
+    </details>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:title, :string, required: true)
+  attr(:class, :any, default: nil)
+  attr(:open, :boolean, default: true)
+
+  slot(:right_panel)
+  slot(:inner_block)
+
+  def collapsible_section(assigns) do
+    ~H"""
+    <div class={@class}>
+      <.collapsible
+        id={@id}
+        title={@title}
+        open={@open}
+        label_class="p-2 lg:pointer-events-none pointer-events-auto"
+        chevron_class="lg:hidden flex"
+      >
+        <:label>
+          <div class="flex justify-between items-center w-full">
+            <.h3 class="text-primary"><%= @title %></.h3>
+            <%= render_slot(@right_panel) %>
+          </div>
+        </:label>
+        <div class="flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2">
+          <%= render_slot(@inner_block) %>
+        </div>
+      </.collapsible>
+    </div>
+    """
+  end
+
+  @doc """
+  Used to add Hook to element based on condition.
+  """
+  def show_collapsible_assign(true), do: %{:"phx-hook" => "CollapsibleOpen"}
+  def show_collapsible_assign(_), do: %{}
+
+  @doc """
   Typography component to render headings.
   """
 
