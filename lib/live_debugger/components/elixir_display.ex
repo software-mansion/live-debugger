@@ -29,13 +29,14 @@ defmodule LiveDebugger.Components.ElixirDisplay do
         :if={@has_children?}
         id={@id <> "collapsible"}
         open={@expanded?}
-        icon="hero-chevron-right-mini"
-        label_class="mr-0.5 inline-block w-[2ch] max-w-max"
+        icon="hero-chevron-right-micro"
+        class="[&>summary_.hide-on-opened]:open:hidden"
+        label_class="max-w-max"
       >
         <:label>
           <div class="flex items-center">
             <.text_items items={@node.expanded_before} />
-            <div class="ml-[2ch]">
+            <div class="flex hide-on-opened ml-[2ch]">
               <.text_items items={@node.expanded_after} />
             </div>
           </div>
