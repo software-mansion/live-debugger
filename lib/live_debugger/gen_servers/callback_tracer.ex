@@ -57,8 +57,8 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
     # These are not callbacks created by user
     # We trace channel events to refresh the components tree
     :dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
-    # Write component is not perfect - it is triggered on send(self())
-    # but it seems to be better than tracing renders
+
+    # Write component is not perfect - it is triggered on send(self()) but it is better than tracing renders
     :dbg.tp({Phoenix.LiveView.Diff, :write_component, 4}, [])
 
     {:noreply, state}
