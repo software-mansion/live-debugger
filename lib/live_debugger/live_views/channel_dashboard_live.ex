@@ -50,13 +50,28 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
           node_id={@node_id || pid}
           socket_id={@socket_id}
         />
-        <.live_component
+        <div class="flex flex-col w-full h-screen max-h-screen p-2 overflow-x-hidden overflow-y-auto lg:overflow-y-hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2 lg:h-full">
+            <div class="flex flex-col max lg:border-r-2 border-primary lg:overflow-y-hidden">
+              <.live_component
+                module={LiveDebugger.LiveComponents.NodeDetails}
+                id="node-info"
+                pid={pid}
+                node_id={@node_id || pid}
+                socket_id={@socket_id}
+              />
+              <%!-- Assigns --%>
+            </div>
+            <%!-- Traces --%>
+          </div>
+        </div>
+        <%!-- <.live_component
           module={LiveDebugger.LiveComponents.DetailView}
           id="detail_view"
           pid={pid}
           node_id={@node_id || pid}
           socket_id={@socket_id}
-        />
+        /> --%>
       </div>
     </.async_result>
     """
