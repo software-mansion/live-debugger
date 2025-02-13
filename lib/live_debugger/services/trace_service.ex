@@ -46,11 +46,17 @@ defmodule LiveDebugger.Services.TraceService do
   """
   @spec existing_traces(table_id :: atom(), node_id :: pid() | CommonTypes.cid()) :: [Trace.t()]
   def existing_traces(table_id, %CID{} = node_id) do
-    :ets.match_object(table_id, {:_, %{cid: node_id}}) |> Enum.map(&elem(&1, 1))
+    table_id
+    |> maybe_init_ets()
+    |> :ets.match_object({:_, %{cid: node_id}})
+    |> Enum.map(&elem(&1, 1))
   end
 
   def existing_traces(table_id, node_id) when is_pid(node_id) do
-    :ets.match_object(table_id, {:_, %{pid: node_id, cid: nil}}) |> Enum.map(&elem(&1, 1))
+    table_id
+    |> maybe_init_ets()
+    |> :ets.match_object({:_, %{pid: node_id, cid: nil}})
+    |> Enum.map(&elem(&1, 1))
   end
 
   @doc """
@@ -58,7 +64,10 @@ defmodule LiveDebugger.Services.TraceService do
   """
   @spec existing_traces(table_id :: atom()) :: [Trace.t()]
   def existing_traces(table_id) do
-    table_id |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
+    table_id
+    |> maybe_init_ets()
+    |> :ets.tab2list()
+    |> Enum.map(&elem(&1, 1))
   end
 
   @doc """
@@ -66,10 +75,14 @@ defmodule LiveDebugger.Services.TraceService do
   """
   @spec clear_traces(table_id :: atom(), node_id :: pid() | CommonTypes.cid()) :: true
   def clear_traces(table_id, %CID{} = node_id) do
-    :ets.match_delete(table_id, {:_, %{cid: node_id}})
+    table_id
+    |> maybe_init_ets()
+    |> :ets.match_delete({:_, %{cid: node_id}})
   end
 
   def clear_traces(table_id, node_id) when is_pid(node_id) do
-    :ets.match_delete(table_id, {:_, %{pid: node_id, cid: nil}})
+    table_id
+    |> maybe_init_ets()
+    |> :ets.match_delete({:_, %{pid: node_id, cid: nil}})
   end
 end
