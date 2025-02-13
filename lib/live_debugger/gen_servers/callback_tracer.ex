@@ -52,8 +52,6 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
     |> Enum.concat(callbacks)
     |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
 
-    :dbg.tp({LiveDebugger.GenServers.CallbackTracer, :test, 0}, [])
-
     # These are not callbacks created by user
     # We trace channel events to refresh the components tree
     :dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
