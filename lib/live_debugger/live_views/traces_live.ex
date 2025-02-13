@@ -8,7 +8,10 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   alias LiveDebugger.Services.TraceService
   alias Phoenix.PubSub
 
-  @stream_limit 32
+  @stream_limit 64
+  @traces_number 10
+  @period_ms 1000
+  @interval_ms div(@period_ms, @traces_number)
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -35,12 +38,14 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
     if connected?(socket) do
       PubSub.subscribe(LiveDebugger.PubSub, "lvdbg/#{socket_id}/node_changed")
+      schedule_processing()
     end
 
     socket
     |> assign(ets_table_id: TraceService.ets_table_id(socket_id))
     |> assign(socket_id: socket_id)
     |> assign(node_id: node_id)
+    |> assign(trace_cache: %{})
     |> enable_tracing()
     |> assign_async_existing_traces()
     |> ok()
@@ -119,6 +124,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
     socket
     |> stream(:existing_traces, [], reset: true)
+    |> assign(trace_cache: %{})
     |> noreply()
   end
 
@@ -150,9 +156,37 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   @impl true
-  def handle_info({:new_trace, trace}, socket) do
+  def handle_info(:__do_process__, socket) do
+    schedule_processing()
+
+    traces =
+      socket.assigns.trace_cache |> Map.values() |> Enum.sort_by(& &1.id, :desc)
+
     socket
-    |> stream_insert(:existing_traces, trace, at: 0, limit: @stream_limit)
+    |> assign(trace_cache: %{})
+    |> stream(:existing_traces, traces, at: 0, limit: @stream_limit)
+    |> noreply()
+  end
+
+  # This is basically old limiter - it seems that it does not really impact the performance when it's here
+  # So for now it can be here
+  @impl true
+  def handle_info({:new_trace, %{function: fun} = trace}, socket) do
+    trace_cache = socket.assigns.trace_cache
+
+    updated_trace_cache =
+      trace_cache
+      |> Map.get(fun)
+      |> case do
+        nil ->
+          Map.put(trace_cache, fun, %{trace | counter: 1})
+
+        %{counter: counter} ->
+          Map.put(trace_cache, fun, %{trace | counter: counter + 1})
+      end
+
+    socket
+    |> assign(trace_cache: updated_trace_cache)
     |> noreply()
   end
 
@@ -195,5 +229,9 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     else
       socket
     end
+  end
+
+  defp schedule_processing() do
+    Process.send_after(self(), :__do_process__, @interval_ms)
   end
 end
