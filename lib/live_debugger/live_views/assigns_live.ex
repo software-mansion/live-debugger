@@ -61,7 +61,12 @@ defmodule LiveDebugger.LiveViews.AssignsLive do
           </div>
         </:loading>
         <:failed>
-          <.alert class="w-full" variant="danger" with_icon heading="Error fetching node assigns">
+          <.alert
+            class="w-full"
+            variant="danger"
+            with_icon
+            heading="Error while fetching node assigns"
+          >
             Check logs for more
           </.alert>
         </:failed>

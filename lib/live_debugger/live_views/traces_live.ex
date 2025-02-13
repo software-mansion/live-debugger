@@ -86,7 +86,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
                 :if={@existing_traces_status == :error}
                 variant="danger"
                 with_icon
-                heading="Error fetching historical traces"
+                heading="Error while fetching historical traces"
               >
                 The new traces still will be displayed as they come. Check logs for more
               </.alert>

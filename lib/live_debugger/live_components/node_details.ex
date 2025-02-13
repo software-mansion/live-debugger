@@ -35,7 +35,12 @@ defmodule LiveDebugger.LiveComponents.NodeDetails do
             </div>
           </:loading>
           <:failed>
-            <.alert variant="danger" with_icon heading="Error fetching node details" class="w-full">
+            <.alert
+              variant="danger"
+              with_icon
+              heading="Error while fetching node details"
+              class="w-full"
+            >
               Check logs for more
             </.alert>
           </:failed>

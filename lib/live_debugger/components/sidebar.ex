@@ -75,7 +75,9 @@ defmodule LiveDebugger.Components.Sidebar do
         <div class="w-full flex justify-center mt-5"><.spinner class="text-white" /></div>
       </:loading>
       <:failed :let={_error}>
-        <.alert variant="danger">Couldn't load a tree</.alert>
+        <.alert variant="danger" with_icon heading="Error" class="w-full">
+          Check logs for more
+        </.alert>
       </:failed>
       <Tree.tree
         :if={tree}
