@@ -31,15 +31,17 @@ defmodule LiveDebugger.LiveViews.AssignsLive do
   @impl true
   def mount(_params, session, socket) do
     socket_id = session["socket_id"]
+    node_id = session["node_id"]
 
     if connected?(socket) do
       PubSub.subscribe(LiveDebugger.PubSub, "lvdbg/#{socket_id}/node_changed")
+      PubSub.subscribe(LiveDebugger.PubSub, "#{socket_id}/#{inspect(node_id)}/:render")
     end
 
     socket
     |> assign(socket_id: socket_id)
+    |> assign(node_id: node_id)
     |> assign(pid: session["pid"])
-    |> assign(node_id: session["node_id"])
     |> assign_async_node()
     |> ok()
   end
@@ -86,6 +88,13 @@ defmodule LiveDebugger.LiveViews.AssignsLive do
   def handle_info({:node_changed, node_id}, socket) do
     socket
     |> assign(node_id: node_id)
+    |> assign_async_node()
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info({:new_trace, _trace}, socket) do
+    socket
     |> assign_async_node()
     |> noreply()
   end
