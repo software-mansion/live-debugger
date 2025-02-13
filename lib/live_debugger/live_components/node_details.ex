@@ -31,12 +31,12 @@ defmodule LiveDebugger.LiveComponents.NodeDetails do
         <.async_result :let={node} assign={@node}>
           <:loading>
             <div class="w-full flex items-center justify-center">
-              <.spinner size="md" />
+              <.spinner size="sm" />
             </div>
           </:loading>
           <:failed>
-            <.alert variant="danger" class="w-full">
-              Failed to fetch node details
+            <.alert variant="danger" with_icon heading="Error fetching node details" class="w-full">
+              Check logs for more
             </.alert>
           </:failed>
           <div class=" flex flex-col gap-1">

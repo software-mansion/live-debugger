@@ -57,12 +57,12 @@ defmodule LiveDebugger.LiveViews.AssignsLive do
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
-            <.spinner size="md" />
+            <.spinner size="sm" />
           </div>
         </:loading>
         <:failed>
-          <.alert variant="danger" class="w-full">
-            Failed to fetch node assigns
+          <.alert class="w-full" variant="danger" with_icon heading="Error fetching node assigns">
+            Check logs for more
           </.alert>
         </:failed>
         <div class="relative w-full max-h-full border-2 border-gray-200 rounded-lg p-4 overflow-y-auto text-gray-600">
