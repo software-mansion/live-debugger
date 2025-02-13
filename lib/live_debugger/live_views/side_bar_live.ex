@@ -44,7 +44,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
 
   @impl true
   def handle_info({:new_trace, trace}, socket) do
-    dbg("Tree updated")
+    dbg(trace.function)
     {:noreply, socket}
   end
 

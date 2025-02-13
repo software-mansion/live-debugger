@@ -3,6 +3,7 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
 
   require Logger
 
+  alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Services.ModuleDiscoveryService
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
@@ -55,9 +56,9 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
 
     # These are not callbacks created by user
     # We trace channel events to refresh the components tree
-    :dbg.tp({Phoenix.LiveView.Channel, :handle_info, 2}, [])
-
-    # TODO write component is not perfect (it is triggered on send for some reason...)
+    :dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
+    # Write component is not perfect - it is triggered on send(self())
+    # but it seems to be better than tracing renders
     :dbg.tp({Phoenix.LiveView.Diff, :write_component, 4}, [])
 
     {:noreply, state}
@@ -77,24 +78,27 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
     {:reply, :ok, state}
   end
 
-  defp trace_handler({_, pid, _, {Phoenix.LiveView.Channel, fun, [msg, _] = args}}, n) do
-    msg
-    |> case do
-      %{event: "cids_destroyed"} ->
-        Trace.new(n, Phoenix.LiveView.Channel, fun, args, pid)
-
-      _ ->
-        nil
-    end
-    |> publish_trace()
+  # This handler is heavy because of fetching state and we do not care for order because it is no displayed to user
+  # Because of that we do it asynchronously to speed up tracer a bit
+  defp trace_handler({_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}}, n) do
+    Task.start(fn ->
+      with cid <- %Phoenix.LiveComponent.CID{cid: cid},
+           {:ok, %{socket: %{id: socket_id}}} <- ProcessService.state(pid) do
+        n
+        |> Trace.new(Phoenix.LiveView.Diff, :delete_component, args, socket_id, pid, cid)
+        |> publish_trace()
+      end
+    end)
 
     n
   end
 
-  defp trace_handler({_, pid, _, {Phoenix.LiveView.Diff, fun, args}}, n) do
-    n
-    |> Trace.new(Phoenix.LiveView.Diff, fun, args, pid)
-    |> publish_trace()
+  defp trace_handler({_, pid, _, {Phoenix.LiveView.Diff, :write_component, args}}, n) do
+    Task.start(fn ->
+      n
+      |> Trace.new(Phoenix.LiveView.Diff, :write_component, args, pid)
+      |> publish_trace()
+    end)
 
     n
   end
@@ -130,8 +134,6 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
       Logger.error("Error while publishing trace: #{inspect(err)}")
       {:error, err}
   end
-
-  defp publish_trace(_), do: :ok
 
   defp do_publish(%{module: module} = trace)
        when module in [Phoenix.LiveView.Channel, Phoenix.LiveView.Diff] do
