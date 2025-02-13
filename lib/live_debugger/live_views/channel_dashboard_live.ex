@@ -70,16 +70,14 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
                 socket_id={@socket_id}
               />
             </div>
-            <%!-- Traces --%>
+            <LiveDebugger.LiveViews.TracesLive.live_render
+              id="node-traces"
+              socket={@socket}
+              node_id={@node_id || pid}
+              socket_id={@socket_id}
+            />
           </div>
         </div>
-        <%!-- <.live_component
-          module={LiveDebugger.LiveComponents.DetailView}
-          id="detail_view"
-          pid={pid}
-          node_id={@node_id || pid}
-          socket_id={@socket_id}
-        /> --%>
       </div>
     </.async_result>
     """
