@@ -7,6 +7,8 @@ defmodule LiveDebugger.Components.Tree do
 
   alias LiveDebugger.Structs.TreeNode
 
+  @max_node_number 20
+
   @doc """
   Tree component which show nested tree of live view and live components.
   You need to pass TreeNode struct to render the tree.
@@ -20,6 +22,13 @@ defmodule LiveDebugger.Components.Tree do
   attr(:class, :string, default: nil, doc: "CSS class")
 
   def tree(assigns) do
+    assigns =
+      assign(
+        assigns,
+        :max_opened_node_level,
+        max_nesting_level(assigns.tree_node, @max_node_number)
+      )
+
     ~H"""
     <.card class={["h-max bg-gray-200 text-primary", @class]}>
       <.h4 class="text-primary pt-2 pl-2"><%= @title %></.h4>
@@ -29,6 +38,8 @@ defmodule LiveDebugger.Components.Tree do
           selected_node_id={@selected_node_id}
           event_target={@event_target}
           root?={true}
+          max_opened_node_level={@max_opened_node_level}
+          level={0}
         />
       </div>
     </.card>
@@ -40,6 +51,8 @@ defmodule LiveDebugger.Components.Tree do
   attr(:selected_node_id, :string, default: nil)
   attr(:root?, :boolean, default: false)
   attr(:highlight_bar?, :boolean, default: false)
+  attr(:max_opened_node_level, :integer, default: 0)
+  attr(:level, :integer, default: 0)
 
   defp tree_node(assigns) do
     assigns =
@@ -47,6 +60,7 @@ defmodule LiveDebugger.Components.Tree do
       |> assign(:tree_node, format_tree_node(assigns.tree_node))
       |> assign(:collapsible?, length(assigns.tree_node.children) > 0)
       |> assign(:selected?, TreeNode.id(assigns.tree_node) == assigns.selected_node_id)
+      |> assign(:open, assigns.level < assigns.max_opened_node_level)
 
     ~H"""
     <div class="relative flex max-w-full">
@@ -57,7 +71,7 @@ defmodule LiveDebugger.Components.Tree do
             :if={@collapsible?}
             id={"collapsible-" <> @tree_node.parsed_id}
             chevron_class="text-primary h-5 w-5"
-            open={true}
+            open={@open}
             class="w-full"
           >
             <:label>
@@ -71,6 +85,8 @@ defmodule LiveDebugger.Components.Tree do
                 event_target={@event_target}
                 root?={false}
                 highlight_bar?={@selected?}
+                max_opened_node_level={@max_opened_node_level}
+                level={@level + 1}
               />
             </div>
           </.collapsible>
@@ -154,5 +170,29 @@ defmodule LiveDebugger.Components.Tree do
     |> Atom.to_string()
     |> String.split(".")
     |> List.last()
+  end
+
+  defp max_nesting_level(root_node, n) do
+    node_count = count_by_level(root_node)
+
+    Enum.reduce_while(node_count, {-1, 0}, fn {level, count}, acc ->
+      {_, parent_count} = acc
+
+      new_count = count + parent_count
+
+      if new_count > n do
+        {:halt, level}
+      else
+        {:cont, {level, new_count}}
+      end
+    end)
+  end
+
+  defp count_by_level(node, level \\ 0, acc \\ %{}) do
+    acc = Map.update(acc, level, 1, &(&1 + 1))
+
+    Enum.reduce(node.children, acc, fn child, acc ->
+      count_by_level(child, level + 1, acc)
+    end)
   end
 end
