@@ -44,18 +44,18 @@ defmodule LiveDebugger.Structs.Trace do
   """
   @spec new(integer(), atom(), atom(), list(), pid()) :: t()
   def new(id, module, function, args, pid) do
-    new(id, module, function, args, pid, get_cid_from_args(args))
+    new(id, module, function, args, get_socket_id_from_args(args), pid, get_cid_from_args(args))
   end
 
-  @spec new(integer(), atom(), atom(), list(), pid(), CommonTypes.cid()) :: t()
-  def new(id, module, function, args, pid, cid) do
+  @spec new(integer(), atom(), atom(), list(), String.t(), pid(), CommonTypes.cid()) :: t()
+  def new(id, module, function, args, socket_id, pid, cid) do
     %__MODULE__{
       id: id,
       module: module,
       function: function,
       arity: length(args),
       args: args,
-      socket_id: get_socket_id_from_args(args),
+      socket_id: socket_id,
       pid: pid,
       cid: cid,
       timestamp: :os.system_time(:microsecond)
