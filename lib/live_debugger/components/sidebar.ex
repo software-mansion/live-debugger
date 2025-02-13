@@ -1,4 +1,6 @@
 defmodule LiveDebugger.Components.Sidebar do
+  @moduledoc false
+
   use LiveDebuggerWeb, :component
 
   alias LiveDebugger.Utils.Parsers

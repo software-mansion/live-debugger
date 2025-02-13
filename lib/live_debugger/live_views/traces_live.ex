@@ -203,7 +203,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   defp enable_tracing(socket) do
-    if(connected?(socket)) do
+    if connected?(socket) do
       socket_id = socket.assigns.socket_id
       node_id = socket.assigns.node_id
 
@@ -220,7 +220,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   defp disable_tracing(socket) do
-    if(connected?(socket)) do
+    if connected?(socket) do
       PubSub.unsubscribe(LiveDebugger.PubSub, socket.assigns.traces_topic)
 
       socket

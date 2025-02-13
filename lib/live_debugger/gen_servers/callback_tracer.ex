@@ -1,4 +1,9 @@
 defmodule LiveDebugger.GenServers.CallbackTracer do
+  @moduledoc """
+  GenServer which starts tracing for the debugged application
+  It uses PubSub to distribute traces in the system
+  """
+
   use GenServer
 
   require Logger
@@ -11,7 +16,7 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
 
   alias Phoenix.PubSub
 
-  @callbacks_functions CallbackUtils.callbacks_functions() ++ [:test]
+  @callbacks_functions CallbackUtils.callbacks_functions()
 
   def start_link(args \\ []) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -23,10 +28,6 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
 
   def continue_tracing() do
     GenServer.call(__MODULE__, :continue_tracing)
-  end
-
-  def test() do
-    :ok
   end
 
   @impl true
@@ -50,7 +51,7 @@ defmodule LiveDebugger.GenServers.CallbackTracer do
     |> ModuleDiscoveryService.live_component_modules()
     |> CallbackUtils.live_component_callbacks()
     |> Enum.concat(callbacks)
-    |> Enum.map(fn mfa -> :dbg.tp(mfa, []) end)
+    |> Enum.each(fn mfa -> :dbg.tp(mfa, []) end)
 
     # These are not callbacks created by user
     # We trace channel events to refresh the components tree

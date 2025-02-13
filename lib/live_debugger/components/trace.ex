@@ -1,4 +1,8 @@
 defmodule LiveDebugger.Components.Trace do
+  @moduledoc """
+  This module provides component for displaying traces
+  """
+
   use LiveDebuggerWeb, :component
 
   alias LiveDebugger.Components.ElixirDisplay

@@ -1,4 +1,6 @@
 defmodule LiveDebugger.LiveComponents.NodeDetails do
+  @moduledoc false
+
   use LiveDebuggerWeb, :live_component
 
   alias LiveDebugger.Services.ChannelService
