@@ -70,4 +70,10 @@ Hooks.Fullscreen = {
   },
 };
 
+Hooks.CollapsibleOpen = {
+  mounted() {
+    this.el.open = true;
+  },
+};
+
 export default Hooks;

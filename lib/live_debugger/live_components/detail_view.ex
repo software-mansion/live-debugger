@@ -9,16 +9,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
-  alias LiveDebugger.Components.Collapsible
-
-  @impl true
-  def mount(socket) do
-    socket
-    |> assign(:hide_assigns_section?, false)
-    |> assign(:hide_info_section?, false)
-    |> assign(:hide_traces_section?, false)
-    |> ok()
-  end
+  alias LiveDebugger.Components.ElixirDisplay
 
   @impl true
   def update(%{new_trace: _new_trace}, socket) do
@@ -59,13 +50,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         </:failed>
         <div class="grid grid-cols-1 lg:grid-cols-2 lg:h-full">
           <div class="flex flex-col max lg:border-r-2 border-primary lg:overflow-y-hidden">
-            <.info_card
-              node={node}
-              node_type={@node_type.result}
-              myself={@myself}
-              hide?={@hide_info_section?}
-            />
-            <.assigns_card assigns={node.assigns} myself={@myself} hide?={@hide_assigns_section?} />
+            <.info_card node={node} node_type={@node_type.result} />
+            <.assigns_card assigns={node.assigns} />
           </div>
           <.live_component
             id="trace-list"
@@ -79,39 +65,17 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     """
   end
 
-  @impl true
-  def handle_event("toggle-visibility", %{"section" => section}, socket) do
-    hide_section_key =
-      case section do
-        "info" -> :hide_info_section?
-        "assigns" -> :hide_assigns_section?
-        "traces" -> :hide_traces_section?
-      end
-
-    socket
-    |> assign(hide_section_key, not socket.assigns[hide_section_key])
-    |> noreply()
-  end
-
   attr(:node, :any, required: true)
   attr(:node_type, :atom, required: true)
-  attr(:myself, :any, required: true)
-  attr(:hide?, :boolean, required: true)
 
   defp info_card(assigns) do
     ~H"""
-    <Collapsible.section
-      id="info"
-      title={title(@node_type)}
-      class="border-b-2 border-primary"
-      hide?={@hide?}
-      myself={@myself}
-    >
+    <.collapsible_section id="info" title={title(@node_type)} class="border-b-2 border-primary">
       <div class=" flex flex-col gap-1">
         <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
       </div>
-    </Collapsible.section>
+    </.collapsible_section>
     """
   end
 
@@ -138,35 +102,29 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   defp id_type(:live_view), do: "PID"
 
   attr(:assigns, :list, required: true)
-  attr(:myself, :any, required: true)
-  attr(:hide?, :boolean, required: true)
 
   defp assigns_card(assigns) do
     ~H"""
-    <Collapsible.section
+    <.collapsible_section
       id="assigns"
       class="border-b-2 lg:border-b-0 border-primary h-max overflow-y-hidden"
-      hide?={@hide?}
-      myself={@myself}
       title="Assigns"
     >
-      <div class="relative w-full max-h-full border-2 border-gray-200 rounded-lg px-2 overflow-y-auto text-gray-600">
+      <div class="relative w-full max-h-full border-2 border-gray-200 rounded-lg p-4 overflow-y-auto text-gray-600">
         <.fullscreen_wrapper id="assigns-display-fullscreen" class="absolute top-0 right-0">
-          <.live_component
+          <ElixirDisplay.term
             id="assigns-display-fullscreen"
-            module={LiveDebugger.LiveComponents.ElixirDisplay}
             node={TermParser.term_to_display_tree(@assigns)}
             level={1}
           />
         </.fullscreen_wrapper>
-        <.live_component
+        <ElixirDisplay.term
           id="assigns-display"
-          module={LiveDebugger.LiveComponents.ElixirDisplay}
           node={TermParser.term_to_display_tree(@assigns)}
           level={1}
         />
       </div>
-    </Collapsible.section>
+    </.collapsible_section>
     """
   end
 
