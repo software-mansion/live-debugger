@@ -139,7 +139,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   attr(:tree, :any, required: true)
   attr(:node_id, :any, required: true)
   attr(:myself, :any, required: true)
-  attr(:max_opened_node_level, :integer, required: true)
+  attr(:max_opened_node_level, :any, required: true)
 
   defp sidebar_content(assigns) do
     ~H"""
@@ -204,7 +204,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   attr(:tree, :any, required: true)
   attr(:target, :any, required: true)
-  attr(:max_opened_node_level, :integer, required: true)
+  attr(:max_opened_node_level, :any, required: true)
   attr(:selected_node_id, :string, default: nil)
 
   defp component_tree(assigns) do
@@ -266,7 +266,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     assign_async(socket, [:tree, :max_opened_node_level], fn ->
       with {:ok, channel_state} <- ChannelService.state(pid),
            {:ok, tree} <- ChannelService.build_tree(channel_state) do
-        {:ok, %{tree: tree, max_opened_node_level: Tree.max_nesting_level(tree)}}
+        {:ok, %{tree: tree, max_opened_node_level: Tree.max_opened_node_level(tree)}}
       else
         error -> handle_error(error, pid, "Failed to build tree: ")
       end

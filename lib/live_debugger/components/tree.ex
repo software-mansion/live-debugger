@@ -23,7 +23,7 @@ defmodule LiveDebugger.Components.Tree do
   attr(:class, :string, default: nil, doc: "CSS class")
 
   attr(:max_opened_node_level, :integer,
-    default: 0,
+    required: true,
     doc: "The maximum level of the tree to be opened"
   )
 
@@ -46,29 +46,24 @@ defmodule LiveDebugger.Components.Tree do
   end
 
   @doc """
-  Calculates the maximum nesting level of the tree based on the maximum number of nodes.
-  Always returns a positive integer.
+  Calculates the maximum level to be opened in the tree.
   """
-  @spec max_nesting_level(root_node :: TreeNode.t(), max_nodes :: integer()) :: integer()
-  def max_nesting_level(root_node, max_nodes \\ @max_node_number) do
+  @spec max_opened_node_level(root_node :: TreeNode.t(), max_nodes :: integer()) :: integer()
+  def max_opened_node_level(root_node, max_nodes \\ @max_node_number) do
     node_count = count_by_level(root_node)
 
     node_count
-    |> Enum.reduce_while({-1, 0}, fn {level, count}, acc ->
+    |> Enum.reduce_while({0, 0}, fn {level, count}, acc ->
       {_, parent_count} = acc
-
       new_count = count + parent_count
 
       if new_count > max_nodes do
-        {:halt, level}
+        {:halt, {level - 1, new_count}}
       else
         {:cont, {level, new_count}}
       end
     end)
-    |> case do
-      {level, _} -> level
-      level -> level - 1
-    end
+    |> elem(0)
   end
 
   attr(:tree_node, :any, required: true)
