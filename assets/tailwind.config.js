@@ -39,6 +39,9 @@ module.exports = {
         info: colors.sky,
         gray: colors.gray,
       },
+      fontFamily: {
+        sans: ['DM Sans', 'sans-serif'],
+      },
       screens: {
         xs: '380px',
       },
