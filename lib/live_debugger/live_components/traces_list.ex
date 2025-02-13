@@ -53,10 +53,10 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       <.collapsible_section title="Callback traces" id="traces" class="h-full md:overflow-y-auto">
         <:right_panel>
           <div class="flex gap-2 items-center">
-            <.button color="primary" phx-click="switch-tracing" phx-target={@myself}>
+            <.button phx-click="switch-tracing" phx-target={@myself}>
               <%= if @tracing_started?, do: "Stop", else: "Start" %>
             </.button>
-            <.button variant="simple" color="primary" phx-click="clear-traces" phx-target={@myself}>
+            <.button variant="invert" phx-click="clear-traces" phx-target={@myself}>
               Clear
             </.button>
           </div>

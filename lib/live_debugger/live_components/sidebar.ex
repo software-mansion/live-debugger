@@ -225,7 +225,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp sidebar_icon_button(assigns) do
     ~H"""
-    <.button color="white" {@rest}>
+    <.button variant="outline" {@rest}>
       <.icon class="text-primary" name={@icon} />
     </.button>
     """

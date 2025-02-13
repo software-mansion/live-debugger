@@ -41,12 +41,7 @@ defmodule LiveDebugger.Components do
   Renders a button.
 
   """
-  attr(:color, :string,
-    default: "primary",
-    values: ["primary", "secondary", "danger", "success", "warning", "info", "gray", "white"]
-  )
-
-  attr(:variant, :string, default: "solid", values: ["solid", "simple"])
+  attr(:variant, :string, default: "solid", values: ["solid", "invert", "outline"])
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
   attr(:rest, :global)
   slot(:inner_block, required: true)
@@ -56,13 +51,11 @@ defmodule LiveDebugger.Components do
     <button
       class={
         [
-          "w-max h-max p-1 cursor-pointer",
-          if(@variant != "simple", do: "border-2 rounded-lg hover:shadow"),
-          button_color_classes(@color, @variant)
+          "w-max h-max py-1.5 px-2 rounded-md text-xs",
+          button_color_classes(@variant)
         ] ++
           List.wrap(@class)
       }
-      role="button"
       {@rest}
     >
       <%= render_slot(@inner_block) %>
@@ -295,8 +288,7 @@ defmodule LiveDebugger.Components do
           id={"#{@id}-close"}
           phx-hook="CloseFullscreen"
           data-fullscreen-id={@id}
-          variant="simple"
-          class="hover:bg-primary-500 hover:bg-opacity-10 rounded-full"
+          variant="invert"
         >
           <.icon name="hero-x-mark-solid" class="h-7 w-7" />
         </.button>
@@ -342,7 +334,7 @@ defmodule LiveDebugger.Components do
         phx-hook="OpenFullscreen"
         data-fullscreen-id={"fullscreen_#{@id}"}
         class={["flex items-center justify-center w-max h-max" | List.wrap(@class)]}
-        variant="simple"
+        variant="invert"
       >
         <.icon name={@icon} class="w-5 h-5" />
       </.button>
@@ -481,26 +473,16 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  defp button_color_classes(color, "simple") do
-    case color do
-      "white" ->
-        "text-white hover:text-gray-300"
+  defp button_color_classes(variant) do
+    case variant do
+      "solid" ->
+        "bg-primary-500 text-white hover:bg-primary-400"
 
-      color ->
-        "text-#{color}-500 hover:text-#{color}-900"
-    end
-  end
+      "invert" ->
+        "bg-white text-primary-500 border border-primary-20 hover:bg-primary-5"
 
-  defp button_color_classes(color, "solid") do
-    case color do
-      "white" ->
-        "bg-white hover:bg-gray-300 border-white hover:border-gray-300 text-black hover:text-black"
-
-      "gray" ->
-        "bg-gray-500 hover:bg-gray-800 border-gray-500 hover:border-gray-800 text-black hover:text-white"
-
-      color ->
-        "bg-#{color}-500 hover:bg-#{color}-800 border-#{color}-500 hover:border-#{color}-800 text-white"
+      "outline" ->
+        "bg-white text-primary-500 border border-primary-500 hover:bg-primary-5"
     end
   end
 end
