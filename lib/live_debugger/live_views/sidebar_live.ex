@@ -98,10 +98,10 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   end
 
   @impl true
-  @spec handle_info({:new_trace, any()}, any()) :: {:noreply, any()}
-  def handle_info({:new_trace, trace}, socket) do
-    dbg(trace.function)
-    {:noreply, socket}
+  def handle_info({:new_trace, _trace}, socket) do
+    socket
+    |> assign_async_tree()
+    |> noreply()
   end
 
   defp assign_async_tree(socket) do
