@@ -1,6 +1,10 @@
 defmodule LiveDebugger.LiveViews.SidebarLive do
-  alias Phoenix.PubSub
   use LiveDebuggerWeb, :live_view
+
+  require Logger
+
+  alias Phoenix.PubSub
+  alias LiveDebugger.Services.ChannelService
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -31,12 +35,16 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     |> assign(pid: session["pid"])
     |> assign(socket_id: session["socket_id"])
     |> assign(node_id: session["node_id"])
-    |> assign_base_url()
+    |> assign(base_url: "/#{session["socket_id"]}")
+    |> assign(hidden?: true)
+    |> assign_async_tree()
     |> ok()
   end
 
   @impl true
   def render(assigns) do
+    dbg(assigns.tree)
+
     ~H"""
     <button phx-click="select_node">Sidebar</button>
     """
@@ -48,14 +56,26 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     {:noreply, socket}
   end
 
-  @impl true
-  def handle_event("select_node", _, socket) do
-    socket
-    |> push_patch(to: "#{socket.assigns.base_url}/dupa")
-    |> noreply()
+  defp assign_async_tree(socket) do
+    pid = socket.assigns.pid
+
+    assign_async(socket, :tree, fn ->
+      with {:ok, channel_state} <- ChannelService.state(pid),
+           {:ok, tree} <- ChannelService.build_tree(channel_state) do
+        {:ok, %{tree: tree}}
+      else
+        error -> handle_error(error, pid, "Failed to build tree: ")
+      end
+    end)
   end
 
-  defp assign_base_url(socket) do
-    assign(socket, :base_url, "/#{socket.assigns.socket_id}")
+  defp handle_error({:error, :not_alive} = error, pid, _) do
+    Logger.info("Process #{inspect(pid)} is not alive")
+    error
+  end
+
+  defp handle_error(error, _, error_message) do
+    Logger.error(error_message <> inspect(error))
+    error
   end
 end
