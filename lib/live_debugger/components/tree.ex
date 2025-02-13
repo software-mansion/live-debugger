@@ -15,9 +15,9 @@ defmodule LiveDebugger.Components.Tree do
 
   attr(:tree_node, :any, required: true, doc: "The TreeNode struct to render")
   attr(:title, :string, required: true, doc: "The title of the tree")
-  attr(:event_target, :any, required: true, doc: "The target for the click event")
   attr(:selected_node_id, :string, required: true, doc: "The id of the selected node")
   attr(:class, :string, default: nil, doc: "CSS class")
+  attr(:event_target, :any, default: nil, doc: "The target for the click event")
 
   def tree(assigns) do
     ~H"""
