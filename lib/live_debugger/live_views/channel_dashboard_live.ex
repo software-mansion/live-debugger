@@ -7,9 +7,11 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
 
   alias LiveDebugger.Components
   alias LiveDebugger.Structs.TreeNode
-  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.ChannelService
+
+  alias Phoenix.LiveView.AsyncResult
+  alias Phoenix.PubSub
 
   @impl true
   def mount(%{"socket_id" => socket_id}, _session, socket) do
@@ -60,7 +62,13 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
                 node_id={@node_id || pid}
                 socket_id={@socket_id}
               />
-              <%!-- Assigns --%>
+              <LiveDebugger.LiveViews.AssignsLive.live_render
+                socket={@socket}
+                id="node-assigns"
+                pid={pid}
+                node_id={@node_id || pid}
+                socket_id={@socket_id}
+              />
             </div>
             <%!-- Traces --%>
           </div>
@@ -123,7 +131,9 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   defp assign_node_id(socket, %{"node_id" => node_id}) do
     case TreeNode.id_from_string(node_id) do
       {:ok, id} ->
-        assign(socket, :node_id, id)
+        socket
+        |> maybe_broadcast_node_change(id)
+        |> assign(:node_id, id)
 
       :error ->
         Logger.error("Invalid node_id: #{inspect(node_id)}")
@@ -155,5 +165,14 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   defp fetch_pid_after(socket_id, milliseconds) do
     Process.sleep(milliseconds)
     LiveViewDiscoveryService.live_pid(socket_id)
+  end
+
+  defp maybe_broadcast_node_change(socket, node_id) do
+    socket_id = socket.assigns.socket_id
+    channel = "lvdbg/#{socket_id}/node_changed"
+
+    PubSub.broadcast!(LiveDebugger.PubSub, channel, {:node_changed, node_id})
+
+    socket
   end
 end

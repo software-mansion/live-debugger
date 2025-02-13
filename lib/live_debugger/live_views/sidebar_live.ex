@@ -5,9 +5,8 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
 
   import LiveDebugger.Components.Sidebar
 
-  alias LiveDebugger.Structs.TreeNode
-  alias Phoenix.PubSub
   alias LiveDebugger.Services.ChannelService
+  alias Phoenix.PubSub
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -32,7 +31,11 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   @impl true
   def mount(_params, session, socket) do
     socket_id = session["socket_id"]
-    PubSub.subscribe(LiveDebugger.PubSub, "#{socket_id}/*/tree_updated")
+
+    if connected?(socket) do
+      PubSub.subscribe(LiveDebugger.PubSub, "#{socket_id}/*/tree_updated")
+      PubSub.subscribe(LiveDebugger.PubSub, "lvdbg/#{socket_id}/node_changed")
+    end
 
     socket
     |> assign(pid: session["pid"])
@@ -77,7 +80,6 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   @impl true
   def handle_event("select_node", %{"node_id" => node_id}, socket) do
     socket
-    |> assign(node_id: TreeNode.id_from_string!(node_id))
     |> push_patch(to: "#{socket.assigns.base_url}/#{node_id}")
     |> hide_sidebar_side_over()
     |> noreply()
@@ -94,6 +96,13 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   def handle_event("close_mobile_content", _params, socket) do
     socket
     |> hide_sidebar_side_over()
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info({:node_changed, node_id}, socket) do
+    socket
+    |> assign(node_id: node_id)
     |> noreply()
   end
 
