@@ -1,9 +1,10 @@
 defmodule LiveDebugger.LiveComponents.NodeDetails do
   use LiveDebuggerWeb, :live_component
 
-  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Structs.TreeNode
+
+  alias Phoenix.LiveView.AsyncResult
 
   @impl true
   def update(assigns, socket) do
