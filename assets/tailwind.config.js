@@ -64,6 +64,7 @@ module.exports = {
         '.phx-change-loading &',
       ])
     ),
+    // Plugin for fullscreen backdrop
     plugin(function ({ addVariant, e }) {
       addVariant('backdrop', ({ modifySelectors, separator }) => {
         modifySelectors(({ className }) => {

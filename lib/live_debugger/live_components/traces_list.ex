@@ -7,7 +7,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   require Logger
 
-  alias LiveDebugger.Components.Collapsible
+  alias LiveDebugger.Components.ElixirDisplay
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
@@ -17,7 +17,6 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   @impl true
   def mount(socket) do
     socket
-    |> assign(:hide_section?, false)
     |> assign(:tracing_started?, true)
     |> ok()
   end
@@ -46,19 +45,12 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   attr(:id, :string, required: true)
   attr(:debugged_node_id, :map, required: true)
   attr(:socket_id, :string, required: true)
-  attr(:hide_section?, :boolean, required: true)
 
   @impl true
   def render(assigns) do
     ~H"""
     <div>
-      <Collapsible.section
-        title="Callback traces"
-        id="traces"
-        class="h-full md:overflow-y-auto"
-        myself={@myself}
-        hide?={@hide_section?}
-      >
+      <.collapsible_section title="Callback traces" id="traces" class="h-full md:overflow-y-auto">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <.button color="primary" phx-click="switch-tracing" phx-target={@myself}>
@@ -95,7 +87,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
             <% end %>
           </div>
         </div>
-      </Collapsible.section>
+      </.collapsible_section>
     </div>
     """
   end
@@ -119,12 +111,6 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   @impl true
-  def handle_event("toggle-visibility", _, socket) do
-    socket
-    |> assign(hide_section?: not socket.assigns.hide_section?)
-    |> noreply()
-  end
-
   def handle_event("switch-tracing", _, socket) do
     socket
     |> assign(tracing_started?: not socket.assigns.tracing_started?)
@@ -147,7 +133,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   defp trace(assigns) do
     ~H"""
-    <Collapsible.collapsible id={@id} icon="hero-chevron-down-micro" chevron_class="text-primary">
+    <.collapsible id={@id} icon="hero-chevron-right-micro" chevron_class="text-primary">
       <:label>
         <div class="w-full flex justify-between">
           <.tooltip
@@ -173,9 +159,8 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         <.fullscreen_wrapper id={@id <> "-fullscreen"} class="absolute top-0 right-0">
           <div class="w-full flex flex-col items-start justify-center">
             <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-              <.live_component
+              <ElixirDisplay.term
                 id={@id <> "-#{index}-fullscreen"}
-                module={LiveDebugger.LiveComponents.ElixirDisplay}
                 node={TermParser.term_to_display_tree(args)}
                 level={1}
               />
@@ -183,15 +168,14 @@ defmodule LiveDebugger.LiveComponents.TracesList do
           </div>
         </.fullscreen_wrapper>
         <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-          <.live_component
+          <ElixirDisplay.term
             id={@id <> "-#{index}"}
-            module={LiveDebugger.LiveComponents.ElixirDisplay}
             node={TermParser.term_to_display_tree(args)}
             level={1}
           />
         <% end %>
       </div>
-    </Collapsible.collapsible>
+    </.collapsible>
     """
   end
 
