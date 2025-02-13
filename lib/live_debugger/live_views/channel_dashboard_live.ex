@@ -6,7 +6,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   require Logger
 
   alias LiveDebugger.Components
-  alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
@@ -16,9 +15,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   def mount(%{"socket_id" => socket_id}, _session, socket) do
     socket
     |> assign(:socket_id, socket_id)
-    |> assign(:tracing_session, nil)
-    # TODO Tracing
-    # |> assign_rate_limiter_pid()
     |> assign_async_debugged_pid()
     |> assign_base_url()
     |> ok()
@@ -51,8 +47,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
           socket={@socket}
           id="sidebar"
           pid={pid}
+          node_id={@node_id || pid}
           socket_id={@socket_id}
-          node_id={@node_id}
         />
         <.live_component
           module={LiveDebugger.LiveComponents.DetailView}
@@ -88,20 +84,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     socket
     |> assign(:debugged_pid, AsyncResult.ok(fetched_pid))
     |> noreply()
-
-    # TODO Tracing
-    # socket.assigns.socket_id
-    # |> CallbackTracingService.start_tracing(fetched_pid, socket.assigns.rate_limiter_pid)
-    # |> case do
-    #   {:ok, tracing_session} ->
-    #     socket
-    #     |> assign(:debugged_pid, AsyncResult.ok(fetched_pid))
-    #     |> assign(:tracing_session, tracing_session)
-
-    #   {:error, reason} ->
-    #     assign(socket, :debugged_pid, AsyncResult.failed(socket.assigns.debugged_pid, reason))
-    # end
-    # |> noreply()
   end
 
   @impl true
@@ -117,41 +99,11 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
 
   @impl true
   def handle_info({:DOWN, _, :process, _closed_pid, _}, socket) do
-    # TODO Tracing
-    # CallbackTracingService.stop_tracing(socket.assigns.tracing_session)
-
     socket
     |> push_patch(to: socket.assigns.base_url)
     |> assign_async_debugged_pid()
     |> noreply()
   end
-
-  @impl true
-  def handle_info({:new_trace, trace}, socket) do
-    debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
-
-    if Trace.node_id(trace) == debugged_node_id do
-      send_update(LiveDebugger.LiveComponents.TracesList, %{id: "trace-list", new_trace: trace})
-      send_update(LiveDebugger.LiveComponents.DetailView, %{id: "detail_view", new_trace: trace})
-    end
-
-    send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", new_trace: trace})
-
-    socket =
-      if Trace.live_component_delete?(trace) and Trace.node_id(trace) == debugged_node_id do
-        push_patch(socket, to: socket.assigns.base_url)
-      else
-        socket
-      end
-
-    {:noreply, socket}
-  end
-
-  # TODO Tracing
-  # @impl true
-  # def terminate(_reason, socket) do
-  #   CallbackTracingService.stop_tracing(socket.assigns.tracing_session)
-  # end
 
   defp assign_node_id(socket, %{"node_id" => node_id}) do
     case TreeNode.id_from_string(node_id) do
@@ -184,16 +136,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
       end
     end)
   end
-
-  # TODO Tracing
-  # defp assign_rate_limiter_pid(socket) do
-  #   if connected?(socket) do
-  #     {:ok, pid} = LiveDebugger.Services.TraceRateLimiter.start_link()
-  #     assign(socket, :rate_limiter_pid, pid)
-  #   else
-  #     assign(socket, :rate_limiter_pid, nil)
-  #   end
-  # end
 
   defp fetch_pid_after(socket_id, milliseconds) do
     Process.sleep(milliseconds)

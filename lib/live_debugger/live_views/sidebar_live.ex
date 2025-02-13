@@ -37,7 +37,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     socket
     |> assign(pid: session["pid"])
     |> assign(socket_id: session["socket_id"])
-    |> assign(node_id: session["node_id"] || session["pid"])
+    |> assign(node_id: session["node_id"])
     |> assign(base_url: "/#{session["socket_id"]}")
     |> hide_sidebar_side_over()
     |> assign_async_tree()
