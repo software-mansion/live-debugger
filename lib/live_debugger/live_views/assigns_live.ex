@@ -50,7 +50,7 @@ defmodule LiveDebugger.LiveViews.AssignsLive do
   def render(assigns) do
     ~H"""
     <.collapsible_section
-      id="assigns"
+      id="node-assigns"
       class="border-b-2 lg:border-b-0 border-primary h-max overflow-y-hidden"
       title="Assigns"
     >
@@ -66,15 +66,15 @@ defmodule LiveDebugger.LiveViews.AssignsLive do
           </.alert>
         </:failed>
         <div class="relative w-full max-h-full border-2 border-gray-200 rounded-lg p-4 overflow-y-auto text-gray-600">
-          <.fullscreen_wrapper id="assigns-display-fullscreen" class="absolute top-0 right-0">
+          <.fullscreen_wrapper id="node-assigns-display-fullscreen" class="absolute top-0 right-0">
             <ElixirDisplay.term
-              id="assigns-display-fullscreen"
+              id="node-assigns-display-fullscreen"
               node={TermParser.term_to_display_tree(node.assigns)}
               level={1}
             />
           </.fullscreen_wrapper>
           <ElixirDisplay.term
-            id="assigns-display"
+            id="node-assigns-display"
             node={TermParser.term_to_display_tree(node.assigns)}
             level={1}
           />

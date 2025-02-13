@@ -27,7 +27,7 @@ defmodule LiveDebugger.LiveComponents.NodeDetails do
   def render(assigns) do
     ~H"""
     <div>
-      <.collapsible_section id="info" title="Details" class="border-b-2 border-primary">
+      <.collapsible_section id="node-info" title="Details" class="border-b-2 border-primary">
         <.async_result :let={node} assign={@node}>
           <:loading>
             <div class="w-full flex items-center justify-center">

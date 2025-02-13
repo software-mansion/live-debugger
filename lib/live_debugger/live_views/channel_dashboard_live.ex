@@ -47,7 +47,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
       <div class="flex flex-row w-full min-h-screen">
         <LiveDebugger.LiveViews.SidebarLive.live_render
           socket={@socket}
-          id="sidebar"
+          id="sidebar-lv"
           pid={pid}
           node_id={@node_id || pid}
           socket_id={@socket_id}
@@ -57,21 +57,21 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
             <div class="flex flex-col max lg:border-r-2 border-primary lg:overflow-y-hidden">
               <.live_component
                 module={LiveDebugger.LiveComponents.NodeDetails}
-                id="node-info"
+                id="node-info-lv"
                 pid={pid}
                 node_id={@node_id || pid}
                 socket_id={@socket_id}
               />
               <LiveDebugger.LiveViews.AssignsLive.live_render
                 socket={@socket}
-                id="node-assigns"
+                id="node-assigns-lv"
                 pid={pid}
                 node_id={@node_id || pid}
                 socket_id={@socket_id}
               />
             </div>
             <LiveDebugger.LiveViews.TracesLive.live_render
-              id="node-traces"
+              id="node-traces-lv"
               socket={@socket}
               node_id={@node_id || pid}
               socket_id={@socket_id}

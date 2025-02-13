@@ -59,7 +59,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   def render(assigns) do
     ~H"""
     <div>
-      <.collapsible_section title="Callback traces" id="traces" class="h-full md:overflow-y-auto">
+      <.collapsible_section title="Callback traces" id="node-traces" class="h-full md:overflow-y-auto">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <.button color="primary" phx-click="switch-tracing">
@@ -71,8 +71,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
           </div>
         </:right_panel>
         <div class="w-full">
-          <div id="traces-stream" phx-update="stream">
-            <div id="traces-stream-empty" class="only:block hidden text-gray-700">
+          <div id="node-traces-stream" phx-update="stream">
+            <div id="node-traces-stream-empty" class="only:block hidden text-gray-700">
               <div :if={@existing_traces_status == :ok}>
                 No traces have been recorded yet.
               </div>
