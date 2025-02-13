@@ -47,13 +47,12 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
       </:failed>
 
       <div class="flex flex-row w-full min-h-screen">
-        <.live_component
-          module={LiveDebugger.LiveComponents.Sidebar}
+        <LiveDebugger.LiveViews.SidebarLive.live_render
+          socket={@socket}
           id="sidebar"
           pid={pid}
           socket_id={@socket_id}
-          node_id={@node_id || pid}
-          base_url={@base_url}
+          node_id={@node_id}
         />
         <.live_component
           module={LiveDebugger.LiveComponents.DetailView}
