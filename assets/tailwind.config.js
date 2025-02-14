@@ -34,9 +34,13 @@ module.exports = {
       },
       fontFamily: {
         sans: ['DM Sans', 'sans-serif'],
+        mono: ['DM Mono', 'serif'],
       },
       screens: {
         xs: '380px',
+      },
+      fontSize: {
+        xsm: '0.813rem',
       },
     },
   },
@@ -67,6 +71,47 @@ module.exports = {
           return `.${e(`backdrop${separator}${className}`)}::backdrop`;
         });
       });
+    }),
+    // Plugin for adding custom icons
+    plugin(function ({ matchComponents, theme }) {
+      let iconsDir = path.join(__dirname, './icons/swm');
+      let values = {};
+
+      fs.readdirSync(iconsDir).forEach((file) => {
+        let name = path.basename(file, '.svg');
+        values[name] = {
+          name,
+          fullPath: path.join(iconsDir, file),
+        };
+      });
+      matchComponents(
+        {
+          icon: ({ name, fullPath }) => {
+            let content = fs
+              .readFileSync(fullPath)
+              .toString()
+              .replace(/\r?\n|\r/g, '');
+            let size = theme('spacing.6');
+            if (name.endsWith('-mini')) {
+              size = theme('spacing.5');
+            } else if (name.endsWith('-micro')) {
+              size = theme('spacing.4');
+            }
+            return {
+              [`--icon-${name}`]: `url('data:image/svg+xml;utf8,${content}')`,
+              '-webkit-mask': `var(--icon-${name})`,
+              mask: `var(--icon-${name})`,
+              'mask-repeat': 'no-repeat',
+              'background-color': 'currentColor',
+              'vertical-align': 'middle',
+              display: 'inline-block',
+              width: size,
+              height: size,
+            };
+          },
+        },
+        { values }
+      );
     }),
     // Plugin for adding Heroicons
     plugin(function ({ matchComponents, theme }) {
