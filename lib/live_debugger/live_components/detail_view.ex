@@ -36,7 +36,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col w-full h-full overflow-x-hidden bg-primary-20">
+    <div class="flex flex-col w-full h-full min-w-max bg-primary-20">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
@@ -48,7 +48,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             Failed to fetch node details: <%= inspect(reason) %>
           </.alert>
         </:failed>
-        <div class="w-full overflow-y-auto lg:overflow-y-hidden p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
+        <div class="w-full overflow-y-auto p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
           <div class="w-full flex flex-col gap-4">
             <.info_card node={node} node_type={@node_type.result} />
             <.assigns_card assigns={node.assigns} />
@@ -61,7 +61,6 @@ defmodule LiveDebugger.LiveComponents.DetailView do
               socket_id={@socket_id}
             />
           </div>
-          <%!-- <div class="mt-8 text-transparent bg-transparent select-none">.</div> --%>
         </div>
       </.async_result>
     </div>
