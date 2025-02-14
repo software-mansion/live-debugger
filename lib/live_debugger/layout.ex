@@ -43,7 +43,7 @@ defmodule LiveDebugger.Layout do
 
   def render("app.html", assigns) do
     ~H"""
-    <main class="h-screen w-screen">
+    <main class="h-screen w-screen max-w-full">
       <%= @inner_content %>
     </main>
     """

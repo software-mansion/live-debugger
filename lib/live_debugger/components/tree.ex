@@ -29,9 +29,9 @@ defmodule LiveDebugger.Components.Tree do
 
   def tree(assigns) do
     ~H"""
-    <.card class={["h-max bg-gray-200 text-primary", @class]}>
-      <.h4 class="text-primary pt-2 pl-2"><%= @title %></.h4>
-      <div class="px-1 pb-4 pt-0">
+    <div class={["w-full overflow-y-auto flex flex-col text-primary", @class]}>
+      <div class="shrink-0 font-mono font-medium text-primary text-xs px-6 py-3"><%= @title %></div>
+      <div class="w-full px-2 text-xs leading-5 overflow-y-auto">
         <.tree_node
           tree_node={@tree_node}
           selected_node_id={@selected_node_id}
@@ -41,7 +41,7 @@ defmodule LiveDebugger.Components.Tree do
           level={0}
         />
       </div>
-    </.card>
+    </div>
     """
   end
 
@@ -70,7 +70,6 @@ defmodule LiveDebugger.Components.Tree do
   attr(:event_target, :any, required: true)
   attr(:selected_node_id, :string, default: nil)
   attr(:root?, :boolean, default: false)
-  attr(:highlight_bar?, :boolean, default: false)
   attr(:max_opened_node_level, :integer, default: 0)
   attr(:level, :integer, default: 0)
 
@@ -84,83 +83,95 @@ defmodule LiveDebugger.Components.Tree do
 
     ~H"""
     <div class="relative flex max-w-full">
-      <.vertical_bar :if={!@root?} highlight_bar?={@highlight_bar?} />
-      <div class={["w-full", unless(@root?, do: "pl-2")]}>
-        <div class="w-full rounded-lg p-1 pb-0">
-          <.collapsible
-            :if={@collapsible?}
-            id={"collapsible-" <> @tree_node.parsed_id}
-            chevron_class="text-primary h-5 w-5"
-            open={@open}
-            class="w-full"
-          >
-            <:label>
-              <.label selected?={@selected?} event_target={@event_target} node={@tree_node} />
-            </:label>
-            <div class="flex flex-col">
-              <.tree_node
-                :for={child <- @tree_node.children}
-                tree_node={child}
-                selected_node_id={@selected_node_id}
-                event_target={@event_target}
-                root?={false}
-                highlight_bar?={@selected?}
-                max_opened_node_level={@max_opened_node_level}
-                level={@level + 1}
-              />
-            </div>
-          </.collapsible>
-          <.label
-            :if={not @collapsible?}
-            selected?={@selected?}
-            event_target={@event_target}
-            node={@tree_node}
-            class="pl-[1.5rem]"
-          />
-        </div>
+      <div class="w-full">
+        <.collapsible
+          :if={@collapsible?}
+          id={"collapsible-" <> @tree_node.parsed_id}
+          chevron_class="text-primary h-5 w-5"
+          open={@open}
+          label_class="w-full rounded-md py-1 hover:bg-primary-20"
+          label_style={style_for_padding(@level, @collapsible?)}
+        >
+          <:label>
+            <.label
+              selected?={@selected?}
+              event_target={@event_target}
+              node={@tree_node}
+              level={@level}
+              collapsible?={true}
+            />
+          </:label>
+          <div class="flex flex-col">
+            <.tree_node
+              :for={child <- @tree_node.children}
+              tree_node={child}
+              selected_node_id={@selected_node_id}
+              event_target={@event_target}
+              root?={false}
+              max_opened_node_level={@max_opened_node_level}
+              level={@level + 1}
+            />
+          </div>
+        </.collapsible>
+        <.label
+          :if={not @collapsible?}
+          selected?={@selected?}
+          event_target={@event_target}
+          node={@tree_node}
+          level={@level}
+          collapsible?={false}
+        />
       </div>
-    </div>
-    """
-  end
-
-  attr(:highlight_bar?, :boolean, required: true)
-
-  defp vertical_bar(assigns) do
-    ~H"""
-    <div class={[
-      "absolute top-0 left-2 h-full border-l-2",
-      if(@highlight_bar?, do: "border-primary", else: "border-transparent")
-    ]}>
     </div>
     """
   end
 
   attr(:node, :any, required: true)
   attr(:event_target, :any, required: true)
-  attr(:selected?, :boolean, default: false)
+  attr(:level, :integer, required: true)
+  attr(:collapsible?, :boolean, required: true)
+  attr(:selected?, :boolean, required: true)
   attr(:class, :string, default: nil)
 
   defp label(assigns) do
+    assigns =
+      assign(assigns, :padding_style, style_for_padding(assigns.level, assigns.collapsible?))
+
     ~H"""
     <button
       phx-click="select_node"
       phx-value-node_id={@node.parsed_id}
       phx-target={@event_target}
-      class={["flex w-full", @class]}
+      class={[
+        "flex w-full rounded-md hover:bg-primary-20",
+        unless(@collapsible?, do: "p-1"),
+        @class
+      ]}
+      style={unless(@collapsible?, do: @padding_style)}
     >
-      <.tooltip id={"tree_node_" <> @node.parsed_id} content={@node.tooltip} class="w-full">
-        <div class="flex w-full gap-0.5 items-center text-black">
-          <.icon name={@node.icon} class="w-5 h-5 shrink-0" />
-          <.h5 class={[
-            "truncate text-sm",
-            if(@selected?, do: "text-primary font-bold underline", else: "text-black")
+      <div class="flex w-full gap-0.5 items-center text-primary">
+        <.icon name={@node.icon} class="w-5 h-5 shrink-0" />
+        <.tooltip
+          id={"tree_node_" <> @node.parsed_id}
+          content={@node.tooltip}
+          class="w-full flex overflow-x-hidden"
+        >
+          <div class={[
+            "text-primary truncate",
+            if(@selected?, do: "font-semibold")
           ]}>
             <%= @node.label %>
-          </.h5>
-        </div>
-      </.tooltip>
+          </div>
+        </.tooltip>
+      </div>
     </button>
     """
+  end
+
+  defp style_for_padding(level, collapsible?) do
+    padding = (level + 1) * 0.5 + if(collapsible?, do: 0, else: 1.5)
+
+    "padding-left: #{padding}rem;"
   end
 
   defp format_tree_node(%TreeNode.LiveView{} = node) do
@@ -170,7 +181,7 @@ defmodule LiveDebugger.Components.Tree do
       label: short_name(node.module),
       tooltip: "#{Atom.to_string(node.module)}",
       children: node.children,
-      icon: "hero-tv"
+      icon: "icon-screen"
     }
   end
 
@@ -181,7 +192,7 @@ defmodule LiveDebugger.Components.Tree do
       label: "#{short_name(node.module)} (#{node.cid})",
       tooltip: "#{Atom.to_string(node.module)} (#{node.cid})",
       children: node.children,
-      icon: "hero-cube"
+      icon: "icon-component"
     }
   end
 

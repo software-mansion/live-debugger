@@ -40,7 +40,8 @@ module.exports = {
         xs: '380px',
       },
       fontSize: {
-        xsm: '0.813rem',
+        ssm: ['13px', '20px'],
+        sbase: ['15px', '20px'],
       },
     },
   },

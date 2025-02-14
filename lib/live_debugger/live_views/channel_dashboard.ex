@@ -34,36 +34,39 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   @impl true
   def render(assigns) do
     ~H"""
-    <.async_result :let={pid} assign={@debugged_pid}>
-      <:loading>
-        <div class="h-full flex items-center justify-center">
-          <.spinner size="xl" />
-        </div>
-      </:loading>
-      <:failed :let={reason}>
-        <Components.not_found_component :if={reason == :not_found} socket={@socket} />
-        <Components.session_limit_component :if={reason == :session_limit} />
-        <Components.error_component :if={reason not in [:not_found, :session_limit]} />
-      </:failed>
+    <div class="w-full h-full flex flex-col">
+      <.topbar return_link?={true} />
+      <.async_result :let={pid} assign={@debugged_pid}>
+        <:loading>
+          <div class="h-full flex items-center justify-center">
+            <.spinner size="xl" />
+          </div>
+        </:loading>
+        <:failed :let={reason}>
+          <Components.not_found_component :if={reason == :not_found} socket={@socket} />
+          <Components.session_limit_component :if={reason == :session_limit} />
+          <Components.error_component :if={reason not in [:not_found, :session_limit]} />
+        </:failed>
 
-      <div class="flex flex-row w-full min-h-screen">
-        <.live_component
-          module={LiveDebugger.LiveComponents.Sidebar}
-          id="sidebar"
-          pid={pid}
-          socket_id={@socket_id}
-          node_id={@node_id || pid}
-          base_url={@base_url}
-        />
-        <.live_component
-          module={LiveDebugger.LiveComponents.DetailView}
-          id="detail_view"
-          pid={pid}
-          node_id={@node_id || pid}
-          socket_id={@socket_id}
-        />
-      </div>
-    </.async_result>
+        <div class="flex flex-row w-full h-full">
+          <.live_component
+            module={LiveDebugger.LiveComponents.Sidebar}
+            id="sidebar"
+            pid={pid}
+            socket_id={@socket_id}
+            node_id={@node_id || pid}
+            base_url={@base_url}
+          />
+          <.live_component
+            module={LiveDebugger.LiveComponents.DetailView}
+            id="detail_view"
+            pid={pid}
+            node_id={@node_id || pid}
+            socket_id={@socket_id}
+          />
+        </div>
+      </.async_result>
+    </div>
     """
   end
 

@@ -31,7 +31,7 @@ defmodule LiveDebugger.Components.ElixirDisplay do
         :if={@has_children?}
         id={@id <> "collapsible"}
         open={@expanded?}
-        icon="hero-chevron-right-micro"
+        icon="icon-chevron-right"
         class="[&>summary_.hide-on-opened]:open:hidden"
         label_class="max-w-max"
         chevron_class="w-[2ch] mr-0"

@@ -94,11 +94,12 @@ defmodule LiveDebugger.Components do
   attr(:id, :string, required: true)
   attr(:class, :any, default: nil, doc: "CSS class for parent container")
   attr(:label_class, :any, default: nil, doc: "CSS class for the label")
+  attr(:label_style, :any, default: nil, doc: "CSS style for the label")
   attr(:chevron_class, :any, default: nil, doc: "CSS class for the chevron icon")
   attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
 
   attr(:icon, :string,
-    default: "hero-chevron-right-solid",
+    default: "icon-chevron-right",
     doc: "Icon for chevron. It will be rotated 90 degrees when the collapsible is open"
   )
 
@@ -115,10 +116,13 @@ defmodule LiveDebugger.Components do
       {show_collapsible_assign(@open)}
       {@rest}
     >
-      <summary class={[
-        "block flex items-center cursor-pointer" | List.wrap(@label_class)
-      ]}>
-        <.icon name={@icon} class={["rotate-icon shrink-0 mr-1" | List.wrap(@chevron_class)]} />
+      <summary
+        class={[
+          "block flex items-center cursor-pointer" | List.wrap(@label_class)
+        ]}
+        style={@label_style}
+      >
+        <.icon name={@icon} class={["rotate-icon shrink-0" | List.wrap(@chevron_class)]} />
         <%= render_slot(@label) %>
       </summary>
       <%= render_slot(@inner_block) %>
@@ -243,17 +247,23 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
-  Renders a [Heroicon](https://heroicons.com).
+  Renders a [Heroicon](https://heroicons.com) or Custom Icon.
   Not all icons are available. If you want to use an icon check if it exists in the `assets/icons` folder.
+  `name` must start with `hero-` or `icon-`.
   ## Examples
 
       <.icon name="hero-x-mark-solid" />
+      <.icon name="icon-play" />
   """
   attr(:name, :string, required: true, doc: "The name of the icon. Must start with `hero-`.")
   attr(:class, :any, default: nil, doc: "Additional classes to add to the icon.")
   attr(:rest, :global)
 
-  def icon(%{name: "hero-" <> _} = assigns) do
+  def icon(assigns) do
+    unless String.starts_with?(assigns.name, ["hero-", "icon-"]) do
+      raise("No icon: #{assigns.name}")
+    end
+
     ~H"""
     <span class={[@name, List.wrap(@class)]} {@rest}></span>
     """
@@ -408,6 +418,24 @@ defmodule LiveDebugger.Components do
       {@rest}
     >
       <%= render_slot(@inner_block) %>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders topbar with possible link to return to the main page.
+  """
+  attr(:return_link?, :boolean, required: true)
+
+  def topbar(assigns) do
+    ~H"""
+    <div class="w-full h-12 py-auto px-4 flex items-center gap-2 bg-primary text-white font-mono font-medium text-sbase">
+      <.link :if={@return_link?} patch="/">
+        <.button class="p-auto! w-8 h-8 flex items-center justify-center">
+          <.icon name="icon-arrow-left" />
+        </.button>
+      </.link>
+      <span>LiveDebugger</span>
     </div>
     """
   end
