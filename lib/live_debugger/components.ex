@@ -140,23 +140,24 @@ defmodule LiveDebugger.Components do
 
   def collapsible_section(assigns) do
     ~H"""
-    <div class={@class}>
+    <div class={["w-full min-w-[20rem] lg:max-w-[32rem] h-max flex" | List.wrap(@class)]}>
       <.collapsible
         id={@id}
         title={@title}
         open={@open}
-        label_class="p-2 lg:pointer-events-none pointer-events-auto"
+        class="bg-white rounded-sm w-full"
+        label_class="h-12 p-2 lg:pl-4 lg:pointer-events-none pointer-events-auto text-primary border-b border-primary-20"
         chevron_class="lg:hidden flex"
       >
         <:label>
-          <div class="flex justify-between items-center w-full">
-            <.h3 class="text-primary"><%= @title %></.h3>
+          <div class="flex justify-between items-center w-full text-sbase leading-5">
+            <div class="font-semibold"><%= @title %></div>
             <div class="w-max !pointer-events-auto">
               <%= render_slot(@right_panel) %>
             </div>
           </div>
         </:label>
-        <div class="flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2">
+        <div class="flex overflow-y-auto overflow-x-hidden rounded-sm bg-white text-black p-2 text-ssm leading-5">
           <%= render_slot(@inner_block) %>
         </div>
       </.collapsible>
@@ -427,6 +428,8 @@ defmodule LiveDebugger.Components do
   """
   attr(:return_link?, :boolean, required: true)
 
+  slot(:inner_block)
+
   def topbar(assigns) do
     ~H"""
     <div class="w-full h-12 py-auto px-4 flex items-center gap-2 bg-primary text-white font-mono font-medium text-sbase">
@@ -436,6 +439,7 @@ defmodule LiveDebugger.Components do
         </.button>
       </.link>
       <span>LiveDebugger</span>
+      <%= @inner_block && render_slot(@inner_block) %>
     </div>
     """
   end

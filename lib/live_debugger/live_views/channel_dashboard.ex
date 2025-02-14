@@ -34,8 +34,12 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full flex flex-col">
-      <.topbar return_link?={true} />
+    <div class="w-screen h-screen flex flex-col">
+      <.topbar return_link?={true}>
+        <.button phx-click="open-sidebar" class="flex sm:hidden">
+          <.icon name="hero-bars-3" />
+        </.button>
+      </.topbar>
       <.async_result :let={pid} assign={@debugged_pid}>
         <:loading>
           <div class="h-full flex items-center justify-center">
@@ -48,7 +52,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
           <Components.error_component :if={reason not in [:not_found, :session_limit]} />
         </:failed>
 
-        <div class="flex flex-row w-full h-full">
+        <div class="flex flex-row w-full grow overflow-y-auto">
           <.live_component
             module={LiveDebugger.LiveComponents.Sidebar}
             id="sidebar"
@@ -68,6 +72,13 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
       </.async_result>
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("open-sidebar", _, socket) do
+    send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", show_sidebar?: true})
+
+    noreply(socket)
   end
 
   @impl true
