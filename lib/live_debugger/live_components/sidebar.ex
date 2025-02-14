@@ -74,6 +74,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           pid={@pid}
           socket_id={@socket_id}
           tree={@tree}
+          max_opened_node_level={@max_opened_node_level}
           node_id={@node_id}
           myself={@myself}
         />
@@ -91,6 +92,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
             pid={@pid}
             socket_id={@socket_id}
             tree={@tree}
+            max_opened_node_level={@max_opened_node_level}
             node_id={@node_id}
             myself={@myself}
           />
@@ -137,13 +139,19 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   attr(:tree, :any, required: true)
   attr(:node_id, :any, required: true)
   attr(:myself, :any, required: true)
+  attr(:max_opened_node_level, :any, required: true)
 
   defp sidebar_content(assigns) do
     ~H"""
     <div class="flex flex-col gap-2 p-2">
       <.basic_info pid={@pid} socket_id={@socket_id} />
       <.separate_bar />
-      <.component_tree tree={@tree} selected_node_id={@node_id} target={@myself} />
+      <.component_tree
+        tree={@tree}
+        selected_node_id={@node_id}
+        target={@myself}
+        max_opened_node_level={@max_opened_node_level}
+      />
     </div>
     """
   end
@@ -196,6 +204,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   attr(:tree, :any, required: true)
   attr(:target, :any, required: true)
+  attr(:max_opened_node_level, :any, required: true)
   attr(:selected_node_id, :string, default: nil)
 
   defp component_tree(assigns) do
@@ -214,6 +223,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         tree_node={tree}
         event_target={@target}
         class="bg-gray-200"
+        max_opened_node_level={@max_opened_node_level.result}
       />
     </.async_result>
     """
@@ -253,10 +263,10 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   defp assign_async_tree(socket) do
     pid = socket.assigns.pid
 
-    assign_async(socket, :tree, fn ->
+    assign_async(socket, [:tree, :max_opened_node_level], fn ->
       with {:ok, channel_state} <- ChannelService.state(pid),
            {:ok, tree} <- ChannelService.build_tree(channel_state) do
-        {:ok, %{tree: tree}}
+        {:ok, %{tree: tree, max_opened_node_level: Tree.max_opened_node_level(tree)}}
       else
         error -> handle_error(error, pid, "Failed to build tree: ")
       end
