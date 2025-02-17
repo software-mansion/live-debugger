@@ -50,8 +50,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         </:failed>
         <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
           <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:items-end">
-            <.info_card node={node} node_type={@node_type.result} />
-            <.assigns_card assigns={node.assigns} />
+            <.info_section node={node} node_type={@node_type.result} />
+            <.assigns_section assigns={node.assigns} />
           </div>
           <div class="w-full lg:w-1/2">
             <.live_component
@@ -70,7 +70,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   attr(:node, :any, required: true)
   attr(:node_type, :atom, required: true)
 
-  defp info_card(assigns) do
+  defp info_section(assigns) do
     ~H"""
     <.collapsible_section id="info" title={title(@node_type)}>
       <div class=" flex flex-col gap-1">
@@ -105,7 +105,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   attr(:assigns, :list, required: true)
 
-  defp assigns_card(assigns) do
+  defp assigns_section(assigns) do
     ~H"""
     <.collapsible_section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
       <:right_panel>
@@ -118,7 +118,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           level={1}
         />
       </.fullscreen>
-      <div class="relative w-full h-max max-h-full border-2 border-gray-200 rounded-lg p-4 overflow-y-auto text-gray-600">
+      <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
         <ElixirDisplay.term
           id="assigns-display"
           node={TermParser.term_to_display_tree(@assigns)}
