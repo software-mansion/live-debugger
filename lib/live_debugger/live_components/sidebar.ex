@@ -139,7 +139,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp sidebar_slide_over(assigns) do
     ~H"""
-    <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex sm:hidden">
+    <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex sm:hidden justify-end">
       <div
         class="w-64 h-full flex flex-col bg-white/100"
         phx-click-away="close_mobile_content"
