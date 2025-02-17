@@ -3,17 +3,28 @@ let Hooks = {};
 Hooks.Tooltip = {
   mounted() {
     this.handleMouseEnter = () => {
-      const rect = this.el.getBoundingClientRect();
-      const topOffset = this.el.dataset.position === 'top' ? -45 : 0;
-
       tooltipEl.style.display = 'block';
-      tooltipEl.style.top = `${rect.bottom + topOffset}px`;
-      tooltipEl.style.left = `${rect.left}px`;
-      tooltipEl.style.zIndex = 100;
       tooltipEl.innerHTML = this.el.dataset.tooltip;
+
+      const tooltipRect = tooltipEl.getBoundingClientRect();
+      const rect = this.el.getBoundingClientRect();
+
+      const topOffset =
+        this.el.dataset.position == 'top'
+          ? rect.top - tooltipRect.height
+          : rect.bottom;
+
+      if (rect.left + tooltipRect.width > window.innerWidth) {
+        tooltipEl.style.right = `${window.innerWidth - rect.right}px`;
+      } else {
+        tooltipEl.style.left = `${rect.left}px`;
+      }
+
+      tooltipEl.style.top = `${topOffset}px`;
+      tooltipEl.style.zIndex = 100;
     };
     this.handleMouseLeave = () => {
-      tooltipEl.style.display = 'none';
+      tooltipEl.style = { display: 'none' };
     };
     let tooltipEl = document.querySelector('#tooltip');
     this.el.addEventListener('mouseenter', this.handleMouseEnter);

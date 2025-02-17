@@ -143,7 +143,6 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         <div class="w-full flex justify-between">
           <.tooltip
             id={"trace_" <> @id}
-            position="top"
             content={"#{@trace.module}.#{@trace.function}/#{@trace.arity}"}
           >
             <div class="flex gap-4">
