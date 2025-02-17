@@ -36,7 +36,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col w-full h-screen max-h-screen p-2 overflow-x-hidden overflow-y-auto lg:overflow-y-hidden">
+    <div class="flex flex-col flex-1 h-full bg-primary-20 overflow-auto">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
@@ -48,17 +48,19 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             Failed to fetch node details: <%= inspect(reason) %>
           </.alert>
         </:failed>
-        <div class="grid grid-cols-1 lg:grid-cols-2 lg:h-full">
-          <div class="flex flex-col max lg:border-r-2 border-primary lg:overflow-y-hidden">
+        <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
+          <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:items-end">
             <.info_card node={node} node_type={@node_type.result} />
             <.assigns_card assigns={node.assigns} />
           </div>
-          <.live_component
-            id="trace-list"
-            module={LiveDebugger.LiveComponents.TracesList}
-            debugged_node_id={@node_id}
-            socket_id={@socket_id}
-          />
+          <div class="w-full lg:w-1/2">
+            <.live_component
+              id="trace-list"
+              module={LiveDebugger.LiveComponents.TracesList}
+              debugged_node_id={@node_id}
+              socket_id={@socket_id}
+            />
+          </div>
         </div>
       </.async_result>
     </div>
@@ -70,7 +72,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_card(assigns) do
     ~H"""
-    <.collapsible_section id="info" title={title(@node_type)} class="border-b-2 border-primary">
+    <.collapsible_section id="info" title={title(@node_type)}>
       <div class=" flex flex-col gap-1">
         <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
@@ -105,12 +107,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp assigns_card(assigns) do
     ~H"""
-    <.collapsible_section
-      id="assigns"
-      class="border-b-2 lg:border-b-0 border-primary h-max overflow-y-hidden"
-      title="Assigns"
-    >
-      <div class="relative w-full max-h-full border-2 border-gray-200 rounded-lg p-4 overflow-y-auto text-gray-600">
+    <.collapsible_section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
+      <div class="relative w-full h-max max-h-full border-2 border-gray-200 rounded-lg p-4 overflow-y-auto text-gray-600">
         <.fullscreen_wrapper id="assigns-display-fullscreen" class="absolute top-0 right-0">
           <ElixirDisplay.term
             id="assigns-display-fullscreen"

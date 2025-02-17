@@ -94,11 +94,12 @@ defmodule LiveDebugger.Components do
   attr(:id, :string, required: true)
   attr(:class, :any, default: nil, doc: "CSS class for parent container")
   attr(:label_class, :any, default: nil, doc: "CSS class for the label")
+  attr(:label_style, :any, default: nil, doc: "CSS style for the label")
   attr(:chevron_class, :any, default: nil, doc: "CSS class for the chevron icon")
   attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
 
   attr(:icon, :string,
-    default: "hero-chevron-right-solid",
+    default: "icon-chevron-right",
     doc: "Icon for chevron. It will be rotated 90 degrees when the collapsible is open"
   )
 
@@ -115,10 +116,13 @@ defmodule LiveDebugger.Components do
       {show_collapsible_assign(@open)}
       {@rest}
     >
-      <summary class={[
-        "block flex items-center cursor-pointer" | List.wrap(@label_class)
-      ]}>
-        <.icon name={@icon} class={["rotate-icon shrink-0 mr-1" | List.wrap(@chevron_class)]} />
+      <summary
+        class={[
+          "block flex items-center cursor-pointer" | List.wrap(@label_class)
+        ]}
+        style={@label_style}
+      >
+        <.icon name={@icon} class={["rotate-icon shrink-0" | List.wrap(@chevron_class)]} />
         <%= render_slot(@label) %>
       </summary>
       <%= render_slot(@inner_block) %>
@@ -136,23 +140,24 @@ defmodule LiveDebugger.Components do
 
   def collapsible_section(assigns) do
     ~H"""
-    <div class={@class}>
+    <div class={["w-full min-w-[20rem] lg:max-w-[32rem] h-max flex" | List.wrap(@class)]}>
       <.collapsible
         id={@id}
         title={@title}
         open={@open}
-        label_class="p-2 lg:pointer-events-none pointer-events-auto"
+        class="bg-white rounded-sm w-full"
+        label_class="h-12 p-2 lg:pl-4 lg:pointer-events-none pointer-events-auto text-primary border-b border-primary-20"
         chevron_class="lg:hidden flex"
       >
         <:label>
-          <div class="flex justify-between items-center w-full">
-            <.h3 class="text-primary"><%= @title %></.h3>
+          <div class="flex justify-between items-center w-full leading-5">
+            <div class="font-semibold"><%= @title %></div>
             <div class="w-max !pointer-events-auto">
               <%= render_slot(@right_panel) %>
             </div>
           </div>
         </:label>
-        <div class="flex h-full overflow-y-auto overflow-x-hidden rounded-md bg-white opacity-90 text-black p-2">
+        <div class="w-full flex overflow-auto rounded-sm bg-white text-black p-2 text-sm leading-5">
           <%= render_slot(@inner_block) %>
         </div>
       </.collapsible>
@@ -243,17 +248,18 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
-  Renders a [Heroicon](https://heroicons.com).
+  Renders an icon.
   Not all icons are available. If you want to use an icon check if it exists in the `assets/icons` folder.
+  `name` must start with `icon-`
   ## Examples
 
-      <.icon name="hero-x-mark-solid" />
+      <.icon name="icon-play" />
   """
-  attr(:name, :string, required: true, doc: "The name of the icon. Must start with `hero-`.")
+  attr(:name, :string, required: true, doc: "The name of the icon. Must start with `icon-`.")
   attr(:class, :any, default: nil, doc: "Additional classes to add to the icon.")
   attr(:rest, :global)
 
-  def icon(%{name: "hero-" <> _} = assigns) do
+  def icon(%{name: "icon-" <> _} = assigns) do
     ~H"""
     <span class={[@name, List.wrap(@class)]} {@rest}></span>
     """
@@ -290,7 +296,7 @@ defmodule LiveDebugger.Components do
           data-fullscreen-id={@id}
           variant="invert"
         >
-          <.icon name="hero-x-mark-solid" class="h-7 w-7" />
+          <.icon name="icon-cross-small" class="h-7 w-7" />
         </.button>
       </div>
       <div class="w-full h-full overflow-auto flex flex-col gap-2">
@@ -320,7 +326,7 @@ defmodule LiveDebugger.Components do
   attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
   attr(:icon, :string,
-    default: "hero-arrow-top-right-on-square",
+    default: "icon-expand",
     doc: "Icon to be displayed as a button"
   )
 
@@ -412,12 +418,36 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  @doc """
+  Renders topbar with possible link to return to the main page.
+  """
+  attr(:return_link?, :boolean,
+    required: true,
+    doc: "Whether to show a link to return to the main page."
+  )
+
+  slot(:inner_block)
+
+  def topbar(assigns) do
+    ~H"""
+    <div class="w-full h-12 py-auto px-4 flex items-center gap-2 bg-primary text-white font-mono font-medium">
+      <.link :if={@return_link?} patch="/">
+        <.button class="p-auto! w-8 h-8 flex items-center justify-center">
+          <.icon name="icon-arrow-left" />
+        </.button>
+      </.link>
+      <span>LiveDebugger</span>
+      <%= @inner_block && render_slot(@inner_block) %>
+    </div>
+    """
+  end
+
   attr(:socket, :any, required: true)
 
   def not_found_component(assigns) do
     ~H"""
     <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.icon name="icon-exclamation-circle" class="w-16 h-16" />
       <.h2 class="text-center">Debugger disconnected</.h2>
       <.h5 class="text-center">
         We couldn't find any LiveView associated with the given socket id
@@ -432,7 +462,7 @@ defmodule LiveDebugger.Components do
   def error_component(assigns) do
     ~H"""
     <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.icon name="icon-exclamation-circle" class="w-16 h-16" />
       <.h2 class="text-center">Unexpected error</.h2>
       <.h5 class="text-center">
         Debugger encountered unexpected error - check logs for more
@@ -445,7 +475,7 @@ defmodule LiveDebugger.Components do
   def session_limit_component(assigns) do
     ~H"""
     <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.icon name="icon-exclamation-circle" class="w-16 h-16" />
       <.h2 class="text-center">Session limit reached</.h2>
       <.h5 class="text-center">
         In OTP 26 and older versions you can open only one debugger window.
@@ -460,10 +490,10 @@ defmodule LiveDebugger.Components do
   defp alert_icon(assigns) do
     icon_name =
       case assigns.variant do
-        "danger" -> "hero-x-circle"
-        "success" -> "hero-check-circle"
-        "warning" -> "hero-exclamation-circle"
-        "info" -> "hero-information-circle"
+        "danger" -> "icon-x-circle"
+        "success" -> "icon-check-circle"
+        "warning" -> "icon-exclamation-circle"
+        "info" -> "icon-information-circle"
       end
 
     assigns = assign(assigns, :name, icon_name)

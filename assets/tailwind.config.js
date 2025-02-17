@@ -32,11 +32,16 @@ module.exports = {
         info: colors.sky,
         gray: colors.gray,
       },
-      fontFamily: {
-        sans: ['DM Sans', 'sans-serif'],
-      },
       screens: {
         xs: '380px',
+      },
+      fontFamily: {
+        sans: ['DM Sans', 'sans-serif'],
+        mono: ['DM Mono', 'serif'],
+      },
+      fontSize: {
+        sm: ['13px', '20px'],
+        base: ['15px', '20px'],
       },
     },
   },
@@ -68,28 +73,21 @@ module.exports = {
         });
       });
     }),
-    // Plugin for adding Heroicons
+    // Plugin for adding custom icons
     plugin(function ({ matchComponents, theme }) {
-      let iconsDir = path.join(__dirname, './icons/heroicons/optimized');
+      let iconsDir = path.join(__dirname, './icons');
       let values = {};
-      let icons = [
-        ['', '/24/outline'],
-        ['-solid', '/24/solid'],
-        ['-mini', '/20/solid'],
-        ['-micro', '/16/solid'],
-      ];
-      icons.forEach(([suffix, dir]) => {
-        fs.readdirSync(path.join(iconsDir, dir)).forEach((file) => {
-          let name = path.basename(file, '.svg') + suffix;
-          values[name] = {
-            name,
-            fullPath: path.join(iconsDir, dir, file),
-          };
-        });
+
+      fs.readdirSync(iconsDir).forEach((file) => {
+        let name = path.basename(file, '.svg');
+        values[name] = {
+          name,
+          fullPath: path.join(iconsDir, file),
+        };
       });
       matchComponents(
         {
-          hero: ({ name, fullPath }) => {
+          icon: ({ name, fullPath }) => {
             let content = fs
               .readFileSync(fullPath)
               .toString()
@@ -101,9 +99,9 @@ module.exports = {
               size = theme('spacing.4');
             }
             return {
-              [`--hero-${name}`]: `url('data:image/svg+xml;utf8,${content}')`,
-              '-webkit-mask': `var(--hero-${name})`,
-              mask: `var(--hero-${name})`,
+              [`--icon-${name}`]: `url('data:image/svg+xml;utf8,${content}')`,
+              '-webkit-mask': `var(--icon-${name})`,
+              mask: `var(--icon-${name})`,
               'mask-repeat': 'no-repeat',
               'background-color': 'currentColor',
               'vertical-align': 'middle',

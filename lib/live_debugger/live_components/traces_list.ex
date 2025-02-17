@@ -49,8 +49,8 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      <.collapsible_section title="Callback traces" id="traces" class="h-full md:overflow-y-auto">
+    <div class="max-w-full">
+      <.collapsible_section title="Callback traces" id="traces">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <.button phx-click="switch-tracing" phx-target={@myself}>
@@ -61,7 +61,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
             </.button>
           </div>
         </:right_panel>
-        <div class="w-full">
+        <div class="w-full h-full lg:min-h-[10.25rem]">
           <div id={"#{assigns.id}-stream"} phx-update="stream">
             <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-gray-700">
               <div :if={@existing_traces_status == :ok}>
@@ -133,7 +133,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   defp trace(assigns) do
     ~H"""
-    <.collapsible id={@id} icon="hero-chevron-right-micro" chevron_class="text-primary">
+    <.collapsible id={@id} icon="icon-chevron-right" chevron_class="text-primary" class="max-w-full">
       <:label>
         <div class="w-full flex justify-between">
           <.tooltip
@@ -155,7 +155,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         </div>
       </:label>
 
-      <div class="relative flex flex-col gap-4 overflow-x-auto h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
+      <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
         <.fullscreen_wrapper id={@id <> "-fullscreen"} class="absolute top-0 right-0">
           <div class="w-full flex flex-col items-start justify-center">
             <%= for {args, index} <- Enum.with_index(@trace.args) do %>

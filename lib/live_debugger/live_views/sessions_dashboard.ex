@@ -21,48 +21,51 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   @spec render(any()) :: Phoenix.LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full p-2">
-      <.async_result :let={live_sessions} assign={@live_sessions}>
-        <:loading>
-          <div class="h-full flex items-center justify-center">
-            <.spinner size="xl" />
+    <div class="w-full h-full flex flex-col">
+      <.topbar return_link?={false} />
+      <div class="w-full h-full p-2">
+        <.async_result :let={live_sessions} assign={@live_sessions}>
+          <:loading>
+            <div class="h-full flex items-center justify-center">
+              <.spinner size="xl" />
+            </div>
+          </:loading>
+          <:failed><.error_component /></:failed>
+          <div class="flex gap-4 items-center pt-2">
+            <.h2 class="text-primary">Active LiveSessions</.h2>
+            <.icon phx-click="refresh" name="icon-refresh" class="text-primary cursor-pointer" />
           </div>
-        </:loading>
-        <:failed><.error_component /></:failed>
-        <div class="flex gap-4 items-center pt-2">
-          <.h2 class="text-primary">Active LiveSessions</.h2>
-          <.icon phx-click="refresh" name="hero-arrow-path" class="text-primary cursor-pointer" />
-        </div>
 
-        <div class="mt-2 lg:mt-4 mx-1">
-          <%= if Enum.empty?(live_sessions)  do %>
-            <div class="text-gray-600">
-              No LiveSessions found - try refreshing.
-            </div>
-          <% else %>
-            <div class="border-2 border-primary rounded-md w-full lg:w-3/4 2xl:w-1/2 ">
-              <table class="w-full">
-                <tr class="border-b-2 border-primary">
-                  <th>Module</th>
-                  <th class="hidden xs:table-cell">PID</th>
-                  <th class="hidden sm:table-cell">Socket ID</th>
-                </tr>
-                <tr :for={session <- live_sessions}>
-                  <td class="text-center ">
-                    <.link class="text-primary" patch={"/#{session.socket_id}"}>
-                      <%= session.module %>
-                    </.link>
-                  </td>
-                  <td class="hidden xs:table-cell text-center">
-                    <%= Parsers.pid_to_string(session.pid) %>
-                  </td>
-                  <td class="hidden sm:table-cell text-center"><%= session.socket_id %></td>
-                </tr>
-              </table>
-            </div>
-          <% end %>
-        </div>
-      </.async_result>
+          <div class="mt-2 lg:mt-4 mx-1">
+            <%= if Enum.empty?(live_sessions)  do %>
+              <div class="text-gray-600">
+                No LiveSessions found - try refreshing.
+              </div>
+            <% else %>
+              <div class="border-2 border-primary rounded-md w-full lg:w-3/4 2xl:w-1/2 ">
+                <table class="w-full">
+                  <tr class="border-b-2 border-primary">
+                    <th>Module</th>
+                    <th class="hidden xs:table-cell">PID</th>
+                    <th class="hidden sm:table-cell">Socket ID</th>
+                  </tr>
+                  <tr :for={session <- live_sessions}>
+                    <td class="text-center ">
+                      <.link class="text-primary" patch={"/#{session.socket_id}"}>
+                        <%= session.module %>
+                      </.link>
+                    </td>
+                    <td class="hidden xs:table-cell text-center">
+                      <%= Parsers.pid_to_string(session.pid) %>
+                    </td>
+                    <td class="hidden sm:table-cell text-center"><%= session.socket_id %></td>
+                  </tr>
+                </table>
+              </div>
+            <% end %>
+          </div>
+        </.async_result>
+      </div>
     </div>
     """
   end
