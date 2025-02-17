@@ -157,7 +157,7 @@ defmodule LiveDebugger.Components do
             </div>
           </div>
         </:label>
-        <div class="flex overflow-y-auto overflow-x-hidden rounded-sm bg-white text-black p-2 text-ssm leading-5">
+        <div class="w-full flex overflow-auto rounded-sm bg-white text-black p-2 text-ssm leading-5">
           <%= render_slot(@inner_block) %>
         </div>
       </.collapsible>

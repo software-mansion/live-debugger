@@ -36,7 +36,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col w-full h-full min-w-max bg-primary-20">
+    <div class="flex flex-col flex-1 h-full bg-primary-20 overflow-auto">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
@@ -48,12 +48,12 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             Failed to fetch node details: <%= inspect(reason) %>
           </.alert>
         </:failed>
-        <div class="w-full overflow-y-auto p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
-          <div class="w-full flex flex-col gap-4 lg:items-end">
+        <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
+          <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:items-end">
             <.info_card node={node} node_type={@node_type.result} />
             <.assigns_card assigns={node.assigns} />
           </div>
-          <div class="w-full">
+          <div class="w-full lg:w-1/2">
             <.live_component
               id="trace-list"
               module={LiveDebugger.LiveComponents.TracesList}

@@ -52,7 +52,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
           <Components.error_component :if={reason not in [:not_found, :session_limit]} />
         </:failed>
 
-        <div class="flex flex-row w-full grow overflow-y-auto">
+        <div class="flex grow w-full overflow-y-auto">
           <.live_component
             module={LiveDebugger.LiveComponents.Sidebar}
             id="sidebar"
