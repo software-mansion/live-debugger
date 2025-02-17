@@ -49,7 +49,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           </.alert>
         </:failed>
         <div class="w-full overflow-y-auto p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
-          <div class="w-full flex flex-col gap-4">
+          <div class="w-full flex flex-col gap-4 lg:items-end">
             <.info_card node={node} node_type={@node_type.result} />
             <.assigns_card assigns={node.assigns} />
           </div>
