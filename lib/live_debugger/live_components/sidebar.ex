@@ -203,18 +203,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     """
   end
 
-  attr(:icon, :string, required: true)
-  attr(:link, :string, default: nil)
-  attr(:rest, :global)
-
-  defp sidebar_icon_button(assigns) do
-    ~H"""
-    <.button variant="outline" {@rest}>
-      <.icon class="text-primary" name={@icon} />
-    </.button>
-    """
-  end
-
   defp separate_bar(assigns) do
     ~H"""
     <div class="border-b h-0 border-primary-20"></div>
