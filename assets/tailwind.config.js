@@ -25,7 +25,9 @@ module.exports = {
           400: '#3B478A',
           500: '#001A72',
         },
-        secondary: colors.pink,
+        secondary: {
+          DEFAULT: '#46568F',
+        },
         success: colors.green,
         danger: colors.red,
         warning: colors.yellow,

@@ -46,9 +46,9 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                 No LiveSessions found - try refreshing.
               </div>
             <% else %>
-              <.table rows={live_sessions} wrapper_class="hidden sm:block">
+              <.table rows={live_sessions} class="hidden sm:block">
                 <:column :let={session} label="Module">
-                  <.link class="text-primary" patch={"/#{session.socket_id}"}>
+                  <.link patch={"/#{session.socket_id}"}>
                     <%= session.module %>
                   </.link>
                 </:column>
@@ -57,6 +57,16 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                 </:column>
                 <:column :let={session} label="Socket"><%= session.socket_id %></:column>
               </.table>
+              <.list elements={live_sessions} class="sm:hidden">
+                <:title :let={session}>
+                  <.link patch={"/#{session.socket_id}"}>
+                    <%= session.module %>
+                  </.link>
+                </:title>
+                <:description :let={session}>
+                  <%= Parsers.pid_to_string(session.pid) %> · <%= session.socket_id %>
+                </:description>
+              </.list>
             <% end %>
           </div>
         </.async_result>
