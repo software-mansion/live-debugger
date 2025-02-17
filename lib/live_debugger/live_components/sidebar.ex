@@ -171,7 +171,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp basic_info(assigns) do
     ~H"""
-    <div class="w-full p-4 shrink-0 flex flex-col gap-2 text-primary text-ssm">
+    <div class="w-full p-4 shrink-0 flex flex-col gap-2 text-primary text-sm">
       <div
         :for={
           {text, value} <- [

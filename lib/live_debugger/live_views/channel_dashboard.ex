@@ -34,7 +34,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-screen h-screen flex flex-col">
+    <div class="w-screen h-screen flex flex-col text-base">
       <.topbar return_link?={true}>
         <.button phx-click="open-sidebar" class="flex sm:hidden">
           <.icon name="hero-bars-3" />

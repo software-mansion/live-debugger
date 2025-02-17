@@ -150,14 +150,14 @@ defmodule LiveDebugger.Components do
         chevron_class="lg:hidden flex"
       >
         <:label>
-          <div class="flex justify-between items-center w-full text-sbase leading-5">
+          <div class="flex justify-between items-center w-full leading-5">
             <div class="font-semibold"><%= @title %></div>
             <div class="w-max !pointer-events-auto">
               <%= render_slot(@right_panel) %>
             </div>
           </div>
         </:label>
-        <div class="w-full flex overflow-auto rounded-sm bg-white text-black p-2 text-ssm leading-5">
+        <div class="w-full flex overflow-auto rounded-sm bg-white text-black p-2 text-sm leading-5">
           <%= render_slot(@inner_block) %>
         </div>
       </.collapsible>
@@ -426,13 +426,16 @@ defmodule LiveDebugger.Components do
   @doc """
   Renders topbar with possible link to return to the main page.
   """
-  attr(:return_link?, :boolean, required: true)
+  attr(:return_link?, :boolean,
+    required: true,
+    doc: "Whether to show a link to return to the main page."
+  )
 
   slot(:inner_block)
 
   def topbar(assigns) do
     ~H"""
-    <div class="w-full h-12 py-auto px-4 flex items-center gap-2 bg-primary text-white font-mono font-medium text-sbase">
+    <div class="w-full h-12 py-auto px-4 flex items-center gap-2 bg-primary text-white font-mono font-medium">
       <.link :if={@return_link?} patch="/">
         <.button class="p-auto! w-8 h-8 flex items-center justify-center">
           <.icon name="icon-arrow-left" />

@@ -32,16 +32,16 @@ module.exports = {
         info: colors.sky,
         gray: colors.gray,
       },
+      screens: {
+        xs: '380px',
+      },
       fontFamily: {
         sans: ['DM Sans', 'sans-serif'],
         mono: ['DM Mono', 'serif'],
       },
-      screens: {
-        xs: '380px',
-      },
       fontSize: {
-        ssm: ['13px', '20px'],
-        sbase: ['15px', '20px'],
+        sm: ['13px', '20px'],
+        base: ['15px', '20px'],
       },
     },
   },
