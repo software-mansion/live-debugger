@@ -248,7 +248,7 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
-  Renders a [Heroicon](https://heroicons.com) or Custom Icon.
+  Renders a [Heroicon](https://heroicons.com) or a Custom Icon.
   Not all icons are available. If you want to use an icon check if it exists in the `assets/icons` folder.
   `name` must start with `hero-` or `icon-`.
   ## Examples
