@@ -266,11 +266,53 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
+  Renders a button with an icon in it.
+  """
+
+  attr(:icon, :string, required: true, doc: "Icon to be displayed as a button.")
+
+  attr(:size, :string,
+    default: "md",
+    values: ["md", "sm"],
+    doc: "Size of the button."
+  )
+
+  attr(:variant, :string,
+    default: "solid",
+    values: ["solid", "outline", "invert"],
+    doc: "Variant of the button."
+  )
+
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
+
+  attr(:rest, :global, include: ~w(id))
+
+  def icon_button(assigns) do
+    {button_class, icon_class} =
+      case assigns.size do
+        "md" -> {"w-8! h-8! px-[0.25rem] py-[0.25rem]", "h-6 w-6"}
+        "sm" -> {"w-7! h-7! px-[0.375rem] py-[0.375rem]", "h-4 w-4"}
+      end
+
+    assigns =
+      assigns
+      |> assign(:button_class, button_class)
+      |> assign(:icon_class, icon_class)
+
+    ~H"""
+    <.button class={[@button_class | List.wrap(@class)]} variant={@variant} {@rest}>
+      <.icon name={@icon} class={@icon_class} />
+    </.button>
+    """
+  end
+
+  @doc """
   Renders a fullscreen using Fullscreen hook.
   If you want to open fullscreen from a button, you can use `phx-hook="OpenFullscreen"` and `data-fullscreen-id` attributes.
   You can close the fullscreen using X button or by pressing ESC key.
   """
   attr(:id, :string, required: true)
+  attr(:title, :string, default: "", doc: "Title of the fullscreen.")
 
   attr(:class, :any,
     default: nil,
@@ -285,21 +327,22 @@ defmodule LiveDebugger.Components do
       id={@id}
       phx-hook="Fullscreen"
       class={[
-        "relative w-full h-full p-2 overflow-auto hidden flex-col rounded-lg backdrop:bg-black backdrop:opacity-50"
+        "relative h-max w-full lg:w-max lg:min-w-[50rem] p-2 overflow-auto hidden flex-col rounded-lg backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
       ]}
     >
-      <div class="flex justify-end items-center h-max w-full">
-        <.button
+      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-primary-20">
+        <div class="font-semibold text-base text-primary"><%= @title %></div>
+        <.icon_button
           id={"#{@id}-close"}
+          icon="icon-cross-small"
+          variant="invert"
+          size="sm"
           phx-hook="CloseFullscreen"
           data-fullscreen-id={@id}
-          variant="invert"
-        >
-          <.icon name="icon-cross-small" class="h-7 w-7" />
-        </.button>
+        />
       </div>
-      <div class="w-full h-full overflow-auto flex flex-col gap-2">
+      <div class="overflow-auto flex flex-col gap-2">
         <%= render_slot(@inner_block) %>
       </div>
     </dialog>
@@ -308,20 +351,9 @@ defmodule LiveDebugger.Components do
 
   @doc """
   Renders a button which will show a fullscreen when clicked.
-  Content of the fullscreen is passed as `:inner_block` slot.
-
-  ## Examples
-
-      <.fullscreen_wrapper id="my_fullscreen">
-        <.h1>Hello World</.h1>
-      </.fullscreen_wrapper>
   """
-  attr(:id, :string, required: true)
-
-  attr(:fullscreen_class, :any,
-    default: nil,
-    doc: "Additional classes to be added to the fullscreen."
-  )
+  attr(:id, :string, required: true, doc: "Same as `id` of the fullscreen.")
+  attr(:title, :string, default: "")
 
   attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
@@ -330,24 +362,17 @@ defmodule LiveDebugger.Components do
     doc: "Icon to be displayed as a button"
   )
 
-  slot(:inner_block, required: true)
-
-  def fullscreen_wrapper(assigns) do
+  def fullscreen_button(assigns) do
     ~H"""
-    <div>
-      <.button
-        id={"fullscreen_#{@id}_button"}
-        phx-hook="OpenFullscreen"
-        data-fullscreen-id={"fullscreen_#{@id}"}
-        class={["flex items-center justify-center w-max h-max" | List.wrap(@class)]}
-        variant="invert"
-      >
-        <.icon name={@icon} class="w-5 h-5" />
-      </.button>
-      <.fullscreen id={"fullscreen_#{@id}"} class={@fullscreen_class}>
-        <%= render_slot(@inner_block) %>
-      </.fullscreen>
-    </div>
+    <.icon_button
+      id={"#{@id}_button"}
+      phx-hook="OpenFullscreen"
+      icon={@icon}
+      size="sm"
+      data-fullscreen-id={@id}
+      class={@class}
+      variant="invert"
+    />
     """
   end
 
@@ -432,9 +457,7 @@ defmodule LiveDebugger.Components do
     ~H"""
     <div class="w-full h-12 py-auto px-4 flex items-center gap-2 bg-primary text-white font-mono font-medium">
       <.link :if={@return_link?} patch="/">
-        <.button class="p-auto! w-8 h-8 flex items-center justify-center">
-          <.icon name="icon-arrow-left" />
-        </.button>
+        <.icon_button icon="icon-arrow-left" size="md" />
       </.link>
       <span>LiveDebugger</span>
       <%= @inner_block && render_slot(@inner_block) %>

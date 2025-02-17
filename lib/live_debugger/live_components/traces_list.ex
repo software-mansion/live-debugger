@@ -156,7 +156,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       </:label>
 
       <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
-        <.fullscreen_wrapper id={@id <> "-fullscreen"} class="absolute top-0 right-0">
+        <%!-- <.fullscreen_wrapper id={@id <> "-fullscreen"} class="absolute top-0 right-0">
           <div class="w-full flex flex-col items-start justify-center">
             <%= for {args, index} <- Enum.with_index(@trace.args) do %>
               <ElixirDisplay.term
@@ -166,7 +166,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
               />
             <% end %>
           </div>
-        </.fullscreen_wrapper>
+        </.fullscreen_wrapper> --%>
         <%= for {args, index} <- Enum.with_index(@trace.args) do %>
           <ElixirDisplay.term
             id={@id <> "-#{index}"}
