@@ -112,17 +112,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     |> noreply()
   end
 
-  attr(:socket, :map, required: true)
-
-  defp sidebar_label(assigns) do
-    ~H"""
-    <.link patch="/" class="flex items-center gap-2">
-      <.icon class="text-primary" name="hero-chevron-left-solid" />
-      <.h3 class="text-primary">LiveDebugger</.h3>
-    </.link>
-    """
-  end
-
   attr(:socket_id, :string, required: true)
   attr(:pid, :any, required: true)
   attr(:tree, :any, required: true)

@@ -133,12 +133,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   defp trace(assigns) do
     ~H"""
-    <.collapsible
-      id={@id}
-      icon="hero-chevron-right-micro"
-      chevron_class="text-primary"
-      class="max-w-full"
-    >
+    <.collapsible id={@id} icon="icon-chevron-right" chevron_class="text-primary" class="max-w-full">
       <:label>
         <div class="w-full flex justify-between">
           <.tooltip

@@ -37,7 +37,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     <div class="w-screen h-screen flex flex-col text-base">
       <.topbar return_link?={true}>
         <.button phx-click="open-sidebar" class="flex sm:hidden">
-          <.icon name="hero-bars-3" />
+          <.icon name="icon-menu-hamburger" />
         </.button>
       </.topbar>
       <.async_result :let={pid} assign={@debugged_pid}>

@@ -248,23 +248,18 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
-  Renders a [Heroicon](https://heroicons.com) or a Custom Icon.
+  Renders an icon.
   Not all icons are available. If you want to use an icon check if it exists in the `assets/icons` folder.
-  `name` must start with `hero-` or `icon-`.
+  `name` must start with `icon-`
   ## Examples
 
-      <.icon name="hero-x-mark-solid" />
       <.icon name="icon-play" />
   """
-  attr(:name, :string, required: true, doc: "The name of the icon. Must start with `hero-`.")
+  attr(:name, :string, required: true, doc: "The name of the icon. Must start with `icon-`.")
   attr(:class, :any, default: nil, doc: "Additional classes to add to the icon.")
   attr(:rest, :global)
 
-  def icon(assigns) do
-    unless String.starts_with?(assigns.name, ["hero-", "icon-"]) do
-      raise("No icon: #{assigns.name}")
-    end
-
+  def icon(%{name: "icon-" <> _} = assigns) do
     ~H"""
     <span class={[@name, List.wrap(@class)]} {@rest}></span>
     """
@@ -301,7 +296,7 @@ defmodule LiveDebugger.Components do
           data-fullscreen-id={@id}
           variant="invert"
         >
-          <.icon name="hero-x-mark-solid" class="h-7 w-7" />
+          <.icon name="icon-cross-small" class="h-7 w-7" />
         </.button>
       </div>
       <div class="w-full h-full overflow-auto flex flex-col gap-2">
@@ -331,7 +326,7 @@ defmodule LiveDebugger.Components do
   attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
   attr(:icon, :string,
-    default: "hero-arrow-top-right-on-square",
+    default: "icon-expand",
     doc: "Icon to be displayed as a button"
   )
 
@@ -452,7 +447,7 @@ defmodule LiveDebugger.Components do
   def not_found_component(assigns) do
     ~H"""
     <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.icon name="icon-exclamation-circle" class="w-16 h-16" />
       <.h2 class="text-center">Debugger disconnected</.h2>
       <.h5 class="text-center">
         We couldn't find any LiveView associated with the given socket id
@@ -467,7 +462,7 @@ defmodule LiveDebugger.Components do
   def error_component(assigns) do
     ~H"""
     <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.icon name="icon-exclamation-circle" class="w-16 h-16" />
       <.h2 class="text-center">Unexpected error</.h2>
       <.h5 class="text-center">
         Debugger encountered unexpected error - check logs for more
@@ -480,7 +475,7 @@ defmodule LiveDebugger.Components do
   def session_limit_component(assigns) do
     ~H"""
     <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
+      <.icon name="icon-exclamation-circle" class="w-16 h-16" />
       <.h2 class="text-center">Session limit reached</.h2>
       <.h5 class="text-center">
         In OTP 26 and older versions you can open only one debugger window.
@@ -495,10 +490,10 @@ defmodule LiveDebugger.Components do
   defp alert_icon(assigns) do
     icon_name =
       case assigns.variant do
-        "danger" -> "hero-x-circle"
-        "success" -> "hero-check-circle"
-        "warning" -> "hero-exclamation-circle"
-        "info" -> "hero-information-circle"
+        "danger" -> "icon-x-circle"
+        "success" -> "icon-check-circle"
+        "warning" -> "icon-exclamation-circle"
+        "info" -> "icon-information-circle"
       end
 
     assigns = assign(assigns, :name, icon_name)

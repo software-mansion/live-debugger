@@ -33,7 +33,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
           <:failed><.error_component /></:failed>
           <div class="flex gap-4 items-center pt-2">
             <.h2 class="text-primary">Active LiveSessions</.h2>
-            <.icon phx-click="refresh" name="hero-arrow-path" class="text-primary cursor-pointer" />
+            <.icon phx-click="refresh" name="icon-refresh" class="text-primary cursor-pointer" />
           </div>
 
           <div class="mt-2 lg:mt-4 mx-1">
