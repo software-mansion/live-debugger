@@ -7,6 +7,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
 
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
+  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Services.ChannelService
 
   @impl true
@@ -32,7 +33,10 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
           <div class="flex gap-4 items-center justify-between">
             <div class="text-primary font-semibold text-2xl">Active LiveSessions</div>
             <.button phx-click="refresh" variant="outline">
-              Refresh
+              <div class="flex items-center gap-2">
+                <.icon name="icon-refresh" class="w-4 h-4" />
+                <p>Refresh</p>
+              </div>
             </.button>
           </div>
 
@@ -42,26 +46,17 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                 No LiveSessions found - try refreshing.
               </div>
             <% else %>
-              <div class="p-4 bg-white rounded-sm">
-                <table class="w-full">
-                  <thead class="border-b border-blue-100">
-                    <tr class="text-left text-primary text-sm text-bold h-11">
-                      <th>Module</th>
-                      <th>PID</th>
-                      <th>Socket</th>
-                    </tr>
-                  </thead>
-                  <tbody class="text-primary text-sm text-bold">
-                    <tr class="h-11 hover:bg-blue-50">
-                      <td>
-                        John Smith
-                      </td>
-                      <td>Engineer</td>
-                      <td>john.smith@example.com</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              <.table rows={live_sessions}>
+                <:column :let={session} label="Module">
+                  <.link class="text-primary" patch={"/#{session.socket_id}"}>
+                    <%= session.module %>
+                  </.link>
+                </:column>
+                <:column :let={session} label="PID">
+                  <%= Parsers.pid_to_string(session.pid) %>
+                </:column>
+                <:column :let={session} label="Socket"><%= session.socket_id %></:column>
+              </.table>
             <% end %>
           </div>
         </.async_result>

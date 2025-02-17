@@ -306,6 +306,32 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  attr(:rows, :list, default: [])
+  attr(:wrapper_class, :any, default: nil, doc: "Additional classes to add to the wrapper.")
+
+  slot :column, doc: "Columns with column labels" do
+    attr(:label, :string, required: true, doc: "Column label")
+  end
+
+  def table(assigns) do
+    ~H"""
+    <div class={["p-4 bg-white rounded-sm" | List.wrap(@wrapper_class)]}>
+      <table class="w-full">
+        <thead class="border-b border-blue-100">
+          <tr class="text-left text-primary text-sm text-bold h-11 mx-16">
+            <th :for={col <- @column} class="first:pl-2">{col.label}</th>
+          </tr>
+        </thead>
+        <tbody class="text-primary text-sm text-bold">
+          <tr :for={row <- @rows} class="h-11 hover:bg-blue-50">
+            <td :for={col <- @column} class="first:pl-2">{render_slot(col, row)}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    """
+  end
+
   @doc """
   Renders a fullscreen using Fullscreen hook.
   If you want to open fullscreen from a button, you can use `phx-hook="OpenFullscreen"` and `data-fullscreen-id` attributes.
