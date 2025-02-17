@@ -132,6 +132,11 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   attr(:trace, :map, required: true, doc: "The Trace struct to render")
 
   defp trace(assigns) do
+    assigns =
+      assigns
+      |> assign(:fullscreen_id, assigns.id <> "-fullscreen")
+      |> assign(:callback_name, "#{assigns.trace.function}/#{assigns.trace.arity}")
+
     ~H"""
     <.collapsible id={@id} icon="icon-chevron-right" chevron_class="text-primary" class="max-w-full">
       <:label>
@@ -142,7 +147,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
             content={"#{@trace.module}.#{@trace.function}/#{@trace.arity}"}
           >
             <div class="flex gap-4">
-              <p class="text-primary font-medium"><%= @trace.function %>/<%= @trace.arity %></p>
+              <p class="text-primary font-medium"><%= @callback_name %></p>
               <p
                 :if={@trace.counter > 1}
                 class="text-sm text-gray-500 italic align-baseline mt-[0.2rem]"
@@ -154,19 +159,20 @@ defmodule LiveDebugger.LiveComponents.TracesList do
           <p class="w-32"><%= Parsers.parse_timestamp(@trace.timestamp) %></p>
         </div>
       </:label>
+      <.fullscreen id={@fullscreen_id} title={@callback_name}>
+        <div class="w-full flex flex-col items-start justify-center">
+          <%= for {args, index} <- Enum.with_index(@trace.args) do %>
+            <ElixirDisplay.term
+              id={@id <> "-#{index}-fullscreen"}
+              node={TermParser.term_to_display_tree(args)}
+              level={1}
+            />
+          <% end %>
+        </div>
+      </.fullscreen>
 
       <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
-        <.fullscreen_wrapper id={@id <> "-fullscreen"} class="absolute top-0 right-0">
-          <div class="w-full flex flex-col items-start justify-center">
-            <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-              <ElixirDisplay.term
-                id={@id <> "-#{index}-fullscreen"}
-                node={TermParser.term_to_display_tree(args)}
-                level={1}
-              />
-            <% end %>
-          </div>
-        </.fullscreen_wrapper>
+        <.fullscreen_button id={@fullscreen_id} class="absolute right-2 top-2" />
         <%= for {args, index} <- Enum.with_index(@trace.args) do %>
           <ElixirDisplay.term
             id={@id <> "-#{index}"}

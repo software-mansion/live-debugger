@@ -108,14 +108,17 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   defp assigns_card(assigns) do
     ~H"""
     <.collapsible_section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
+      <:right_panel>
+        <.fullscreen_button id="assigns-display-fullscreen" />
+      </:right_panel>
+      <.fullscreen id="assigns-display-fullscreen" title="Assigns">
+        <ElixirDisplay.term
+          id="assigns-display"
+          node={TermParser.term_to_display_tree(@assigns)}
+          level={1}
+        />
+      </.fullscreen>
       <div class="relative w-full h-max max-h-full border-2 border-gray-200 rounded-lg p-4 overflow-y-auto text-gray-600">
-        <.fullscreen_wrapper id="assigns-display-fullscreen" class="absolute top-0 right-0">
-          <ElixirDisplay.term
-            id="assigns-display-fullscreen"
-            node={TermParser.term_to_display_tree(@assigns)}
-            level={1}
-          />
-        </.fullscreen_wrapper>
         <ElixirDisplay.term
           id="assigns-display"
           node={TermParser.term_to_display_tree(@assigns)}
