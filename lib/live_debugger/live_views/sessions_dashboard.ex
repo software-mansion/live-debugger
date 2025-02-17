@@ -18,10 +18,9 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   end
 
   @impl true
-  @spec render(any()) :: Phoenix.LiveView.Rendered.t()
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full flex flex-col">
+    <div class="w-full h-full flex flex-col bg-primary-20">
       <.topbar return_link?={false} />
       <div class="w-full h-full p-2">
         <.async_result :let={live_sessions} assign={@live_sessions}>
@@ -31,12 +30,14 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
             </div>
           </:loading>
           <:failed><.error_component /></:failed>
-          <div class="flex gap-4 items-center pt-2">
-            <.h2 class="text-primary">Active LiveSessions</.h2>
-            <.icon phx-click="refresh" name="icon-refresh" class="text-primary cursor-pointer" />
+          <div class="flex gap-4 items-center justify-between pt-2">
+            <div class="text-primary font-semibold text-2xl">Active LiveSessions</div>
+            <.button phx-click="refresh" variant="outline">
+              Refresh
+            </.button>
           </div>
 
-          <div class="mt-2 lg:mt-4 mx-1">
+          <div class="mt-2 lg:mt-4">
             <%= if Enum.empty?(live_sessions)  do %>
               <div class="text-gray-600">
                 No LiveSessions found - try refreshing.
