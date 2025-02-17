@@ -512,7 +512,7 @@ defmodule LiveDebugger.Components do
         "bg-white text-primary-500 border border-primary-20 hover:bg-primary-5"
 
       "outline" ->
-        "bg-white text-primary-500 border border-primary-500 hover:bg-primary-5"
+        "bg-transparent text-primary-500 border border-primary-500 hover:bg-primary-5"
     end
   end
 end
