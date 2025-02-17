@@ -6,7 +6,6 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   use LiveDebuggerWeb, :live_view
 
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.ChannelService
 
@@ -20,9 +19,9 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full flex flex-col bg-primary-20">
+    <div class="w-full h-full bg-primary-20 flex flex-col items-center">
       <.topbar return_link?={false} />
-      <div class="w-full h-full p-2">
+      <div class="w-full h-full p-8 xl:w-2/3">
         <.async_result :let={live_sessions} assign={@live_sessions}>
           <:loading>
             <div class="h-full flex items-center justify-center">
@@ -30,37 +29,37 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
             </div>
           </:loading>
           <:failed><.error_component /></:failed>
-          <div class="flex gap-4 items-center justify-between pt-2">
+          <div class="flex gap-4 items-center justify-between">
             <div class="text-primary font-semibold text-2xl">Active LiveSessions</div>
             <.button phx-click="refresh" variant="outline">
               Refresh
             </.button>
           </div>
 
-          <div class="mt-2 lg:mt-4">
+          <div class="mt-6">
             <%= if Enum.empty?(live_sessions)  do %>
               <div class="text-gray-600">
                 No LiveSessions found - try refreshing.
               </div>
             <% else %>
-              <div class="border-2 border-primary rounded-md w-full lg:w-3/4 2xl:w-1/2 ">
+              <div class="p-4 bg-white rounded-sm">
                 <table class="w-full">
-                  <tr class="border-b-2 border-primary">
-                    <th>Module</th>
-                    <th class="hidden xs:table-cell">PID</th>
-                    <th class="hidden sm:table-cell">Socket ID</th>
-                  </tr>
-                  <tr :for={session <- live_sessions}>
-                    <td class="text-center ">
-                      <.link class="text-primary" patch={"/#{session.socket_id}"}>
-                        <%= session.module %>
-                      </.link>
-                    </td>
-                    <td class="hidden xs:table-cell text-center">
-                      <%= Parsers.pid_to_string(session.pid) %>
-                    </td>
-                    <td class="hidden sm:table-cell text-center"><%= session.socket_id %></td>
-                  </tr>
+                  <thead class="border-b border-blue-100">
+                    <tr class="text-left text-primary text-sm text-bold h-11">
+                      <th>Module</th>
+                      <th>PID</th>
+                      <th>Socket</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-primary text-sm text-bold">
+                    <tr class="h-11 hover:bg-blue-50">
+                      <td>
+                        John Smith
+                      </td>
+                      <td>Engineer</td>
+                      <td>john.smith@example.com</td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
             <% end %>
