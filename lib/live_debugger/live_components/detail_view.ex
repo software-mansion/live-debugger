@@ -52,6 +52,13 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:items-end">
             <.info_section node={node} node_type={@node_type.result} />
             <.assigns_section assigns={node.assigns} />
+            <.fullscreen id="assigns-display-fullscreen" title="Assigns">
+              <ElixirDisplay.term
+                id="assigns-display"
+                node={TermParser.term_to_display_tree(node.assigns)}
+                level={1}
+              />
+            </.fullscreen>
           </div>
           <div class="w-full lg:w-1/2">
             <.live_component
@@ -111,13 +118,6 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       <:right_panel>
         <.fullscreen_button id="assigns-display-fullscreen" />
       </:right_panel>
-      <.fullscreen id="assigns-display-fullscreen" title="Assigns">
-        <ElixirDisplay.term
-          id="assigns-display"
-          node={TermParser.term_to_display_tree(@assigns)}
-          level={1}
-        />
-      </.fullscreen>
       <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
         <ElixirDisplay.term
           id="assigns-display"
