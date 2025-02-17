@@ -327,7 +327,7 @@ defmodule LiveDebugger.Components do
       id={@id}
       phx-hook="Fullscreen"
       class={[
-        "relative h-max w-full lg:w-max lg:min-w-[50rem] p-2 overflow-auto hidden flex-col rounded-lg backdrop:bg-black backdrop:opacity-50"
+        "relative h-max w-full lg:w-max lg:min-w-[50rem] p-2 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
       ]}
     >
