@@ -147,12 +147,10 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     >
       <:label>
         <div class="w-[90%] grow flex items-center ml-2 gap-1.5">
-          <.tooltip id={"trace_" <> @id} content={"#{@trace.module}.#{@callback_name}"}>
-            <div class="flex gap-1.5">
-              <p class="text-primary font-medium"><%= @callback_name %></p>
-              <.aggregate_count :if={@trace.counter > 1} count={@trace.counter} />
-            </div>
-          </.tooltip>
+          <div class="flex gap-1.5">
+            <p class="text-primary font-medium"><%= @callback_name %></p>
+            <.aggregate_count :if={@trace.counter > 1} count={@trace.counter} />
+          </div>
           <.short_trace_content trace={@trace} />
           <p class="w-max text-xs font-normal text-secondary align-center">
             <%= Parsers.parse_timestamp(@trace.timestamp) %>
@@ -194,12 +192,11 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   defp short_trace_content(assigns) do
-    content = Enum.map_join(assigns.trace.args, " ", &inspect/1) |> IO.inspect(label: "Content")
-    assigns = assign(assigns, :content, content)
+    assigns = assign(assigns, :content, Enum.map_join(assigns.trace.args, " ", &inspect/1))
 
     ~H"""
     <div class="grow shrink text-secondary font-mono font-normal text-3xs truncate">
-      <p class="hide-on-open m-auto"><%= @content %></p>
+      <p class="hide-on-open mt-0.5"><%= @content %></p>
     </div>
     """
   end
