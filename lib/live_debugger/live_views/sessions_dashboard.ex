@@ -60,7 +60,12 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                 </:column>
                 <:column :let={session} label="Socket"><%= session.socket_id %></:column>
               </.table>
-              <.list elements={live_sessions} class="sm:hidden">
+              <.list
+                elements={live_sessions}
+                class="sm:hidden"
+                on_element_click="session-picked"
+                element_click_key={:socket_id}
+              >
                 <:title :let={session}>
                   <%= session.module %>
                 </:title>

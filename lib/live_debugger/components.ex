@@ -333,7 +333,7 @@ defmodule LiveDebugger.Components do
             phx-click={@on_row_click}
             phx-target={@row_click_target}
             {dynamic_value_assign(@row_click_key, Map.get(row, @row_click_key))}
-            class="h-11 hover:bg-blue-50 cursor-pointer"
+            class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-blue-50"}"}
           >
             <td :for={col <- @column} class={["first:pl-2" | List.wrap(Map.get(col, :class))]}>
               <%= render_slot(col, row) %>
@@ -351,6 +351,9 @@ defmodule LiveDebugger.Components do
   )
 
   attr(:class, :any, default: nil, doc: "Additional classes.")
+  attr(:on_element_click, :string, default: nil)
+  attr(:element_click_target, :any, default: nil)
+  attr(:element_click_key, :atom, default: nil)
 
   slot(:title, required: true, doc: "Slot that describes how to access title from given map")
   slot(:description, doc: "Slot that describes how to access description from given map")
@@ -358,7 +361,13 @@ defmodule LiveDebugger.Components do
   def list(assigns) do
     ~H"""
     <div class={["flex flex-col" | List.wrap(@class)]}>
-      <div :for={elem <- @elements} class="h-20 bg-white hover:bg-blue-50 rounded">
+      <div
+        :for={elem <- @elements}
+        class={"h-20 bg-white rounded #{if @on_element_click, do: "cursor-pointer hover:bg-blue-50"}"}
+        phx-click={@on_element_click}
+        phx-target={@element_click_target}
+        {dynamic_value_assign(@element_click_key, Map.get(elem, @element_click_key))}
+      >
         <div class="flex flex-col justify-center h-full p-4 gap-1">
           <p class="text-primary text-sm font-semibold"><%= render_slot(@title, elem) %></p>
           <p class="text-secondary text-sm">
