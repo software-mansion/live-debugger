@@ -23,6 +23,7 @@ module.exports = {
           5: '#F7F9FF',
           50: '#F1F4FF',
           100: '#E6ECFE',
+          200: '#CED9FF',
           400: '#3B478A',
           500: '#001A72',
         },
@@ -43,6 +44,8 @@ module.exports = {
         mono: ['DM Mono', 'serif'],
       },
       fontSize: {
+        '3xs': ['10px', '13px'],
+        '2xs': ['11px', '20px'],
         sm: ['13px', '20px'],
         base: ['15px', '20px'],
       },

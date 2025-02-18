@@ -62,7 +62,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
           </div>
         </:right_panel>
         <div class="w-full h-full lg:min-h-[10.25rem]">
-          <div id={"#{assigns.id}-stream"} phx-update="stream">
+          <div id={"#{assigns.id}-stream"} phx-update="stream" class="flex flex-col gap-2">
             <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-gray-700">
               <div :if={@existing_traces_status == :ok}>
                 No traces have been recorded yet.
@@ -138,24 +138,23 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       |> assign(:callback_name, "#{assigns.trace.function}/#{assigns.trace.arity}")
 
     ~H"""
-    <.collapsible id={@id} icon="icon-chevron-right" chevron_class="text-primary" class="max-w-full">
+    <.collapsible
+      id={@id}
+      icon="icon-chevron-right"
+      chevron_class="w-5 h-5"
+      class="max-w-full border border-primary-100 rounded"
+      label_class="text-primary text-sm font-semibold bg-primary-50 h-10 p-2"
+    >
       <:label>
-        <div class="w-full flex justify-between">
-          <.tooltip
-            id={"trace_" <> @id}
-            content={"#{@trace.module}.#{@trace.function}/#{@trace.arity}"}
-          >
-            <div class="flex gap-4">
-              <p class="text-primary font-medium"><%= @callback_name %></p>
-              <p
-                :if={@trace.counter > 1}
-                class="text-sm text-gray-500 italic align-baseline mt-[0.2rem]"
-              >
-                +<%= @trace.counter - 1 %>
-              </p>
-            </div>
-          </.tooltip>
-          <p class="w-32"><%= Parsers.parse_timestamp(@trace.timestamp) %></p>
+        <div class="w-[90%] grow flex items-center ml-2 gap-1.5">
+          <div class="flex gap-1.5">
+            <p class="text-primary font-medium"><%= @callback_name %></p>
+            <.aggregate_count :if={@trace.counter > 1} count={@trace.counter} />
+          </div>
+          <.short_trace_content trace={@trace} />
+          <p class="w-max text-xs font-normal text-secondary align-center">
+            <%= Parsers.parse_timestamp(@trace.timestamp) %>
+          </p>
         </div>
       </:label>
       <.fullscreen id={@fullscreen_id} title={@callback_name}>
@@ -170,7 +169,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         </div>
       </.fullscreen>
 
-      <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto border-2 border-gray-200 p-2 rounded-lg text-gray-600">
+      <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto p-4">
         <.fullscreen_button id={@fullscreen_id} class="absolute right-2 top-2" />
         <%= for {args, index} <- Enum.with_index(@trace.args) do %>
           <ElixirDisplay.term
@@ -181,6 +180,24 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         <% end %>
       </div>
     </.collapsible>
+    """
+  end
+
+  defp aggregate_count(assigns) do
+    ~H"""
+    <span class="rounded-full bg-white border border-primary-200 text-primary text-2xs px-1.5">
+      +<%= assigns.count %>
+    </span>
+    """
+  end
+
+  defp short_trace_content(assigns) do
+    assigns = assign(assigns, :content, Enum.map_join(assigns.trace.args, " ", &inspect/1))
+
+    ~H"""
+    <div class="grow shrink text-secondary font-mono font-normal text-3xs truncate">
+      <p class="hide-on-open mt-0.5"><%= @content %></p>
+    </div>
     """
   end
 
