@@ -59,7 +59,7 @@ defmodule LiveDebugger.MixProject do
     [
       main: "readme",
       extras: ["README.md", "LICENSE"],
-      source_url: "https://github.com/recruitee/bow",
+      source_url: "https://github.com/software-mansion/live-debugger",
       source_ref: @version
     ]
   end
