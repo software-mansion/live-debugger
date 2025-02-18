@@ -51,7 +51,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                 rows={live_sessions}
                 class="hidden sm:block"
                 on_row_click="session-picked"
-                row_click_key={:socket_id}
+                row_attributes_fun={fn row -> %{"phx-value-socket_id" => row.socket_id} end}
               >
                 <:column :let={session} label="Module" class="font-semibold">
                   <%= session.module %>
@@ -65,7 +65,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                 elements={live_sessions}
                 class="sm:hidden"
                 on_element_click="session-picked"
-                element_click_key={:socket_id}
+                element_attributes_fun={fn elem -> %{"phx-value-socket_id" => elem.socket_id} end}
               >
                 <:title :let={session}>
                   <%= session.module %>

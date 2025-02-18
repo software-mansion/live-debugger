@@ -310,7 +310,11 @@ defmodule LiveDebugger.Components do
   attr(:class, :any, default: nil, doc: "Additional classes.")
   attr(:on_row_click, :string, default: nil)
   attr(:row_click_target, :any, default: nil)
-  attr(:row_click_key, :atom, default: nil)
+
+  attr(:row_attributes_fun, :any,
+    default: nil,
+    doc: "Function to return HTML attributes for each row based on row data"
+  )
 
   slot :column, doc: "Columns with column labels" do
     attr(:label, :string, required: true, doc: "Column label")
@@ -332,8 +336,8 @@ defmodule LiveDebugger.Components do
             :for={row <- @rows}
             phx-click={@on_row_click}
             phx-target={@row_click_target}
-            {dynamic_value_assign(@row_click_key, Map.get(row, @row_click_key))}
             class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-primary-50"}"}
+            {if @row_attributes_fun, do: @row_attributes_fun.(row), else: []}
           >
             <td :for={col <- @column} class={["first:pl-2" | List.wrap(Map.get(col, :class))]}>
               <%= render_slot(col, row) %>
@@ -353,7 +357,11 @@ defmodule LiveDebugger.Components do
   attr(:class, :any, default: nil, doc: "Additional classes.")
   attr(:on_element_click, :string, default: nil)
   attr(:element_click_target, :any, default: nil)
-  attr(:element_click_key, :atom, default: nil)
+
+  attr(:element_attributes_fun, :any,
+    default: nil,
+    doc: "Function to return HTML attributes for each row based on row data"
+  )
 
   slot(:title, required: true, doc: "Slot that describes how to access title from given map")
   slot(:description, doc: "Slot that describes how to access description from given map")
@@ -366,7 +374,7 @@ defmodule LiveDebugger.Components do
         class={"h-20 bg-white rounded #{if @on_element_click, do: "cursor-pointer hover:bg-primary-50"}"}
         phx-click={@on_element_click}
         phx-target={@element_click_target}
-        {dynamic_value_assign(@element_click_key, Map.get(elem, @element_click_key))}
+        {if @element_attributes_fun, do: @element_attributes_fun.(elem), else: []}
       >
         <div class="flex flex-col justify-center h-full p-4 gap-1">
           <p class="text-primary text-sm font-semibold"><%= render_slot(@title, elem) %></p>
@@ -610,17 +618,5 @@ defmodule LiveDebugger.Components do
       "outline" ->
         "bg-transparent text-primary-500 border border-primary-500 hover:bg-primary-5"
     end
-  end
-
-  defp dynamic_value_assign(nil, _) do
-    []
-  end
-
-  defp dynamic_value_assign(key, value) when is_atom(key) do
-    key |> Atom.to_string() |> dynamic_value_assign(value)
-  end
-
-  defp dynamic_value_assign(key, value) when is_binary(key) do
-    [{"phx-value-" <> key, value}]
   end
 end
