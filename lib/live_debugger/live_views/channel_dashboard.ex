@@ -36,7 +36,9 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     ~H"""
     <div class="w-screen h-screen flex flex-col text-base">
       <.topbar return_link?={true}>
-        <.icon_button phx-click="open-sidebar" class="flex sm:hidden" icon="icon-menu-hamburger" />
+        <div class="grow flex items-center justify-end">
+          <.icon_button phx-click="open-sidebar" class="flex sm:hidden" icon="icon-menu-hamburger" />
+        </div>
       </.topbar>
       <.async_result :let={pid} assign={@debugged_pid}>
         <:loading>

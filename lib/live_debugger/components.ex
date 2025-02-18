@@ -507,7 +507,7 @@ defmodule LiveDebugger.Components do
   """
   attr(:id, :string, required: true)
   attr(:content, :string, default: nil)
-  attr(:position, :string, default: "bottom", values: ["top", "bottom"])
+  attr(:position, :string, default: "top", values: ["top", "bottom"])
   attr(:rest, :global)
   slot(:inner_block, required: true)
 

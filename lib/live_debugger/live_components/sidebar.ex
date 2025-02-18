@@ -139,12 +139,20 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp sidebar_slide_over(assigns) do
     ~H"""
-    <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex sm:hidden">
+    <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex sm:hidden justify-end">
       <div
         class="w-64 h-full flex flex-col bg-white/100"
         phx-click-away="close_mobile_content"
         phx-target={@myself}
       >
+        <.icon_button
+          icon="icon-cross-small"
+          class="absolute top-4 right-4"
+          variant="invert"
+          size="sm"
+          phx-click="close_mobile_content"
+          phx-target={@myself}
+        />
         <%= render_slot(@inner_block) %>
       </div>
     </div>
@@ -160,7 +168,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp basic_info(assigns) do
     ~H"""
-    <div class="w-full p-4 shrink-0 flex flex-col gap-2 text-primary text-sm">
+    <div class="w-full p-6 shrink-0 flex flex-col gap-2 text-primary text-sm">
       <div
         :for={
           {text, value} <- [
