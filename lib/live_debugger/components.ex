@@ -306,11 +306,16 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  attr(:rows, :list, default: [])
+  attr(:rows, :list, default: [], doc: "Elements that will be displayed in the list")
   attr(:class, :any, default: nil, doc: "Additional classes.")
+  attr(:on_row_click, :string, default: nil)
+  attr(:row_click_target, :any, default: nil)
+  attr(:row_click_key, :atom, default: nil)
 
   slot :column, doc: "Columns with column labels" do
     attr(:label, :string, required: true, doc: "Column label")
+    # Default is not supported for slot arguments
+    attr(:class, :any)
   end
 
   def table(assigns) do
@@ -323,8 +328,16 @@ defmodule LiveDebugger.Components do
           </tr>
         </thead>
         <tbody class="text-primary text-sm text-bold">
-          <tr :for={row <- @rows} class="h-11 hover:bg-blue-50">
-            <td :for={col <- @column} class="first:pl-2"><%= render_slot(col, row) %></td>
+          <tr
+            :for={row <- @rows}
+            phx-click={@on_row_click}
+            phx-target={@row_click_target}
+            {dynamic_value_assign(@row_click_key, Map.get(row, @row_click_key))}
+            class="h-11 hover:bg-blue-50 cursor-pointer"
+          >
+            <td :for={col <- @column} class={["first:pl-2" | List.wrap(Map.get(col, :class))]}>
+              <%= render_slot(col, row) %>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -588,5 +601,17 @@ defmodule LiveDebugger.Components do
       "outline" ->
         "bg-transparent text-primary-500 border border-primary-500 hover:bg-primary-5"
     end
+  end
+
+  defp dynamic_value_assign(nil, _) do
+    []
+  end
+
+  defp dynamic_value_assign(key, value) when is_atom(key) do
+    key |> Atom.to_string() |> dynamic_value_assign(value)
+  end
+
+  defp dynamic_value_assign(key, value) when is_binary(key) do
+    [{"phx-value-" <> key, value}]
   end
 end

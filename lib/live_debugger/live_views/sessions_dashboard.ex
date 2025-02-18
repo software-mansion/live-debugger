@@ -46,11 +46,14 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                 No LiveSessions found - try refreshing.
               </div>
             <% else %>
-              <.table rows={live_sessions} class="hidden sm:block">
-                <:column :let={session} label="Module">
-                  <.link patch={"/#{session.socket_id}"}>
-                    <%= session.module %>
-                  </.link>
+              <.table
+                rows={live_sessions}
+                class="hidden sm:block"
+                on_row_click="session-picked"
+                row_click_key={:socket_id}
+              >
+                <:column :let={session} label="Module" class="font-semibold">
+                  <%= session.module %>
                 </:column>
                 <:column :let={session} label="PID">
                   <%= Parsers.pid_to_string(session.pid) %>
@@ -59,9 +62,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
               </.table>
               <.list elements={live_sessions} class="sm:hidden">
                 <:title :let={session}>
-                  <.link patch={"/#{session.socket_id}"}>
-                    <%= session.module %>
-                  </.link>
+                  <%= session.module %>
                 </:title>
                 <:description :let={session}>
                   <%= Parsers.pid_to_string(session.pid) %> · <%= session.socket_id %>
@@ -73,6 +74,13 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
       </div>
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("session-picked", %{"socket_id" => socket_id}, socket) do
+    socket
+    |> push_navigate(to: "/#{socket_id}")
+    |> noreply()
   end
 
   @impl true
