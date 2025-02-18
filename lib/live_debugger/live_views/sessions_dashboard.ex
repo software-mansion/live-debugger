@@ -23,6 +23,16 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
     <div class="w-full h-full bg-primary-20 flex flex-col items-center">
       <.topbar return_link?={false} />
       <div class="w-full h-full p-8 xl:w-2/3">
+        <div class="flex gap-4 items-center justify-between">
+          <div class="text-primary font-semibold text-2xl">Active LiveSessions</div>
+          <.button phx-click="refresh" variant="outline">
+            <div class="flex items-center gap-2">
+              <.icon name="icon-refresh" class="w-4 h-4" />
+              <p>Refresh</p>
+            </div>
+          </.button>
+        </div>
+
         <.async_result :let={live_sessions} assign={@live_sessions}>
           <:loading>
             <div class="h-full flex items-center justify-center">
@@ -30,15 +40,6 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
             </div>
           </:loading>
           <:failed><.error_component /></:failed>
-          <div class="flex gap-4 items-center justify-between">
-            <div class="text-primary font-semibold text-2xl">Active LiveSessions</div>
-            <.button phx-click="refresh" variant="outline">
-              <div class="flex items-center gap-2">
-                <.icon name="icon-refresh" class="w-4 h-4" />
-                <p>Refresh</p>
-              </div>
-            </.button>
-          </div>
 
           <div class="mt-6">
             <%= if Enum.empty?(live_sessions)  do %>
