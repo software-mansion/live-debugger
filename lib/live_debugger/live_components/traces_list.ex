@@ -53,9 +53,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       <.collapsible_section title="Callback traces" id="traces">
         <:right_panel>
           <div class="flex gap-2 items-center">
-            <.button phx-click="switch-tracing" phx-target={@myself}>
-              <%= if @tracing_started?, do: "Stop", else: "Start" %>
-            </.button>
+            <.toggle_tracing_button myself={@myself} tracing_started?={@tracing_started?} />
             <.button variant="invert" phx-click="clear-traces" phx-target={@myself}>
               Clear
             </.button>
@@ -126,6 +124,32 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     socket
     |> stream(:existing_traces, [], reset: true)
     |> noreply()
+  end
+
+  attr(:tracing_started?, :boolean, required: true)
+  attr(:myself, :any, required: true)
+
+  defp toggle_tracing_button(assigns) do
+    {icon, text} =
+      if assigns.tracing_started? do
+        {"icon-stop", "Stop"}
+      else
+        {"icon-play", "Start"}
+      end
+
+    assigns =
+      assigns
+      |> assign(:icon, icon)
+      |> assign(:text, text)
+
+    ~H"""
+    <.button phx-click="switch-tracing" phx-target={@myself} class="flex gap-2">
+      <div class="flex gap-1.5 items-center w-12">
+        <.icon name={@icon} class="w-4 h-4" />
+        <div><%= @text %></div>
+      </div>
+    </.button>
+    """
   end
 
   attr(:id, :string, required: true)
