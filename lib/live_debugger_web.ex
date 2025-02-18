@@ -41,7 +41,6 @@ end
 defmodule LiveDebuggerWeb.Helpers do
   @moduledoc false
 
-
   def empty_map(_), do: %{}
 
   def ok(socket), do: {:ok, socket}
