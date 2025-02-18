@@ -16,15 +16,17 @@ Hooks.Tooltip = {
 
       if (rect.left + tooltipRect.width > window.innerWidth) {
         tooltipEl.style.right = `${window.innerWidth - rect.right}px`;
+        tooltipEl.style.left = 'auto';
       } else {
         tooltipEl.style.left = `${rect.left}px`;
+        tooltipEl.style.right = 'auto';
       }
 
       tooltipEl.style.top = `${topOffset}px`;
       tooltipEl.style.zIndex = 100;
     };
     this.handleMouseLeave = () => {
-      tooltipEl.style = { display: 'none' };
+      tooltipEl.style.display = 'none';
     };
     let tooltipEl = document.querySelector('#tooltip');
     this.el.addEventListener('mouseenter', this.handleMouseEnter);
