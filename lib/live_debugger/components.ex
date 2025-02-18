@@ -322,7 +322,7 @@ defmodule LiveDebugger.Components do
     ~H"""
     <div class={["p-4 bg-white rounded" | List.wrap(@class)]}>
       <table class="w-full">
-        <thead class="border-b border-blue-100">
+        <thead class="border-b border-primary-100">
           <tr class="text-left text-primary text-sm h-11 mx-16">
             <th :for={col <- @column} class="first:pl-2"><%= col.label %></th>
           </tr>
@@ -333,7 +333,7 @@ defmodule LiveDebugger.Components do
             phx-click={@on_row_click}
             phx-target={@row_click_target}
             {dynamic_value_assign(@row_click_key, Map.get(row, @row_click_key))}
-            class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-blue-50"}"}
+            class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-primary-50"}"}
           >
             <td :for={col <- @column} class={["first:pl-2" | List.wrap(Map.get(col, :class))]}>
               <%= render_slot(col, row) %>
@@ -363,7 +363,7 @@ defmodule LiveDebugger.Components do
     <div class={["flex flex-col gap-2" | List.wrap(@class)]}>
       <div
         :for={elem <- @elements}
-        class={"h-20 bg-white rounded #{if @on_element_click, do: "cursor-pointer hover:bg-blue-50"}"}
+        class={"h-20 bg-white rounded #{if @on_element_click, do: "cursor-pointer hover:bg-primary-50"}"}
         phx-click={@on_element_click}
         phx-target={@element_click_target}
         {dynamic_value_assign(@element_click_key, Map.get(elem, @element_click_key))}
