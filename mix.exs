@@ -50,14 +50,15 @@ defmodule LiveDebugger.MixProject do
       {:esbuild, "~> 0.7", only: :dev},
       {:tailwind, "~> 0.2", only: :dev},
       {:mox, "~> 1.2", only: :test},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.34", only: :dev, runtime: false}
     ]
   end
 
   defp docs() do
     [
       main: "readme",
-      extras: ["README.md"],
+      extras: ["README.md", "LICENSE"],
       source_url: "https://github.com/recruitee/bow",
       source_ref: @version
     ]
