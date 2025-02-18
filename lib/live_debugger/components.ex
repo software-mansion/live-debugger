@@ -360,7 +360,7 @@ defmodule LiveDebugger.Components do
 
   def list(assigns) do
     ~H"""
-    <div class={["flex flex-col" | List.wrap(@class)]}>
+    <div class={["flex flex-col gap-2" | List.wrap(@class)]}>
       <div
         :for={elem <- @elements}
         class={"h-20 bg-white rounded #{if @on_element_click, do: "cursor-pointer hover:bg-blue-50"}"}
