@@ -160,7 +160,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         </div>
       </:label>
       <.fullscreen id={@fullscreen_id} title={@callback_name}>
-        <div class="w-full flex flex-col items-start justify-center">
+        <div class="w-full flex flex-col gap-4 items-start justify-center">
           <%= for {args, index} <- Enum.with_index(@trace.args) do %>
             <ElixirDisplay.term
               id={@id <> "-#{index}-fullscreen"}

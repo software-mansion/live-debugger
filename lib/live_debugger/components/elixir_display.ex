@@ -34,7 +34,7 @@ defmodule LiveDebugger.Components.ElixirDisplay do
         icon="icon-chevron-right"
         class="[&>summary_.hide-on-opened]:open:hidden"
         label_class="max-w-max"
-        chevron_class="w-[2ch] mr-0"
+        chevron_class="m-auto w-[2ch] h-[2ch]"
       >
         <:label>
           <div class="flex items-center">
