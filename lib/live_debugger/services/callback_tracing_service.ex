@@ -19,7 +19,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
   alias LiveDebugger.Services.TraceService
 
   @typedoc """
-  Represents a raw trace straight from `:dbg.
+  Represents a raw trace straight from `:dbg`.
   It should not be used outside of this module.
   """
   @type raw_trace :: {atom(), pid(), atom(), {atom(), atom(), [term()]}}
