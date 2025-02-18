@@ -199,7 +199,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
     ~H"""
     <div class="grow shrink text-secondary font-mono font-normal text-3xs truncate">
-      <%= @content %>
+      <p class="hide-on-open m-auto"><%= @content %></p>
     </div>
     """
   end

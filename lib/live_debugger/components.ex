@@ -90,6 +90,7 @@ defmodule LiveDebugger.Components do
   @doc """
   Collapsible element that can be toggled open and closed.
   It uses the `details` and `summary` HTML elements.
+  If you add `hide-on-open` class to element it will be hidden when collapsible is opened.
   """
 
   attr(:id, :string, required: true)
@@ -113,7 +114,10 @@ defmodule LiveDebugger.Components do
     ~H"""
     <details
       id={@id}
-      class={["block [&>summary>.rotate-icon]:open:rotate-90" | List.wrap(@class)]}
+      class={[
+        "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden"
+        | List.wrap(@class)
+      ]}
       {show_collapsible_assign(@open)}
       {@rest}
     >
