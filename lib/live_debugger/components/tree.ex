@@ -12,7 +12,7 @@ defmodule LiveDebugger.Components.Tree do
   @doc """
   Tree component which show nested tree of live view and live components.
   You need to pass TreeNode struct to render the tree.
-  This component emits `select_node` event with 'node_id` param to the `event_target` when a node is clicked. `node_id` is parsed.
+  This component emits `select_node` event with `node_id` param to the `event_target` when a node is clicked. `node_id` is parsed.
   To calculate `max_opened_node_level` it uses `max_nesting_level/2` function.
   """
 

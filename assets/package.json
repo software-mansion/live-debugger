@@ -7,6 +7,6 @@
     "phoenix_live_view": "^1.0.0"
   },
   "devDependencies": {
-    "prettier": "3.4.2"
+    "prettier": "^3.5.1"
   }
 }
