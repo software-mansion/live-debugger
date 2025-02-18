@@ -20,7 +20,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full bg-primary-20 flex flex-col items-center">
+    <div class="w-full h-full bg-primary-100 flex flex-col items-center">
       <.topbar return_link?={false} />
       <div class="w-full h-full p-8 xl:w-2/3">
         <div class="flex gap-4 items-center justify-between">

@@ -146,7 +146,7 @@ defmodule LiveDebugger.Components do
         title={@title}
         open={@open}
         class="bg-white rounded-sm w-full"
-        label_class="h-12 p-2 lg:pl-4 lg:pointer-events-none pointer-events-auto text-primary border-b border-primary-20"
+        label_class="h-12 p-2 lg:pl-4 lg:pointer-events-none pointer-events-auto text-primary border-b border-primary-100"
         chevron_class="lg:hidden flex"
       >
         <:label>
@@ -404,7 +404,7 @@ defmodule LiveDebugger.Components do
         | List.wrap(@class)
       ]}
     >
-      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-primary-20">
+      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-primary-100">
         <div class="font-semibold text-base text-primary"><%= @title %></div>
         <.icon_button
           id={"#{@id}-close"}
@@ -605,7 +605,7 @@ defmodule LiveDebugger.Components do
         "bg-primary-500 text-white hover:bg-primary-400"
 
       "invert" ->
-        "bg-white text-primary-500 border border-primary-20 hover:bg-primary-5"
+        "bg-white text-primary-500 border border-primary-100 hover:bg-primary-5"
 
       "outline" ->
         "bg-transparent text-primary-500 border border-primary-500 hover:bg-primary-5"

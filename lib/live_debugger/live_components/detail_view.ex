@@ -36,7 +36,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col flex-1 h-full bg-primary-20 overflow-auto">
+    <div class="flex flex-col flex-1 h-full bg-primary-100 overflow-auto">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
