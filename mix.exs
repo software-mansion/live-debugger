@@ -1,15 +1,22 @@
 defmodule LiveDebugger.MixProject do
   use Mix.Project
 
+  @version "0.1.0-rc.1"
+
   def project do
     [
       app: :live_debugger,
-      version: "0.1.0-rc.1",
+      version: @version,
       elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
-      aliases: aliases()
+      aliases: aliases(),
+      package: package(),
+      name: "LiveDebugger",
+      source_url: "https://github.com/software-mansion/live-debugger",
+      description: "Tool for debugging LiveView applications",
+      docs: docs()
     ]
   end
 
@@ -44,6 +51,23 @@ defmodule LiveDebugger.MixProject do
       {:tailwind, "~> 0.2", only: :dev},
       {:mox, "~> 1.2", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp docs() do
+    [
+      main: "readme",
+      extras: ["README.md"],
+      source_url: "https://github.com/recruitee/bow",
+      source_ref: @version
+    ]
+  end
+
+  defp package do
+    [
+      licenses: ["Apache-2.0"],
+      links: %{github: "https://github.com/software-mansion/live-debugger"},
+      files: ~w(lib priv LICENSE mix.exs README.md)
     ]
   end
 end
