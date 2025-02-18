@@ -91,6 +91,15 @@ defmodule LiveDebugger.Components do
   Collapsible element that can be toggled open and closed.
   It uses the `details` and `summary` HTML elements.
   If you add `hide-on-open` class to element it will be hidden when collapsible is opened.
+
+  ## Examples
+
+      <.collapsible id="collapsible" open={true}>
+        <:label>
+          <div>Collapsible <div class="hide-on-open">Info when closed</div></div>
+        </:label>
+        <div>Content</div>
+      </.collapsible>
   """
 
   attr(:id, :string, required: true)
