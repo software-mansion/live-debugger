@@ -424,7 +424,7 @@ defmodule LiveDebugger.Components do
           data-fullscreen-id={@id}
         />
       </div>
-      <div class="overflow-auto flex flex-col gap-2">
+      <div class="overflow-auto flex flex-col gap-2 p-2">
         <%= render_slot(@inner_block) %>
       </div>
     </dialog>
