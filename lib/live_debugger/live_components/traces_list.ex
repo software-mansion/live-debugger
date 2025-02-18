@@ -141,7 +141,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     <.collapsible
       id={@id}
       icon="icon-chevron-right"
-      chevron_class="w-5 h-5f"
+      chevron_class="w-5 h-5"
       class="max-w-full border border-primary-100 rounded"
       label_class="text-primary text-sm font-semibold bg-primary-50 h-10 p-2"
     >
