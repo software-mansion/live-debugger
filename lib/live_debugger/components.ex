@@ -4,6 +4,7 @@ defmodule LiveDebugger.Components do
   """
 
   use Phoenix.Component
+  import LiveDebuggerWeb.Helpers
 
   @doc """
   Renders an alert with
@@ -312,7 +313,7 @@ defmodule LiveDebugger.Components do
   attr(:row_click_target, :any, default: nil)
 
   attr(:row_attributes_fun, :any,
-    default: nil,
+    default: &empty_map/1,
     doc: "Function to return HTML attributes for each row based on row data"
   )
 
@@ -337,7 +338,7 @@ defmodule LiveDebugger.Components do
             phx-click={@on_row_click}
             phx-target={@row_click_target}
             class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-primary-50"}"}
-            {if @row_attributes_fun, do: @row_attributes_fun.(row), else: []}
+            {@row_attributes_fun.(row)}
           >
             <td :for={col <- @column} class={["first:pl-2" | List.wrap(Map.get(col, :class))]}>
               <%= render_slot(col, row) %>
@@ -359,7 +360,7 @@ defmodule LiveDebugger.Components do
   attr(:element_click_target, :any, default: nil)
 
   attr(:element_attributes_fun, :any,
-    default: nil,
+    default: &empty_map/1,
     doc: "Function to return HTML attributes for each row based on row data"
   )
 
@@ -374,7 +375,7 @@ defmodule LiveDebugger.Components do
         class={"h-20 bg-white rounded #{if @on_element_click, do: "cursor-pointer hover:bg-primary-50"}"}
         phx-click={@on_element_click}
         phx-target={@element_click_target}
-        {if @element_attributes_fun, do: @element_attributes_fun.(elem), else: []}
+        {@element_attributes_fun.(elem)}
       >
         <div class="flex flex-col justify-center h-full p-4 gap-1">
           <p class="text-primary text-sm font-semibold"><%= render_slot(@title, elem) %></p>
