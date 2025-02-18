@@ -4,6 +4,7 @@ defmodule LiveDebugger.Components do
   """
 
   use Phoenix.Component
+  import LiveDebuggerWeb.Helpers
 
   @doc """
   Renders an alert with
@@ -51,7 +52,7 @@ defmodule LiveDebugger.Components do
     <button
       class={
         [
-          "w-max h-max py-1.5 px-2 rounded-md text-xs",
+          "w-max h-max py-1.5 px-2 rounded text-xs",
           button_color_classes(@variant)
         ] ++
           List.wrap(@class)
@@ -146,7 +147,7 @@ defmodule LiveDebugger.Components do
         title={@title}
         open={@open}
         class="bg-white rounded-sm w-full"
-        label_class="h-12 p-2 lg:pl-4 lg:pointer-events-none pointer-events-auto text-primary border-b border-primary-20"
+        label_class="h-12 p-2 lg:pl-4 lg:pointer-events-none pointer-events-auto text-primary border-b border-primary-100"
         chevron_class="lg:hidden flex"
       >
         <:label>
@@ -306,6 +307,87 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  attr(:rows, :list, default: [], doc: "Elements that will be displayed in the list")
+  attr(:class, :any, default: nil, doc: "Additional classes.")
+  attr(:on_row_click, :string, default: nil)
+  attr(:row_click_target, :any, default: nil)
+
+  attr(:row_attributes_fun, :any,
+    default: &empty_map/1,
+    doc: "Function to return HTML attributes for each row based on row data"
+  )
+
+  slot :column, doc: "Columns with column labels" do
+    attr(:label, :string, required: true, doc: "Column label")
+    # Default is not supported for slot arguments
+    attr(:class, :any)
+  end
+
+  def table(assigns) do
+    ~H"""
+    <div class={["p-4 bg-white rounded" | List.wrap(@class)]}>
+      <table class="w-full">
+        <thead class="border-b border-primary-100">
+          <tr class="text-left text-primary text-sm h-11 mx-16">
+            <th :for={col <- @column} class="first:pl-2"><%= col.label %></th>
+          </tr>
+        </thead>
+        <tbody class="text-primary text-sm text-bold">
+          <tr
+            :for={row <- @rows}
+            phx-click={@on_row_click}
+            phx-target={@row_click_target}
+            class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-primary-50"}"}
+            {@row_attributes_fun.(row)}
+          >
+            <td :for={col <- @column} class={["first:pl-2" | List.wrap(Map.get(col, :class))]}>
+              <%= render_slot(col, row) %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    """
+  end
+
+  attr(:elements, :list,
+    default: [],
+    doc: "List of maps with field `:title` and optional `:description`"
+  )
+
+  attr(:class, :any, default: nil, doc: "Additional classes.")
+  attr(:on_element_click, :string, default: nil)
+  attr(:element_click_target, :any, default: nil)
+
+  attr(:element_attributes_fun, :any,
+    default: &empty_map/1,
+    doc: "Function to return HTML attributes for each row based on row data"
+  )
+
+  slot(:title, required: true, doc: "Slot that describes how to access title from given map")
+  slot(:description, doc: "Slot that describes how to access description from given map")
+
+  def list(assigns) do
+    ~H"""
+    <div class={["flex flex-col gap-2" | List.wrap(@class)]}>
+      <div
+        :for={elem <- @elements}
+        class={"h-20 bg-white rounded #{if @on_element_click, do: "cursor-pointer hover:bg-primary-50"}"}
+        phx-click={@on_element_click}
+        phx-target={@element_click_target}
+        {@element_attributes_fun.(elem)}
+      >
+        <div class="flex flex-col justify-center h-full p-4 gap-1">
+          <p class="text-primary text-sm font-semibold"><%= render_slot(@title, elem) %></p>
+          <p class="text-secondary text-sm">
+            <%= render_slot(@description, elem) %>
+          </p>
+        </div>
+      </div>
+    </div>
+    """
+  end
+
   @doc """
   Renders a fullscreen using Fullscreen hook.
   If you want to open fullscreen from a button, you can use `phx-hook="OpenFullscreen"` and `data-fullscreen-id` attributes.
@@ -331,7 +413,7 @@ defmodule LiveDebugger.Components do
         | List.wrap(@class)
       ]}
     >
-      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-primary-20">
+      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-primary-100">
         <div class="font-semibold text-base text-primary"><%= @title %></div>
         <.icon_button
           id={"#{@id}-close"}
@@ -532,10 +614,10 @@ defmodule LiveDebugger.Components do
         "bg-primary-500 text-white hover:bg-primary-400"
 
       "invert" ->
-        "bg-white text-primary-500 border border-primary-20 hover:bg-primary-5"
+        "bg-white text-primary-500 border border-primary-100 hover:bg-primary-5"
 
       "outline" ->
-        "bg-white text-primary-500 border border-primary-500 hover:bg-primary-5"
+        "bg-transparent text-primary-500 border border-primary-500 hover:bg-primary-5"
     end
   end
 end

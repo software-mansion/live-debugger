@@ -205,7 +205,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp separate_bar(assigns) do
     ~H"""
-    <div class="border-b h-0 border-primary-20"></div>
+    <div class="border-b h-0 border-primary-100"></div>
     """
   end
 

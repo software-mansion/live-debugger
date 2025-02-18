@@ -21,11 +21,14 @@ module.exports = {
         primary: {
           DEFAULT: '#001A72',
           5: '#F7F9FF',
-          20: '#E6ECFE',
+          50: '#F1F4FF',
+          100: '#E6ECFE',
           400: '#3B478A',
           500: '#001A72',
         },
-        secondary: colors.pink,
+        secondary: {
+          DEFAULT: '#46568F',
+        },
         success: colors.green,
         danger: colors.red,
         warning: colors.yellow,

@@ -89,7 +89,7 @@ defmodule LiveDebugger.Components.Tree do
           id={"collapsible-" <> @tree_node.parsed_id}
           chevron_class="text-primary h-5 w-5"
           open={@open}
-          label_class="w-full rounded-md py-1 hover:bg-primary-20"
+          label_class="w-full rounded-md py-1 hover:bg-primary-100"
           label_style={style_for_padding(@level, @collapsible?)}
         >
           <:label>
@@ -143,7 +143,7 @@ defmodule LiveDebugger.Components.Tree do
       phx-value-node_id={@node.parsed_id}
       phx-target={@event_target}
       class={[
-        "flex w-full rounded-md hover:bg-primary-20",
+        "flex w-full rounded-md hover:bg-primary-100",
         unless(@collapsible?, do: "p-1"),
         @class
       ]}
