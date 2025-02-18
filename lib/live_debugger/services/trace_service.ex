@@ -21,8 +21,8 @@ defmodule LiveDebugger.Services.TraceService do
   @doc """
   Initializes an ETS table with the given id if it doesn't exist.
   """
-  @spec init_ets(:ets.table()) :: :ets.table()
-  def init_ets(ets_table_id) do
+  @spec maybe_init_ets(:ets.table()) :: :ets.table()
+  def maybe_init_ets(ets_table_id) do
     if :ets.whereis(ets_table_id) == :undefined do
       :ets.new(ets_table_id, [:ordered_set, :public, :named_table])
     else
@@ -36,8 +36,12 @@ defmodule LiveDebugger.Services.TraceService do
   To achieve this table is implemented as ordered_set with non-positive integer keys.
   Because of that the element with the smallest key is the first element in the table.
   """
+  @spec next_tuple_id(:ets.table()) :: integer()
   def next_tuple_id(ets_table_id) do
-    case :ets.first(ets_table_id) do
+    ets_table_id
+    |> maybe_init_ets()
+    |> :ets.first()
+    |> case do
       :"$end_of_table" -> 0
       last_id -> last_id - 1
     end
@@ -48,7 +52,9 @@ defmodule LiveDebugger.Services.TraceService do
   """
   @spec insert(:ets.table(), integer(), Trace.t()) :: true
   def insert(table_id, id, trace) do
-    :ets.insert(table_id, {id, trace})
+    table_id
+    |> maybe_init_ets()
+    |> :ets.insert({id, trace})
   end
 
   @doc """
@@ -56,11 +62,14 @@ defmodule LiveDebugger.Services.TraceService do
   """
   @spec existing_traces(atom(), pid() | CommonTypes.cid()) :: [Trace.t()]
   def existing_traces(table_id, %CID{} = cid) do
-    :ets.match_object(table_id, {:_, %{cid: cid}}) |> Enum.map(&elem(&1, 1))
+    table_id |> maybe_init_ets() |> :ets.match_object({:_, %{cid: cid}}) |> Enum.map(&elem(&1, 1))
   end
 
   def existing_traces(table_id, pid) when is_pid(pid) do
-    :ets.match_object(table_id, {:_, %{pid: pid, cid: nil}}) |> Enum.map(&elem(&1, 1))
+    table_id
+    |> maybe_init_ets()
+    |> :ets.match_object({:_, %{pid: pid, cid: nil}})
+    |> Enum.map(&elem(&1, 1))
   end
 
   @doc """
@@ -68,7 +77,7 @@ defmodule LiveDebugger.Services.TraceService do
   """
   @spec existing_traces(atom()) :: [Trace.t()]
   def existing_traces(table_id) do
-    table_id |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
+    table_id |> maybe_init_ets() |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
   end
 
   @doc """
@@ -76,10 +85,14 @@ defmodule LiveDebugger.Services.TraceService do
   """
   @spec clear_traces(atom(), pid() | CommonTypes.cid()) :: true
   def clear_traces(table_id, %CID{} = cid) do
-    :ets.match_delete(table_id, {:_, %{cid: cid}})
+    table_id
+    |> maybe_init_ets()
+    |> :ets.match_delete({:_, %{cid: cid}})
   end
 
   def clear_traces(table_id, pid) when is_pid(pid) do
-    :ets.match_delete(table_id, {:_, %{pid: pid, cid: nil}})
+    table_id
+    |> maybe_init_ets()
+    |> :ets.match_delete({:_, %{pid: pid, cid: nil}})
   end
 end
