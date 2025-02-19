@@ -35,8 +35,8 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
 
         <.async_result :let={live_sessions} assign={@live_sessions}>
           <:loading>
-            <div class="h-full flex items-center justify-center">
-              <.spinner size="xl" />
+            <div class="mt-6 flex items-center justify-center">
+              <.spinner size="md" />
             </div>
           </:loading>
           <:failed><.error_component /></:failed>
