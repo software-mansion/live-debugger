@@ -20,12 +20,12 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full bg-primary-100 flex flex-col items-center">
+    <div class="w-full h-full flex flex-col items-center">
       <.topbar return_link?={false} />
       <div class="w-full h-full p-8 xl:w-2/3">
         <div class="flex gap-4 items-center justify-between">
-          <div class="text-primary font-semibold text-2xl">Active LiveSessions</div>
-          <.button phx-click="refresh" variant="outline">
+          <.h1>Active LiveSessions</.h1>
+          <.button phx-click="refresh" variant="tertiary">
             <div class="flex items-center gap-2">
               <.icon name="icon-refresh" class="w-4 h-4" />
               <p>Refresh</p>
@@ -40,7 +40,6 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
             </div>
           </:loading>
           <:failed><.error_component /></:failed>
-
           <div class="mt-6">
             <%= if Enum.empty?(live_sessions)  do %>
               <div class="text-gray-600">
@@ -53,7 +52,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                 on_row_click="session-picked"
                 row_attributes_fun={fn row -> %{"phx-value-socket_id" => row.socket_id} end}
               >
-                <:column :let={session} label="Module" class="font-semibold">
+                <:column :let={session} label="Module" class="font-medium">
                   <%= session.module %>
                 </:column>
                 <:column :let={session} label="PID">
