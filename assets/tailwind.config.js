@@ -41,12 +41,7 @@ module.exports = {
       },
       screens: { xs: '380px' },
       fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['DM Mono', 'serif'] },
-      fontSize: {
-        '3xs': ['10px', '13px'],
-        '2xs': ['11px', '20px'],
-        sm: ['13px', '20px'],
-        base: ['15px', '20px'],
-      },
+      fontSize: { '3xs': ['10px', '13px'], '2xs': ['11px', '20px'] },
     },
   },
   plugins: [

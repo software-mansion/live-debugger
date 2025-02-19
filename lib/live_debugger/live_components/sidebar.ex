@@ -72,7 +72,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-max flex bg-white">
+    <div class="w-max flex bg-white shadow-custom">
       <div class="hidden sm:flex max-h-full flex-col w-64 gap-1">
         <.sidebar_content
           pid={@pid}

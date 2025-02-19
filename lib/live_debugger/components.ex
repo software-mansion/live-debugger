@@ -154,24 +154,24 @@ defmodule LiveDebugger.Components do
 
   def collapsible_section(assigns) do
     ~H"""
-    <div class={["w-full min-w-[20rem] lg:max-w-[32rem] h-max flex" | List.wrap(@class)]}>
+    <div class={["w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom" | List.wrap(@class)]}>
       <.collapsible
         id={@id}
         title={@title}
         open={@open}
         class="bg-white rounded-sm w-full"
-        label_class="h-12 p-2 lg:pl-4 lg:pointer-events-none pointer-events-auto text-primary border-b border-primary-100"
-        chevron_class="lg:hidden flex"
+        label_class="h-12 p-2 lg:pl-4 lg:pointer-events-none pointer-events-auto border-b border-primary-100"
+        chevron_class="lg:hidden flex text-primary-900"
       >
         <:label>
-          <div class="flex justify-between items-center w-full leading-5">
-            <div class="font-semibold"><%= @title %></div>
+          <div class="flex justify-between items-center w-full">
+            <div class="font-medium text-sm"><%= @title %></div>
             <div class="w-max !pointer-events-auto">
               <%= render_slot(@right_panel) %>
             </div>
           </div>
         </:label>
-        <div class="w-full flex overflow-auto rounded-sm bg-white text-black p-2 text-sm leading-5">
+        <div class="w-full flex overflow-auto rounded-sm bg-white p-2">
           <%= render_slot(@inner_block) %>
         </div>
       </.collapsible>

@@ -81,8 +81,8 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     ~H"""
     <.collapsible_section id="info" title={title(@node_type)}>
       <div class="p-4 flex flex-col gap-1">
-        <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
+        <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
       </div>
     </.collapsible_section>
     """
@@ -93,7 +93,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_row(assigns) do
     ~H"""
-    <div class="flex gap-1 overflow-x-hidden text-primary text-base">
+    <div class="flex gap-1 overflow-x-hidden">
       <div class="font-medium">
         <%= @name %>
       </div>
