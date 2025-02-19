@@ -19,30 +19,27 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#001A72',
-          5: '#F7F9FF',
-          50: '#F1F4FF',
-          100: '#E6ECFE',
-          200: '#CED9FF',
-          400: '#3B478A',
-          500: '#001A72',
+          50: '#F6F4FE',
+          100: '#EDEBFC',
+          200: '#DFDAFA',
+          300: '#C7BDF5',
+          400: '#A997EE',
+          500: '#8D6DE5',
+          600: '#7B4ED9',
+          700: '#6B3CC5',
+          800: '#5A31A6',
+          900: '#4C2B8A',
+          950: '#2E195C',
         },
-        secondary: {
-          DEFAULT: '#46568F',
-        },
+        secondary: colors.slate,
         success: colors.green,
         danger: colors.red,
         warning: colors.yellow,
         info: colors.sky,
         gray: colors.gray,
       },
-      screens: {
-        xs: '380px',
-      },
-      fontFamily: {
-        sans: ['DM Sans', 'sans-serif'],
-        mono: ['DM Mono', 'serif'],
-      },
+      screens: { xs: '380px' },
+      fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['DM Mono', 'serif'] },
       fontSize: {
         '3xs': ['10px', '13px'],
         '2xs': ['11px', '20px'],
@@ -86,10 +83,7 @@ module.exports = {
 
       fs.readdirSync(iconsDir).forEach((file) => {
         let name = path.basename(file, '.svg');
-        values[name] = {
-          name,
-          fullPath: path.join(iconsDir, file),
-        };
+        values[name] = { name, fullPath: path.join(iconsDir, file) };
       });
       matchComponents(
         {
