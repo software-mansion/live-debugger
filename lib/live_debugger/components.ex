@@ -20,7 +20,6 @@ defmodule LiveDebugger.Components do
   attr(:rest, :global)
   slot(:inner_block, required: true)
 
-  # TODO
   def alert(assigns) do
     ~H"""
     <div
@@ -32,7 +31,7 @@ defmodule LiveDebugger.Components do
     >
       <div class="flex items-center gap-2">
         <.alert_icon :if={@with_icon} variant={@variant} />
-        <%!-- <.h5 class="font-bold">{@heading}</.h5> --%>
+        <p class="text-base font-medium">{@heading}</p>
       </div>
       <%= render_slot(@inner_block) %>
     </div>
@@ -580,6 +579,7 @@ defmodule LiveDebugger.Components do
       "tertiary" ->
         "bg-transparent text-primary-900 border border-primary-900 hover:bg-secondary-50"
 
+      # TODO
       _ ->
         "bg-red-500"
     end

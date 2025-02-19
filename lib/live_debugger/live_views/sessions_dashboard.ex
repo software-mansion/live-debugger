@@ -33,49 +33,55 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
           </.button>
         </div>
 
-        <.async_result :let={live_sessions} assign={@live_sessions}>
-          <:loading>
-            <div class="mt-6 flex items-center justify-center">
-              <.spinner size="md" />
-            </div>
-          </:loading>
-          <:failed><.error_component /></:failed>
-          <div class="mt-6">
-            <%= if Enum.empty?(live_sessions)  do %>
-              <div class="text-gray-600">
-                No LiveSessions found - try refreshing.
+        <div class="mt-6">
+          <.async_result :let={live_sessions} assign={@live_sessions}>
+            <:loading>
+              <div class="flex items-center justify-center">
+                <.spinner size="md" />
               </div>
-            <% else %>
-              <.table
-                rows={live_sessions}
-                class="hidden sm:block"
-                on_row_click="session-picked"
-                row_attributes_fun={fn row -> %{"phx-value-socket_id" => row.socket_id} end}
-              >
-                <:column :let={session} label="Module" class="font-medium">
-                  <%= session.module %>
-                </:column>
-                <:column :let={session} label="PID">
-                  <%= Parsers.pid_to_string(session.pid) %>
-                </:column>
-                <:column :let={session} label="Socket"><%= session.socket_id %></:column>
-              </.table>
-              <.list
-                elements={live_sessions}
-                class="sm:hidden"
-                on_element_click="session-picked"
-                element_attributes_fun={fn elem -> %{"phx-value-socket_id" => elem.socket_id} end}
-              >
-                <:title :let={session}>
-                  <%= session.module %>
-                </:title>
-                <:description :let={session}>
-                  <%= Parsers.pid_to_string(session.pid) %> · <%= session.socket_id %>
-                </:description>
-              </.list>
-            <% end %>
-          </div>
-        </.async_result>
+            </:loading>
+            <:failed>
+              <.alert variant="danger" with_icon heading="Error fetching LiveSessions">
+                Check logs for more
+              </.alert>
+            </:failed>
+            <div>
+              <%= if Enum.empty?(live_sessions)  do %>
+                <div class="text-gray-600">
+                  No LiveSessions found - try refreshing.
+                </div>
+              <% else %>
+                <.table
+                  rows={live_sessions}
+                  class="hidden sm:block"
+                  on_row_click="session-picked"
+                  row_attributes_fun={fn row -> %{"phx-value-socket_id" => row.socket_id} end}
+                >
+                  <:column :let={session} label="Module" class="font-medium">
+                    <%= session.module %>
+                  </:column>
+                  <:column :let={session} label="PID">
+                    <%= Parsers.pid_to_string(session.pid) %>
+                  </:column>
+                  <:column :let={session} label="Socket"><%= session.socket_id %></:column>
+                </.table>
+                <.list
+                  elements={live_sessions}
+                  class="sm:hidden"
+                  on_element_click="session-picked"
+                  element_attributes_fun={fn elem -> %{"phx-value-socket_id" => elem.socket_id} end}
+                >
+                  <:title :let={session}>
+                    <%= session.module %>
+                  </:title>
+                  <:description :let={session}>
+                    <%= Parsers.pid_to_string(session.pid) %> · <%= session.socket_id %>
+                  </:description>
+                </.list>
+              <% end %>
+            </div>
+          </.async_result>
+        </div>
       </div>
     </div>
     """
