@@ -147,6 +147,7 @@ defmodule LiveDebugger.Components do
   attr(:id, :string, required: true)
   attr(:title, :string, required: true)
   attr(:class, :any, default: nil)
+  attr(:inner_class, :any, default: nil)
   attr(:open, :boolean, default: true)
 
   slot(:right_panel)
@@ -160,7 +161,7 @@ defmodule LiveDebugger.Components do
         title={@title}
         open={@open}
         class="bg-white rounded-sm w-full"
-        label_class="h-12 p-2 lg:pl-4 lg:pointer-events-none pointer-events-auto border-b border-primary-100"
+        label_class="h-12 p-2 lg:pl-4 lg:pointer-events-none pointer-events-auto border-b border-secondary-100"
         chevron_class="lg:hidden flex text-primary-900"
       >
         <:label>
@@ -171,7 +172,7 @@ defmodule LiveDebugger.Components do
             </div>
           </div>
         </:label>
-        <div class="w-full flex overflow-auto rounded-sm bg-white p-2">
+        <div class={["w-full flex overflow-auto rounded-sm bg-white p-2" | List.wrap(@inner_class)]}>
           <%= render_slot(@inner_block) %>
         </div>
       </.collapsible>
@@ -188,14 +189,13 @@ defmodule LiveDebugger.Components do
   @doc """
   Typography component to render headings.
   """
-
   attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
   attr(:rest, :global)
   slot(:inner_block, required: true)
 
   def h1(assigns) do
     ~H"""
-    <h1 class={["text-xl font-semibold text-primary" | List.wrap(@class)]} {@rest}>
+    <h1 class={["text-xl font-semibold" | List.wrap(@class)]} {@rest}>
       <%= render_slot(@inner_block) %>
     </h1>
     """
@@ -368,8 +368,8 @@ defmodule LiveDebugger.Components do
         | List.wrap(@class)
       ]}
     >
-      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-primary-100">
-        <div class="font-semibold text-base text-primary"><%= @title %></div>
+      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-secondary-100">
+        <div class="font-semibold text-base"><%= @title %></div>
         <.icon_button
           id={"#{@id}-close"}
           icon="icon-cross-small"
@@ -440,7 +440,7 @@ defmodule LiveDebugger.Components do
     <svg
       {@rest}
       class={
-        ["animate-spin text-primary", @size_class, unless(@show, do: "hidden")] ++
+        ["animate-spin", @size_class, unless(@show, do: "hidden")] ++
           List.wrap(@class)
       }
       xmlns="http://www.w3.org/2000/svg"

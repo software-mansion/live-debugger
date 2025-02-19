@@ -29,7 +29,7 @@ defmodule LiveDebugger.Components.Tree do
 
   def tree(assigns) do
     ~H"""
-    <div class={["w-full overflow-y-auto flex flex-col text-primary", @class]}>
+    <div class={["w-full overflow-y-auto flex flex-col", @class]}>
       <div class="shrink-0 font-medium text-secondary-600 px-6 py-3"><%= @title %></div>
       <div class="w-full px-1 overflow-y-auto">
         <.tree_node
@@ -157,7 +157,7 @@ defmodule LiveDebugger.Components.Tree do
           class="w-full flex overflow-x-hidden"
         >
           <div class={[
-            "text-primary truncate",
+            "truncate",
             if(@selected?, do: "font-medium")
           ]}>
             <%= @node.label %>

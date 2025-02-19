@@ -50,7 +50,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   def render(assigns) do
     ~H"""
     <div class="max-w-full">
-      <.collapsible_section title="Callback traces" id="traces">
+      <.collapsible_section title="Callback traces" id="traces" inner_class="p-4">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <.toggle_tracing_button myself={@myself} tracing_started?={@tracing_started?} />
@@ -165,18 +165,18 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     <.collapsible
       id={@id}
       icon="icon-chevron-right"
-      chevron_class="w-5 h-5"
-      class="max-w-full border border-primary-100 rounded"
-      label_class="text-primary text-sm font-semibold bg-primary-50 h-10 p-2"
+      chevron_class="w-5 h-5 text-primary-900"
+      class="max-w-full border border-secondary-200 rounded"
+      label_class="font-semibold bg-secondary-50 h-10 p-2"
     >
       <:label>
         <div class="w-[90%] grow flex items-center ml-2 gap-1.5">
-          <div class="flex gap-1.5">
-            <p class="text-primary font-medium"><%= @callback_name %></p>
+          <div class="flex gap-1.5 items-center">
+            <p class="font-medium text-sm"><%= @callback_name %></p>
             <.aggregate_count :if={@trace.counter > 1} count={@trace.counter} />
           </div>
           <.short_trace_content trace={@trace} />
-          <p class="w-max text-xs font-normal text-secondary align-center">
+          <p class="w-max text-xs font-normal text-secondary-600 align-center">
             <%= Parsers.parse_timestamp(@trace.timestamp) %>
           </p>
         </div>
@@ -209,7 +209,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   defp aggregate_count(assigns) do
     ~H"""
-    <span class="rounded-full bg-white border border-primary-200 text-primary text-2xs px-1.5">
+    <span class="rounded-full bg-white border border-secondary-200  text-2xs px-1.5">
       +<%= assigns.count %>
     </span>
     """
@@ -219,7 +219,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     assigns = assign(assigns, :content, Enum.map_join(assigns.trace.args, " ", &inspect/1))
 
     ~H"""
-    <div class="grow shrink text-secondary font-mono font-normal text-3xs truncate">
+    <div class="grow shrink text-secondary-600 font-mono font-normal text-3xs truncate">
       <p class="hide-on-open mt-0.5"><%= @content %></p>
     </div>
     """
