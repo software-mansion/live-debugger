@@ -130,23 +130,16 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   attr(:myself, :any, required: true)
 
   defp toggle_tracing_button(assigns) do
-    {icon, text} =
-      if assigns.tracing_started? do
-        {"icon-stop", "Stop"}
-      else
-        {"icon-play", "Start"}
-      end
-
-    assigns =
-      assigns
-      |> assign(:icon, icon)
-      |> assign(:text, text)
-
     ~H"""
     <.button phx-click="switch-tracing" phx-target={@myself} class="flex gap-2" size="sm">
       <div class="flex gap-1.5 items-center w-12">
-        <.icon name={@icon} class="w-4 h-4" />
-        <div><%= @text %></div>
+        <%= if @tracing_started? do %>
+          <.icon name="icon-stop" class="w-4 h-4" />
+          <div>Stop</div>
+        <% else %>
+          <.icon name="icon-play" class="w-3.5 h-3.5" />
+          <div>Start</div>
+        <% end %>
       </div>
     </.button>
     """
