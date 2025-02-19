@@ -54,7 +54,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         <:right_panel>
           <div class="flex gap-2 items-center">
             <.toggle_tracing_button myself={@myself} tracing_started?={@tracing_started?} />
-            <.button variant="secondary" phx-click="clear-traces" phx-target={@myself}>
+            <.button variant="secondary" size="sm" phx-click="clear-traces" phx-target={@myself}>
               Clear
             </.button>
           </div>
@@ -143,7 +143,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       |> assign(:text, text)
 
     ~H"""
-    <.button phx-click="switch-tracing" phx-target={@myself} class="flex gap-2">
+    <.button phx-click="switch-tracing" phx-target={@myself} class="flex gap-2" size="sm">
       <div class="flex gap-1.5 items-center w-12">
         <.icon name={@icon} class="w-4 h-4" />
         <div><%= @text %></div>

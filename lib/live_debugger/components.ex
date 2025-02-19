@@ -43,6 +43,7 @@ defmodule LiveDebugger.Components do
 
   """
   attr(:variant, :string, default: "primary", values: ["primary", "secondary", "tertiary"])
+  attr(:size, :string, default: "md", values: ["md", "sm"])
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
   attr(:rest, :global)
   slot(:inner_block, required: true)
@@ -52,8 +53,9 @@ defmodule LiveDebugger.Components do
     <button
       class={
         [
-          "w-max h-max py-2 px-3 rounded text-xs font-semibold",
-          button_color_classes(@variant)
+          "w-max h-max rounded text-xs font-semibold",
+          button_color_classes(@variant),
+          button_size_classes(@size)
         ] ++
           List.wrap(@class)
       }
@@ -532,4 +534,7 @@ defmodule LiveDebugger.Components do
         "bg-transparent text-primary-900 border border-primary-900 hover:bg-secondary-50"
     end
   end
+
+  defp button_size_classes("md"), do: "py-2 px-3"
+  defp button_size_classes("sm"), do: "py-1.5 px-2"
 end
