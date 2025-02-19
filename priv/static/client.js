@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let dragging = false;
 
   const onMouseDown = (event) => {
-    if (event.button !== 0) return;
+    if (event.button !== 0 || event.ctrlKey) return;
     event.preventDefault();
     posXStart = event.clientX;
     posYStart = event.clientY;
@@ -71,6 +71,19 @@ document.addEventListener("DOMContentLoaded", function () {
     document.removeEventListener("mousemove", onMouseMove);
     document.removeEventListener("mouseup", onMouseUp);
     debugButton.style.cursor = "grab";
+
+    if (debugButton.offsetTop < 0) {
+      debugButton.style.top = debugButton.style.bottom;
+    };
+    if (debugButton.offsetTop + debugButton.clientHeight > window.innerHeight) {
+      debugButton.style.top = '';
+    };
+    if (debugButton.offsetLeft < 0) {
+      debugButton.style.left = debugButton.style.right;
+    };
+    if (debugButton.offsetLeft + debugButton.clientWidth > window.innerWidth) {
+      debugButton.style.left = '';
+    };
   };
 
   const onClick = (event) => {
@@ -79,6 +92,15 @@ document.addEventListener("DOMContentLoaded", function () {
       dragging = false;
     }
   };
+
+  window.addEventListener('resize', () => {
+    if (debugButton.offsetLeft + debugButton.clientWidth + Number.parseInt(debugButton.style.right) > window.innerWidth) {
+      debugButton.style.left = '';
+    }
+    if (debugButton.offsetTop + debugButton.clientHeight + Number.parseInt(debugButton.style.bottom) > window.innerHeight) {
+      debugButton.style.top = '';
+    }
+  })
 
   debugButton.addEventListener("mousedown", onMouseDown);
   debugButton.addEventListener("click", onClick);
