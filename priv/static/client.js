@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let dragging = false;
 
   const onMouseDown = (event) => {
-    if (event.button !== 0) return;
+    if (event.button !== 0 || event.ctrlKey) return;
     event.preventDefault();
     posXStart = event.clientX;
     posYStart = event.clientY;
