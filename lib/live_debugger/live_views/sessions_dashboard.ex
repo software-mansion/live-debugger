@@ -20,12 +20,12 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full bg-primary-100 flex flex-col items-center">
+    <div class="w-full h-full flex flex-col items-center">
       <.topbar return_link?={false} />
       <div class="w-full h-full p-8 xl:w-2/3">
         <div class="flex gap-4 items-center justify-between">
-          <div class="text-primary font-semibold text-2xl">Active LiveSessions</div>
-          <.button phx-click="refresh" variant="outline">
+          <.h1>Active LiveSessions</.h1>
+          <.button phx-click="refresh" variant="tertiary">
             <div class="flex items-center gap-2">
               <.icon name="icon-refresh" class="w-4 h-4" />
               <p>Refresh</p>
@@ -33,50 +33,55 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
           </.button>
         </div>
 
-        <.async_result :let={live_sessions} assign={@live_sessions}>
-          <:loading>
-            <div class="h-full flex items-center justify-center">
-              <.spinner size="xl" />
-            </div>
-          </:loading>
-          <:failed><.error_component /></:failed>
-
-          <div class="mt-6">
-            <%= if Enum.empty?(live_sessions)  do %>
-              <div class="text-gray-600">
-                No LiveSessions found - try refreshing.
+        <div class="mt-6">
+          <.async_result :let={live_sessions} assign={@live_sessions}>
+            <:loading>
+              <div class="flex items-center justify-center">
+                <.spinner size="md" />
               </div>
-            <% else %>
-              <.table
-                rows={live_sessions}
-                class="hidden sm:block"
-                on_row_click="session-picked"
-                row_attributes_fun={fn row -> %{"phx-value-socket_id" => row.socket_id} end}
-              >
-                <:column :let={session} label="Module" class="font-semibold">
-                  <%= session.module %>
-                </:column>
-                <:column :let={session} label="PID">
-                  <%= Parsers.pid_to_string(session.pid) %>
-                </:column>
-                <:column :let={session} label="Socket"><%= session.socket_id %></:column>
-              </.table>
-              <.list
-                elements={live_sessions}
-                class="sm:hidden"
-                on_element_click="session-picked"
-                element_attributes_fun={fn elem -> %{"phx-value-socket_id" => elem.socket_id} end}
-              >
-                <:title :let={session}>
-                  <%= session.module %>
-                </:title>
-                <:description :let={session}>
-                  <%= Parsers.pid_to_string(session.pid) %> · <%= session.socket_id %>
-                </:description>
-              </.list>
-            <% end %>
-          </div>
-        </.async_result>
+            </:loading>
+            <:failed>
+              <.alert variant="danger" with_icon heading="Error fetching LiveSessions">
+                Check logs for more
+              </.alert>
+            </:failed>
+            <div>
+              <%= if Enum.empty?(live_sessions)  do %>
+                <div class="text-gray-600">
+                  No LiveSessions found - try refreshing.
+                </div>
+              <% else %>
+                <.table
+                  rows={live_sessions}
+                  class="hidden sm:block"
+                  on_row_click="session-picked"
+                  row_attributes_fun={fn row -> %{"phx-value-socket_id" => row.socket_id} end}
+                >
+                  <:column :let={session} label="Module" class="font-medium">
+                    <%= session.module %>
+                  </:column>
+                  <:column :let={session} label="PID">
+                    <%= Parsers.pid_to_string(session.pid) %>
+                  </:column>
+                  <:column :let={session} label="Socket"><%= session.socket_id %></:column>
+                </.table>
+                <.list
+                  elements={live_sessions}
+                  class="sm:hidden"
+                  on_element_click="session-picked"
+                  element_attributes_fun={fn elem -> %{"phx-value-socket_id" => elem.socket_id} end}
+                >
+                  <:title :let={session}>
+                    <%= session.module %>
+                  </:title>
+                  <:description :let={session}>
+                    <%= Parsers.pid_to_string(session.pid) %> · <%= session.socket_id %>
+                  </:description>
+                </.list>
+              <% end %>
+            </div>
+          </.async_result>
+        </div>
       </div>
     </div>
     """
