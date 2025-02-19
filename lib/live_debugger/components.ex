@@ -232,8 +232,8 @@ defmodule LiveDebugger.Components do
   )
 
   attr(:variant, :string,
-    default: "solid",
-    values: ["solid", "outline", "invert"],
+    default: "primary",
+    values: ["primary", "secondary", "tertiary"],
     doc: "Variant of the button."
   )
 
@@ -373,7 +373,7 @@ defmodule LiveDebugger.Components do
         <.icon_button
           id={"#{@id}-close"}
           icon="icon-cross-small"
-          variant="invert"
+          variant="secondary"
           size="sm"
           phx-hook="CloseFullscreen"
           data-fullscreen-id={@id}
@@ -408,7 +408,7 @@ defmodule LiveDebugger.Components do
       size="sm"
       data-fullscreen-id={@id}
       class={@class}
-      variant="invert"
+      variant="secondary"
     />
     """
   end
@@ -530,10 +530,6 @@ defmodule LiveDebugger.Components do
 
       "tertiary" ->
         "bg-transparent text-primary-900 border border-primary-900 hover:bg-secondary-50"
-
-      # TODO
-      _ ->
-        "bg-red-500"
     end
   end
 end

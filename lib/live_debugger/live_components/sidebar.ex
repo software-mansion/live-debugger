@@ -148,7 +148,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         <.icon_button
           icon="icon-cross-small"
           class="absolute top-4 right-4"
-          variant="invert"
+          variant="primary"
           size="sm"
           phx-click="close_mobile_content"
           phx-target={@myself}

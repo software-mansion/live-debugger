@@ -54,7 +54,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         <:right_panel>
           <div class="flex gap-2 items-center">
             <.toggle_tracing_button myself={@myself} tracing_started?={@tracing_started?} />
-            <.button variant="invert" phx-click="clear-traces" phx-target={@myself}>
+            <.button variant="secondary" phx-click="clear-traces" phx-target={@myself}>
               Clear
             </.button>
           </div>
