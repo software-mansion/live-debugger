@@ -121,7 +121,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp sidebar_content(assigns) do
     ~H"""
-    <div class="flex flex-col gap-2 max-h-full h-max">
+    <div class="flex flex-col max-h-full h-max">
       <.basic_info pid={@pid} socket_id={@socket_id} />
       <.component_tree
         tree={@tree}
@@ -147,7 +147,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         <.icon_button
           icon="icon-cross-small"
           class="absolute top-4 right-4"
-          variant="primary"
+          variant="secondary"
           size="sm"
           phx-click="close_mobile_content"
           phx-target={@myself}
@@ -193,7 +193,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     ~H"""
     <.async_result :let={tree} assign={@tree}>
       <:loading>
-        <div class="w-full flex justify-center mt-5"><.spinner class="text-primary" /></div>
+        <div class="w-full flex justify-center mt-5"><.spinner size="sm" /></div>
       </:loading>
       <:failed :let={_error}>
         <.alert variant="danger">Couldn't load a tree</.alert>

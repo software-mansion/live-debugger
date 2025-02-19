@@ -30,8 +30,8 @@ defmodule LiveDebugger.Components.Tree do
   def tree(assigns) do
     ~H"""
     <div class={["w-full overflow-y-auto flex flex-col text-primary", @class]}>
-      <div class="shrink-0 font-mono font-medium text-primary text-xs px-6 py-3"><%= @title %></div>
-      <div class="w-full px-2 text-xs leading-5 overflow-y-auto">
+      <div class="shrink-0 font-medium text-secondary-600 px-6 py-3"><%= @title %></div>
+      <div class="w-full px-1 overflow-y-auto">
         <.tree_node
           tree_node={@tree_node}
           selected_node_id={@selected_node_id}
@@ -87,9 +87,9 @@ defmodule LiveDebugger.Components.Tree do
         <.collapsible
           :if={@collapsible?}
           id={"collapsible-" <> @tree_node.parsed_id}
-          chevron_class="text-primary h-5 w-5"
+          chevron_class="text-primary-900 h-5 w-5"
           open={@open}
-          label_class="w-full rounded-md py-1 hover:bg-primary-100"
+          label_class="w-full rounded-md py-1 hover:bg-secondary-100"
           label_style={style_for_padding(@level, @collapsible?)}
         >
           <:label>
@@ -143,14 +143,14 @@ defmodule LiveDebugger.Components.Tree do
       phx-value-node_id={@node.parsed_id}
       phx-target={@event_target}
       class={[
-        "flex w-full rounded-md hover:bg-primary-100",
+        "flex w-full rounded-md hover:bg-secondary-100",
         unless(@collapsible?, do: "p-1"),
         @class
       ]}
       style={unless(@collapsible?, do: @padding_style)}
     >
-      <div class="flex w-full gap-0.5 items-center text-primary">
-        <.icon name={@node.icon} class="w-5 h-5 shrink-0" />
+      <div class="flex w-full gap-0.5 items-center">
+        <.icon name={@node.icon} class="text-primary-900 w-5 h-5 shrink-0" />
         <.tooltip
           id={"tree_node_" <> @node.parsed_id}
           content={@node.tooltip}
@@ -158,7 +158,7 @@ defmodule LiveDebugger.Components.Tree do
         >
           <div class={[
             "text-primary truncate",
-            if(@selected?, do: "font-semibold")
+            if(@selected?, do: "font-medium")
           ]}>
             <%= @node.label %>
           </div>
