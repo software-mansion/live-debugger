@@ -31,7 +31,7 @@ defmodule LiveDebugger.Components do
     >
       <div class="flex items-center gap-2">
         <.alert_icon :if={@with_icon} variant={@variant} />
-        <p class="text-base font-medium">{@heading}</p>
+        <p class="text-base font-medium"><%= @heading %></p>
       </div>
       <%= render_slot(@inner_block) %>
     </div>
@@ -498,54 +498,6 @@ defmodule LiveDebugger.Components do
       </.link>
       <span>LiveDebugger</span>
       <%= @inner_block && render_slot(@inner_block) %>
-    </div>
-    """
-  end
-
-  attr(:socket, :any, required: true)
-
-  # TODO
-  def not_found_component(assigns) do
-    ~H"""
-    <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="icon-exclamation-circle" class="w-16 h-16" />
-      <%!-- <.h2 class="text-center">Debugger disconnected</.h2>
-      <.h5 class="text-center">
-        We couldn't find any LiveView associated with the given socket id
-      </.h5> --%>
-      <.link class="text-gray-600 underline" navigate="/">
-        See available LiveSessions
-      </.link>
-    </div>
-    """
-  end
-
-  # TODO
-
-  def error_component(assigns) do
-    ~H"""
-    <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="icon-exclamation-circle" class="w-16 h-16" />
-      <%!-- <.h2 class="text-center">Unexpected error</.h2>
-      <.h5 class="text-center">
-        Debugger encountered unexpected error - check logs for more
-      </.h5> --%>
-      <span>You can close this window</span>
-    </div>
-    """
-  end
-
-  # TODO
-
-  def session_limit_component(assigns) do
-    ~H"""
-    <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="icon-exclamation-circle" class="w-16 h-16" />
-      <%!-- <.h2 class="text-center">Session limit reached</.h2>
-      <.h5 class="text-center"> --%>
-      <%!-- In OTP 26 and older versions you can open only one debugger window.
-      </.h5> --%>
-      <span>You can close this window</span>
     </div>
     """
   end
