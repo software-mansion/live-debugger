@@ -15,6 +15,11 @@ defmodule LiveDebugger.Endpoint do
     longpoll: true
   )
 
+
+  if Mix.env() == :dev do
+    plug(Plug.Static, at: "/assets", from: {:live_debugger, "priv/static/dev"}, gzip: false)
+  end
+
   plug(Plug.Static, at: "/assets", from: :live_debugger, gzip: false)
 
   plug(Plug.Session, @session_options)
