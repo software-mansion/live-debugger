@@ -332,7 +332,7 @@ defmodule LiveDebugger.Components do
     <div class={["flex flex-col gap-2" | List.wrap(@class)]}>
       <div
         :for={elem <- @elements}
-        class={"h-20 bg-white rounded shadow-custom #{if @on_element_click, do: "cursor-pointer hover:bg-secondary-50"}"}
+        class={"h-20 bg-white rounded shadow-custom border border-secondary-200 #{if @on_element_click, do: "cursor-pointer hover:bg-secondary-50"}"}
         phx-click={@on_element_click}
         phx-target={@element_click_target}
         {@element_attributes_fun.(elem)}
