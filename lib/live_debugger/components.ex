@@ -497,7 +497,7 @@ defmodule LiveDebugger.Components do
 
   def topbar(assigns) do
     ~H"""
-    <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-primary-900 text-white text-sm font-mono font-medium">
+    <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-primary-900 text-white text-sm font-topbar font-medium">
       <.link :if={@return_link?} patch="/">
         <.icon_button icon="icon-arrow-left" size="md" />
       </.link>
