@@ -17,7 +17,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   @impl true
   def mount(socket) do
     socket
-    |> assign(:tracing_started?, true)
+    |> assign(:tracing_started?, false)
     |> ok()
   end
 
