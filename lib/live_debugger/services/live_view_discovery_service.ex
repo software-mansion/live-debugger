@@ -36,7 +36,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
       {:error, _} -> false
     end)
     |> case do
-      # TODO This is temporary to make fetching module easier for session dashboard
+      # This is temporary to make fetching module easier for session dashboard
       {pid, {:ok, %{socket: %{view: module}}}} -> {pid, module}
       nil -> nil
     end
