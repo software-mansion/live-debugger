@@ -157,7 +157,10 @@ defmodule LiveDebugger.Components do
 
   def collapsible_section(assigns) do
     ~H"""
-    <div class={["w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom" | List.wrap(@class)]}>
+    <div class={[
+      "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom border border-secondary-200"
+      | List.wrap(@class)
+    ]}>
       <.collapsible
         id={@id}
         title={@title}
@@ -280,7 +283,7 @@ defmodule LiveDebugger.Components do
 
   def table(assigns) do
     ~H"""
-    <div class={["p-4 bg-white rounded shadow-custom" | List.wrap(@class)]}>
+    <div class={["p-4 bg-white rounded shadow-custom border border-secondary-200" | List.wrap(@class)]}>
       <table class="w-full">
         <thead class="border-b border-secondary-200">
           <tr class="h-11 mx-16">
