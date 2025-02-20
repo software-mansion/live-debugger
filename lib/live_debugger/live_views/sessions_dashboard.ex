@@ -47,8 +47,8 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
             </:failed>
             <div>
               <%= if Enum.empty?(live_sessions)  do %>
-                <div class="text-gray-600">
-                  No active LiveViews found - try refreshing.
+                <div class="p-4 bg-white rounded shadow-custom border border-secondary-200">
+                  <p class="text-secondary-500 text-center">No active LiveViews</p>
                 </div>
               <% else %>
                 <.table
