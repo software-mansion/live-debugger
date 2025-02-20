@@ -31,3 +31,4 @@ live_debugger-*.tar
 
 node_modules/
 
+/priv/static/dev/
