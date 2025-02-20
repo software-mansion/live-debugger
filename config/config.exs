@@ -6,13 +6,13 @@ import Config
 if config_env() == :dev do
   config :esbuild,
     version: "0.18.6",
-    default: [
+    deploy_build: [
       args:
         ~w(js/app.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/),
       cd: Path.expand("../assets", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ],
-    dev: [
+    dev_build: [
       args:
         ~w(js/app.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/dev),
       cd: Path.expand("../assets", __DIR__),
@@ -21,7 +21,7 @@ if config_env() == :dev do
 
   config :tailwind,
     version: "3.4.3",
-    live_debugger: [
+    deploy_build: [
       args: ~w(
       --config=tailwind.config.js
       --input=css/app.css
@@ -30,7 +30,7 @@ if config_env() == :dev do
     ),
       cd: Path.expand("../assets", __DIR__)
     ],
-    live_debugger_dev: [
+    dev_build: [
       args: ~w(
       --config=tailwind.config.js
       --input=css/app.css

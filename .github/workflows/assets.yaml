@@ -46,7 +46,7 @@ jobs:
         run: mix "assets.setup"
 
       - name: Build assets
-        run: mix "assets.build"
+        run: mix "assets.build:deploy"
 
       - name: Push updated assets
         id: push_assets
