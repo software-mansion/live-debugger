@@ -24,7 +24,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
       <.topbar return_link?={false} />
       <div class="w-full h-full p-8 xl:w-2/3">
         <div class="flex gap-4 items-center justify-between">
-          <.h1>Active LiveSessions</.h1>
+          <.h1>Active LiveViews</.h1>
           <.button phx-click="refresh" variant="tertiary">
             <div class="flex items-center gap-2">
               <.icon name="icon-refresh" class="w-4 h-4" />
@@ -41,14 +41,14 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
               </div>
             </:loading>
             <:failed>
-              <.alert variant="danger" with_icon heading="Error fetching LiveSessions">
+              <.alert variant="danger" with_icon heading="Error fetching active LiveViews">
                 Check logs for more
               </.alert>
             </:failed>
             <div>
               <%= if Enum.empty?(live_sessions)  do %>
                 <div class="text-gray-600">
-                  No LiveSessions found - try refreshing.
+                  No active LiveViews found - try refreshing.
                 </div>
               <% else %>
                 <.table
