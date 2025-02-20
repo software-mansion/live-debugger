@@ -75,9 +75,9 @@ defmodule LiveDebugger.LiveComponents.TracesList do
                 :if={@existing_traces_status == :error}
                 variant="danger"
                 with_icon
-                heading="Error fetching historical traces"
+                heading="Error fetching historical callback traces"
               >
-                The new traces still will be displayed as they come. Check logs for more
+                New events will still be displayed as they come. Check logs for more information
               </.alert>
             </div>
             <%= for {dom_id, trace} <- @streams.existing_traces do %>
@@ -212,7 +212,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     assigns = assign(assigns, :content, Enum.map_join(assigns.trace.args, " ", &inspect/1))
 
     ~H"""
-    <div class="grow shrink text-secondary-600 font-mono font-normal text-3xs truncate">
+    <div class="grow shrink text-secondary-600 font-code font-normal text-3xs truncate">
       <p class="hide-on-open mt-0.5"><%= @content %></p>
     </div>
     """
