@@ -24,14 +24,14 @@ defmodule LiveDebugger.Components do
     ~H"""
     <div
       class={[
-        "bg-#{@variant}-100 border border-#{@variant}-400 text-#{@variant}-700 p-2 flex flex-col gap-1 text-sm rounded-lg"
+        "bg-#{@variant}-50 border border-#{@variant}-100 text-#{@variant}-800 text-sm p-2 flex flex-col gap-1 rounded-lg"
         | List.wrap(@class)
       ]}
       {@rest}
     >
       <div class="flex items-center gap-2">
         <.alert_icon :if={@with_icon} variant={@variant} />
-        <p class="text-base font-medium"><%= @heading %></p>
+        <p class="font-medium"><%= @heading %></p>
       </div>
       <%= render_slot(@inner_block) %>
     </div>
@@ -510,18 +510,18 @@ defmodule LiveDebugger.Components do
   attr(:variant, :string, required: true, values: ["danger", "success", "warning", "info"])
 
   defp alert_icon(assigns) do
-    icon_name =
+    {icon_name, icon_class} =
       case assigns.variant do
-        "danger" -> "icon-x-circle"
-        "success" -> "icon-check-circle"
-        "warning" -> "icon-exclamation-circle"
-        "info" -> "icon-information-circle"
+        "danger" -> {"icon-x-circle", "text-danger-800"}
+        "success" -> {"icon-check-circle", "text-success-800"}
+        "warning" -> {"icon-exclamation-circle", "text-warning-800"}
+        "info" -> {"icon-information-circle", "text-info-800"}
       end
 
-    assigns = assign(assigns, :name, icon_name)
+    assigns = assign(assigns, name: icon_name, class: icon_class)
 
     ~H"""
-    <.icon name={@name} class="text-{@variant}-700" />
+    <.icon name={@name} class={@class} />
     """
   end
 

@@ -75,9 +75,9 @@ defmodule LiveDebugger.LiveComponents.TracesList do
                 :if={@existing_traces_status == :error}
                 variant="danger"
                 with_icon
-                heading="Error fetching historical traces"
+                heading="Error fetching historical callback traces"
               >
-                The new traces still will be displayed as they come. Check logs for more
+                New events will still be displayed as they come. Check logs for more information
               </.alert>
             </div>
             <%= for {dom_id, trace} <- @streams.existing_traces do %>

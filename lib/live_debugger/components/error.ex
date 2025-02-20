@@ -36,7 +36,9 @@ defmodule LiveDebugger.Components.Error do
     ~H"""
     <.error_component>
       <:heading>Unexpected error</:heading>
-      <:description>Debugger encountered unexpected error - check logs for more</:description>
+      <:description>
+        Debugger encountered unexpected error. Check logs for more information
+      </:description>
     </.error_component>
     """
   end
@@ -45,7 +47,7 @@ defmodule LiveDebugger.Components.Error do
     ~H"""
     <.error_component>
       <:heading>Session limit reached</:heading>
-      <:description>In OTP 26 and older versions you can open only one debugger window.</:description>
+      <:description>In OTP 26 and older versions you can open only one debugger window</:description>
     </.error_component>
     """
   end
