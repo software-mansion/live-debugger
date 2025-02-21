@@ -64,6 +64,11 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                     <%= Parsers.pid_to_string(session.pid) %>
                   </:column>
                   <:column :let={session} label="Socket"><%= session.socket_id %></:column>
+                  <:column :let={session}>
+                    <.nested_badge :if={
+                      session.socket_id |> String.starts_with?("phx-") |> Kernel.not()
+                    } />
+                  </:column>
                 </.table>
                 <.list
                   elements={live_sessions}
