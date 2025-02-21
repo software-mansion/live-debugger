@@ -281,7 +281,6 @@ defmodule LiveDebugger.Components do
     attr(:class, :any)
   end
 
-  @spec table(map()) :: Phoenix.LiveView.Rendered.t()
   def table(assigns) do
     ~H"""
     <div class={["p-4 bg-white rounded shadow-custom border border-secondary-200" | List.wrap(@class)]}>
