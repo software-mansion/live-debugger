@@ -50,7 +50,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         </:failed>
         <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
           <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:items-end">
-            <.info_section node={node} node_type={@node_type.result} />
+            <.info_section node={node} node_type={@node_type.result} socket_id={@socket_id} />
             <.assigns_section assigns={node.assigns} />
             <.fullscreen id="assigns-display-fullscreen" title="Assigns">
               <ElixirDisplay.term
@@ -76,10 +76,14 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   attr(:node, :any, required: true)
   attr(:node_type, :atom, required: true)
+  attr(:socket_id, :string, default: "")
 
   defp info_section(assigns) do
     ~H"""
     <.collapsible_section id="info" title={title(@node_type)}>
+      <:right_panel>
+        <.nested_badge :if={@node_type == :live_view and LiveDebugger.Utils.nested?(@socket_id)} />
+      </:right_panel>
       <div class="p-4 flex flex-col gap-1">
         <.info_row name="Module" value={inspect(@node.module)} />
         <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
