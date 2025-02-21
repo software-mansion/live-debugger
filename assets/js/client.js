@@ -3,12 +3,12 @@
 
 // Fetch LiveDebugger URL
 const URL = document
-  .getElementById("live-debugger-scripts")
-  .src.replace("/assets/client.js", "");
+  .getElementById('live-debugger-scripts')
+  .src.replace('/assets/client.js', '');
 
 // Debug button
-document.addEventListener("DOMContentLoaded", function () {
-  const session_id = document.querySelector("[data-phx-main]").id;
+document.addEventListener('DOMContentLoaded', function () {
+  const session_id = document.querySelector('[data-phx-main]').id;
   const debugButtonHtml = /*html*/ `
       <div id="debug-button" style="
         position: fixed;
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
       </div>
   `;
 
-  const tempDiv = document.createElement("div");
+  const tempDiv = document.createElement('div');
   tempDiv.innerHTML = debugButtonHtml;
   const debugButton = tempDiv.firstElementChild;
   document.body.appendChild(debugButton);
@@ -50,9 +50,9 @@ document.addEventListener("DOMContentLoaded", function () {
     event.preventDefault();
     posXStart = event.clientX;
     posYStart = event.clientY;
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
-    debugButton.style.cursor = "grabbing";
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    debugButton.style.cursor = 'grabbing';
     dragging = false;
   };
 
@@ -68,22 +68,22 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   const onMouseUp = () => {
-    document.removeEventListener("mousemove", onMouseMove);
-    document.removeEventListener("mouseup", onMouseUp);
-    debugButton.style.cursor = "grab";
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    debugButton.style.cursor = 'grab';
 
     if (debugButton.offsetTop < 0) {
       debugButton.style.top = debugButton.style.bottom;
-    };
+    }
     if (debugButton.offsetTop + debugButton.clientHeight > window.innerHeight) {
       debugButton.style.top = '';
-    };
+    }
     if (debugButton.offsetLeft < 0) {
       debugButton.style.left = debugButton.style.right;
-    };
+    }
     if (debugButton.offsetLeft + debugButton.clientWidth > window.innerWidth) {
       debugButton.style.left = '';
-    };
+    }
   };
 
   const onClick = (event) => {
@@ -94,16 +94,26 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   window.addEventListener('resize', () => {
-    if (debugButton.offsetLeft + debugButton.clientWidth + Number.parseInt(debugButton.style.right) > window.innerWidth) {
+    if (
+      debugButton.offsetLeft +
+        debugButton.clientWidth +
+        Number.parseInt(debugButton.style.right) >
+      window.innerWidth
+    ) {
       debugButton.style.left = '';
     }
-    if (debugButton.offsetTop + debugButton.clientHeight + Number.parseInt(debugButton.style.bottom) > window.innerHeight) {
+    if (
+      debugButton.offsetTop +
+        debugButton.clientHeight +
+        Number.parseInt(debugButton.style.bottom) >
+      window.innerHeight
+    ) {
       debugButton.style.top = '';
     }
-  })
+  });
 
-  debugButton.addEventListener("mousedown", onMouseDown);
-  debugButton.addEventListener("click", onClick);
+  debugButton.addEventListener('mousedown', onMouseDown);
+  debugButton.addEventListener('click', onClick);
 });
 
 // Finalize
