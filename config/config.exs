@@ -8,13 +8,13 @@ if config_env() == :dev do
     version: "0.18.6",
     deploy_build: [
       args:
-        ~w(js/app.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/),
+        ~w(js/app.js js/client.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/),
       cd: Path.expand("../assets", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ],
     dev_build: [
       args:
-        ~w(js/app.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/dev),
+        ~w(js/app.js js/client.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/dev),
       cd: Path.expand("../assets", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ]
