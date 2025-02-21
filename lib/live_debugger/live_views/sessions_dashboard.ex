@@ -65,9 +65,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                   </:column>
                   <:column :let={session} label="Socket"><%= session.socket_id %></:column>
                   <:column :let={session}>
-                    <.nested_badge :if={
-                      session.socket_id |> String.starts_with?("phx-") |> Kernel.not()
-                    } />
+                    <.nested_badge :if={nested?(session)} />
                   </:column>
                 </.table>
                 <.list
@@ -77,7 +75,10 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                   element_attributes_fun={fn elem -> %{"phx-value-socket_id" => elem.socket_id} end}
                 >
                   <:title :let={session}>
-                    <%= session.module %>
+                    <div class="flex items-center justify-between">
+                      <p class="shrink truncate"><%= session.module %></p>
+                      <.nested_badge :if={nested?(session)} />
+                    </div>
                   </:title>
                   <:description :let={session}>
                     <%= Parsers.pid_to_string(session.pid) %> · <%= session.socket_id %>
@@ -134,5 +135,9 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
       {:ok, %{socket: %{id: id, view: module}}} -> %{socket_id: id, module: module, pid: pid}
       _ -> :error
     end
+  end
+
+  defp nested?(session) do
+    session.socket_id |> String.starts_with?("phx-") |> Kernel.not()
   end
 end
