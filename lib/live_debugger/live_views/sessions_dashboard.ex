@@ -64,6 +64,9 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                     <%= Parsers.pid_to_string(session.pid) %>
                   </:column>
                   <:column :let={session} label="Socket"><%= session.socket_id %></:column>
+                  <:column :let={session}>
+                    <.nested_badge :if={LiveDebugger.Utils.nested?(session)} />
+                  </:column>
                 </.table>
                 <.list
                   elements={live_sessions}
@@ -72,7 +75,10 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                   element_attributes_fun={fn elem -> %{"phx-value-socket_id" => elem.socket_id} end}
                 >
                   <:title :let={session}>
-                    <%= session.module %>
+                    <div class="flex items-center justify-between">
+                      <p class="shrink truncate"><%= session.module %></p>
+                      <.nested_badge :if={LiveDebugger.Utils.nested?(session)} />
+                    </div>
                   </:title>
                   <:description :let={session}>
                     <%= Parsers.pid_to_string(session.pid) %> · <%= session.socket_id %>
