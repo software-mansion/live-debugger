@@ -53,6 +53,28 @@ let liveSocket = new LiveSocket('/live', Socket, {
   },
 });
 
+window.addEventListener('phx:historical-events', (e) => {
+  const tracesListDiv = document.querySelector(
+    `#${e.detail.trace_list_dom_id}`
+  );
+  let separator = document.querySelector('#separator');
+
+  if (separator) {
+    tracesListDiv.removeChild(separator);
+  } else {
+    separator = document.createElement('div');
+    separator.id = 'separator';
+    separator.innerHTML = `
+      Historical events
+      <div class="border-b h-0 border-primary-100"></div>
+    `;
+  }
+
+  if (!e.detail.trace_list_empty) {
+    tracesListDiv.prepend(separator);
+  }
+});
+
 // Show progress bar on live navigation and form submits
 topbar.config({ barColors: { 0: '#29d' }, shadowColor: 'rgba(0, 0, 0, .3)' });
 window.addEventListener('phx:page-loading-start', (_info) => topbar.show(300));

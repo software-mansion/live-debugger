@@ -95,6 +95,10 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     socket
     |> assign(existing_traces_status: :ok)
     |> stream(:existing_traces, trace_list, limit: @stream_limit)
+    |> push_event("historical-events", %{
+      trace_list_dom_id: "#{socket.assigns.id}-stream",
+      trace_list_empty: Enum.empty?(trace_list)
+    })
     |> noreply()
   end
 
