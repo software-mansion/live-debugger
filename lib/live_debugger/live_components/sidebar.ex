@@ -72,7 +72,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-max flex">
+    <div class="w-max flex bg-white shadow-custom border border-secondary-200">
       <div class="hidden sm:flex max-h-full flex-col w-64 gap-1">
         <.sidebar_content
           pid={@pid}
@@ -121,9 +121,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp sidebar_content(assigns) do
     ~H"""
-    <div class="flex flex-col gap-2 max-h-full h-max">
+    <div class="flex flex-col max-h-full h-max">
       <.basic_info pid={@pid} socket_id={@socket_id} />
-      <.separate_bar />
       <.component_tree
         tree={@tree}
         selected_node_id={@node_id}
@@ -148,7 +147,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         <.icon_button
           icon="icon-cross-small"
           class="absolute top-4 right-4"
-          variant="invert"
+          variant="secondary"
           size="sm"
           phx-click="close_mobile_content"
           phx-target={@myself}
@@ -168,7 +167,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp basic_info(assigns) do
     ~H"""
-    <div class="w-full p-6 shrink-0 flex flex-col gap-2 text-primary text-sm">
+    <div class="w-full p-6 shrink-0 flex flex-col gap-2 border-b border-secondary-200">
       <div
         :for={
           {text, value} <- [
@@ -178,8 +177,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         }
         class="w-full flex flex-col"
       >
-        <span class="font-semibold"><%= text %></span>
-        <span class="font-normal"><%= value %></span>
+        <span class="font-medium"><%= text %></span>
+        <span><%= value %></span>
       </div>
     </div>
     """
@@ -194,7 +193,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     ~H"""
     <.async_result :let={tree} assign={@tree}>
       <:loading>
-        <div class="w-full flex justify-center mt-5"><.spinner class="text-primary" /></div>
+        <div class="w-full flex justify-center mt-5"><.spinner size="sm" /></div>
       </:loading>
       <:failed :let={_error}>
         <.alert variant="danger">Couldn't load a tree</.alert>
@@ -208,12 +207,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         max_opened_node_level={@max_opened_node_level.result}
       />
     </.async_result>
-    """
-  end
-
-  defp separate_bar(assigns) do
-    ~H"""
-    <div class="border-b h-0 border-primary-100"></div>
     """
   end
 

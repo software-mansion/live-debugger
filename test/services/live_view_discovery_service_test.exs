@@ -41,7 +41,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       |> expect(:initial_call, fn _ -> {:"Elixir.SearchedLiveView", :mount} end)
       |> expect(:initial_call, 2, fn _ -> {:"Elixir.SomeLiveView", :mount} end)
 
-      assert LiveViewDiscoveryService.live_pid(socket_id) == pid
+      assert {^pid, _} = LiveViewDiscoveryService.live_pid(socket_id)
     end
 
     test "returns nil if no LiveView process of given socket_id", %{pid: pid} do

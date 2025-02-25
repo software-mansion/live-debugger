@@ -23,7 +23,7 @@ defmodule LiveDebugger.Components.ElixirDisplay do
       |> assign(:has_children?, has_children?(assigns.node))
 
     ~H"""
-    <div class="font-mono text-sm text-gray-500">
+    <div class="font-code text-gray-500">
       <div class="ml-[2ch]">
         <.text_items :if={!@has_children?} items={@node.content} />
       </div>

@@ -5,7 +5,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
   require Logger
 
-  alias LiveDebugger.Components
+  alias LiveDebugger.Components.Error
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
@@ -18,6 +18,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     socket
     |> assign(:socket_id, socket_id)
     |> assign(:tracing_session, nil)
+    |> assign(:debugged_module, nil)
     |> assign_rate_limiter_pid()
     |> assign_async_debugged_pid()
     |> assign_base_url()
@@ -34,7 +35,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-screen h-screen flex flex-col text-base">
+    <div class="w-screen h-screen flex flex-col">
       <.topbar return_link?={true}>
         <div class="grow flex items-center justify-end">
           <.icon_button phx-click="open-sidebar" class="flex sm:hidden" icon="icon-menu-hamburger" />
@@ -47,9 +48,9 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
           </div>
         </:loading>
         <:failed :let={reason}>
-          <Components.not_found_component :if={reason == :not_found} socket={@socket} />
-          <Components.session_limit_component :if={reason == :session_limit} />
-          <Components.error_component :if={reason not in [:not_found, :session_limit]} />
+          <Error.not_found_component :if={reason == :not_found} />
+          <Error.session_limit_component :if={reason == :session_limit} />
+          <Error.unexpected_error_component :if={reason not in [:not_found, :session_limit]} />
         </:failed>
 
         <div class="flex grow w-full overflow-y-auto">
@@ -83,7 +84,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
   @impl true
   def handle_async(:fetch_debugged_pid, {:ok, nil}, socket) do
-    with [live_pid] <- LiveViewDiscoveryService.debugged_live_pids(),
+    with module <- socket.assigns.debugged_module,
+         [live_pid] <- LiveViewDiscoveryService.find_successor_pid(module),
          {:ok, %{socket: %{id: socket_id}}} <- ChannelService.state(live_pid) do
       socket
       |> push_navigate(to: "/#{socket_id}")
@@ -97,7 +99,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   end
 
   @impl true
-  def handle_async(:fetch_debugged_pid, {:ok, fetched_pid}, socket) do
+  def handle_async(:fetch_debugged_pid, {:ok, {fetched_pid, module}}, socket) do
     Process.monitor(fetched_pid)
 
     socket.assigns.socket_id
@@ -106,6 +108,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
       {:ok, tracing_session} ->
         socket
         |> assign(:debugged_pid, AsyncResult.ok(fetched_pid))
+        |> assign(:debugged_module, module)
         |> assign(:tracing_session, tracing_session)
 
       {:error, reason} ->

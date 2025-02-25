@@ -36,7 +36,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col flex-1 h-full bg-primary-100 overflow-auto">
+    <div class="flex flex-col flex-1 h-full overflow-auto">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
@@ -50,7 +50,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         </:failed>
         <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
           <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:items-end">
-            <.info_section node={node} node_type={@node_type.result} />
+            <.info_section node={node} node_type={@node_type.result} socket_id={@socket_id} />
             <.assigns_section assigns={node.assigns} />
             <.fullscreen id="assigns-display-fullscreen" title="Assigns">
               <ElixirDisplay.term
@@ -76,13 +76,17 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   attr(:node, :any, required: true)
   attr(:node_type, :atom, required: true)
+  attr(:socket_id, :string, default: "")
 
   defp info_section(assigns) do
     ~H"""
     <.collapsible_section id="info" title={title(@node_type)}>
+      <:right_panel>
+        <.nested_badge :if={@node_type == :live_view and LiveDebugger.Utils.nested?(@socket_id)} />
+      </:right_panel>
       <div class="p-4 flex flex-col gap-1">
-        <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
         <.info_row name="Module" value={inspect(@node.module)} />
+        <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
       </div>
     </.collapsible_section>
     """
@@ -93,7 +97,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_row(assigns) do
     ~H"""
-    <div class="flex gap-1 overflow-x-hidden text-primary text-base">
+    <div class="flex gap-1 overflow-x-hidden">
       <div class="font-medium">
         <%= @name %>
       </div>
