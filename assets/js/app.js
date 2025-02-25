@@ -53,38 +53,6 @@ let liveSocket = new LiveSocket('/live', Socket, {
   },
 });
 
-window.addEventListener('phx:historical-events-load', (e) => {
-  const tracesListDiv = document.querySelector(
-    `#${e.detail.trace_list_dom_id}`
-  );
-  let separator = document.querySelector('#separator');
-
-  if (separator) {
-    tracesListDiv.removeChild(separator);
-  } else {
-    separator = document.createElement('div');
-    separator.id = 'separator';
-    separator.innerHTML = `
-      <div class="border-b h-0 border-primary-100"></div>
-      <div class="px-6 py-1 text-primary font-normal text-center text-xs">Historical events</div>
-      <div class="border-b h-0 border-primary-100"></div>
-    `;
-  }
-
-  tracesListDiv.prepend(separator);
-});
-
-window.addEventListener('phx:historical-events-clear', (e) => {
-  const tracesListDiv = document.querySelector(
-    `#${e.detail.trace_list_dom_id}`
-  );
-  let separator = document.querySelector('#separator');
-
-  if (separator) {
-    tracesListDiv.removeChild(separator);
-  }
-});
-
 // Show progress bar on live navigation and form submits
 topbar.config({ barColors: { 0: '#29d' }, shadowColor: 'rgba(0, 0, 0, .3)' });
 window.addEventListener('phx:page-loading-start', (_info) => topbar.show(300));
