@@ -53,7 +53,7 @@ let liveSocket = new LiveSocket('/live', Socket, {
   },
 });
 
-window.addEventListener('phx:historical-events', (e) => {
+window.addEventListener('phx:historical-events-load', (e) => {
   const tracesListDiv = document.querySelector(
     `#${e.detail.trace_list_dom_id}`
   );
@@ -65,13 +65,23 @@ window.addEventListener('phx:historical-events', (e) => {
     separator = document.createElement('div');
     separator.id = 'separator';
     separator.innerHTML = `
-      Historical events
+      <div class="border-b h-0 border-primary-100"></div>
+      <div class="px-6 py-1 text-primary font-normal text-center text-xs">Historical events</div>
       <div class="border-b h-0 border-primary-100"></div>
     `;
   }
 
-  if (!e.detail.trace_list_empty) {
-    tracesListDiv.prepend(separator);
+  tracesListDiv.prepend(separator);
+});
+
+window.addEventListener('phx:historical-events-clear', (e) => {
+  const tracesListDiv = document.querySelector(
+    `#${e.detail.trace_list_dom_id}`
+  );
+  let separator = document.querySelector('#separator');
+
+  if (separator) {
+    tracesListDiv.removeChild(separator);
   }
 });
 

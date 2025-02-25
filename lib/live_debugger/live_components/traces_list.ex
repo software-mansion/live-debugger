@@ -39,6 +39,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     |> assign(id: assigns.id)
     |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
     |> assign_async_existing_traces()
+    |> push_event("historical-events-clear", %{trace_list_dom_id: "#{assigns.id}-stream"})
     |> ok()
   end
 
@@ -91,14 +92,17 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   @impl true
+  def handle_async(:fetch_existing_traces, {:ok, []}, socket) do
+    socket
+    |> assign(existing_traces_status: :ok)
+    |> noreply()
+  end
+
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
     socket
     |> assign(existing_traces_status: :ok)
     |> stream(:existing_traces, trace_list, limit: @stream_limit)
-    |> push_event("historical-events", %{
-      trace_list_dom_id: "#{socket.assigns.id}-stream",
-      trace_list_empty: Enum.empty?(trace_list)
-    })
+    |> push_event("historical-events-load", %{trace_list_dom_id: "#{socket.assigns.id}-stream"})
     |> noreply()
   end
 
@@ -127,6 +131,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
     socket
     |> stream(:existing_traces, [], reset: true)
+    |> push_event("historical-events-clear", %{trace_list_dom_id: "#{socket.assigns.id}-stream"})
     |> noreply()
   end
 
