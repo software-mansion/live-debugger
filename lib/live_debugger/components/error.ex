@@ -60,7 +60,6 @@ defmodule LiveDebugger.Components.Error do
 
     ~H"""
     <div class="px-6 py-3 mb-4 flex items-center gap-1 text-xs">
-      <.icon class="w-5 h-5 shrink-0 text-primary-900" name="icon-bug-ant" />
       <div>
         See any issue?
         <span>

@@ -220,7 +220,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
     ~H"""
     <div class="px-6 py-3 flex items-center gap-1 text-xs border-t border-secondary-200">
-      <.icon class="w-5 h-5 shrink-0 text-primary-900" name="icon-bug-ant" />
       <div>
         See any issue?
         <span>
