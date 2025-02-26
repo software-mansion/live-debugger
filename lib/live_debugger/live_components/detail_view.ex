@@ -48,26 +48,22 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             Failed to fetch node details: <%= inspect(reason) %>
           </.alert>
         </:failed>
-        <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
-          <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:items-end">
-            <.info_section node={node} node_type={@node_type.result} socket_id={@socket_id} />
-            <.assigns_section assigns={node.assigns} />
-            <.fullscreen id="assigns-display-fullscreen" title="Assigns">
-              <ElixirDisplay.term
-                id="assigns-display-fullscreen-term"
-                node={TermParser.term_to_display_tree(node.assigns)}
-                level={1}
-              />
-            </.fullscreen>
-          </div>
-          <div class="w-full lg:w-1/2">
-            <.live_component
-              id="trace-list"
-              module={LiveDebugger.LiveComponents.TracesList}
-              debugged_node_id={@node_id}
-              socket_id={@socket_id}
+        <div class="p-8 flex flex-col gap-4">
+          <.info_section node={node} node_type={@node_type.result} socket_id={@socket_id} />
+          <.assigns_section assigns={node.assigns} />
+          <.fullscreen id="assigns-display-fullscreen" title="Assigns">
+            <ElixirDisplay.term
+              id="assigns-display-fullscreen-term"
+              node={TermParser.term_to_display_tree(node.assigns)}
+              level={1}
             />
-          </div>
+          </.fullscreen>
+          <.live_component
+            id="trace-list"
+            module={LiveDebugger.LiveComponents.TracesList}
+            debugged_node_id={@node_id}
+            socket_id={@socket_id}
+          />
         </div>
       </.async_result>
     </div>
@@ -80,29 +76,15 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_section(assigns) do
     ~H"""
-    <.collapsible_section id="info" title={title(@node_type)}>
-      <:right_panel>
-        <.nested_badge :if={@node_type == :live_view and LiveDebugger.Utils.nested?(@socket_id)} />
-      </:right_panel>
-      <div class="p-4 flex flex-col gap-1">
-        <.info_row name="Module" value={inspect(@node.module)} />
-        <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
-      </div>
-    </.collapsible_section>
-    """
-  end
-
-  attr(:name, :string, required: true)
-  attr(:value, :any, required: true)
-
-  defp info_row(assigns) do
-    ~H"""
-    <div class="flex gap-1 overflow-x-hidden">
-      <div class="font-medium">
-        <%= @name %>
-      </div>
-      <div class="font-normal break-all">
-        <%= @value %>
+    <div id="info">
+      <.nested_badge :if={@node_type == :live_view and LiveDebugger.Utils.nested?(@socket_id)} />
+      <div class="text-2xl grid grid-cols-2">
+        <div>
+          {inspect(@node.module)}
+        </div>
+        <div class="text-right">
+          {id_type(@node_type)} {TreeNode.display_id(@node)}
+        </div>
       </div>
     </div>
     """

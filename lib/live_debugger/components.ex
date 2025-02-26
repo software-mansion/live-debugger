@@ -136,7 +136,7 @@ defmodule LiveDebugger.Components do
     >
       <summary
         class={[
-          "block flex items-center cursor-pointer" | List.wrap(@label_class)
+          "block flex items-center cursor-pointer space-x-1" | List.wrap(@label_class)
         ]}
         style={@label_style}
       >
@@ -160,7 +160,7 @@ defmodule LiveDebugger.Components do
   def collapsible_section(assigns) do
     ~H"""
     <div class={[
-      "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom border border-secondary-200"
+      "w-full min-w-[20rem] h-max flex shadow-custom border border-secondary-200"
       | List.wrap(@class)
     ]}>
       <.collapsible

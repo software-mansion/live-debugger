@@ -164,7 +164,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     >
       <:label>
         <div class="w-[90%] grow flex items-center ml-2 gap-1.5">
-          <div class="flex gap-1.5 items-center">
+          <div class="flex gap-1.5 items-center" Collectable>
             <p class="font-medium text-sm"><%= @callback_name %></p>
             <.aggregate_count :if={@trace.counter > 1} count={@trace.counter} />
           </div>
@@ -186,15 +186,23 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         </div>
       </.fullscreen>
 
-      <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto p-4">
+      <div class="relative flex flex-col overflow-x-auto max-w-full h-[40vh] max-h-max overflow-y-auto p-4">
         <.fullscreen_button id={@fullscreen_id} class="absolute right-2 top-2" />
-        <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-          <ElixirDisplay.term
-            id={@id <> "-#{index}"}
-            node={TermParser.term_to_display_tree(args)}
-            level={1}
-          />
-        <% end %>
+        <div class="flex flex-col divide-y">
+          <div
+            :for={{args, index} <- Enum.with_index(@trace.args)}
+            class="flex py-4 first:pt-0 last:pb-0"
+          >
+            <div class="font-medium pr-4 whitespace-nowrap">
+              Arg {index}
+            </div>
+            <ElixirDisplay.term
+              id={@id <> "-#{index}"}
+              node={TermParser.term_to_display_tree(args)}
+              level={1}
+            />
+          </div>
+        </div>
       </div>
     </.collapsible>
     """
