@@ -76,8 +76,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
     ~H"""
     <div class="w-max flex bg-white shadow-custom border border-secondary-200">
-      <div class="hidden sm:flex max-h-full flex-col w-64 gap-1">
-        <.report_issue />
+      <div class="hidden sm:flex max-h-full flex-col w-64 gap-1 justify-between">
         <.sidebar_content
           pid={@pid}
           socket_id={@socket_id}
@@ -86,6 +85,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           node_id={@node_id}
           myself={@myself}
         />
+        <.report_issue />
       </div>
       <.sidebar_slide_over :if={not @hidden?} myself={@myself}>
         <.sidebar_content
@@ -96,6 +96,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           node_id={@node_id}
           myself={@myself}
         />
+        <.report_issue />
       </.sidebar_slide_over>
     </div>
     """
@@ -144,7 +145,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     ~H"""
     <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex sm:hidden justify-end">
       <div
-        class="w-64 h-full flex flex-col bg-white/100"
+        class="w-64 h-full flex flex-col bg-white/100 justify-between"
         phx-click-away="close_mobile_content"
         phx-target={@myself}
       >
@@ -218,12 +219,16 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     assigns = assign(assigns, :report_issue_url, @report_issue_url)
 
     ~H"""
-    <div class="px-2 flex items-center gap-1 text-xs">
-      <.icon name="icon-bug-ant" />
+    <div class="px-6 py-3 flex items-center gap-1 text-xs border-t border-secondary-200">
+      <.icon class="w-5 h-5 shrink-0 text-primary-900" name="icon-bug-ant" />
       <div>
         See any issue?
         <span>
-          Report it <.link href={@report_issue_url} target="_blank" class="underline hover:text-white">here</.link>.
+          Report it <.link
+            href={@report_issue_url}
+            target="_blank"
+            class="underline hover:text-gray-400"
+          >here</.link>.
         </span>
       </div>
     </div>
