@@ -105,14 +105,14 @@ Hooks.TraceList = {
       }
 
       this.el.prepend(separator);
-    })
+    });
     this.handleEvent('historical-events-clear', () => {
       const separator = document.querySelector('#separator');
       if (separator) {
         this.el.removeChild(separator);
       }
-    })
-  }
-}
+    });
+  },
+};
 
 export default Hooks;
