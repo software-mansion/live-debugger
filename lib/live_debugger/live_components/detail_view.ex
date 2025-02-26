@@ -9,16 +9,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
-  alias LiveDebugger.Components.Collapsible
-
-  @impl true
-  def mount(socket) do
-    socket
-    |> assign(:hide_assigns_section?, false)
-    |> assign(:hide_info_section?, false)
-    |> assign(:hide_traces_section?, false)
-    |> ok()
-  end
+  alias LiveDebugger.Components.ElixirDisplay
 
   @impl true
   def update(%{new_trace: _new_trace}, socket) do
@@ -45,7 +36,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col w-full h-screen max-h-screen p-2 overflow-x-hidden overflow-y-auto lg:overflow-y-hidden">
+    <div class="flex flex-col flex-1 h-full overflow-auto">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
@@ -57,61 +48,47 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             Failed to fetch node details: <%= inspect(reason) %>
           </.alert>
         </:failed>
-        <div class="grid grid-cols-1 lg:grid-cols-2 lg:h-full">
-          <div class="flex flex-col max lg:border-r-2 border-primary lg:overflow-y-hidden">
-            <.info_card
-              node={node}
-              node_type={@node_type.result}
-              myself={@myself}
-              hide?={@hide_info_section?}
-            />
-            <.assigns_card assigns={node.assigns} myself={@myself} hide?={@hide_assigns_section?} />
+        <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
+          <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:items-end">
+            <.info_section node={node} node_type={@node_type.result} socket_id={@socket_id} />
+            <.assigns_section assigns={node.assigns} />
+            <.fullscreen id="assigns-display-fullscreen" title="Assigns">
+              <ElixirDisplay.term
+                id="assigns-display"
+                node={TermParser.term_to_display_tree(node.assigns)}
+                level={1}
+              />
+            </.fullscreen>
           </div>
-          <.live_component
-            id="trace-list"
-            module={LiveDebugger.LiveComponents.TracesList}
-            debugged_node_id={@node_id}
-            socket_id={@socket_id}
-          />
+          <div class="w-full lg:w-1/2">
+            <.live_component
+              id="trace-list"
+              module={LiveDebugger.LiveComponents.TracesList}
+              debugged_node_id={@node_id}
+              socket_id={@socket_id}
+            />
+          </div>
         </div>
       </.async_result>
     </div>
     """
   end
 
-  @impl true
-  def handle_event("toggle-visibility", %{"section" => section}, socket) do
-    hide_section_key =
-      case section do
-        "info" -> :hide_info_section?
-        "assigns" -> :hide_assigns_section?
-        "traces" -> :hide_traces_section?
-      end
-
-    socket
-    |> assign(hide_section_key, not socket.assigns[hide_section_key])
-    |> noreply()
-  end
-
   attr(:node, :any, required: true)
   attr(:node_type, :atom, required: true)
-  attr(:myself, :any, required: true)
-  attr(:hide?, :boolean, required: true)
+  attr(:socket_id, :string, default: "")
 
-  defp info_card(assigns) do
+  defp info_section(assigns) do
     ~H"""
-    <Collapsible.section
-      id="info"
-      title={title(@node_type)}
-      class="border-b-2 border-primary"
-      hide?={@hide?}
-      myself={@myself}
-    >
-      <div class=" flex flex-col gap-1">
-        <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
+    <.collapsible_section id="info" title={title(@node_type)}>
+      <:right_panel>
+        <.nested_badge :if={@node_type == :live_view and LiveDebugger.Utils.nested?(@socket_id)} />
+      </:right_panel>
+      <div class="p-4 flex flex-col gap-1">
         <.info_row name="Module" value={inspect(@node.module)} />
+        <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
       </div>
-    </Collapsible.section>
+    </.collapsible_section>
     """
   end
 
@@ -121,10 +98,10 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   defp info_row(assigns) do
     ~H"""
     <div class="flex gap-1 overflow-x-hidden">
-      <div class="font-bold w-20 text-primary">
+      <div class="font-medium">
         <%= @name %>
       </div>
-      <div class="font-semibold break-all">
+      <div class="font-normal break-all">
         <%= @value %>
       </div>
     </div>
@@ -138,35 +115,21 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   defp id_type(:live_view), do: "PID"
 
   attr(:assigns, :list, required: true)
-  attr(:myself, :any, required: true)
-  attr(:hide?, :boolean, required: true)
 
-  defp assigns_card(assigns) do
+  defp assigns_section(assigns) do
     ~H"""
-    <Collapsible.section
-      id="assigns"
-      class="border-b-2 lg:border-b-0 border-primary h-max overflow-y-hidden"
-      hide?={@hide?}
-      myself={@myself}
-      title="Assigns"
-    >
-      <div class="relative w-full max-h-full border-2 border-gray-200 rounded-lg px-2 overflow-y-auto text-gray-600">
-        <.fullscreen_wrapper id="assigns-display-fullscreen" class="absolute top-0 right-0">
-          <.live_component
-            id="assigns-display-fullscreen"
-            module={LiveDebugger.LiveComponents.ElixirDisplay}
-            node={TermParser.term_to_display_tree(@assigns)}
-            level={1}
-          />
-        </.fullscreen_wrapper>
-        <.live_component
+    <.collapsible_section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
+      <:right_panel>
+        <.fullscreen_button id="assigns-display-fullscreen" />
+      </:right_panel>
+      <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
+        <ElixirDisplay.term
           id="assigns-display"
-          module={LiveDebugger.LiveComponents.ElixirDisplay}
           node={TermParser.term_to_display_tree(@assigns)}
           level={1}
         />
       </div>
-    </Collapsible.section>
+    </.collapsible_section>
     """
   end
 

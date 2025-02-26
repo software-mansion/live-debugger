@@ -4,6 +4,7 @@ defmodule LiveDebugger.Components do
   """
 
   use Phoenix.Component
+  import LiveDebuggerWeb.Helpers
 
   @doc """
   Renders an alert with
@@ -23,14 +24,14 @@ defmodule LiveDebugger.Components do
     ~H"""
     <div
       class={[
-        "bg-#{@variant}-100 border border-#{@variant}-400 text-#{@variant}-700 p-2 flex flex-col gap-1 text-sm rounded-lg"
+        "bg-#{@variant}-50 border border-#{@variant}-100 text-#{@variant}-800 text-sm p-2 flex flex-col gap-1 rounded-lg"
         | List.wrap(@class)
       ]}
       {@rest}
     >
       <div class="flex items-center gap-2">
         <.alert_icon :if={@with_icon} variant={@variant} />
-        <.h5 class="font-bold">{@heading}</.h5>
+        <p class="font-medium"><%= @heading %></p>
       </div>
       <%= render_slot(@inner_block) %>
     </div>
@@ -41,32 +42,27 @@ defmodule LiveDebugger.Components do
   Renders a button.
 
   """
-  attr(:color, :string,
-    default: "primary",
-    values: ["primary", "secondary", "danger", "success", "warning", "info", "gray", "white"]
-  )
-
-  attr(:variant, :string, default: "solid", values: ["solid", "simple"])
+  attr(:variant, :string, default: "primary", values: ["primary", "secondary", "tertiary"])
+  attr(:size, :string, default: "md", values: ["md", "sm"])
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
   attr(:rest, :global)
   slot(:inner_block, required: true)
 
   def button(assigns) do
     ~H"""
-    <div
+    <button
       class={
         [
-          "w-max h-max p-1 cursor-pointer",
-          if(@variant != "simple", do: "border-2 rounded-lg hover:shadow"),
-          button_color_classes(@color, @variant)
+          "w-max h-max rounded text-xs font-semibold",
+          button_color_classes(@variant),
+          button_size_classes(@size)
         ] ++
           List.wrap(@class)
       }
-      role="button"
       {@rest}
     >
       <%= render_slot(@inner_block) %>
-    </div>
+    </button>
     """
   end
 
@@ -94,95 +90,261 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
-  Typography component to render headings.
+  Collapsible element that can be toggled open and closed.
+  It uses the `details` and `summary` HTML elements.
+  If you add `hide-on-open` class to element it will be hidden when collapsible is opened.
+
+  ## Examples
+
+      <.collapsible id="collapsible" open={true}>
+        <:label>
+          <div>Collapsible <div class="hide-on-open">Info when closed</div></div>
+        </:label>
+        <div>Content</div>
+      </.collapsible>
   """
 
+  attr(:id, :string, required: true)
+  attr(:class, :any, default: nil, doc: "CSS class for parent container")
+  attr(:label_class, :any, default: nil, doc: "CSS class for the label")
+  attr(:label_style, :any, default: nil, doc: "CSS style for the label")
+  attr(:chevron_class, :any, default: nil, doc: "CSS class for the chevron icon")
+  attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
+
+  attr(:icon, :string,
+    default: "icon-chevron-right",
+    doc: "Icon for chevron. It will be rotated 90 degrees when the collapsible is open"
+  )
+
+  attr(:rest, :global)
+
+  slot(:label, required: true)
+  slot(:inner_block, required: true)
+
+  def collapsible(assigns) do
+    ~H"""
+    <details
+      id={@id}
+      class={[
+        "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden"
+        | List.wrap(@class)
+      ]}
+      {show_collapsible_assign(@open)}
+      {@rest}
+    >
+      <summary
+        class={[
+          "block flex items-center cursor-pointer" | List.wrap(@label_class)
+        ]}
+        style={@label_style}
+      >
+        <.icon name={@icon} class={["rotate-icon shrink-0" | List.wrap(@chevron_class)]} />
+        <%= render_slot(@label) %>
+      </summary>
+      <%= render_slot(@inner_block) %>
+    </details>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:title, :string, required: true)
+  attr(:class, :any, default: nil)
+  attr(:inner_class, :any, default: nil)
+  attr(:open, :boolean, default: true)
+
+  slot(:right_panel)
+  slot(:inner_block)
+
+  def collapsible_section(assigns) do
+    ~H"""
+    <div class={[
+      "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom border border-secondary-200"
+      | List.wrap(@class)
+    ]}>
+      <.collapsible
+        id={@id}
+        title={@title}
+        open={@open}
+        class="bg-white rounded-sm w-full"
+        label_class="h-12 p-2 lg:pl-4 lg:pointer-events-none pointer-events-auto border-b border-secondary-100"
+        chevron_class="lg:hidden flex text-primary-900"
+      >
+        <:label>
+          <div class="flex justify-between items-center w-full">
+            <div class="font-medium text-sm"><%= @title %></div>
+            <div class="w-max !pointer-events-auto">
+              <%= render_slot(@right_panel) %>
+            </div>
+          </div>
+        </:label>
+        <div class={["w-full flex overflow-auto rounded-sm bg-white p-2" | List.wrap(@inner_class)]}>
+          <%= render_slot(@inner_block) %>
+        </div>
+      </.collapsible>
+    </div>
+    """
+  end
+
+  @doc """
+  Used to add Hook to element based on condition.
+  """
+  def show_collapsible_assign(true), do: %{:"phx-hook" => "CollapsibleOpen"}
+  def show_collapsible_assign(_), do: %{}
+
+  @doc """
+  Typography component to render headings.
+  """
   attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
   attr(:rest, :global)
   slot(:inner_block, required: true)
 
   def h1(assigns) do
     ~H"""
-    <h1
-      class={[
-        "text-4xl font-extrabold leading-10 sm:text-5xl sm:tracking-tight lg:text-6xl"
-        | List.wrap(@class)
-      ]}
-      {@rest}
-    >
+    <h1 class={["text-xl font-semibold" | List.wrap(@class)]} {@rest}>
       <%= render_slot(@inner_block) %>
     </h1>
     """
   end
 
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
+  @doc """
+  Renders an icon.
+  Not all icons are available. If you want to use an icon check if it exists in the `assets/icons` folder.
+  `name` must start with `icon-`
+  ## Examples
+
+      <.icon name="icon-play" />
+  """
+  attr(:name, :string, required: true, doc: "The name of the icon. Must start with `icon-`.")
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the icon.")
   attr(:rest, :global)
-  slot(:inner_block, required: true)
 
-  def h2(assigns) do
+  def icon(%{name: "icon-" <> _} = assigns) do
     ~H"""
-    <h2 class={["text-2xl font-extrabold leading-10 sm:text-3xl" | List.wrap(@class)]} {@rest}>
-      <%= render_slot(@inner_block) %>
-    </h2>
-    """
-  end
-
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
-  attr(:rest, :global)
-  slot(:inner_block, required: true)
-
-  def h3(assigns) do
-    ~H"""
-    <h3 class={["text-xl font-bold leading-7 sm:text-2xl" | List.wrap(@class)]} {@rest}>
-      <%= render_slot(@inner_block) %>
-    </h3>
-    """
-  end
-
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
-  attr(:rest, :global)
-  slot(:inner_block, required: true)
-
-  def h4(assigns) do
-    ~H"""
-    <h4 class={["text-lg font-bold leading-6" | List.wrap(@class)]} {@rest}>
-      <%= render_slot(@inner_block) %>
-    </h4>
-    """
-  end
-
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
-  attr(:rest, :global)
-  slot(:inner_block, required: true)
-
-  def h5(assigns) do
-    ~H"""
-    <h5
-      class={[
-        "text-lg font-medium leading-6"
-        | List.wrap(@class)
-      ]}
-      {@rest}
-    >
-      <%= render_slot(@inner_block) %>
-    </h5>
+    <span class={[@name, List.wrap(@class)]} {@rest}></span>
     """
   end
 
   @doc """
-  Renders a [Heroicon](https://heroicons.com).
-  Not all icons are available. If you want to use an icon check if it exists in the `assets/icons` folder.
-  ## Examples
-
-      <.icon name="hero-x-mark-solid" />
+  Renders a button with an icon in it.
   """
-  attr(:name, :string, required: true, doc: "The name of the icon. Must start with `hero-`.")
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the icon.")
-  attr(:rest, :global)
 
-  def icon(%{name: "hero-" <> _} = assigns) do
+  attr(:icon, :string, required: true, doc: "Icon to be displayed as a button.")
+
+  attr(:size, :string,
+    default: "md",
+    values: ["md", "sm"],
+    doc: "Size of the button."
+  )
+
+  attr(:variant, :string,
+    default: "primary",
+    values: ["primary", "secondary", "tertiary"],
+    doc: "Variant of the button."
+  )
+
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
+
+  attr(:rest, :global, include: ~w(id))
+
+  def icon_button(assigns) do
+    {button_class, icon_class} =
+      case assigns.size do
+        "md" -> {"w-8! h-8! px-[0.25rem] py-[0.25rem]", "h-6 w-6"}
+        "sm" -> {"w-7! h-7! px-[0.375rem] py-[0.375rem]", "h-4 w-4"}
+      end
+
+    assigns =
+      assigns
+      |> assign(:button_class, button_class)
+      |> assign(:icon_class, icon_class)
+
     ~H"""
-    <span class={[@name, List.wrap(@class)]} {@rest}></span>
+    <.button class={[@button_class | List.wrap(@class)]} variant={@variant} {@rest}>
+      <.icon name={@icon} class={@icon_class} />
+    </.button>
+    """
+  end
+
+  attr(:rows, :list, default: [], doc: "Elements that will be displayed in the list")
+  attr(:class, :any, default: nil, doc: "Additional classes.")
+  attr(:on_row_click, :string, default: nil)
+  attr(:row_click_target, :any, default: nil)
+
+  attr(:row_attributes_fun, :any,
+    default: &empty_map/1,
+    doc: "Function to return HTML attributes for each row based on row data"
+  )
+
+  slot :column, doc: "Columns with column labels" do
+    attr(:label, :string, doc: "Column label")
+    # Default is not supported for slot arguments
+    attr(:class, :any)
+  end
+
+  def table(assigns) do
+    ~H"""
+    <div class={["p-4 bg-white rounded shadow-custom border border-secondary-200" | List.wrap(@class)]}>
+      <table class="w-full">
+        <thead class="border-b border-secondary-200">
+          <tr class="h-11 mx-16">
+            <th :for={col <- @column} class="first:pl-2 font-medium text-left">
+              <%= Map.get(col, :label, "") %>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            :for={row <- @rows}
+            phx-click={@on_row_click}
+            phx-target={@row_click_target}
+            class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-secondary-50"}"}
+            {@row_attributes_fun.(row)}
+          >
+            <td :for={col <- @column} class={["first:pl-2" | List.wrap(Map.get(col, :class))]}>
+              <%= render_slot(col, row) %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    """
+  end
+
+  attr(:elements, :list,
+    default: [],
+    doc: "List of maps with field `:title` and optional `:description`"
+  )
+
+  attr(:class, :any, default: nil, doc: "Additional classes.")
+  attr(:on_element_click, :string, default: nil)
+  attr(:element_click_target, :any, default: nil)
+
+  attr(:element_attributes_fun, :any,
+    default: &empty_map/1,
+    doc: "Function to return HTML attributes for each row based on row data"
+  )
+
+  slot(:title, required: true, doc: "Slot that describes how to access title from given map")
+  slot(:description, doc: "Slot that describes how to access description from given map")
+
+  def list(assigns) do
+    ~H"""
+    <div class={["flex flex-col gap-2" | List.wrap(@class)]}>
+      <div
+        :for={elem <- @elements}
+        class={"h-20 bg-white rounded shadow-custom border border-secondary-200 #{if @on_element_click, do: "cursor-pointer hover:bg-secondary-50"}"}
+        phx-click={@on_element_click}
+        phx-target={@element_click_target}
+        {@element_attributes_fun.(elem)}
+      >
+        <div class="flex flex-col justify-center h-full p-4 gap-1">
+          <p class="font-medium"><%= render_slot(@title, elem) %></p>
+          <p class="text-secondary-600">
+            <%= render_slot(@description, elem) %>
+          </p>
+        </div>
+      </div>
+    </div>
     """
   end
 
@@ -192,6 +354,7 @@ defmodule LiveDebugger.Components do
   You can close the fullscreen using X button or by pressing ESC key.
   """
   attr(:id, :string, required: true)
+  attr(:title, :string, default: "", doc: "Title of the fullscreen.")
 
   attr(:class, :any,
     default: nil,
@@ -206,22 +369,22 @@ defmodule LiveDebugger.Components do
       id={@id}
       phx-hook="Fullscreen"
       class={[
-        "relative w-full h-full p-2 overflow-auto hidden flex-col rounded-lg backdrop:bg-black backdrop:opacity-50"
+        "relative h-max w-full lg:w-max lg:min-w-[50rem] p-2 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
       ]}
     >
-      <div class="flex justify-end items-center h-max w-full">
-        <.button
+      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-secondary-100">
+        <div class="font-semibold text-base"><%= @title %></div>
+        <.icon_button
           id={"#{@id}-close"}
+          icon="icon-cross-small"
+          variant="secondary"
+          size="sm"
           phx-hook="CloseFullscreen"
           data-fullscreen-id={@id}
-          variant="simple"
-          class="hover:bg-primary-500 hover:bg-opacity-10 rounded-full"
-        >
-          <.icon name="hero-x-mark-solid" class="h-7 w-7" />
-        </.button>
+        />
       </div>
-      <div class="w-full h-full overflow-auto flex flex-col gap-2">
+      <div class="overflow-auto flex flex-col gap-2 p-2">
         <%= render_slot(@inner_block) %>
       </div>
     </dialog>
@@ -230,46 +393,28 @@ defmodule LiveDebugger.Components do
 
   @doc """
   Renders a button which will show a fullscreen when clicked.
-  Content of the fullscreen is passed as `:inner_block` slot.
-
-  ## Examples
-
-      <.fullscreen_wrapper id="my_fullscreen">
-        <.h1>Hello World</.h1>
-      </.fullscreen_wrapper>
   """
-  attr(:id, :string, required: true)
-
-  attr(:fullscreen_class, :any,
-    default: nil,
-    doc: "Additional classes to be added to the fullscreen."
-  )
+  attr(:id, :string, required: true, doc: "Same as `id` of the fullscreen.")
+  attr(:title, :string, default: "")
 
   attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
   attr(:icon, :string,
-    default: "hero-arrow-top-right-on-square",
+    default: "icon-expand",
     doc: "Icon to be displayed as a button"
   )
 
-  slot(:inner_block, required: true)
-
-  def fullscreen_wrapper(assigns) do
+  def fullscreen_button(assigns) do
     ~H"""
-    <div>
-      <.button
-        id={"fullscreen_#{@id}_button"}
-        phx-hook="OpenFullscreen"
-        data-fullscreen-id={"fullscreen_#{@id}"}
-        class={["flex items-center justify-center w-max h-max" | List.wrap(@class)]}
-        variant="simple"
-      >
-        <.icon name={@icon} class="w-5 h-5" />
-      </.button>
-      <.fullscreen id={"fullscreen_#{@id}"} class={@fullscreen_class}>
-        <%= render_slot(@inner_block) %>
-      </.fullscreen>
-    </div>
+    <.icon_button
+      id={"#{@id}_button"}
+      phx-hook="OpenFullscreen"
+      icon={@icon}
+      size="sm"
+      data-fullscreen-id={@id}
+      class={@class}
+      variant="secondary"
+    />
     """
   end
 
@@ -300,7 +445,7 @@ defmodule LiveDebugger.Components do
     <svg
       {@rest}
       class={
-        ["animate-spin text-primary", @size_class, unless(@show, do: "hidden")] ++
+        ["animate-spin", @size_class, unless(@show, do: "hidden")] ++
           List.wrap(@class)
       }
       xmlns="http://www.w3.org/2000/svg"
@@ -317,12 +462,33 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  def nested_badge(assigns) do
+    ~H"""
+    <div class="py-1 px-1.5 w-max flex gap-0.5 border border-secondary-200 text-primary-900 text-3xs font-semibold rounded-xl items-center">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        class="w-4 h-4 text-primary-900"
+      >
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M3.25 5C3.25 4.0335 4.0335 3.25 5 3.25H9.69281C10.6593 3.25 11.4428 4.0335 11.4428 5V9.69281C11.4428 10.6593 10.6593 11.4428 9.69281 11.4428H8.09637V15.6536C8.09637 15.7917 8.2083 15.9036 8.34637 15.9036H12.5572V14.3072C12.5572 13.3407 13.3407 12.5572 14.3072 12.5572H19C19.9665 12.5572 20.75 13.3407 20.75 14.3072V19C20.75 19.9665 19.9665 20.75 19 20.75H14.3072C13.3407 20.75 12.5572 19.9665 12.5572 19V17.4036H8.34637C7.37988 17.4036 6.59637 16.6201 6.59637 15.6536V11.4428H5C4.0335 11.4428 3.25 10.6593 3.25 9.69281V5ZM5 4.75C4.86193 4.75 4.75 4.86193 4.75 5V9.69281C4.75 9.83088 4.86193 9.94281 5 9.94281H9.69281C9.83088 9.94281 9.94281 9.83088 9.94281 9.69281V5C9.94281 4.86193 9.83088 4.75 9.69281 4.75H5ZM14.0572 14.3072C14.0572 14.1691 14.1691 14.0572 14.3072 14.0572H19C19.1381 14.0572 19.25 14.1691 19.25 14.3072V19C19.25 19.1381 19.1381 19.25 19 19.25H14.3072C14.1691 19.25 14.0572 19.1381 14.0572 19V14.3072Z"
+          fill="#4C2B8A"
+        />
+      </svg>
+      <p>Nested</p>
+    </div>
+    """
+  end
+
   @doc """
   Renders a tooltip using Tooltip hook.
   """
   attr(:id, :string, required: true)
   attr(:content, :string, default: nil)
-  attr(:position, :string, default: "bottom", values: ["top", "bottom"])
+  attr(:position, :string, default: "top", values: ["top", "bottom"])
   attr(:rest, :global)
   slot(:inner_block, required: true)
 
@@ -340,45 +506,24 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  attr(:socket, :any, required: true)
+  @doc """
+  Renders topbar with possible link to return to the main page.
+  """
+  attr(:return_link?, :boolean,
+    required: true,
+    doc: "Whether to show a link to return to the main page."
+  )
 
-  def not_found_component(assigns) do
+  slot(:inner_block)
+
+  def topbar(assigns) do
     ~H"""
-    <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
-      <.h2 class="text-center">Debugger disconnected</.h2>
-      <.h5 class="text-center">
-        We couldn't find any LiveView associated with the given socket id
-      </.h5>
-      <.link class="text-gray-600 underline" navigate="/">
-        See available LiveSessions
+    <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-primary-900 text-white text-sm font-topbar font-medium">
+      <.link :if={@return_link?} patch="/">
+        <.icon_button icon="icon-arrow-left" size="md" />
       </.link>
-    </div>
-    """
-  end
-
-  def error_component(assigns) do
-    ~H"""
-    <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
-      <.h2 class="text-center">Unexpected error</.h2>
-      <.h5 class="text-center">
-        Debugger encountered unexpected error - check logs for more
-      </.h5>
-      <span>You can close this window</span>
-    </div>
-    """
-  end
-
-  def session_limit_component(assigns) do
-    ~H"""
-    <div class="h-full flex flex-col items-center justify-center mx-8">
-      <.icon name="hero-exclamation-circle" class="w-16 h-16" />
-      <.h2 class="text-center">Session limit reached</.h2>
-      <.h5 class="text-center">
-        In OTP 26 and older versions you can open only one debugger window.
-      </.h5>
-      <span>You can close this window</span>
+      <span>LiveDebugger</span>
+      <%= @inner_block && render_slot(@inner_block) %>
     </div>
     """
   end
@@ -386,41 +531,34 @@ defmodule LiveDebugger.Components do
   attr(:variant, :string, required: true, values: ["danger", "success", "warning", "info"])
 
   defp alert_icon(assigns) do
-    icon_name =
+    {icon_name, icon_class} =
       case assigns.variant do
-        "danger" -> "hero-x-circle"
-        "success" -> "hero-check-circle"
-        "warning" -> "hero-exclamation-circle"
-        "info" -> "hero-information-circle"
+        "danger" -> {"icon-x-circle", "text-danger-800"}
+        "success" -> {"icon-check-circle", "text-success-800"}
+        "warning" -> {"icon-exclamation-circle", "text-warning-800"}
+        "info" -> {"icon-information-circle", "text-info-800"}
       end
 
-    assigns = assign(assigns, :name, icon_name)
+    assigns = assign(assigns, name: icon_name, class: icon_class)
 
     ~H"""
-    <.icon name={@name} class="text-{@variant}-700" />
+    <.icon name={@name} class={@class} />
     """
   end
 
-  defp button_color_classes(color, "simple") do
-    case color do
-      "white" ->
-        "text-white hover:text-gray-300"
+  defp button_color_classes(variant) do
+    case variant do
+      "primary" ->
+        "bg-primary-900 text-white hover:bg-primary-950"
 
-      color ->
-        "text-#{color}-500 hover:text-#{color}-900"
+      "secondary" ->
+        "bg-white text-primary-900 border border-secondary-200 hover:bg-secondary-100"
+
+      "tertiary" ->
+        "bg-transparent text-primary-900 border border-primary-900 hover:bg-secondary-50"
     end
   end
 
-  defp button_color_classes(color, "solid") do
-    case color do
-      "white" ->
-        "bg-white hover:bg-gray-300 border-white hover:border-gray-300 text-black hover:text-black"
-
-      "gray" ->
-        "bg-gray-500 hover:bg-gray-800 border-gray-500 hover:border-gray-800 text-black hover:text-white"
-
-      color ->
-        "bg-#{color}-500 hover:bg-#{color}-800 border-#{color}-500 hover:border-#{color}-800 text-white"
-    end
-  end
+  defp button_size_classes("md"), do: "py-2 px-3"
+  defp button_size_classes("sm"), do: "py-1.5 px-2"
 end
