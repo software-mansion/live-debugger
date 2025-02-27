@@ -1,6 +1,7 @@
 # LiveDebugger
 
 LiveDebugger is a browser-based tool for debugging LiveView applications, designed to enhance your development experience. It gives you:
+
 - :deciduous_tree: A detailed view of your LiveComponents tree
 - :mag: The ability to inspect assigns for LiveViews and LiveComponents
 - :link: Tracing of their callback executions
@@ -14,7 +15,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:phoenix_live_view, "~> 0.1.0", only: :dev}
+      {:live_debugger, "~> 0.1.0", only: :dev}
     ]
   end
 ```
