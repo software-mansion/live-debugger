@@ -462,8 +462,8 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  attr(:text, :string, default: "Nested")
-  attr(:icon, :string, default: "icon-nested")
+  attr(:text, :string, required: true)
+  attr(:icon, :string, required: true)
 
   def badge(assigns) do
     ~H"""
