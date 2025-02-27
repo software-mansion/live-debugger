@@ -4,8 +4,6 @@ defmodule LiveDebugger.Services.TraceService do
   Created table is an ordered_set with non-positive integer keys.
   """
 
-  require Logger
-
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.CommonTypes
   alias Phoenix.LiveComponent.CID
