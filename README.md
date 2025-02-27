@@ -13,7 +13,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
     [
       {:live_debugger,
        git: "https://github.com/software-mansion-labs/live-debugger.git",
-       tag: "v0.1.0-rc.1",
+       tag: "v0.1.0",
        only: :dev}
     ]
   end
