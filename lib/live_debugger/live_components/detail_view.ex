@@ -82,7 +82,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     ~H"""
     <.collapsible_section id="info" title={title(@node_type)}>
       <:right_panel>
-        <.nested_badge :if={@node_type == :live_view and LiveDebugger.Utils.nested?(@socket_id)} />
+        <.badge :if={@node_type == :live_view and LiveDebugger.Utils.nested?(@socket_id)} />
       </:right_panel>
       <div class="p-4 flex flex-col gap-1">
         <.info_row name="Module" value={inspect(@node.module)} />
