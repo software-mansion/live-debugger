@@ -10,12 +10,13 @@ defmodule LiveDebugger.Services.CallbackTracingService do
   The session should be stopped when monitored process is killed with `stop_tracing/1`.
   """
 
+  require Logger
+
   alias LiveDebugger.Services.ModuleDiscoveryService
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Structs.Trace
   alias Phoenix.LiveComponent.CID
   alias LiveDebugger.Services.TraceService
-  alias LiveDebugger.Utils.Logger
 
   @typedoc """
   Represents a raw trace straight from `:dbg`.

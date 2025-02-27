@@ -5,11 +5,12 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   use LiveDebuggerWeb, :live_component
 
+  require Logger
+
   alias LiveDebugger.Components.ElixirDisplay
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.Utils.Logger
 
   @stream_limit 32
 

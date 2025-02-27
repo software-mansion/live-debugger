@@ -5,11 +5,12 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   """
   use LiveDebuggerWeb, :live_component
 
+  require Logger
+
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
-  alias LiveDebugger.Utils.Logger
 
   @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
 
