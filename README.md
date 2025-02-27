@@ -1,8 +1,9 @@
 # LiveDebugger
 
-LiveDebugger is a browser-based tool for debugging LiveView applications.
-It provides insights into your LiveViews, their LiveComponents, events, state transitions, and more.
-![output](https://github.com/user-attachments/assets/ba35716e-162b-4edd-a56e-de83294510f1)
+LiveDebugger is a browser-based tool for debugging LiveView applications, designed to enhance your development experience. It gives you:
+- :deciduous_tree: A detailed view of your LiveComponents tree
+- :mag: The ability to inspect assigns for LiveViews and LiveComponents
+- :link: Tracing of their callback executions
 
 ## Installation
 
