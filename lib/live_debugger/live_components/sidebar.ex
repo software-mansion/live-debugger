@@ -12,8 +12,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
 
-  @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
-
   @impl true
   def mount(socket) do
     socket
@@ -73,8 +71,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :report_issue_url, @report_issue_url)
-
     ~H"""
     <div class="w-max flex bg-white shadow-custom border border-secondary-200">
       <div class="hidden sm:flex max-h-full flex-col w-64 gap-1 justify-between">
@@ -86,7 +82,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           node_id={@node_id}
           myself={@myself}
         />
-        <.report_issue />
+        <.report_issue class="border-t border-secondary-200" />
       </div>
       <.sidebar_slide_over :if={not @hidden?} myself={@myself}>
         <.sidebar_content
@@ -97,7 +93,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           node_id={@node_id}
           myself={@myself}
         />
-        <.report_issue />
+        <.report_issue class="border-t border-secondary-200" />
       </.sidebar_slide_over>
     </div>
     """
@@ -213,25 +209,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         max_opened_node_level={@max_opened_node_level.result}
       />
     </.async_result>
-    """
-  end
-
-  defp report_issue(assigns) do
-    assigns = assign(assigns, :report_issue_url, @report_issue_url)
-
-    ~H"""
-    <div class="px-6 py-3 flex items-center gap-1 text-xs border-t border-secondary-200">
-      <div>
-        See any issue?
-        <span>
-          Report it <.link
-            href={@report_issue_url}
-            target="_blank"
-            class="underline hover:text-gray-400"
-          >here</.link>.
-        </span>
-      </div>
-    </div>
     """
   end
 

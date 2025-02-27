@@ -3,8 +3,6 @@ defmodule LiveDebugger.Components.Error do
 
   use LiveDebuggerWeb, :component
 
-  @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
-
   slot(:heading, required: true)
   slot(:description)
 
@@ -16,7 +14,6 @@ defmodule LiveDebugger.Components.Error do
         <%= render_slot(@heading) %>
       </div>
       <p class="mb-4"><%= render_slot(@description) %></p>
-      <.report_issue />
       <.link navigate="/">
         <.button>
           See active LiveViews
@@ -41,6 +38,7 @@ defmodule LiveDebugger.Components.Error do
       <:heading>Unexpected error</:heading>
       <:description>
         Debugger encountered unexpected error. Check logs for more information
+        <.report_issue class="mb-4" />
       </:description>
     </.error_component>
     """
@@ -52,25 +50,6 @@ defmodule LiveDebugger.Components.Error do
       <:heading>Session limit reached</:heading>
       <:description>In OTP 26 and older versions you can open only one debugger window</:description>
     </.error_component>
-    """
-  end
-
-  defp report_issue(assigns) do
-    assigns = assign(assigns, :report_issue_url, @report_issue_url)
-
-    ~H"""
-    <div class="px-6 py-3 mb-4 flex items-center gap-1 text-xs">
-      <div>
-        See any issue?
-        <span>
-          Report it <.link
-            href={@report_issue_url}
-            target="_blank"
-            class="underline hover:text-gray-400"
-          >here</.link>.
-        </span>
-      </div>
-    </div>
     """
   end
 end

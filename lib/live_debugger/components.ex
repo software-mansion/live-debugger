@@ -6,6 +6,8 @@ defmodule LiveDebugger.Components do
   use Phoenix.Component
   import LiveDebuggerWeb.Helpers
 
+  @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
+
   @doc """
   Renders an alert with
   """
@@ -524,6 +526,30 @@ defmodule LiveDebugger.Components do
       </.link>
       <span>LiveDebugger</span>
       <%= @inner_block && render_slot(@inner_block) %>
+    </div>
+    """
+  end
+
+  attr(:class, :any, default: nil)
+
+  def report_issue(assigns) do
+    assigns = assign(assigns, :report_issue_url, @report_issue_url)
+
+    ~H"""
+    <div class={[
+      "px-6 py-3 flex justify-center gap-1 text-xs "
+      | List.wrap(@class)
+    ]}>
+      <div>
+        See any issue?
+        <span>
+          Report it <.link
+            href={@report_issue_url}
+            target="_blank"
+            class="underline hover:text-gray-400"
+          >here</.link>.
+        </span>
+      </div>
     </div>
     """
   end
