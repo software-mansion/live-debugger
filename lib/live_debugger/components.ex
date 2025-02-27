@@ -531,6 +531,7 @@ defmodule LiveDebugger.Components do
   end
 
   attr(:class, :any, default: nil)
+  attr(:text, :string, default: "See any issue? Report it")
 
   def report_issue(assigns) do
     assigns = assign(assigns, :report_issue_url, @report_issue_url)
@@ -541,14 +542,10 @@ defmodule LiveDebugger.Components do
       | List.wrap(@class)
     ]}>
       <div>
-        See any issue?
-        <span>
-          Report it <.link
-            href={@report_issue_url}
-            target="_blank"
-            class="underline hover:text-gray-400"
-          >here</.link>.
-        </span>
+        <%= @text %>
+        <.link href={@report_issue_url} target="_blank" class="underline hover:text-gray-400">
+          here
+        </.link>
       </div>
     </div>
     """
