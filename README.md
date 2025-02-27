@@ -5,6 +5,8 @@ LiveDebugger is a browser-based tool for debugging LiveView applications, design
 - :mag: The ability to inspect assigns for LiveViews and LiveComponents
 - :link: Tracing of their callback executions
 
+https://github.com/user-attachments/assets/37f1219c-93cc-4d06-96f7-9b2140a1c971
+
 ## Installation
 
 Add `live_debugger` to your list of dependencies in `mix.exs`:
