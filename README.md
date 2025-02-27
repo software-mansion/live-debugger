@@ -75,7 +75,7 @@ It'll run the application declared in the `dev/` directory with the library inst
 LiveReload is working both for `.ex` files and static files, but if some styles don't show up, try using this command
 
 ```console
-mix assets.build
+mix assets.build:dev
 ```
 
 ## Authors
