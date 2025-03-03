@@ -1,46 +1,42 @@
-name: Feature request
-about: Suggest an idea for this project
-title: "[FEATURE] Some new feature"
+name: Feature Request
+description: Suggest an idea for this project
 labels: enhancement
-assignees: ""
+type: "Feature"
+projects: "software-mansion/42"
 
 body:
-  - type: markdown
+  - type: textarea
+    id: problem-description
     attributes:
-      value: |
-        ### Is your feature request related to a problem? Please describe.
-        <!-- 
-        Add a clear and concise description of what the problem is. Ex.` I'm always frustrated when [...]`.
-        Please add example on how to use this feature/when it will come in handy.
-        -->
-
-        ### Describe the solution you'd like
-        <!-- 
-        Provide solution on the problem as clear and concise as possible 
-        -->
-
-        ### Describe alternatives you've considered
-        <!--
-        Have you considered any alternative solutions or features? If so, please provide a clear and concise description of any alternative solutions or features you've considered. This can help us understand your thought process and assess other potential ways to solve the same issue.
-        -->
-
-
-        ### Additional context
-        <!-- 
-        Add any other context or screenshots about the feature request here. 
-        -->
-
-  - type: dropdown
-    id: type
-    attributes:
-      label: Type
-      description: What type of issue is this?
-      options:
-        - Feature
-        - Bug
-        - Documentation
+      label: Problem Description
+      description: "Add a clear and concise description of what the problem is, e.g., 'I'm always frustrated when [...]'"
+      placeholder: "Describe the problem or your frustration..."
     validations:
       required: true
 
-project:
-  - name: LiveDebugger
+  - type: textarea
+    id: desired-solution
+    attributes:
+      label: "Proposed Solution"
+      description: "Provide a detailed description of the solution you'd propose."
+      placeholder: "Explain the solution you'd like..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternative-solutions
+    attributes:
+      label: "Alternative Solutions"
+      description: "Have you considered any alternative solutions or features?"
+      placeholder: "Detail any alternative solutions you've considered..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: "Additional Context"
+      description: "Add any other context or screenshots about the feature request here."
+      placeholder: "Provide additional context..."
+    validations:
+      required: false
