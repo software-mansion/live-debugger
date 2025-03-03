@@ -1,0 +1,78 @@
+name: Bug Report
+description: Create a report to help us improve
+labels: bug
+type: "Bug"
+projects: "software-mansion/42"
+
+body:
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: "Bug Description"
+      description: "Provide a clear and concise description of the bug."
+      placeholder: "Describe the bug..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: "Actual Behavior"
+      description: "Describe the actual behavior of the application. If you encounter an error, include the full error message and stack trace."
+      placeholder: "What did the application do?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: "Expected Behavior"
+      description: "Describe what you expected to happen."
+      placeholder: "What did you expect to happen?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: "Steps to Reproduce"
+      description: "Provide a detailed list of steps to reproduce this bug. Include code snippets, commands, or links to relevant files if necessary."
+      placeholder: "Step by step guide on how to reproduce this bug..."
+    validations:
+      required: true
+
+  - type: input
+    id: elixir-version
+    attributes:
+      label: "Elixir version with Erlang/OTP"
+      placeholder: "`elixir -v` output"
+    validations:
+      required: true
+  - type: input
+    id: phoenix-version
+    attributes:
+      label: "Phoenix version"
+      placeholder: "`mix deps` output for Phoenix"
+    validations:
+      required: true
+  - type: input
+    id: liveview-version
+    attributes:
+      label: "Phoenix LiveView version"
+      placeholder: "`mix deps` output for LiveView"
+    validations:
+      required: true
+  - type: input
+    id: operating-system
+    attributes:
+      label: "Operating system"
+      placeholder: "Your operating system"
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: "Browser(s)"
+      placeholder: "List browsers and versions"
+    validations:
+      required: true
