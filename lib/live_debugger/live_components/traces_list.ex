@@ -39,6 +39,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     |> assign(id: assigns.id)
     |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
     |> assign_async_existing_traces()
+    |> push_event("historical-events-clear", %{})
     |> ok()
   end
 
@@ -60,7 +61,12 @@ defmodule LiveDebugger.LiveComponents.TracesList do
           </div>
         </:right_panel>
         <div class="w-full h-full lg:min-h-[10.25rem]">
-          <div id={"#{assigns.id}-stream"} phx-update="stream" class="flex flex-col gap-2">
+          <div
+            id={"#{assigns.id}-stream"}
+            phx-update="stream"
+            class="flex flex-col gap-2"
+            phx-hook="TraceList"
+          >
             <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-gray-700">
               <div :if={@existing_traces_status == :ok}>
                 No traces have been recorded yet.
@@ -91,10 +97,17 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   @impl true
+  def handle_async(:fetch_existing_traces, {:ok, []}, socket) do
+    socket
+    |> assign(existing_traces_status: :ok)
+    |> noreply()
+  end
+
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
     socket
     |> assign(existing_traces_status: :ok)
     |> stream(:existing_traces, trace_list, limit: @stream_limit)
+    |> push_event("historical-events-load", %{})
     |> noreply()
   end
 
@@ -123,6 +136,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
     socket
     |> stream(:existing_traces, [], reset: true)
+    |> push_event("historical-events-clear", %{})
     |> noreply()
   end
 
