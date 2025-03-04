@@ -1,7 +1,7 @@
 let lvd_url = null;
 
 chrome.devtools.inspectedWindow.eval(
-  'document.querySelector("#live-debugger-button").href',
+  'document.querySelector("#debug-button a").href',
   function (result, isException) {
     if (isException) {
       console.log(
