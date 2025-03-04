@@ -130,7 +130,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   @impl true
-  def handle_event("open-trace", %{"trace-id" => string_id}, socket) do
+  def handle_event("open-trace", %{"data" => string_id}, socket) do
     trace_id = String.to_integer(string_id)
 
     socket.assigns.ets_table_id
@@ -171,10 +171,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   attr(:myself, :any, required: true)
 
   defp trace(assigns) do
-    assigns =
-      assigns
-      |> assign(:fullscreen_id, assigns.id <> "-fullscreen")
-      |> assign(:callback_name, "#{assigns.trace.function}/#{assigns.trace.arity}")
+    assigns = assign(assigns, :callback_name, "#{assigns.trace.function}/#{assigns.trace.arity}")
 
     ~H"""
     <.collapsible
@@ -197,15 +194,14 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         </div>
       </:label>
       <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto p-4">
-        <.icon_button
-          icon="icon-expand"
-          size="sm"
+        <.fullscreen_button
+          id={"trace-fullscreen-#{@id}"}
           class="absolute right-2 top-2"
-          variant="secondary"
-          phx-click="open-trace"
-          phx-target={@myself}
-          phx-value-trace-id={@trace.id}
+          on_click="open-trace"
+          on_click_target={@myself}
+          on_click_data={@trace.id}
         />
+
         <%= for {args, index} <- Enum.with_index(@trace.args) do %>
           <ElixirDisplay.term
             id={@id <> "-#{index}"}
