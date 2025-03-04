@@ -1,4 +1,9 @@
 defmodule LiveDebugger.Structs.TraceDisplay do
+  @moduledoc """
+  This module provides a struct used for displaying traces.
+  It wraps a trace struct and adds additional information.
+  """
+
   alias LiveDebugger.Structs.Trace
 
   defstruct [:id, :trace, :render_body?, :counter]
