@@ -355,7 +355,9 @@ defmodule LiveDebugger.Components do
 
   @doc """
   Renders a fullscreen using Fullscreen hook.
-  If you want to open fullscreen from a button, you can use `phx-hook="OpenFullscreen"` and `data-fullscreen-id` attributes.
+  It can be opened and via browser "{id}-open" event (by default) with JS.dispatch or via server event (check example in fullscreen button).
+
+  You can use `fullscreen_button` to open this fullscreen.
   You can close the fullscreen using X button or by pressing ESC key.
   """
   attr(:id, :string, required: true)
@@ -397,9 +399,30 @@ defmodule LiveDebugger.Components do
 
   @doc """
   Renders a button which will show a fullscreen when clicked.
+  You can override `phx-click` value, but remember to push correct event at the end of `handle_event` function.
+
+  ## Examples
+      <.fullscreen_button
+        id="my-fullscreen"
+        on_click="open-fullscreen"
+        icon="icon-expand"
+      />
+
+      @impl true
+      def handle_event("open-fullscreen", _, socket) do
+        trace_id = String.to_integer(string_id)
+
+        socket
+        |> push_event("my-fullscreen-open", %{})
+        |> noreply()
+      end
   """
   attr(:id, :string, required: true, doc: "Same as `id` of the fullscreen.")
-  attr(:title, :string, default: "")
+
+  attr(:on_click, :string,
+    required: true,
+    doc: "Function to be called when the button is clicked."
+  )
 
   attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
