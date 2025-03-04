@@ -208,11 +208,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       assigns
       |> assign(:trace, assigns.wrapped_trace.trace)
       |> assign(:render_body?, assigns.wrapped_trace.render_body?)
-      |> assign(
-        :callback_name,
-        Trace.callback_name(assigns.wrapped_trace.trace)
-        "#{assigns.wrapped_trace.trace.function}/#{assigns.wrapped_trace.trace.arity}"
-      )
+      |> assign(:callback_name, Trace.callback_name(assigns.wrapped_trace.trace))
       |> assign(:counter, assigns.wrapped_trace.counter)
 
     ~H"""
