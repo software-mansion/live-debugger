@@ -13,7 +13,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TraceDisplay
 
-  @stream_limit 96
+  @stream_limit 128
 
   @impl true
   def mount(socket) do
