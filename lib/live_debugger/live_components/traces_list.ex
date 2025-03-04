@@ -25,7 +25,10 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   @impl true
   def update(%{new_trace: trace}, %{assigns: %{tracing_started?: true}} = socket) do
     socket
-    |> stream_insert(:existing_traces, trace, at: 0, limit: @stream_limit)
+    |> stream_insert(:existing_traces, %{id: trace.id, trace: trace, render_body?: false},
+      at: 0,
+      limit: @stream_limit
+    )
     |> ok()
   end
 
@@ -94,6 +97,9 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   @impl true
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
+    trace_list =
+      Enum.map(trace_list, fn trace -> %{id: trace.id, trace: trace, render_body?: true} end)
+
     socket
     |> assign(existing_traces_status: :ok)
     |> stream(:existing_traces, trace_list, limit: @stream_limit)
@@ -147,6 +153,26 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     |> noreply()
   end
 
+  @impl true
+  def handle_event("toggle-collapsible", %{"tid" => string_trace_id}, socket) do
+    trace_id = String.to_integer(string_trace_id)
+
+    socket.assigns.ets_table_id
+    |> TraceService.get(trace_id)
+    |> case do
+      nil ->
+        socket
+
+      trace ->
+        socket
+        |> stream_insert(:existing_traces, %{id: trace.id, trace: trace, render_body?: true},
+          at: abs(trace.id),
+          limit: @stream_limit
+        )
+    end
+    |> noreply()
+  end
+
   attr(:tracing_started?, :boolean, required: true)
   attr(:myself, :any, required: true)
 
@@ -171,7 +197,11 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   attr(:myself, :any, required: true)
 
   defp trace(assigns) do
-    assigns = assign(assigns, :callback_name, "#{assigns.trace.function}/#{assigns.trace.arity}")
+    assigns =
+      assigns
+      |> assign(:trace, assigns.trace.trace)
+      |> assign(:render_body?, assigns.trace.render_body?)
+      |> assign(:callback_name, "#{assigns.trace.trace.function}/#{assigns.trace.trace.arity}")
 
     ~H"""
     <.collapsible
@@ -180,9 +210,16 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       chevron_class="w-5 h-5 text-primary-900"
       class="max-w-full border border-secondary-200 rounded"
       label_class="font-semibold bg-secondary-50 h-10 p-2"
+      click="toggle-collapsible"
+      target={@myself}
+      tid={@trace.id}
     >
       <:label>
-        <div class="w-[90%] grow flex items-center ml-2 gap-1.5">
+        <div
+          id={@id <> "-label"}
+          class="w-[90%] grow flex items-center ml-2 gap-1.5"
+          phx-update="ignore"
+        >
           <div class="flex gap-1.5 items-center">
             <p class="font-medium text-sm"><%= @callback_name %></p>
             <.aggregate_count :if={@trace.counter > 1} count={@trace.counter} />
@@ -202,12 +239,14 @@ defmodule LiveDebugger.LiveComponents.TracesList do
           on_click_data={@trace.id}
         />
 
-        <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-          <ElixirDisplay.term
-            id={@id <> "-#{index}"}
-            node={TermParser.term_to_display_tree(args)}
-            level={1}
-          />
+        <%= if @render_body? do %>
+          <%= for {args, index} <- Enum.with_index(@trace.args) do %>
+            <ElixirDisplay.term
+              id={@id <> "-#{index}"}
+              node={TermParser.term_to_display_tree(args)}
+              level={1}
+            />
+          <% end %>
         <% end %>
       </div>
     </.collapsible>

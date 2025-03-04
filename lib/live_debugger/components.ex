@@ -115,6 +115,9 @@ defmodule LiveDebugger.Components do
   attr(:label_style, :any, default: nil, doc: "CSS style for the label")
   attr(:chevron_class, :any, default: nil, doc: "CSS class for the chevron icon")
   attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
+  attr(:click, :any, default: nil)
+  attr(:target, :any, default: nil, doc: "The target for the click event")
+  attr(:tid, :integer, default: nil)
 
   attr(:icon, :string,
     default: "icon-chevron-right",
@@ -134,6 +137,9 @@ defmodule LiveDebugger.Components do
         "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden"
         | List.wrap(@class)
       ]}
+      phx-click={@click}
+      phx-target={@target}
+      phx-value-tid={@tid}
       {show_collapsible_assign(@open)}
       {@rest}
     >
