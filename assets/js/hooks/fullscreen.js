@@ -1,15 +1,12 @@
 const Fullscreen = {
   mounted() {
-    console.log(this.el.id);
     this.handleOpen = () => {
-      console.log('open');
       this.el.showModal();
       this.el.classList.remove('hidden');
       this.el.classList.add('flex');
     };
 
     this.handleClose = () => {
-      console.log('close');
       this.el.close();
       this.el.classList.remove('flex');
       this.el.classList.add('hidden');
