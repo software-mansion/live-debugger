@@ -56,12 +56,17 @@ Hooks.Fullscreen = {
       this.el.classList.add('hidden');
     };
 
-    this.el.addEventListener('open', this.handleOpen);
-    this.el.addEventListener('close', this.handleClose);
+    // Events from the browser
+    this.el.addEventListener(`${this.el.id}-open`, this.handleOpen);
+    this.el.addEventListener(`${this.el.id}-close`, this.handleClose);
+
+    // Events from the server
+    this.handleEvent(`${this.el.id}-open`, this.handleOpen);
+    this.handleEvent(`${this.el.id}-close`, this.handleClose);
   },
   destroyed() {
-    this.el.removeEventListener('open', this.handleOpen);
-    this.el.removeEventListener('close', this.handleClose);
+    this.el.removeEventListener(`${this.el.id}-open`, this.handleOpen);
+    this.el.removeEventListener(`${this.el.id}-close`, this.handleClose);
   },
 };
 

@@ -382,7 +382,7 @@ defmodule LiveDebugger.Components do
         <div class="font-semibold text-base"><%= @title %></div>
         <.icon_button
           id={"#{@id}-close"}
-          phx-click={JS.dispatch("close", to: "##{@id}")}
+          phx-click={JS.dispatch("#{@id}-close", to: "##{@id}")}
           icon="icon-cross-small"
           variant="secondary"
           size="sm"
@@ -412,7 +412,7 @@ defmodule LiveDebugger.Components do
     ~H"""
     <.icon_button
       id={"#{@id}-button"}
-      phx-click={JS.dispatch("open", to: "##{@id}")}
+      phx-click={JS.dispatch("#{@id}-open", to: "##{@id}")}
       icon={@icon}
       size="sm"
       data-fullscreen-id={@id}
