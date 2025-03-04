@@ -28,7 +28,7 @@ defmodule LiveDebugger.Services.TraceRateLimiter do
     state.traces
     |> Enum.reverse()
     |> Enum.each(fn {_key, %{last_trace: trace, counter: counter}} ->
-      send(state.target_pid, {:new_trace, %{trace | counter: counter}})
+      send(state.target_pid, {:new_trace, %{trace: trace, counter: counter}})
     end)
 
     {:noreply, %{state | traces: []}}
