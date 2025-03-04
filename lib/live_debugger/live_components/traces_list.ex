@@ -18,6 +18,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   def mount(socket) do
     socket
     |> assign(:tracing_started?, false)
+    |> assign(:displayed_trace, nil)
     |> ok()
   end
 
@@ -81,7 +82,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
               </.alert>
             </div>
             <%= for {dom_id, trace} <- @streams.existing_traces do %>
-              <.trace id={dom_id} trace={trace} />
+              <.trace id={dom_id} trace={trace} myself={@myself} />
             <% end %>
           </div>
         </div>
@@ -115,6 +116,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     |> noreply()
   end
 
+  @impl true
   def handle_event("clear-traces", _, socket) do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.debugged_node_id
@@ -123,6 +125,19 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
     socket
     |> stream(:existing_traces, [], reset: true)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("open-trace", %{"trace-id" => string_id}, socket) do
+    trace_id = String.to_integer(string_id)
+
+    socket.assigns.ets_table_id
+    |> TraceService.get(trace_id)
+    |> case do
+      nil -> socket
+      trace -> assign(socket, displayed_trace: trace)
+    end
     |> noreply()
   end
 
@@ -147,6 +162,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   attr(:id, :string, required: true)
   attr(:trace, :map, required: true, doc: "The Trace struct to render")
+  attr(:myself, :any, required: true)
 
   defp trace(assigns) do
     assigns =
@@ -174,20 +190,16 @@ defmodule LiveDebugger.LiveComponents.TracesList do
           </p>
         </div>
       </:label>
-      <.fullscreen id={@fullscreen_id} title={@callback_name}>
-        <div class="w-full flex flex-col gap-4 items-start justify-center">
-          <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-            <ElixirDisplay.term
-              id={@id <> "-#{index}-fullscreen"}
-              node={TermParser.term_to_display_tree(args)}
-              level={1}
-            />
-          <% end %>
-        </div>
-      </.fullscreen>
-
       <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto p-4">
-        <.fullscreen_button id={@fullscreen_id} class="absolute right-2 top-2" />
+        <.icon_button
+          icon="icon-expand"
+          size="sm"
+          class="absolute right-2 top-2"
+          variant="secondary"
+          phx-click="open-trace"
+          phx-target={@myself}
+          phx-value-trace-id={@trace.id}
+        />
         <%= for {args, index} <- Enum.with_index(@trace.args) do %>
           <ElixirDisplay.term
             id={@id <> "-#{index}"}
