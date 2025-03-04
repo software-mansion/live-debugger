@@ -4,7 +4,10 @@ defmodule LiveDebugger.Components do
   """
 
   use Phoenix.Component
+
   import LiveDebuggerWeb.Helpers
+
+  alias Phoenix.LiveView.JS
 
   @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
 
@@ -352,7 +355,9 @@ defmodule LiveDebugger.Components do
 
   @doc """
   Renders a fullscreen using Fullscreen hook.
-  If you want to open fullscreen from a button, you can use `phx-hook="OpenFullscreen"` and `data-fullscreen-id` attributes.
+  It can be opened and via browser "open" event (by default) with JS.dispatch or via server event (check example in fullscreen button).
+
+  You can use `fullscreen_button` to open this fullscreen.
   You can close the fullscreen using X button or by pressing ESC key.
   """
   attr(:id, :string, required: true)
@@ -379,11 +384,10 @@ defmodule LiveDebugger.Components do
         <div class="font-semibold text-base"><%= @title %></div>
         <.icon_button
           id={"#{@id}-close"}
+          phx-click={JS.dispatch("close", to: "##{@id}")}
           icon="icon-cross-small"
           variant="secondary"
           size="sm"
-          phx-hook="CloseFullscreen"
-          data-fullscreen-id={@id}
         />
       </div>
       <div class="overflow-auto flex flex-col gap-2 p-2">
@@ -395,10 +399,28 @@ defmodule LiveDebugger.Components do
 
   @doc """
   Renders a button which will show a fullscreen when clicked.
+  You can override `phx-click` value, but remember to push correct event at the end of `handle_event` function.
+
+  ## Examples
+      <.fullscreen_button
+        id="my-fullscreen"
+        on_click="open-fullscreen"
+        icon="icon-expand"
+      />
+
+      @impl true
+      def handle_event("open-fullscreen", _, socket) do
+        trace_id = String.to_integer(string_id)
+
+        socket
+        |> push_event("my-fullscreen-open", %{})
+        |> noreply()
+      end
   """
   attr(:id, :string, required: true, doc: "Same as `id` of the fullscreen.")
-  attr(:title, :string, default: "")
-
+  attr(:on_click, :any, default: nil)
+  attr(:on_click_target, :any, default: nil)
+  attr(:on_click_data, :any, default: nil)
   attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
   attr(:icon, :string,
@@ -409,8 +431,10 @@ defmodule LiveDebugger.Components do
   def fullscreen_button(assigns) do
     ~H"""
     <.icon_button
-      id={"#{@id}_button"}
-      phx-hook="OpenFullscreen"
+      id={"#{@id}-button"}
+      phx-click={@on_click || JS.dispatch("open", to: "##{@id}")}
+      phx-target={@on_click_target}
+      phx-value-data={@on_click_data}
       icon={@icon}
       size="sm"
       data-fullscreen-id={@id}

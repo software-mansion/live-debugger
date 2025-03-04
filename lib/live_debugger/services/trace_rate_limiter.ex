@@ -7,7 +7,7 @@ defmodule LiveDebugger.Services.TraceRateLimiter do
   """
   use GenServer
 
-  @traces_number 10
+  @traces_number 16
   @period_ms 1000
   @interval_ms div(@period_ms, @traces_number)
 

@@ -56,6 +56,20 @@ defmodule LiveDebugger.Services.TraceService do
   end
 
   @doc """
+  Gets a trace from the ETS table by its id.
+  """
+  @spec get(:ets.table(), integer()) :: Trace.t() | nil
+  def get(table_id, id) do
+    table_id
+    |> maybe_init_ets()
+    |> :ets.lookup(id)
+    |> case do
+      [] -> nil
+      [{_id, trace}] -> trace
+    end
+  end
+
+  @doc """
   Returns all existing traces for the given table id and CID or PID.
   """
   @spec existing_traces(atom(), pid() | CommonTypes.cid()) :: [Trace.t()]
