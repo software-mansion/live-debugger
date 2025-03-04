@@ -4,7 +4,10 @@ defmodule LiveDebugger.Components do
   """
 
   use Phoenix.Component
+
   import LiveDebuggerWeb.Helpers
+
+  alias Phoenix.LiveView.JS
 
   @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
 
@@ -379,11 +382,10 @@ defmodule LiveDebugger.Components do
         <div class="font-semibold text-base"><%= @title %></div>
         <.icon_button
           id={"#{@id}-close"}
+          phx-click={JS.dispatch("close", to: "##{@id}")}
           icon="icon-cross-small"
           variant="secondary"
           size="sm"
-          phx-hook="CloseFullscreen"
-          data-fullscreen-id={@id}
         />
       </div>
       <div class="overflow-auto flex flex-col gap-2 p-2">
@@ -409,8 +411,8 @@ defmodule LiveDebugger.Components do
   def fullscreen_button(assigns) do
     ~H"""
     <.icon_button
-      id={"#{@id}_button"}
-      phx-hook="OpenFullscreen"
+      id={"#{@id}-button"}
+      phx-click={JS.dispatch("open", to: "##{@id}")}
       icon={@icon}
       size="sm"
       data-fullscreen-id={@id}
