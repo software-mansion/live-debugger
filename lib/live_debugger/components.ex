@@ -355,7 +355,7 @@ defmodule LiveDebugger.Components do
 
   @doc """
   Renders a fullscreen using Fullscreen hook.
-  It can be opened and via browser "{id}-open" event (by default) with JS.dispatch or via server event (check example in fullscreen button).
+  It can be opened and via browser "open" event (by default) with JS.dispatch or via server event (check example in fullscreen button).
 
   You can use `fullscreen_button` to open this fullscreen.
   You can close the fullscreen using X button or by pressing ESC key.
@@ -384,7 +384,7 @@ defmodule LiveDebugger.Components do
         <div class="font-semibold text-base"><%= @title %></div>
         <.icon_button
           id={"#{@id}-close"}
-          phx-click={JS.dispatch("#{@id}-close", to: "##{@id}")}
+          phx-click={JS.dispatch("close", to: "##{@id}")}
           icon="icon-cross-small"
           variant="secondary"
           size="sm"
@@ -432,7 +432,7 @@ defmodule LiveDebugger.Components do
     ~H"""
     <.icon_button
       id={"#{@id}-button"}
-      phx-click={@on_click || JS.dispatch("#{@id}-open", to: "##{@id}")}
+      phx-click={@on_click || JS.dispatch("open", to: "##{@id}")}
       phx-target={@on_click_target}
       phx-value-data={@on_click_data}
       icon={@icon}
