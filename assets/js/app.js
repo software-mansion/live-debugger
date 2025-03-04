@@ -29,13 +29,28 @@ Alpine.start();
 Alpine.plugin(collapse);
 window.Alpine = Alpine;
 
+/* This is solution to hiding Dialog and Details components https://github.com/phoenixframework/phoenix_live_view/issues/2349#issuecomment-1430720906 */
+function saveDialogAndDetailsState() {
+  return (fromEl, toEl) => {
+    if (['DIALOG', 'DETAILS'].indexOf(fromEl.tagName) >= 0) {
+      Array.from(fromEl.attributes).forEach((attr) => {
+        toEl.setAttribute(attr.name, attr.value);
+      });
+    }
+  };
+}
+
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute('content');
+
 let liveSocket = new LiveSocket('/live', Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },
   hooks: Hooks,
+  dom: {
+    onBeforeElUpdated: saveDialogAndDetailsState(),
+  },
 });
 
 // Show progress bar on live navigation and form submits

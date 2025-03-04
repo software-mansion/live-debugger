@@ -19,7 +19,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
   alias LiveDebugger.Services.TraceService
 
   @typedoc """
-  Represents a raw trace straight from `:dbg.
+  Represents a raw trace straight from `:dbg`.
   It should not be used outside of this module.
   """
   @type raw_trace :: {atom(), pid(), atom(), {atom(), atom(), [term()]}}
@@ -57,7 +57,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
   if @dbg_sessions_available do
     defp start_tracing_impl(socket_id, monitored_pid, recipient_pid) do
       with ets_table_id <- TraceService.ets_table_id(socket_id),
-           _table <- TraceService.init_ets(ets_table_id),
+           _table <- TraceService.maybe_init_ets(ets_table_id),
            next_tuple_id <- TraceService.next_tuple_id(ets_table_id),
            tracing_session_id <- tracing_session_id(monitored_pid),
            tracing_session <- :dbg.session_create(tracing_session_id) do
@@ -88,7 +88,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
     defp start_tracing_impl(socket_id, monitored_pid, recipient_pid) do
       with :ok <- check_session_limit(),
            ets_table_id <- TraceService.ets_table_id(socket_id),
-           _table <- TraceService.init_ets(ets_table_id),
+           _table <- TraceService.maybe_init_ets(ets_table_id),
            next_tuple_id <- TraceService.next_tuple_id(ets_table_id) do
         do_trace(ets_table_id, monitored_pid, recipient_pid, next_tuple_id)
 
@@ -100,8 +100,24 @@ defmodule LiveDebugger.Services.CallbackTracingService do
         {:error, err}
     end
 
+    # This function is basically a `:dbg.stop/0` rewritten to Elixir.
+    # The reason for that is the fact that `:dbg.ctp/0` (used in `:dbg.stop/0`) interferes with Phoenix LiveView.
+    # In result LiveView modules sometimes cannot find implementation of its callbacks.
+    # This seems to be a workaround for that issue.
     defp stop_tracing_impl(nil) do
-      :dbg.stop()
+      case Process.whereis(:dbg) do
+        pid when is_pid(pid) ->
+          mref = Process.monitor(pid)
+
+          send(pid, {self(), :stop})
+
+          receive do
+            {:DOWN, ^mref, _, _, _} -> :ok
+          end
+
+        _ ->
+          :ok
+      end
     end
 
     defp check_session_limit() do
@@ -151,10 +167,25 @@ defmodule LiveDebugger.Services.CallbackTracingService do
     |> do_handle(recipient_pid, ets_table_id, n)
   end
 
-  defp trace_handler({_, pid, _, {module, function, args}}, n, ets_table_id, recipient_pid) do
+  defp trace_handler(
+         {_, pid, _, {module, function, args}} = trace,
+         n,
+         ets_table_id,
+         recipient_pid
+       ) do
+    if function in CallbackUtils.callbacks_functions() do
+      n
+      |> Trace.new(module, function, args, pid)
+      |> do_handle(recipient_pid, ets_table_id, n)
+    else
+      Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
+      n
+    end
+  end
+
+  defp trace_handler(trace, n, _, _) do
+    Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
     n
-    |> Trace.new(module, function, args, pid)
-    |> do_handle(recipient_pid, ets_table_id, n)
   end
 
   defp do_handle(trace, recipient_pid, ets_table_id, n) do

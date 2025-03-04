@@ -27,7 +27,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   @doc """
   Returns pid of the LiveView process associated the given `socket_id`.
   """
-  @spec live_pid(socket_id :: binary()) :: pid() | nil
+  @spec live_pid(socket_id :: binary()) :: {pid(), module()} | nil
   def live_pid(socket_id) do
     debugged_live_pids()
     |> Enum.map(fn pid -> {pid, ProcessService.state(pid)} end)
@@ -36,9 +36,23 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
       {:error, _} -> false
     end)
     |> case do
-      {pid, _} -> pid
+      # This is temporary to make fetching module easier for session dashboard
+      {pid, {:ok, %{socket: %{view: module}}}} -> {pid, module}
       nil -> nil
     end
+  end
+
+  @doc """
+  Finds potential successor PID based on module when websocket connection breaks and new one is created
+  This is a common scenario when user recompiles code or refreshes the page
+  """
+  @spec find_successor_pid(module :: module()) :: [pid()]
+  def find_successor_pid(module) do
+    live_pids()
+    |> Enum.filter(fn {_, initial_call} ->
+      not debugger?(initial_call) and same_module(initial_call, module)
+    end)
+    |> Enum.map(&elem(&1, 0))
   end
 
   defp live_pids() do
@@ -62,4 +76,10 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   end
 
   defp debugger?(_), do: false
+
+  defp same_module(_, nil), do: true
+
+  defp same_module({module, _, _}, current_module) do
+    module == current_module
+  end
 end

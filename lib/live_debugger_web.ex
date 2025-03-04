@@ -22,6 +22,7 @@ defmodule LiveDebuggerWeb do
     end
   end
 
+  @spec component() :: {:__block__, [], [{:import, [...], [...]} | {:use, [...], [...]}, ...]}
   def component do
     quote do
       use Phoenix.Component
@@ -39,6 +40,8 @@ end
 
 defmodule LiveDebuggerWeb.Helpers do
   @moduledoc false
+
+  def empty_map(_), do: %{}
 
   def ok(socket), do: {:ok, socket}
   def noreply(socket), do: {:noreply, socket}

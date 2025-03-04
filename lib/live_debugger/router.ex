@@ -6,20 +6,16 @@ defmodule LiveDebugger.Router do
   pipeline :dbg_browser do
     plug(:accepts, ["html"])
     plug(:fetch_session)
-    plug(:fetch_live_flash)
     plug(:put_root_layout, html: {LiveDebugger.Layout, :root})
     plug(:protect_from_forgery)
+    plug(:put_secure_browser_headers)
     plug(LiveDebugger.Plugs.AllowIframe)
   end
 
   scope "/" do
     pipe_through([:dbg_browser])
 
-    import Phoenix.Router
     import Phoenix.LiveView.Router
-
-    get("/css-:md5", LiveDebugger.Controllers.Assets, :css)
-    get("/js-:md5", LiveDebugger.Controllers.Assets, :js)
 
     live("/", LiveDebugger.LiveViews.SessionsDashboard)
     live("/:socket_id", LiveDebugger.LiveViews.ChannelDashboard)

@@ -11,14 +11,16 @@ defmodule LiveDebuggerDev.Runner do
       pubsub_server: LiveDebuggerDev.PubSub,
       adapter: Bandit.PhoenixAdapter,
       watchers: [
-        esbuild: {Esbuild, :install_and_run, [:default, ~w(--watch)]},
-        tailwind: {Tailwind, :install_and_run, [:live_debugger, ~w(--watch)]}
+        esbuild: {Esbuild, :install_and_run, [:dev_build, ~w(--watch)]},
+        tailwind: {Tailwind, :install_and_run, [:dev_build, ~w(--watch)]}
       ],
       live_reload: [
         patterns: [
-          ~r"dist/.*(js|css)$",
-          ~r"lib/live_debugger/live_views/.*(ex)$",
-          ~r"lib/live_debugger/live_components/.*(ex)$",
+          ~r"priv/static/.*(js|css|svg)$",
+          ~r"lib/live_debugger/live_views/.*ex$",
+          ~r"lib/live_debugger/live_components/.*ex$",
+          ~r"lib/live_debugger/components/.*ex$",
+          ~r"lib/live_debugger/components.ex",
           ~r"lib/live_debugger/layout.ex",
           ~r"dev/live_views/.*(ex)$",
           ~r"dev/live_components/.*(ex)$",
@@ -27,27 +29,20 @@ defmodule LiveDebuggerDev.Runner do
       ]
     )
 
-    Application.put_env(:live_debugger, LiveDebugger.Endpoint,
-      url: [host: "localhost"],
-      secret_key_base: "Hu4qQN3iKzTV4fJxhorPQlA/osH9fAMtbtjVS58PFgfw3ja5Z18Q/WSNR9wP4OfW",
-      live_view: [signing_salt: "hMegieSe"],
-      http: [port: System.get_env("LIVE_DEBUGGER_PORT") || 4005],
-      debug_errors: true,
-      check_origin: false,
-      pubsub_server: LiveDebugger.PubSub,
-      adapter: Bandit.PhoenixAdapter
-    )
-
     Application.put_env(:phoenix, :serve_endpoints, true)
 
     Task.async(fn ->
       children = [
         {Phoenix.PubSub, name: LiveDebuggerDev.PubSub},
-        LiveDebugger.Supervisor,
         LiveDebuggerDev.Endpoint
       ]
 
       {:ok, _} = Supervisor.start_link(children, strategy: :one_for_one)
+
+      # For some reason `Application.put_env` doesn't work and LiveDebugger starts without config
+      Application.stop(:live_debugger)
+      Application.start(:live_debugger)
+
       Process.sleep(:infinity)
     end)
   end

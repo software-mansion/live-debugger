@@ -24,12 +24,12 @@ defmodule LiveDebugger.Layout do
         />
         <meta name="csrf-token" content={Phoenix.Controller.get_csrf_token()} />
         <title>LiveDebugger</title>
-        <link rel="stylesheet" href={asset_path(@conn, :css)} />
-        <script src={asset_path(@conn, :js)} defer>
+        <link rel="stylesheet" href="/assets/app.css" />
+        <script src="/assets/app.js" defer>
         </script>
         <%= custom_head_tags(assigns, :before_closing_head_tag) %>
       </head>
-      <body>
+      <body class="bg-secondary-100 text-secondary-900 text-xs font-normal">
         <span
           id="tooltip"
           class="absolute hidden p-1 text-xs bg-white border-1 border-primary rounded-md shadow-md"
@@ -43,22 +43,10 @@ defmodule LiveDebugger.Layout do
 
   def render("app.html", assigns) do
     ~H"""
-    <main class="h-screen w-screen">
+    <main class="h-screen w-screen max-w-full">
       <%= @inner_content %>
     </main>
     """
-  end
-
-  @compile {:no_warn_undefined, Phoenix.VerifiedRoutes}
-
-  defp asset_path(conn, asset) when asset in [:css, :js] do
-    hash = LiveDebugger.Controllers.Assets.current_hash(asset)
-
-    Phoenix.VerifiedRoutes.unverified_path(
-      conn,
-      conn.private.phoenix_router,
-      "/#{asset}-#{hash}"
-    )
   end
 
   defp custom_head_tags(assigns, key) do

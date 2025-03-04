@@ -3,7 +3,7 @@ defmodule LiveDebugger.Services.System.ModuleService do
   This module provides wrappers for system functions that queries modules in the current application.
   """
 
-  @callback all() :: [{module(), charlist()}]
+  @callback all() :: [{charlist(), charlist(), boolean()}]
   @callback loaded?(module :: module()) :: boolean()
   @callback behaviours(module :: module()) :: [module()]
 
@@ -39,7 +39,7 @@ defmodule LiveDebugger.Services.System.ModuleService do
 
     @impl true
     def all() do
-      :code.all_loaded()
+      :code.all_available()
     end
 
     @impl true

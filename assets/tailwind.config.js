@@ -17,31 +17,43 @@ module.exports = {
   ],
   theme: {
     extend: {
+      boxShadow: { custom: '0px 2px 4px 0px rgba(0, 26, 114, 0.05)' },
       colors: {
         primary: {
-          DEFAULT: '#001A72',
-          50: '#2B5BFF',
-          100: '#164BFF',
-          200: '#0036EC',
-          300: '#002DC4',
-          400: '#00239B',
-          500: '#001A72',
-          600: '#00155E',
-          700: '#001149',
-          800: '#000C35',
-          900: '#000720',
-          950: '#000516',
+          50: '#F6F4FE',
+          100: '#EDEBFC',
+          200: '#DFDAFA',
+          300: '#C7BDF5',
+          400: '#A997EE',
+          500: '#8D6DE5',
+          600: '#7B4ED9',
+          700: '#6B3CC5',
+          800: '#5A31A6',
+          900: '#4C2B8A',
+          950: '#2E195C',
         },
-        secondary: colors.pink,
+        secondary: colors.slate,
         success: colors.green,
         danger: colors.red,
         warning: colors.yellow,
         info: colors.sky,
         gray: colors.gray,
       },
-      screens: {
-        xs: '380px',
+      screens: { xs: '380px' },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        topbar: ['DM Mono', 'serif'],
+        code: [
+          'ui-monospace',
+          'SFMono-Regular',
+          'SF Mono',
+          'Menlo',
+          'Consolas',
+          'Liberation Mono',
+          'monospace',
+        ],
       },
+      fontSize: { '3xs': ['10px', '13px'], '2xs': ['11px', '20px'] },
     },
   },
   plugins: [
@@ -64,28 +76,26 @@ module.exports = {
         '.phx-change-loading &',
       ])
     ),
-    // Plugin for adding Heroicons
-    plugin(function ({ matchComponents, theme }) {
-      let iconsDir = path.join(__dirname, './icons/heroicons/optimized');
-      let values = {};
-      let icons = [
-        ['', '/24/outline'],
-        ['-solid', '/24/solid'],
-        ['-mini', '/20/solid'],
-        ['-micro', '/16/solid'],
-      ];
-      icons.forEach(([suffix, dir]) => {
-        fs.readdirSync(path.join(iconsDir, dir)).forEach((file) => {
-          let name = path.basename(file, '.svg') + suffix;
-          values[name] = {
-            name,
-            fullPath: path.join(iconsDir, dir, file),
-          };
+    // Plugin for fullscreen backdrop
+    plugin(function ({ addVariant, e }) {
+      addVariant('backdrop', ({ modifySelectors, separator }) => {
+        modifySelectors(({ className }) => {
+          return `.${e(`backdrop${separator}${className}`)}::backdrop`;
         });
+      });
+    }),
+    // Plugin for adding custom icons
+    plugin(function ({ matchComponents, theme }) {
+      let iconsDir = path.join(__dirname, './icons');
+      let values = {};
+
+      fs.readdirSync(iconsDir).forEach((file) => {
+        let name = path.basename(file, '.svg');
+        values[name] = { name, fullPath: path.join(iconsDir, file) };
       });
       matchComponents(
         {
-          hero: ({ name, fullPath }) => {
+          icon: ({ name, fullPath }) => {
             let content = fs
               .readFileSync(fullPath)
               .toString()
@@ -97,9 +107,9 @@ module.exports = {
               size = theme('spacing.4');
             }
             return {
-              [`--hero-${name}`]: `url('data:image/svg+xml;utf8,${content}')`,
-              '-webkit-mask': `var(--hero-${name})`,
-              mask: `var(--hero-${name})`,
+              [`--icon-${name}`]: `url('data:image/svg+xml;utf8,${content}')`,
+              '-webkit-mask': `var(--icon-${name})`,
+              mask: `var(--icon-${name})`,
               'mask-repeat': 'no-repeat',
               'background-color': 'currentColor',
               'vertical-align': 'middle',
