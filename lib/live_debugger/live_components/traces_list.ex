@@ -11,6 +11,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
+  alias LiveDebugger.Structs.TraceDisplay
 
   @stream_limit 96
 
@@ -23,9 +24,12 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   @impl true
-  def update(%{new_trace: trace}, %{assigns: %{tracing_started?: true}} = socket) do
+  def update(
+        %{new_trace: %{trace: trace, counter: counter}},
+        %{assigns: %{tracing_started?: true}} = socket
+      ) do
     socket
-    |> stream_insert(:existing_traces, %{id: trace.id, trace: trace, render_body?: false},
+    |> stream_insert(:existing_traces, TraceDisplay.form_live_trace(trace, counter),
       at: 0,
       limit: @stream_limit
     )
@@ -39,6 +43,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   def update(assigns, socket) do
     socket
+    |> assign(:tracing_started?, false)
     |> assign(debugged_node_id: assigns.debugged_node_id)
     |> assign(id: assigns.id)
     |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
@@ -84,8 +89,8 @@ defmodule LiveDebugger.LiveComponents.TracesList do
                 New events will still be displayed as they come. Check logs for more information
               </.alert>
             </div>
-            <%= for {dom_id, trace} <- @streams.existing_traces do %>
-              <.trace id={dom_id} trace={trace} myself={@myself} />
+            <%= for {dom_id, wrapped_trace} <- @streams.existing_traces do %>
+              <.trace id={dom_id} wrapped_trace={wrapped_trace} myself={@myself} />
             <% end %>
           </div>
         </div>
@@ -97,8 +102,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   @impl true
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
-    trace_list =
-      Enum.map(trace_list, fn trace -> %{id: trace.id, trace: trace, render_body?: true} end)
+    trace_list = Enum.map(trace_list, &TraceDisplay.from_historical_trace/1)
 
     socket
     |> assign(existing_traces_status: :ok)
@@ -165,7 +169,9 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
       trace ->
         socket
-        |> stream_insert(:existing_traces, %{id: trace.id, trace: trace, render_body?: true},
+        |> stream_insert(
+          :existing_traces,
+          TraceDisplay.from_historical_trace(trace),
           at: abs(trace.id),
           limit: @stream_limit
         )
@@ -193,15 +199,19 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   attr(:id, :string, required: true)
-  attr(:trace, :map, required: true, doc: "The Trace struct to render")
+  attr(:wrapped_trace, :map, required: true, doc: "The Trace to render")
   attr(:myself, :any, required: true)
 
   defp trace(assigns) do
     assigns =
       assigns
-      |> assign(:trace, assigns.trace.trace)
-      |> assign(:render_body?, assigns.trace.render_body?)
-      |> assign(:callback_name, "#{assigns.trace.trace.function}/#{assigns.trace.trace.arity}")
+      |> assign(:trace, assigns.wrapped_trace.trace)
+      |> assign(:render_body?, assigns.wrapped_trace.render_body?)
+      |> assign(
+        :callback_name,
+        "#{assigns.wrapped_trace.trace.function}/#{assigns.wrapped_trace.trace.arity}"
+      )
+      |> assign(:counter, assigns.wrapped_trace.counter)
 
     ~H"""
     <.collapsible
@@ -222,7 +232,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         >
           <div class="flex gap-1.5 items-center">
             <p class="font-medium text-sm"><%= @callback_name %></p>
-            <.aggregate_count :if={@trace.counter > 1} count={@trace.counter} />
+            <.aggregate_count :if={@counter && @counter > 1} count={@counter} />
           </div>
           <.short_trace_content trace={@trace} />
           <p class="w-max text-xs font-normal text-secondary-600 align-center">
