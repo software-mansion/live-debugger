@@ -7,6 +7,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   require Logger
 
+  alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Components.ElixirDisplay
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Utils.TermParser
@@ -209,6 +210,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       |> assign(:render_body?, assigns.wrapped_trace.render_body?)
       |> assign(
         :callback_name,
+        Trace.callback_name(assigns.wrapped_trace.trace)
         "#{assigns.wrapped_trace.trace.function}/#{assigns.wrapped_trace.trace.arity}"
       )
       |> assign(:counter, assigns.wrapped_trace.counter)
@@ -294,7 +296,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
         trace ->
           assigns
-          |> assign(:callback_name, "#{trace.function}/#{trace.arity}")
+          |> assign(:callback_name, Trace.callback_name(trace))
           |> assign(:trace_args, trace.args)
       end
 
