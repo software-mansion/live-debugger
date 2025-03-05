@@ -64,7 +64,23 @@ defmodule LiveDebugger.LiveComponents.TracesList do
               myself={@myself}
               tracing_started?={@tracing_helper.tracing_started?}
             />
-            <.button variant="secondary" size="sm" phx-click="clear-traces" phx-target={@myself}>
+            <.button
+              :if={not @tracing_helper.tracing_started?}
+              phx-click="refresh-history"
+              phx-target={@myself}
+              class="flex gap-2"
+              variant="secondary"
+              size="sm"
+            >
+              Refresh
+            </.button>
+            <.button
+              :if={not @tracing_helper.tracing_started?}
+              variant="secondary"
+              size="sm"
+              phx-click="clear-traces"
+              phx-target={@myself}
+            >
               Clear
             </.button>
           </div>
@@ -177,6 +193,13 @@ defmodule LiveDebugger.LiveComponents.TracesList do
           limit: @stream_limit
         )
     end
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("refresh-history", _, socket) do
+    socket
+    |> assign_async_existing_traces()
     |> noreply()
   end
 
