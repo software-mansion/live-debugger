@@ -7,6 +7,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   require Logger
 
+  alias LiveDebugger.LiveHelpers.TracingHelper
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Components.ElixirDisplay
   alias LiveDebugger.Services.TraceService
@@ -19,61 +20,30 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   @impl true
   def mount(socket) do
     socket
-    |> assign(:tracing_started?, false)
     |> assign(:displayed_trace, nil)
-    |> assign(:tracing_rate_limit_params, nil)
     |> ok()
   end
 
   @impl true
-  def update(%{new_trace: trace}, %{assigns: %{tracing_started?: true}} = socket) do
-    current_time = :os.system_time(:microsecond)
-    rl_params = socket.assigns.tracing_rate_limit_params
-
-    current_count =
-      if dbg(current_time - rl_params.start_time) < 5_000_000 do
-        rl_params.count + 1
-      else
-        :reset
-      end
-
-    dbg(current_count)
-
-    case current_count do
-      :reset ->
-        socket
-        |> assign(:tracing_rate_limit_params, %{count: 0, start_time: current_time})
-        |> stream_insert(:existing_traces, TraceDisplay.form_live_trace(trace, 1),
+  def update(%{new_trace: trace}, socket) do
+    socket
+    |> TracingHelper.check_fuse()
+    |> case do
+      {:ok, socket} ->
+        stream_insert(socket, :existing_traces, TraceDisplay.form_live_trace(trace, 1),
           at: 0,
           limit: @stream_limit
         )
-        |> ok()
 
-      current_count when current_count < 100 ->
+      {:stopped, socket} ->
         socket
-        |> assign(:tracing_rate_limit_params, %{rl_params | count: current_count})
-        |> stream_insert(:existing_traces, TraceDisplay.form_live_trace(trace, 1),
-          at: 0,
-          limit: @stream_limit
-        )
-        |> ok()
-
-      _ ->
-        socket
-        |> assign(:tracing_rate_limit_params, %{count: 0, start_time: current_time})
-        |> assign(tracing_started?: false)
-        |> ok()
     end
-  end
-
-  @impl true
-  def update(%{new_trace: _trace}, %{assigns: %{tracing_started?: false}} = socket) do
-    {:ok, socket}
+    |> ok()
   end
 
   def update(assigns, socket) do
     socket
-    |> assign(:tracing_started?, false)
+    |> TracingHelper.init()
     |> assign(debugged_node_id: assigns.debugged_node_id)
     |> assign(id: assigns.id)
     |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
@@ -92,7 +62,10 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       <.collapsible_section title="Callback traces" id="traces" inner_class="p-4">
         <:right_panel>
           <div class="flex gap-2 items-center">
-            <.toggle_tracing_button myself={@myself} tracing_started?={@tracing_started?} />
+            <.toggle_tracing_button
+              myself={@myself}
+              tracing_started?={@tracing_helper.tracing_started?}
+            />
             <.button variant="secondary" size="sm" phx-click="clear-traces" phx-target={@myself}>
               Clear
             </.button>
@@ -153,17 +126,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   @impl true
   def handle_event("switch-tracing", _, socket) do
     socket
-    |> assign(tracing_started?: not socket.assigns.tracing_started?)
-    |> case do
-      %{assigns: %{tracing_started?: true}} = socket ->
-        assign(socket, :tracing_rate_limit_params, %{
-          count: 0,
-          start_time: :os.system_time(:microsecond)
-        })
-
-      %{assigns: %{tracing_started?: false}} = socket ->
-        assign(socket, :tracing_rate_limit_params, nil)
-    end
+    |> TracingHelper.switch_tracing()
     |> noreply()
   end
 
