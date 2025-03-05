@@ -30,10 +30,8 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     |> TracingHelper.check_fuse()
     |> case do
       {:ok, socket} ->
-        stream_insert(socket, :existing_traces, TraceDisplay.from_live_trace(trace, 1),
-          at: 0,
-          limit: @stream_limit
-        )
+        trace_display = TraceDisplay.from_live_trace(trace)
+        stream_insert(socket, :existing_traces, trace_display, at: 0, limit: @stream_limit)
 
       {:stopped, socket} ->
         socket
@@ -211,7 +209,6 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       |> assign(:trace, assigns.wrapped_trace.trace)
       |> assign(:render_body?, assigns.wrapped_trace.render_body?)
       |> assign(:callback_name, Trace.callback_name(assigns.wrapped_trace.trace))
-      |> assign(:counter, assigns.wrapped_trace.counter)
 
     ~H"""
     <.collapsible
@@ -230,10 +227,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
           class="w-[90%] grow flex items-center ml-2 gap-1.5"
           phx-update="ignore"
         >
-          <div class="flex gap-1.5 items-center">
-            <p class="font-medium text-sm"><%= @callback_name %></p>
-            <.aggregate_count :if={@counter && @counter > 1} count={@counter} />
-          </div>
+          <p class="font-medium text-sm"><%= @callback_name %></p>
           <.short_trace_content trace={@trace} />
           <p class="w-max text-xs font-normal text-secondary-600 align-center">
             <%= Parsers.parse_timestamp(@trace.timestamp) %>
@@ -260,14 +254,6 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         <% end %>
       </div>
     </.collapsible>
-    """
-  end
-
-  defp aggregate_count(assigns) do
-    ~H"""
-    <span class="rounded-full bg-white border border-secondary-200  text-2xs px-1.5">
-      +<%= assigns.count %>
-    </span>
     """
   end
 

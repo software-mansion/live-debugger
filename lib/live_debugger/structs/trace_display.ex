@@ -18,8 +18,8 @@ defmodule LiveDebugger.Structs.TraceDisplay do
     %__MODULE__{id: trace.id, trace: trace, render_body?: true}
   end
 
-  def from_live_trace(%Trace{} = trace, counter) do
-    %__MODULE__{id: trace.id, trace: trace, render_body?: false, counter: counter}
+  def from_live_trace(%Trace{} = trace) do
+    %__MODULE__{id: trace.id, trace: trace, render_body?: false}
   end
 
   def render_body(%__MODULE__{} = trace) do
