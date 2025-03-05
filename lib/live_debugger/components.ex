@@ -135,13 +135,13 @@ defmodule LiveDebugger.Components do
         | List.wrap(@class)
       ]}
       {show_collapsible_assign(@open)}
-      {@rest}
     >
       <summary
         class={[
           "block flex items-center cursor-pointer" | List.wrap(@label_class)
         ]}
         style={@label_style}
+        {@rest}
       >
         <.icon name={@icon} class={["rotate-icon shrink-0" | List.wrap(@chevron_class)]} />
         <%= render_slot(@label) %>

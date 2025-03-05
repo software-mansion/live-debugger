@@ -139,11 +139,15 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   end
 
   @impl true
-  def handle_info({:new_trace, trace}, socket) do
+  def handle_info({:new_trace, %{trace: trace, counter: _} = wrapped_trace}, socket) do
     debugged_node_id = socket.assigns.node_id || socket.assigns.debugged_pid.result
 
     if Trace.node_id(trace) == debugged_node_id do
-      send_update(LiveDebugger.LiveComponents.TracesList, %{id: "trace-list", new_trace: trace})
+      send_update(LiveDebugger.LiveComponents.TracesList, %{
+        id: "trace-list",
+        new_trace: wrapped_trace
+      })
+
       send_update(LiveDebugger.LiveComponents.DetailView, %{id: "detail_view", new_trace: trace})
     end
 

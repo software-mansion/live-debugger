@@ -7,7 +7,8 @@ defmodule LiveDebugger.Services.TraceRateLimiter do
   """
   use GenServer
 
-  @traces_number 16
+  @traces_number 25
+
   @period_ms 1000
   @interval_ms div(@period_ms, @traces_number)
 
@@ -28,7 +29,7 @@ defmodule LiveDebugger.Services.TraceRateLimiter do
     state.traces
     |> Enum.reverse()
     |> Enum.each(fn {_key, %{last_trace: trace, counter: counter}} ->
-      send(state.target_pid, {:new_trace, %{trace | counter: counter}})
+      send(state.target_pid, {:new_trace, %{trace: trace, counter: counter}})
     end)
 
     {:noreply, %{state | traces: []}}
