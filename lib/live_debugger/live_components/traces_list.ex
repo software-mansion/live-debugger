@@ -30,7 +30,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     |> TracingHelper.check_fuse()
     |> case do
       {:ok, socket} ->
-        stream_insert(socket, :existing_traces, TraceDisplay.form_live_trace(trace, 1),
+        stream_insert(socket, :existing_traces, TraceDisplay.from_live_trace(trace, 1),
           at: 0,
           limit: @stream_limit
         )
