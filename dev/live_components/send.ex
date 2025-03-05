@@ -6,7 +6,7 @@ defmodule LiveDebuggerDev.LiveComponents.Send do
   def render(assigns) do
     ~H"""
     <div>
-      <.box title="Send [LiveComopnent]" color="green">
+      <.box title="Send [LiveComponent]" color="green">
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-1">
             <button

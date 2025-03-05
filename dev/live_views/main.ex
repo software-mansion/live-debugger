@@ -65,7 +65,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
               </.live_component>
             </.live_component>
           </.live_component>
-          <.live_component id="reccursive" counter={5} module={LiveComponents.Reccursive} />
+          <.live_component id="recursive" counter={5} module={LiveComponents.Recursive} />
         </div>
       </.box>
       <div class="mt-10">

@@ -4,7 +4,10 @@ defmodule LiveDebugger.Components do
   """
 
   use Phoenix.Component
+
   import LiveDebuggerWeb.Helpers
+
+  alias Phoenix.LiveView.JS
 
   @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
 
@@ -352,7 +355,9 @@ defmodule LiveDebugger.Components do
 
   @doc """
   Renders a fullscreen using Fullscreen hook.
-  If you want to open fullscreen from a button, you can use `phx-hook="OpenFullscreen"` and `data-fullscreen-id` attributes.
+  It can be opened and via browser "open" event (by default) with JS.dispatch or via server event (check example in fullscreen button).
+
+  You can use `fullscreen_button` to open this fullscreen.
   You can close the fullscreen using X button or by pressing ESC key.
   """
   attr(:id, :string, required: true)
@@ -379,11 +384,10 @@ defmodule LiveDebugger.Components do
         <div class="font-semibold text-base"><%= @title %></div>
         <.icon_button
           id={"#{@id}-close"}
+          phx-click={JS.dispatch("close", to: "##{@id}")}
           icon="icon-cross-small"
           variant="secondary"
           size="sm"
-          phx-hook="CloseFullscreen"
-          data-fullscreen-id={@id}
         />
       </div>
       <div class="overflow-auto flex flex-col gap-2 p-2">
@@ -395,10 +399,28 @@ defmodule LiveDebugger.Components do
 
   @doc """
   Renders a button which will show a fullscreen when clicked.
+  You can override `phx-click` value, but remember to push correct event at the end of `handle_event` function.
+
+  ## Examples
+      <.fullscreen_button
+        id="my-fullscreen"
+        on_click="open-fullscreen"
+        icon="icon-expand"
+      />
+
+      @impl true
+      def handle_event("open-fullscreen", _, socket) do
+        trace_id = String.to_integer(string_id)
+
+        socket
+        |> push_event("my-fullscreen-open", %{})
+        |> noreply()
+      end
   """
   attr(:id, :string, required: true, doc: "Same as `id` of the fullscreen.")
-  attr(:title, :string, default: "")
-
+  attr(:on_click, :any, default: nil)
+  attr(:on_click_target, :any, default: nil)
+  attr(:on_click_data, :any, default: nil)
   attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
   attr(:icon, :string,
@@ -409,8 +431,10 @@ defmodule LiveDebugger.Components do
   def fullscreen_button(assigns) do
     ~H"""
     <.icon_button
-      id={"#{@id}_button"}
-      phx-hook="OpenFullscreen"
+      id={"#{@id}-button"}
+      phx-click={@on_click || JS.dispatch("open", to: "##{@id}")}
+      phx-target={@on_click_target}
+      phx-value-data={@on_click_data}
       icon={@icon}
       size="sm"
       data-fullscreen-id={@id}
@@ -464,23 +488,14 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  def nested_badge(assigns) do
+  attr(:text, :string, required: true)
+  attr(:icon, :string, required: true)
+
+  def badge(assigns) do
     ~H"""
     <div class="py-1 px-1.5 w-max flex gap-0.5 border border-secondary-200 text-primary-900 text-3xs font-semibold rounded-xl items-center">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        class="w-4 h-4 text-primary-900"
-      >
-        <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
-          d="M3.25 5C3.25 4.0335 4.0335 3.25 5 3.25H9.69281C10.6593 3.25 11.4428 4.0335 11.4428 5V9.69281C11.4428 10.6593 10.6593 11.4428 9.69281 11.4428H8.09637V15.6536C8.09637 15.7917 8.2083 15.9036 8.34637 15.9036H12.5572V14.3072C12.5572 13.3407 13.3407 12.5572 14.3072 12.5572H19C19.9665 12.5572 20.75 13.3407 20.75 14.3072V19C20.75 19.9665 19.9665 20.75 19 20.75H14.3072C13.3407 20.75 12.5572 19.9665 12.5572 19V17.4036H8.34637C7.37988 17.4036 6.59637 16.6201 6.59637 15.6536V11.4428H5C4.0335 11.4428 3.25 10.6593 3.25 9.69281V5ZM5 4.75C4.86193 4.75 4.75 4.86193 4.75 5V9.69281C4.75 9.83088 4.86193 9.94281 5 9.94281H9.69281C9.83088 9.94281 9.94281 9.83088 9.94281 9.69281V5C9.94281 4.86193 9.83088 4.75 9.69281 4.75H5ZM14.0572 14.3072C14.0572 14.1691 14.1691 14.0572 14.3072 14.0572H19C19.1381 14.0572 19.25 14.1691 19.25 14.3072V19C19.25 19.1381 19.1381 19.25 19 19.25H14.3072C14.1691 19.25 14.0572 19.1381 14.0572 19V14.3072Z"
-          fill="#4C2B8A"
-        />
-      </svg>
-      <p>Nested</p>
+      <.icon class="w-4 h-4 text-primary-900" name={@icon} />
+      <p><%= @text %></p>
     </div>
     """
   end

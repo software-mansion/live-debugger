@@ -34,7 +34,7 @@ defmodule LiveDebugger.MixProject do
 
   defp aliases do
     [
-      setup: ["deps.get", "cmd --cd assets npm install", "assets.setup", "assets.build"],
+      setup: ["deps.get", "cmd --cd assets npm install", "assets.setup", "assets.build:dev"],
       dev: "run --no-halt dev.exs",
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
       "assets.build:deploy": ["esbuild deploy_build --minify", "tailwind deploy_build --minify"],

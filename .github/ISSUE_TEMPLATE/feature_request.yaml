@@ -1,0 +1,42 @@
+name: Feature Request
+description: Suggest an idea for this project
+labels: enhancement
+type: "Feature"
+projects: "software-mansion/42"
+
+body:
+  - type: textarea
+    id: problem-description
+    attributes:
+      label: Problem Description
+      description: "Add a clear and concise description of what the problem is, e.g., 'I'm always frustrated when [...]'"
+      placeholder: "Describe the problem or your frustration..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: desired-solution
+    attributes:
+      label: "Proposed Solution"
+      description: "Provide a detailed description of the solution you'd propose."
+      placeholder: "Explain the solution you'd like..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternative-solutions
+    attributes:
+      label: "Alternative Solutions"
+      description: "Have you considered any alternative solutions or features?"
+      placeholder: "Detail any alternative solutions you've considered..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: "Additional Context"
+      description: "Add any other context or screenshots about the feature request here."
+      placeholder: "Provide additional context..."
+    validations:
+      required: false
