@@ -25,12 +25,9 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   @impl true
-  def update(
-        %{new_trace: %{trace: trace, counter: counter}},
-        %{assigns: %{tracing_started?: true}} = socket
-      ) do
+  def update(%{new_trace: trace}, %{assigns: %{tracing_started?: true}} = socket) do
     socket
-    |> stream_insert(:existing_traces, TraceDisplay.form_live_trace(trace, counter),
+    |> stream_insert(:existing_traces, TraceDisplay.form_live_trace(trace, 1),
       at: 0,
       limit: @stream_limit
     )
