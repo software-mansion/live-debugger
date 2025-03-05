@@ -21,17 +21,49 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     socket
     |> assign(:tracing_started?, false)
     |> assign(:displayed_trace, nil)
+    |> assign(:tracing_rate_limit_params, nil)
     |> ok()
   end
 
   @impl true
   def update(%{new_trace: trace}, %{assigns: %{tracing_started?: true}} = socket) do
-    socket
-    |> stream_insert(:existing_traces, TraceDisplay.form_live_trace(trace, 1),
-      at: 0,
-      limit: @stream_limit
-    )
-    |> ok()
+    current_time = :os.system_time(:microsecond)
+    rl_params = socket.assigns.tracing_rate_limit_params
+
+    current_count =
+      if dbg(current_time - rl_params.start_time) < 5_000_000 do
+        rl_params.count + 1
+      else
+        :reset
+      end
+
+    dbg(current_count)
+
+    case current_count do
+      :reset ->
+        socket
+        |> assign(:tracing_rate_limit_params, %{count: 0, start_time: current_time})
+        |> stream_insert(:existing_traces, TraceDisplay.form_live_trace(trace, 1),
+          at: 0,
+          limit: @stream_limit
+        )
+        |> ok()
+
+      current_count when current_count < 100 ->
+        socket
+        |> assign(:tracing_rate_limit_params, %{rl_params | count: current_count})
+        |> stream_insert(:existing_traces, TraceDisplay.form_live_trace(trace, 1),
+          at: 0,
+          limit: @stream_limit
+        )
+        |> ok()
+
+      _ ->
+        socket
+        |> assign(:tracing_rate_limit_params, %{count: 0, start_time: current_time})
+        |> assign(tracing_started?: false)
+        |> ok()
+    end
   end
 
   @impl true
@@ -122,6 +154,16 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   def handle_event("switch-tracing", _, socket) do
     socket
     |> assign(tracing_started?: not socket.assigns.tracing_started?)
+    |> case do
+      %{assigns: %{tracing_started?: true}} = socket ->
+        assign(socket, :tracing_rate_limit_params, %{
+          count: 0,
+          start_time: :os.system_time(:microsecond)
+        })
+
+      %{assigns: %{tracing_started?: false}} = socket ->
+        assign(socket, :tracing_rate_limit_params, nil)
+    end
     |> noreply()
   end
 
