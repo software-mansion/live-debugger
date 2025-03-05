@@ -18,7 +18,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     |> assign(:socket_id, socket_id)
     |> assign(:tracing_session, nil)
     |> assign(:debugged_module, nil)
-    |> assign_rate_limiter_pid()
     |> assign_async_debugged_lv_process()
     |> assign_base_url()
     |> ok()
