@@ -1,16 +1,16 @@
 let lvd_url = null;
 
 chrome.devtools.inspectedWindow.eval(
-  'document.querySelector("#debug-button a").href',
+  "getLiveDebuggerURL()",
   function (result, isException) {
     if (isException) {
       console.log(
-        "Couldn't find url. Ensure you've added LiveDebugger.debug_button/1 to your layout."
+        "Couldn't find url. Ensure you've added LiveDebugger.debug_button/1 to your layout.",
       );
     } else {
       lvd_url = result;
     }
-  }
+  },
 );
 
 chrome.devtools.panels.create(
@@ -21,5 +21,5 @@ chrome.devtools.panels.create(
     panel.onShown.addListener(function (window) {
       window.set_iframe_url(lvd_url);
     });
-  }
+  },
 );

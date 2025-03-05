@@ -2,13 +2,19 @@
 // It introduces browser features that are not mandatory for LiveDebugger to run
 
 // Fetch LiveDebugger URL
-const URL = document
-  .getElementById('live-debugger-scripts')
-  .src.replace('/assets/client.js', '');
+window.getLiveDebuggerURL = function () {
+  const URL = document
+    .getElementById('live-debugger-scripts')
+    .src.replace('/assets/client.js', '');
+
+  const session_id = document.querySelector('[data-phx-main]').id;
+
+  return `${URL}/${session_id}`;
+};
 
 // Debug button
 document.addEventListener('DOMContentLoaded', function () {
-  const session_id = document.querySelector('[data-phx-main]').id;
+  const URL = getLiveDebuggerURL();
   const debugButtonHtml = /*html*/ `
       <div id="debug-button" style="
         position: fixed;
@@ -26,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
         bottom: 20px;
         right: 20px;
         cursor: grab;">
-        <a href="${URL}/${session_id}" target="_blank">
+        <a href="${URL}" target="_blank">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 25px; height: 25px;">
             <path
               stroke-linecap="round"
@@ -114,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   debugButton.addEventListener('mousedown', onMouseDown);
   debugButton.addEventListener('click', onClick);
-});
 
-// Finalize
-console.info(`LiveDebugger available at: ${URL}`);
+  // Finalize
+  console.info(`LiveDebugger available at: ${URL}`);
+});
