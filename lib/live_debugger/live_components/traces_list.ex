@@ -33,7 +33,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         trace_display = TraceDisplay.from_live_trace(trace)
         stream_insert(socket, :existing_traces, trace_display, at: 0, limit: @stream_limit)
 
-      {:stopped, socket} ->
+      {_, socket} ->
         socket
     end
     |> ok()

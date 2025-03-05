@@ -26,9 +26,9 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
     end
   end
 
-  @spec check_fuse(Socket.t()) :: {:ok, Socket.t()} | {:stopped, Socket.t()}
+  @spec check_fuse(Socket.t()) :: {:ok | :stopped | :noop, Socket.t()}
   def check_fuse(%{assigns: %{@assign_name => %{tracing_started?: false}}} = socket) do
-    {:stopped, socket}
+    {:noop, socket}
   end
 
   def check_fuse(%{assigns: %{@assign_name => %{tracing_started?: true}}} = socket) do
