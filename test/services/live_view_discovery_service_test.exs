@@ -1,57 +1,100 @@
 defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
-  use LiveDebugger.SystemCase
+  use ExUnit.Case, async: true
 
   import Mox
 
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.MockProcessService
+  alias LiveDebugger.Structs.LvProcess
+  alias LiveDebugger.Test.Fakes
 
-  describe "debugged_live_pids/0" do
-    test "returns list of LiveView processes" do
+  describe "debugged_lv_processes/0" do
+    test "returns list of LvProcesses" do
       live_view_pid_1 = :c.pid(0, 0, 1)
       live_view_pid_2 = :c.pid(0, 0, 2)
+
+      module = :"Elixir.SomeLiveView"
 
       MockProcessService
       |> expect(:list, fn -> [live_view_pid_1, live_view_pid_2] end)
-      |> expect(:initial_call, 2, fn _ -> {:"Elixir.SomeLiveView", :mount} end)
+      |> expect(:initial_call, 2, fn _ -> {module, :mount} end)
+      |> expect(:state, fn ^live_view_pid_1 ->
+        {:ok, Fakes.state(root_pid: live_view_pid_1, module: module)}
+      end)
+      |> expect(:state, fn ^live_view_pid_2 ->
+        {:ok, Fakes.state(root_pid: live_view_pid_2, module: module)}
+      end)
 
-      assert LiveViewDiscoveryService.debugged_live_pids() == [live_view_pid_1, live_view_pid_2]
+      assert [
+               %LvProcess{pid: ^live_view_pid_1},
+               %LvProcess{pid: ^live_view_pid_2}
+             ] = LiveViewDiscoveryService.debugged_lv_processes()
     end
 
-    test "doesn't return LiveDebugger processes" do
+    test "doesn't return LiveDebugger LvProcesses" do
       live_view_pid = :c.pid(0, 0, 1)
       debugger_pid = :c.pid(0, 0, 2)
 
+      module = :"Elixir.SomeLiveView"
+      live_debugger_module = :"Elixir.LiveDebugger.Debugger"
+
       MockProcessService
       |> expect(:list, fn -> [live_view_pid, debugger_pid] end)
-      |> expect(:initial_call, fn _ -> {:"Elixir.SomeLiveView", :mount} end)
-      |> expect(:initial_call, fn _ -> {:"Elixir.LiveDebugger.Debugger", :mount} end)
+      |> expect(:initial_call, fn _ -> {module, :mount} end)
+      |> expect(:initial_call, fn _ -> {live_debugger_module, :mount} end)
+      |> expect(:state, fn ^live_view_pid ->
+        {:ok, Fakes.state(root_pid: live_view_pid, module: module)}
+      end)
+      |> expect(:state, fn ^debugger_pid ->
+        {:ok, Fakes.state(root_pid: debugger_pid, module: live_debugger_module)}
+      end)
 
-      assert LiveViewDiscoveryService.debugged_live_pids() == [live_view_pid]
+      assert [
+               %LvProcess{pid: ^live_view_pid}
+             ] = LiveViewDiscoveryService.debugged_lv_processes()
     end
   end
 
-  describe "live_pid/1" do
-    test "returns pid based on socket_id", %{pid: pid, socket_id: socket_id} do
+  describe "lv_process/1" do
+    test "returns LvProcess based on socket_id" do
+      searched_live_view_pid = :c.pid(0, 1, 0)
+      searched_module = :"Elixir.SearchedLiveView"
+      socket_id = "phx-GBsi_6M7paYhySQj"
+
       live_view_pid_1 = :c.pid(0, 0, 1)
       live_view_pid_2 = :c.pid(0, 0, 2)
+      other_module = :"Elixir.SomeLiveView"
 
       MockProcessService
-      |> expect(:list, fn -> [pid, live_view_pid_1, live_view_pid_2] end)
-      |> expect(:initial_call, fn _ -> {:"Elixir.SearchedLiveView", :mount} end)
-      |> expect(:initial_call, 2, fn _ -> {:"Elixir.SomeLiveView", :mount} end)
+      |> expect(:list, fn -> [searched_live_view_pid, live_view_pid_1, live_view_pid_2] end)
+      |> expect(:initial_call, fn _ -> {searched_module, :mount} end)
+      |> expect(:initial_call, 2, fn _ -> {other_module, :mount} end)
+      |> expect(:state, fn ^searched_live_view_pid ->
+        {:ok,
+         Fakes.state(
+           root_pid: searched_live_view_pid,
+           module: searched_module,
+           socket_id: socket_id
+         )}
+      end)
+      |> expect(:state, 2, fn live_view_pid ->
+        {:ok, Fakes.state(root_pid: live_view_pid, module: other_module)}
+      end)
 
-      assert {^pid, _} = LiveViewDiscoveryService.live_pid(socket_id)
+      assert %LvProcess{pid: ^searched_live_view_pid} =
+               LiveViewDiscoveryService.lv_process(socket_id)
     end
 
-    test "returns nil if no LiveView process of given socket_id", %{pid: pid} do
+    test "returns nil if no LiveView process of given socket_id" do
       bad_socket_id = "phx-no-such-socket"
+      module = :"Elixir.SomeLiveView"
 
       MockProcessService
-      |> expect(:list, fn -> [pid] end)
-      |> expect(:initial_call, fn _ -> {:"Elixir.SomeLiveView", :mount} end)
+      |> expect(:list, fn -> [:c.pid(0, 0, 0)] end)
+      |> expect(:initial_call, fn _ -> {module, :mount} end)
+      |> expect(:state, fn _ -> {:ok, Fakes.state()} end)
 
-      assert LiveViewDiscoveryService.live_pid(bad_socket_id) == nil
+      assert LiveViewDiscoveryService.lv_process(bad_socket_id) == nil
     end
   end
 end

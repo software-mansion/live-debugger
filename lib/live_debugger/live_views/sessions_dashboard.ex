@@ -8,12 +8,11 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.Services.ChannelService
 
   @impl true
   def handle_params(_unsigned_params, _uri, socket) do
     socket
-    |> assign_async_live_sessions()
+    |> assign_async_lv_processes()
     |> noreply()
   end
 
@@ -34,7 +33,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
         </div>
 
         <div class="mt-6">
-          <.async_result :let={live_sessions} assign={@live_sessions}>
+          <.async_result :let={lv_processes} assign={@lv_processes}>
             <:loading>
               <div class="flex items-center justify-center">
                 <.spinner size="md" />
@@ -46,50 +45,42 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
               </.alert>
             </:failed>
             <div>
-              <%= if Enum.empty?(live_sessions)  do %>
+              <%= if Enum.empty?(lv_processes)  do %>
                 <div class="p-4 bg-white rounded shadow-custom border border-secondary-200">
                   <p class="text-secondary-500 text-center">No active LiveViews</p>
                 </div>
               <% else %>
                 <.table
-                  rows={live_sessions}
+                  rows={lv_processes}
                   class="hidden sm:block"
-                  on_row_click="session-picked"
+                  on_row_click="lv-process-picked"
                   row_attributes_fun={fn row -> %{"phx-value-socket_id" => row.socket_id} end}
                 >
-                  <:column :let={session} label="Module" class="font-medium">
-                    <%= session.module %>
+                  <:column :let={lv_process} label="Module" class="font-medium">
+                    <%= lv_process.module %>
                   </:column>
-                  <:column :let={session} label="PID">
-                    <%= Parsers.pid_to_string(session.pid) %>
+                  <:column :let={lv_process} label="PID">
+                    <%= Parsers.pid_to_string(lv_process.pid) %>
                   </:column>
-                  <:column :let={session} label="Socket"><%= session.socket_id %></:column>
-                  <:column :let={session}>
-                    <.badge
-                      :if={LiveDebugger.Utils.nested?(session)}
-                      text="Nested"
-                      icon="icon-nested"
-                    />
+                  <:column :let={lv_process} label="Socket"><%= lv_process.socket_id %></:column>
+                  <:column :let={lv_process}>
+                    <.badge :if={lv_process.nested?} text="Nested" icon="icon-nested" />
                   </:column>
                 </.table>
                 <.list
-                  elements={live_sessions}
+                  elements={lv_processes}
                   class="sm:hidden"
-                  on_element_click="session-picked"
+                  on_element_click="lv-process-picked"
                   element_attributes_fun={fn elem -> %{"phx-value-socket_id" => elem.socket_id} end}
                 >
-                  <:title :let={session}>
+                  <:title :let={lv_process}>
                     <div class="flex items-center justify-between">
-                      <p class="shrink truncate"><%= session.module %></p>
-                      <.badge
-                        :if={LiveDebugger.Utils.nested?(session)}
-                        text="Nested"
-                        icon="icon-nested"
-                      />
+                      <p class="shrink truncate"><%= lv_process.module %></p>
+                      <.badge :if={lv_process.nested?} text="Nested" icon="icon-nested" />
                     </div>
                   </:title>
-                  <:description :let={session}>
-                    <%= Parsers.pid_to_string(session.pid) %> · <%= session.socket_id %>
+                  <:description :let={lv_process}>
+                    <%= Parsers.pid_to_string(lv_process.pid) %> · <%= lv_process.socket_id %>
                   </:description>
                 </.list>
               <% end %>
@@ -102,7 +93,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   end
 
   @impl true
-  def handle_event("session-picked", %{"socket_id" => socket_id}, socket) do
+  def handle_event("lv-process-picked", %{"socket_id" => socket_id}, socket) do
     socket
     |> push_navigate(to: "/#{socket_id}")
     |> noreply()
@@ -111,37 +102,26 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   @impl true
   def handle_event("refresh", _params, socket) do
     socket
-    |> assign(:live_sessions, AsyncResult.loading())
-    |> assign_async_live_sessions()
+    |> assign(:lv_processes, AsyncResult.loading())
+    |> assign_async_lv_processes()
     |> noreply()
   end
 
-  defp assign_async_live_sessions(socket) do
-    assign_async(socket, :live_sessions, fn ->
-      live_sessions =
-        with [] <- fetch_live_sessions_after(200),
-             [] <- fetch_live_sessions_after(800) do
-          fetch_live_sessions_after(1000)
+  defp assign_async_lv_processes(socket) do
+    assign_async(socket, :lv_processes, fn ->
+      lv_processes =
+        with [] <- fetch_lv_processes_after(200),
+             [] <- fetch_lv_processes_after(800) do
+          fetch_lv_processes_after(1000)
         end
 
-      {:ok, %{live_sessions: live_sessions}}
+      {:ok, %{lv_processes: lv_processes}}
     end)
   end
 
-  defp fetch_live_sessions_after(milliseconds) do
+  defp fetch_lv_processes_after(milliseconds) do
     Process.sleep(milliseconds)
 
-    LiveViewDiscoveryService.debugged_live_pids()
-    |> Enum.map(&live_session_info/1)
-    |> Enum.reject(&(&1 == :error))
-  end
-
-  defp live_session_info(pid) do
-    pid
-    |> ChannelService.state()
-    |> case do
-      {:ok, %{socket: %{id: id, view: module}}} -> %{socket_id: id, module: module, pid: pid}
-      _ -> :error
-    end
+    LiveViewDiscoveryService.debugged_lv_processes()
   end
 end

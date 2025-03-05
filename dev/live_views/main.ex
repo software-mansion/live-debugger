@@ -16,6 +16,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   def render(assigns) do
     ~H"""
     <div class="p-5">
+      <.navbar />
       <.box title="Main [LiveView]" color="blue">
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
@@ -38,11 +39,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
             Message from <span class="text-green-500">second component</span> <%= @datetime %>
           </div>
 
-          <.live_component
-            id="many_assigns"
-            {very_long_assigns_map()}
-            module={LiveComponents.ManyAssigns}
-          />
+          <.live_component id="many_assigns" module={LiveComponents.ManyAssigns} />
           <.live_component id="name_outer" name={@name} module={LiveComponents.Name} />
           <.live_component id="send_outer" module={LiveComponents.Send}>
             <.live_component id="name_inner" name={@name} module={LiveComponents.Name} />
@@ -68,9 +65,6 @@ defmodule LiveDebuggerDev.LiveViews.Main do
           <.live_component id="recursive" counter={5} module={LiveComponents.Recursive} />
         </div>
       </.box>
-      <div class="mt-10">
-        <.link navigate="/side" class="text-blue-500 underline">Go to side</.link>
-      </div>
     </div>
     """
   end
