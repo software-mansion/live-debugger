@@ -3,83 +3,64 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   This module provides functions that discovers LiveView processes in the debugged application.
   """
   alias LiveDebugger.Services.System.ProcessService
+  alias LiveDebugger.Structs.LvProcess
 
   @doc """
-  Returns pids of all LiveView processes in the debugged application.
+  Returns all debugged LvProcesses.
   """
-  @spec debugged_live_pids() :: [pid()]
-  def debugged_live_pids() do
-    live_pids()
-    |> Enum.reject(fn {_, initial_call} -> debugger?(initial_call) end)
-    |> Enum.map(&elem(&1, 0))
+  @spec debugged_lv_processes() :: [LvProcess.t()]
+  def debugged_lv_processes() do
+    lv_processes()
+    |> Enum.reject(& &1.debugger?)
   end
 
   @doc """
-  Returns pids of all LiveView processes in the LiveDebugger application
+  Returns all LiveDebugger's LvProcesses.
   """
-  @spec debugger_live_pids() :: [pid()]
-  def debugger_live_pids() do
-    live_pids()
-    |> Enum.filter(fn {_, initial_call} -> debugger?(initial_call) end)
-    |> Enum.map(&elem(&1, 0))
+  @spec debugger_lv_processes() :: [LvProcess.t()]
+  def debugger_lv_processes() do
+    lv_processes()
+    |> Enum.filter(& &1.debugger?)
   end
 
   @doc """
-  Returns pid of the LiveView process associated the given `socket_id`.
+  Returns LvProcess associated the given `socket_id`.
   """
-  @spec live_pid(socket_id :: binary()) :: {pid(), module()} | nil
-  def live_pid(socket_id) do
-    debugged_live_pids()
-    |> Enum.map(fn pid -> {pid, ProcessService.state(pid)} end)
-    |> Enum.find(fn
-      {_, {:ok, %{socket: %{id: id}}}} -> id == socket_id
-      {:error, _} -> false
-    end)
-    |> case do
-      # This is temporary to make fetching module easier for session dashboard
-      {pid, {:ok, %{socket: %{view: module}}}} -> {pid, module}
-      nil -> nil
-    end
+  @spec lv_process(socket_id :: String.t()) :: LvProcess.t() | nil
+  def lv_process(socket_id) do
+    debugged_lv_processes()
+    |> Enum.find(&(&1.socket_id == socket_id))
   end
 
   @doc """
-  Finds potential successor PID based on module when websocket connection breaks and new one is created
+  Finds potential successor LvProcess based on module when websocket connection breaks and new one is created.
   This is a common scenario when user recompiles code or refreshes the page
   """
-  @spec find_successor_pid(module :: module()) :: [pid()]
-  def find_successor_pid(module) do
-    live_pids()
-    |> Enum.filter(fn {_, initial_call} ->
-      not debugger?(initial_call) and same_module(initial_call, module)
+  @spec successor_lv_processes(module :: module()) :: [LvProcess.t()]
+  def successor_lv_processes(module) do
+    lv_processes()
+    |> Enum.filter(fn lv_process ->
+      not lv_process.debugger? and lv_process.module == module
     end)
-    |> Enum.map(&elem(&1, 0))
   end
 
-  defp live_pids() do
+  @doc """
+  Returns all LiveView processes.
+  """
+  @spec lv_processes() :: [LvProcess.t()]
+  def lv_processes() do
     ProcessService.list()
     |> Enum.reject(&(&1 == self()))
     |> Enum.map(&{&1, ProcessService.initial_call(&1)})
     |> Enum.filter(fn {_, initial_call} -> liveview?(initial_call) end)
+    |> Enum.map(fn {pid, _} -> LvProcess.new(pid) end)
+    |> Enum.reject(&is_nil/1)
   end
 
+  @spec liveview?(initial_call :: mfa() | nil | {}) :: boolean()
   defp liveview?(initial_call) when initial_call not in [nil, {}] do
     elem(initial_call, 1) == :mount
   end
 
   defp liveview?(_), do: false
-
-  defp debugger?(initial_call) when initial_call not in [nil, {}] do
-    initial_call
-    |> elem(0)
-    |> Atom.to_string()
-    |> String.starts_with?("Elixir.LiveDebugger.")
-  end
-
-  defp debugger?(_), do: false
-
-  defp same_module(_, nil), do: true
-
-  defp same_module({module, _, _}, current_module) do
-    module == current_module
-  end
 end

@@ -21,17 +21,15 @@ defmodule LiveDebugger.LiveComponents.DetailView do
   def update(assigns, socket) do
     socket
     |> assign(%{
-      node_id: assigns.node_id || assigns.pid,
-      pid: assigns.pid,
-      socket_id: assigns.socket_id
+      node_id: assigns.node_id || assigns.lv_process.pid,
+      lv_process: assigns.lv_process
     })
     |> assign_async_node_with_type()
     |> ok()
   end
 
   attr(:node_id, :any, required: true)
-  attr(:pid, :any, required: true)
-  attr(:socket_id, :string, required: true)
+  attr(:lv_process, :any, required: true)
 
   @impl true
   def render(assigns) do
@@ -50,7 +48,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         </:failed>
         <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
           <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:items-end">
-            <.info_section node={node} node_type={@node_type.result} socket_id={@socket_id} />
+            <.info_section node={node} node_type={@node_type.result} nested?={@lv_process.nested?} />
             <.assigns_section assigns={node.assigns} />
             <.fullscreen id="assigns-display-fullscreen" title="Assigns">
               <ElixirDisplay.term
@@ -65,7 +63,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
               id="trace-list"
               module={LiveDebugger.LiveComponents.TracesList}
               debugged_node_id={@node_id}
-              socket_id={@socket_id}
+              socket_id={@lv_process.socket_id}
             />
           </div>
         </div>
@@ -76,17 +74,13 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   attr(:node, :any, required: true)
   attr(:node_type, :atom, required: true)
-  attr(:socket_id, :string, default: "")
+  attr(:nested?, :boolean, default: false)
 
   defp info_section(assigns) do
     ~H"""
     <.collapsible_section id="info" title={title(@node_type)}>
       <:right_panel>
-        <.badge
-          :if={@node_type == :live_view and LiveDebugger.Utils.nested?(@socket_id)}
-          text="Nested"
-          icon="icon-nested"
-        />
+        <.badge :if={@node_type == :live_view and @nested?} text="Nested" icon="icon-nested" />
       </:right_panel>
       <div class="p-4 flex flex-col gap-1">
         <.info_row name="Module" value={inspect(@node.module)} />
@@ -137,7 +131,9 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     """
   end
 
-  defp assign_async_node_with_type(%{assigns: %{node_id: node_id, pid: pid}} = socket)
+  defp assign_async_node_with_type(
+         %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket
+       )
        when not is_nil(node_id) do
     assign_async(socket, [:node, :node_type], fn ->
       with {:ok, channel_state} <- ChannelService.state(pid),
