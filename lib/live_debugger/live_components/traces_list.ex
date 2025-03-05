@@ -159,7 +159,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   @impl true
-  def handle_event("toggle-collapsible", %{"data" => string_trace_id}, socket) do
+  def handle_event("toggle-collapsible", %{"trace-id" => string_trace_id}, socket) do
     trace_id = String.to_integer(string_trace_id)
 
     socket.assigns.ets_table_id
@@ -218,9 +218,9 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       chevron_class="w-5 h-5 text-primary-900"
       class="max-w-full border border-secondary-200 rounded"
       label_class="font-semibold bg-secondary-50 h-10 p-2"
-      on_click="toggle-collapsible"
-      on_click_target={@myself}
-      on_click_data={@trace.id}
+      phx-click={if(@render_body?, do: nil, else: "toggle-collapsible")}
+      phx-target={@myself}
+      phx-value-trace-id={@trace.id}
     >
       <:label>
         <div

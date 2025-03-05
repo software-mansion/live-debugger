@@ -115,9 +115,6 @@ defmodule LiveDebugger.Components do
   attr(:label_style, :any, default: nil, doc: "CSS style for the label")
   attr(:chevron_class, :any, default: nil, doc: "CSS class for the chevron icon")
   attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
-  attr(:on_click, :any, default: nil)
-  attr(:on_click_target, :any, default: nil)
-  attr(:on_click_data, :any, default: nil)
 
   attr(:icon, :string,
     default: "icon-chevron-right",
@@ -137,17 +134,14 @@ defmodule LiveDebugger.Components do
         "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden"
         | List.wrap(@class)
       ]}
-      phx-click={@on_click}
-      phx-target={@on_click_target}
-      phx-value-data={@on_click_data}
       {show_collapsible_assign(@open)}
-      {@rest}
     >
       <summary
         class={[
           "block flex items-center cursor-pointer" | List.wrap(@label_class)
         ]}
         style={@label_style}
+        {@rest}
       >
         <.icon name={@icon} class={["rotate-icon shrink-0" | List.wrap(@chevron_class)]} />
         <%= render_slot(@label) %>
