@@ -11,7 +11,7 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
 
   @assign_name :tracing_helper
   @time_period 1_000_000
-  @trace_number_per_period 50
+  @trace_limit_per_period 100
 
   @spec init(Socket.t()) :: Socket.t()
   def init(socket) do
@@ -46,7 +46,7 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
   end
 
   defp count_exceeded?(fuse) do
-    fuse.count + 1 >= @trace_number_per_period
+    fuse.count + 1 >= @trace_limit_per_period
   end
 
   defp increment_fuse(socket) do
