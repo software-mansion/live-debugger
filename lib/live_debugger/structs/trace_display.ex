@@ -12,7 +12,7 @@ defmodule LiveDebugger.Structs.TraceDisplay do
           id: integer(),
           trace: Trace.t(),
           render_body?: boolean(),
-          counter: integer() | nil
+          counter: non_neg_integer() | nil
         }
 
   def from_historical_trace(%Trace{} = trace) do
