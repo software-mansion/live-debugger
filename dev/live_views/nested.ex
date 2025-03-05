@@ -1,7 +1,6 @@
 defmodule LiveDebuggerDev.LiveViews.Nested do
   use DevWeb, :live_view
 
-  alias LiveDebuggerDev.LiveComponents
   alias LiveDebuggerDev.LiveViews
 
   def render(assigns) do
