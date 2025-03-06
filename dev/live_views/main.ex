@@ -6,9 +6,11 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(:counter, 0)
-      |> assign(:datetime, nil)
+      |> assign(counter: 0)
+      |> assign(datetime: nil)
       |> assign(name: random_name())
+      |> assign(single_element_list: [%Phoenix.LiveComponent.CID{cid: 1}])
+      |> assign(list: [%Phoenix.LiveComponent.CID{cid: 1}, %Phoenix.LiveComponent.CID{cid: 2}])
 
     {:ok, socket}
   end
