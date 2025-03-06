@@ -5,12 +5,12 @@ chrome.devtools.inspectedWindow.eval(
   function (result, isException) {
     if (isException) {
       console.log(
-        "Couldn't find url. Ensure you've added LiveDebugger.debug_button/1 to your layout.",
+        "Couldn't find url. Ensure you've turned on browser features in the config and added LiveDebugger scripts to your application root layout."
       );
     } else {
       lvd_url = result;
     }
-  },
+  }
 );
 
 chrome.devtools.panels.create(
@@ -21,5 +21,5 @@ chrome.devtools.panels.create(
     panel.onShown.addListener(function (window) {
       window.set_iframe_url(lvd_url);
     });
-  },
+  }
 );
