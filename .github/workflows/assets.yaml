@@ -32,7 +32,7 @@ jobs:
         run: mix deps.get
 
       - name: Cache npm dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ./assets/node_modules
           key: ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}
@@ -46,7 +46,7 @@ jobs:
         run: mix "assets.setup"
 
       - name: Build assets
-        run: mix "assets.build"
+        run: mix "assets.build:deploy"
 
       - name: Push updated assets
         id: push_assets

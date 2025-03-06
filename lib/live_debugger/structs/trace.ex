@@ -71,6 +71,11 @@ defmodule LiveDebugger.Structs.Trace do
 
   def live_component_delete?(_), do: false
 
+  @spec callback_name(t()) :: String.t()
+  def callback_name(trace) do
+    "#{trace.function}/#{trace.arity}"
+  end
+
   defp get_cid_from_args(args) do
     args
     |> Enum.map(&maybe_get_cid(&1))

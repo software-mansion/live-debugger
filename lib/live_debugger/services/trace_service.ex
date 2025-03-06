@@ -4,8 +4,6 @@ defmodule LiveDebugger.Services.TraceService do
   Created table is an ordered_set with non-positive integer keys.
   """
 
-  require Logger
-
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.CommonTypes
   alias Phoenix.LiveComponent.CID
@@ -55,6 +53,20 @@ defmodule LiveDebugger.Services.TraceService do
     table_id
     |> maybe_init_ets()
     |> :ets.insert({id, trace})
+  end
+
+  @doc """
+  Gets a trace from the ETS table by its id.
+  """
+  @spec get(:ets.table(), integer()) :: Trace.t() | nil
+  def get(table_id, id) do
+    table_id
+    |> maybe_init_ets()
+    |> :ets.lookup(id)
+    |> case do
+      [] -> nil
+      [{_id, trace}] -> trace
+    end
   end
 
   @doc """

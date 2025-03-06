@@ -1,7 +1,7 @@
 defmodule LiveDebugger.MixProject do
   use Mix.Project
 
-  @version "0.1.0-rc.1"
+  @version "0.1.0"
 
   def project do
     [
@@ -34,10 +34,11 @@ defmodule LiveDebugger.MixProject do
 
   defp aliases do
     [
-      setup: ["deps.get", "cmd --cd assets npm install", "assets.setup", "assets.build"],
+      setup: ["deps.get", "cmd --cd assets npm install", "assets.setup", "assets.build:dev"],
       dev: "run --no-halt dev.exs",
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
-      "assets.build": ["esbuild default --minify", "tailwind live_debugger --minify"]
+      "assets.build:deploy": ["esbuild deploy_build --minify", "tailwind deploy_build --minify"],
+      "assets.build:dev": ["esbuild dev_build --minify", "tailwind dev_build --minify"]
     ]
   end
 

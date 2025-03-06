@@ -65,7 +65,11 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                   </:column>
                   <:column :let={session} label="Socket"><%= session.socket_id %></:column>
                   <:column :let={session}>
-                    <.nested_badge :if={LiveDebugger.Utils.nested?(session)} />
+                    <.badge
+                      :if={LiveDebugger.Utils.nested?(session)}
+                      text="Nested"
+                      icon="icon-nested"
+                    />
                   </:column>
                 </.table>
                 <.list
@@ -77,7 +81,11 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                   <:title :let={session}>
                     <div class="flex items-center justify-between">
                       <p class="shrink truncate"><%= session.module %></p>
-                      <.nested_badge :if={LiveDebugger.Utils.nested?(session)} />
+                      <.badge
+                        :if={LiveDebugger.Utils.nested?(session)}
+                        text="Nested"
+                        icon="icon-nested"
+                      />
                     </div>
                   </:title>
                   <:description :let={session}>

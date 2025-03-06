@@ -1,4 +1,4 @@
-defmodule LiveDebuggerDev.LiveComponents.Reccursive do
+defmodule LiveDebuggerDev.LiveComponents.Recursive do
   use DevWeb, :live_component
 
   def update(assigns, socket) do
@@ -16,7 +16,7 @@ defmodule LiveDebuggerDev.LiveComponents.Reccursive do
 
     ~H"""
     <div>
-      <.box title={"Reccursive (#{@counter}) [LiveComponent]"} color="purple">
+      <.box title={"Recursive (#{@counter}) [LiveComponent]"} color="purple">
         <.live_component :if={@render?} module={__MODULE__} id={@id <> "|"} counter={@counter - 1} />
       </.box>
     </div>

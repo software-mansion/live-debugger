@@ -54,7 +54,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             <.assigns_section assigns={node.assigns} />
             <.fullscreen id="assigns-display-fullscreen" title="Assigns">
               <ElixirDisplay.term
-                id="assigns-display"
+                id="assigns-display-fullscreen-term"
                 node={TermParser.term_to_display_tree(node.assigns)}
                 level={1}
               />
@@ -82,7 +82,11 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     ~H"""
     <.collapsible_section id="info" title={title(@node_type)}>
       <:right_panel>
-        <.nested_badge :if={@node_type == :live_view and LiveDebugger.Utils.nested?(@socket_id)} />
+        <.badge
+          :if={@node_type == :live_view and LiveDebugger.Utils.nested?(@socket_id)}
+          text="Nested"
+          icon="icon-nested"
+        />
       </:right_panel>
       <div class="p-4 flex flex-col gap-1">
         <.info_row name="Module" value={inspect(@node.module)} />

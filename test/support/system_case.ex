@@ -70,9 +70,9 @@ defmodule LiveDebugger.SystemCase do
                      children_cids: []
                    }, nil},
                 4 =>
-                  {LiveDebuggerDev.LiveComponents.Reccursive, "reccursive",
+                  {LiveDebuggerDev.LiveComponents.Recursive, "recursive",
                    %{
-                     id: "reccursive",
+                     id: "recursive",
                      counter: 2,
                      myself: %Phoenix.LiveComponent.CID{cid: 4},
                      __changed__: %{},
@@ -83,9 +83,9 @@ defmodule LiveDebugger.SystemCase do
                      children_cids: [5]
                    }, nil},
                 5 =>
-                  {LiveDebuggerDev.LiveComponents.Reccursive, "reccursive|",
+                  {LiveDebuggerDev.LiveComponents.Recursive, "recursive|",
                    %{
-                     id: "reccursive|",
+                     id: "recursive|",
                      counter: 1,
                      myself: %Phoenix.LiveComponent.CID{cid: 5},
                      __changed__: %{},
@@ -120,9 +120,9 @@ defmodule LiveDebugger.SystemCase do
                      children_cids: []
                    }, nil},
                 8 =>
-                  {LiveDebuggerDev.LiveComponents.Reccursive, "reccursive||",
+                  {LiveDebuggerDev.LiveComponents.Recursive, "recursive||",
                    %{
-                     id: "reccursive||",
+                     id: "recursive||",
                      counter: 0,
                      myself: %Phoenix.LiveComponent.CID{cid: 8},
                      __changed__: %{},
@@ -134,10 +134,10 @@ defmodule LiveDebugger.SystemCase do
                    }, nil}
               },
               %{
-                LiveDebuggerDev.LiveComponents.Reccursive => %{
-                  "reccursive" => 4,
-                  "reccursive|" => 5,
-                  "reccursive||" => 8
+                LiveDebuggerDev.LiveComponents.Recursive => %{
+                  "recursive" => 4,
+                  "recursive|" => 5,
+                  "recursive||" => 8
                 },
                 LiveDebuggerDev.LiveComponents.Name => %{"name_inner" => 6},
                 LiveDebuggerDev.LiveComponents.LiveComponentWithVeryVeryLongName => %{

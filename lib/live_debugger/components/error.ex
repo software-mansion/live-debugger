@@ -38,6 +38,7 @@ defmodule LiveDebugger.Components.Error do
       <:heading>Unexpected error</:heading>
       <:description>
         Debugger encountered unexpected error. Check logs for more information
+        <.report_issue class="mb-4" text="Report the issue" />
       </:description>
     </.error_component>
     """

@@ -11,8 +11,8 @@ defmodule LiveDebuggerDev.Runner do
       pubsub_server: LiveDebuggerDev.PubSub,
       adapter: Bandit.PhoenixAdapter,
       watchers: [
-        esbuild: {Esbuild, :install_and_run, [:default, ~w(--watch)]},
-        tailwind: {Tailwind, :install_and_run, [:live_debugger, ~w(--watch)]}
+        esbuild: {Esbuild, :install_and_run, [:dev_build, ~w(--watch)]},
+        tailwind: {Tailwind, :install_and_run, [:dev_build, ~w(--watch)]}
       ],
       live_reload: [
         patterns: [

@@ -1,8 +1,12 @@
 # LiveDebugger
 
-LiveDebugger is a browser-based tool for debugging LiveView applications.
-It provides insights into your LiveViews, their LiveComponents, events, state transitions, and more.
-![output](https://github.com/user-attachments/assets/ba35716e-162b-4edd-a56e-de83294510f1)
+LiveDebugger is a browser-based tool for debugging LiveView applications, designed to enhance your development experience. It gives you:
+
+- :deciduous_tree: A detailed view of your LiveComponents tree
+- :mag: The ability to inspect assigns for LiveViews and LiveComponents
+- :link: Tracing of their callback executions
+
+https://github.com/user-attachments/assets/37f1219c-93cc-4d06-96f7-9b2140a1c971
 
 ## Installation
 
@@ -11,10 +15,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:live_debugger,
-       git: "https://github.com/software-mansion-labs/live-debugger.git",
-       tag: "v0.1.0-rc.1",
-       only: :dev}
+      {:live_debugger, "~> 0.1.0", only: :dev}
     ]
   end
 ```
@@ -74,7 +75,7 @@ It'll run the application declared in the `dev/` directory with the library inst
 LiveReload is working both for `.ex` files and static files, but if some styles don't show up, try using this command
 
 ```console
-mix assets.build
+mix assets.build:dev
 ```
 
 ## Authors
