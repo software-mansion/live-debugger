@@ -51,7 +51,7 @@ defmodule LiveDebugger.Utils.TermParser do
     leaf_node("list", [black("[]") | suffix])
   end
 
-  defp to_node([_, _] = list, suffix) do
+  defp to_node(list, suffix) when is_list(list) do
     size = length(list)
 
     children =
@@ -97,6 +97,7 @@ defmodule LiveDebugger.Utils.TermParser do
   end
 
   defp to_node(other, suffix) do
+    dbg(other)
     leaf_node("other", [black(inspect(other)) | suffix])
   end
 
