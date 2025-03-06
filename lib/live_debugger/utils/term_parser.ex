@@ -97,7 +97,6 @@ defmodule LiveDebugger.Utils.TermParser do
   end
 
   defp to_node(other, suffix) do
-    dbg(other)
     leaf_node("other", [black(inspect(other)) | suffix])
   end
 
