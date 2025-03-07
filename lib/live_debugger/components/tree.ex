@@ -90,7 +90,7 @@ defmodule LiveDebugger.Components.Tree do
           chevron_class="text-primary-900 h-5 w-5"
           open={@open}
           label_class="w-full rounded-md py-1 hover:bg-secondary-100"
-          label_style={style_for_padding(@level, @collapsible?)}
+          style={style_for_padding(@level, @collapsible?)}
         >
           <:label>
             <.label
