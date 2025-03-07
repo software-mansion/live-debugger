@@ -15,13 +15,13 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
 
   @spec init(Socket.t()) :: Socket.t()
   def init(socket) do
-    stop_tracing(socket)
+    clear_tracing(socket)
   end
 
   @spec switch_tracing(Socket.t()) :: Socket.t()
   def switch_tracing(socket) do
     if socket.assigns[@assign_name].tracing_started? do
-      stop_tracing(socket)
+      clear_tracing(socket)
     else
       start_tracing(socket)
     end
@@ -42,7 +42,7 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
 
     cond do
       period_exceeded?(fuse) -> {:ok, reset_fuse(socket)}
-      count_exceeded?(fuse) -> {:stopped, stop_tracing(socket)}
+      count_exceeded?(fuse) -> {:stopped, clear_tracing(socket)}
       true -> {:ok, increment_fuse(socket)}
     end
   end
@@ -79,7 +79,7 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
     assign(socket, @assign_name, assigns)
   end
 
-  def stop_tracing(socket) do
+  def clear_tracing(socket) do
     assigns = %{
       tracing_started?: false,
       fuse: nil
