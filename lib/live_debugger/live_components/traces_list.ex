@@ -275,6 +275,10 @@ defmodule LiveDebugger.LiveComponents.TracesList do
               level={1}
             />
           <% end %>
+        <% else %>
+          <div class="w-full flex items-center justify-center">
+            <.spinner size="sm" />
+          </div>
         <% end %>
       </div>
     </.collapsible>
