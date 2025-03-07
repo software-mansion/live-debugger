@@ -1,20 +1,16 @@
 let lvd_url = null;
 
 chrome.devtools.inspectedWindow.eval(
-  "getLiveDebuggerURL()",
+  "`${getLiveDebuggerURL()}/${getSocketId()}`",
   function (result, isException) {
-    if (isException) {
-      console.log(
-        "Couldn't find url. Ensure you've turned on browser features in the config and added LiveDebugger scripts to your application root layout."
-      );
-    } else {
+    if (result) {
       lvd_url = result;
     }
   }
 );
 
 chrome.devtools.panels.create(
-  "LiveViewDebugger",
+  "LiveDebugger",
   "images/icon-16.png",
   "panel.html",
   function (panel) {

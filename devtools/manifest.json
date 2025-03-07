@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "LVD DevTools",
+  "name": "LiveDebugger DevTools",
   "version": "0.0.0.1",
-  "description": "LiveViewDebugger panel in DevTools",
+  "description": "Extension which allows running LiveDebugger inside DevTools",
   "author": "SWM",
   "permissions": ["storage"],
   "icons": {
