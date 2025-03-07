@@ -11,16 +11,15 @@ defmodule LiveDebugger.Structs.TraceDisplay do
   @type t() :: %__MODULE__{
           id: integer(),
           trace: Trace.t(),
-          render_body?: boolean(),
-          counter: non_neg_integer() | nil
+          render_body?: boolean()
         }
 
   def from_historical_trace(%Trace{} = trace) do
     %__MODULE__{id: trace.id, trace: trace, render_body?: true}
   end
 
-  def form_live_trace(%Trace{} = trace, counter) do
-    %__MODULE__{id: trace.id, trace: trace, render_body?: false, counter: counter}
+  def from_live_trace(%Trace{} = trace) do
+    %__MODULE__{id: trace.id, trace: trace, render_body?: false}
   end
 
   def render_body(%__MODULE__{} = trace) do

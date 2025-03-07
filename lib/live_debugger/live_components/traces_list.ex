@@ -7,6 +7,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   require Logger
 
+  alias LiveDebugger.LiveHelpers.TracingHelper
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Components.ElixirDisplay
   alias LiveDebugger.Services.TraceService
@@ -19,32 +20,29 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   @impl true
   def mount(socket) do
     socket
-    |> assign(:tracing_started?, false)
     |> assign(:displayed_trace, nil)
     |> ok()
   end
 
   @impl true
-  def update(
-        %{new_trace: %{trace: trace, counter: counter}},
-        %{assigns: %{tracing_started?: true}} = socket
-      ) do
+  def update(%{new_trace: trace}, socket) do
     socket
-    |> stream_insert(:existing_traces, TraceDisplay.form_live_trace(trace, counter),
-      at: 0,
-      limit: @stream_limit
-    )
-    |> ok()
-  end
+    |> TracingHelper.check_fuse()
+    |> case do
+      {:ok, socket} ->
+        trace_display = TraceDisplay.from_live_trace(trace)
+        stream_insert(socket, :existing_traces, trace_display, at: 0, limit: @stream_limit)
 
-  @impl true
-  def update(%{new_trace: _trace}, %{assigns: %{tracing_started?: false}} = socket) do
-    {:ok, socket}
+      {_, socket} ->
+        # Add disappearing flash here in case of :stopped. (Issue 173)
+        socket
+    end
+    |> ok()
   end
 
   def update(assigns, socket) do
     socket
-    |> assign(:tracing_started?, false)
+    |> TracingHelper.init()
     |> assign(debugged_node_id: assigns.debugged_node_id)
     |> assign(id: assigns.id)
     |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
@@ -63,8 +61,27 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       <.collapsible_section title="Callback traces" id="traces" inner_class="p-4">
         <:right_panel>
           <div class="flex gap-2 items-center">
-            <.toggle_tracing_button myself={@myself} tracing_started?={@tracing_started?} />
-            <.button variant="secondary" size="sm" phx-click="clear-traces" phx-target={@myself}>
+            <.toggle_tracing_button
+              myself={@myself}
+              tracing_started?={@tracing_helper.tracing_started?}
+            />
+            <.button
+              :if={not @tracing_helper.tracing_started?}
+              phx-click="refresh-history"
+              phx-target={@myself}
+              class="flex gap-2"
+              variant="secondary"
+              size="sm"
+            >
+              Refresh
+            </.button>
+            <.button
+              :if={not @tracing_helper.tracing_started?}
+              variant="secondary"
+              size="sm"
+              phx-click="clear-traces"
+              phx-target={@myself}
+            >
               Clear
             </.button>
           </div>
@@ -124,7 +141,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   @impl true
   def handle_event("switch-tracing", _, socket) do
     socket
-    |> assign(tracing_started?: not socket.assigns.tracing_started?)
+    |> TracingHelper.switch_tracing()
     |> noreply()
   end
 
@@ -180,6 +197,13 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     |> noreply()
   end
 
+  @impl true
+  def handle_event("refresh-history", _, socket) do
+    socket
+    |> assign_async_existing_traces()
+    |> noreply()
+  end
+
   attr(:tracing_started?, :boolean, required: true)
   attr(:myself, :any, required: true)
 
@@ -209,7 +233,6 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       |> assign(:trace, assigns.wrapped_trace.trace)
       |> assign(:render_body?, assigns.wrapped_trace.render_body?)
       |> assign(:callback_name, Trace.callback_name(assigns.wrapped_trace.trace))
-      |> assign(:counter, assigns.wrapped_trace.counter)
 
     ~H"""
     <.collapsible
@@ -228,10 +251,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
           class="w-[90%] grow flex items-center ml-2 gap-1.5"
           phx-update="ignore"
         >
-          <div class="flex gap-1.5 items-center">
-            <p class="font-medium text-sm"><%= @callback_name %></p>
-            <.aggregate_count :if={@counter && @counter > 1} count={@counter} />
-          </div>
+          <p class="font-medium text-sm"><%= @callback_name %></p>
           <.short_trace_content trace={@trace} />
           <p class="w-max text-xs font-normal text-secondary-600 align-center">
             <%= Parsers.parse_timestamp(@trace.timestamp) %>
@@ -258,14 +278,6 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         <% end %>
       </div>
     </.collapsible>
-    """
-  end
-
-  defp aggregate_count(assigns) do
-    ~H"""
-    <span class="rounded-full bg-white border border-secondary-200  text-2xs px-1.5">
-      +<%= assigns.count %>
-    </span>
     """
   end
 

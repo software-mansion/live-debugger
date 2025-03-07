@@ -6,7 +6,7 @@ defmodule LiveDebuggerDev.LiveViews.Side do
 
     Task.start(fn ->
       for _ <- 1..100_000 do
-        Process.sleep(10)
+        Process.sleep(8)
         send(current_pid, :hello)
       end
     end)
