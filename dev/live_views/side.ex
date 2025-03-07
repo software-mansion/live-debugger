@@ -7,7 +7,7 @@ defmodule LiveDebuggerDev.LiveViews.Side do
     Task.start(fn ->
       for _ <- 1..100_000 do
         Process.sleep(8)
-        send(current_pid, :hello)
+        send(current_pid, very_big_message())
       end
     end)
 
@@ -25,7 +25,26 @@ defmodule LiveDebuggerDev.LiveViews.Side do
     """
   end
 
-  def handle_info(:hello, socket) do
+  def handle_info(_, socket) do
     {:noreply, socket}
+  end
+
+  defp very_big_message() do
+    part = %{
+      list: [1, 2, 3, 4],
+      map: %{a: 1, b: 2},
+      keyword: [a: 1, b: 2],
+      tuple: {1, 2},
+      string: "string",
+      atom: :some_atom,
+      number: 42.12,
+      boolean: true,
+      nil: nil,
+      pid: self()
+    }
+
+    Enum.reduce(1..100, %{}, fn i, acc ->
+      Map.put(acc, i, part)
+    end)
   end
 end
