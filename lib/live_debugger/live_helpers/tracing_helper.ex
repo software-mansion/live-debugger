@@ -20,12 +20,18 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
 
   @spec switch_tracing(Socket.t()) :: Socket.t()
   def switch_tracing(socket) do
-    case socket.assigns[@assign_name].tracing_started? do
-      true -> stop_tracing(socket)
-      false -> start_tracing(socket)
+    if socket.assigns[@assign_name].tracing_started? do
+      stop_tracing(socket)
+    else
+      start_tracing(socket)
     end
   end
 
+  @doc """
+  Checks if the fuse is blown and stops tracing if it is.
+  It uses the `#{@assign_name}` assign to store information.
+  When tracing is not started returns `{:noop, socket}`.
+  """
   @spec check_fuse(Socket.t()) :: {:ok | :stopped | :noop, Socket.t()}
   def check_fuse(%{assigns: %{@assign_name => %{tracing_started?: false}}} = socket) do
     {:noop, socket}

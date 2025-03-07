@@ -34,7 +34,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         stream_insert(socket, :existing_traces, trace_display, at: 0, limit: @stream_limit)
 
       {_, socket} ->
-        # Add disappearing flash here in case of :stopped
+        # Add disappearing flash here in case of :stopped. (Issue 173)
         socket
     end
     |> ok()
