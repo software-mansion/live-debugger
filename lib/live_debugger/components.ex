@@ -112,10 +112,8 @@ defmodule LiveDebugger.Components do
   attr(:id, :string, required: true)
   attr(:class, :any, default: nil, doc: "CSS class for parent container")
   attr(:label_class, :any, default: nil, doc: "CSS class for the label")
-  attr(:label_style, :any, default: nil, doc: "CSS style for the label")
   attr(:chevron_class, :any, default: nil, doc: "CSS class for the chevron icon")
   attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
-  attr(:disabled, :boolean, default: false, doc: "Whether the collapsible is disabled")
 
   attr(:icon, :string,
     default: "icon-chevron-right",
