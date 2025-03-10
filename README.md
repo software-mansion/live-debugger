@@ -61,6 +61,24 @@ config :live_debugger,
   adapter: Bandit.PhoenixAdapter # Adapter used in LiveDebugger.Endpoint
 ```
 
+In `router.ex` of your Phoenix app, make sure your locally running Phoenix app can access the LiveDebugger JS files on port 4007 (note that this is enabled only for `:dev` mode):
+
+```elixir
+  pipeline :browser do
+    # ...
+
+    plug :put_secure_browser_headers, %{
+      "content-security-policy" =>
+        if(Mix.env() == :dev,
+          do:
+            "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com http://127.0.0.1:4007",
+          else:
+            "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'"
+        )
+    }
+
+```
+
 ## Contributing
 
 For those planning to contribute to this project, you can run a dev version of the debugger with the following commands:
