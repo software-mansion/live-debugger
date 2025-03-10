@@ -70,18 +70,33 @@ defmodule LiveDebugger.Services.TraceService do
   end
 
   @doc """
-  Returns all existing traces for the given table id and CID or PID.
+  Returns existing traces for the given table id and CID or PID.
+  It returns up to `limit` traces.
   """
-  @spec existing_traces(atom(), pid() | CommonTypes.cid()) :: [Trace.t()]
-  def existing_traces(table_id, %CID{} = cid) do
-    table_id |> maybe_init_ets() |> :ets.match_object({:_, %{cid: cid}}) |> Enum.map(&elem(&1, 1))
-  end
+  @spec existing_traces(atom(), pid() | CommonTypes.cid(), pos_integer()) :: [Trace.t()]
+  def existing_traces(table_id, id, limit) when limit >= 1 do
+    matcher =
+      cond do
+        is_pid(id) ->
+          {:_, %{pid: id, cid: nil}}
 
-  def existing_traces(table_id, pid) when is_pid(pid) do
+        match?(%CID{}, id) ->
+          {:_, %{cid: id}}
+
+        true ->
+          raise ArgumentError, "id must be either PID or CID"
+      end
+
     table_id
     |> maybe_init_ets()
-    |> :ets.match_object({:_, %{pid: pid, cid: nil}})
-    |> Enum.map(&elem(&1, 1))
+    |> :ets.match_object(matcher, limit)
+    |> case do
+      {entries, _cont} ->
+        Enum.map(entries, &elem(&1, 1))
+
+      _ ->
+        []
+    end
   end
 
   @doc """
