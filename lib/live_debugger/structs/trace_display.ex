@@ -14,11 +14,7 @@ defmodule LiveDebugger.Structs.TraceDisplay do
           render_body?: boolean()
         }
 
-  def from_historical_trace(%Trace{} = trace) do
-    %__MODULE__{id: trace.id, trace: trace, render_body?: true}
-  end
-
-  def from_live_trace(%Trace{} = trace) do
+  def from_trace(%Trace{} = trace) do
     %__MODULE__{id: trace.id, trace: trace, render_body?: false}
   end
 

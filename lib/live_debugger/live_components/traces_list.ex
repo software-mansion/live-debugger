@@ -30,7 +30,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     |> TracingHelper.check_fuse()
     |> case do
       {:ok, socket} ->
-        trace_display = TraceDisplay.from_live_trace(trace)
+        trace_display = TraceDisplay.from_trace(trace)
         stream_insert(socket, :existing_traces, trace_display, at: 0, limit: @stream_limit)
 
       {_, socket} ->
@@ -120,7 +120,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   @impl true
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
-    trace_list = Enum.map(trace_list, &TraceDisplay.from_historical_trace/1)
+    trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
 
     socket
     |> assign(existing_traces_status: :ok)
@@ -189,7 +189,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         socket
         |> stream_insert(
           :existing_traces,
-          TraceDisplay.from_historical_trace(trace),
+          TraceDisplay.from_trace(trace) |> TraceDisplay.render_body(),
           at: abs(trace.id),
           limit: @stream_limit
         )
