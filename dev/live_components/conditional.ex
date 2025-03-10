@@ -13,13 +13,9 @@ defmodule LiveDebuggerDev.LiveComponents.Conditional do
       <.box title="Conditional [LiveComponent]" color="orange">
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-1">
-            <button
-              phx-click="show_child"
-              phx-target={@myself}
-              class="bg-orange-500 text-white py-1 px-2 rounded"
-            >
+            <.button phx-click="show_child" phx-target={@myself} color="orange">
               Show
-            </button>
+            </.button>
 
             <span>child LiveComponent below</span>
           </div>

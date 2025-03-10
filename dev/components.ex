@@ -4,7 +4,8 @@ defmodule LiveDebuggerDev.Components do
   @routes [
     {"/", "Main"},
     {"/side", "Side"},
-    {"/nested", "Nested"}
+    {"/nested", "Nested"},
+    {"/messages", "Messages"}
   ]
 
   attr(:routes, :list, default: @routes)
@@ -40,6 +41,19 @@ defmodule LiveDebuggerDev.Components do
     """
   end
 
+  attr(:color, :string, default: "green")
+  attr(:rest, :global)
+
+  slot(:inner_block, required: true)
+
+  def button(assigns) do
+    ~H"""
+    <button class={"#{background_color(@color)} text-white py-1 px-2 rounded"} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </button>
+    """
+  end
+
   defp text_color("blue"), do: "text-blue-500"
   defp text_color("red"), do: "text-red-500"
   defp text_color("green"), do: "text-green-500"
@@ -57,4 +71,13 @@ defmodule LiveDebuggerDev.Components do
   defp border_color("teal"), do: "border-teal-500"
   defp border_color("orange"), do: "border-orange-500"
   defp border_color("yellow"), do: "border-yellow-500"
+
+  defp background_color("blue"), do: "bg-blue-500"
+  defp background_color("red"), do: "bg-red-500"
+  defp background_color("green"), do: "bg-green-500"
+  defp background_color("purple"), do: "bg-purple-500"
+  defp background_color("gray"), do: "bg-gray-500"
+  defp background_color("teal"), do: "bg-teal-500"
+  defp background_color("orange"), do: "bg-orange-500"
+  defp background_color("yellow"), do: "bg-yellow-500"
 end

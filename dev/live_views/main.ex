@@ -22,15 +22,15 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       <.box title="Main [LiveView]" color="blue">
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
-            <button phx-click="increment" class="bg-blue-500 text-white py-1 px-2 rounded">
+            <.button phx-click="increment" color="blue">
               Increment
-            </button>
+            </.button>
             <span class="text-xl"><%= @counter %></span>
           </div>
           <div class="flex items-center gap-1">
-            <button phx-click="change_name" class="bg-red-500 text-white py-1 px-2 rounded">
+            <.button phx-click="change_name" color="red">
               Update
-            </button>
+            </.button>
             <div>
               variable shared with <span class="text-red-500">first component</span>
               - favorite person:

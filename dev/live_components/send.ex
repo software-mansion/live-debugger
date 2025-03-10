@@ -9,13 +9,9 @@ defmodule LiveDebuggerDev.LiveComponents.Send do
       <.box title="Send [LiveComponent]" color="green">
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-1">
-            <button
-              phx-click="send_message"
-              phx-target={@myself}
-              class="bg-green-500 text-white py-1 px-2 rounded"
-            >
+            <.button phx-click="send_message" phx-target={@myself} color="green">
               Send
-            </button>
+            </.button>
 
             <span>
               a message to parent
