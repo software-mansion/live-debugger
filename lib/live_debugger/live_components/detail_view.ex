@@ -80,6 +80,14 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     ~H"""
     <.collapsible_section id="info" title={title(@node_type)}>
       <:right_panel>
+        <.button
+          color="primary"
+          phx-click="highlight"
+          phx-value-search_attribute={get_search_attribute(@node)}
+          phx-value-search_value={get_search_value(@node)}
+        >
+          Highlight
+        </.button>
         <.badge :if={@node_type == :live_view and @nested?} text="Nested" icon="icon-nested" />
       </:right_panel>
       <div class="p-4 flex flex-col gap-1">
@@ -88,6 +96,24 @@ defmodule LiveDebugger.LiveComponents.DetailView do
       </div>
     </.collapsible_section>
     """
+  end
+
+  defp get_search_value(node) do
+    node
+    |> TreeNode.id()
+    |> case do
+      %Phoenix.LiveComponent.CID{cid: cid} -> cid
+      pid when is_pid(pid) -> node.id
+    end
+  end
+
+  defp get_search_attribute(node) do
+    node
+    |> TreeNode.id()
+    |> case do
+      %Phoenix.LiveComponent.CID{} -> "data-phx-component"
+      pid when is_pid(pid) -> "id"
+    end
   end
 
   attr(:name, :string, required: true)

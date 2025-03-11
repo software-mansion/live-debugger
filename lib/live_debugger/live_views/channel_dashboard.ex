@@ -11,6 +11,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.CallbackTracingService
+  alias Phoenix.Socket.Message
+  alias LiveDebugger.Services.ChannelService
 
   @impl true
   def mount(%{"socket_id" => socket_id}, _session, socket) do
@@ -76,6 +78,27 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", show_sidebar?: true})
 
     noreply(socket)
+  end
+
+  @impl true
+  def handle_event(
+        "highlight",
+        %{"search_attribute" => attr, "search_value" => val},
+        socket
+      ) do
+    pid = socket.assigns.debugged_lv_process.result.pid
+    {:ok, state} = ChannelService.state(pid)
+
+    message = %Message{
+      topic: state.topic,
+      event: "diff",
+      payload: %{e: [["highlight", %{attr: attr, val: val}]]},
+      join_ref: state.join_ref
+    }
+
+    send(state.socket.transport_pid, state.serializer.encode!(message))
+
+    {:noreply, socket}
   end
 
   @impl true
