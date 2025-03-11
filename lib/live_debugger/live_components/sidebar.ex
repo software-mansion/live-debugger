@@ -57,7 +57,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       pid: assigns.lv_process.pid,
       socket_id: assigns.lv_process.socket_id,
       node_id: assigns.node_id,
-      base_url: assigns.base_url
+      base_url: assigns.base_url,
+      highlight?: assigns.highlight?
     })
     |> assign_async_tree()
     |> assign_async_existing_node_ids()
@@ -80,6 +81,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           max_opened_node_level={@max_opened_node_level}
           node_id={@node_id}
           myself={@myself}
+          highlight?={@highlight?}
         />
         <.report_issue class="border-t border-secondary-200" />
       </div>
@@ -91,6 +93,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           max_opened_node_level={@max_opened_node_level}
           node_id={@node_id}
           myself={@myself}
+          highlight?={@highlight?}
         />
         <.report_issue class="border-t border-secondary-200" />
       </.sidebar_slide_over>
@@ -119,6 +122,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   attr(:node_id, :any, required: true)
   attr(:myself, :any, required: true)
   attr(:max_opened_node_level, :any, required: true)
+  attr(:highlight?, :boolean, required: true)
 
   defp sidebar_content(assigns) do
     ~H"""
@@ -129,6 +133,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         selected_node_id={@node_id}
         target={@myself}
         max_opened_node_level={@max_opened_node_level}
+        highlight?={@highlight?}
       />
     </div>
     """
@@ -189,6 +194,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   attr(:target, :any, required: true)
   attr(:max_opened_node_level, :any, required: true)
   attr(:selected_node_id, :string, default: nil)
+  attr(:highlight?, :boolean, required: true)
 
   defp component_tree(assigns) do
     ~H"""
@@ -199,6 +205,17 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       <:failed :let={_error}>
         <.alert variant="danger">Couldn't load a tree</.alert>
       </:failed>
+
+      <div class="flex justify-center mt-3">
+        <.button phx-click="toggle-highlight">
+          <%= if @highlight? do %>
+            Highlight On
+          <% else %>
+            Highlight Off
+          <% end %>
+        </.button>
+      </div>
+
       <Tree.tree
         :if={tree}
         title="Components Tree"
