@@ -54,8 +54,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def update(assigns, socket) do
     socket
     |> assign(%{
-      pid: assigns.pid,
-      socket_id: assigns.socket_id,
+      pid: assigns.lv_process.pid,
+      socket_id: assigns.lv_process.socket_id,
       node_id: assigns.node_id,
       base_url: assigns.base_url
     })
@@ -64,8 +64,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     |> ok()
   end
 
-  attr(:pid, :any, required: true)
-  attr(:socket_id, :string, required: true)
+  attr(:lv_process, :any, required: true)
   attr(:node_id, :any, required: true)
   attr(:base_url, :string, required: true)
 
