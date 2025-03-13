@@ -16,7 +16,10 @@ const Highlight = {
     this.el.addEventListener('mouseenter', this.pushHighlight);
     this.el.addEventListener('mouseleave', this.pushHighlight);
   },
-  updated() {},
+  destroyed() {
+    this.el.removeEventListener('mouseenter', this.pushHighlight);
+    this.el.removeEventListener('mouseleave', this.pushHighlight);
+  },
 };
 
 export default Highlight;
