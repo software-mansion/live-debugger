@@ -206,15 +206,17 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         <.alert variant="danger">Couldn't load a tree</.alert>
       </:failed>
 
-      <div class="flex justify-center mt-3">
-        <.button phx-click="toggle-highlight">
-          <%= if @highlight? do %>
-            Highlight On
-          <% else %>
-            Highlight Off
-          <% end %>
-        </.button>
-      </div>
+      <%= if Application.get_env(:live_debugger, :browser_features?) do %>
+        <div class="flex justify-center mt-3">
+          <.button phx-click="toggle-highlight" data-highlight={if @highlight?, do: "on", else: "off"}>
+            <%= if @highlight? do %>
+              Highlight On
+            <% else %>
+              Highlight Off
+            <% end %>
+          </.button>
+        </div>
+      <% end %>
 
       <Tree.tree
         :if={tree}

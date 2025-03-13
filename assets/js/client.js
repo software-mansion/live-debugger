@@ -149,7 +149,6 @@ document.addEventListener('DOMContentLoaded', function () {
       highlight.style.zIndex = '10000';
       highlight.style.pointerEvents = 'none';
 
-      console.log(highlight);
       document.body.appendChild(highlight);
     }
   });

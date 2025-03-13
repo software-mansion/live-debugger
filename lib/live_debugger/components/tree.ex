@@ -29,11 +29,7 @@ defmodule LiveDebugger.Components.Tree do
 
   def tree(assigns) do
     ~H"""
-    <div
-      id="components-tree"
-      phx-hook="ComponentsTree"
-      class={["w-full overflow-y-auto flex flex-col", @class]}
-    >
+    <div class={["w-full overflow-y-auto flex flex-col", @class]}>
       <div class="shrink-0 font-medium text-secondary-600 px-6 py-3"><%= @title %></div>
       <div class="w-full px-1 overflow-y-auto">
         <.tree_node
@@ -143,11 +139,13 @@ defmodule LiveDebugger.Components.Tree do
 
     ~H"""
     <button
+      id={"tree_node_button_" <> @node.parsed_id}
       phx-click="select_node"
       phx-value-node_id={@node.parsed_id}
       phx-target={@event_target}
       data-search_attribute={get_search_attribute(@node)}
       data-search_value={get_search_value(@node)}
+      phx-hook="Highlight"
       class={[
         "flex w-full rounded-md hover:bg-secondary-100",
         unless(@collapsible?, do: "p-1"),
