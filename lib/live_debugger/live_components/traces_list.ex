@@ -31,7 +31,9 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     |> case do
       {:ok, socket} ->
         trace_display = TraceDisplay.from_trace(trace)
+
         stream_insert(socket, :existing_traces, trace_display, at: 0, limit: @stream_limit)
+        |> assign(:trace_loaded?, true)
 
       {_, socket} ->
         # Add disappearing flash here in case of :stopped. (Issue 173)
@@ -43,11 +45,12 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   def update(assigns, socket) do
     socket
     |> TracingHelper.init()
+    |> assign(:trace_loaded?, false)
     |> assign(debugged_node_id: assigns.debugged_node_id)
     |> assign(id: assigns.id)
     |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
     |> assign_async_existing_traces()
-    |> push_event("historical-events-clear", %{})
+    |> push_event("past-traces-clear", %{})
     |> ok()
   end
 
@@ -137,7 +140,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     socket
     |> assign(existing_traces_status: :ok)
     |> stream(:existing_traces, trace_list, limit: @stream_limit)
-    |> push_event("historical-events-load", %{})
+    |> push_event("past-traces-load", %{})
     |> noreply()
   end
 
@@ -153,9 +156,14 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   @impl true
   def handle_event("switch-tracing", _, socket) do
-    socket
-    |> TracingHelper.switch_tracing()
-    |> noreply()
+    socket = TracingHelper.switch_tracing(socket)
+
+    if socket.assigns.tracing_helper.tracing_started? and socket.assigns.trace_loaded? do
+      push_event(socket, "start-tracing", %{})
+      |> noreply()
+    else
+      noreply(socket)
+    end
   end
 
   @impl true
@@ -167,7 +175,8 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
     socket
     |> stream(:existing_traces, [], reset: true)
-    |> push_event("historical-events-clear", %{})
+    |> assign(:trace_loaded?, false)
+    |> push_event("past-traces-clear", %{})
     |> noreply()
   end
 
