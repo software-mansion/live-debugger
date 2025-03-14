@@ -106,17 +106,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def handle_event("select_node", %{"node_id" => node_id}, socket) do
     socket =
       if socket.assigns.highlight? do
-        {:ok, state} = ChannelService.state(socket.assigns.pid)
-
-        message = %Message{
-          topic: state.topic,
-          event: "diff",
-          payload: %{e: [["pulse"]]},
-          join_ref: state.join_ref
-        }
-
-        send(state.socket.transport_pid, state.serializer.encode!(message))
-
+        send_event(socket.assigns.pid, "pulse")
         assign(socket, :highlight?, false)
       else
         socket
@@ -133,16 +123,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     if socket.assigns.highlight? do
       %{"search_attribute" => attr, "search_value" => val} = params
 
-      {:ok, state} = ChannelService.state(socket.assigns.pid)
-
-      message = %Message{
-        topic: state.topic,
-        event: "diff",
-        payload: %{e: [["highlight", %{attr: attr, val: val}]]},
-        join_ref: state.join_ref
-      }
-
-      send(state.socket.transport_pid, state.serializer.encode!(message))
+      send_event(socket.assigns.pid, "highlight", %{attr: attr, val: val})
     end
 
     noreply(socket)
@@ -310,5 +291,18 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   defp handle_error(error, _, error_message) do
     Logger.error(error_message <> inspect(error))
     error
+  end
+
+  defp send_event(pid, event, payload \\ nil) do
+    {:ok, state} = ChannelService.state(pid)
+
+    message = %Message{
+      topic: state.topic,
+      event: "diff",
+      payload: %{e: [[event, payload]]},
+      join_ref: state.join_ref
+    }
+
+    send(state.socket.transport_pid, state.serializer.encode!(message))
   end
 end
