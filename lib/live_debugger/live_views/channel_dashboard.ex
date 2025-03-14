@@ -11,8 +11,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.CallbackTracingService
-  alias Phoenix.Socket.Message
-  alias LiveDebugger.Services.ChannelService
 
   @impl true
   def mount(%{"socket_id" => socket_id}, _session, socket) do
@@ -20,7 +18,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     |> assign(:socket_id, socket_id)
     |> assign(:tracing_session, nil)
     |> assign(:debugged_module, nil)
-    |> assign(:highlight?, false)
     |> assign_async_debugged_lv_process()
     |> assign_base_url()
     |> ok()
@@ -61,7 +58,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
             lv_process={lv_process}
             node_id={@node_id}
             base_url={@base_url}
-            highlight?={@highlight?}
           />
           <.live_component
             module={LiveDebugger.LiveComponents.DetailView}
@@ -78,36 +74,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   @impl true
   def handle_event("open-sidebar", _, socket) do
     send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", show_sidebar?: true})
-
-    noreply(socket)
-  end
-
-  @impl true
-  def handle_event("toggle-highlight", _, socket) do
-    socket
-    |> update(:highlight?, &(not &1))
-    |> noreply()
-  end
-
-  @impl true
-  def handle_event(
-        "highlight",
-        %{"search_attribute" => attr, "search_value" => val},
-        socket
-      ) do
-    if socket.assigns.highlight? do
-      pid = socket.assigns.debugged_lv_process.result.pid
-      {:ok, state} = ChannelService.state(pid)
-
-      message = %Message{
-        topic: state.topic,
-        event: "diff",
-        payload: %{e: [["highlight", %{attr: attr, val: val}]]},
-        join_ref: state.join_ref
-      }
-
-      send(state.socket.transport_pid, state.serializer.encode!(message))
-    end
 
     noreply(socket)
   end

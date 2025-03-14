@@ -9,7 +9,7 @@ const Highlight = {
           search_attribute: e.target.dataset.search_attribute,
           search_value: e.target.dataset.search_value,
         };
-        this.pushEvent('highlight', params);
+        this.pushEventTo('#sidebar', 'highlight', params);
       }
     };
 

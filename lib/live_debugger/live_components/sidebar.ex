@@ -11,11 +11,13 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
+  alias Phoenix.Socket.Message
 
   @impl true
   def mount(socket) do
     socket
     |> hide_sidebar_side_over()
+    |> assign(:highlight?, false)
     |> ok()
   end
 
@@ -57,8 +59,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       pid: assigns.lv_process.pid,
       socket_id: assigns.lv_process.socket_id,
       node_id: assigns.node_id,
-      base_url: assigns.base_url,
-      highlight?: assigns.highlight?
+      base_url: assigns.base_url
     })
     |> assign_async_tree()
     |> assign_async_existing_node_ids()
@@ -72,7 +73,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-max flex bg-white shadow-custom border border-secondary-200">
+    <div id="sidebar" class="w-max flex bg-white shadow-custom border border-secondary-200">
       <div class="hidden sm:flex max-h-full flex-col w-64 gap-1 justify-between">
         <.sidebar_content
           pid={@pid}
@@ -103,9 +104,54 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   @impl true
   def handle_event("select_node", %{"node_id" => node_id}, socket) do
+    socket =
+      if socket.assigns.highlight? do
+        {:ok, state} = ChannelService.state(socket.assigns.pid)
+
+        message = %Message{
+          topic: state.topic,
+          event: "diff",
+          payload: %{e: [["pulse"]]},
+          join_ref: state.join_ref
+        }
+
+        send(state.socket.transport_pid, state.serializer.encode!(message))
+
+        assign(socket, :highlight?, false)
+      else
+        socket
+      end
+
     socket
     |> push_patch(to: "#{socket.assigns.base_url}/#{node_id}")
     |> hide_sidebar_side_over()
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("highlight", params, socket) do
+    if socket.assigns.highlight? do
+      %{"search_attribute" => attr, "search_value" => val} = params
+
+      {:ok, state} = ChannelService.state(socket.assigns.pid)
+
+      message = %Message{
+        topic: state.topic,
+        event: "diff",
+        payload: %{e: [["highlight", %{attr: attr, val: val}]]},
+        join_ref: state.join_ref
+      }
+
+      send(state.socket.transport_pid, state.serializer.encode!(message))
+    end
+
+    noreply(socket)
+  end
+
+  @impl true
+  def handle_event("toggle-highlight", _, socket) do
+    socket
+    |> update(:highlight?, &(not &1))
     |> noreply()
   end
 
@@ -208,12 +254,12 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
       <%= if Application.get_env(:live_debugger, :browser_features?) do %>
         <div class="flex justify-center mt-3">
-          <.button phx-click="toggle-highlight" data-highlight={if @highlight?, do: "on", else: "off"}>
-            <%= if @highlight? do %>
-              Highlight On
-            <% else %>
-              Highlight Off
-            <% end %>
+          <.button
+            phx-target={@target}
+            phx-click="toggle-highlight"
+            data-highlight={if @highlight?, do: "on", else: "off"}
+          >
+            <%= if @highlight?, do: "Highlight On", else: "Highlight Off" %>
           </.button>
         </div>
       <% end %>

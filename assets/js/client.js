@@ -119,10 +119,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   const highlightElementID = 'live-debugger-highlight-element';
+  let activeElement;
 
   window.addEventListener('phx:highlight', (msg) => {
     const highlightElement = document.getElementById(highlightElementID);
-    const activeElement = document.querySelector(
+    activeElement = document.querySelector(
       `[${msg.detail.attr}="${msg.detail.val}"]`
     );
 
@@ -166,6 +167,27 @@ document.addEventListener('DOMContentLoaded', function () {
       highlight.style.width = `${activeElement.offsetWidth}px`;
       highlight.style.height = `${activeElement.offsetHeight}px`;
     }
+  });
+
+  window.addEventListener('phx:pulse', () => {
+    const highlightElement = document.getElementById(highlightElementID);
+    if (highlightElement) {
+      highlightElement.remove();
+    }
+
+    activeElement.animate(
+      [
+        // key frames
+        { boxShadow: '0 0 5px 0 rgba(255, 255, 0, 1)' },
+        { boxShadow: '0 0 25px 5px rgba(255, 255, 0, 0.1)' },
+        { boxShadow: '0 0 5px 0 rgba(255, 255, 0, 0)' },
+      ],
+      {
+        // sync options
+        duration: 1000,
+        iterations: 2,
+      }
+    );
   });
 
   debugButton.addEventListener('mousedown', onMouseDown);
