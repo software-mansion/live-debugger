@@ -32,7 +32,8 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       {:ok, socket} ->
         trace_display = TraceDisplay.from_trace(trace)
 
-        stream_insert(socket, :existing_traces, trace_display, at: 0, limit: @stream_limit)
+        socket
+        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @stream_limit)
         |> assign(:trace_loaded?, true)
 
       {_, socket} ->
@@ -160,10 +161,10 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
     if socket.assigns.tracing_helper.tracing_started? and socket.assigns.trace_loaded? do
       push_event(socket, "start-tracing", %{})
-      |> noreply()
     else
-      noreply(socket)
+      socket
     end
+    |> noreply()
   end
 
   @impl true
