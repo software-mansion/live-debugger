@@ -125,6 +125,10 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  @doc """
+  Renders a collapsible section which doesn't collapse on desktop view.
+  """
+
   attr(:id, :string, required: true)
   attr(:title, :string, required: true)
   attr(:class, :any, default: nil)
@@ -136,37 +140,34 @@ defmodule LiveDebugger.Components do
 
   def collapsible_section(assigns) do
     ~H"""
-    <div class={[
-      "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom border border-default-border"
-      | List.wrap(@class)
-    ]}>
+    <div
+      id={@id <> "wrapper"}
+      phx-hook="CollapsibleSection"
+      class={[
+        "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom border border-default-border"
+        | List.wrap(@class)
+      ]}
+    >
       <.collapsible
         id={@id}
         title={@title}
         open={@open}
         class="bg-surface-0-bg rounded-sm w-full lg:hidden"
-        label_class="h-12 p-2 border-b border-default-border"
-        chevron_class="text-accent-icon"
+        label_class="h-12 p-2 border-b border-default-border lg:pl-4 cursor-pointer lg:cursor-default"
+        chevron_class="text-accent-icon flex lg:hidden"
       >
         <:label>
-          <.collapsible_section_label title={@title}>
-            <%= render_slot(@right_panel) %>
-          </.collapsible_section_label>
+          <div class="flex justify-between items-center w-full">
+            <div class="font-medium text-sm"><%= @title %></div>
+            <div class="w-max">
+              <%= render_slot(@right_panel) %>
+            </div>
+          </div>
         </:label>
-        <.collapsible_section_content class={@inner_class}>
+        <div class={["w-full flex overflow-auto rounded-sm bg-white p-2" | List.wrap(@inner_class)]}>
           <%= render_slot(@inner_block) %>
-        </.collapsible_section_content>
-      </.collapsible>
-      <div class="hidden lg:flex flex-col w-full bg-surface-0-bg rounded-sm">
-        <div class="pl-4 flex items-center h-12 p-2 border-b border-default-border">
-          <.collapsible_section_label title={@title}>
-            <%= render_slot(@right_panel) %>
-          </.collapsible_section_label>
         </div>
-        <.collapsible_section_content class={@inner_class}>
-          <%= render_slot(@inner_block) %>
-        </.collapsible_section_content>
-      </div>
+      </.collapsible>
     </div>
     """
   end
@@ -569,33 +570,6 @@ defmodule LiveDebugger.Components do
           Report it here
         </.link>
       </div>
-    </div>
-    """
-  end
-
-  attr(:title, :string, required: true)
-
-  slot(:inner_block)
-
-  defp collapsible_section_label(assigns) do
-    ~H"""
-    <div class="flex justify-between items-center w-full">
-      <div class="font-medium text-sm"><%= @title %></div>
-      <div class="w-max">
-        <%= render_slot(@inner_block) %>
-      </div>
-    </div>
-    """
-  end
-
-  attr(:class, :any, default: nil)
-
-  slot(:inner_block, required: true)
-
-  defp collapsible_section_content(assigns) do
-    ~H"""
-    <div class={["w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@class)]}>
-      <%= render_slot(@inner_block) %>
     </div>
     """
   end
