@@ -16,6 +16,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   alias LiveDebugger.Structs.TraceDisplay
 
   @stream_limit 128
+  @separator %{id: "separator"}
 
   @impl true
   def mount(socket) do
@@ -34,7 +35,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
         socket
         |> stream_insert(:existing_traces, trace_display, at: 0, limit: @stream_limit)
-        |> assign(:trace_loaded?, true)
+        |> assign(:traces_empty?, false)
 
       {_, socket} ->
         # Add disappearing flash here in case of :stopped. (Issue 173)
@@ -46,12 +47,11 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   def update(assigns, socket) do
     socket
     |> TracingHelper.init()
-    |> assign(:trace_loaded?, false)
+    |> assign(:traces_empty?, true)
     |> assign(debugged_node_id: assigns.debugged_node_id)
     |> assign(id: assigns.id)
     |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
     |> assign_async_existing_traces()
-    |> push_event("past-traces-clear", %{})
     |> ok()
   end
 
@@ -92,12 +92,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
           </div>
         </:right_panel>
         <div class="w-full h-full lg:min-h-[10.25rem]">
-          <div
-            id={"#{assigns.id}-stream"}
-            phx-update="stream"
-            class="flex flex-col gap-2"
-            phx-hook="TraceList"
-          >
+          <div id={"#{assigns.id}-stream"} phx-update="stream" class="flex flex-col gap-2">
             <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-gray-700">
               <div :if={@existing_traces_status == :ok}>
                 No traces have been recorded yet.
@@ -118,7 +113,11 @@ defmodule LiveDebugger.LiveComponents.TracesList do
               </.alert>
             </div>
             <%= for {dom_id, wrapped_trace} <- @streams.existing_traces do %>
-              <.trace id={dom_id} wrapped_trace={wrapped_trace} myself={@myself} />
+              <%= if wrapped_trace.id == "separator" do %>
+                <.separator id={dom_id} />
+              <% else %>
+                <.trace id={dom_id} wrapped_trace={wrapped_trace} myself={@myself} />
+              <% end %>
             <% end %>
           </div>
         </div>
@@ -140,8 +139,8 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
     socket
     |> assign(existing_traces_status: :ok)
+    |> assign(:traces_empty?, false)
     |> stream(:existing_traces, trace_list, limit: @stream_limit)
-    |> push_event("past-traces-load", %{})
     |> noreply()
   end
 
@@ -159,8 +158,10 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   def handle_event("switch-tracing", _, socket) do
     socket = TracingHelper.switch_tracing(socket)
 
-    if socket.assigns.tracing_helper.tracing_started? and socket.assigns.trace_loaded? do
-      push_event(socket, "start-tracing", %{})
+    if socket.assigns.tracing_helper.tracing_started? and !socket.assigns.traces_empty? do
+      socket
+      |> stream_delete(:existing_traces, @separator)
+      |> stream_insert(:existing_traces, @separator, at: 0, limit: @stream_limit)
     else
       socket
     end
@@ -176,8 +177,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
     socket
     |> stream(:existing_traces, [], reset: true)
-    |> assign(:trace_loaded?, false)
-    |> push_event("past-traces-clear", %{})
+    |> assign(:traces_empty?, true)
     |> noreply()
   end
 
@@ -244,6 +244,20 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         <% end %>
       </div>
     </.button>
+    """
+  end
+
+  attr(:id, :string, required: true)
+
+  def separator(assigns) do
+    ~H"""
+    <div id={@id}>
+      <div class="h-6 my-1 font-normal text-xs text-secondary-600 flex align items-center">
+        <div class="border-b border-secondary-200 grow"></div>
+        <span class="mx-2">Past Traces</span>
+        <div class="border-b border-secondary-200 grow"></div>
+      </div>
+    </div>
     """
   end
 
