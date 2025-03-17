@@ -11,13 +11,11 @@ defmodule LiveDebugger.Router do
     plug(:put_secure_browser_headers)
   end
 
-  scope "/" do
+  scope "/", LiveDebugger do
     pipe_through([:dbg_browser])
 
-    import Phoenix.LiveView.Router
-
-    live("/", LiveDebugger.LiveViews.SessionsDashboard)
-    live("/:socket_id", LiveDebugger.LiveViews.ChannelDashboard)
-    live("/:socket_id/:node_id", LiveDebugger.LiveViews.ChannelDashboard)
+    live("/", LiveViews.LiveViewsDashboardLive, :index)
+    live("/transport_pid/:socket_id", LiveViews.ChannelDashboardLive, :find_transport_pid)
+    live("/:transport_pid/:socket_id", LiveViews.ChannelDashboardLive, :show)
   end
 end
