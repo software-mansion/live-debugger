@@ -96,7 +96,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
   @impl true
   def handle_event(
         "lv-process-picked",
-        %{"socket_id" => socket_id, "transport_pid" => transport_pid},
+        %{"socket-id" => socket_id, "transport-pid" => transport_pid},
         socket
       ) do
     socket
@@ -114,8 +114,8 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
 
   defp event_values_map(lv_process) do
     %{
-      "phx-value-socket_id" => lv_process.socket_id,
-      "phx-value-transport_pid" => Parsers.pid_to_string(lv_process.transport_pid)
+      "phx-value-socket-id" => lv_process.socket_id,
+      "phx-value-transport-pid" => Parsers.pid_to_string(lv_process.transport_pid)
     }
   end
 
