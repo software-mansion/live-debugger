@@ -14,8 +14,8 @@ defmodule LiveDebugger.Router do
   scope "/", LiveDebugger do
     pipe_through([:dbg_browser])
 
-    live("/", LiveViews.LiveViewsDashboardLive, :index)
-    live("/transport_pid/:socket_id", LiveViews.ChannelDashboardLive, :patch)
-    live("/:transport_pid/:socket_id", LiveViews.ChannelDashboardLive, :show)
+    live("/", LiveViews.LiveViewsDashboardLive)
+    live("/transport_pid/:socket_id", LiveViews.ChannelDashboardLive)
+    live("/:transport_pid/:socket_id", LiveViews.ChannelDashboardLive)
   end
 end
