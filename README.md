@@ -48,6 +48,18 @@ config :live_debugger, browser_features?: true
 </head>
 ```
 
+### Content Security Policy
+
+In `router.ex` of your Phoenix app, make sure your locally running Phoenix app can access the LiveDebugger JS files on port 4007. To achieve that you may need to extend your CSP in `:dev` mode:
+
+```elixir
+  @csp "{...your CSP} #{if Mix.env() == :dev, do: "http://127.0.0.1:4007"}"  
+  
+  pipeline :browser do  
+    # ...  
+    plug :put_secure_browser_headers, %{"content-security-policy" => @csp}  
+```
+
 ## Optional configuration
 
 ```elixir
@@ -63,21 +75,6 @@ config :live_debugger,
 
 In `router.ex` of your Phoenix app, make sure your locally running Phoenix app can access the LiveDebugger JS files on port 4007 (note that this is enabled only for `:dev` mode):
 
-```elixir
-  pipeline :browser do
-    # ...
-
-    plug :put_secure_browser_headers, %{
-      "content-security-policy" =>
-        if(Mix.env() == :dev,
-          do:
-            "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com http://127.0.0.1:4007",
-          else:
-            "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'"
-        )
-    }
-
-```
 
 ## Contributing
 
