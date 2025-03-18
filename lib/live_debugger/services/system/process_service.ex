@@ -48,13 +48,16 @@ defmodule LiveDebugger.Services.System.ProcessService do
 
     @impl true
     def state(pid) do
-      if Process.alive?(pid) do
-        {:ok, :sys.get_state(pid)}
-      else
-        {:error, :not_alive}
+      try do
+        if Process.alive?(pid) do
+          {:ok, :sys.get_state(pid)}
+        else
+          {:error, :not_alive}
+        end
+      catch
+        :exit, reason ->
+          {:error, reason}
       end
-    rescue
-      _ -> {:error, "Could not get state from pid: #{inspect(pid)}"}
     end
 
     @impl true
