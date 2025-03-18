@@ -92,7 +92,9 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     with %{debugged_module: module} when not is_nil(module) <- socket.assigns,
          [lv_process] <- LiveViewDiscoveryService.successor_lv_processes(module) do
       socket
-      |> push_patch(to: Routes.channel_dashboard(lv_process.socket_id, lv_process.pid))
+      |> push_navigate(
+        to: Routes.channel_dashboard(lv_process.socket_id, lv_process.transport_pid)
+      )
       |> noreply()
     else
       _ ->
@@ -146,8 +148,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     CallbackTracingService.stop_tracing(socket.assigns.tracing_session)
 
     socket
-    # TODO: Fix getting successor process
-    |> push_navigate(to: socket.assigns.url)
+    |> start_async_assign_lv_process(%{"socket_id" => socket.assigns.socket_id})
     |> noreply()
   end
 
@@ -225,15 +226,15 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     end)
   end
 
-  defp fetch_lv_process(socket_id, pid \\ nil) do
+  defp fetch_lv_process(socket_id, transport_pid \\ nil) do
     fetch_after = fn milliseconds ->
       Process.sleep(milliseconds)
-      LiveViewDiscoveryService.lv_process(socket_id, pid)
+      LiveViewDiscoveryService.lv_process(socket_id, transport_pid)
     end
 
     with nil <- fetch_after.(200),
          nil <- fetch_after.(800) do
-      fetch_after.(200)
+      fetch_after.(1000)
     end
   end
 
@@ -241,7 +242,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
          %{assigns: %{live_action: :patch}} = socket,
          lv_process
        ) do
-    path = Routes.channel_dashboard(lv_process.socket_id, lv_process.pid)
+    path = Routes.channel_dashboard(lv_process.socket_id, lv_process.transport_pid)
 
     push_patch(socket,
       to: URL.update_path(socket.assigns.url, path)

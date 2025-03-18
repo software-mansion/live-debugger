@@ -64,6 +64,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       live_view_pid_1 = :c.pid(0, 0, 1)
       live_view_pid_2 = :c.pid(0, 0, 2)
       other_module = :"Elixir.SomeLiveView"
+      other_socket_id = "phx-other-socket"
 
       MockProcessService
       |> expect(:list, fn -> [searched_live_view_pid, live_view_pid_1, live_view_pid_2] end)
@@ -78,7 +79,8 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
          )}
       end)
       |> expect(:state, 2, fn live_view_pid ->
-        {:ok, Fakes.state(root_pid: live_view_pid, module: other_module)}
+        {:ok,
+         Fakes.state(root_pid: live_view_pid, module: other_module, socket_id: other_socket_id)}
       end)
 
       assert %LvProcess{pid: ^searched_live_view_pid} =
@@ -95,6 +97,18 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       |> expect(:state, fn _ -> {:ok, Fakes.state()} end)
 
       assert LiveViewDiscoveryService.lv_process(bad_socket_id) == nil
+    end
+
+    test "returns nil if more than one LiveViewProcess of given socket_id found" do
+      socket_id = "phx-GBsi_6M7paYhySQj"
+      module = :"Elixir.SomeLiveView"
+
+      MockProcessService
+      |> expect(:list, fn -> [:c.pid(0, 0, 1), :c.pid(0, 0, 2)] end)
+      |> expect(:initial_call, 2, fn _ -> {module, :mount} end)
+      |> expect(:state, 2, fn _ -> {:ok, Fakes.state()} end)
+
+      assert LiveViewDiscoveryService.lv_process(socket_id) == nil
     end
   end
 end
