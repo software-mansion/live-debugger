@@ -249,7 +249,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   attr(:id, :string, required: true)
 
-  def separator(assigns) do
+  defp separator(assigns) do
     ~H"""
     <div id={@id}>
       <div class="h-6 my-1 font-normal text-xs text-secondary-600 flex align items-center">
