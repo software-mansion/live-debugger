@@ -11,11 +11,13 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
+  alias Phoenix.Socket.Message
 
   @impl true
   def mount(socket) do
     socket
     |> hide_sidebar_side_over()
+    |> assign(:highlight?, false)
     |> ok()
   end
 
@@ -71,7 +73,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-max flex bg-white shadow-custom border border-secondary-200">
+    <div id="sidebar" class="w-max flex bg-white shadow-custom border border-secondary-200">
       <div class="hidden sm:flex max-h-full flex-col w-64 gap-1 justify-between">
         <.sidebar_content
           pid={@pid}
@@ -80,6 +82,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           max_opened_node_level={@max_opened_node_level}
           node_id={@node_id}
           myself={@myself}
+          highlight?={@highlight?}
         />
         <.report_issue class="border-t border-secondary-200" />
       </div>
@@ -91,6 +94,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           max_opened_node_level={@max_opened_node_level}
           node_id={@node_id}
           myself={@myself}
+          highlight?={@highlight?}
         />
         <.report_issue class="border-t border-secondary-200" />
       </.sidebar_slide_over>
@@ -99,10 +103,35 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   @impl true
-  def handle_event("select_node", %{"node_id" => node_id}, socket) do
+  def handle_event("select_node", params, socket) do
+    %{"node_id" => node_id, "search_attribute" => attr, "search_value" => val} = params
+
+    if Application.get_env(:live_debugger, :browser_features?) do
+      send_event(socket.assigns.pid, "pulse", %{attr: attr, val: val})
+    end
+
     socket
     |> push_patch(to: "#{socket.assigns.base_url}/#{node_id}")
     |> hide_sidebar_side_over()
+    |> assign(:highlight?, false)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("highlight", params, socket) do
+    if socket.assigns.highlight? do
+      %{"search_attribute" => attr, "search_value" => val} = params
+
+      send_event(socket.assigns.pid, "highlight", %{attr: attr, val: val})
+    end
+
+    noreply(socket)
+  end
+
+  @impl true
+  def handle_event("toggle-highlight", _, socket) do
+    socket
+    |> update(:highlight?, &(not &1))
     |> noreply()
   end
 
@@ -119,6 +148,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   attr(:node_id, :any, required: true)
   attr(:myself, :any, required: true)
   attr(:max_opened_node_level, :any, required: true)
+  attr(:highlight?, :boolean, required: true)
 
   defp sidebar_content(assigns) do
     ~H"""
@@ -129,6 +159,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         selected_node_id={@node_id}
         target={@myself}
         max_opened_node_level={@max_opened_node_level}
+        highlight?={@highlight?}
       />
     </div>
     """
@@ -189,6 +220,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   attr(:target, :any, required: true)
   attr(:max_opened_node_level, :any, required: true)
   attr(:selected_node_id, :string, default: nil)
+  attr(:highlight?, :boolean, required: true)
 
   defp component_tree(assigns) do
     ~H"""
@@ -199,6 +231,19 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       <:failed :let={_error}>
         <.alert variant="danger">Couldn't load a tree</.alert>
       </:failed>
+
+      <%= if Application.get_env(:live_debugger, :browser_features?) do %>
+        <div class="flex justify-center mt-3">
+          <.button
+            phx-target={@target}
+            phx-click="toggle-highlight"
+            data-highlight={if @highlight?, do: "on", else: "off"}
+          >
+            <%= if @highlight?, do: "Highlight On", else: "Highlight Off" %>
+          </.button>
+        </div>
+      <% end %>
+
       <Tree.tree
         :if={tree}
         title="Components Tree"
@@ -245,5 +290,18 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   defp handle_error(error, _, error_message) do
     Logger.error(error_message <> inspect(error))
     error
+  end
+
+  defp send_event(pid, event, payload) do
+    {:ok, state} = ChannelService.state(pid)
+
+    message = %Message{
+      topic: state.topic,
+      event: "diff",
+      payload: %{e: [[event, payload]]},
+      join_ref: state.join_ref
+    }
+
+    send(state.socket.transport_pid, state.serializer.encode!(message))
   end
 end

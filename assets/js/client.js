@@ -6,8 +6,8 @@ const URL = document
   .getElementById('live-debugger-scripts')
   .src.replace('/assets/client.js', '');
 
-// Debug button
 document.addEventListener('DOMContentLoaded', function () {
+  // Debug button
   const session_id = document.querySelector('[data-phx-main]').id;
   const debugButtonHtml = /*html*/ `
       <div id="debug-button" style="
@@ -108,6 +108,94 @@ document.addEventListener('DOMContentLoaded', function () {
 
   debugButton.addEventListener('mousedown', onMouseDown);
   debugButton.addEventListener('click', onClick);
+
+  // Highlighting feature
+  function isElementVisible(element) {
+    if (!element) return false;
+
+    const style = window.getComputedStyle(element);
+    return (
+      style.display !== 'none' &&
+      style.visibility !== 'hidden' &&
+      style.opacity !== '0'
+    );
+  }
+
+  const highlightElementID = 'live-debugger-highlight-element';
+  let activeElement;
+
+  window.addEventListener('phx:highlight', (msg) => {
+    const highlightElement = document.getElementById(highlightElementID);
+    activeElement = document.querySelector(
+      `[${msg.detail.attr}="${msg.detail.val}"]`
+    );
+
+    if (highlightElement) {
+      highlightElement.remove();
+      if (highlightElement.dataset.val === msg.detail.val) {
+        return;
+      }
+    }
+
+    if (isElementVisible(activeElement)) {
+      const rect = activeElement.getBoundingClientRect();
+      const highlight = document.createElement('div');
+      highlight.id = highlightElementID;
+      highlight.dataset.attr = msg.detail.attr;
+      highlight.dataset.val = msg.detail.val;
+
+      highlight.style.position = 'absolute';
+      highlight.style.top = `${rect.top + window.scrollY}px`;
+      highlight.style.left = `${rect.left + window.scrollX}px`;
+      highlight.style.width = `${activeElement.offsetWidth}px`;
+      highlight.style.height = `${activeElement.offsetHeight}px`;
+      highlight.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
+      highlight.style.zIndex = '10000';
+      highlight.style.pointerEvents = 'none';
+
+      document.body.appendChild(highlight);
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    const highlight = document.getElementById(highlightElementID);
+    if (highlight) {
+      const activeElement = document.querySelector(
+        `[${highlight.dataset.attr}="${highlight.dataset.val}"]`
+      );
+      const rect = activeElement.getBoundingClientRect();
+
+      highlight.style.top = `${rect.top + window.scrollY}px`;
+      highlight.style.left = `${rect.left + window.scrollX}px`;
+      highlight.style.width = `${activeElement.offsetWidth}px`;
+      highlight.style.height = `${activeElement.offsetHeight}px`;
+    }
+  });
+
+  window.addEventListener('phx:pulse', (msg) => {
+    const highlightElement = document.getElementById(highlightElementID);
+    if (highlightElement) {
+      highlightElement.remove();
+    }
+
+    activeElement = document.querySelector(
+      `[${msg.detail.attr}="${msg.detail.val}"]`
+    );
+
+    if (isElementVisible(activeElement)) {
+      activeElement.animate(
+        [
+          { boxShadow: '0 0 5px 0 rgba(255, 255, 0, 1)' },
+          { boxShadow: '0 0 25px 5px rgba(255, 255, 0, 0.1)' },
+          { boxShadow: '0 0 5px 0 rgba(255, 255, 0, 0)' },
+        ],
+        {
+          duration: 1500,
+          iterations: 1,
+        }
+      );
+    }
+  });
 });
 
 // Finalize
