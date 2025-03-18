@@ -16,6 +16,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   alias LiveDebugger.Structs.TraceDisplay
 
   @stream_limit 128
+  @separator %{id: "separator"}
 
   @impl true
   def mount(socket) do
@@ -31,7 +32,10 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     |> case do
       {:ok, socket} ->
         trace_display = TraceDisplay.from_trace(trace)
-        stream_insert(socket, :existing_traces, trace_display, at: 0, limit: @stream_limit)
+
+        socket
+        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @stream_limit)
+        |> assign(:traces_empty?, false)
 
       {_, socket} ->
         # Add disappearing flash here in case of :stopped. (Issue 173)
@@ -43,6 +47,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   def update(assigns, socket) do
     socket
     |> TracingHelper.init()
+    |> assign(:traces_empty?, true)
     |> assign(debugged_node_id: assigns.debugged_node_id)
     |> assign(id: assigns.id)
     |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
@@ -108,7 +113,11 @@ defmodule LiveDebugger.LiveComponents.TracesList do
               </.alert>
             </div>
             <%= for {dom_id, wrapped_trace} <- @streams.existing_traces do %>
-              <.trace id={dom_id} wrapped_trace={wrapped_trace} myself={@myself} />
+              <%= if wrapped_trace.id == "separator" do %>
+                <.separator id={dom_id} />
+              <% else %>
+                <.trace id={dom_id} wrapped_trace={wrapped_trace} myself={@myself} />
+              <% end %>
             <% end %>
           </div>
         </div>
@@ -119,11 +128,18 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   @impl true
+  def handle_async(:fetch_existing_traces, {:ok, []}, socket) do
+    socket
+    |> assign(existing_traces_status: :ok)
+    |> noreply()
+  end
+
   def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
     trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
 
     socket
     |> assign(existing_traces_status: :ok)
+    |> assign(:traces_empty?, false)
     |> stream(:existing_traces, trace_list, limit: @stream_limit)
     |> noreply()
   end
@@ -140,8 +156,15 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   @impl true
   def handle_event("switch-tracing", _, socket) do
-    socket
-    |> TracingHelper.switch_tracing()
+    socket = TracingHelper.switch_tracing(socket)
+
+    if socket.assigns.tracing_helper.tracing_started? and !socket.assigns.traces_empty? do
+      socket
+      |> stream_delete(:existing_traces, @separator)
+      |> stream_insert(:existing_traces, @separator, at: 0, limit: @stream_limit)
+    else
+      socket
+    end
     |> noreply()
   end
 
@@ -154,6 +177,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
     socket
     |> stream(:existing_traces, [], reset: true)
+    |> assign(:traces_empty?, true)
     |> noreply()
   end
 
@@ -220,6 +244,20 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         <% end %>
       </div>
     </.button>
+    """
+  end
+
+  attr(:id, :string, required: true)
+
+  defp separator(assigns) do
+    ~H"""
+    <div id={@id}>
+      <div class="h-6 my-1 font-normal text-xs text-secondary-600 flex align items-center">
+        <div class="border-b border-secondary-200 grow"></div>
+        <span class="mx-2">Past Traces</span>
+        <div class="border-b border-secondary-200 grow"></div>
+      </div>
+    </div>
     """
   end
 
