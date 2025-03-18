@@ -231,14 +231,14 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
       Process.sleep(milliseconds)
 
       case {transport_pid, LiveViewDiscoveryService.lv_process(socket_id, transport_pid)} do
-        {nil, {:ok, lv_process}} ->
+        {_, nil} ->
+          nil
+
+        {nil, lv_process} ->
           {:patch_transport_pid, lv_process}
 
-        {_, {:ok, lv_process}} ->
+        {_, lv_process} ->
           {:noop, lv_process}
-
-        _ ->
-          nil
       end
     end
 
