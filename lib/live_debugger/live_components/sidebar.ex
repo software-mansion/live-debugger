@@ -1,7 +1,7 @@
 defmodule LiveDebugger.LiveComponents.Sidebar do
   @moduledoc """
   Sidebar component which displays tree of live view and it's live components.
-  It changes path to `<base_url>/<node_id>` when a node is selected.
+  It adds `node_id` query param to the URL when a node is clicked.
   """
   use LiveDebuggerWeb, :live_component
 
@@ -11,6 +11,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
+  alias LiveDebugger.Utils.URL
 
   @impl true
   def mount(socket) do
@@ -57,7 +58,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       pid: assigns.lv_process.pid,
       socket_id: assigns.lv_process.socket_id,
       node_id: assigns.node_id,
-      base_url: assigns.base_url
+      url: assigns.url
     })
     |> assign_async_tree()
     |> assign_async_existing_node_ids()
@@ -66,7 +67,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   attr(:lv_process, :any, required: true)
   attr(:node_id, :any, required: true)
-  attr(:base_url, :string, required: true)
+  attr(:url, :any, required: true)
 
   @impl true
   def render(assigns) do
@@ -101,7 +102,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def handle_event("select_node", %{"node_id" => node_id}, socket) do
     socket
-    |> push_patch(to: "#{socket.assigns.base_url}/#{node_id}")
+    |> push_patch(to: URL.upsert_query_param(socket.assigns.url, "node_id", node_id))
     |> hide_sidebar_side_over()
     |> noreply()
   end

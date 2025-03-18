@@ -3,6 +3,28 @@ defmodule LiveDebugger.Utils.URL do
   URL utilities for managing URLs and query params.
   """
 
+  @doc """
+  Converts an absolute URL to a relative URL.
+
+  ## Examples
+
+      iex> URL.to_relative("http://example.com/foo?bar=baz")
+      "/foo?bar=baz"
+  """
+  @spec to_relative(utl :: String.t()) :: String.t()
+  def to_relative(url) when is_binary(url) do
+    %{path: path, query: query} = URI.parse(url)
+
+    URI.to_string(%URI{path: path, query: query})
+  end
+
+  @spec update_path(url :: String.t(), path :: String.t()) :: String.t()
+  def update_path(url, path) when is_binary(url) and is_binary(path) do
+    uri = URI.parse(url)
+
+    URI.to_string(%URI{uri | path: path})
+  end
+
   @spec upsert_query_param(url :: String.t(), key :: String.t(), value :: String.t()) ::
           String.t()
   def upsert_query_param(url, key, value) do

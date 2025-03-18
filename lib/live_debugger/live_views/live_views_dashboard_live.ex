@@ -8,7 +8,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.Utils.Routes
+  alias LiveDebugger.LiveHelpers.Routes
 
   @impl true
   def handle_params(_unsigned_params, _uri, socket) do
