@@ -107,7 +107,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     end
   end
 
-  def handle_async(:fetch_lv_process, {:ok, fetched_lv_process}, socket) do
+  def handle_async(:fetch_lv_process, {:ok, {action, fetched_lv_process}}, socket) do
     Process.monitor(fetched_lv_process.pid)
 
     socket.assigns.socket_id
@@ -126,7 +126,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
           AsyncResult.failed(socket.assigns.lv_process, reason)
         )
     end
-    |> maybe_patch_transport_pid(fetched_lv_process)
+    |> maybe_patch_transport_pid(fetched_lv_process, action)
     |> noreply()
   end
 
@@ -229,7 +229,17 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   defp fetch_lv_process(socket_id, transport_pid \\ nil) do
     fetch_after = fn milliseconds ->
       Process.sleep(milliseconds)
-      LiveViewDiscoveryService.lv_process(socket_id, transport_pid)
+
+      case {transport_pid, LiveViewDiscoveryService.lv_process(socket_id, transport_pid)} do
+        {nil, {:ok, lv_process}} ->
+          {:patch_transport_pid, lv_process}
+
+        {_, {:ok, lv_process}} ->
+          {:noop, lv_process}
+
+        _ ->
+          nil
+      end
     end
 
     with nil <- fetch_after.(200),
@@ -238,18 +248,14 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     end
   end
 
-  defp maybe_patch_transport_pid(
-         %{assigns: %{live_action: :patch}} = socket,
-         lv_process
-       ) do
+  defp maybe_patch_transport_pid(socket, lv_process, :patch_transport_pid) do
     path = Routes.channel_dashboard(lv_process.socket_id, lv_process.transport_pid)
+    url = URL.update_path(socket.assigns.url, path)
 
-    push_patch(socket,
-      to: URL.update_path(socket.assigns.url, path)
-    )
+    push_patch(socket, to: url)
   end
 
-  defp maybe_patch_transport_pid(socket, _lv_process) do
+  defp maybe_patch_transport_pid(socket, _lv_process, _action) do
     socket
   end
 end

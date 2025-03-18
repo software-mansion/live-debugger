@@ -28,21 +28,27 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   When only `socket_id` is provided, LvProcess with the given `socket_id` is returned.
   When more than one process is found, `nil` is returned.
   """
-  @spec lv_process(socket_id :: String.t(), transport_pid :: pid() | nil) :: LvProcess.t() | nil
+  @spec lv_process(socket_id :: String.t(), transport_pid :: pid() | nil) ::
+          {:ok, LvProcess.t()} | {:error, term()}
   def lv_process(socket_id, transport_pid \\ nil)
 
   def lv_process(socket_id, nil) when is_binary(socket_id) do
     debugged_lv_processes()
     |> Enum.filter(&(&1.socket_id == socket_id))
     |> case do
-      [lv_process] -> lv_process
-      _ -> nil
+      [lv_process] -> {:ok, lv_process}
+      [_ | _] -> {:error, :multiple_processes}
+      [] -> {:error, :not_found}
     end
   end
 
   def lv_process(socket_id, transport_pid) when is_pid(transport_pid) and is_binary(socket_id) do
     debugged_lv_processes()
     |> Enum.find(&(&1.socket_id == socket_id and &1.transport_pid == transport_pid))
+    |> case do
+      nil -> {:error, :not_found}
+      lv_process -> {:ok, lv_process}
+    end
   end
 
   @doc """
