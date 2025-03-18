@@ -103,18 +103,17 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   @impl true
-  def handle_event("select_node", %{"node_id" => node_id}, socket) do
-    socket =
-      if socket.assigns.highlight? do
-        send_event(socket.assigns.pid, "pulse")
-        assign(socket, :highlight?, false)
-      else
-        socket
-      end
+  def handle_event("select_node", params, socket) do
+    %{"node_id" => node_id, "search_attribute" => attr, "search_value" => val} = params
+
+    if Application.get_env(:live_debugger, :browser_features?) do
+      send_event(socket.assigns.pid, "pulse", %{attr: attr, val: val})
+    end
 
     socket
     |> push_patch(to: "#{socket.assigns.base_url}/#{node_id}")
     |> hide_sidebar_side_over()
+    |> assign(:highlight?, false)
     |> noreply()
   end
 
@@ -293,7 +292,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     error
   end
 
-  defp send_event(pid, event, payload \\ nil) do
+  defp send_event(pid, event, payload) do
     {:ok, state} = ChannelService.state(pid)
 
     message = %Message{

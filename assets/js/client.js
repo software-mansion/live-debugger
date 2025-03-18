@@ -6,8 +6,8 @@ const URL = document
   .getElementById('live-debugger-scripts')
   .src.replace('/assets/client.js', '');
 
-// Debug button
 document.addEventListener('DOMContentLoaded', function () {
+  // Debug button
   const session_id = document.querySelector('[data-phx-main]').id;
   const debugButtonHtml = /*html*/ `
       <div id="debug-button" style="
@@ -106,6 +106,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  debugButton.addEventListener('mousedown', onMouseDown);
+  debugButton.addEventListener('click', onClick);
+
   // Highlighting feature
   function isElementVisible(element) {
     if (!element) return false;
@@ -169,29 +172,30 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  window.addEventListener('phx:pulse', () => {
+  window.addEventListener('phx:pulse', (msg) => {
     const highlightElement = document.getElementById(highlightElementID);
     if (highlightElement) {
       highlightElement.remove();
     }
 
-    activeElement.animate(
-      [
-        // key frames
-        { boxShadow: '0 0 5px 0 rgba(255, 255, 0, 1)' },
-        { boxShadow: '0 0 25px 5px rgba(255, 255, 0, 0.1)' },
-        { boxShadow: '0 0 5px 0 rgba(255, 255, 0, 0)' },
-      ],
-      {
-        // sync options
-        duration: 1000,
-        iterations: 2,
-      }
+    activeElement = document.querySelector(
+      `[${msg.detail.attr}="${msg.detail.val}"]`
     );
-  });
 
-  debugButton.addEventListener('mousedown', onMouseDown);
-  debugButton.addEventListener('click', onClick);
+    if (isElementVisible(activeElement)) {
+      activeElement.animate(
+        [
+          { boxShadow: '0 0 5px 0 rgba(255, 255, 0, 1)' },
+          { boxShadow: '0 0 25px 5px rgba(255, 255, 0, 0.1)' },
+          { boxShadow: '0 0 5px 0 rgba(255, 255, 0, 0)' },
+        ],
+        {
+          duration: 1500,
+          iterations: 1,
+        }
+      );
+    }
+  });
 });
 
 // Finalize
