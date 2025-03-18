@@ -73,9 +73,6 @@ config :live_debugger,
   adapter: Bandit.PhoenixAdapter # Adapter used in LiveDebugger.Endpoint
 ```
 
-In `router.ex` of your Phoenix app, make sure your locally running Phoenix app can access the LiveDebugger JS files on port 4007 (note that this is enabled only for `:dev` mode):
-
-
 ## Contributing
 
 For those planning to contribute to this project, you can run a dev version of the debugger with the following commands:
