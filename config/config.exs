@@ -3,18 +3,40 @@
 
 import Config
 
+esbuild_version = "0.18.6"
+
 if config_env() == :dev do
   config :esbuild,
-    version: "0.18.6",
+    version: esbuild_version,
     deploy_build: [
-      args:
-        ~w(js/app.js js/client.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/),
+      args: ~w(
+        js/app.js
+        js/client.js
+        --bundle
+        --minify
+        --sourcemap=external
+        --target=es2020
+        --outdir=../priv/static/
+        --alias:phoenix_default=phoenix
+        --alias:phoenix_html_default=phoenix_html
+        --alias:phoenix_live_view_default=phoenix_live_view
+      ),
       cd: Path.expand("../assets", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ],
     dev_build: [
-      args:
-        ~w(js/app.js js/client.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/dev),
+      args: ~w(
+        js/app.js
+        js/client.js
+        --bundle
+        --minify
+        --sourcemap=external
+        --target=es2020
+        --outdir=../priv/static/dev/
+        --alias:phoenix_default=phoenix
+        --alias:phoenix_html_default=phoenix_html
+        --alias:phoenix_live_view_default=phoenix_live_view
+      ),
       cd: Path.expand("../assets", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ]
@@ -41,4 +63,23 @@ if config_env() == :dev do
     ]
 
   config :live_debugger, browser_features?: true
+else
+  config :esbuild,
+    version: esbuild_version,
+    build: [
+      args: ~w(
+        js/app.js
+        js/client.js
+        --bundle
+        --minify
+        --sourcemap=external
+        --target=es2020
+        --outdir=../priv/static/
+        --alias:phoenix_dep=phoenix
+        --alias:phoenix_html_dep=phoenix_html
+        --alias:phoenix_live_view_dep=phoenix_live_view
+      ),
+      cd: Path.expand("../assets", __DIR__),
+      env: %{"NODE_PATH" => Path.expand("../../", __DIR__)}
+    ]
 end

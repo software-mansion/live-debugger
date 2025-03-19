@@ -2,9 +2,12 @@
   "dependencies": {
     "@alpinejs/collapse": "^3.14.7",
     "alpinejs": "^3.14.7",
-    "phoenix": "^1.7.17",
-    "phoenix_html": "^3.3.4",
-    "phoenix_live_view": "^1.0.0"
+    "phoenix_default": "../deps/phoenix",
+    "phoenix_html_default": "../deps/phoenix_html",
+    "phoenix_live_view_default": "../deps/phoenix_live_view",
+    "phoenix_dep": "../../phoenix",
+    "phoenix_html_dep": "../../phoenix_html",
+    "phoenix_live_view_dep": "../../phoenix_live_view"
   },
   "devDependencies": {
     "prettier": "^3.5.1"
