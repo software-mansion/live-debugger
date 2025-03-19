@@ -131,7 +131,7 @@ defmodule LiveDebugger.Components do
     <details
       id={@id}
       class={[
-        "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden"
+        "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden [&>summary_.show-on-open]:open:flex"
         | List.wrap(@class)
       ]}
       {show_collapsible_assign(@open)}

@@ -32,15 +32,16 @@ defmodule LiveDebugger.Components.ElixirDisplay do
         id={@id <> "collapsible"}
         open={@expanded?}
         icon="icon-chevron-right"
-        class="[&>summary_.hide-on-opened]:open:hidden"
         label_class="max-w-max"
         chevron_class="m-auto w-[2ch] h-[2ch]"
       >
         <:label>
           <div class="flex items-center">
-            <.text_items items={@node.expanded_before} />
-            <div class="flex hide-on-opened">
-              ... <.text_items items={@node.expanded_after} />
+            <div class="hidden show-on-open">
+              <.text_items items={@node.expanded_before} />
+            </div>
+            <div class="flex hide-on-open">
+              <.text_items items={@node.content} />
             </div>
           </div>
         </:label>
