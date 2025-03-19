@@ -8,6 +8,7 @@ defmodule LiveDebugger.Components do
   import LiveDebuggerWeb.Helpers
 
   alias Phoenix.LiveView.JS
+  alias LiveDebugger.LiveHelpers.Routes
 
   @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
 
@@ -541,7 +542,7 @@ defmodule LiveDebugger.Components do
   def topbar(assigns) do
     ~H"""
     <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-primary-900 text-white text-sm font-topbar font-medium">
-      <.link :if={@return_link?} patch="/">
+      <.link :if={@return_link?} patch={Routes.live_views_dashboard()}>
         <.icon_button icon="icon-arrow-left" size="md" />
       </.link>
       <span>LiveDebugger</span>

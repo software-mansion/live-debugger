@@ -22,7 +22,6 @@ defmodule LiveDebuggerWeb do
     end
   end
 
-  @spec component() :: {:__block__, [], [{:import, [...], [...]} | {:use, [...], [...]}, ...]}
   def component do
     quote do
       use Phoenix.Component
