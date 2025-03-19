@@ -8,6 +8,22 @@ esbuild_version = "0.18.6"
 if config_env() == :dev do
   config :esbuild,
     version: esbuild_version,
+    build: [
+      args: ~w(
+        js/app.js
+        js/client.js
+        --bundle
+        --minify
+        --sourcemap=external
+        --target=es2020
+        --outdir=../priv/static/
+        --alias:phoenix_dep=phoenix
+        --alias:phoenix_html_dep=phoenix_html
+        --alias:phoenix_live_view_dep=phoenix_live_view
+      ),
+      cd: Path.expand("../assets", __DIR__),
+      env: %{"NODE_PATH" => Path.expand("../../", __DIR__)}
+    ],
     deploy_build: [
       args: ~w(
         js/app.js
