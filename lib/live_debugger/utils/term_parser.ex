@@ -82,7 +82,17 @@ defmodule LiveDebugger.Utils.TermParser do
         [black("}") | suffix]
       )
     else
-      leaf_node("struct", [black(inspect(struct)) | suffix])
+      map = Map.from_struct(struct)
+      size = map_size(map)
+      children = to_key_value_children(map, size)
+
+      branch_node(
+        "struct",
+        [black(inspect(struct)) | suffix],
+        children,
+        [black("%"), blue(inspect(module)), black("{")],
+        [black("}") | suffix]
+      )
     end
   end
 
