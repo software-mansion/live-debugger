@@ -1,25 +1,66 @@
 defmodule LiveDebugger.Services.ChannelServiceTest do
-  use LiveDebugger.SystemCase
+  use ExUnit.Case, async: true
 
   alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Structs.TreeNode
 
+  setup do
+    live_view_pid = :c.pid(0, 0, 1)
+    non_live_view_pid = :c.pid(0, 1, 1)
+    not_alive_pid = :c.pid(0, 1, 2)
+    exited_pid = :c.pid(0, 1, 3)
+    socket_id = "phx-GBsi_6M7paYhySQj"
+
+    Mox.stub(LiveDebugger.MockProcessService, :state, fn pid ->
+      case pid do
+        ^live_view_pid ->
+          {:ok, LiveDebugger.Test.Fakes.state(socket_id: socket_id, root_pid: live_view_pid)}
+
+        ^non_live_view_pid ->
+          {:ok, :not_live_view}
+
+        ^not_alive_pid ->
+          {:error, :not_alive}
+
+        ^exited_pid ->
+          {:error, :timeout}
+      end
+    end)
+
+    %{
+      live_view_pid: live_view_pid,
+      non_live_view_pid: non_live_view_pid,
+      not_alive_pid: not_alive_pid,
+      exited_pid: exited_pid,
+      socket_id: socket_id
+    }
+  end
+
   describe "state/1" do
-    test "returns the state of the LiveView channel process identified by pid", %{pid: pid} do
+    test "returns the state of the LiveView channel process identified by pid", %{
+      live_view_pid: pid
+    } do
       {:ok, state} = ProcessService.state(pid)
-      assert {:ok, state} == ChannelService.state(pid)
+      assert {:ok, ^state} = ChannelService.state(pid)
     end
 
-    test "returns an error when the process is not a LiveView" do
-      pid = self()
-      assert {:error, _} = ChannelService.state(pid)
+    test "returns an error when the process is not a LiveView", %{non_live_view_pid: pid} do
+      assert {:error, "PID:" <> _} = ChannelService.state(pid)
+    end
+
+    test "returns an error when there is no process with the given pid", %{not_alive_pid: pid} do
+      assert {:error, :not_alive} = ChannelService.state(pid)
+    end
+
+    test "returns and error when something went wrong", %{exited_pid: pid} do
+      assert {:error, "Could not get state from pid:" <> _} = ChannelService.state(pid)
     end
   end
 
   describe "get_node/2" do
     test "returns LiveView node with the given id from the channel state when pid is passed", %{
-      pid: pid
+      live_view_pid: pid
     } do
       {:ok, channel_state} = ProcessService.state(pid)
       assert {:ok, node} = ChannelService.get_node(channel_state, pid)
@@ -28,9 +69,7 @@ defmodule LiveDebugger.Services.ChannelServiceTest do
     end
 
     test "returns LiveComponent node with the given id from the channel state when cid is passed",
-         %{
-           pid: pid
-         } do
+         %{live_view_pid: pid} do
       cid = %Phoenix.LiveComponent.CID{cid: 1}
       {:ok, channel_state} = ProcessService.state(pid)
       {:ok, node} = ChannelService.get_node(channel_state, cid)
@@ -38,7 +77,7 @@ defmodule LiveDebugger.Services.ChannelServiceTest do
       assert %TreeNode.LiveComponent{cid: ^cid} = node
     end
 
-    test "returns `nil` when the node is not found", %{pid: pid} do
+    test "returns `nil` when the node is not found", %{live_view_pid: pid} do
       {:ok, channel_state} = ProcessService.state(pid)
 
       assert {:ok, nil} =
@@ -47,8 +86,7 @@ defmodule LiveDebugger.Services.ChannelServiceTest do
   end
 
   describe "build_tree/1" do
-    test "creates a tree with TreeNode elements from the channel state",
-         %{pid: pid} do
+    test "creates a tree with TreeNode elements from the channel state", %{live_view_pid: pid} do
       {:ok, channel_state} = ProcessService.state(pid)
       {:ok, tree} = ChannelService.build_tree(channel_state)
 
@@ -101,7 +139,7 @@ defmodule LiveDebugger.Services.ChannelServiceTest do
   end
 
   describe "node_ids/1" do
-    test "returns node ids that are present in the channel state", %{pid: pid} do
+    test "returns node ids that are present in the channel state", %{live_view_pid: pid} do
       {:ok, channel_state} = ProcessService.state(pid)
       {:ok, node_ids} = ChannelService.node_ids(channel_state)
 

@@ -1,7 +1,7 @@
 let lvd_url = null;
 
 chrome.devtools.inspectedWindow.eval(
-  "`${getLiveDebuggerURL()}/${getSocketId()}`",
+  "`${getLiveDebuggerURL()}/transport_pid/${getSessionId()}`",
   function (result, isException) {
     if (result) {
       lvd_url = result;

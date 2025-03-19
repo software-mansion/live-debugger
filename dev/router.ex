@@ -14,5 +14,7 @@ defmodule LiveDebuggerDev.Router do
 
     live("/", LiveDebuggerDev.LiveViews.Main)
     live("/side", LiveDebuggerDev.LiveViews.Side)
+    live("/nested", LiveDebuggerDev.LiveViews.Nested)
+    live("/messages", LiveDebuggerDev.LiveViews.Messages)
   end
 end

@@ -8,6 +8,7 @@ defmodule LiveDebugger.Components do
   import LiveDebuggerWeb.Helpers
 
   alias Phoenix.LiveView.JS
+  alias LiveDebugger.LiveHelpers.Routes
 
   @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
 
@@ -112,7 +113,6 @@ defmodule LiveDebugger.Components do
   attr(:id, :string, required: true)
   attr(:class, :any, default: nil, doc: "CSS class for parent container")
   attr(:label_class, :any, default: nil, doc: "CSS class for the label")
-  attr(:label_style, :any, default: nil, doc: "CSS style for the label")
   attr(:chevron_class, :any, default: nil, doc: "CSS class for the chevron icon")
   attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
 
@@ -135,13 +135,12 @@ defmodule LiveDebugger.Components do
         | List.wrap(@class)
       ]}
       {show_collapsible_assign(@open)}
-      {@rest}
     >
       <summary
         class={[
           "block flex items-center cursor-pointer" | List.wrap(@label_class)
         ]}
-        style={@label_style}
+        {@rest}
       >
         <.icon name={@icon} class={["rotate-icon shrink-0" | List.wrap(@chevron_class)]} />
         <%= render_slot(@label) %>
@@ -170,22 +169,29 @@ defmodule LiveDebugger.Components do
         id={@id}
         title={@title}
         open={@open}
-        class="bg-white rounded-sm w-full"
-        label_class="h-12 p-2 lg:pl-4 lg:pointer-events-none pointer-events-auto border-b border-secondary-100"
-        chevron_class="lg:hidden flex text-primary-900"
+        class="bg-white rounded-sm w-full lg:hidden"
+        label_class="h-12 p-2 border-b border-secondary-100"
+        chevron_class="text-primary-900"
       >
         <:label>
-          <div class="flex justify-between items-center w-full">
-            <div class="font-medium text-sm"><%= @title %></div>
-            <div class="w-max !pointer-events-auto">
-              <%= render_slot(@right_panel) %>
-            </div>
-          </div>
+          <.collapsible_section_label title={@title}>
+            <%= render_slot(@right_panel) %>
+          </.collapsible_section_label>
         </:label>
-        <div class={["w-full flex overflow-auto rounded-sm bg-white p-2" | List.wrap(@inner_class)]}>
+        <.collapsible_section_content class={@inner_class}>
           <%= render_slot(@inner_block) %>
-        </div>
+        </.collapsible_section_content>
       </.collapsible>
+      <div class="hidden lg:flex flex-col w-full bg-white rounded-sm">
+        <div class="pl-4 flex items-center h-12 p-2 border-b border-secondary-100">
+          <.collapsible_section_label title={@title}>
+            <%= render_slot(@right_panel) %>
+          </.collapsible_section_label>
+        </div>
+        <.collapsible_section_content class={@inner_class}>
+          <%= render_slot(@inner_block) %>
+        </.collapsible_section_content>
+      </div>
     </div>
     """
   end
@@ -536,7 +542,7 @@ defmodule LiveDebugger.Components do
   def topbar(assigns) do
     ~H"""
     <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-primary-900 text-white text-sm font-topbar font-medium">
-      <.link :if={@return_link?} patch="/">
+      <.link :if={@return_link?} patch={Routes.live_views_dashboard()}>
         <.icon_button icon="icon-arrow-left" size="md" />
       </.link>
       <span>LiveDebugger</span>
@@ -562,6 +568,33 @@ defmodule LiveDebugger.Components do
           here
         </.link>
       </div>
+    </div>
+    """
+  end
+
+  attr(:title, :string, required: true)
+
+  slot(:inner_block)
+
+  defp collapsible_section_label(assigns) do
+    ~H"""
+    <div class="flex justify-between items-center w-full">
+      <div class="font-medium text-sm"><%= @title %></div>
+      <div class="w-max">
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
+    """
+  end
+
+  attr(:class, :any, default: nil)
+
+  slot(:inner_block, required: true)
+
+  defp collapsible_section_content(assigns) do
+    ~H"""
+    <div class={["w-full flex overflow-auto rounded-sm bg-white p-2" | List.wrap(@class)]}>
+      <%= render_slot(@inner_block) %>
     </div>
     """
   end

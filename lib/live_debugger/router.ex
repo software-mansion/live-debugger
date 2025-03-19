@@ -12,13 +12,11 @@ defmodule LiveDebugger.Router do
     plug(LiveDebugger.Plugs.AllowIframe)
   end
 
-  scope "/" do
+  scope "/", LiveDebugger do
     pipe_through([:dbg_browser])
 
-    import Phoenix.LiveView.Router
-
-    live("/", LiveDebugger.LiveViews.SessionsDashboard)
-    live("/:socket_id", LiveDebugger.LiveViews.ChannelDashboard)
-    live("/:socket_id/:node_id", LiveDebugger.LiveViews.ChannelDashboard)
+    live("/", LiveViews.LiveViewsDashboardLive)
+    live("/transport_pid/:socket_id", LiveViews.ChannelDashboardLive)
+    live("/:transport_pid/:socket_id", LiveViews.ChannelDashboardLive)
   end
 end

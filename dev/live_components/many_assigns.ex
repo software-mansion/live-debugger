@@ -3,11 +3,9 @@ defmodule LiveDebuggerDev.LiveComponents.ManyAssigns do
 
   def update(assigns, socket) do
     socket
-    |> assign(assigns)
+    |> assign(Map.merge(assigns, very_long_assigns_map()))
     |> ok()
   end
-
-  attr(:rest, :global)
 
   def render(assigns) do
     ~H"""

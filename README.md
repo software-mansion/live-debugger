@@ -15,7 +15,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:live_debugger, "~> 0.1.0", only: :dev}
+      {:live_debugger, "~> 0.1.1", only: :dev}
     ]
   end
 ```
@@ -46,6 +46,18 @@ config :live_debugger, browser_features?: true
     </script>
   <% end %>
 </head>
+```
+
+### Content Security Policy
+
+In `router.ex` of your Phoenix app, make sure your locally running Phoenix app can access the LiveDebugger JS files on port 4007. To achieve that you may need to extend your CSP in `:dev` mode:
+
+```elixir
+  @csp "{...your CSP} #{if Mix.env() == :dev, do: "http://127.0.0.1:4007"}"  
+  
+  pipeline :browser do  
+    # ...  
+    plug :put_secure_browser_headers, %{"content-security-policy" => @csp}  
 ```
 
 ## Optional configuration

@@ -6,7 +6,7 @@ defmodule LiveDebuggerDev.LiveViews.Side do
 
     Task.start(fn ->
       for _ <- 1..100_000 do
-        Process.sleep(10)
+        Process.sleep(8)
         send(current_pid, :hello)
       end
     end)
@@ -17,7 +17,10 @@ defmodule LiveDebuggerDev.LiveViews.Side do
   def render(assigns) do
     ~H"""
     <div class="p-5">
-      <.link navigate="/" class="text-blue-500 underline">Back to main</.link>
+      <.navbar />
+      <.box title="Side [LiveView]" color="green">
+        <div></div>
+      </.box>
     </div>
     """
   end
