@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LiveDebugger DevTools",
-  "version": "0.0.0.1",
+  "version": "0.1.0",
   "description": "Extension which allows running LiveDebugger inside DevTools",
   "author": "SWM",
   "permissions": ["storage"],
