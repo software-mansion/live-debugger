@@ -1,0 +1,5 @@
+.theme-light {
+  /* General */
+  --main-bg: var(--slate-100);
+  --primary-text: var(--slate-900);
+}
