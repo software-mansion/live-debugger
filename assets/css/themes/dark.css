@@ -10,4 +10,18 @@
   --navbar-icon-bg-hover: var(--gray-700);
   --navbar-icon-hover: var(--neutrals-white);
   --navbar-logo: var(--neutrals-white);
+
+  /* Primary Button */
+  --button-primary-bg: var(--swm-sea-blue-60);
+  --button-primary-bg-hover: var(--swm-sea-blue-80);
+  --button-primary-content: var(--swm-brand);
+  --button-primary-content-hover: var(--swm-brand);
+
+  /* Secondary Button */
+  --button-secondary-bg: var(--gray-800);
+  --button-secondary-bg-hover: var(--gray-900);
+  --button-secondary-border: var(--gray-700);
+  --button-secondary-border-hover: var(--gray-700);
+  --button-secondary-content: var(--gray-200);
+  --button-secondary-content-hover: var(--gray-200);
 }

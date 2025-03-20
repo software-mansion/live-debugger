@@ -10,4 +10,18 @@
   --navbar-icon-bg-hover: var(--slate-200);
   --navbar-icon-hover: var(--swm-brand);
   --navbar-logo: var(--swm-brand);
+
+  /* Primary Button */
+  --button-primary-bg: var(--swm-brand);
+  --button-primary-bg-hover: var(--swm-brand-additional);
+  --button-primary-content: var(--neutrals-white);
+  --button-primary-content-hover: var(--neutrals-white);
+
+  /* Secondary Button */
+  --button-secondary-bg: var(--neutrals-white);
+  --button-secondary-bg-hover: var(--slate-100);
+  --button-secondary-border: var(--slate-200);
+  --button-secondary-border-hover: var(--slate-200);
+  --button-secondary-content: var(--swm-brand);
+  --button-secondary-content-hover: var(--swm-brand);
 }

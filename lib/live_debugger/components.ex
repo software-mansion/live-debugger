@@ -48,7 +48,7 @@ defmodule LiveDebugger.Components do
   Renders a button.
 
   """
-  attr(:variant, :string, default: "primary", values: ["primary", "secondary", "tertiary"])
+  attr(:variant, :string, default: "primary", values: ["primary", "secondary"])
   attr(:size, :string, default: "md", values: ["md", "sm"])
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
   attr(:rest, :global)
@@ -249,7 +249,7 @@ defmodule LiveDebugger.Components do
 
   attr(:variant, :string,
     default: "primary",
-    values: ["primary", "secondary", "tertiary"],
+    values: ["primary", "secondary"],
     doc: "Variant of the button."
   )
 
@@ -624,13 +624,10 @@ defmodule LiveDebugger.Components do
   defp button_color_classes(variant) do
     case variant do
       "primary" ->
-        "bg-primary-900 text-white hover:bg-primary-950"
+        "bg-button-primary-bg text-button-primary-content hover:bg-button-primary-bg-hover hover:text-button-primary-content-hover"
 
       "secondary" ->
-        "bg-white text-primary-900 border border-secondary-200 hover:bg-secondary-100"
-
-      "tertiary" ->
-        "bg-transparent text-primary-900 border border-primary-900 hover:bg-secondary-50"
+        "bg-button-secondary-bg text-button-secondary-content border-button-secondary-border border hover:bg-button-secondary-bg-hover hover:text-button-secondary-content-hover hover:border-button-secondary-border-hover"
     end
   end
 

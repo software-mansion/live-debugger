@@ -27,6 +27,17 @@ module.exports = {
         'navbar-icon-bg-hover': 'var(--navbar-icon-bg-hover)',
         'navbar-icon-hover': 'var(--navbar-icon-hover)',
         'navbar-logo': 'var(--navbar-logo)',
+        'button-primary-bg': 'var(--button-primary-bg)',
+        'button-primary-bg-hover': 'var(--button-primary-bg-hover)',
+        'button-primary-content': 'var(--button-primary-content)',
+        'button-primary-content-hover': 'var(--button-primary-content-hover)',
+        'button-secondary-bg': 'var(--button-secondary-bg)',
+        'button-secondary-bg-hover': 'var(--button-secondary-bg-hover)',
+        'button-secondary-border': 'var(--button-secondary-border)',
+        'button-secondary-border-hover': 'var(--button-secondary-border-hover)',
+        'button-secondary-content': 'var(--button-secondary-content)',
+        'button-secondary-content-hover':
+          'var(--button-secondary-content-hover)',
       },
       screens: { xs: '380px' },
       fontFamily: {

@@ -25,7 +25,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
       <div class="w-full h-full p-8 xl:w-2/3">
         <div class="flex gap-4 items-center justify-between">
           <.h1>Active LiveViews</.h1>
-          <.button phx-click="refresh" variant="tertiary">
+          <.button phx-click="refresh">
             <div class="flex items-center gap-2">
               <.icon name="icon-refresh" class="w-4 h-4" />
               <p>Refresh</p>
