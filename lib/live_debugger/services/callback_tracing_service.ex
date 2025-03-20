@@ -121,7 +121,7 @@ defmodule LiveDebugger.Services.CallbackTracingService do
     end
 
     defp check_session_limit() do
-      if LiveDebugger.Services.LiveViewDiscoveryService.debugger_live_pids() == [] do
+      if LiveDebugger.Services.LiveViewDiscoveryService.debugger_lv_processes() == [] do
         :ok
       else
         {:error, :session_limit}
