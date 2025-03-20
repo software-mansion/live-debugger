@@ -19,25 +19,8 @@ module.exports = {
     extend: {
       boxShadow: { custom: '0px 2px 4px 0px rgba(0, 26, 114, 0.05)' },
       colors: {
-        primary: {
-          50: '#F6F4FE',
-          100: '#EDEBFC',
-          200: '#DFDAFA',
-          300: '#C7BDF5',
-          400: '#A997EE',
-          500: '#8D6DE5',
-          600: '#7B4ED9',
-          700: '#6B3CC5',
-          800: '#5A31A6',
-          900: '#4C2B8A',
-          950: '#2E195C',
-        },
-        secondary: colors.slate,
-        success: colors.green,
-        danger: colors.red,
-        warning: colors.yellow,
-        info: colors.sky,
-        gray: colors.gray,
+        'main-bg': 'var(--main-bg)',
+        'primary-text': 'var(--primary-text)',
       },
       screens: { xs: '380px' },
       fontFamily: {
