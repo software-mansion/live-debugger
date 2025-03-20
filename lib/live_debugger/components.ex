@@ -364,14 +364,14 @@ defmodule LiveDebugger.Components do
     <div class={["flex flex-col gap-2" | List.wrap(@class)]}>
       <div
         :for={elem <- @elements}
-        class={"h-20 bg-white rounded shadow-custom border border-secondary-200 #{if @on_element_click, do: "cursor-pointer hover:bg-secondary-50"}"}
+        class={"h-20 bg-surface-0-bg rounded shadow-custom border border-default-border #{if @on_element_click, do: "cursor-pointer hover:bg-surface-1-bg"}"}
         phx-click={@on_element_click}
         phx-target={@element_click_target}
         {@element_attributes_fun.(elem)}
       >
         <div class="flex flex-col justify-center h-full p-4 gap-1">
           <p class="font-medium"><%= render_slot(@title, elem) %></p>
-          <p class="text-secondary-600">
+          <p class="text-secondary-text">
             <%= render_slot(@description, elem) %>
           </p>
         </div>
@@ -521,7 +521,7 @@ defmodule LiveDebugger.Components do
   def badge(assigns) do
     ~H"""
     <div class="py-1 px-1.5 w-max flex gap-0.5 bg-surface-0-bg border border-default-border text-accent-text text-3xs font-semibold rounded-xl items-center">
-      <.icon class="w-4 h-4 text-primary-900" name={@icon} />
+      <.icon class="w-3 h-3" name={@icon} />
       <p><%= @text %></p>
     </div>
     """
