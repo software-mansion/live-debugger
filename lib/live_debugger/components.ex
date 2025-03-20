@@ -276,6 +276,25 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  attr(:icon, :string, required: true, doc: "Icon to be displayed.")
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
+
+  attr(:rest, :global, include: ~w(id))
+
+  def nav_icon(assigns) do
+    ~H"""
+    <button
+      class={[
+        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
+        | List.wrap(@class)
+      ]}
+      {@rest}
+    >
+      <.icon name={@icon} class="h-6 w-6" />
+    </button>
+    """
+  end
+
   attr(:rows, :list, default: [], doc: "Elements that will be displayed in the list")
   attr(:class, :any, default: nil, doc: "Additional classes.")
   attr(:on_row_click, :string, default: nil)
@@ -543,11 +562,7 @@ defmodule LiveDebugger.Components do
     ~H"""
     <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-navbar-bg text-navbar-logo border-b border-navbar-border text-sm font-navbar font-medium">
       <.link :if={@return_link?} patch={Routes.live_views_dashboard()}>
-        <.icon_button
-          class="text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
-          icon="icon-arrow-left"
-          size="md"
-        />
+        <.nav_icon icon="icon-arrow-left" />
       </.link>
       <span>LiveDebugger</span>
       <%= @inner_block && render_slot(@inner_block) %>

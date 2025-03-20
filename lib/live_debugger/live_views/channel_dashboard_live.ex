@@ -40,7 +40,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     <div class="w-screen h-screen flex flex-col">
       <.navbar return_link?={true}>
         <div class="grow flex items-center justify-end">
-          <.icon_button
+          <.nav_icon
             :if={@lv_process.ok?}
             phx-click="open-sidebar"
             class="flex sm:hidden text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
