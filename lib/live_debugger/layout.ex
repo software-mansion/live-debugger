@@ -29,7 +29,7 @@ defmodule LiveDebugger.Layout do
         </script>
         <%= custom_head_tags(assigns, :before_closing_head_tag) %>
       </head>
-      <body class="theme-dark text-primary-text bg-main-bg text-xs font-normal">
+      <body class="theme-light text-primary-text bg-main-bg text-xs font-normal">
         <span id="tooltip" class="absolute hidden p-1 text-xs bg-surface-0-bg rounded-md shadow-md">
         </span>
         <%= @inner_content %>
