@@ -37,7 +37,7 @@
   --button-secondary-content-hover: var(--swm-brand);
 
   /* Icons */
-  --icon-accent: var(--swm-brand);
+  --accent-icon: var(--swm-brand);
 
   /* Sidebar */
   --sidebar-bg: var(--neutrals-white);

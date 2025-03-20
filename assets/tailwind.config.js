@@ -49,7 +49,7 @@ module.exports = {
         'button-secondary-content': 'var(--button-secondary-content)',
         'button-secondary-content-hover':
           'var(--button-secondary-content-hover)',
-        'icon-accent': 'var(--icon-accent)',
+        'accent-icon': 'var(--accent-icon)',
         'sidebar-bg': 'var(--sidebar-bg)',
       },
       screens: { xs: '380px' },

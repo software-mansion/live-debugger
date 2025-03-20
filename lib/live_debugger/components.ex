@@ -520,9 +520,9 @@ defmodule LiveDebugger.Components do
 
   def badge(assigns) do
     ~H"""
-    <div class="py-1 px-1.5 w-max flex gap-0.5 bg-surface-0-bg border border-default-border text-accent-text text-3xs font-semibold rounded-xl items-center">
-      <.icon class="w-3 h-3" name={@icon} />
-      <p><%= @text %></p>
+    <div class="py-1 px-1.5 w-max flex gap-0.5 bg-surface-0-bg border border-default-border text-3xs font-semibold rounded-xl items-center">
+      <.icon class="w-3 h-3 text-accent-icon" name={@icon} />
+      <p class="text-accent-text"><%= @text %></p>
     </div>
     """
   end

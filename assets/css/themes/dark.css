@@ -37,7 +37,7 @@
   --button-secondary-content-hover: var(--gray-200);
 
   /* Icons */
-  --icon-accent: var(--swm-sea-blue-60);
+  --accent-icon: var(--swm-sea-blue-60);
 
   /* Sidebar */
   --sidebar-bg: var(--gray-900);

@@ -87,7 +87,7 @@ defmodule LiveDebugger.Components.Tree do
         <.collapsible
           :if={@collapsible?}
           id={"collapsible-" <> @tree_node.parsed_id}
-          chevron_class="text-icon-accent h-5 w-5"
+          chevron_class="text-accent-icon h-5 w-5"
           open={@open}
           label_class="w-full rounded-md py-1 hover:bg-surface-1-bg-hover"
           style={style_for_padding(@level, @collapsible?)}
@@ -150,7 +150,7 @@ defmodule LiveDebugger.Components.Tree do
       style={unless(@collapsible?, do: @padding_style)}
     >
       <div class="flex w-full gap-0.5 items-center">
-        <.icon name={@node.icon} class="text-icon-accent w-5 h-5 shrink-0" />
+        <.icon name={@node.icon} class="text-accent-icon w-5 h-5 shrink-0" />
         <.tooltip
           id={"tree_node_" <> @node.parsed_id}
           content={@node.tooltip}
