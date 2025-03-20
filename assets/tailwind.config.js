@@ -21,11 +21,17 @@ module.exports = {
       colors: {
         'main-bg': 'var(--main-bg)',
         'primary-text': 'var(--primary-text)',
+        'navbar-bg': 'var(--navbar-bg)',
+        'navbar-border': 'var(--navbar-border)',
+        'navbar-icon': 'var(--navbar-icon)',
+        'navbar-icon-bg-hover': 'var(--navbar-icon-bg-hover)',
+        'navbar-icon-hover': 'var(--navbar-icon-hover)',
+        'navbar-logo': 'var(--navbar-logo)',
       },
       screens: { xs: '380px' },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        topbar: ['DM Mono', 'serif'],
+        navbar: ['DM Mono', 'serif'],
         code: [
           'ui-monospace',
           'SFMono-Regular',

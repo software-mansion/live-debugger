@@ -530,7 +530,7 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
-  Renders topbar with possible link to return to the main page.
+  Renders navbar with possible link to return to the main page.
   """
   attr(:return_link?, :boolean,
     required: true,
@@ -539,11 +539,15 @@ defmodule LiveDebugger.Components do
 
   slot(:inner_block)
 
-  def topbar(assigns) do
+  def navbar(assigns) do
     ~H"""
-    <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-primary-900 text-white text-sm font-topbar font-medium">
+    <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-navbar-bg text-navbar-logo border-b border-navbar-border text-sm font-navbar font-medium">
       <.link :if={@return_link?} patch={Routes.live_views_dashboard()}>
-        <.icon_button icon="icon-arrow-left" size="md" />
+        <.icon_button
+          class="text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
+          icon="icon-arrow-left"
+          size="md"
+        />
       </.link>
       <span>LiveDebugger</span>
       <%= @inner_block && render_slot(@inner_block) %>

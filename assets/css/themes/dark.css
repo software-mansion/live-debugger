@@ -2,4 +2,12 @@
   /* General */
   --main-bg: var(--gray-900);
   --primary-text: var(--gray-100);
+
+  /* Navbar */
+  --navbar-bg: var(--gray-900);
+  --navbar-border: var(--gray-700);
+  --navbar-icon: var(--neutrals-white);
+  --navbar-icon-bg-hover: var(--gray-700);
+  --navbar-icon-hover: var(--neutrals-white);
+  --navbar-logo: var(--neutrals-white);
 }

@@ -2,4 +2,12 @@
   /* General */
   --main-bg: var(--slate-100);
   --primary-text: var(--slate-900);
+
+  /* Navbar */
+  --navbar-bg: var(--neutrals-white);
+  --navbar-border: var(--slate-200);
+  --navbar-icon: var(--swm-brand);
+  --navbar-icon-bg-hover: var(--slate-200);
+  --navbar-icon-hover: var(--swm-brand);
+  --navbar-logo: var(--swm-brand);
 }
