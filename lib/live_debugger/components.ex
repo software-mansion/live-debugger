@@ -13,12 +13,10 @@ defmodule LiveDebugger.Components do
   @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
 
   @doc """
-  Renders an alert with
+  Renders an alert
+  Right now we have styles only for `danger` variant, but it'll change soon
   """
-  attr(:variant, :string,
-    required: true,
-    values: ["danger", "success", "warning", "info"]
-  )
+  attr(:variant, :string, required: true, values: ["danger"])
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the alert.")
   attr(:with_icon, :boolean, default: false, doc: "Whether to show an icon.")
@@ -30,7 +28,7 @@ defmodule LiveDebugger.Components do
     ~H"""
     <div
       class={[
-        "bg-#{@variant}-50 border border-#{@variant}-100 text-#{@variant}-800 text-sm p-2 flex flex-col gap-1 rounded-lg"
+        "bg-error-bg border border-error-border text-error-text text-sm p-2 flex flex-col gap-1 rounded-lg"
         | List.wrap(@class)
       ]}
       {@rest}
@@ -629,10 +627,10 @@ defmodule LiveDebugger.Components do
   defp alert_icon(assigns) do
     {icon_name, icon_class} =
       case assigns.variant do
-        "danger" -> {"icon-x-circle", "text-danger-800"}
-        "success" -> {"icon-check-circle", "text-success-800"}
-        "warning" -> {"icon-exclamation-circle", "text-warning-800"}
-        "info" -> {"icon-information-circle", "text-info-800"}
+        "danger" -> {"icon-x-circle", "text-error-icon"}
+        "success" -> {"icon-check-circle", "text-swm-green-100"}
+        "warning" -> {"icon-exclamation-circle", "text-swm-yellow-100"}
+        "info" -> {"icon-information-circle", "text-swm-blue-100"}
       end
 
     assigns = assign(assigns, name: icon_name, class: icon_class)

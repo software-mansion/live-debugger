@@ -39,12 +39,18 @@
   /* Icons */
   --accent-icon: var(--swm-brand);
 
+  /* Sidebar */
+  --sidebar-bg: var(--neutrals-white);
+
   /* Code */
   --code-1: #2d2df7;
   --code-2: #7a808c;
   --code-3: #ec47f8;
   --code-4: #4b8b38;
 
-  /* Sidebar */
-  --sidebar-bg: var(--neutrals-white);
+  /* Error */
+  --error-bg: var(--red-50);
+  --error-border: var(--red-100);
+  --error-icon: var(--red-500);
+  --error-text: var(--red-800);
 }

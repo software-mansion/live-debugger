@@ -39,12 +39,18 @@
   /* Icons */
   --accent-icon: var(--swm-sea-blue-60);
 
+  /* Sidebar */
+  --sidebar-bg: var(--gray-900);
+
   /* Code */
   --code-1: #b0c6f7;
   --code-2: var(--gray-300);
   --code-3: #ee9462;
   --code-4: var(--swm-sea-blue-60);
 
-  /* Sidebar */
-  --sidebar-bg: var(--gray-900);
+  /* Error */
+  --error-bg: var(--gray-900);
+  --error-border: var(--gray-700);
+  --error-icon: var(--swm-pink-80);
+  --error-text: var(--swm-pink-80);
 }

@@ -55,6 +55,10 @@ module.exports = {
         'code-2': 'var(--code-2)',
         'code-3': 'var(--code-3)',
         'code-4': 'var(--code-4)',
+        'error-bg': 'var(--error-bg)',
+        'error-border': 'var(--error-border)',
+        'error-icon': 'var(--error-icon)',
+        'error-text': 'var(--error-text)',
       },
       screens: { xs: '380px' },
       fontFamily: {
