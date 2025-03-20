@@ -71,29 +71,6 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
-  Renders a card.
-  """
-  attr(:color, :string,
-    default: "primary",
-    values: ["primary", "secondary", "danger", "success", "warning", "info", "gray"]
-  )
-
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the card.")
-  attr(:rest, :global)
-  slot(:inner_block, required: true)
-
-  def card(assigns) do
-    ~H"""
-    <div
-      class={["border-2 border-#{@color}-600 shadow-2xl p-2 rounded-lg" | List.wrap(@class)]}
-      {@rest}
-    >
-      <%= render_slot(@inner_block) %>
-    </div>
-    """
-  end
-
-  @doc """
   Collapsible element that can be toggled open and closed.
   It uses the `details` and `summary` HTML elements.
   If you add `hide-on-open` class to element it will be hidden when collapsible is opened.
