@@ -2,6 +2,15 @@
   /* General */
   --main-bg: var(--gray-900);
   --primary-text: var(--gray-100);
+  --secondary-text: var(--gray-300);
+  --accent-text: var(--swm-sea-blue-40);
+  --default-border: var(--gray-700);
+  --surface-0-bg: var(--gray-900);
+  --surface-0-bg-hover: var(--gray-800);
+  --surface-1-bg: var(--gray-800);
+  --surface-1-bg-hover: var(--gray-700);
+  --surface-2-bg: var(--gray-700);
+  --surface-2-bg-hover: var(--gray-600);
 
   /* Navbar */
   --navbar-bg: var(--gray-900);

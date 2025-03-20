@@ -313,9 +313,11 @@ defmodule LiveDebugger.Components do
 
   def table(assigns) do
     ~H"""
-    <div class={["p-4 bg-white rounded shadow-custom border border-secondary-200" | List.wrap(@class)]}>
+    <div class={[
+      "p-4 bg-surface-0-bg rounded shadow-custom border border-default-border" | List.wrap(@class)
+    ]}>
       <table class="w-full">
-        <thead class="border-b border-secondary-200">
+        <thead class="border-b border-default-border">
           <tr class="h-11 mx-16">
             <th :for={col <- @column} class="first:pl-2 font-medium text-left">
               <%= Map.get(col, :label, "") %>
@@ -327,7 +329,7 @@ defmodule LiveDebugger.Components do
             :for={row <- @rows}
             phx-click={@on_row_click}
             phx-target={@row_click_target}
-            class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-secondary-50"}"}
+            class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-surface-1-bg"}"}
             {@row_attributes_fun.(row)}
           >
             <td :for={col <- @column} class={["first:pl-2" | List.wrap(Map.get(col, :class))]}>
@@ -518,7 +520,7 @@ defmodule LiveDebugger.Components do
 
   def badge(assigns) do
     ~H"""
-    <div class="py-1 px-1.5 w-max flex gap-0.5 border border-secondary-200 text-primary-900 text-3xs font-semibold rounded-xl items-center">
+    <div class="py-1 px-1.5 w-max flex gap-0.5 bg-surface-0-bg border border-default-border text-accent-text text-3xs font-semibold rounded-xl items-center">
       <.icon class="w-4 h-4 text-primary-900" name={@icon} />
       <p><%= @text %></p>
     </div>

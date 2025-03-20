@@ -2,6 +2,15 @@
   /* General */
   --main-bg: var(--slate-100);
   --primary-text: var(--slate-900);
+  --accent-text: var(--swm-brand);
+  --secondary-text: var(--slate-600);
+  --default-border: var(--slate-200);
+  --surface-0-bg: var(--neutrals-white);
+  --surface-0-bg-hover: var(--slate-100);
+  --surface-1-bg: var(--slate-50);
+  --surface-1-bg-hover: var(--slate-100);
+  --surface-2-bg: var(--slate-100);
+  --surface-2-bg-hover: var(--slate-200);
 
   /* Navbar */
   --navbar-bg: var(--neutrals-white);

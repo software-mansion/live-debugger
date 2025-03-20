@@ -47,8 +47,8 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
             </:failed>
             <div>
               <%= if Enum.empty?(lv_processes)  do %>
-                <div class="p-4 bg-white rounded shadow-custom border border-secondary-200">
-                  <p class="text-secondary-500 text-center">No active LiveViews</p>
+                <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
+                  <p class="text-secondary-text text-center">No active LiveViews</p>
                 </div>
               <% else %>
                 <.table
