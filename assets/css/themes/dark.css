@@ -41,7 +41,7 @@
 
   /* Code */
   --code-1: #b0c6f7;
-  --code-2: var(--gray-gray-300);
+  --code-2: var(--gray-300);
   --code-3: #ee9462;
   --code-4: var(--swm-sea-blue-60);
 
