@@ -65,7 +65,7 @@ defmodule LiveDebugger.Utils.TermParser do
   end
 
   defp to_node(%Regex{} = regex, suffix) do
-    leaf_node("regex", [red(inspect(regex)) | suffix])
+    leaf_node("regex", [black(inspect(regex)) | suffix])
   end
 
   defp to_node(%module{} = struct, suffix) when is_struct(struct) do
@@ -166,9 +166,8 @@ defmodule LiveDebugger.Utils.TermParser do
     }
   end
 
-  defp black(text), do: %{text: text, color: nil}
-  defp red(text), do: %{text: text, color: "red"}
-  defp green(text), do: %{text: text, color: "green"}
-  defp blue(text), do: %{text: text, color: "blue"}
-  defp magenta(text), do: %{text: text, color: "magenta"}
+  defp blue(text), do: %{text: text, color: "text-code-1"}
+  defp black(text), do: %{text: text, color: "text-code-2"}
+  defp magenta(text), do: %{text: text, color: "text-code-3"}
+  defp green(text), do: %{text: text, color: "text-code-4"}
 end

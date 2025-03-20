@@ -39,6 +39,12 @@
   /* Icons */
   --accent-icon: var(--swm-brand);
 
+  /* Code */
+  --code-1: #2d2df7;
+  --code-2: #7a808c;
+  --code-3: #ec47f8;
+  --code-4: #4b8b38;
+
   /* Sidebar */
   --sidebar-bg: var(--neutrals-white);
 }

@@ -51,6 +51,10 @@ module.exports = {
           'var(--button-secondary-content-hover)',
         'accent-icon': 'var(--accent-icon)',
         'sidebar-bg': 'var(--sidebar-bg)',
+        'code-1': 'var(--code-1)',
+        'code-2': 'var(--code-2)',
+        'code-3': 'var(--code-3)',
+        'code-4': 'var(--code-4)',
       },
       screens: { xs: '380px' },
       fontFamily: {
