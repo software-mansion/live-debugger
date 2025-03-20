@@ -4,6 +4,8 @@
   --primary-text: var(--gray-100);
   --secondary-text: var(--gray-300);
   --accent-text: var(--swm-sea-blue-40);
+  --link-primary: var(--swm-sea-blue-60);
+  --link-primary-hover: var(--swm-sea-blue-80);
   --default-border: var(--gray-700);
   --surface-0-bg: var(--gray-900);
   --surface-0-bg-hover: var(--gray-800);
@@ -33,4 +35,10 @@
   --button-secondary-border-hover: var(--gray-700);
   --button-secondary-content: var(--gray-200);
   --button-secondary-content-hover: var(--gray-200);
+
+  /* Icons */
+  --icon-accent: var(--swm-sea-blue-60);
+
+  /* Sidebar */
+  --sidebar-bg: var(--gray-900);
 }

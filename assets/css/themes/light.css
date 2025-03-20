@@ -4,6 +4,8 @@
   --primary-text: var(--slate-900);
   --accent-text: var(--swm-brand);
   --secondary-text: var(--slate-600);
+  --link-primary: var(--swm-brand);
+  --link-primary-hover: var(--swm-brand-additional);
   --default-border: var(--slate-200);
   --surface-0-bg: var(--neutrals-white);
   --surface-0-bg-hover: var(--slate-100);
@@ -33,4 +35,10 @@
   --button-secondary-border-hover: var(--slate-200);
   --button-secondary-content: var(--swm-brand);
   --button-secondary-content-hover: var(--swm-brand);
+
+  /* Icons */
+  --icon-accent: var(--swm-brand);
+
+  /* Sidebar */
+  --sidebar-bg: var(--neutrals-white);
 }

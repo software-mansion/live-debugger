@@ -23,6 +23,8 @@ module.exports = {
         'primary-text': 'var(--primary-text)',
         'secondary-text': 'var(--secondary-text)',
         'accent-text': 'var(--accent-text)',
+        'link-primary': 'var(--link-primary)',
+        'link-primary-hover': 'var(--link-primary-hover)',
         'default-border': 'var(--default-border)',
         'surface-0-bg': 'var(--surface-0-bg)',
         'surface-0-bg-hover': 'var(--surface-0-bg-hover)',
@@ -47,6 +49,8 @@ module.exports = {
         'button-secondary-content': 'var(--button-secondary-content)',
         'button-secondary-content-hover':
           'var(--button-secondary-content-hover)',
+        'icon-accent': 'var(--icon-accent)',
+        'sidebar-bg': 'var(--sidebar-bg)',
       },
       screens: { xs: '380px' },
       fontFamily: {
