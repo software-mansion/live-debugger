@@ -32,7 +32,7 @@ defmodule LiveDebugger.Layout do
       <body class="theme-light text-primary-text bg-main-bg text-xs font-normal">
         <span
           id="tooltip"
-          class="absolute hidden p-1 text-xs bg-white border-1 border-primary rounded-md shadow-md"
+          class="absolute hidden p-1 text-xs bg-surface-0-bg border-1 border-primary rounded-md shadow-md"
         >
         </span>
         <%= @inner_content %>
