@@ -162,16 +162,16 @@ defmodule LiveDebugger.Components do
   def collapsible_section(assigns) do
     ~H"""
     <div class={[
-      "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom border border-secondary-200"
+      "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom border border-default-border"
       | List.wrap(@class)
     ]}>
       <.collapsible
         id={@id}
         title={@title}
         open={@open}
-        class="bg-white rounded-sm w-full lg:hidden"
-        label_class="h-12 p-2 border-b border-secondary-100"
-        chevron_class="text-primary-900"
+        class="bg-surface-0-bg rounded-sm w-full lg:hidden"
+        label_class="h-12 p-2 border-b border-default-border"
+        chevron_class="text-accent-icon"
       >
         <:label>
           <.collapsible_section_label title={@title}>
@@ -182,8 +182,8 @@ defmodule LiveDebugger.Components do
           <%= render_slot(@inner_block) %>
         </.collapsible_section_content>
       </.collapsible>
-      <div class="hidden lg:flex flex-col w-full bg-white rounded-sm">
-        <div class="pl-4 flex items-center h-12 p-2 border-b border-secondary-100">
+      <div class="hidden lg:flex flex-col w-full bg-surface-0-bg rounded-sm">
+        <div class="pl-4 flex items-center h-12 p-2 border-b border-default-border">
           <.collapsible_section_label title={@title}>
             <%= render_slot(@right_panel) %>
           </.collapsible_section_label>
@@ -407,7 +407,7 @@ defmodule LiveDebugger.Components do
         | List.wrap(@class)
       ]}
     >
-      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-secondary-100">
+      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border">
         <div class="font-semibold text-base"><%= @title %></div>
         <.icon_button
           id={"#{@id}-close"}
@@ -618,7 +618,7 @@ defmodule LiveDebugger.Components do
 
   defp collapsible_section_content(assigns) do
     ~H"""
-    <div class={["w-full flex overflow-auto rounded-sm bg-white p-2" | List.wrap(@class)]}>
+    <div class={["w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@class)]}>
       <%= render_slot(@inner_block) %>
     </div>
     """
