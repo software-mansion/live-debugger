@@ -63,7 +63,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   def render(assigns) do
     ~H"""
     <div class="max-w-full">
-      <.collapsible_section title="Callback traces" id="traces" inner_class="p-4">
+      <.section title="Callback traces" id="traces" inner_class="p-4">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <.toggle_tracing_button
@@ -121,7 +121,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
             <% end %>
           </div>
         </div>
-      </.collapsible_section>
+      </.section>
       <.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
     </div>
     """
