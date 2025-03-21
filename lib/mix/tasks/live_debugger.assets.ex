@@ -8,7 +8,7 @@ defmodule Mix.Tasks.LiveDebugger.Assets do
 
   use Mix.Task
 
-  @esbuild_env "0.18.6"
+  @esbuild_version "0.23.0"
 
   @impl true
   def run(_) do
@@ -16,7 +16,7 @@ defmodule Mix.Tasks.LiveDebugger.Assets do
     deps_path = Mix.Project.deps_path()
 
     if Application.get_env(:esbuild, :version) == nil do
-      Application.put_env(:esbuild, :version, @esbuild_env)
+      Application.put_env(:esbuild, :version, @esbuild_version)
     end
 
     Application.put_env(:esbuild, :live_debugger,

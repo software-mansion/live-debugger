@@ -3,13 +3,12 @@
 
 import Config
 
-esbuild_version = "0.18.6"
 dir_path = Path.expand("../assets", __DIR__)
 node_path = Path.expand("../deps", __DIR__)
 
 if config_env() == :dev do
   config :esbuild,
-    version: esbuild_version,
+    version: "0.23.0",
     bundle_setup: [
       args: ~w(
         js/setup.js
