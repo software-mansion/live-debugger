@@ -599,15 +599,12 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  attr(:variant, :string, required: true, values: ["danger", "success", "warning", "info"])
+  attr(:variant, :string, required: true, values: ["danger"])
 
   defp alert_icon(assigns) do
     {icon_name, icon_class} =
       case assigns.variant do
         "danger" -> {"icon-x-circle", "text-error-icon"}
-        "success" -> {"icon-check-circle", "text-swm-green-100"}
-        "warning" -> {"icon-exclamation-circle", "text-swm-yellow-100"}
-        "info" -> {"icon-information-circle", "text-swm-blue-100"}
       end
 
     assigns = assign(assigns, name: icon_name, class: icon_class)
