@@ -1,6 +1,8 @@
 # LiveDebugger
 
-LiveDebugger is a browser-based tool for debugging LiveView applications, designed to enhance your development experience. It gives you:
+LiveDebugger is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
+
+Designed to enhance your development experience LiveDebugger gives you:
 
 - :deciduous_tree: A detailed view of your LiveComponents tree
 - :mag: The ability to inspect assigns for LiveViews and LiveComponents
