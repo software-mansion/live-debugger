@@ -63,7 +63,6 @@ module.exports = {
       screens: { xs: '380px' },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        navbar: ['DM Mono', 'serif'],
         code: [
           'ui-monospace',
           'SFMono-Regular',
