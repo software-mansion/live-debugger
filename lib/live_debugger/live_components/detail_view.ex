@@ -41,9 +41,9 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             <.spinner size="md" />
           </div>
         </:loading>
-        <:failed :let={reason}>
-          <.alert variant="danger">
-            Failed to fetch node details: <%= inspect(reason) %>
+        <:failed>
+          <.alert variant="danger" with_icon heading="Failed to fetch node details">
+            Check logs for more
           </.alert>
         </:failed>
         <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">

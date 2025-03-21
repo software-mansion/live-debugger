@@ -21,11 +21,11 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
   def render(assigns) do
     ~H"""
     <div class="w-full h-full flex flex-col items-center">
-      <.topbar return_link?={false} />
+      <.navbar return_link?={false} />
       <div class="w-full h-full p-8 xl:w-2/3">
         <div class="flex gap-4 items-center justify-between">
           <.h1>Active LiveViews</.h1>
-          <.button phx-click="refresh" variant="tertiary">
+          <.button phx-click="refresh">
             <div class="flex items-center gap-2">
               <.icon name="icon-refresh" class="w-4 h-4" />
               <p>Refresh</p>
@@ -47,8 +47,8 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
             </:failed>
             <div>
               <%= if Enum.empty?(lv_processes)  do %>
-                <div class="p-4 bg-white rounded shadow-custom border border-secondary-200">
-                  <p class="text-secondary-500 text-center">No active LiveViews</p>
+                <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
+                  <p class="text-secondary-text text-center">No active LiveViews</p>
                 </div>
               <% else %>
                 <.table

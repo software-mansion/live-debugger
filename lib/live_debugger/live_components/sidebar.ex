@@ -72,7 +72,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-max flex bg-white shadow-custom border border-secondary-200">
+    <div class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border">
       <div class="hidden sm:flex max-h-full flex-col w-64 gap-1 justify-between">
         <.sidebar_content
           pid={@pid}
@@ -82,7 +82,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           node_id={@node_id}
           myself={@myself}
         />
-        <.report_issue class="border-t border-secondary-200" />
+        <.report_issue class="border-t border-default-border" />
       </div>
       <.sidebar_slide_over :if={not @hidden?} myself={@myself}>
         <.sidebar_content
@@ -93,7 +93,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           node_id={@node_id}
           myself={@myself}
         />
-        <.report_issue class="border-t border-secondary-200" />
+        <.report_issue class="border-t border-default-border" />
       </.sidebar_slide_over>
     </div>
     """
@@ -142,7 +142,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     ~H"""
     <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex sm:hidden justify-end">
       <div
-        class="w-64 h-full flex flex-col bg-white/100 justify-between"
+        class="w-64 h-full flex flex-col bg-sidebar-bg justify-between"
         phx-click-away="close_mobile_content"
         phx-target={@myself}
       >
@@ -169,7 +169,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp basic_info(assigns) do
     ~H"""
-    <div class="w-full p-6 shrink-0 flex flex-col gap-2 border-b border-secondary-200">
+    <div class="w-full p-6 shrink-0 flex flex-col gap-2 border-b border-default-border">
       <div
         :for={
           {text, value} <- [

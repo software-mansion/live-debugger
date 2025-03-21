@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
         padding-left: 5px;
         padding-right: 5px;
         border-radius: 10px;
-        background-color: #4C2B8A;
+        background-color: #001A72;
         display: flex;
         gap: 5px;
         justify-content: center;

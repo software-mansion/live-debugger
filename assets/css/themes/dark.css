@@ -1,0 +1,56 @@
+.theme-dark {
+  /* General */
+  --main-bg: var(--gray-900);
+  --primary-text: var(--gray-100);
+  --secondary-text: var(--gray-300);
+  --accent-text: var(--swm-sea-blue-40);
+  --link-primary: var(--swm-sea-blue-60);
+  --link-primary-hover: var(--swm-sea-blue-80);
+  --default-border: var(--gray-700);
+  --surface-0-bg: var(--gray-900);
+  --surface-0-bg-hover: var(--gray-800);
+  --surface-1-bg: var(--gray-800);
+  --surface-1-bg-hover: var(--gray-700);
+  --surface-2-bg: var(--gray-700);
+  --surface-2-bg-hover: var(--gray-600);
+
+  /* Navbar */
+  --navbar-bg: var(--gray-900);
+  --navbar-border: var(--gray-700);
+  --navbar-icon: var(--neutrals-white);
+  --navbar-icon-bg-hover: var(--gray-700);
+  --navbar-icon-hover: var(--neutrals-white);
+  --navbar-logo: var(--neutrals-white);
+
+  /* Primary Button */
+  --button-primary-bg: var(--swm-sea-blue-60);
+  --button-primary-bg-hover: var(--swm-sea-blue-80);
+  --button-primary-content: var(--swm-brand);
+  --button-primary-content-hover: var(--swm-brand);
+
+  /* Secondary Button */
+  --button-secondary-bg: var(--gray-800);
+  --button-secondary-bg-hover: var(--gray-900);
+  --button-secondary-border: var(--gray-700);
+  --button-secondary-border-hover: var(--gray-700);
+  --button-secondary-content: var(--gray-200);
+  --button-secondary-content-hover: var(--gray-200);
+
+  /* Icons */
+  --accent-icon: var(--swm-sea-blue-60);
+
+  /* Sidebar */
+  --sidebar-bg: var(--gray-900);
+
+  /* Code */
+  --code-1: #b0c6f7;
+  --code-2: var(--gray-300);
+  --code-3: #ee9462;
+  --code-4: var(--swm-sea-blue-60);
+
+  /* Error */
+  --error-bg: var(--gray-900);
+  --error-border: var(--gray-700);
+  --error-icon: var(--swm-pink-80);
+  --error-text: var(--swm-pink-80);
+}
