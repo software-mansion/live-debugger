@@ -14,6 +14,7 @@ if config_env() == :dev do
         --bundle
         --target=es2020
         --outdir=../priv/static/bundle/
+        --format=esm
       ),
       cd: Path.expand("../assets", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
