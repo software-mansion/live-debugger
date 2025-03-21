@@ -17,6 +17,10 @@ defmodule LiveDebugger.Endpoint do
 
   if Mix.env() == :dev do
     plug(Plug.Static, at: "/assets", from: {:live_debugger, "priv/static/dev"}, gzip: false)
+
+    socket("/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket)
+    plug(Phoenix.LiveReloader)
+    plug(Phoenix.CodeReloader)
   else
     plug(Plug.Static, at: "/assets", from: :live_debugger, gzip: false)
   end
