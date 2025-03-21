@@ -43,7 +43,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
           <.nav_icon
             :if={@lv_process.ok?}
             phx-click="open-sidebar"
-            class="flex sm:hidden text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
+            class="flex sm:hidden"
             icon="icon-menu-hamburger"
           />
         </div>
