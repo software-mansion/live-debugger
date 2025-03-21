@@ -14,6 +14,7 @@ if config_env() == :dev do
       args: ~w(
         js/setup.js
         --bundle
+        --minify
         --target=es2020
         --outdir=../priv/static/bundle/
         --format=esm
@@ -25,6 +26,7 @@ if config_env() == :dev do
       args: ~w(
         js/app.js
         --target=es2020
+        --minify
         --outdir=../priv/static/bundle/
       ),
       cd: dir_path,
@@ -32,7 +34,7 @@ if config_env() == :dev do
     ],
     deploy_build: [
       args:
-        ~w(js/app.js js/client.js --bundle --bundle --sourcemap=external --target=es2020 --outdir=../priv/static/),
+        ~w(js/app.js js/client.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/),
       cd: dir_path,
       env: %{"NODE_PATH" => node_path}
     ],

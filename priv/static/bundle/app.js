@@ -1,5 +1,1 @@
-import { Socket } from "phoenix";
-import { LiveSocket } from "phoenix_live_view";
-import { getApline, getLiveSocket } from "./setup.js";
-window.Alpine = getApline();
-window.liveSocket = getLiveSocket(LiveSocket, Socket);
+import{Socket as o}from"phoenix";import{LiveSocket as e}from"phoenix_live_view";import{getApline as i,getLiveSocket as t}from"./setup.js";window.Alpine=i(),window.liveSocket=t(e,o);
