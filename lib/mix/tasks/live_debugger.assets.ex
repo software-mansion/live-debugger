@@ -12,7 +12,6 @@ defmodule Mix.Tasks.LiveDebugger.Assets do
 
   @impl true
   def run(_) do
-    Mix.Task.run("esbuild.install", ["--if-missing"])
     deps_path = Mix.Project.deps_path()
 
     if Application.get_env(:esbuild, :version) == nil do
@@ -31,6 +30,7 @@ defmodule Mix.Tasks.LiveDebugger.Assets do
       env: %{"NODE_PATH" => deps_path}
     )
 
+    Mix.Task.run("esbuild.install", ["--if-missing"])
     Mix.Task.run("esbuild", ["live_debugger"])
   end
 end
