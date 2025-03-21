@@ -125,10 +125,6 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  @doc """
-  Renders a collapsible section which doesn't collapse on desktop view.
-  """
-
   attr(:id, :string, required: true)
   attr(:title, :string, required: true)
   attr(:class, :any, default: nil)
