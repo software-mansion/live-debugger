@@ -1,6 +1,10 @@
 defmodule Mix.Tasks.LiveDebugger.Assets do
-  @moduledoc "Generates assets from other deps"
-  @shortdoc "Generates assets"
+  @moduledoc """
+  Task for generating assets for LiveDebugger
+  This task is maent to be used in development only by users of `live_debugger` library.
+  It generates assets from js files in other dependencies (`phoenix` and `phoenix_live_view`).
+  """
+  @shortdoc "Generates assets from other dependencies"
 
   use Mix.Task
 
@@ -23,6 +27,6 @@ defmodule Mix.Tasks.LiveDebugger.Assets do
       env: %{"NODE_PATH" => deps_path}
     )
 
-    Mix.Task.run("esbuild", ["live_debugger"]) |> IO.inspect()
+    Mix.Task.run("esbuild", ["live_debugger"])
   end
 end

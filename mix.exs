@@ -37,9 +37,13 @@ defmodule LiveDebugger.MixProject do
       setup: ["deps.get", "cmd --cd assets npm install", "assets.setup", "assets.build:dev"],
       dev: "run --no-halt dev.exs",
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
-      "assets.build:deploy": ["esbuild deploy_build", "tailwind deploy_build"],
-      "assets.build:dev": ["esbuild dev_build", "tailwind dev_build"],
-      "assets.bundle": ["esbuild bundle_setup", "esbuild bundle_app"]
+      "assets.build:deploy": [
+        "esbuild deploy_build",
+        "esbuild bundle_setup",
+        "esbuild bundle_app",
+        "tailwind deploy_build"
+      ],
+      "assets.build:dev": ["esbuild dev_build", "tailwind dev_build"]
     ]
   end
 

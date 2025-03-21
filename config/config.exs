@@ -4,6 +4,8 @@
 import Config
 
 esbuild_version = "0.18.6"
+dir_path = Path.expand("../assets", __DIR__)
+node_path = Path.expand("../deps", __DIR__)
 
 if config_env() == :dev do
   config :esbuild,
@@ -16,8 +18,8 @@ if config_env() == :dev do
         --outdir=../priv/static/bundle/
         --format=esm
       ),
-      cd: Path.expand("../assets", __DIR__),
-      env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+      cd: dir_path,
+      env: %{"NODE_PATH" => node_path}
     ],
     bundle_app: [
       args: ~w(
@@ -25,20 +27,20 @@ if config_env() == :dev do
         --target=es2020
         --outdir=../priv/static/bundle/
       ),
-      cd: Path.expand("../assets", __DIR__),
-      env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+      cd: dir_path,
+      env: %{"NODE_PATH" => node_path}
     ],
     deploy_build: [
       args:
         ~w(js/app.js js/client.js --bundle --bundle --sourcemap=external --target=es2020 --outdir=../priv/static/),
-      cd: Path.expand("../assets", __DIR__),
-      env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+      cd: dir_path,
+      env: %{"NODE_PATH" => node_path}
     ],
     dev_build: [
       args:
         ~w(js/app.js js/client.js --bundle --sourcemap=external --target=es2020 --outdir=../priv/static/dev),
-      cd: Path.expand("../assets", __DIR__),
-      env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+      cd: dir_path,
+      env: %{"NODE_PATH" => node_path}
     ]
 
   config :tailwind,
