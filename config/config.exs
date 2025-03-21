@@ -39,5 +39,13 @@ if config_env() == :dev do
       cd: Path.expand("../assets", __DIR__)
     ]
 
+  config :live_debugger,
+    live_reload: [
+      patterns: [
+        ~r"priv/static/.*(js|css|svg)$",
+        ~r"priv/static/dev/.*(js|css|svg)$"
+      ]
+    ]
+
   config :live_debugger, browser_features?: true
 end
