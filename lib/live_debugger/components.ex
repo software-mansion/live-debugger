@@ -138,38 +138,23 @@ defmodule LiveDebugger.Components do
   slot(:right_panel)
   slot(:inner_block)
 
-  def collapsible_section(assigns) do
+  def section(assigns) do
     ~H"""
-    <div
-      id={@id <> "wrapper"}
-      phx-hook="CollapsibleSection"
-      class={[
-        "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom border border-default-border"
-        | List.wrap(@class)
-      ]}
-    >
-      <.collapsible
-        id={@id}
-        title={@title}
-        open={@open}
-        class="bg-surface-0-bg rounded-sm w-full"
-        label_class="h-12 p-2 lg:pl-4 cursor-pointer lg:cursor-default border-b border-default-border"
-        chevron_class="text-accent-icon lg:hidden flex"
-      >
-        <:label>
-          <div class="flex justify-between items-center w-full">
-            <div class="font-medium text-sm"><%= @title %></div>
-            <div class="w-max">
-              <%= render_slot(@right_panel) %>
-            </div>
+    <div class={[
+      "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex flex-col shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
+      | List.wrap(@class)
+    ]}>
+      <div class="pl-4 flex items-center h-12 p-2 border-b border-default-border">
+        <div class="flex justify-between items-center w-full">
+          <div class="font-medium text-sm"><%= @title %></div>
+          <div class="w-max">
+            <%= render_slot(@right_panel) %>
           </div>
-        </:label>
-        <div class={[
-          "w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@inner_class)
-        ]}>
-          <%= render_slot(@inner_block) %>
         </div>
-      </.collapsible>
+      </div>
+      <div class={["w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@class)]}>
+        <%= render_slot(@inner_block) %>
+      </div>
     </div>
     """
   end
