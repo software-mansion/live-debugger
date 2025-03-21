@@ -144,7 +144,7 @@ defmodule LiveDebugger.Components do
       id={@id <> "wrapper"}
       phx-hook="CollapsibleSection"
       class={[
-        "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom border border-secondary-200"
+        "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom border border-default-border"
         | List.wrap(@class)
       ]}
     >
@@ -164,7 +164,9 @@ defmodule LiveDebugger.Components do
             </div>
           </div>
         </:label>
-        <div class={["w-full flex overflow-auto rounded-sm bg-white p-2" | List.wrap(@inner_class)]}>
+        <div class={[
+          "w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@inner_class)
+        ]}>
           <%= render_slot(@inner_block) %>
         </div>
       </.collapsible>
