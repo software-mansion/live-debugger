@@ -61,6 +61,18 @@ config :live_debugger,
   adapter: Bandit.PhoenixAdapter # Adapter used in LiveDebugger.Endpoint
 ```
 
+## Assets rebuilding
+
+Since version of live view is not known when building static assets there might occur error: _LiveView assets version mismatch. (...)_
+
+To fix this issue please run mix task:
+
+```console
+mix live_debugger.assets
+```
+
+It will compile assets using `phoenix` and `phoenix_live_view` from your `deps`.
+
 ## Contributing
 
 For those planning to contribute to this project, you can run a dev version of the debugger with the following commands:
