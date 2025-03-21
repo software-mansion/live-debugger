@@ -16,7 +16,7 @@ defmodule Mix.Tasks.LiveDebugger.Assets do
         bundle/app.js
         --bundle
         --target=es2020
-        --outdir=../priv/static/prod/
+        --outdir=prod
       ),
       cd: Path.expand("./live_debugger/priv/static", deps_path),
       env: %{"NODE_PATH" => deps_path}
