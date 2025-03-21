@@ -7,6 +7,6 @@ defmodule Mix.Tasks.LiveDebugger.Assets do
   @impl true
   def run(_) do
     Mix.Task.run("esbuild.install", ["--if-missing"])
-    Application.app_dir(:live_debugger) |> IO.inspect()
+    deps_path = Mix.Project.deps_path() |> IO.inspect()
   end
 end
