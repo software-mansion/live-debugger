@@ -10,7 +10,7 @@ defmodule LiveDebugger.Components do
   alias Phoenix.LiveView.JS
   alias LiveDebugger.LiveHelpers.Routes
 
-  @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
+  @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
 
   @doc """
   Renders an alert
