@@ -24,6 +24,18 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 
 After you start your application LiveDebugger will be running at a default port `http://localhost:4007`.
 
+### Assets rebuilding
+
+If you use `live_view` with different version there might occur error in console: _LiveView assets version mismatch. (...)_
+
+To fix this issue please run mix task:
+
+```console
+mix live_debugger.assets
+```
+
+It will compile assets using `phoenix` and `phoenix_live_view` from your `deps`.
+
 ## Browser features
 
 List of browser features:
