@@ -13,12 +13,13 @@ defmodule Mix.Tasks.LiveDebugger.Assets do
 
     Application.put_env(:esbuild, :live_debugger,
       args: ~w(
-        bundle/app.js
+        assets/js/app.js
         --bundle
         --target=es2020
-        --outdir=prod
+        --sourcemap=external
+        --outdir=priv/static/prod
       ),
-      cd: Path.expand("./live_debugger/priv/static", deps_path),
+      cd: Path.expand("./live_debugger", deps_path),
       env: %{"NODE_PATH" => deps_path}
     )
 

@@ -13,6 +13,7 @@ if config_env() == :dev do
         js/app.js
         --bundle
         --target=es2020
+        --sourcemap=external
         --outdir=../priv/static/bundle/
         --external:phoenix_live_view
         --external:phoenix
