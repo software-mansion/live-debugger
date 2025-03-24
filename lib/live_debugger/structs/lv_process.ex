@@ -6,7 +6,16 @@ defmodule LiveDebugger.Structs.LvProcess do
   * debugger? - whether the process is a LiveDebugger process
   """
 
-  defstruct [:socket_id, :root_pid, :pid, :transport_pid, :module, :nested?, :debugger?]
+  defstruct [
+    :socket_id,
+    :root_pid,
+    :pid,
+    :transport_pid,
+    :module,
+    :nested?,
+    :debugger?,
+    :embedded?
+  ]
 
   @type t() :: %__MODULE__{
           socket_id: String.t(),
@@ -15,6 +24,7 @@ defmodule LiveDebugger.Structs.LvProcess do
           transport_pid: pid(),
           module: module(),
           nested?: boolean(),
+          embedded?: boolean(),
           debugger?: boolean()
         }
 
@@ -27,6 +37,8 @@ defmodule LiveDebugger.Structs.LvProcess do
       |> Atom.to_string()
       |> String.starts_with?("Elixir.LiveDebugger.")
 
+    embedded? = socket.host_uri == :not_mounted_at_router
+
     %__MODULE__{
       socket_id: socket.id,
       root_pid: socket.root_pid,
@@ -34,7 +46,8 @@ defmodule LiveDebugger.Structs.LvProcess do
       transport_pid: socket.transport_pid,
       module: socket.view,
       nested?: nested?,
-      debugger?: debugger?
+      debugger?: debugger?,
+      embedded?: embedded?
     }
   end
 

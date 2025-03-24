@@ -129,7 +129,6 @@ defmodule LiveDebugger.Components do
   attr(:title, :string, required: true)
   attr(:class, :any, default: nil)
   attr(:inner_class, :any, default: nil)
-  attr(:open, :boolean, default: true)
 
   slot(:right_panel)
   slot(:inner_block)
@@ -148,7 +147,9 @@ defmodule LiveDebugger.Components do
           </div>
         </div>
       </div>
-      <div class={["w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@class)]}>
+      <div class={[
+        "w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@inner_class)
+      ]}>
         <%= render_slot(@inner_block) %>
       </div>
     </div>
@@ -302,30 +303,29 @@ defmodule LiveDebugger.Components do
   end
 
   attr(:elements, :list,
-    default: [],
+    required: true,
     doc: "List of maps with field `:title` and optional `:description`"
   )
 
   attr(:class, :any, default: nil, doc: "Additional classes.")
-  attr(:on_element_click, :string, default: nil)
-  attr(:element_click_target, :any, default: nil)
 
   attr(:element_attributes_fun, :any,
     default: &empty_map/1,
     doc: "Function to return HTML attributes for each row based on row data"
   )
 
+  attr(:rest, :global)
+
   slot(:title, required: true, doc: "Slot that describes how to access title from given map")
   slot(:description, doc: "Slot that describes how to access description from given map")
 
   def list(assigns) do
     ~H"""
-    <div class={["flex flex-col gap-2" | List.wrap(@class)]}>
-      <div
+    <ul class={["flex flex-col gap-2" | List.wrap(@class)]}>
+      <li
         :for={elem <- @elements}
-        class={"h-20 bg-surface-0-bg rounded shadow-custom border border-default-border #{if @on_element_click, do: "cursor-pointer hover:bg-surface-1-bg"}"}
-        phx-click={@on_element_click}
-        phx-target={@element_click_target}
+        class={"h-20 bg-surface-0-bg rounded #{if @rest[:"phx-click"], do: "cursor-pointer hover:bg-surface-1-bg"}"}
+        {@rest}
         {@element_attributes_fun.(elem)}
       >
         <div class="flex flex-col justify-center h-full p-4 gap-1">
@@ -334,8 +334,8 @@ defmodule LiveDebugger.Components do
             <%= render_slot(@description, elem) %>
           </p>
         </div>
-      </div>
-    </div>
+      </li>
+    </ul>
     """
   end
 
