@@ -78,7 +78,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_section(assigns) do
     ~H"""
-    <.collapsible_section id="info" title={title(@node_type)}>
+    <.section id="info" title={title(@node_type)}>
       <:right_panel>
         <.badge :if={@node_type == :live_view and @nested?} text="Nested" icon="icon-nested" />
       </:right_panel>
@@ -86,7 +86,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         <.info_row name="Module" value={inspect(@node.module)} />
         <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
       </div>
-    </.collapsible_section>
+    </.section>
     """
   end
 
@@ -116,7 +116,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp assigns_section(assigns) do
     ~H"""
-    <.collapsible_section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
+    <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
       <:right_panel>
         <.fullscreen_button id="assigns-display-fullscreen" />
       </:right_panel>
@@ -127,7 +127,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           level={1}
         />
       </div>
-    </.collapsible_section>
+    </.section>
     """
   end
 
