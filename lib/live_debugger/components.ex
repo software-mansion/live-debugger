@@ -404,9 +404,6 @@ defmodule LiveDebugger.Components do
       end
   """
   attr(:id, :string, required: true, doc: "Same as `id` of the fullscreen.")
-  attr(:on_click, :any, default: nil)
-  attr(:on_click_target, :any, default: nil)
-  attr(:on_click_data, :any, default: nil)
   attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
   attr(:icon, :string,
@@ -414,13 +411,13 @@ defmodule LiveDebugger.Components do
     doc: "Icon to be displayed as a button"
   )
 
+  attr(:rest, :global)
+
   def fullscreen_button(assigns) do
     ~H"""
     <.icon_button
       id={"#{@id}-button"}
-      phx-click={@on_click || JS.dispatch("open", to: "##{@id}")}
-      phx-target={@on_click_target}
-      phx-value-data={@on_click_data}
+      phx-click={@rest[:"phx-click"] || JS.dispatch("open", to: "##{@id}")}
       icon={@icon}
       size="sm"
       data-fullscreen-id={@id}
