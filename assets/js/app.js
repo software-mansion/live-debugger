@@ -66,3 +66,11 @@ liveSocket.connect();
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket;
+
+// Check system preferences for dark mode, and add the .dark class to the body if it's dark
+document.documentElement.classList.toggle(
+  'dark',
+  localStorage.theme === 'dark' ||
+    (!('theme' in localStorage) &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches)
+);
