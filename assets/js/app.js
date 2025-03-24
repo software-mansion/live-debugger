@@ -68,7 +68,6 @@ liveSocket.connect();
 window.liveSocket = liveSocket;
 
 // Check system preferences for dark mode, and add the .dark class to the body if it's dark
-
 switch (localStorage.theme) {
   case 'light':
     document.documentElement.classList.remove('dark');
@@ -80,6 +79,7 @@ switch (localStorage.theme) {
     const prefersDarkScheme = window.matchMedia(
       '(prefers-color-scheme: dark)'
     ).matches;
+
     document.documentElement.classList.toggle('dark', prefersDarkScheme);
     localStorage.theme = prefersDarkScheme ? 'dark' : 'light';
     break;

@@ -16,7 +16,6 @@ const ToggleTheme = {
       }
     };
 
-    // Events from the browser
     this.el.addEventListener('click', this.handleClick);
   },
 
