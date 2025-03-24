@@ -5,12 +5,9 @@ defmodule LiveDebuggerDev.LiveViews.Nested do
 
   def render(assigns) do
     ~H"""
-    <div class="p-5">
-      <.navbar />
-      <.box title="Nested Live Views [LiveView]" color="blue">
-        <%= live_render(@socket, LiveViews.Simple, id: "inner") %>
-      </.box>
-    </div>
+    <.box title="Nested Live Views [LiveView]" color="blue">
+      <%= live_render(@socket, LiveViews.Simple, id: "inner") %>
+    </.box>
     """
   end
 end

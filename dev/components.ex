@@ -5,7 +5,9 @@ defmodule LiveDebuggerDev.Components do
     {"/", "Main"},
     {"/side", "Side"},
     {"/nested", "Nested"},
-    {"/messages", "Messages"}
+    {"/messages", "Messages"},
+    {"/embedded", "Embedded"},
+    {"/embedded_in_controller", "EmbeddedInController"}
   ]
 
   attr(:routes, :list, default: @routes)
