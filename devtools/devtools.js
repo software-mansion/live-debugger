@@ -19,10 +19,14 @@ chrome.devtools.panels.create(
   "panel.html",
   function (panel) {
     let panelWindow;
+    let isShown = false;
 
     panel.onShown.addListener(async (window) => {
-      panelWindow = window;
-      window.set_iframe_url(await getLiveDebuggerSessionURL());
+      if (!isShown) {
+        panelWindow = window;
+        window.set_iframe_url(await getLiveDebuggerSessionURL());
+        isShown = true;
+      }
     });
 
     chrome.webNavigation.onCompleted.addListener(async () => {
