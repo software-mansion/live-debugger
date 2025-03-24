@@ -68,9 +68,19 @@ liveSocket.connect();
 window.liveSocket = liveSocket;
 
 // Check system preferences for dark mode, and add the .dark class to the body if it's dark
-document.documentElement.classList.toggle(
-  'dark',
-  localStorage.theme === 'dark' ||
-    (!('theme' in localStorage) &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches)
-);
+
+switch (localStorage.theme) {
+  case 'light':
+    document.documentElement.classList.remove('dark');
+    break;
+  case 'dark':
+    document.documentElement.classList.add('dark');
+    break;
+  default:
+    const prefersDarkScheme = window.matchMedia(
+      '(prefers-color-scheme: dark)'
+    ).matches;
+    document.documentElement.classList.toggle('dark', prefersDarkScheme);
+    localStorage.theme = prefersDarkScheme ? 'dark' : 'light';
+    break;
+}
