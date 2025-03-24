@@ -1,4 +1,4 @@
-const SwitchAppearance = {
+const ToggleTheme = {
   mounted() {
     this.handleClick = () => {
       console.log(localStorage.theme);
@@ -25,4 +25,4 @@ const SwitchAppearance = {
   },
 };
 
-export default SwitchAppearance;
+export default ToggleTheme;

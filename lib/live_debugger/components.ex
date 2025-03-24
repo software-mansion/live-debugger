@@ -535,13 +535,13 @@ defmodule LiveDebugger.Components do
             id="light-mode-switch"
             class="dark:hidden"
             icon="icon-moon"
-            phx-hook="SwitchAppearance"
+            phx-hook="ToggleTheme"
           />
           <.nav_icon
             id="dark-mode-switch"
             class="hidden dark:block"
             icon="icon-sun"
-            phx-hook="SwitchAppearance"
+            phx-hook="ToggleTheme"
           />
           <%= @inner_block && render_slot(@inner_block) %>
         </div>

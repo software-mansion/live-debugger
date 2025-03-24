@@ -1,6 +1,6 @@
 import CollapsibleOpen from './hooks/collapsible_open';
 import Fullscreen from './hooks/fullscreen';
-import SwitchAppearance from './hooks/switch_appearance';
+import ToggleTheme from './hooks/toggle_theme';
 import Tooltip from './hooks/tooltip';
 
-export default { CollapsibleOpen, Fullscreen, Tooltip, SwitchAppearance };
+export default { CollapsibleOpen, Fullscreen, Tooltip, ToggleTheme };
