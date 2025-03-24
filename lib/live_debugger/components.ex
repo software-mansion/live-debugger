@@ -304,36 +304,21 @@ defmodule LiveDebugger.Components do
 
   attr(:elements, :list,
     required: true,
-    doc: "List of maps with field `:title` and optional `:description`"
+    doc: "Elements that will be displayed in the list's `item` slot."
   )
 
   attr(:class, :any, default: nil, doc: "Additional classes.")
+  attr(:item_class, :any, default: nil, doc: "Additional classes for each item.")
 
-  attr(:element_attributes_fun, :any,
-    default: &empty_map/1,
-    doc: "Function to return HTML attributes for each row based on row data"
-  )
-
-  attr(:rest, :global)
-
-  slot(:title, required: true, doc: "Slot that describes how to access title from given map")
-  slot(:description, doc: "Slot that describes how to access description from given map")
+  slot(:item, required: true)
 
   def list(assigns) do
     ~H"""
-    <ul class={["flex flex-col gap-2" | List.wrap(@class)]}>
-      <li
-        :for={elem <- @elements}
-        class={"h-20 bg-surface-0-bg rounded #{if @rest[:"phx-click"], do: "cursor-pointer hover:bg-surface-1-bg"}"}
-        {@rest}
-        {@element_attributes_fun.(elem)}
-      >
-        <div class="flex flex-col justify-center h-full p-4 gap-1">
-          <p class="font-medium"><%= render_slot(@title, elem) %></p>
-          <p class="text-secondary-text">
-            <%= render_slot(@description, elem) %>
-          </p>
-        </div>
+    <ul class={[
+      "w-full flex flex-col overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@class)
+    ]}>
+      <li :for={elem <- @elements} class={@item_class}>
+        <%= render_slot(@item, elem) %>
       </li>
     </ul>
     """

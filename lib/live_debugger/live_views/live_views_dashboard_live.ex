@@ -97,14 +97,14 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
           <%= Parsers.pid_to_string(@transport_pid) %>
         </p>
       </div>
-      <ul class="w-full flex flex-col overflow-auto rounded-sm bg-surface-0-bg p-2">
-        <li :for={{lv_process, index} <- Enum.with_index(@lv_processes)}>
+      <.list elements={Enum.with_index(@lv_processes)}>
+        <:item :let={{lv_process, index}}>
           <div class="flex items-center w-full">
             <.nested_indent :if={lv_process.nested?} last?={index == @lv_processes_length} />
             <.list_element lv_process={lv_process} />
           </div>
-        </li>
-      </ul>
+        </:item>
+      </.list>
     </div>
     """
   end
@@ -131,15 +131,27 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
     ~H"""
     <div
       role="button"
-      class="flex flex-col justify-center h-full w-full gap-1 text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm"
+      class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm"
+      phx-click="lv-process-picked"
+      phx-value-socket-id={@lv_process.socket_id}
+      phx-value-transport-pid={Parsers.pid_to_string(@lv_process.transport_pid)}
     >
-      <div class="text-link-primary flex items-center gap-1">
-        <.icon name="icon-liveview" class="w-4 h-4" />
-        <p class="font-medium"><%= @lv_process.module %></p>
+      <div class="flex flex-col gap-1">
+        <div class="text-link-primary flex items-center gap-1">
+          <.icon name="icon-liveview" class="w-4 h-4" />
+          <p class={if(not @lv_process.nested?, do: "font-medium")}><%= @lv_process.module %></p>
+        </div>
+        <p class="text-secondary-text">
+          <%= Parsers.pid_to_string(@lv_process.pid) %> &middot; <%= @lv_process.socket_id %>
+        </p>
       </div>
-      <p class="text-secondary-text">
-        <%= Parsers.pid_to_string(@lv_process.pid) %> &middot; <%= @lv_process.socket_id %>
-      </p>
+      <div>
+        <.badge
+          :if={@lv_process.embedded? and not @lv_process.nested?}
+          text="Embedded"
+          icon="icon-code"
+        />
+      </div>
     </div>
     """
   end
