@@ -20,7 +20,7 @@ if config_env() == :dev do
     ]
 
   config :tailwind,
-    version: "3.4.3",
+    version: "3.4.17",
     deploy_build: [
       args: ~w(
       --config=tailwind.config.js
