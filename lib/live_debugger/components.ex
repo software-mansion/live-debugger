@@ -526,8 +526,16 @@ defmodule LiveDebugger.Components do
         <.nav_icon icon="icon-arrow-left" />
       </.link>
 
-      <.icon name="icon-logo-text" class="h-6 w-32" />
-      <%= @inner_block && render_slot(@inner_block) %>
+      <div class="grow flex items-center justify-between">
+        <div>
+          <.icon name="icon-logo-text" class="h-6 w-32" />
+        </div>
+        <div class="flex items-center">
+          <.nav_icon class="dark:hidden" icon="icon-moon" />
+          <.nav_icon class="hidden dark:block" icon="icon-sun" />
+          <%= @inner_block && render_slot(@inner_block) %>
+        </div>
+      </div>
     </div>
     """
   end
