@@ -108,6 +108,10 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     %{"node_id" => node_id, "search_attribute" => attr, "search_value" => val} = params
 
     if Application.get_env(:live_debugger, :browser_features?) do
+      if !socket.assigns.hidden? and socket.assigns.highlight? do
+        send_event(socket.assigns.pid, "highlight", %{attr: attr, val: val})
+      end
+
       send_event(socket.assigns.pid, "pulse", %{attr: attr, val: val})
     end
 
