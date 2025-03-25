@@ -1,10 +1,10 @@
 const Highlight = {
   mounted() {
-    const highlightSwitch = document.querySelector('[data-highlight]');
+    const highlightSwitch = document.querySelector('#highlight-switch');
     let params = {};
 
     this.pushHighlight = (e) => {
-      if (highlightSwitch.dataset.highlight === 'on') {
+      if (highlightSwitch.checked) {
         params = {
           search_attribute:
             e.target.attributes['phx-value-search_attribute'].value,

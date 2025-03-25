@@ -75,7 +75,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def render(assigns) do
     ~H"""
     <div id="sidebar" class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border">
-      <div class="hidden sm:flex max-h-full flex-col w-64 gap-1 justify-between">
+      <div class="hidden sm:flex max-h-full flex-col w-80 gap-1 justify-between">
         <.sidebar_content
           pid={@pid}
           socket_id={@socket_id}
@@ -172,7 +172,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     ~H"""
     <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex sm:hidden justify-end">
       <div
-        class="w-64 h-full flex flex-col bg-sidebar-bg justify-between"
+        class="w-80 h-full flex flex-col bg-sidebar-bg justify-between"
         phx-click-away="close_mobile_content"
         phx-target={@myself}
       >
@@ -232,18 +232,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         <.alert variant="danger">Couldn't load a tree</.alert>
       </:failed>
 
-      <%= if Application.get_env(:live_debugger, :browser_features?) do %>
-        <div class="flex justify-center mt-3">
-          <.button
-            phx-target={@target}
-            phx-click="toggle-highlight"
-            data-highlight={if @highlight?, do: "on", else: "off"}
-          >
-            <%= if @highlight?, do: "Highlight On", else: "Highlight Off" %>
-          </.button>
-        </div>
-      <% end %>
-
       <Tree.tree
         :if={tree}
         title="Components Tree"
@@ -251,6 +239,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         tree_node={tree}
         event_target={@target}
         max_opened_node_level={@max_opened_node_level.result}
+        highlight?={@highlight?}
       />
     </.async_result>
     """
