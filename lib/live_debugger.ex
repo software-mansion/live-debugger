@@ -3,6 +3,8 @@ defmodule LiveDebugger do
   Debugger for LiveView applications.
   """
 
+  use Phoenix.Component
+
   use Application
 
   @app_name :live_debugger
@@ -33,6 +35,20 @@ defmodule LiveDebugger do
 
     Application.put_env(@app_name, LiveDebugger.Endpoint, endpoint_config)
     Application.put_env(@app_name, :assets_url, "http://#{ip_string}:#{port}/#{@assets_path}")
+
+    assigns = %{}
+
+    heex =
+      ~H"""
+      <script id="live-debugger-scripts" src="http://127.0.0.1:4007/assets/client.js">
+      </script>
+      """
+
+    Application.put_env(
+      @app_name,
+      :live_debugger_scripts,
+      heex
+    )
 
     children = [
       {Phoenix.PubSub, name: LiveDebugger.PubSub},
