@@ -1,32 +1,36 @@
-defmodule LiveDebugger.LiveViews.ChannelDashboard do
+defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   @moduledoc false
 
   use LiveDebuggerWeb, :live_view
 
   require Logger
 
+  alias LiveDebugger.Utils.URL
+  alias Phoenix.LiveView.AsyncResult
+
   alias LiveDebugger.Components.Error
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.TreeNode
-  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Services.CallbackTracingService
+  alias LiveDebugger.Utils.Parsers
+  alias LiveDebugger.LiveHelpers.Routes
 
   @impl true
-  def mount(%{"socket_id" => socket_id}, _session, socket) do
+
+  def mount(params, _session, socket) do
     socket
-    |> assign(:socket_id, socket_id)
     |> assign(:tracing_session, nil)
-    |> assign(:debugged_module, nil)
-    |> assign_async_debugged_lv_process()
-    |> assign_base_url()
+    |> assign(:socket_id, params["socket_id"])
+    |> start_async_assign_lv_process(params)
     |> ok()
   end
 
   @impl true
-  def handle_params(params, _url, socket) do
+  def handle_params(params, url, socket) do
     socket
     |> assign_node_id(params)
+    |> assign(:url, URL.to_relative(url))
     |> noreply()
   end
 
@@ -34,12 +38,17 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   def render(assigns) do
     ~H"""
     <div class="w-screen h-screen flex flex-col">
-      <.topbar return_link?={true}>
+      <.navbar return_link?={true}>
         <div class="grow flex items-center justify-end">
-          <.icon_button phx-click="open-sidebar" class="flex sm:hidden" icon="icon-menu-hamburger" />
+          <.nav_icon
+            :if={@lv_process.ok?}
+            phx-click="open-sidebar"
+            class="flex sm:hidden"
+            icon="icon-menu-hamburger"
+          />
         </div>
-      </.topbar>
-      <.async_result :let={lv_process} assign={@debugged_lv_process}>
+      </.navbar>
+      <.async_result :let={lv_process} assign={@lv_process}>
         <:loading>
           <div class="h-full flex items-center justify-center">
             <.spinner size="xl" />
@@ -56,8 +65,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
             module={LiveDebugger.LiveComponents.Sidebar}
             id="sidebar"
             lv_process={lv_process}
+            url={@url}
             node_id={@node_id}
-            base_url={@base_url}
           />
           <.live_component
             module={LiveDebugger.LiveComponents.DetailView}
@@ -79,25 +88,26 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   end
 
   @impl true
-  def handle_async(:fetch_debugged_lv_process, {:ok, nil}, socket) do
-    case LiveViewDiscoveryService.successor_lv_processes(socket.assigns.debugged_module) do
-      [lv_process] ->
-        socket
-        |> push_navigate(to: "/#{lv_process.socket_id}")
-        |> noreply()
-
+  def handle_async(:fetch_lv_process, {:ok, nil}, socket) do
+    with %{debugged_module: module} when not is_nil(module) <- socket.assigns,
+         [lv_process] <- LiveViewDiscoveryService.successor_lv_processes(module) do
+      socket
+      |> push_navigate(
+        to: Routes.channel_dashboard(lv_process.socket_id, lv_process.transport_pid)
+      )
+      |> noreply()
+    else
       _ ->
         socket
         |> assign(
-          :debugged_lv_process,
-          AsyncResult.failed(socket.assigns.debugged_lv_process, :not_found)
+          :lv_process,
+          AsyncResult.failed(socket.assigns.lv_process, :not_found)
         )
         |> noreply()
     end
   end
 
-  @impl true
-  def handle_async(:fetch_debugged_lv_process, {:ok, fetched_lv_process}, socket) do
+  def handle_async(:fetch_lv_process, {:ok, fetched_lv_process}, socket) do
     Process.monitor(fetched_lv_process.pid)
 
     socket.assigns.socket_id
@@ -105,30 +115,30 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     |> case do
       {:ok, tracing_session} ->
         socket
-        |> assign(:debugged_lv_process, AsyncResult.ok(fetched_lv_process))
+        |> assign(:lv_process, AsyncResult.ok(fetched_lv_process))
         |> assign(:debugged_module, fetched_lv_process.module)
         |> assign(:tracing_session, tracing_session)
 
       {:error, reason} ->
         assign(
           socket,
-          :debugged_lv_process,
-          AsyncResult.failed(socket.assigns.debugged_lv_process, reason)
+          :lv_process,
+          AsyncResult.failed(socket.assigns.lv_process, reason)
         )
     end
+    |> patch_transport_pid(fetched_lv_process)
     |> noreply()
   end
 
-  @impl true
-  def handle_async(:fetch_debugged_lv_process, {:exit, reason}, socket) do
+  def handle_async(:fetch_lv_process, {:exit, reason}, socket) do
     Logger.error(
-      "LiveDebugger encountered unexpected error while fetching debugged pid: #{inspect(reason)}"
+      "LiveDebugger encountered unexpected error while fetching information for process: #{inspect(reason)}"
     )
 
     socket
     |> assign(
-      :debugged_lv_process,
-      AsyncResult.failed(socket.assigns.debugged_lv_process, reason)
+      :lv_process,
+      AsyncResult.failed(socket.assigns.lv_process, reason)
     )
     |> noreply()
   end
@@ -138,8 +148,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     CallbackTracingService.stop_tracing(socket.assigns.tracing_session)
 
     socket
-    |> push_patch(to: socket.assigns.base_url)
-    |> assign_async_debugged_lv_process()
+    |> start_async_assign_lv_process(%{"socket_id" => socket.assigns.socket_id})
     |> noreply()
   end
 
@@ -147,8 +156,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
   def handle_info({:new_trace, trace}, socket) do
     debugged_node_id =
       socket.assigns.node_id ||
-        (socket.assigns.debugged_lv_process.result &&
-           socket.assigns.debugged_lv_process.result.pid)
+        (socket.assigns.lv_process.result &&
+           socket.assigns.lv_process.result.pid)
 
     if Trace.node_id(trace) == debugged_node_id do
       send_update(LiveDebugger.LiveComponents.TracesList, %{id: "trace-list", new_trace: trace})
@@ -159,7 +168,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
 
     socket =
       if Trace.live_component_delete?(trace) and Trace.node_id(trace) == debugged_node_id do
-        push_patch(socket, to: socket.assigns.base_url)
+        url = URL.remove_query_param(socket.assigns.url, "node_id")
+        push_patch(socket, to: url)
       else
         socket
       end
@@ -187,25 +197,51 @@ defmodule LiveDebugger.LiveViews.ChannelDashboard do
     assign(socket, :node_id, nil)
   end
 
-  defp assign_base_url(socket) do
-    assign(socket, :base_url, "/#{socket.assigns.socket_id}")
+  defp start_async_assign_lv_process(socket, %{
+         "socket_id" => socket_id,
+         "transport_pid" => transport_pid
+       }) do
+    case Parsers.string_to_pid(transport_pid) do
+      {:ok, pid} ->
+        socket
+        |> assign(:lv_process, AsyncResult.loading())
+        |> start_async(:fetch_lv_process, fn ->
+          fetch_lv_process(socket_id, pid)
+        end)
+
+      :error ->
+        assign(
+          socket,
+          :lv_process,
+          AsyncResult.failed(AsyncResult.loading(), :invalid_transport_pid)
+        )
+    end
   end
 
-  defp assign_async_debugged_lv_process(socket) do
-    socket_id = socket.assigns.socket_id
-
+  defp start_async_assign_lv_process(socket, %{"socket_id" => socket_id}) do
     socket
-    |> assign(:debugged_lv_process, AsyncResult.loading())
-    |> start_async(:fetch_debugged_lv_process, fn ->
-      with nil <- fetch_lv_process_after(socket_id, 200),
-           nil <- fetch_lv_process_after(socket_id, 800) do
-        fetch_lv_process_after(socket_id, 1000)
-      end
+    |> assign(:lv_process, AsyncResult.loading())
+    |> start_async(:fetch_lv_process, fn ->
+      fetch_lv_process(socket_id)
     end)
   end
 
-  defp fetch_lv_process_after(socket_id, milliseconds) do
-    Process.sleep(milliseconds)
-    LiveViewDiscoveryService.lv_process(socket_id)
+  defp fetch_lv_process(socket_id, transport_pid \\ nil) do
+    fetch_after = fn milliseconds ->
+      Process.sleep(milliseconds)
+      LiveViewDiscoveryService.lv_process(socket_id, transport_pid)
+    end
+
+    with nil <- fetch_after.(200),
+         nil <- fetch_after.(800) do
+      fetch_after.(1000)
+    end
+  end
+
+  defp patch_transport_pid(socket, lv_process) do
+    path = Routes.channel_dashboard(lv_process.socket_id, lv_process.transport_pid)
+    url = URL.update_path(socket.assigns.url, path)
+
+    push_patch(socket, to: url)
   end
 end

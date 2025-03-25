@@ -9,12 +9,12 @@ defmodule LiveDebugger.Components.Error do
   def error_component(assigns) do
     ~H"""
     <div class="h-full flex flex-col items-center justify-center mx-8 text-center">
-      <.icon name="icon-exclamation-circle" class="w-12 h-12 text-primary-900" />
+      <.icon name="icon-exclamation-circle" class="w-12 h-12 text-error-icon" />
       <div class="font-semibold text-xl mb-2">
         <%= render_slot(@heading) %>
       </div>
       <p class="mb-4"><%= render_slot(@description) %></p>
-      <.link navigate="/">
+      <.link navigate={LiveDebugger.LiveHelpers.Routes.live_views_dashboard()}>
         <.button>
           See active LiveViews
         </.button>
@@ -38,7 +38,7 @@ defmodule LiveDebugger.Components.Error do
       <:heading>Unexpected error</:heading>
       <:description>
         Debugger encountered unexpected error. Check logs for more information
-        <.report_issue class="mb-4" text="Report the issue" />
+        <.report_issue class="mb-4" text="" />
       </:description>
     </.error_component>
     """

@@ -17,6 +17,7 @@ defmodule LiveDebuggerDev.Runner do
       live_reload: [
         patterns: [
           ~r"priv/static/.*(js|css|svg)$",
+          ~r"priv/static/dev/.*(js|css|svg)$",
           ~r"lib/live_debugger/live_views/.*ex$",
           ~r"lib/live_debugger/live_components/.*ex$",
           ~r"lib/live_debugger/components/.*ex$",

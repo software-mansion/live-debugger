@@ -1,6 +1,8 @@
 # LiveDebugger
 
-LiveDebugger is a browser-based tool for debugging LiveView applications, designed to enhance your development experience. It gives you:
+LiveDebugger is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
+
+Designed to enhance your development experience LiveDebugger gives you:
 
 - :deciduous_tree: A detailed view of your LiveComponents tree
 - :mag: The ability to inspect assigns for LiveViews and LiveComponents
@@ -15,7 +17,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:live_debugger, "~> 0.1.1", only: :dev}
+      {:live_debugger, "~> 0.1.2", only: :dev}
     ]
   end
 ```
@@ -46,6 +48,18 @@ config :live_debugger, browser_features?: true
     </script>
   <% end %>
 </head>
+```
+
+### Content Security Policy
+
+In `router.ex` of your Phoenix app, make sure your locally running Phoenix app can access the LiveDebugger JS files on port 4007. To achieve that you may need to extend your CSP in `:dev` mode:
+
+```elixir
+  @csp "{...your CSP} #{if Mix.env() == :dev, do: "http://127.0.0.1:4007"}"
+
+  pipeline :browser do
+    # ...
+    plug :put_secure_browser_headers, %{"content-security-policy" => @csp}
 ```
 
 ## Optional configuration

@@ -1,7 +1,7 @@
 defmodule LiveDebugger.LiveComponents.Sidebar do
   @moduledoc """
   Sidebar component which displays tree of live view and it's live components.
-  It changes path to `<base_url>/<node_id>` when a node is selected.
+  It adds `node_id` query param to the URL when a node is clicked.
   """
   use LiveDebuggerWeb, :live_component
 
@@ -12,6 +12,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
   alias Phoenix.Socket.Message
+  alias LiveDebugger.Utils.URL
 
   @impl true
   def mount(socket) do
@@ -59,7 +60,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       pid: assigns.lv_process.pid,
       socket_id: assigns.lv_process.socket_id,
       node_id: assigns.node_id,
-      base_url: assigns.base_url
+      url: assigns.url
     })
     |> assign_async_tree()
     |> assign_async_existing_node_ids()
@@ -68,12 +69,12 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   attr(:lv_process, :any, required: true)
   attr(:node_id, :any, required: true)
-  attr(:base_url, :string, required: true)
+  attr(:url, :any, required: true)
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div id="sidebar" class="w-max flex bg-white shadow-custom border border-secondary-200">
+    <div id="sidebar" class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border">
       <div class="hidden sm:flex max-h-full flex-col w-64 gap-1 justify-between">
         <.sidebar_content
           pid={@pid}
@@ -84,7 +85,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           myself={@myself}
           highlight?={@highlight?}
         />
-        <.report_issue class="border-t border-secondary-200" />
+        <.report_issue class="border-t border-default-border" />
       </div>
       <.sidebar_slide_over :if={not @hidden?} myself={@myself}>
         <.sidebar_content
@@ -96,7 +97,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           myself={@myself}
           highlight?={@highlight?}
         />
-        <.report_issue class="border-t border-secondary-200" />
+        <.report_issue class="border-t border-default-border" />
       </.sidebar_slide_over>
     </div>
     """
@@ -111,7 +112,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     end
 
     socket
-    |> push_patch(to: "#{socket.assigns.base_url}/#{node_id}")
+    |> push_patch(to: URL.upsert_query_param(socket.assigns.url, "node_id", node_id))
     |> hide_sidebar_side_over()
     |> noreply()
   end
@@ -171,7 +172,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     ~H"""
     <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex sm:hidden justify-end">
       <div
-        class="w-64 h-full flex flex-col bg-white/100 justify-between"
+        class="w-64 h-full flex flex-col bg-sidebar-bg justify-between"
         phx-click-away="close_mobile_content"
         phx-target={@myself}
       >
@@ -198,7 +199,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp basic_info(assigns) do
     ~H"""
-    <div class="w-full p-6 shrink-0 flex flex-col gap-2 border-b border-secondary-200">
+    <div class="w-full p-6 shrink-0 flex flex-col gap-2 border-b border-default-border">
       <div
         :for={
           {text, value} <- [

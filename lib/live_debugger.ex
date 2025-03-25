@@ -26,7 +26,8 @@ defmodule LiveDebugger do
         http: [ip: ip, port: port],
         secret_key_base: Keyword.get(config, :secret_key_base, @default_secret_key_base),
         live_view: [signing_salt: Keyword.get(config, :signing_salt, @default_signing_salt)],
-        adapter: Keyword.get(config, :adapter, default_adapter)
+        adapter: Keyword.get(config, :adapter, default_adapter),
+        live_reload: Keyword.get(config, :live_reload, [])
       ]
 
     Application.put_env(@app_name, LiveDebugger.Endpoint, endpoint_config)

@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveViews.SessionsDashboard do
+defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
   @moduledoc """
   It displays all active LiveView sessions in the debugged application.
   """
@@ -8,6 +8,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Utils.Parsers
+  alias LiveDebugger.LiveHelpers.Routes
 
   @impl true
   def handle_params(_unsigned_params, _uri, socket) do
@@ -20,11 +21,11 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   def render(assigns) do
     ~H"""
     <div class="w-full h-full flex flex-col items-center">
-      <.topbar return_link?={false} />
+      <.navbar return_link?={false} />
       <div class="w-full h-full p-8 xl:w-2/3">
         <div class="flex gap-4 items-center justify-between">
           <.h1>Active LiveViews</.h1>
-          <.button phx-click="refresh" variant="tertiary">
+          <.button phx-click="refresh">
             <div class="flex items-center gap-2">
               <.icon name="icon-refresh" class="w-4 h-4" />
               <p>Refresh</p>
@@ -46,15 +47,15 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
             </:failed>
             <div>
               <%= if Enum.empty?(lv_processes)  do %>
-                <div class="p-4 bg-white rounded shadow-custom border border-secondary-200">
-                  <p class="text-secondary-500 text-center">No active LiveViews</p>
+                <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
+                  <p class="text-secondary-text text-center">No active LiveViews</p>
                 </div>
               <% else %>
                 <.table
                   rows={lv_processes}
                   class="hidden sm:block"
                   on_row_click="lv-process-picked"
-                  row_attributes_fun={fn row -> %{"phx-value-socket_id" => row.socket_id} end}
+                  row_attributes_fun={&event_values_map/1}
                 >
                   <:column :let={lv_process} label="Module" class="font-medium">
                     <%= lv_process.module %>
@@ -71,7 +72,7 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
                   elements={lv_processes}
                   class="sm:hidden"
                   on_element_click="lv-process-picked"
-                  element_attributes_fun={fn elem -> %{"phx-value-socket_id" => elem.socket_id} end}
+                  element_attributes_fun={&event_values_map/1}
                 >
                   <:title :let={lv_process}>
                     <div class="flex items-center justify-between">
@@ -93,9 +94,13 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
   end
 
   @impl true
-  def handle_event("lv-process-picked", %{"socket_id" => socket_id}, socket) do
+  def handle_event(
+        "lv-process-picked",
+        %{"socket-id" => socket_id, "transport-pid" => transport_pid},
+        socket
+      ) do
     socket
-    |> push_navigate(to: "/#{socket_id}")
+    |> push_navigate(to: Routes.channel_dashboard(socket_id, transport_pid))
     |> noreply()
   end
 
@@ -105,6 +110,13 @@ defmodule LiveDebugger.LiveViews.SessionsDashboard do
     |> assign(:lv_processes, AsyncResult.loading())
     |> assign_async_lv_processes()
     |> noreply()
+  end
+
+  defp event_values_map(lv_process) do
+    %{
+      "phx-value-socket-id" => lv_process.socket_id,
+      "phx-value-transport-pid" => Parsers.pid_to_string(lv_process.transport_pid)
+    }
   end
 
   defp assign_async_lv_processes(socket) do
