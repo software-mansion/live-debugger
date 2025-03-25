@@ -1,7 +1,6 @@
 const ToggleTheme = {
   mounted() {
     this.handleClick = () => {
-      console.log(localStorage.theme);
       switch (localStorage.theme) {
         case 'light':
           document.documentElement.classList.add('dark');
