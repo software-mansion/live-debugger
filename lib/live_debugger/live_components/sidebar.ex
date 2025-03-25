@@ -113,7 +113,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     socket
     |> push_patch(to: "#{socket.assigns.base_url}/#{node_id}")
     |> hide_sidebar_side_over()
-    |> assign(:highlight?, false)
     |> noreply()
   end
 

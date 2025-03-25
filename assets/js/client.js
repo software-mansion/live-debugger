@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
   debugButton.addEventListener('click', onClick);
 
   // Highlighting feature
-  function isElementVisible(element) {
+  const isElementVisible = (element) => {
     if (!element) return false;
 
     const style = window.getComputedStyle(element);
@@ -119,16 +119,33 @@ document.addEventListener('DOMContentLoaded', function () {
       style.visibility !== 'hidden' &&
       style.opacity !== '0'
     );
-  }
+  };
+
+  const createHighlightElement = (activeElement, detail, id) => {
+    const rect = activeElement.getBoundingClientRect();
+    const highlight = document.createElement('div');
+    highlight.id = id;
+    highlight.dataset.attr = detail.attr;
+    highlight.dataset.val = detail.val;
+
+    highlight.style.position = 'absolute';
+    highlight.style.top = `${rect.top + window.scrollY}px`;
+    highlight.style.left = `${rect.left + window.scrollX}px`;
+    highlight.style.width = `${activeElement.offsetWidth}px`;
+    highlight.style.height = `${activeElement.offsetHeight}px`;
+    highlight.style.backgroundColor = '#87CCE880';
+    highlight.style.zIndex = '10000';
+    highlight.style.pointerEvents = 'none';
+
+    return highlight;
+  };
 
   const highlightElementID = 'live-debugger-highlight-element';
+  const highlightPulseElementID = 'live-debugger-highlight-pulse-element';
   let activeElement;
 
   window.addEventListener('phx:highlight', (msg) => {
-    const highlightElement = document.getElementById(highlightElementID);
-    activeElement = document.querySelector(
-      `[${msg.detail.attr}="${msg.detail.val}"]`
-    );
+    let highlightElement = document.getElementById(highlightElementID);
 
     if (highlightElement) {
       highlightElement.remove();
@@ -137,23 +154,17 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
 
+    activeElement = document.querySelector(
+      `[${msg.detail.attr}="${msg.detail.val}"]`
+    );
+
     if (isElementVisible(activeElement)) {
-      const rect = activeElement.getBoundingClientRect();
-      const highlight = document.createElement('div');
-      highlight.id = highlightElementID;
-      highlight.dataset.attr = msg.detail.attr;
-      highlight.dataset.val = msg.detail.val;
-
-      highlight.style.position = 'absolute';
-      highlight.style.top = `${rect.top + window.scrollY}px`;
-      highlight.style.left = `${rect.left + window.scrollX}px`;
-      highlight.style.width = `${activeElement.offsetWidth}px`;
-      highlight.style.height = `${activeElement.offsetHeight}px`;
-      highlight.style.backgroundColor = 'rgba(255, 255, 0, 0.2)';
-      highlight.style.zIndex = '10000';
-      highlight.style.pointerEvents = 'none';
-
-      document.body.appendChild(highlight);
+      highlightElement = createHighlightElement(
+        activeElement,
+        msg.detail,
+        highlightElementID
+      );
+      document.body.appendChild(highlightElement);
     }
   });
 
@@ -173,27 +184,51 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   window.addEventListener('phx:pulse', (msg) => {
-    const highlightElement = document.getElementById(highlightElementID);
-    if (highlightElement) {
-      highlightElement.remove();
-    }
-
     activeElement = document.querySelector(
       `[${msg.detail.attr}="${msg.detail.val}"]`
     );
 
     if (isElementVisible(activeElement)) {
-      activeElement.animate(
+      const highlightPulse = createHighlightElement(
+        activeElement,
+        msg.detail,
+        highlightPulseElementID
+      );
+
+      document.body.appendChild(highlightPulse);
+
+      const w = highlightPulse.offsetWidth;
+      const h = highlightPulse.offsetHeight;
+
+      highlightPulse.animate(
         [
-          { boxShadow: '0 0 5px 0 rgba(255, 255, 0, 1)' },
-          { boxShadow: '0 0 25px 5px rgba(255, 255, 0, 0.1)' },
-          { boxShadow: '0 0 5px 0 rgba(255, 255, 0, 0)' },
+          {
+            width: `${w}px`,
+            height: `${h}px`,
+            transform: 'translate(0, 0)',
+            backgroundColor: '#87CCE860',
+          },
+          {
+            width: `${w + 20}px`,
+            height: `${h + 20}px`,
+            transform: 'translate(-10px, -10px)',
+            backgroundColor: '#87CCE830',
+          },
+          {
+            width: `${w + 40}px`,
+            height: `${h + 40}px`,
+            transform: 'translate(-20px, -20px)',
+            backgroundColor: '#87CCE800',
+          },
         ],
         {
-          duration: 1500,
+          duration: 500,
           iterations: 1,
+          delay: 200,
         }
-      );
+      ).onfinish = () => {
+        highlightPulse.remove();
+      };
     }
   });
 });
