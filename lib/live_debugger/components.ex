@@ -5,8 +5,6 @@ defmodule LiveDebugger.Components do
 
   use Phoenix.Component
 
-  import LiveDebuggerWeb.Helpers
-
   alias Phoenix.LiveView.JS
   alias LiveDebugger.LiveHelpers.Routes
 
@@ -255,53 +253,6 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  attr(:rows, :list, default: [], doc: "Elements that will be displayed in the list")
-  attr(:class, :any, default: nil, doc: "Additional classes.")
-  attr(:on_row_click, :string, default: nil)
-  attr(:row_click_target, :any, default: nil)
-
-  attr(:row_attributes_fun, :any,
-    default: &empty_map/1,
-    doc: "Function to return HTML attributes for each row based on row data"
-  )
-
-  slot :column, doc: "Columns with column labels" do
-    attr(:label, :string, doc: "Column label")
-    # Default is not supported for slot arguments
-    attr(:class, :any)
-  end
-
-  def table(assigns) do
-    ~H"""
-    <div class={[
-      "p-4 bg-surface-0-bg rounded shadow-custom border border-default-border" | List.wrap(@class)
-    ]}>
-      <table class="w-full">
-        <thead class="border-b border-default-border">
-          <tr class="h-11 mx-16">
-            <th :for={col <- @column} class="first:pl-2 font-medium text-left">
-              <%= Map.get(col, :label, "") %>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            :for={row <- @rows}
-            phx-click={@on_row_click}
-            phx-target={@row_click_target}
-            class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-surface-1-bg"}"}
-            {@row_attributes_fun.(row)}
-          >
-            <td :for={col <- @column} class={["first:pl-2" | List.wrap(Map.get(col, :class))]}>
-              <%= render_slot(col, row) %>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    """
-  end
-
   attr(:elements, :list,
     required: true,
     doc: "Elements that will be displayed in the list's `item` slot."
@@ -315,7 +266,7 @@ defmodule LiveDebugger.Components do
   def list(assigns) do
     ~H"""
     <ul class={[
-      "w-full flex flex-col overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@class)
+      "w-full flex flex-col overflow-auto" | List.wrap(@class)
     ]}>
       <li :for={elem <- @elements} class={@item_class}>
         <%= render_slot(@item, elem) %>

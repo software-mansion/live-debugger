@@ -51,7 +51,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
                   <p class="text-secondary-text text-center">No active LiveViews</p>
                 </div>
               <% else %>
-                <.tab_section
+                <.tab_group
                   :for={{transport_pid, lv_processes} <- groupped_lv_processes}
                   transport_pid={transport_pid}
                   lv_processes={lv_processes}
@@ -76,7 +76,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
   attr(:transport_pid, :any, required: true)
   attr(:lv_processes, :list, required: true)
 
-  defp tab_section(assigns) do
+  defp tab_group(assigns) do
     assigns = assign(assigns, :lv_processes_length, length(assigns.lv_processes))
 
     ~H"""
@@ -86,14 +86,16 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
           <%= Parsers.pid_to_string(@transport_pid) %>
         </p>
       </div>
-      <.list elements={Enum.with_index(@lv_processes)}>
-        <:item :let={{lv_process, index}}>
-          <div class="flex items-center w-full">
-            <.nested_indent :if={lv_process.nested?} last?={index == @lv_processes_length} />
-            <.list_element lv_process={lv_process} />
-          </div>
-        </:item>
-      </.list>
+      <div class="w-full flex bg-surface-0-bg p-2">
+        <.list elements={Enum.with_index(@lv_processes)}>
+          <:item :let={{lv_process, index}}>
+            <div class="flex items-center w-full">
+              <.nested_indent :if={lv_process.nested?} last?={index == @lv_processes_length} />
+              <.list_element lv_process={lv_process} />
+            </div>
+          </:item>
+        </.list>
+      </div>
     </div>
     """
   end
