@@ -66,17 +66,6 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
   end
 
   @impl true
-  def handle_event(
-        "lv-process-picked",
-        %{"socket-id" => socket_id, "transport-pid" => transport_pid},
-        socket
-      ) do
-    socket
-    |> push_navigate(to: Routes.channel_dashboard(socket_id, transport_pid))
-    |> noreply()
-  end
-
-  @impl true
   def handle_event("refresh", _params, socket) do
     socket
     |> assign(:groupped_lv_processes, AsyncResult.loading())
@@ -129,12 +118,9 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
 
   defp list_element(assigns) do
     ~H"""
-    <div
-      role="button"
+    <.link
+      href={Routes.channel_dashboard(@lv_process.socket_id, @lv_process.transport_pid)}
       class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm"
-      phx-click="lv-process-picked"
-      phx-value-socket-id={@lv_process.socket_id}
-      phx-value-transport-pid={Parsers.pid_to_string(@lv_process.transport_pid)}
     >
       <div class="flex flex-col gap-1">
         <div class="text-link-primary flex items-center gap-1">
@@ -152,7 +138,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
           icon="icon-code"
         />
       </div>
-    </div>
+    </.link>
     """
   end
 
