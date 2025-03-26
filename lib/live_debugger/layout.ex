@@ -36,8 +36,6 @@ defmodule LiveDebugger.Layout do
         <script src="/assets/live_debugger/hooks.js">
         </script>
         <script>
-          window.setTheme();
-
           let liveSocket = new window.LiveView.LiveSocket('/live', window.Phoenix.Socket, {
             longPollFallbackMs: 2500,
             params: { _csrf_token: window.getCsrfToken() },
@@ -47,7 +45,9 @@ defmodule LiveDebugger.Layout do
             },
           });
 
+          window.setTheme();
           liveSocket.connect();
+
           window.liveSocket = liveSocket;
         </script>
         <span id="tooltip" class="absolute hidden p-1 text-xs bg-surface-0-bg rounded-md shadow-md">
