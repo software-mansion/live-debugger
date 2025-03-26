@@ -266,7 +266,7 @@ defmodule LiveDebugger.Components do
   def list(assigns) do
     ~H"""
     <ul class={[
-      "w-full flex flex-col overflow-auto" | List.wrap(@class)
+      "w-full flex flex-col overflow-auto p-2" | List.wrap(@class)
     ]}>
       <li :for={elem <- @elements} class={@item_class}>
         <%= render_slot(@item, elem) %>

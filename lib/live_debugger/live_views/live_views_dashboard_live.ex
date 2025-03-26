@@ -86,7 +86,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
           <%= Parsers.pid_to_string(@transport_pid) %>
         </p>
       </div>
-      <div class="w-full flex bg-surface-0-bg p-2">
+      <div class="w-full flex bg-surface-0-bg">
         <.list elements={Enum.with_index(@lv_processes)}>
           <:item :let={{lv_process, index}}>
             <div class="flex items-center w-full">
