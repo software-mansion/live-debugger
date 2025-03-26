@@ -36,31 +36,11 @@ defmodule LiveDebugger.Layout do
         <script src="/assets/live_debugger/hooks.js">
         </script>
         <script>
-          // Check system preferences for dark mode, and add the .dark class to the body if it's dark
-          switch (localStorage.theme) {
-            case 'light':
-              document.documentElement.classList.remove('dark');
-              break;
-            case 'dark':
-              document.documentElement.classList.add('dark');
-              break;
-            default:
-              const prefersDarkScheme = window.matchMedia(
-                '(prefers-color-scheme: dark)'
-              ).matches;
-
-              document.documentElement.classList.toggle('dark', prefersDarkScheme);
-              localStorage.theme = prefersDarkScheme ? 'dark' : 'light';
-              break;
-          }
-
-          let csrfToken = document
-            .querySelector("meta[name='csrf-token']")
-            .getAttribute('content');
+          window.setTheme();
 
           let liveSocket = new window.LiveView.LiveSocket('/live', window.Phoenix.Socket, {
             longPollFallbackMs: 2500,
-            params: { _csrf_token: csrfToken },
+            params: { _csrf_token: window.getCsrfToken() },
             hooks: window.createHooks(),
             dom: {
               onBeforeElUpdated: window.saveDialogAndDetailsState(),

@@ -34,5 +34,33 @@ function saveDialogAndDetailsState() {
   };
 }
 
+function setTheme() {
+  // Check system preferences for dark mode, and add the .dark class to the body if it's dark
+  switch (localStorage.theme) {
+    case 'light':
+      document.documentElement.classList.remove('dark');
+      break;
+    case 'dark':
+      document.documentElement.classList.add('dark');
+      break;
+    default:
+      const prefersDarkScheme = window.matchMedia(
+        '(prefers-color-scheme: dark)'
+      ).matches;
+
+      document.documentElement.classList.toggle('dark', prefersDarkScheme);
+      localStorage.theme = prefersDarkScheme ? 'dark' : 'light';
+      break;
+  }
+}
+
+function getCsrfToken() {
+  return document
+    .querySelector("meta[name='csrf-token']")
+    .getAttribute('content');
+}
+
 window.createHooks = createHooks;
+window.setTheme = setTheme;
+window.getCsrfToken = getCsrfToken;
 window.saveDialogAndDetailsState = saveDialogAndDetailsState;
