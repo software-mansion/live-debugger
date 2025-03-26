@@ -24,12 +24,52 @@ defmodule LiveDebugger.Layout do
         />
         <meta name="csrf-token" content={Phoenix.Controller.get_csrf_token()} />
         <title>LiveDebugger</title>
-        <link rel="stylesheet" href="/assets/app.css" />
-        <script src="/assets/app.js" defer>
-        </script>
+        <link rel="stylesheet" href="/assets/live_debugger/app.css" />
+
         <%= custom_head_tags(assigns, :before_closing_head_tag) %>
       </head>
       <body class="theme-light dark:theme-dark text-primary-text bg-main-bg text-xs font-normal">
+        <script src="/assets/phoenix/phoenix.js">
+        </script>
+        <script src="/assets/phoenix_live_view/phoenix_live_view.js">
+        </script>
+        <script src="/assets/live_debugger/hooks.js">
+        </script>
+        <script>
+          // Check system preferences for dark mode, and add the .dark class to the body if it's dark
+          switch (localStorage.theme) {
+            case 'light':
+              document.documentElement.classList.remove('dark');
+              break;
+            case 'dark':
+              document.documentElement.classList.add('dark');
+              break;
+            default:
+              const prefersDarkScheme = window.matchMedia(
+                '(prefers-color-scheme: dark)'
+              ).matches;
+
+              document.documentElement.classList.toggle('dark', prefersDarkScheme);
+              localStorage.theme = prefersDarkScheme ? 'dark' : 'light';
+              break;
+          }
+
+          let csrfToken = document
+            .querySelector("meta[name='csrf-token']")
+            .getAttribute('content');
+
+          let liveSocket = new window.LiveView.LiveSocket('/live', window.Phoenix.Socket, {
+            longPollFallbackMs: 2500,
+            params: { _csrf_token: csrfToken },
+            hooks: window.createHooks(),
+            dom: {
+              onBeforeElUpdated: window.saveDialogAndDetailsState(),
+            },
+          });
+
+          liveSocket.connect();
+          window.liveSocket = liveSocket;
+        </script>
         <span id="tooltip" class="absolute hidden p-1 text-xs bg-surface-0-bg rounded-md shadow-md">
         </span>
         <%= @inner_content %>

@@ -1,4 +1,4 @@
-(()=>{var r=document.getElementById("live-debugger-scripts").src.replace("/assets/client.js","");document.addEventListener("DOMContentLoaded",function(){let d=document.querySelector("[data-phx-main]").id,s=`
+(()=>{var r=document.getElementById("live-debugger-scripts").src.replace("/assets/live_debugger/client.js","");document.addEventListener("DOMContentLoaded",function(){let d=document.querySelector("[data-phx-main]").id,s=`
       <div id="debug-button" style="
         position: fixed;
         height: 40px;
