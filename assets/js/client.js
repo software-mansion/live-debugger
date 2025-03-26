@@ -4,7 +4,7 @@
 // Fetch LiveDebugger URL
 const URL = document
   .getElementById('live-debugger-scripts')
-  .src.replace('/assets/client.js', '');
+  .src.replace('/assets/live_debugger/client.js', '');
 
 // Debug button
 document.addEventListener('DOMContentLoaded', function () {
