@@ -15,14 +15,25 @@ defmodule LiveDebugger.Endpoint do
     longpoll: true
   )
 
+  plug(Plug.Static, from: {:phoenix, "priv/static"}, at: "/assets/phoenix")
+  plug(Plug.Static, from: {:phoenix_live_view, "priv/static"}, at: "/assets/phoenix_live_view")
+
   if Mix.env() == :dev do
-    plug(Plug.Static, at: "/assets", from: {:live_debugger, "priv/static/dev"}, gzip: false)
+    plug(Plug.Static,
+      at: "/assets/live_debugger",
+      from: {:live_debugger, "priv/static/dev"},
+      gzip: false
+    )
 
     socket("/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket)
     plug(Phoenix.LiveReloader)
     plug(Phoenix.CodeReloader)
   else
-    plug(Plug.Static, at: "/assets", from: :live_debugger, gzip: false)
+    plug(Plug.Static,
+      at: "/assets/live_debugger",
+      from: {:live_debugger, "priv/static"},
+      gzip: false
+    )
   end
 
   plug(Plug.Session, @session_options)
