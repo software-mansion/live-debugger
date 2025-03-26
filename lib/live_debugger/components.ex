@@ -526,8 +526,28 @@ defmodule LiveDebugger.Components do
         <.nav_icon icon="icon-arrow-left" />
       </.link>
 
-      <.icon name="icon-logo-text" class="h-6 w-32" />
-      <%= @inner_block && render_slot(@inner_block) %>
+      <div class="grow flex items-center justify-between">
+        <div>
+          <.icon name="icon-logo-text" class="h-6 w-32" />
+        </div>
+        <div class="flex items-center">
+          <%= if LiveDebugger.Env.dev?() do %>
+            <.nav_icon
+              id="light-mode-switch"
+              class="dark:hidden"
+              icon="icon-moon"
+              phx-hook="ToggleTheme"
+            />
+            <.nav_icon
+              id="dark-mode-switch"
+              class="hidden dark:block"
+              icon="icon-sun"
+              phx-hook="ToggleTheme"
+            />
+          <% end %>
+          <%= @inner_block && render_slot(@inner_block) %>
+        </div>
+      </div>
     </div>
     """
   end
