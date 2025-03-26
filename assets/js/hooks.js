@@ -22,4 +22,15 @@ function createHooks() {
   };
 }
 
+function saveDialogAndDetailsState() {
+  return (fromEl, toEl) => {
+    if (['DIALOG', 'DETAILS'].indexOf(fromEl.tagName) >= 0) {
+      Array.from(fromEl.attributes).forEach((attr) => {
+        toEl.setAttribute(attr.name, attr.value);
+      });
+    }
+  };
+}
+
 window.createHooks = createHooks;
+window.saveDialogAndDetailsState = saveDialogAndDetailsState;

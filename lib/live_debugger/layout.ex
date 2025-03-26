@@ -36,16 +36,6 @@ defmodule LiveDebugger.Layout do
         <script src="/assets/live_debugger/hooks.js">
         </script>
         <script>
-          function saveDialogAndDetailsState() {
-            return (fromEl, toEl) => {
-              if (['DIALOG', 'DETAILS'].indexOf(fromEl.tagName) >= 0) {
-                Array.from(fromEl.attributes).forEach((attr) => {
-                  toEl.setAttribute(attr.name, attr.value);
-                });
-              }
-            };
-          }
-
           let csrfToken = document
             .querySelector("meta[name='csrf-token']")
             .getAttribute('content');
@@ -55,7 +45,7 @@ defmodule LiveDebugger.Layout do
             params: { _csrf_token: csrfToken },
             hooks: window.createHooks(),
             dom: {
-              onBeforeElUpdated: saveDialogAndDetailsState(),
+              onBeforeElUpdated: window.saveDialogAndDetailsState(),
             },
           });
 
