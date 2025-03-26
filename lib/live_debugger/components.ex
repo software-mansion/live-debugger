@@ -326,7 +326,7 @@ defmodule LiveDebugger.Components do
   ## Examples
       <.fullscreen_button
         id="my-fullscreen"
-        on_click="open-fullscreen"
+        phx-click="open-fullscreen"
         icon="icon-expand"
       />
 
@@ -359,6 +359,7 @@ defmodule LiveDebugger.Components do
       data-fullscreen-id={@id}
       class={@class}
       variant="secondary"
+      {@rest}
     />
     """
   end
