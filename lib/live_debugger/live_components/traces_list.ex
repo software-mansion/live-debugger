@@ -63,7 +63,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   def render(assigns) do
     ~H"""
     <div class="max-w-full">
-      <.collapsible_section title="Callback traces" id="traces" inner_class="p-4">
+      <.section title="Callback traces" id="traces" inner_class="p-4">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <.toggle_tracing_button
@@ -93,7 +93,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         </:right_panel>
         <div class="w-full h-full lg:min-h-[10.25rem]">
           <div id={"#{assigns.id}-stream"} phx-update="stream" class="flex flex-col gap-2">
-            <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-gray-700">
+            <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-secondary-text">
               <div :if={@existing_traces_status == :ok}>
                 No traces have been recorded yet.
               </div>
@@ -121,7 +121,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
             <% end %>
           </div>
         </div>
-      </.collapsible_section>
+      </.section>
       <.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
     </div>
     """
@@ -252,10 +252,10 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   defp separator(assigns) do
     ~H"""
     <div id={@id}>
-      <div class="h-6 my-1 font-normal text-xs text-secondary-600 flex align items-center">
-        <div class="border-b border-secondary-200 grow"></div>
+      <div class="h-6 my-1 font-normal text-xs text-secondary-text flex align items-center">
+        <div class="border-b border-default-border grow"></div>
         <span class="mx-2">Past Traces</span>
-        <div class="border-b border-secondary-200 grow"></div>
+        <div class="border-b border-default-border grow"></div>
       </div>
     </div>
     """
@@ -276,9 +276,9 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     <.collapsible
       id={@id}
       icon="icon-chevron-right"
-      chevron_class="w-5 h-5 text-primary-900"
-      class="max-w-full border border-secondary-200 rounded"
-      label_class="font-semibold bg-secondary-50 h-10 p-2"
+      chevron_class="w-5 h-5 text-accent-icon"
+      class="max-w-full border border-default-border rounded"
+      label_class="font-semibold bg-surface-1-bg h-10 p-2"
       phx-click={if(@render_body?, do: nil, else: "toggle-collapsible")}
       phx-target={@myself}
       phx-value-trace-id={@trace.id}
@@ -291,7 +291,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         >
           <p class="font-medium text-sm"><%= @callback_name %></p>
           <.short_trace_content trace={@trace} />
-          <p class="w-max text-xs font-normal text-secondary-600 align-center">
+          <p class="w-max text-xs font-normal text-secondary-text align-center">
             <%= Parsers.parse_timestamp(@trace.timestamp) %>
           </p>
         </div>
@@ -327,7 +327,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     assigns = assign(assigns, :content, Enum.map_join(assigns.trace.args, " ", &inspect/1))
 
     ~H"""
-    <div class="grow shrink text-secondary-600 font-code font-normal text-3xs truncate">
+    <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
       <p class="hide-on-open mt-0.5"><%= @content %></p>
     </div>
     """

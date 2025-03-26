@@ -23,7 +23,7 @@ defmodule LiveDebugger.Components.ElixirDisplay do
       |> assign(:has_children?, has_children?(assigns.node))
 
     ~H"""
-    <div class="font-code text-gray-500">
+    <div class="font-code">
       <div class="ml-[2ch]">
         <.text_items :if={!@has_children?} items={@node.content} />
       </div>
@@ -32,15 +32,16 @@ defmodule LiveDebugger.Components.ElixirDisplay do
         id={@id <> "collapsible"}
         open={@expanded?}
         icon="icon-chevron-right"
-        class="[&>summary_.hide-on-opened]:open:hidden"
         label_class="max-w-max"
         chevron_class="m-auto w-[2ch] h-[2ch]"
       >
         <:label>
           <div class="flex items-center">
-            <.text_items items={@node.expanded_before} />
-            <div class="flex hide-on-opened">
-              ... <.text_items items={@node.expanded_after} />
+            <div class="hidden show-on-open">
+              <.text_items items={@node.expanded_before} />
+            </div>
+            <div class="flex hide-on-open">
+              <.text_items items={@node.content} />
             </div>
           </div>
         </:label>
@@ -66,14 +67,14 @@ defmodule LiveDebugger.Components.ElixirDisplay do
     ~H"""
     <div class="flex">
       <%= for item <- @items do %>
-        <span class="whitespace-pre" style={text_items_style(item)}><%= item.text %></span>
+        <span class={"whitespace-pre #{text_item_color_class(item)}"}><%= item.text %></span>
       <% end %>
     </div>
     """
   end
 
-  defp text_items_style(item) do
-    if item.color, do: "color: #{item.color};", else: ""
+  defp text_item_color_class(item) do
+    if item.color, do: "#{item.color}", else: ""
   end
 
   defp auto_expand?(_node, 1), do: true

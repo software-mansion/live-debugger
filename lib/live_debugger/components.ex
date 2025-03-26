@@ -10,15 +10,13 @@ defmodule LiveDebugger.Components do
   alias Phoenix.LiveView.JS
   alias LiveDebugger.LiveHelpers.Routes
 
-  @report_issue_url "https://github.com/software-mansion-labs/live-debugger/issues/new/choose"
+  @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
 
   @doc """
-  Renders an alert with
+  Renders an alert
+  Right now we have styles only for `danger` variant, but it'll change soon
   """
-  attr(:variant, :string,
-    required: true,
-    values: ["danger", "success", "warning", "info"]
-  )
+  attr(:variant, :string, required: true, values: ["danger"])
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the alert.")
   attr(:with_icon, :boolean, default: false, doc: "Whether to show an icon.")
@@ -30,7 +28,7 @@ defmodule LiveDebugger.Components do
     ~H"""
     <div
       class={[
-        "bg-#{@variant}-50 border border-#{@variant}-100 text-#{@variant}-800 text-sm p-2 flex flex-col gap-1 rounded-lg"
+        "bg-error-bg border border-error-border text-error-text text-sm p-2 flex flex-col gap-1 rounded-lg"
         | List.wrap(@class)
       ]}
       {@rest}
@@ -48,7 +46,7 @@ defmodule LiveDebugger.Components do
   Renders a button.
 
   """
-  attr(:variant, :string, default: "primary", values: ["primary", "secondary", "tertiary"])
+  attr(:variant, :string, default: "primary", values: ["primary", "secondary"])
   attr(:size, :string, default: "md", values: ["md", "sm"])
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
   attr(:rest, :global)
@@ -69,29 +67,6 @@ defmodule LiveDebugger.Components do
     >
       <%= render_slot(@inner_block) %>
     </button>
-    """
-  end
-
-  @doc """
-  Renders a card.
-  """
-  attr(:color, :string,
-    default: "primary",
-    values: ["primary", "secondary", "danger", "success", "warning", "info", "gray"]
-  )
-
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the card.")
-  attr(:rest, :global)
-  slot(:inner_block, required: true)
-
-  def card(assigns) do
-    ~H"""
-    <div
-      class={["border-2 border-#{@color}-600 shadow-2xl p-2 rounded-lg" | List.wrap(@class)]}
-      {@rest}
-    >
-      <%= render_slot(@inner_block) %>
-    </div>
     """
   end
 
@@ -131,7 +106,7 @@ defmodule LiveDebugger.Components do
     <details
       id={@id}
       class={[
-        "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden"
+        "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden [&>summary_.show-on-open]:open:flex"
         | List.wrap(@class)
       ]}
       {show_collapsible_assign(@open)}
@@ -159,38 +134,22 @@ defmodule LiveDebugger.Components do
   slot(:right_panel)
   slot(:inner_block)
 
-  def collapsible_section(assigns) do
+  def section(assigns) do
     ~H"""
     <div class={[
-      "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex shadow-custom border border-secondary-200"
+      "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex flex-col shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
       | List.wrap(@class)
     ]}>
-      <.collapsible
-        id={@id}
-        title={@title}
-        open={@open}
-        class="bg-white rounded-sm w-full lg:hidden"
-        label_class="h-12 p-2 border-b border-secondary-100"
-        chevron_class="text-primary-900"
-      >
-        <:label>
-          <.collapsible_section_label title={@title}>
+      <div class="pl-4 flex items-center h-12 p-2 border-b border-default-border">
+        <div class="flex justify-between items-center w-full">
+          <div class="font-medium text-sm"><%= @title %></div>
+          <div class="w-max">
             <%= render_slot(@right_panel) %>
-          </.collapsible_section_label>
-        </:label>
-        <.collapsible_section_content class={@inner_class}>
-          <%= render_slot(@inner_block) %>
-        </.collapsible_section_content>
-      </.collapsible>
-      <div class="hidden lg:flex flex-col w-full bg-white rounded-sm">
-        <div class="pl-4 flex items-center h-12 p-2 border-b border-secondary-100">
-          <.collapsible_section_label title={@title}>
-            <%= render_slot(@right_panel) %>
-          </.collapsible_section_label>
+          </div>
         </div>
-        <.collapsible_section_content class={@inner_class}>
-          <%= render_slot(@inner_block) %>
-        </.collapsible_section_content>
+      </div>
+      <div class={["w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@class)]}>
+        <%= render_slot(@inner_block) %>
       </div>
     </div>
     """
@@ -249,7 +208,7 @@ defmodule LiveDebugger.Components do
 
   attr(:variant, :string,
     default: "primary",
-    values: ["primary", "secondary", "tertiary"],
+    values: ["primary", "secondary"],
     doc: "Variant of the button."
   )
 
@@ -276,6 +235,25 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  attr(:icon, :string, required: true, doc: "Icon to be displayed.")
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
+
+  attr(:rest, :global, include: ~w(id))
+
+  def nav_icon(assigns) do
+    ~H"""
+    <button
+      class={[
+        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
+        | List.wrap(@class)
+      ]}
+      {@rest}
+    >
+      <.icon name={@icon} class="h-6 w-6" />
+    </button>
+    """
+  end
+
   attr(:rows, :list, default: [], doc: "Elements that will be displayed in the list")
   attr(:class, :any, default: nil, doc: "Additional classes.")
   attr(:on_row_click, :string, default: nil)
@@ -294,9 +272,11 @@ defmodule LiveDebugger.Components do
 
   def table(assigns) do
     ~H"""
-    <div class={["p-4 bg-white rounded shadow-custom border border-secondary-200" | List.wrap(@class)]}>
+    <div class={[
+      "p-4 bg-surface-0-bg rounded shadow-custom border border-default-border" | List.wrap(@class)
+    ]}>
       <table class="w-full">
-        <thead class="border-b border-secondary-200">
+        <thead class="border-b border-default-border">
           <tr class="h-11 mx-16">
             <th :for={col <- @column} class="first:pl-2 font-medium text-left">
               <%= Map.get(col, :label, "") %>
@@ -308,7 +288,7 @@ defmodule LiveDebugger.Components do
             :for={row <- @rows}
             phx-click={@on_row_click}
             phx-target={@row_click_target}
-            class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-secondary-50"}"}
+            class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-surface-1-bg"}"}
             {@row_attributes_fun.(row)}
           >
             <td :for={col <- @column} class={["first:pl-2" | List.wrap(Map.get(col, :class))]}>
@@ -343,14 +323,14 @@ defmodule LiveDebugger.Components do
     <div class={["flex flex-col gap-2" | List.wrap(@class)]}>
       <div
         :for={elem <- @elements}
-        class={"h-20 bg-white rounded shadow-custom border border-secondary-200 #{if @on_element_click, do: "cursor-pointer hover:bg-secondary-50"}"}
+        class={"h-20 bg-surface-0-bg rounded shadow-custom border border-default-border #{if @on_element_click, do: "cursor-pointer hover:bg-surface-1-bg"}"}
         phx-click={@on_element_click}
         phx-target={@element_click_target}
         {@element_attributes_fun.(elem)}
       >
         <div class="flex flex-col justify-center h-full p-4 gap-1">
           <p class="font-medium"><%= render_slot(@title, elem) %></p>
-          <p class="text-secondary-600">
+          <p class="text-secondary-text">
             <%= render_slot(@description, elem) %>
           </p>
         </div>
@@ -382,12 +362,12 @@ defmodule LiveDebugger.Components do
       id={@id}
       phx-hook="Fullscreen"
       class={[
-        "relative h-max w-full lg:w-max lg:min-w-[50rem] p-2 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
+        "relative h-max w-full lg:w-max lg:min-w-[50rem] bg-surface-0-bg p-2 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
       ]}
     >
-      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-secondary-100">
-        <div class="font-semibold text-base"><%= @title %></div>
+      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border">
+        <div class="font-semibold text-primary-text text-base"><%= @title %></div>
         <.icon_button
           id={"#{@id}-close"}
           phx-click={JS.dispatch("close", to: "##{@id}")}
@@ -499,9 +479,9 @@ defmodule LiveDebugger.Components do
 
   def badge(assigns) do
     ~H"""
-    <div class="py-1 px-1.5 w-max flex gap-0.5 border border-secondary-200 text-primary-900 text-3xs font-semibold rounded-xl items-center">
-      <.icon class="w-4 h-4 text-primary-900" name={@icon} />
-      <p><%= @text %></p>
+    <div class="py-1 px-1.5 w-max flex gap-0.5 bg-surface-0-bg border border-default-border text-3xs font-semibold rounded-xl items-center">
+      <.icon class="w-3 h-3 text-accent-icon" name={@icon} />
+      <p class="text-accent-text"><%= @text %></p>
     </div>
     """
   end
@@ -530,7 +510,7 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
-  Renders topbar with possible link to return to the main page.
+  Renders navbar with possible link to return to the main page.
   """
   attr(:return_link?, :boolean,
     required: true,
@@ -539,20 +519,41 @@ defmodule LiveDebugger.Components do
 
   slot(:inner_block)
 
-  def topbar(assigns) do
+  def navbar(assigns) do
     ~H"""
-    <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-primary-900 text-white text-sm font-topbar font-medium">
+    <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-navbar-bg text-navbar-logo border-b border-navbar-border">
       <.link :if={@return_link?} patch={Routes.live_views_dashboard()}>
-        <.icon_button icon="icon-arrow-left" size="md" />
+        <.nav_icon icon="icon-arrow-left" />
       </.link>
-      <span>LiveDebugger</span>
-      <%= @inner_block && render_slot(@inner_block) %>
+
+      <div class="grow flex items-center justify-between">
+        <div>
+          <.icon name="icon-logo-text" class="h-6 w-32" />
+        </div>
+        <div class="flex items-center">
+          <%= if LiveDebugger.Env.dev?() do %>
+            <.nav_icon
+              id="light-mode-switch"
+              class="dark:hidden"
+              icon="icon-moon"
+              phx-hook="ToggleTheme"
+            />
+            <.nav_icon
+              id="dark-mode-switch"
+              class="hidden dark:block"
+              icon="icon-sun"
+              phx-hook="ToggleTheme"
+            />
+          <% end %>
+          <%= @inner_block && render_slot(@inner_block) %>
+        </div>
+      </div>
     </div>
     """
   end
 
   attr(:class, :any, default: nil)
-  attr(:text, :string, default: "See any issue? Report it")
+  attr(:text, :string, default: "See any issues?")
 
   def report_issue(assigns) do
     assigns = assign(assigns, :report_issue_url, @report_issue_url)
@@ -564,50 +565,24 @@ defmodule LiveDebugger.Components do
     ]}>
       <div>
         <%= @text %>
-        <.link href={@report_issue_url} target="_blank" class="underline hover:text-gray-400">
-          here
+        <.link
+          href={@report_issue_url}
+          target="_blank"
+          class="text-link-primary hover:text-link-primary-hover"
+        >
+          Report it here
         </.link>
       </div>
     </div>
     """
   end
 
-  attr(:title, :string, required: true)
-
-  slot(:inner_block)
-
-  defp collapsible_section_label(assigns) do
-    ~H"""
-    <div class="flex justify-between items-center w-full">
-      <div class="font-medium text-sm"><%= @title %></div>
-      <div class="w-max">
-        <%= render_slot(@inner_block) %>
-      </div>
-    </div>
-    """
-  end
-
-  attr(:class, :any, default: nil)
-
-  slot(:inner_block, required: true)
-
-  defp collapsible_section_content(assigns) do
-    ~H"""
-    <div class={["w-full flex overflow-auto rounded-sm bg-white p-2" | List.wrap(@class)]}>
-      <%= render_slot(@inner_block) %>
-    </div>
-    """
-  end
-
-  attr(:variant, :string, required: true, values: ["danger", "success", "warning", "info"])
+  attr(:variant, :string, required: true, values: ["danger"])
 
   defp alert_icon(assigns) do
     {icon_name, icon_class} =
       case assigns.variant do
-        "danger" -> {"icon-x-circle", "text-danger-800"}
-        "success" -> {"icon-check-circle", "text-success-800"}
-        "warning" -> {"icon-exclamation-circle", "text-warning-800"}
-        "info" -> {"icon-information-circle", "text-info-800"}
+        "danger" -> {"icon-x-circle", "text-error-icon"}
       end
 
     assigns = assign(assigns, name: icon_name, class: icon_class)
@@ -620,13 +595,10 @@ defmodule LiveDebugger.Components do
   defp button_color_classes(variant) do
     case variant do
       "primary" ->
-        "bg-primary-900 text-white hover:bg-primary-950"
+        "bg-button-primary-bg text-button-primary-content hover:bg-button-primary-bg-hover hover:text-button-primary-content-hover"
 
       "secondary" ->
-        "bg-white text-primary-900 border border-secondary-200 hover:bg-secondary-100"
-
-      "tertiary" ->
-        "bg-transparent text-primary-900 border border-primary-900 hover:bg-secondary-50"
+        "bg-button-secondary-bg text-button-secondary-content border-button-secondary-border border hover:bg-button-secondary-bg-hover hover:text-button-secondary-content-hover hover:border-button-secondary-border-hover"
     end
   end
 

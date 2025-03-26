@@ -41,9 +41,9 @@ defmodule LiveDebugger.LiveComponents.DetailView do
             <.spinner size="md" />
           </div>
         </:loading>
-        <:failed :let={reason}>
-          <.alert variant="danger">
-            Failed to fetch node details: <%= inspect(reason) %>
+        <:failed>
+          <.alert variant="danger" with_icon heading="Failed to fetch node details">
+            Check logs for more
           </.alert>
         </:failed>
         <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
@@ -78,7 +78,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp info_section(assigns) do
     ~H"""
-    <.collapsible_section id="info" title={title(@node_type)}>
+    <.section id="info" title={title(@node_type)}>
       <:right_panel>
         <.badge :if={@node_type == :live_view and @nested?} text="Nested" icon="icon-nested" />
       </:right_panel>
@@ -86,7 +86,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
         <.info_row name="Module" value={inspect(@node.module)} />
         <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
       </div>
-    </.collapsible_section>
+    </.section>
     """
   end
 
@@ -116,7 +116,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
 
   defp assigns_section(assigns) do
     ~H"""
-    <.collapsible_section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
+    <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
       <:right_panel>
         <.fullscreen_button id="assigns-display-fullscreen" />
       </:right_panel>
@@ -127,7 +127,7 @@ defmodule LiveDebugger.LiveComponents.DetailView do
           level={1}
         />
       </div>
-    </.collapsible_section>
+    </.section>
     """
   end
 
