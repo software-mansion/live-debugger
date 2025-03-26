@@ -531,18 +531,20 @@ defmodule LiveDebugger.Components do
           <.icon name="icon-logo-text" class="h-6 w-32" />
         </div>
         <div class="flex items-center">
-          <.nav_icon
-            id="light-mode-switch"
-            class="dark:hidden"
-            icon="icon-moon"
-            phx-hook="ToggleTheme"
-          />
-          <.nav_icon
-            id="dark-mode-switch"
-            class="hidden dark:block"
-            icon="icon-sun"
-            phx-hook="ToggleTheme"
-          />
+          <%= if LiveDebugger.Env.dev?() do %>
+            <.nav_icon
+              id="light-mode-switch"
+              class="dark:hidden"
+              icon="icon-moon"
+              phx-hook="ToggleTheme"
+            />
+            <.nav_icon
+              id="dark-mode-switch"
+              class="hidden dark:block"
+              icon="icon-sun"
+              phx-hook="ToggleTheme"
+            />
+          <% end %>
           <%= @inner_block && render_slot(@inner_block) %>
         </div>
       </div>

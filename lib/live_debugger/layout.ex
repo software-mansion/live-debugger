@@ -45,7 +45,11 @@ defmodule LiveDebugger.Layout do
             },
           });
 
-          window.setTheme();
+          // Disable theme detection till we finish darkmode
+          <%= if LiveDebugger.Env.dev? do %>
+            window.setTheme();
+          <% end %>
+
           liveSocket.connect();
 
           window.liveSocket = liveSocket;
