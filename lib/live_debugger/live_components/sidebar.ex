@@ -75,7 +75,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def render(assigns) do
     ~H"""
     <div id="sidebar" class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border">
-      <div class="hidden sm:flex max-h-full flex-col w-80 gap-1 justify-between">
+      <div class="hidden sm:flex max-h-full flex-col w-72 md:w-80 gap-1 justify-between">
         <.sidebar_content
           pid={@pid}
           socket_id={@socket_id}

@@ -35,7 +35,7 @@ defmodule LiveDebugger.Components.Tree do
         <div class="shrink-0 font-medium text-secondary-text px-6 py-3"><%= @title %></div>
 
         <%= if Application.get_env(:live_debugger, :browser_features?) do %>
-          <label class="inline-flex items-center cursor-pointer px-6 py-3">
+          <label class="inline-flex items-center cursor-pointer pr-6 py-3">
             <span class="text-xs font-normal text-primary-text mx-2">Highlight</span>
             <input
               id="highlight-switch"
