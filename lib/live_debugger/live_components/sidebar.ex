@@ -179,37 +179,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     assign(socket, :hidden?, true)
   end
 
-  attr(:nested_lv_processes, :any, required: true)
-
-  defp nested_liveviews_links(assigns) do
-    ~H"""
-    <div class="w-full px-4 py-3 gap-3 flex flex-col border-b border-default-border">
-      <.async_result :let={nested_lv_processes} assign={@nested_lv_processes}>
-        <:loading>
-          <.spinner size="sm" class="m-auto" />
-        </:loading>
-        <p class="pl-2 shrink-0 font-medium text-secondary-text">Nested LiveViews</p>
-        <%= if Enum.empty?(nested_lv_processes) do %>
-          <p class="pl-7">No nested LiveViews</p>
-        <% else %>
-          <div class="pl-2 flex flex-col gap-1">
-            <.link
-              :for={process <- nested_lv_processes}
-              href={Routes.channel_dashboard(process.socket_id, process.transport_pid)}
-              class="w-full flex gap-1 text-primary-text"
-            >
-              <.icon name="icon-nested" class="w-4 h-4 shrink-0 text-link-primary" />
-              <p class="text-link-primary truncate">
-                <%= Parsers.module_to_string(process.module) %>
-              </p>
-            </.link>
-          </div>
-        <% end %>
-      </.async_result>
-    </div>
-    """
-  end
-
   attr(:pid, :any, required: true)
   attr(:socket_id, :string, required: true)
   attr(:parent_lv_process, :any, required: true)
@@ -235,17 +204,62 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         </div>
         <div :if={parent_lv_process} class="w-full flex flex-col">
           <span class="font-medium">Parent LiveView Process</span>
-          <.link
-            href={
-              Routes.channel_dashboard(parent_lv_process.socket_id, parent_lv_process.transport_pid)
-            }
-            class="text-link-primary hover:text-link-primary-hover truncate"
-          >
-            <%= Parsers.module_to_string(parent_lv_process.module) %>
-          </.link>
+          <.live_view_link lv_process={parent_lv_process} id="parent_live_view_link" icon?={false} />
         </div>
       </.async_result>
     </div>
+    """
+  end
+
+  attr(:nested_lv_processes, :any, required: true)
+
+  defp nested_liveviews_links(assigns) do
+    ~H"""
+    <div class="w-full px-4 py-3 gap-3 flex flex-col border-b border-default-border">
+      <.async_result :let={nested_lv_processes} assign={@nested_lv_processes}>
+        <:loading>
+          <.spinner size="sm" class="m-auto" />
+        </:loading>
+        <p class="pl-2 shrink-0 font-medium text-secondary-text">Nested LiveViews</p>
+        <%= if Enum.empty?(nested_lv_processes) do %>
+          <p class="pl-7">No nested LiveViews</p>
+        <% else %>
+          <div class="pl-2 flex flex-col gap-1">
+            <.live_view_link
+              :for={{nested_lv_process, index} <- Enum.with_index(nested_lv_processes)}
+              lv_process={nested_lv_process}
+              id={"nested_live_view_link_#{index}"}
+              icon?={true}
+            />
+          </div>
+        <% end %>
+      </.async_result>
+    </div>
+    """
+  end
+
+  attr(:lv_process, :any, required: true)
+  attr(:id, :string, required: true)
+  attr(:icon?, :boolean, default: false)
+
+  defp live_view_link(assigns) do
+    assigns = assign(assigns, :module_string, Parsers.module_to_string(assigns.lv_process.module))
+
+    ~H"""
+    <.link
+      href={Routes.channel_dashboard(@lv_process.socket_id, @lv_process.transport_pid)}
+      class="w-full flex gap-1 text-primary-text"
+    >
+      <.icon :if={@icon?} name="icon-nested" class="w-4 h-4 shrink-0 text-link-primary" />
+      <.tooltip
+        id={@id}
+        content={"#{@module_string} | #{@lv_process.socket_id} | #{Parsers.pid_to_string(@lv_process.pid)}"}
+      >
+        <p class="text-link-primary truncate">
+          <%= @module_string %>
+        </p>
+      </.tooltip>
+    </.link>
     """
   end
 
