@@ -9,7 +9,8 @@ on:
   push:
     branches: ["main"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "test-merge-queue-main"]
+  merge_group:
 
 permissions:
   contents: read
