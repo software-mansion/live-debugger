@@ -27,7 +27,7 @@ defmodule LiveDebugger.LiveViews.StateLive do
     assigns = assign(assigns, session: session)
 
     ~H"""
-    <%= live_render(@socket, __MODULE__, id: @id, session: @session, class: "w-full lg:w-1/2") %>
+    <%= live_render(@socket, __MODULE__, id: @id, session: @session) %>
     """
   end
 
