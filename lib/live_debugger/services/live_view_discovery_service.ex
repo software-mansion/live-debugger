@@ -58,6 +58,50 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   end
 
   @doc """
+  Groups LvProcesses by `transport_pid` and `root_pid`. To see map structure see examples.
+
+  ## Examples
+
+      iex> lv_processes = LiveDebugger.Services.LiveViewDiscoveryService.debugged_lv_processes()
+      iex> LiveDebugger.Services.LiveViewDiscoveryService.group_lv_processes(lv_processes)
+      %{
+        #<0.123.0> => {
+          %LiveDebugger.Structs.LvProcess{pid: #<0.223.0>} => [
+            %LiveDebugger.Structs.LvProcess{root_pid: #<0.223.0>},
+            %LiveDebugger.Structs.LvProcess{root_pid: #<0.223.0>}
+          ],
+        #<0.124.0> => [
+          %LiveDebugger.Structs.LvProcess{pid: #<0.224.0>} => [
+            %LiveDebugger.Structs.LvProcess{root_pid: #<0.224.0>},
+            %LiveDebugger.Structs.LvProcess{root_pid: #<0.224.0>}
+          ]
+        }
+      }
+
+
+  """
+  @spec group_lv_processes(lv_processes :: [LvProcess.t()]) :: %{
+          pid() => %{LvProcess.t() => [LvProcess.t()]}
+        }
+  def group_lv_processes(lv_processes) do
+    lv_processes
+    |> Enum.group_by(& &1.transport_pid)
+    |> Enum.map(fn {tpid, groupped_by_tpid} ->
+      groupped_by_tpid
+      |> Enum.group_by(& &1.root_pid)
+      |> Enum.map(fn {rpid, groupped_by_rpid} ->
+        root_lv_process = Enum.find(groupped_by_rpid, &(&1.root_pid == rpid))
+        rest = Enum.reject(groupped_by_rpid, &(&1.pid == rpid))
+
+        {root_lv_process, rest}
+      end)
+      |> Enum.into(%{})
+      |> then(&{tpid, &1})
+    end)
+    |> Enum.into(%{})
+  end
+
+  @doc """
   Returns all LiveView processes.
   """
   @spec lv_processes() :: [LvProcess.t()]

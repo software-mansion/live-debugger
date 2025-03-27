@@ -3,14 +3,11 @@ defmodule LiveDebuggerDev.LiveViews.Messages do
 
   def render(assigns) do
     ~H"""
-    <div class="p-5">
-      <.navbar />
-      <.box title="Messages [LiveView]" color="purple">
-        <div>
-          <.button phx-click="big-message" color="purple">Send big message</.button>
-        </div>
-      </.box>
-    </div>
+    <.box title="Messages [LiveView]" color="purple">
+      <div>
+        <.button phx-click="big-message" color="purple">Send big message</.button>
+      </div>
+    </.box>
     """
   end
 
