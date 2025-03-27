@@ -249,7 +249,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       variant="secondary"
       size="sm"
     >
-      <.icon name="icon-refresh" class="w-4 h-4 stroke-2" />
+      <.icon name="icon-refresh" class="w-4 h-4" />
       <div>Refresh</div>
     </.button>
     """
