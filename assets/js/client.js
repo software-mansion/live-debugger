@@ -129,4 +129,6 @@ document.addEventListener('DOMContentLoaded', function () {
   console.info(`LiveDebugger available at: ${URL}`);
 
   console.log('test merge queue');
+
+  console.log('test merge queue #2');
 });
