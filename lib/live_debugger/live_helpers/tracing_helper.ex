@@ -27,6 +27,11 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
     end
   end
 
+  @spec disable_tracing(Socket.t()) :: Socket.t()
+  def disable_tracing(socket) do
+    clear_tracing(socket)
+  end
+
   @doc """
   Checks if the fuse is blown and stops tracing if it is.
   It uses the `#{@assign_name}` assign to store information.
@@ -79,7 +84,7 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
     assign(socket, @assign_name, assigns)
   end
 
-  def clear_tracing(socket) do
+  defp clear_tracing(socket) do
     assigns = %{
       tracing_started?: false,
       fuse: nil

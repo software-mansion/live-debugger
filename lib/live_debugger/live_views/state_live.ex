@@ -84,6 +84,14 @@ defmodule LiveDebugger.LiveViews.StateLive do
     |> noreply()
   end
 
+  @impl true
+  def handle_info({:node_changed, node_id}, socket) do
+    socket
+    |> assign(node_id: node_id)
+    |> assign_async_node_with_type()
+    |> noreply()
+  end
+
   attr(:node, :any, required: true)
   attr(:node_type, :atom, required: true)
   attr(:nested?, :boolean, default: false)

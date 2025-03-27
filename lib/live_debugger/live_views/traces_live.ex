@@ -173,6 +173,15 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   @impl true
+  def handle_info({:node_changed, node_id}, socket) do
+    socket
+    |> TracingHelper.disable_tracing()
+    |> assign(node_id: node_id)
+    |> assign_async_existing_traces()
+    |> noreply()
+  end
+
+  @impl true
   def handle_event("switch-tracing", _, socket) do
     socket = TracingHelper.switch_tracing(socket)
 
