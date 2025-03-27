@@ -46,11 +46,13 @@ defmodule LiveDebugger.MixProject do
   defp deps do
     [
       {:phoenix_live_view, "~> 0.20 or ~> 1.0"},
+      {:igniter, "~> 0.5 and >= 0.5.40", optional: true},
       {:bandit, "~> 1.6", only: :dev},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:esbuild, "~> 0.7", only: :dev},
       {:tailwind, "~> 0.2", only: :dev},
       {:mox, "~> 1.2", only: :test},
+      {:phx_new, "~> 1.7", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.34", only: :dev, runtime: false}
     ]
