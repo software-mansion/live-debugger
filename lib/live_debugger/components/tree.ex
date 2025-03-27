@@ -33,21 +33,13 @@ defmodule LiveDebugger.Components.Tree do
     <div class={["w-full overflow-y-auto flex flex-col", @class]}>
       <div class="flex items-center justify-between">
         <div class="shrink-0 font-medium text-secondary-text px-6 py-3"><%= @title %></div>
-
         <%= if Application.get_env(:live_debugger, :browser_features?) do %>
-          <label class="inline-flex items-center cursor-pointer pr-6 py-3">
-            <span class="text-xs font-normal text-primary-text mx-2">Highlight</span>
-            <input
-              id="highlight-switch"
-              type="checkbox"
-              class="sr-only peer"
-              checked={@highlight?}
-              phx-target={@event_target}
-              phx-click="toggle-highlight"
-            />
-            <div class="relative w-9 h-5 bg-surface-2-bg-hover peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-button-primary-bg-hover rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-surface-0-bg after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-button-primary-bg ">
-            </div>
-          </label>
+          <.toggle_switch
+            label="Highlight"
+            checked={@highlight?}
+            phx-target={@event_target}
+            phx-click="toggle-highlight"
+          />
         <% end %>
       </div>
       <div class="w-full px-1 overflow-y-auto">
