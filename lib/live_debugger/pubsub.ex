@@ -2,38 +2,26 @@ defmodule LiveDebugger.Utils.PubSub do
   @moduledoc """
   This module provides helpers for LiveDebugger's PubSub.
   """
-
-  alias Phoenix.PubSub
   alias LiveDebugger.Structs.LvProcess
 
-  @type topic :: :new_trace | :node_changed
-
-  @doc """
-  Subscribes to the given topic.
-  """
-  @spec subscribe(LvProcess.t() | nil, topic()) :: :ok | {:error, term()}
-  def subscribe(nil, _topic), do: :ok
-
-  def subscribe(lv_process, topic) do
-    PubSub.subscribe(LiveDebugger.PubSub, topic(lv_process, topic))
+  @spec broadcast(topic :: String.t(), payload :: term()) :: :ok
+  def broadcast(topic, payload) do
+    Phoenix.PubSub.broadcast(LiveDebugger.PubSub, topic, payload)
   end
 
-  @doc """
-  Broadcasts a message to the given topic.
-  """
-  @spec broadcast(LvProcess.t() | nil, topic(), term()) :: :ok | {:error, term()}
-  def broadcast(nil, _topic, _payload), do: :ok
-
-  def broadcast(lv_process, topic, payload) do
-    PubSub.broadcast(LiveDebugger.PubSub, topic(lv_process, topic), payload)
+  @spec subscribe(topic :: String.t()) :: :ok
+  def subscribe(topic) do
+    Phoenix.PubSub.subscribe(LiveDebugger.PubSub, topic)
   end
 
-  defp topic(lv_process, :node_changed) do
-    "lvdbg/#{inspect(lv_process.transport_pid)}/#{lv_process.socket_id}/node_changed"
+  @spec node_changed_topic(socket_id :: String.t()) :: String.t()
+  def node_changed_topic(socket_id) do
+    "lvdbg/#{socket_id}/node_changed"
   end
 
   # FYI this topic is temporary, it will be replaced after the new tracing system is implemented
-  defp topic(lv_process, :new_trace) do
+  @spec new_trace_topic(lv_process :: LvProcess.t()) :: String.t()
+  def new_trace_topic(lv_process) do
     "lvdbg/#{inspect(lv_process.transport_pid)}/#{lv_process.socket_id}/new_trace"
   end
 end
