@@ -65,10 +65,10 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
 ## Igniter
 
 LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an alternative for standard mix installation. It'll automatically add LiveDebugger scripts to `root.html.heex` and enable browser features in your `config/dev.exs` after you use the below command.
+
 ```bash
 mix igniter.install live_debugger
 ```
-
 
 ## Optional configuration
 
