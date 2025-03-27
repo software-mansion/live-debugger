@@ -16,8 +16,9 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.LiveHelpers.Routes
 
-  @impl true
+  alias LiveDebugger.LiveViews.StateLive
 
+  @impl true
   def mount(params, _session, socket) do
     socket
     |> assign(:tracing_session, nil)
@@ -68,12 +69,23 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
             url={@url}
             node_id={@node_id}
           />
-          <.live_component
-            module={LiveDebugger.LiveComponents.DetailView}
-            id="detail_view"
-            lv_process={lv_process}
-            node_id={@node_id}
-          />
+
+          <div class="flex flex-col flex-1 h-full overflow-auto">
+            <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
+              <div class="w-full lg:w-1/2">
+                <StateLive.live_render
+                  id="node-state-lv"
+                  socket={@socket}
+                  lv_process={lv_process}
+                  node_id={@node_id || lv_process.pid}
+                />
+              </div>
+
+              <div class="w-full lg:w-1/2">
+                Traces list
+              </div>
+            </div>
+          </div>
         </div>
       </.async_result>
     </div>
