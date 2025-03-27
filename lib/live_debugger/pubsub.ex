@@ -11,7 +11,9 @@ defmodule LiveDebugger.Utils.PubSub do
   @doc """
   Subscribes to the given topic.
   """
-  @spec subscribe(LvProcess.t(), topic()) :: :ok | {:error, term()}
+  @spec subscribe(LvProcess.t() | nil, topic()) :: :ok | {:error, term()}
+  def subscribe(nil, _topic), do: :ok
+
   def subscribe(lv_process, topic) do
     PubSub.subscribe(LiveDebugger.PubSub, topic(lv_process, topic))
   end
@@ -19,7 +21,9 @@ defmodule LiveDebugger.Utils.PubSub do
   @doc """
   Broadcasts a message to the given topic.
   """
-  @spec broadcast(LvProcess.t(), topic(), term()) :: :ok | {:error, term()}
+  @spec broadcast(LvProcess.t() | nil, topic(), term()) :: :ok | {:error, term()}
+  def broadcast(nil, _topic, _payload), do: :ok
+
   def broadcast(lv_process, topic, payload) do
     PubSub.broadcast(LiveDebugger.PubSub, topic(lv_process, topic), payload)
   end
