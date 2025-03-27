@@ -1,56 +1,58 @@
-.theme-light {
-  /* General */
-  --main-bg: var(--slate-100);
-  --primary-text: var(--slate-900);
-  --accent-text: var(--swm-brand);
-  --secondary-text: var(--slate-600);
-  --link-primary: var(--swm-brand);
-  --link-primary-hover: var(--swm-brand-additional);
-  --default-border: var(--slate-200);
-  --surface-0-bg: var(--neutrals-white);
-  --surface-0-bg-hover: var(--slate-100);
-  --surface-1-bg: var(--slate-50);
-  --surface-1-bg-hover: var(--slate-100);
-  --surface-2-bg: var(--slate-100);
-  --surface-2-bg-hover: var(--slate-200);
+@layer utilities {
+  .theme-light {
+    /* General */
+    --main-bg: var(--slate-100);
+    --primary-text: var(--slate-900);
+    --accent-text: var(--swm-brand);
+    --secondary-text: var(--slate-600);
+    --link-primary: var(--swm-brand);
+    --link-primary-hover: var(--swm-brand-additional);
+    --default-border: var(--slate-200);
+    --surface-0-bg: var(--neutrals-white);
+    --surface-0-bg-hover: var(--slate-100);
+    --surface-1-bg: var(--slate-50);
+    --surface-1-bg-hover: var(--slate-100);
+    --surface-2-bg: var(--slate-100);
+    --surface-2-bg-hover: var(--slate-200);
 
-  /* Navbar */
-  --navbar-bg: var(--neutrals-white);
-  --navbar-border: var(--slate-200);
-  --navbar-icon: var(--swm-brand);
-  --navbar-icon-bg-hover: var(--slate-200);
-  --navbar-icon-hover: var(--swm-brand);
-  --navbar-logo: var(--swm-brand);
+    /* Navbar */
+    --navbar-bg: var(--neutrals-white);
+    --navbar-border: var(--slate-200);
+    --navbar-icon: var(--swm-brand);
+    --navbar-icon-bg-hover: var(--slate-200);
+    --navbar-icon-hover: var(--swm-brand);
+    --navbar-logo: var(--swm-brand);
 
-  /* Primary Button */
-  --button-primary-bg: var(--swm-brand);
-  --button-primary-bg-hover: var(--swm-brand-additional);
-  --button-primary-content: var(--neutrals-white);
-  --button-primary-content-hover: var(--neutrals-white);
+    /* Primary Button */
+    --button-primary-bg: var(--swm-brand);
+    --button-primary-bg-hover: var(--swm-brand-additional);
+    --button-primary-content: var(--neutrals-white);
+    --button-primary-content-hover: var(--neutrals-white);
 
-  /* Secondary Button */
-  --button-secondary-bg: var(--neutrals-white);
-  --button-secondary-bg-hover: var(--slate-100);
-  --button-secondary-border: var(--slate-200);
-  --button-secondary-border-hover: var(--slate-200);
-  --button-secondary-content: var(--swm-brand);
-  --button-secondary-content-hover: var(--swm-brand);
+    /* Secondary Button */
+    --button-secondary-bg: var(--neutrals-white);
+    --button-secondary-bg-hover: var(--slate-100);
+    --button-secondary-border: var(--slate-200);
+    --button-secondary-border-hover: var(--slate-200);
+    --button-secondary-content: var(--swm-brand);
+    --button-secondary-content-hover: var(--swm-brand);
 
-  /* Icons */
-  --accent-icon: var(--swm-brand);
+    /* Icons */
+    --accent-icon: var(--swm-brand);
 
-  /* Sidebar */
-  --sidebar-bg: var(--neutrals-white);
+    /* Sidebar */
+    --sidebar-bg: var(--neutrals-white);
 
-  /* Code */
-  --code-1: #2d2df7;
-  --code-2: #7a808c;
-  --code-3: #ec47f8;
-  --code-4: #4b8b38;
+    /* Code */
+    --code-1: #2d2df7;
+    --code-2: #7a808c;
+    --code-3: #ec47f8;
+    --code-4: #4b8b38;
 
-  /* Error */
-  --error-bg: var(--red-50);
-  --error-border: var(--red-100);
-  --error-icon: var(--red-500);
-  --error-text: var(--red-800);
+    /* Error */
+    --error-bg: var(--red-50);
+    --error-border: var(--red-100);
+    --error-icon: var(--red-500);
+    --error-text: var(--red-800);
+  }
 }

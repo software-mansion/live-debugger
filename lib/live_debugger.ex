@@ -11,7 +11,7 @@ defmodule LiveDebugger do
   @default_secret_key_base "DEFAULT_SECRET_KEY_BASE_1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcd"
   @default_signing_salt "live_debugger_signing_salt"
 
-  @assets_path "assets/client.js"
+  @assets_path "assets/live_debugger/client.js"
 
   def start(_type, _args) do
     config = Application.get_all_env(@app_name)

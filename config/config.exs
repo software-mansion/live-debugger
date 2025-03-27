@@ -8,19 +8,19 @@ if config_env() == :dev do
     version: "0.18.6",
     deploy_build: [
       args:
-        ~w(js/app.js js/client.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/),
+        ~w(js/hooks.js js/client.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/),
       cd: Path.expand("../assets", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ],
     dev_build: [
       args:
-        ~w(js/app.js js/client.js --bundle --sourcemap=external --target=es2020 --outdir=../priv/static/dev),
+        ~w(js/hooks.js js/client.js --bundle --sourcemap=external --target=es2020 --outdir=../priv/static/dev),
       cd: Path.expand("../assets", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ]
 
   config :tailwind,
-    version: "3.4.3",
+    version: "3.4.17",
     deploy_build: [
       args: ~w(
       --config=tailwind.config.js
