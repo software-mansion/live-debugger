@@ -1,4 +1,4 @@
-(()=>{var r=document.getElementById("live-debugger-scripts").src.replace("/assets/live_debugger/client.js","");document.addEventListener("DOMContentLoaded",function(){let d=document.querySelector("[data-phx-main]").id,s=`
+(()=>{window.getLiveDebuggerURL=function(){return document.getElementById("live-debugger-scripts").src.replace("/assets/live_debugger/client.js","")};window.getSessionId=function(){return document.querySelector("[data-phx-main]").id};document.addEventListener("DOMContentLoaded",function(){let n=getLiveDebuggerURL(),d=getSessionId(),s=`
       <div id="debug-button" style="
         position: fixed;
         height: 40px;
@@ -16,7 +16,7 @@
         bottom: 20px;
         right: 20px;
         cursor: grab;">
-        <a href="${r}/transport_pid/${d}" target="_blank">
+        <a href="${n}/transport_pid/${d}" target="_blank">
           <svg viewBox="0 0 24 24" width="24" height="24"  fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M22.0941 20.624C22.5697 20.624 22.9553 20.2385 22.9554 19.7628L22.9556 16.6568C22.9556 16.4283 22.8649 16.2093 22.7034 16.0477C22.5418 15.8862 22.3228 15.7955 22.0944 15.7955L18.3034 15.7955L18.3034 17.5179L21.2331 17.5179L21.2329 19.7627C21.2329 20.2384 21.6185 20.624 22.0941 20.624Z" fill="currentColor"/>
             <path fill-rule="evenodd" clip-rule="evenodd" d="M22.9823 12.9677C22.9823 12.4921 22.5968 12.1065 22.1211 12.1065L18.3034 12.1065V13.8289H22.1211C22.5968 13.8289 22.9823 13.4433 22.9823 12.9677Z" fill="currentColor"/>
@@ -28,4 +28,4 @@
           </svg>
         </a>
       </div>
-  `,l=document.createElement("div");l.innerHTML=s;let e=l.firstElementChild;document.body.appendChild(e);let o=!1,f=t=>{t.button!==0||t.ctrlKey||(t.preventDefault(),posXStart=t.clientX,posYStart=t.clientY,document.addEventListener("mousemove",n),document.addEventListener("mouseup",i),e.style.cursor="grabbing",o=!1)},n=t=>{!t.clientX||!t.clientY||(o=!0,posX=posXStart-t.clientX,posY=posYStart-t.clientY,posXStart=t.clientX,posYStart=t.clientY,e.style.top=`${e.offsetTop-posY}px`,e.style.left=`${e.offsetLeft-posX}px`)},i=()=>{document.removeEventListener("mousemove",n),document.removeEventListener("mouseup",i),e.style.cursor="grab",e.offsetTop<0&&(e.style.top=e.style.bottom),e.offsetTop+e.clientHeight>window.innerHeight&&(e.style.top=""),e.offsetLeft<0&&(e.style.left=e.style.right),e.offsetLeft+e.clientWidth>window.innerWidth&&(e.style.left="")},c=t=>{o&&(t.preventDefault(),o=!1)};window.addEventListener("resize",()=>{e.offsetLeft+e.clientWidth+Number.parseInt(e.style.right)>window.innerWidth&&(e.style.left=""),e.offsetTop+e.clientHeight+Number.parseInt(e.style.bottom)>window.innerHeight&&(e.style.top="")}),e.addEventListener("mousedown",f),e.addEventListener("click",c)});console.info(`LiveDebugger available at: ${r}`);})();
+  `,i=document.createElement("div");i.innerHTML=s;let e=i.firstElementChild;document.body.appendChild(e);let o=!1,u=t=>{t.button!==0||t.ctrlKey||(t.preventDefault(),posXStart=t.clientX,posYStart=t.clientY,document.addEventListener("mousemove",l),document.addEventListener("mouseup",r),e.style.cursor="grabbing",o=!1)},l=t=>{!t.clientX||!t.clientY||(o=!0,posX=posXStart-t.clientX,posY=posYStart-t.clientY,posXStart=t.clientX,posYStart=t.clientY,e.style.top=`${e.offsetTop-posY}px`,e.style.left=`${e.offsetLeft-posX}px`)},r=()=>{document.removeEventListener("mousemove",l),document.removeEventListener("mouseup",r),e.style.cursor="grab",e.offsetTop<0&&(e.style.top=e.style.bottom),e.offsetTop+e.clientHeight>window.innerHeight&&(e.style.top=""),e.offsetLeft<0&&(e.style.left=e.style.right),e.offsetLeft+e.clientWidth>window.innerWidth&&(e.style.left="")},f=t=>{o&&(t.preventDefault(),o=!1)};window.addEventListener("resize",()=>{e.offsetLeft+e.clientWidth+Number.parseInt(e.style.right)>window.innerWidth&&(e.style.left=""),e.offsetTop+e.clientHeight+Number.parseInt(e.style.bottom)>window.innerHeight&&(e.style.top="")}),e.addEventListener("mousedown",u),e.addEventListener("click",f),console.info(`LiveDebugger available at: ${n}`)});})();

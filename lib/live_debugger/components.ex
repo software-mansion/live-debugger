@@ -560,7 +560,7 @@ defmodule LiveDebugger.Components do
 
     ~H"""
     <div class={[
-      "px-6 py-3 flex justify-center gap-1 text-xs "
+      "px-6 py-3 flex gap-1 text-xs "
       | List.wrap(@class)
     ]}>
       <div>

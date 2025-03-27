@@ -5,5 +5,9 @@ defmodule LiveDebugger.Env do
 
   @env Mix.env()
 
+  # This is to avoid dialyzer warning
+  # Dialyzer uses :test as env always, and it gives a warning that == cannot be true
+  @dialyzer {:no_match, dev?: 0}
+
   def dev?(), do: @env == :dev
 end
