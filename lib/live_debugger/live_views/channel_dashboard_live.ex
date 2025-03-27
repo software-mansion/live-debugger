@@ -179,8 +179,16 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
            socket.assigns.lv_process.result.pid)
 
     if Trace.node_id(trace) == debugged_node_id do
-      lv_process = socket.assigns.lv_process.result
-      PubSubUtils.broadcast(lv_process, :new_trace, {:new_trace, trace})
+      socket.assigns.lv_process.result
+      |> case do
+        nil ->
+          :ok
+
+        lv_process ->
+          lv_process
+          |> PubSubUtils.new_trace_topic()
+          |> PubSubUtils.broadcast({:new_trace, trace})
+      end
     end
 
     send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", new_trace: trace})
@@ -204,8 +212,9 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   defp assign_node_id(socket, %{"node_id" => node_id}) do
     case TreeNode.id_from_string(node_id) do
       {:ok, id} ->
-        lv_process = socket.assigns.lv_process.result
-        PubSubUtils.broadcast(lv_process, :node_changed, {:node_changed, id})
+        socket.id
+        |> PubSubUtils.node_changed_topic()
+        |> PubSubUtils.broadcast({:node_changed, id})
 
         assign(socket, :node_id, id)
 

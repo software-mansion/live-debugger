@@ -28,7 +28,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     session = %{
       "lv_process" => assigns.lv_process,
       "node_id" => assigns.node_id,
-      "id" => assigns.id
+      "id" => assigns.id,
+      "parent_socket_id" => assigns.socket.id
     }
 
     assigns = assign(assigns, session: session)
@@ -41,10 +42,16 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   @impl true
   def mount(_params, session, socket) do
     lv_process = session["lv_process"]
+    parent_socket_id = session["parent_socket_id"]
 
     if connected?(socket) do
-      PubSubUtils.subscribe(lv_process, :node_changed)
-      PubSubUtils.subscribe(lv_process, :new_trace)
+      parent_socket_id
+      |> PubSubUtils.node_changed_topic()
+      |> PubSubUtils.subscribe()
+
+      lv_process
+      |> PubSubUtils.new_trace_topic()
+      |> PubSubUtils.subscribe()
     end
 
     socket
