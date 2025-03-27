@@ -71,7 +71,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
         <:right_panel>
           <div class="flex gap-2 items-center">
             <.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
-            <.refresh_button :if={not @tracing_helper.tracing_started?} myself={@myself} />
+            <.refresh_button :if={not @tracing_helper.tracing_started?} />
             <.button
               :if={not @tracing_helper.tracing_started?}
               variant="secondary"
@@ -264,8 +264,6 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     </.button>
     """
   end
-
-  attr(:myself, :any, required: true)
 
   defp refresh_button(assigns) do
     ~H"""
