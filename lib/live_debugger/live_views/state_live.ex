@@ -5,13 +5,13 @@ defmodule LiveDebugger.LiveViews.StateLive do
 
   use LiveDebuggerWeb, :live_view
 
-  alias Phoenix.PubSub
   alias Phoenix.LiveView.AsyncResult
 
   alias LiveDebugger.Components.ElixirDisplay
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
+  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -36,7 +36,8 @@ defmodule LiveDebugger.LiveViews.StateLive do
     lv_process = session["lv_process"]
 
     if connected?(socket) do
-      PubSub.subscribe(LiveDebugger.PubSub, node_changed_channel(lv_process))
+      PubSubUtils.subscribe(lv_process, :node_changed)
+      PubSubUtils.subscribe(lv_process, :new_trace)
     end
 
     socket
@@ -74,6 +75,13 @@ defmodule LiveDebugger.LiveViews.StateLive do
       </.async_result>
     </div>
     """
+  end
+
+  @impl true
+  def handle_info({:new_trace, _trace}, socket) do
+    socket
+    |> assign_async_node_with_type()
+    |> noreply()
   end
 
   attr(:node, :any, required: true)
@@ -156,8 +164,4 @@ defmodule LiveDebugger.LiveViews.StateLive do
 
   defp id_type(:live_component), do: "CID"
   defp id_type(:live_view), do: "PID"
-
-  defp node_changed_channel(lv_process) do
-    "lvdbg/#{inspect(lv_process.transport_pid)}/#{lv_process.socket_id}/node_changed"
-  end
 end

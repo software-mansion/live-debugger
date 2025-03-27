@@ -7,8 +7,6 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   require Logger
 
-  alias Phoenix.PubSub
-
   alias LiveDebugger.LiveHelpers.TracingHelper
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Components.ElixirDisplay
@@ -16,6 +14,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TraceDisplay
+  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   @stream_limit 128
   @separator %{id: "separator"}
@@ -44,7 +43,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     lv_process = session["lv_process"]
 
     if connected?(socket) do
-      PubSub.subscribe(LiveDebugger.PubSub, node_changed_channel(lv_process))
+      PubSubUtils.subscribe(lv_process, :node_changed)
+      PubSubUtils.subscribe(lv_process, :new_trace)
     end
 
     socket
@@ -154,6 +154,25 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   @impl true
+  def handle_info({:new_trace, trace}, socket) do
+    socket
+    |> TracingHelper.check_fuse()
+    |> case do
+      {:ok, socket} ->
+        trace_display = TraceDisplay.from_trace(trace)
+
+        socket
+        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @stream_limit)
+        |> assign(:traces_empty?, false)
+
+      {_, socket} ->
+        # Add disappearing flash here in case of :stopped. (Issue 173)
+        socket
+    end
+    |> noreply()
+  end
+
+  @impl true
   def handle_event("switch-tracing", _, socket) do
     socket = TracingHelper.switch_tracing(socket)
 
@@ -257,10 +276,6 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       </div>
     </div>
     """
-  end
-
-  defp node_changed_channel(lv_process) do
-    "lvdbg/#{inspect(lv_process.transport_pid)}/#{lv_process.socket_id}/node_changed"
   end
 
   attr(:id, :string, required: true)

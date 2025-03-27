@@ -18,6 +18,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
 
   alias LiveDebugger.LiveViews.StateLive
   alias LiveDebugger.LiveViews.TracesLive
+  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   @impl true
   def mount(params, _session, socket) do
@@ -178,8 +179,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
            socket.assigns.lv_process.result.pid)
 
     if Trace.node_id(trace) == debugged_node_id do
-      send_update(LiveDebugger.LiveComponents.TracesList, %{id: "trace-list", new_trace: trace})
-      send_update(LiveDebugger.LiveComponents.DetailView, %{id: "detail_view", new_trace: trace})
+      PubSubUtils.broadcast(socket.assigns.lv_process.result, :new_trace, {:new_trace, trace})
     end
 
     send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", new_trace: trace})
