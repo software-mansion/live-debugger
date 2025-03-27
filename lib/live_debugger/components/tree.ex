@@ -199,8 +199,7 @@ defmodule LiveDebugger.Components.Tree do
 
   defp short_name(module) when is_atom(module) do
     module
-    |> Atom.to_string()
-    |> String.split(".")
+    |> Module.split()
     |> List.last()
   end
 
