@@ -70,16 +70,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
               myself={@myself}
               tracing_started?={@tracing_helper.tracing_started?}
             />
-            <.button
-              :if={not @tracing_helper.tracing_started?}
-              phx-click="refresh-history"
-              phx-target={@myself}
-              class="flex gap-2"
-              variant="secondary"
-              size="sm"
-            >
-              Refresh
-            </.button>
+            <.refresh_button :if={not @tracing_helper.tracing_started?} myself={@myself} />
             <.button
               :if={not @tracing_helper.tracing_started?}
               variant="secondary"
@@ -243,6 +234,23 @@ defmodule LiveDebugger.LiveComponents.TracesList do
           <div>Start</div>
         <% end %>
       </div>
+    </.button>
+    """
+  end
+
+  attr(:myself, :any, required: true)
+
+  defp refresh_button(assigns) do
+    ~H"""
+    <.button
+      phx-click="refresh-history"
+      phx-target={@myself}
+      class="flex gap-2"
+      variant="secondary"
+      size="sm"
+    >
+      <.icon name="icon-refresh" class="w-4 h-4 stroke-2" />
+      <div>Refresh</div>
     </.button>
     """
   end
