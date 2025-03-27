@@ -17,6 +17,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   alias LiveDebugger.LiveHelpers.Routes
 
   alias LiveDebugger.LiveViews.StateLive
+  alias LiveDebugger.LiveViews.TracesLive
 
   @impl true
   def mount(params, _session, socket) do
@@ -82,7 +83,12 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
               </div>
 
               <div class="w-full lg:w-1/2">
-                Traces list
+                <TracesLive.live_render
+                  id="traces-list"
+                  socket={@socket}
+                  lv_process={lv_process}
+                  node_id={@node_id || lv_process.pid}
+                />
               </div>
             </div>
           </div>
