@@ -456,7 +456,7 @@ defmodule LiveDebugger.Components do
   def navbar(assigns) do
     ~H"""
     <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-navbar-bg text-navbar-logo border-b border-navbar-border">
-      <.link :if={@return_link?} patch={Routes.live_views_dashboard()}>
+      <.link :if={@return_link?} navigate={Routes.live_views_dashboard()}>
         <.nav_icon icon="icon-arrow-left" />
       </.link>
 
