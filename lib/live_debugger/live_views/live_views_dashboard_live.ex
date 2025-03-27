@@ -110,7 +110,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
     <div class="relative w-8 h-12">
       <div class="absolute top-0 right-2 w-1/4 h-1/2 border-b border-l-0 group-last:border-l border-default-border">
       </div>
-      <div class="group-last:hidden block absolute top-0 left-2 w-1/4 h-full border-r border-default-border">
+      <div class="group-last:hidden block absolute top-0 right-2 w-1/4 h-full border-l border-default-border">
       </div>
     </div>
     """

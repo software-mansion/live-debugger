@@ -6,7 +6,8 @@ defmodule LiveDebuggerDev.LiveViews.Embedded do
   def render(assigns) do
     ~H"""
     <.box title="Live Session [LiveView]" color="blue">
-      <%= live_render(@socket, LiveDebuggerDev.LiveViews.Simple, id: "live_session_inner") %>
+      <%= live_render(@socket, LiveDebuggerDev.LiveViews.Simple, id: "live_session_inner_1") %>
+      <%= live_render(@socket, LiveDebuggerDev.LiveViews.Simple, id: "live_session_inner_2") %>
     </.box>
     """
   end
