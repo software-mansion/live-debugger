@@ -5,6 +5,7 @@ defmodule LiveDebugger.Components.Tree do
 
   use LiveDebuggerWeb, :component
 
+  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode
 
   @max_node_number 20
@@ -179,7 +180,7 @@ defmodule LiveDebugger.Components.Tree do
       id: TreeNode.id(node),
       parsed_id: TreeNode.display_id(node),
       label: short_name(node.module),
-      tooltip: "#{Atom.to_string(node.module)}",
+      tooltip: Parsers.module_to_string(node.module),
       children: node.children,
       icon: "icon-screen"
     }
@@ -190,7 +191,7 @@ defmodule LiveDebugger.Components.Tree do
       id: TreeNode.id(node),
       parsed_id: TreeNode.display_id(node),
       label: "#{short_name(node.module)} (#{node.cid})",
-      tooltip: "#{Atom.to_string(node.module)} (#{node.cid})",
+      tooltip: "#{Parsers.module_to_string(node.module)} (#{node.cid})",
       children: node.children,
       icon: "icon-component"
     }

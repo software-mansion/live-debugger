@@ -44,4 +44,11 @@ defmodule LiveDebugger.Utils.Parsers do
       _ -> :error
     end
   end
+
+  @spec module_to_string(module :: module()) :: String.t()
+  def module_to_string(module) do
+    module
+    |> Module.split()
+    |> Enum.join(".")
+  end
 end

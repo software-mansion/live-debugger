@@ -127,7 +127,9 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
       <div class="flex flex-col gap-1">
         <div class="text-link-primary flex items-center gap-1">
           <.icon :if={not @lv_process.nested?} name="icon-liveview" class="w-4 h-4" />
-          <p class={if(not @lv_process.nested?, do: "font-medium")}><%= @lv_process.module %></p>
+          <p class={if(not @lv_process.nested?, do: "font-medium")}>
+            <%= Parsers.module_to_string(@lv_process.module) %>
+          </p>
         </div>
         <p class="text-secondary-text">
           <%= Parsers.pid_to_string(@lv_process.pid) %> &middot; <%= @lv_process.socket_id %>

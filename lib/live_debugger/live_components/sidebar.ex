@@ -7,6 +7,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   require Logger
 
+  alias LiveDebugger.Structs.LvProcess
+  alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
@@ -61,7 +63,8 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       pid: assigns.lv_process.pid,
       socket_id: assigns.lv_process.socket_id,
       node_id: assigns.node_id,
-      url: assigns.url
+      url: assigns.url,
+      lv_process: assigns.lv_process
     })
     |> assign_async_tree()
     |> assign_async_nested_lv_processes()
@@ -180,7 +183,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   defp nested_liveviews_links(assigns) do
     ~H"""
-    <div class="w-full px-4 py-3 flex flex-col border-b border-default-border">
+    <div class="w-full px-4 py-3 gap-3 flex flex-col border-b border-default-border">
       <.async_result :let={nested_lv_processes} assign={@nested_lv_processes}>
         <:loading>
           <.spinner size="sm" class="m-auto" />
@@ -189,14 +192,18 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         <%= if Enum.empty?(nested_lv_processes) do %>
           <p class="pl-7">No nested LiveViews</p>
         <% else %>
-          <.link
-            :for={process <- nested_lv_processes}
-            href={Routes.channel_dashboard(process.socket_id, process.transport_pid)}
-            class="px-6 py-3 text-primary-text"
-          >
-            <.icon name="icon-nested" class="w-4 h-4" />
-            <p><%= process.module %></p>
-          </.link>
+          <div class="pl-2 flex flex-col gap-1">
+            <.link
+              :for={process <- nested_lv_processes}
+              href={Routes.channel_dashboard(process.socket_id, process.transport_pid)}
+              class="w-full flex gap-1 text-primary-text"
+            >
+              <.icon name="icon-nested" class="w-4 h-4 shrink-0 text-link-primary" />
+              <p class="text-link-primary truncate">
+                <%= Parsers.module_to_string(process.module) %>
+              </p>
+            </.link>
+          </div>
         <% end %>
       </.async_result>
     </div>
@@ -232,9 +239,9 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
             href={
               Routes.channel_dashboard(parent_lv_process.socket_id, parent_lv_process.transport_pid)
             }
-            class="text-blue-500"
+            class="text-link-primary hover:text-link-primary-hover truncate"
           >
-            <%= Parsers.pid_to_string(parent_lv_process.pid) %>
+            <%= Parsers.module_to_string(parent_lv_process.module) %>
           </.link>
         </div>
       </.async_result>
@@ -295,16 +302,18 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   defp assign_async_nested_lv_processes(socket) do
+    pid = socket.assigns.pid
+
     assign_async(socket, :nested_lv_processes, fn ->
-      Process.sleep(1000)
-      {:ok, %{nested_lv_processes: []}}
+      {:ok, %{nested_lv_processes: LiveViewDiscoveryService.children_lv_processes(pid)}}
     end)
   end
 
   defp assign_async_parent_lv_process(socket) do
+    lv_process = socket.assigns.lv_process
+
     assign_async(socket, :parent_lv_process, fn ->
-      Process.sleep(1000)
-      {:ok, %{parent_lv_process: nil}}
+      {:ok, %{parent_lv_process: LvProcess.parent(lv_process)}}
     end)
   end
 
