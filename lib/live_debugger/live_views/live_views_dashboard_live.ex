@@ -52,9 +52,9 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
                 </div>
               <% else %>
                 <.tab_group
-                  :for={{transport_pid, lv_processes} <- groupped_lv_processes}
+                  :for={{transport_pid, groupped_lv_processes} <- groupped_lv_processes}
                   transport_pid={transport_pid}
-                  lv_processes={lv_processes}
+                  groupped_lv_processes={groupped_lv_processes}
                 />
               <% end %>
             </div>
@@ -74,11 +74,9 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
   end
 
   attr(:transport_pid, :any, required: true)
-  attr(:lv_processes, :list, required: true)
+  attr(:groupped_lv_processes, :list, required: true)
 
   defp tab_group(assigns) do
-    assigns = assign(assigns, :lv_processes_length, length(assigns.lv_processes))
-
     ~H"""
     <div class="w-full h-max flex flex-col shadow-custom rounded-sm bg-surface-2-bg border border-default-border">
       <div class="pl-4 p-3 flex items-center h-10 border-b border-default-border">
@@ -87,12 +85,19 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
         </p>
       </div>
       <div class="w-full flex bg-surface-0-bg">
-        <.list elements={Enum.with_index(@lv_processes)}>
-          <:item :let={{lv_process, index}}>
+        <.list elements={@groupped_lv_processes}>
+          <:item :let={{root_lv_process, lv_processes}}>
             <div class="flex items-center w-full">
-              <.nested_indent :if={lv_process.nested?} last?={index == @lv_processes_length} />
-              <.list_element lv_process={lv_process} />
+              <.list_element lv_process={root_lv_process} />
             </div>
+            <.list elements={lv_processes} item_class="group">
+              <:item :let={lv_process}>
+                <div class="flex items-center w-full">
+                  <.nested_indent />
+                  <.list_element lv_process={lv_process} />
+                </div>
+              </:item>
+            </.list>
           </:item>
         </.list>
       </div>
@@ -100,17 +105,12 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
     """
   end
 
-  attr(:last?, :boolean, required: true)
-
   defp nested_indent(assigns) do
     ~H"""
     <div class="relative w-8 h-12">
-      <div class={[
-        "absolute top-0 right-2 w-1/4 h-1/2 border-b border-default-border",
-        if(not @last?, do: "border-l")
-      ]}>
+      <div class="absolute top-0 right-2 w-1/4 h-1/2 border-b border-l-0 group-last:border-l border-default-border">
       </div>
-      <div :if={@last?} class="absolute top-0 left-2 w-1/4 h-full border-r border-default-border">
+      <div class="group-last:hidden block absolute top-0 left-2 w-1/4 h-full border-r border-default-border">
       </div>
     </div>
     """
@@ -152,25 +152,8 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
           fetch_lv_processes_after(1000)
         end
 
-      groupped_lv_processes =
-        lv_processes
-        |> Enum.group_by(& &1.transport_pid)
-        |> Enum.map(fn {transport_pid, lv_processes} ->
-          {transport_pid, sort_with_nested_by_root_pid(lv_processes)}
-        end)
-        |> Enum.sort_by(fn {transport_pid, _} -> transport_pid end)
-
-      {:ok, %{groupped_lv_processes: groupped_lv_processes}}
+      {:ok, %{groupped_lv_processes: LiveViewDiscoveryService.group_lv_processes(lv_processes)}}
     end)
-  end
-
-  defp sort_with_nested_by_root_pid(lv_processes) do
-    lv_processes
-    |> Enum.group_by(& &1.root_pid)
-    |> Enum.map(fn {root_pid, lv_processes} ->
-      {root_pid, Enum.sort(lv_processes, fn lvp1, _lvp2 -> lvp1.root_pid == lvp1.pid end)}
-    end)
-    |> Enum.flat_map(&elem(&1, 1))
   end
 
   defp fetch_lv_processes_after(milliseconds) do
