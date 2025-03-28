@@ -11,12 +11,14 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
   alias LiveDebugger.Services.ChannelService
+  alias Phoenix.Socket.Message
   alias LiveDebugger.Utils.URL
 
   @impl true
   def mount(socket) do
     socket
     |> hide_sidebar_side_over()
+    |> assign(:highlight?, false)
     |> ok()
   end
 
@@ -72,7 +74,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border">
+    <div id="sidebar" class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border">
       <div class="hidden sm:flex max-h-full flex-col w-72 md:w-80 gap-1 justify-between">
         <.sidebar_content
           pid={@pid}
@@ -81,6 +83,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           max_opened_node_level={@max_opened_node_level}
           node_id={@node_id}
           myself={@myself}
+          highlight?={@highlight?}
         />
         <.report_issue class="border-t border-default-border" />
       </div>
@@ -92,6 +95,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           max_opened_node_level={@max_opened_node_level}
           node_id={@node_id}
           myself={@myself}
+          highlight?={@highlight?}
         />
         <.report_issue class="border-t border-default-border" />
       </.sidebar_slide_over>
@@ -100,10 +104,42 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   @impl true
-  def handle_event("select_node", %{"node_id" => node_id}, socket) do
+  def handle_event("select_node", params, socket) do
+    %{"node_id" => node_id, "search_attribute" => attr, "search_value" => val} = params
+
+    if Application.get_env(:live_debugger, :browser_features?) do
+      if !socket.assigns.hidden? and socket.assigns.highlight? do
+        send_event(socket.assigns.pid, "highlight", %{attr: attr, val: val})
+      end
+
+      send_event(socket.assigns.pid, "pulse", %{attr: attr, val: val})
+    end
+
     socket
     |> push_patch(to: URL.upsert_query_param(socket.assigns.url, "node_id", node_id))
     |> hide_sidebar_side_over()
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("highlight", params, socket) do
+    if socket.assigns.highlight? do
+      %{"search_attribute" => attr, "search_value" => val} = params
+
+      send_event(socket.assigns.pid, "highlight", %{attr: attr, val: val})
+    end
+
+    noreply(socket)
+  end
+
+  @impl true
+  def handle_event("toggle-highlight", _, socket) do
+    if socket.assigns.highlight? do
+      send_event(socket.assigns.pid, "highlight")
+    end
+
+    socket
+    |> update(:highlight?, &(not &1))
     |> noreply()
   end
 
@@ -120,6 +156,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   attr(:node_id, :any, required: true)
   attr(:myself, :any, required: true)
   attr(:max_opened_node_level, :any, required: true)
+  attr(:highlight?, :boolean, required: true)
 
   defp sidebar_content(assigns) do
     ~H"""
@@ -130,6 +167,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         selected_node_id={@node_id}
         target={@myself}
         max_opened_node_level={@max_opened_node_level}
+        highlight?={@highlight?}
       />
     </div>
     """
@@ -190,6 +228,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   attr(:target, :any, required: true)
   attr(:max_opened_node_level, :any, required: true)
   attr(:selected_node_id, :string, default: nil)
+  attr(:highlight?, :boolean, required: true)
 
   defp component_tree(assigns) do
     ~H"""
@@ -200,6 +239,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       <:failed :let={_error}>
         <.alert variant="danger">Couldn't load a tree</.alert>
       </:failed>
+
       <Tree.tree
         :if={tree}
         title="Components Tree"
@@ -207,6 +247,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         tree_node={tree}
         event_target={@target}
         max_opened_node_level={@max_opened_node_level.result}
+        highlight?={@highlight?}
       />
     </.async_result>
     """
@@ -246,5 +287,18 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   defp handle_error(error, _, error_message) do
     Logger.error(error_message <> inspect(error))
     error
+  end
+
+  defp send_event(pid, event, payload \\ %{}) do
+    {:ok, state} = ChannelService.state(pid)
+
+    message = %Message{
+      topic: state.topic,
+      event: "diff",
+      payload: %{e: [[event, payload]]},
+      join_ref: state.join_ref
+    }
+
+    send(state.socket.transport_pid, state.serializer.encode!(message))
   end
 end

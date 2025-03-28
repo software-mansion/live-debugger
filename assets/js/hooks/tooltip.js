@@ -27,6 +27,7 @@ const Tooltip = {
       tooltipEl.style.display = 'none';
     };
     let tooltipEl = document.querySelector('#tooltip');
+    tooltipEl.style.pointerEvents = 'none';
     this.el.addEventListener('mouseenter', this.handleMouseEnter);
     this.el.addEventListener('mouseleave', this.handleMouseLeave);
   },

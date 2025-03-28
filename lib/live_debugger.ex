@@ -2,7 +2,6 @@ defmodule LiveDebugger do
   @moduledoc """
   Debugger for LiveView applications.
   """
-
   use Application
 
   @app_name :live_debugger

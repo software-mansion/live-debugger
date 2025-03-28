@@ -5,6 +5,7 @@ import CollapsibleOpen from './hooks/collapsible_open';
 import Fullscreen from './hooks/fullscreen';
 import ToggleTheme from './hooks/toggle_theme';
 import Tooltip from './hooks/tooltip';
+import Highlight from './hooks/highlight';
 import topbar from '../vendor/topbar';
 
 Alpine.start();
@@ -21,6 +22,7 @@ function createHooks() {
     Fullscreen,
     Tooltip,
     ToggleTheme,
+    Highlight,
   };
 }
 

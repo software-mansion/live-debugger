@@ -14,6 +14,9 @@
     --surface-1-bg-hover: var(--slate-100);
     --surface-2-bg: var(--slate-100);
     --surface-2-bg-hover: var(--slate-200);
+    --ui-surface: var(--neutrals-white);
+    --ui-muted: var(--slate-300);
+    --ui-accent: var(--swm-brand);
 
     /* Navbar */
     --navbar-bg: var(--neutrals-white);

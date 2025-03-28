@@ -20,6 +20,7 @@ defmodule LiveDebugger.Components.Tree do
   attr(:title, :string, required: true, doc: "The title of the tree")
   attr(:event_target, :any, required: true, doc: "The target for the click event")
   attr(:selected_node_id, :string, required: true, doc: "The id of the selected node")
+  attr(:highlight?, :boolean, default: false, doc: "The highlight flag")
   attr(:class, :string, default: nil, doc: "CSS class")
 
   attr(:max_opened_node_level, :integer,
@@ -30,7 +31,17 @@ defmodule LiveDebugger.Components.Tree do
   def tree(assigns) do
     ~H"""
     <div class={["w-full overflow-y-auto flex flex-col", @class]}>
-      <div class="shrink-0 font-medium text-secondary-text px-6 py-3"><%= @title %></div>
+      <div class="flex items-center justify-between">
+        <div class="shrink-0 font-medium text-secondary-text px-6 py-3"><%= @title %></div>
+        <%= if Application.get_env(:live_debugger, :browser_features?) and LiveDebugger.Env.dev? do %>
+          <.toggle_switch
+            label="Highlight"
+            checked={@highlight?}
+            phx-target={@event_target}
+            phx-click="toggle-highlight"
+          />
+        <% end %>
+      </div>
       <div class="w-full px-1 overflow-y-auto">
         <.tree_node
           tree_node={@tree_node}
@@ -139,9 +150,13 @@ defmodule LiveDebugger.Components.Tree do
 
     ~H"""
     <button
+      id={"tree_node_button_" <> @node.parsed_id}
       phx-click="select_node"
       phx-value-node_id={@node.parsed_id}
       phx-target={@event_target}
+      phx-value-search_attribute={get_search_attribute(@node)}
+      phx-value-search_value={get_search_value(@node)}
+      phx-hook="Highlight"
       class={[
         "flex w-full rounded-md hover:bg-surface-1-bg-hover",
         unless(@collapsible?, do: "p-1"),
@@ -168,6 +183,20 @@ defmodule LiveDebugger.Components.Tree do
     """
   end
 
+  defp get_search_value(node) do
+    case node.id do
+      %Phoenix.LiveComponent.CID{cid: cid} -> cid
+      pid when is_pid(pid) -> node.dom_id
+    end
+  end
+
+  defp get_search_attribute(node) do
+    case node.id do
+      %Phoenix.LiveComponent.CID{} -> "data-phx-component"
+      pid when is_pid(pid) -> "id"
+    end
+  end
+
   defp style_for_padding(level, collapsible?) do
     padding = (level + 1) * 0.5 + if(collapsible?, do: 0, else: 1.5)
 
@@ -176,6 +205,7 @@ defmodule LiveDebugger.Components.Tree do
 
   defp format_tree_node(%TreeNode.LiveView{} = node) do
     %{
+      dom_id: node.id,
       id: TreeNode.id(node),
       parsed_id: TreeNode.display_id(node),
       label: short_name(node.module),
