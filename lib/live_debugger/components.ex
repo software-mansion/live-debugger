@@ -5,8 +5,6 @@ defmodule LiveDebugger.Components do
 
   use Phoenix.Component
 
-  import LiveDebuggerWeb.Helpers
-
   alias Phoenix.LiveView.JS
   alias LiveDebugger.LiveHelpers.Routes
 
@@ -129,7 +127,6 @@ defmodule LiveDebugger.Components do
   attr(:title, :string, required: true)
   attr(:class, :any, default: nil)
   attr(:inner_class, :any, default: nil)
-  attr(:open, :boolean, default: true)
 
   slot(:right_panel)
   slot(:inner_block)
@@ -148,7 +145,9 @@ defmodule LiveDebugger.Components do
           </div>
         </div>
       </div>
-      <div class={["w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@class)]}>
+      <div class={[
+        "w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@inner_class)
+      ]}>
         <%= render_slot(@inner_block) %>
       </div>
     </div>
@@ -254,88 +253,25 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  attr(:rows, :list, default: [], doc: "Elements that will be displayed in the list")
-  attr(:class, :any, default: nil, doc: "Additional classes.")
-  attr(:on_row_click, :string, default: nil)
-  attr(:row_click_target, :any, default: nil)
-
-  attr(:row_attributes_fun, :any,
-    default: &empty_map/1,
-    doc: "Function to return HTML attributes for each row based on row data"
-  )
-
-  slot :column, doc: "Columns with column labels" do
-    attr(:label, :string, doc: "Column label")
-    # Default is not supported for slot arguments
-    attr(:class, :any)
-  end
-
-  def table(assigns) do
-    ~H"""
-    <div class={[
-      "p-4 bg-surface-0-bg rounded shadow-custom border border-default-border" | List.wrap(@class)
-    ]}>
-      <table class="w-full">
-        <thead class="border-b border-default-border">
-          <tr class="h-11 mx-16">
-            <th :for={col <- @column} class="first:pl-2 font-medium text-left">
-              <%= Map.get(col, :label, "") %>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            :for={row <- @rows}
-            phx-click={@on_row_click}
-            phx-target={@row_click_target}
-            class={"h-11 #{if @on_row_click, do: "cursor-pointer hover:bg-surface-1-bg"}"}
-            {@row_attributes_fun.(row)}
-          >
-            <td :for={col <- @column} class={["first:pl-2" | List.wrap(Map.get(col, :class))]}>
-              <%= render_slot(col, row) %>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    """
-  end
-
   attr(:elements, :list,
-    default: [],
-    doc: "List of maps with field `:title` and optional `:description`"
+    required: true,
+    doc: "Elements that will be displayed in the list's `item` slot."
   )
 
   attr(:class, :any, default: nil, doc: "Additional classes.")
-  attr(:on_element_click, :string, default: nil)
-  attr(:element_click_target, :any, default: nil)
+  attr(:item_class, :any, default: nil, doc: "Additional classes for each item.")
 
-  attr(:element_attributes_fun, :any,
-    default: &empty_map/1,
-    doc: "Function to return HTML attributes for each row based on row data"
-  )
-
-  slot(:title, required: true, doc: "Slot that describes how to access title from given map")
-  slot(:description, doc: "Slot that describes how to access description from given map")
+  slot(:item, required: true)
 
   def list(assigns) do
     ~H"""
-    <div class={["flex flex-col gap-2" | List.wrap(@class)]}>
-      <div
-        :for={elem <- @elements}
-        class={"h-20 bg-surface-0-bg rounded shadow-custom border border-default-border #{if @on_element_click, do: "cursor-pointer hover:bg-surface-1-bg"}"}
-        phx-click={@on_element_click}
-        phx-target={@element_click_target}
-        {@element_attributes_fun.(elem)}
-      >
-        <div class="flex flex-col justify-center h-full p-4 gap-1">
-          <p class="font-medium"><%= render_slot(@title, elem) %></p>
-          <p class="text-secondary-text">
-            <%= render_slot(@description, elem) %>
-          </p>
-        </div>
-      </div>
-    </div>
+    <ul class={[
+      "w-full flex flex-col overflow-auto p-2" | List.wrap(@class)
+    ]}>
+      <li :for={elem <- @elements} class={@item_class}>
+        <%= render_slot(@item, elem) %>
+      </li>
+    </ul>
     """
   end
 
@@ -390,7 +326,7 @@ defmodule LiveDebugger.Components do
   ## Examples
       <.fullscreen_button
         id="my-fullscreen"
-        on_click="open-fullscreen"
+        phx-click="open-fullscreen"
         icon="icon-expand"
       />
 
@@ -404,9 +340,6 @@ defmodule LiveDebugger.Components do
       end
   """
   attr(:id, :string, required: true, doc: "Same as `id` of the fullscreen.")
-  attr(:on_click, :any, default: nil)
-  attr(:on_click_target, :any, default: nil)
-  attr(:on_click_data, :any, default: nil)
   attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
   attr(:icon, :string,
@@ -414,18 +347,19 @@ defmodule LiveDebugger.Components do
     doc: "Icon to be displayed as a button"
   )
 
+  attr(:rest, :global)
+
   def fullscreen_button(assigns) do
     ~H"""
     <.icon_button
       id={"#{@id}-button"}
-      phx-click={@on_click || JS.dispatch("open", to: "##{@id}")}
-      phx-target={@on_click_target}
-      phx-value-data={@on_click_data}
+      phx-click={@rest[:"phx-click"] || JS.dispatch("open", to: "##{@id}")}
       icon={@icon}
       size="sm"
       data-fullscreen-id={@id}
       class={@class}
       variant="secondary"
+      {@rest}
     />
     """
   end
@@ -522,7 +456,7 @@ defmodule LiveDebugger.Components do
   def navbar(assigns) do
     ~H"""
     <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-navbar-bg text-navbar-logo border-b border-navbar-border">
-      <.link :if={@return_link?} patch={Routes.live_views_dashboard()}>
+      <.link :if={@return_link?} navigate={Routes.live_views_dashboard()}>
         <.nav_icon icon="icon-arrow-left" />
       </.link>
 

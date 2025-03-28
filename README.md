@@ -17,7 +17,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:live_debugger, "~> 0.1.2", only: :dev}
+      {:live_debugger, "~> 0.1.3", only: :dev}
     ]
   end
 ```
@@ -60,6 +60,14 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
   pipeline :browser do
     # ...
     plug :put_secure_browser_headers, %{"content-security-policy" => @csp}
+```
+
+## Igniter
+
+LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an alternative for standard mix installation. It'll automatically add LiveDebugger scripts to `root.html.heex` and enable browser features in your `config/dev.exs` after you use the below command.
+
+```bash
+mix igniter.install live_debugger
 ```
 
 ## Optional configuration

@@ -332,8 +332,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
         <.fullscreen_button
           id={"trace-fullscreen-#{@id}"}
           class="absolute right-2 top-2"
-          on_click="open-trace"
-          on_click_data={@trace.id}
+          phx-click="open-trace"
+          phx-value-data={@trace.id}
         />
 
         <%= if @render_body? do %>
