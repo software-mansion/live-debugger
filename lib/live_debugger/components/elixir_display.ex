@@ -33,7 +33,7 @@ defmodule LiveDebugger.Components.ElixirDisplay do
         open={@expanded?}
         icon="icon-chevron-right"
         label_class="max-w-max"
-        chevron_class="m-auto w-[2ch] h-[2ch]"
+        chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
       >
         <:label>
           <div class="flex items-center">

@@ -7,11 +7,14 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   require Logger
 
+  alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
+  alias LiveDebugger.Components.Links
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.URL
+  alias LiveDebugger.LiveComponents.NestedLiveViewsLinks
 
   @impl true
   def mount(socket) do
@@ -31,6 +34,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
         socket
         |> assign_async_tree()
+        |> update_nested_live_views_links()
         |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
 
       Trace.live_component_delete?(trace) ->
@@ -38,6 +42,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
         socket
         |> assign_async_tree()
+        |> update_nested_live_views_links()
         |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
 
       true ->
@@ -55,12 +60,12 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def update(assigns, socket) do
     socket
     |> assign(%{
-      pid: assigns.lv_process.pid,
-      socket_id: assigns.lv_process.socket_id,
+      lv_process: assigns.lv_process,
       node_id: assigns.node_id,
       url: assigns.url
     })
     |> assign_async_tree()
+    |> assign_async_parent_lv_process()
     |> assign_async_existing_node_ids()
     |> ok()
   end
@@ -75,23 +80,25 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     <div class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border">
       <div class="hidden sm:flex max-h-full flex-col w-72 md:w-80 gap-1 justify-between">
         <.sidebar_content
-          pid={@pid}
-          socket_id={@socket_id}
+          id="sidebar-content"
+          lv_process={@lv_process}
           tree={@tree}
           max_opened_node_level={@max_opened_node_level}
           node_id={@node_id}
           myself={@myself}
+          parent_lv_process={@parent_lv_process}
         />
         <.report_issue class="border-t border-default-border" />
       </div>
       <.sidebar_slide_over :if={not @hidden?} myself={@myself}>
         <.sidebar_content
-          pid={@pid}
-          socket_id={@socket_id}
+          id="sidebar-content-slide-over"
+          lv_process={@lv_process}
           tree={@tree}
           max_opened_node_level={@max_opened_node_level}
           node_id={@node_id}
           myself={@myself}
+          parent_lv_process={@parent_lv_process}
         />
         <.report_issue class="border-t border-default-border" />
       </.sidebar_slide_over>
@@ -114,17 +121,27 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     |> noreply()
   end
 
-  attr(:socket_id, :string, required: true)
-  attr(:pid, :any, required: true)
+  attr(:id, :string, required: true)
+  attr(:lv_process, LvProcess, required: true)
   attr(:tree, :any, required: true)
   attr(:node_id, :any, required: true)
   attr(:myself, :any, required: true)
   attr(:max_opened_node_level, :any, required: true)
+  attr(:parent_lv_process, :any, required: true)
 
   defp sidebar_content(assigns) do
     ~H"""
     <div class="flex flex-col max-h-full h-max">
-      <.basic_info pid={@pid} socket_id={@socket_id} />
+      <.basic_info
+        pid={@lv_process.pid}
+        socket_id={@lv_process.socket_id}
+        parent_lv_process={@parent_lv_process}
+      />
+      <.live_component
+        id={@id <> "-nested-live-views"}
+        module={NestedLiveViewsLinks}
+        lv_process={@lv_process}
+      />
       <.component_tree
         tree={@tree}
         selected_node_id={@node_id}
@@ -166,22 +183,32 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   attr(:pid, :any, required: true)
   attr(:socket_id, :string, required: true)
+  attr(:parent_lv_process, :any, required: true)
 
   defp basic_info(assigns) do
     ~H"""
     <div class="w-full p-6 shrink-0 flex flex-col gap-2 border-b border-default-border">
-      <div
-        :for={
-          {text, value} <- [
-            {"Monitored socket:", @socket_id},
-            {"Debugged PID:", Parsers.pid_to_string(@pid)}
-          ]
-        }
-        class="w-full flex flex-col"
-      >
-        <span class="font-medium"><%= text %></span>
-        <span><%= value %></span>
-      </div>
+      <.async_result :let={parent_lv_process} assign={@parent_lv_process}>
+        <:loading>
+          <div class="w-full h-30 flex justify-center items-center"><.spinner size="sm" /></div>
+        </:loading>
+        <div
+          :for={
+            {text, value} <- [
+              {"Monitored socket:", @socket_id},
+              {"Debugged PID:", Parsers.pid_to_string(@pid)}
+            ]
+          }
+          class="w-full flex flex-col"
+        >
+          <span class="font-medium"><%= text %></span>
+          <span><%= value %></span>
+        </div>
+        <div :if={parent_lv_process} class="w-full flex flex-col">
+          <span class="font-medium">Parent LiveView Process</span>
+          <Links.live_view lv_process={parent_lv_process} id="parent-live-view-link" />
+        </div>
+      </.async_result>
     </div>
     """
   end
@@ -212,8 +239,19 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     """
   end
 
+  defp update_nested_live_views_links(socket) do
+    for id <- [
+          "sidebar-content-nested-live-views",
+          "sidebar-content-slide-over-nested-live-views"
+        ] do
+      send_update(NestedLiveViewsLinks, id: id, refresh: true)
+    end
+
+    socket
+  end
+
   defp assign_async_existing_node_ids(socket) do
-    pid = socket.assigns.pid
+    pid = socket.assigns.lv_process.pid
 
     assign_async(socket, :existing_node_ids, fn ->
       with {:ok, channel_state} <- ChannelService.state(pid),
@@ -226,7 +264,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   defp assign_async_tree(socket) do
-    pid = socket.assigns.pid
+    pid = socket.assigns.lv_process.pid
 
     assign_async(socket, [:tree, :max_opened_node_level], fn ->
       with {:ok, channel_state} <- ChannelService.state(pid),
@@ -235,6 +273,14 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       else
         error -> handle_error(error, pid, "Failed to build tree: ")
       end
+    end)
+  end
+
+  defp assign_async_parent_lv_process(socket) do
+    lv_process = socket.assigns.lv_process
+
+    assign_async(socket, :parent_lv_process, fn ->
+      {:ok, %{parent_lv_process: LvProcess.parent(lv_process)}}
     end)
   end
 
