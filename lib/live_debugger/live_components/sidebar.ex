@@ -8,13 +8,13 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   require Logger
 
   alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Components.Tree
+  alias LiveDebugger.Components.Links
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.URL
-  alias LiveDebugger.LiveHelpers.Routes
+  alias LiveDebugger.LiveComponents.NestedLiveViewsLinks
 
   @impl true
   def mount(socket) do
@@ -34,7 +34,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
         socket
         |> assign_async_tree()
-        |> assign_async_nested_lv_processes()
+        |> update_nested_live_views_links()
         |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
 
       Trace.live_component_delete?(trace) ->
@@ -42,7 +42,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
         socket
         |> assign_async_tree()
-        |> assign_async_nested_lv_processes()
+        |> update_nested_live_views_links()
         |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
 
       true ->
@@ -60,14 +60,11 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   def update(assigns, socket) do
     socket
     |> assign(%{
-      pid: assigns.lv_process.pid,
-      socket_id: assigns.lv_process.socket_id,
+      lv_process: assigns.lv_process,
       node_id: assigns.node_id,
-      url: assigns.url,
-      lv_process: assigns.lv_process
+      url: assigns.url
     })
     |> assign_async_tree()
-    |> assign_async_nested_lv_processes()
     |> assign_async_parent_lv_process()
     |> assign_async_existing_node_ids()
     |> ok()
@@ -83,27 +80,25 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     <div class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border">
       <div class="hidden sm:flex max-h-full flex-col w-72 md:w-80 gap-1 justify-between">
         <.sidebar_content
-          pid={@pid}
-          socket_id={@socket_id}
+          id="sidebar-content"
+          lv_process={@lv_process}
           tree={@tree}
           max_opened_node_level={@max_opened_node_level}
           node_id={@node_id}
           myself={@myself}
           parent_lv_process={@parent_lv_process}
-          nested_lv_processes={@nested_lv_processes}
         />
         <.report_issue class="border-t border-default-border" />
       </div>
       <.sidebar_slide_over :if={not @hidden?} myself={@myself}>
         <.sidebar_content
-          pid={@pid}
-          socket_id={@socket_id}
+          id="sidebar-content-slide-over"
+          lv_process={@lv_process}
           tree={@tree}
           max_opened_node_level={@max_opened_node_level}
           node_id={@node_id}
           myself={@myself}
           parent_lv_process={@parent_lv_process}
-          nested_lv_processes={@nested_lv_processes}
         />
         <.report_issue class="border-t border-default-border" />
       </.sidebar_slide_over>
@@ -126,20 +121,27 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     |> noreply()
   end
 
-  attr(:socket_id, :string, required: true)
-  attr(:pid, :any, required: true)
+  attr(:id, :string, required: true)
+  attr(:lv_process, LvProcess, required: true)
   attr(:tree, :any, required: true)
   attr(:node_id, :any, required: true)
   attr(:myself, :any, required: true)
   attr(:max_opened_node_level, :any, required: true)
   attr(:parent_lv_process, :any, required: true)
-  attr(:nested_lv_processes, :any, required: true)
 
   defp sidebar_content(assigns) do
     ~H"""
     <div class="flex flex-col max-h-full h-max">
-      <.basic_info pid={@pid} socket_id={@socket_id} parent_lv_process={@parent_lv_process} />
-      <.nested_live_views_links nested_lv_processes={@nested_lv_processes} />
+      <.basic_info
+        pid={@lv_process.pid}
+        socket_id={@lv_process.socket_id}
+        parent_lv_process={@parent_lv_process}
+      />
+      <.live_component
+        id={@id <> "-nested-live-views"}
+        module={NestedLiveViewsLinks}
+        lv_process={@lv_process}
+      />
       <.component_tree
         tree={@tree}
         selected_node_id={@node_id}
@@ -204,77 +206,10 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         </div>
         <div :if={parent_lv_process} class="w-full flex flex-col">
           <span class="font-medium">Parent LiveView Process</span>
-          <.live_view_link lv_process={parent_lv_process} id="parent_live_view_link" icon?={false} />
+          <Links.live_view lv_process={parent_lv_process} id="parent_live_view_link" />
         </div>
       </.async_result>
     </div>
-    """
-  end
-
-  attr(:nested_lv_processes, :any, required: true)
-
-  defp nested_live_views_links(assigns) do
-    ~H"""
-    <div class="w-full px-4 py-3 gap-3 flex flex-col border-b border-default-border">
-      <.async_result :let={nested_lv_processes} assign={@nested_lv_processes}>
-        <:loading>
-          <.spinner size="sm" class="m-auto" />
-        </:loading>
-        <.nested_live_views_links_label nested_lv_processes={nested_lv_processes} />
-        <%= unless Enum.empty?(nested_lv_processes) do %>
-          <div class="pl-2 flex flex-col gap-1">
-            <.live_view_link
-              :for={{nested_lv_process, index} <- Enum.with_index(nested_lv_processes)}
-              lv_process={nested_lv_process}
-              id={"nested_live_view_link_#{index}"}
-              icon?={true}
-            />
-          </div>
-        <% end %>
-      </.async_result>
-    </div>
-    """
-  end
-
-  attr(:nested_lv_processes, :any, required: true)
-
-  defp nested_live_views_links_label(assigns) do
-    label =
-      if Enum.empty?(assigns.nested_lv_processes) do
-        "No nested LiveViews"
-      else
-        "Nested LiveViews"
-      end
-
-    assigns = assign(assigns, :label, label)
-
-    ~H"""
-    <p class="pl-2 shrink-0 font-medium text-secondary-text"><%= @label %></p>
-    """
-  end
-
-  attr(:lv_process, :any, required: true)
-  attr(:id, :string, required: true)
-  attr(:icon?, :boolean, default: false)
-
-  defp live_view_link(assigns) do
-    assigns = assign(assigns, :module_string, Parsers.module_to_string(assigns.lv_process.module))
-
-    ~H"""
-    <.link
-      href={Routes.channel_dashboard(@lv_process.socket_id, @lv_process.transport_pid)}
-      class="w-full flex gap-1 text-primary-text"
-    >
-      <.icon :if={@icon?} name="icon-nested" class="w-4 h-4 shrink-0 text-link-primary" />
-      <.tooltip
-        id={@id}
-        content={"#{@module_string} | #{@lv_process.socket_id} | #{Parsers.pid_to_string(@lv_process.pid)}"}
-      >
-        <p class="text-link-primary truncate">
-          <%= @module_string %>
-        </p>
-      </.tooltip>
-    </.link>
     """
   end
 
@@ -304,8 +239,19 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     """
   end
 
+  defp update_nested_live_views_links(socket) do
+    for id <- [
+          "sidebar-content-nested-live-views",
+          "sidebar-content-slide-over-nested-live-views"
+        ] do
+      send_update(NestedLiveViewsLinks, id: id, refresh: true)
+    end
+
+    socket
+  end
+
   defp assign_async_existing_node_ids(socket) do
-    pid = socket.assigns.pid
+    pid = socket.assigns.lv_process.pid
 
     assign_async(socket, :existing_node_ids, fn ->
       with {:ok, channel_state} <- ChannelService.state(pid),
@@ -318,7 +264,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   defp assign_async_tree(socket) do
-    pid = socket.assigns.pid
+    pid = socket.assigns.lv_process.pid
 
     assign_async(socket, [:tree, :max_opened_node_level], fn ->
       with {:ok, channel_state} <- ChannelService.state(pid),
@@ -327,14 +273,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       else
         error -> handle_error(error, pid, "Failed to build tree: ")
       end
-    end)
-  end
-
-  defp assign_async_nested_lv_processes(socket) do
-    pid = socket.assigns.pid
-
-    assign_async(socket, :nested_lv_processes, fn ->
-      {:ok, %{nested_lv_processes: LiveViewDiscoveryService.children_lv_processes(pid)}}
     end)
   end
 
