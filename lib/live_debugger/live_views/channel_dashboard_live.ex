@@ -16,8 +16,11 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.LiveHelpers.Routes
 
-  @impl true
+  alias LiveDebugger.LiveViews.StateLive
+  alias LiveDebugger.LiveViews.TracesLive
+  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
+  @impl true
   def mount(params, _session, socket) do
     socket
     |> assign(:tracing_session, nil)
@@ -68,12 +71,28 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
             url={@url}
             node_id={@node_id}
           />
-          <.live_component
-            module={LiveDebugger.LiveComponents.DetailView}
-            id="detail_view"
-            lv_process={lv_process}
-            node_id={@node_id}
-          />
+
+          <div class="flex flex-col flex-1 h-full overflow-auto">
+            <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
+              <div class="w-full lg:w-1/2">
+                <StateLive.live_render
+                  id="node-state-lv"
+                  socket={@socket}
+                  lv_process={lv_process}
+                  node_id={@node_id || lv_process.pid}
+                />
+              </div>
+
+              <div class="w-full lg:w-1/2">
+                <TracesLive.live_render
+                  id="traces-list"
+                  socket={@socket}
+                  lv_process={lv_process}
+                  node_id={@node_id || lv_process.pid}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </.async_result>
     </div>
@@ -160,8 +179,16 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
            socket.assigns.lv_process.result.pid)
 
     if Trace.node_id(trace) == debugged_node_id do
-      send_update(LiveDebugger.LiveComponents.TracesList, %{id: "trace-list", new_trace: trace})
-      send_update(LiveDebugger.LiveComponents.DetailView, %{id: "detail_view", new_trace: trace})
+      socket.assigns.lv_process.result
+      |> case do
+        nil ->
+          :ok
+
+        lv_process ->
+          lv_process
+          |> PubSubUtils.new_trace_topic()
+          |> PubSubUtils.broadcast({:new_trace, trace})
+      end
     end
 
     send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", new_trace: trace})
@@ -185,6 +212,10 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   defp assign_node_id(socket, %{"node_id" => node_id}) do
     case TreeNode.id_from_string(node_id) do
       {:ok, id} ->
+        socket.id
+        |> PubSubUtils.node_changed_topic()
+        |> PubSubUtils.broadcast({:node_changed, id})
+
         assign(socket, :node_id, id)
 
       :error ->
