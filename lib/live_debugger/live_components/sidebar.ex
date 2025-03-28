@@ -139,7 +139,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     ~H"""
     <div class="flex flex-col max-h-full h-max">
       <.basic_info pid={@pid} socket_id={@socket_id} parent_lv_process={@parent_lv_process} />
-      <.nested_liveviews_links nested_lv_processes={@nested_lv_processes} />
+      <.nested_live_views_links nested_lv_processes={@nested_lv_processes} />
       <.component_tree
         tree={@tree}
         selected_node_id={@node_id}
@@ -213,17 +213,15 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   attr(:nested_lv_processes, :any, required: true)
 
-  defp nested_liveviews_links(assigns) do
+  defp nested_live_views_links(assigns) do
     ~H"""
     <div class="w-full px-4 py-3 gap-3 flex flex-col border-b border-default-border">
       <.async_result :let={nested_lv_processes} assign={@nested_lv_processes}>
         <:loading>
           <.spinner size="sm" class="m-auto" />
         </:loading>
-        <p class="pl-2 shrink-0 font-medium text-secondary-text">Nested LiveViews</p>
-        <%= if Enum.empty?(nested_lv_processes) do %>
-          <p class="pl-7">No nested LiveViews</p>
-        <% else %>
+        <.nested_live_views_links_label nested_lv_processes={nested_lv_processes} />
+        <%= unless Enum.empty?(nested_lv_processes) do %>
           <div class="pl-2 flex flex-col gap-1">
             <.live_view_link
               :for={{nested_lv_process, index} <- Enum.with_index(nested_lv_processes)}
@@ -235,6 +233,23 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         <% end %>
       </.async_result>
     </div>
+    """
+  end
+
+  attr(:nested_lv_processes, :any, required: true)
+
+  defp nested_live_views_links_label(assigns) do
+    label =
+      if Enum.empty?(assigns.nested_lv_processes) do
+        "No nested LiveViews"
+      else
+        "Nested LiveViews"
+      end
+
+    assigns = assign(assigns, :label, label)
+
+    ~H"""
+    <p class="pl-2 shrink-0 font-medium text-secondary-text"><%= @label %></p>
     """
   end
 
