@@ -579,6 +579,8 @@ defmodule LiveDebugger.Components do
 
   @doc """
   Renders a switch component.
+
+  Based on [Tailwind CSS Toggle - Flowbite](https://flowbite.com/docs/forms/toggle)
   """
   attr(:checked, :boolean, default: false, doc: "Whether the switch is checked.")
   attr(:label, :string, default: "", doc: "Label for the switch.")
