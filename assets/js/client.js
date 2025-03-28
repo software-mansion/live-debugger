@@ -160,27 +160,26 @@ document.addEventListener('DOMContentLoaded', function () {
   const highlightPulseElementID = 'live-debugger-highlight-pulse-element';
   let activeElement;
 
-  window.addEventListener('phx:highlight', (msg) => {
+  window.addEventListener('phx:highlight', ({ detail }) => {
     let highlightElement = document.getElementById(highlightElementID);
 
     if (highlightElement) {
       highlightElement.remove();
-      if (
-        msg.detail.val === undefined ||
-        highlightElement.dataset.val === msg.detail.val
-      ) {
+
+      const toClear = detail.attr === undefined || detail.val === undefined;
+      const sameElement = highlightElement.dataset.val === detail.val;
+
+      if (toClear || sameElement) {
         return;
       }
     }
 
-    activeElement = document.querySelector(
-      `[${msg.detail.attr}="${msg.detail.val}"]`
-    );
+    activeElement = document.querySelector(`[${detail.attr}="${detail.val}"]`);
 
     if (isElementVisible(activeElement)) {
       highlightElement = createHighlightElement(
         activeElement,
-        msg.detail,
+        detail,
         highlightElementID
       );
       document.body.appendChild(highlightElement);
@@ -190,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('resize', () => {
     const highlight = document.getElementById(highlightElementID);
     if (highlight) {
-      const activeElement = document.querySelector(
+      activeElement = document.querySelector(
         `[${highlight.dataset.attr}="${highlight.dataset.val}"]`
       );
       const rect = activeElement.getBoundingClientRect();
@@ -202,15 +201,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  window.addEventListener('phx:pulse', (msg) => {
-    activeElement = document.querySelector(
-      `[${msg.detail.attr}="${msg.detail.val}"]`
-    );
+  window.addEventListener('phx:pulse', ({ detail }) => {
+    activeElement = document.querySelector(`[${detail.attr}="${detail.val}"]`);
 
     if (isElementVisible(activeElement)) {
       const highlightPulse = createHighlightElement(
         activeElement,
-        msg.detail,
+        detail,
         highlightPulseElementID
       );
 
