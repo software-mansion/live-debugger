@@ -1,7 +1,7 @@
 function getLiveDebuggerSessionURL() {
   return new Promise((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval(
-      "`${getLiveDebuggerURL()}/transport_pid/${getSessionId()}`",
+      "getLiveDebuggerURL()",
       (result, isException) => {
         if (isException) {
           reject(isException);
