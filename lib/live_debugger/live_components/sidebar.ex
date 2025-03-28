@@ -124,7 +124,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   @impl true
   def handle_event("highlight", params, socket) do
     if socket.assigns.highlight? do
-      %{"search_attribute" => attr, "search_value" => val} = params
+      %{"search-attribute" => attr, "search-value" => val} = params
 
       send_event(socket.assigns.pid, "highlight", %{attr: attr, val: val})
     end

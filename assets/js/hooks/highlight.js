@@ -8,8 +8,8 @@ const Highlight = {
         const attr = e.target.attributes;
 
         params = {
-          search_attribute: attr['phx-value-search-attribute'].value,
-          search_value: attr['phx-value-search-value'].value,
+          'search-attribute': attr['phx-value-search-attribute'].value,
+          'search-value': attr['phx-value-search-value'].value,
         };
 
         this.pushEventTo('#sidebar', 'highlight', params);
