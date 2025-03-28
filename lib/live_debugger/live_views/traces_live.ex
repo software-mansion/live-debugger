@@ -1,9 +1,9 @@
-defmodule LiveDebugger.LiveComponents.TracesList do
+defmodule LiveDebugger.LiveViews.TracesLive do
   @moduledoc """
-  This module provides a LiveComponent to display traces.
+  This nested live view displays the traces of a LiveView.
   """
 
-  use LiveDebuggerWeb, :live_component
+  use LiveDebuggerWeb, :live_view
 
   require Logger
 
@@ -14,49 +14,60 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TraceDisplay
+  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   @stream_limit 128
   @separator %{id: "separator"}
 
+  attr(:socket, :map, required: true)
+  attr(:id, :string, required: true)
+  attr(:lv_process, :map, required: true)
+  attr(:node_id, :string, required: true)
+
+  def live_render(assigns) do
+    session = %{
+      "lv_process" => assigns.lv_process,
+      "node_id" => assigns.node_id,
+      "id" => assigns.id,
+      "parent_socket_id" => assigns.socket.id
+    }
+
+    assigns = assign(assigns, session: session)
+
+    ~H"""
+    <%= live_render(@socket, __MODULE__, id: @id, session: @session) %>
+    """
+  end
+
   @impl true
-  def mount(socket) do
+  def mount(_params, session, socket) do
+    lv_process = session["lv_process"]
+    parent_socket_id = session["parent_socket_id"]
+
+    if connected?(socket) do
+      parent_socket_id
+      |> PubSubUtils.node_changed_topic()
+      |> PubSubUtils.subscribe()
+
+      lv_process
+      |> PubSubUtils.new_trace_topic()
+      |> PubSubUtils.subscribe()
+    end
+
     socket
     |> assign(:displayed_trace, nil)
-    |> ok()
-  end
-
-  @impl true
-  def update(%{new_trace: trace}, socket) do
-    socket
-    |> TracingHelper.check_fuse()
-    |> case do
-      {:ok, socket} ->
-        trace_display = TraceDisplay.from_trace(trace)
-
-        socket
-        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @stream_limit)
-        |> assign(:traces_empty?, false)
-
-      {_, socket} ->
-        # Add disappearing flash here in case of :stopped. (Issue 173)
-        socket
-    end
-    |> ok()
-  end
-
-  def update(assigns, socket) do
-    socket
     |> TracingHelper.init()
-    |> assign(:traces_empty?, true)
-    |> assign(debugged_node_id: assigns.debugged_node_id)
-    |> assign(id: assigns.id)
-    |> assign(ets_table_id: TraceService.ets_table_id(assigns.socket_id))
+    |> assign(traces_empty?: true)
+    |> assign(node_id: session["node_id"])
+    |> assign(id: session["id"])
+    |> assign(ets_table_id: TraceService.ets_table_id(lv_process.socket_id))
+    |> assign(lv_process: lv_process)
     |> assign_async_existing_traces()
     |> ok()
   end
 
   attr(:id, :string, required: true)
-  attr(:debugged_node_id, :map, required: true)
+  attr(:node_id, :map, required: true)
   attr(:socket_id, :string, required: true)
 
   @impl true
@@ -66,17 +77,13 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       <.section title="Callback traces" id="traces" inner_class="p-4">
         <:right_panel>
           <div class="flex gap-2 items-center">
-            <.toggle_tracing_button
-              myself={@myself}
-              tracing_started?={@tracing_helper.tracing_started?}
-            />
-            <.refresh_button :if={not @tracing_helper.tracing_started?} myself={@myself} />
+            <.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
+            <.refresh_button :if={not @tracing_helper.tracing_started?} />
             <.button
               :if={not @tracing_helper.tracing_started?}
               variant="secondary"
               size="sm"
               phx-click="clear-traces"
-              phx-target={@myself}
             >
               Clear
             </.button>
@@ -107,7 +114,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
               <%= if wrapped_trace.id == "separator" do %>
                 <.separator id={dom_id} />
               <% else %>
-                <.trace id={dom_id} wrapped_trace={wrapped_trace} myself={@myself} />
+                <.trace id={dom_id} wrapped_trace={wrapped_trace} />
               <% end %>
             <% end %>
           </div>
@@ -146,6 +153,34 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   @impl true
+  def handle_info({:new_trace, trace}, socket) do
+    socket
+    |> TracingHelper.check_fuse()
+    |> case do
+      {:ok, socket} ->
+        trace_display = TraceDisplay.from_trace(trace)
+
+        socket
+        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @stream_limit)
+        |> assign(:traces_empty?, false)
+
+      {_, socket} ->
+        # Add disappearing flash here in case of :stopped. (Issue 173)
+        socket
+    end
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info({:node_changed, node_id}, socket) do
+    socket
+    |> TracingHelper.disable_tracing()
+    |> assign(node_id: node_id)
+    |> assign_async_existing_traces()
+    |> noreply()
+  end
+
+  @impl true
   def handle_event("switch-tracing", _, socket) do
     socket = TracingHelper.switch_tracing(socket)
 
@@ -162,7 +197,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   @impl true
   def handle_event("clear-traces", _, socket) do
     ets_table_id = socket.assigns.ets_table_id
-    node_id = socket.assigns.debugged_node_id
+    node_id = socket.assigns.node_id
 
     TraceService.clear_traces(ets_table_id, node_id)
 
@@ -220,11 +255,10 @@ defmodule LiveDebugger.LiveComponents.TracesList do
   end
 
   attr(:tracing_started?, :boolean, required: true)
-  attr(:myself, :any, required: true)
 
   defp toggle_tracing_button(assigns) do
     ~H"""
-    <.button phx-click="switch-tracing" phx-target={@myself} class="flex gap-2" size="sm">
+    <.button phx-click="switch-tracing" class="flex gap-2" size="sm">
       <div class="flex gap-1.5 items-center w-12">
         <%= if @tracing_started? do %>
           <.icon name="icon-stop" class="w-4 h-4" />
@@ -238,17 +272,9 @@ defmodule LiveDebugger.LiveComponents.TracesList do
     """
   end
 
-  attr(:myself, :any, required: true)
-
   defp refresh_button(assigns) do
     ~H"""
-    <.button
-      phx-click="refresh-history"
-      phx-target={@myself}
-      class="flex gap-2"
-      variant="secondary"
-      size="sm"
-    >
+    <.button phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
       <.icon name="icon-refresh" class="w-4 h-4" />
       <div>Refresh</div>
     </.button>
@@ -271,7 +297,6 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   attr(:id, :string, required: true)
   attr(:wrapped_trace, :map, required: true, doc: "The Trace to render")
-  attr(:myself, :any, required: true)
 
   defp trace(assigns) do
     assigns =
@@ -288,7 +313,6 @@ defmodule LiveDebugger.LiveComponents.TracesList do
       class="max-w-full border border-default-border rounded"
       label_class="font-semibold bg-surface-1-bg h-10 p-2"
       phx-click={if(@render_body?, do: nil, else: "toggle-collapsible")}
-      phx-target={@myself}
       phx-value-trace-id={@trace.id}
     >
       <:label>
@@ -308,9 +332,8 @@ defmodule LiveDebugger.LiveComponents.TracesList do
         <.fullscreen_button
           id={"trace-fullscreen-#{@id}"}
           class="absolute right-2 top-2"
-          on_click="open-trace"
-          on_click_target={@myself}
-          on_click_data={@trace.id}
+          phx-click="open-trace"
+          phx-value-data={@trace.id}
         />
 
         <%= if @render_body? do %>
@@ -375,7 +398,7 @@ defmodule LiveDebugger.LiveComponents.TracesList do
 
   defp assign_async_existing_traces(socket) do
     ets_table_id = socket.assigns.ets_table_id
-    node_id = socket.assigns.debugged_node_id
+    node_id = socket.assigns.node_id
 
     socket
     |> assign(:existing_traces_status, :loading)

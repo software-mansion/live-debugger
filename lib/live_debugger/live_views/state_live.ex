@@ -1,75 +1,102 @@
-defmodule LiveDebugger.LiveComponents.DetailView do
+defmodule LiveDebugger.LiveViews.StateLive do
   @moduledoc """
-  This module is responsible for rendering the detail view of the TreeNode.
+  This nested live view displays the state of a LiveView.
   """
 
-  use LiveDebuggerWeb, :live_component
+  use LiveDebuggerWeb, :live_view
 
-  alias LiveDebugger.Structs.TreeNode
   alias Phoenix.LiveView.AsyncResult
+
+  alias LiveDebugger.Components.ElixirDisplay
+  alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
-  alias LiveDebugger.Components.ElixirDisplay
+  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+
+  attr(:socket, :map, required: true)
+  attr(:id, :string, required: true)
+  attr(:lv_process, :map, required: true)
+  attr(:node_id, :string, required: true)
+
+  def live_render(assigns) do
+    session = %{
+      "lv_process" => assigns.lv_process,
+      "node_id" => assigns.node_id,
+      "parent_socket_id" => assigns.socket.id
+    }
+
+    assigns = assign(assigns, session: session)
+
+    ~H"""
+    <%= live_render(@socket, __MODULE__, id: @id, session: @session) %>
+    """
+  end
 
   @impl true
-  def update(%{new_trace: _new_trace}, socket) do
+  def mount(_params, session, socket) do
+    lv_process = session["lv_process"]
+    parent_socket_id = session["parent_socket_id"]
+
+    if connected?(socket) do
+      parent_socket_id
+      |> PubSubUtils.node_changed_topic()
+      |> PubSubUtils.subscribe()
+
+      lv_process
+      |> PubSubUtils.new_trace_topic()
+      |> PubSubUtils.subscribe()
+    end
+
     socket
+    |> assign(node_id: session["node_id"])
+    |> assign(lv_process: lv_process)
     |> assign_async_node_with_type()
     |> ok()
   end
-
-  def update(assigns, socket) do
-    socket
-    |> assign(%{
-      node_id: assigns.node_id || assigns.lv_process.pid,
-      lv_process: assigns.lv_process
-    })
-    |> assign_async_node_with_type()
-    |> ok()
-  end
-
-  attr(:node_id, :any, required: true)
-  attr(:lv_process, :any, required: true)
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col flex-1 h-full overflow-auto">
+    <div class="flex flex-col gap-4 lg:items-end">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
-            <.spinner size="md" />
+            <.spinner size="sm" />
           </div>
         </:loading>
         <:failed>
-          <.alert variant="danger" with_icon heading="Failed to fetch node details">
+          <.alert class="w-full" variant="danger" with_icon heading="Error while fetching node state">
             Check logs for more
           </.alert>
         </:failed>
-        <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
-          <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:items-end">
-            <.info_section node={node} node_type={@node_type.result} nested?={@lv_process.nested?} />
-            <.assigns_section assigns={node.assigns} />
-            <.fullscreen id="assigns-display-fullscreen" title="Assigns">
-              <ElixirDisplay.term
-                id="assigns-display-fullscreen-term"
-                node={TermParser.term_to_display_tree(node.assigns)}
-                level={1}
-              />
-            </.fullscreen>
-          </div>
-          <div class="w-full lg:w-1/2">
-            <.live_component
-              id="trace-list"
-              module={LiveDebugger.LiveComponents.TracesList}
-              debugged_node_id={@node_id}
-              socket_id={@lv_process.socket_id}
-            />
-          </div>
-        </div>
+
+        <.info_section node={node} node_type={@node_type.result} nested?={@lv_process.nested?} />
+        <.assigns_section assigns={node.assigns} />
+        <.fullscreen id="assigns-display-fullscreen" title="Assigns">
+          <ElixirDisplay.term
+            id="assigns-display-fullscreen-term"
+            node={TermParser.term_to_display_tree(node.assigns)}
+            level={1}
+          />
+        </.fullscreen>
       </.async_result>
     </div>
     """
+  end
+
+  @impl true
+  def handle_info({:new_trace, _trace}, socket) do
+    socket
+    |> assign_async_node_with_type()
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info({:node_changed, node_id}, socket) do
+    socket
+    |> assign(node_id: node_id)
+    |> assign_async_node_with_type()
+    |> noreply()
   end
 
   attr(:node, :any, required: true)
@@ -105,12 +132,6 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     </div>
     """
   end
-
-  defp title(:live_component), do: "LiveComponent"
-  defp title(:live_view), do: "LiveView"
-
-  defp id_type(:live_component), do: "CID"
-  defp id_type(:live_view), do: "PID"
 
   attr(:assigns, :list, required: true)
 
@@ -152,4 +173,10 @@ defmodule LiveDebugger.LiveComponents.DetailView do
     |> assign(:node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
     |> assign(:node_type, AsyncResult.failed(%AsyncResult{}, :no_node_id))
   end
+
+  defp title(:live_component), do: "LiveComponent"
+  defp title(:live_view), do: "LiveView"
+
+  defp id_type(:live_component), do: "CID"
+  defp id_type(:live_view), do: "PID"
 end

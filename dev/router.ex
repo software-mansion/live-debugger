@@ -16,5 +16,7 @@ defmodule LiveDebuggerDev.Router do
     live("/side", LiveDebuggerDev.LiveViews.Side)
     live("/nested", LiveDebuggerDev.LiveViews.Nested)
     live("/messages", LiveDebuggerDev.LiveViews.Messages)
+    live("/embedded", LiveDebuggerDev.LiveViews.Embedded)
+    get("/embedded_in_controller", LiveDebuggerDev.EmbeddedLiveViewController, :embedded)
   end
 end

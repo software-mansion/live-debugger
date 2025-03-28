@@ -16,12 +16,9 @@ defmodule LiveDebuggerDev.LiveViews.Side do
 
   def render(assigns) do
     ~H"""
-    <div class="p-5">
-      <.navbar />
-      <.box title="Side [LiveView]" color="green">
-        <div></div>
-      </.box>
-    </div>
+    <.box title="Side [LiveView]" color="green">
+      <div></div>
+    </.box>
     """
   end
 

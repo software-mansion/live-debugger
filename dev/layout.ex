@@ -1,6 +1,8 @@
 defmodule LiveDebuggerDev.Layout do
   use Phoenix.Component
 
+  import LiveDebuggerDev.Components
+
   @doc false
   def render(template, assigns)
 
@@ -74,7 +76,24 @@ defmodule LiveDebuggerDev.Layout do
 
   def render("app.html", assigns) do
     ~H"""
-    <main>
+    <main class="p-5">
+      <.navbar />
+      <%= @inner_content %>
+    </main>
+    """
+  end
+
+  def render("embedded.html", assigns) do
+    ~H"""
+    <main class="p-5">
+      <.navbar />
+      <.box title="Embedded Live View [LiveView]" color="purple">
+        <%= live_render(@socket, LiveDebuggerDev.LiveViews.Nested,
+          id: "embedded_with_nested",
+          session: %{},
+          sticky: true
+        ) %>
+      </.box>
       <%= @inner_content %>
     </main>
     """
