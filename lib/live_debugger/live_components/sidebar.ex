@@ -206,7 +206,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         </div>
         <div :if={parent_lv_process} class="w-full flex flex-col">
           <span class="font-medium">Parent LiveView Process</span>
-          <Links.live_view lv_process={parent_lv_process} id="parent_live_view_link" />
+          <Links.live_view lv_process={parent_lv_process} id="parent-live-view-link" />
         </div>
       </.async_result>
     </div>

@@ -48,7 +48,7 @@ defmodule LiveDebugger.LiveComponents.NestedLiveViewsLinks do
     """
   end
 
-  attr(:nested_lv_processes, :any, required: true)
+  attr(:nested_lv_processes, :list, required: true)
 
   defp nested_live_views_links_label(assigns) do
     label =
