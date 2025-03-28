@@ -105,7 +105,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   @impl true
   def handle_event("select_node", params, socket) do
-    %{"node_id" => node_id, "search_attribute" => attr, "search_value" => val} = params
+    %{"node_id" => node_id, "search-attribute" => attr, "search-value" => val} = params
 
     if Application.get_env(:live_debugger, :browser_features?) do
       if !socket.assigns.hidden? and socket.assigns.highlight? do

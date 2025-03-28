@@ -154,8 +154,8 @@ defmodule LiveDebugger.Components.Tree do
       phx-click="select_node"
       phx-value-node_id={@node.parsed_id}
       phx-target={@event_target}
-      phx-value-search_attribute={get_search_attribute(@node)}
-      phx-value-search_value={get_search_value(@node)}
+      phx-value-search-attribute={get_search_attribute(@node)}
+      phx-value-search-value={get_search_value(@node)}
       phx-hook="Highlight"
       class={[
         "flex w-full rounded-md hover:bg-surface-1-bg-hover",

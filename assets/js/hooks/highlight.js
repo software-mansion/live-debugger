@@ -5,11 +5,13 @@ const Highlight = {
 
     this.pushHighlight = (e) => {
       if (highlightSwitch.checked) {
+        const attr = e.target.attributes;
+
         params = {
-          search_attribute:
-            e.target.attributes['phx-value-search_attribute'].value,
-          search_value: e.target.attributes['phx-value-search_value'].value,
+          search_attribute: attr['phx-value-search-attribute'].value,
+          search_value: attr['phx-value-search-value'].value,
         };
+
         this.pushEventTo('#sidebar', 'highlight', params);
       }
     };
