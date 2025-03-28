@@ -134,6 +134,10 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
 
   @impl true
   def handle_event("toggle-highlight", _, socket) do
+    if socket.assigns.highlight? do
+      send_event(socket.assigns.pid, "highlight")
+    end
+
     socket
     |> update(:highlight?, &(not &1))
     |> noreply()
@@ -285,7 +289,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     error
   end
 
-  defp send_event(pid, event, payload) do
+  defp send_event(pid, event, payload \\ %{}) do
     {:ok, state} = ChannelService.state(pid)
 
     message = %Message{

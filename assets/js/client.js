@@ -165,7 +165,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (highlightElement) {
       highlightElement.remove();
-      if (highlightElement.dataset.val === msg.detail.val) {
+      if (
+        msg.detail.val === undefined ||
+        highlightElement.dataset.val === msg.detail.val
+      ) {
         return;
       }
     }
