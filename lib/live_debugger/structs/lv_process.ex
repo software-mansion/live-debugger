@@ -9,6 +9,7 @@ defmodule LiveDebugger.Structs.LvProcess do
   defstruct [
     :socket_id,
     :root_pid,
+    :parent_pid,
     :pid,
     :transport_pid,
     :module,
@@ -20,6 +21,7 @@ defmodule LiveDebugger.Structs.LvProcess do
   @type t() :: %__MODULE__{
           socket_id: String.t(),
           root_pid: pid(),
+          parent_pid: pid() | nil,
           pid: pid(),
           transport_pid: pid(),
           module: module(),
@@ -43,6 +45,7 @@ defmodule LiveDebugger.Structs.LvProcess do
       socket_id: socket.id,
       root_pid: socket.root_pid,
       pid: pid,
+      parent_pid: socket.parent_pid,
       transport_pid: socket.transport_pid,
       module: socket.view,
       nested?: nested?,
@@ -64,4 +67,11 @@ defmodule LiveDebugger.Structs.LvProcess do
         nil
     end
   end
+
+  @doc """
+  Returns the parent LvProcess of the given `lv_process`.
+  """
+  @spec parent(lv_process :: t()) :: t() | nil
+  def parent(%__MODULE__{parent_pid: nil}), do: nil
+  def parent(%__MODULE__{parent_pid: parent_pid}), do: new(parent_pid)
 end

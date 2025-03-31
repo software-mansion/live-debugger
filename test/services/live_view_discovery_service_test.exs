@@ -111,4 +111,63 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       assert LiveViewDiscoveryService.lv_process(socket_id) == nil
     end
   end
+
+  describe "children_lv_processes/1" do
+    test "returns children LvProcesses of the given pid" do
+      parent_pid = :c.pid(0, 0, 1)
+      child_pid_1 = :c.pid(0, 1, 0)
+      child_pid_2 = :c.pid(0, 2, 0)
+
+      module = :"Elixir.SomeLiveView"
+
+      MockProcessService
+      |> stub(:list, fn -> [parent_pid, child_pid_1, child_pid_2] end)
+      |> stub(:initial_call, fn _ -> {module, :mount} end)
+      |> stub(:state, fn pid ->
+        if pid == parent_pid do
+          {:ok, Fakes.state(root_pid: parent_pid, module: module, parent_pid: nil)}
+        else
+          {:ok, Fakes.state(root_pid: parent_pid, module: module, parent_pid: parent_pid)}
+        end
+      end)
+
+      assert [
+               %LvProcess{pid: ^child_pid_1},
+               %LvProcess{pid: ^child_pid_2}
+             ] = LiveViewDiscoveryService.children_lv_processes(parent_pid)
+    end
+
+    test "returns children of children for given pid" do
+      parent_pid = :c.pid(0, 0, 1)
+      child_pid_1 = :c.pid(0, 1, 0)
+      child_pid_2 = :c.pid(0, 2, 0)
+      grandchild_pid = :c.pid(0, 3, 0)
+
+      module = :"Elixir.SomeLiveView"
+
+      MockProcessService
+      |> stub(:list, fn -> [parent_pid, child_pid_1, child_pid_2, grandchild_pid] end)
+      |> stub(:initial_call, fn _ -> {module, :mount} end)
+      |> stub(:state, fn pid ->
+        case pid do
+          ^parent_pid ->
+            {:ok, Fakes.state(root_pid: parent_pid, module: module, parent_pid: nil)}
+
+          ^grandchild_pid ->
+            {:ok, Fakes.state(root_pid: parent_pid, module: module, parent_pid: child_pid_1)}
+
+          _ ->
+            {:ok, Fakes.state(root_pid: parent_pid, module: module, parent_pid: parent_pid)}
+        end
+      end)
+
+      children = LiveViewDiscoveryService.children_lv_processes(parent_pid)
+
+      assert length(children) == 3
+
+      for child <- children do
+        assert Enum.find(children, &(&1.pid == child.pid)) != nil
+      end
+    end
+  end
 end

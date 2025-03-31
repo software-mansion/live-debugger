@@ -1,7 +1,7 @@
 function getLiveDebuggerSessionURL() {
   return new Promise((resolve, reject) => {
     chrome.devtools.inspectedWindow.eval(
-      "`${getLiveDebuggerURL()}/transport_pid/${getSessionId()}`",
+      "getLiveDebuggerURL()",
       (result, isException) => {
         if (isException) {
           reject(isException);
@@ -24,13 +24,21 @@ chrome.devtools.panels.create(
     panel.onShown.addListener(async (window) => {
       if (!isShown) {
         panelWindow = window;
-        window.set_iframe_url(await getLiveDebuggerSessionURL());
         isShown = true;
+        try {
+          window.set_iframe_url(await getLiveDebuggerSessionURL());
+        } catch (error) {
+          window.set_iframe_url(null);
+        }
       }
     });
 
     chrome.webNavigation.onCompleted.addListener(async () => {
-      panelWindow.set_iframe_url(await getLiveDebuggerSessionURL());
+      try {
+        panelWindow.set_iframe_url(await getLiveDebuggerSessionURL());
+      } catch (error) {
+        panelWindow.set_iframe_url(null);
+      }
     });
   }
 );

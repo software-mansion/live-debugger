@@ -8,6 +8,7 @@ defmodule LiveDebugger.LiveViews.StateLive do
   alias Phoenix.LiveView.AsyncResult
 
   alias LiveDebugger.Components.ElixirDisplay
+  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
@@ -110,7 +111,7 @@ defmodule LiveDebugger.LiveViews.StateLive do
         <.badge :if={@node_type == :live_view and @nested?} text="Nested" icon="icon-nested" />
       </:right_panel>
       <div class="p-4 flex flex-col gap-1">
-        <.info_row name="Module" value={inspect(@node.module)} />
+        <.info_row name="Module" value={Parsers.module_to_string(@node.module)} />
         <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
       </div>
     </.section>

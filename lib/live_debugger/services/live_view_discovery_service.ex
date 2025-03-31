@@ -114,6 +114,30 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
     |> Enum.reject(&is_nil/1)
   end
 
+  @doc """
+  Returns all children LvProcesses of the given `pid`.
+  """
+  @spec children_lv_processes(pid :: pid(), searched_lv_processes :: [LvProcess.t()] | nil) :: [
+          LvProcess.t()
+        ]
+  def children_lv_processes(pid, searched_lv_processes \\ nil) do
+    searched_lv_processes =
+      if is_nil(searched_lv_processes) do
+        debugged_lv_processes()
+      else
+        searched_lv_processes
+      end
+
+    searched_lv_processes
+    |> Enum.filter(&(&1.parent_pid == pid))
+    |> Enum.map(fn lv_process ->
+      children = children_lv_processes(lv_process.pid, searched_lv_processes)
+
+      [lv_process | children]
+    end)
+    |> List.flatten()
+  end
+
   @spec liveview?(initial_call :: mfa() | nil | {}) :: boolean()
   defp liveview?(initial_call) when initial_call not in [nil, {}] do
     elem(initial_call, 1) == :mount
