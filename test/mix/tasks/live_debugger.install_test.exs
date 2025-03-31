@@ -39,9 +39,9 @@ defmodule Mix.Tasks.LiveDebugger.InstallTest do
     |> Igniter.compose_task("live_debugger.install")
     |> assert_unchanged("lib/test_web/components/layouts/root.html.heex")
     |> assert_has_notice("""
-    Live Debugger: 
+    Live Debugger:
 
-    Could not automatically modify root layout. 
+    Could not automatically modify root layout.
     Include live_debugger in the `<head>` of your root layout.
 
         <head>
