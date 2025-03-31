@@ -2,20 +2,34 @@
 // It introduces browser features that are not mandatory for LiveDebugger to run
 
 // Fetch LiveDebugger URL
+function getSessionId() {
+  let el;
+  if ((el = document.querySelector('[data-phx-main]'))) {
+    return el.id;
+  }
+  if ((el = document.querySelector('[id^="phx-"]'))) {
+    return el.id;
+  }
+  if ((el = document.querySelector('[data-phx-root-id]'))) {
+    return el.getAttribute('data-phx-root-id');
+  }
+}
+
 window.getLiveDebuggerURL = function () {
-  return document
+  const baseURL = document
     .getElementById('live-debugger-scripts')
     .src.replace('/assets/live_debugger/client.js', '');
-};
 
-window.getSessionId = function () {
-  return document.querySelector('[data-phx-main]').id;
+  const session_id = getSessionId();
+  const session_path = session_id ? `transport_pid/${session_id}` : '';
+
+  return `${baseURL}/${session_path}`;
 };
 
 // Debug button
 document.addEventListener('DOMContentLoaded', function () {
   const URL = getLiveDebuggerURL();
-  const session_id = getSessionId();
+
   const debugButtonHtml = /*html*/ `
       <div id="debug-button" style="
         position: fixed;
@@ -34,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
         bottom: 20px;
         right: 20px;
         cursor: grab;">
-        <a href="${URL}/transport_pid/${session_id}" target="_blank">
+        <a href="${URL}" target="_blank">
           <svg viewBox="0 0 24 24" width="24" height="24"  fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M22.0941 20.624C22.5697 20.624 22.9553 20.2385 22.9554 19.7628L22.9556 16.6568C22.9556 16.4283 22.8649 16.2093 22.7034 16.0477C22.5418 15.8862 22.3228 15.7955 22.0944 15.7955L18.3034 15.7955L18.3034 17.5179L21.2331 17.5179L21.2329 19.7627C21.2329 20.2384 21.6185 20.624 22.0941 20.624Z" fill="currentColor"/>
             <path fill-rule="evenodd" clip-rule="evenodd" d="M22.9823 12.9677C22.9823 12.4921 22.5968 12.1065 22.1211 12.1065L18.3034 12.1065V13.8289H22.1211C22.5968 13.8289 22.9823 13.4433 22.9823 12.9677Z" fill="currentColor"/>
