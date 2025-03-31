@@ -21,9 +21,9 @@ window.getLiveDebuggerURL = function () {
     .src.replace('/assets/live_debugger/client.js', '');
 
   const session_id = getSessionId();
-  const session_path = session_id ? `/transport_pid/${session_id}` : '';
+  const session_path = session_id ? `transport_pid/${session_id}` : '';
 
-  return `${baseURL}${session_path}`;
+  return `${baseURL}/${session_path}`;
 };
 
 // Debug button
