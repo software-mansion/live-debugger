@@ -1,4 +1,8 @@
 defmodule LiveDebugger.LiveViews.SidebarLive do
+  @moduledoc """
+  This live view is responsible for displaying the sidebar of the LiveDebugger.
+  """
+
   use LiveDebuggerWeb, :live_view
 
   require Logger
