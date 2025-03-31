@@ -179,7 +179,7 @@ defmodule LiveDebugger.Components.Tree do
         >
           <div class={[
             "truncate",
-            if(@selected?, do: "font-medium")
+            if(@selected?, do: "font-semibold")
           ]}>
             <%= @node.label %>
           </div>

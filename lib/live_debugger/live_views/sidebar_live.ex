@@ -12,6 +12,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   alias Phoenix.Socket.Message
   alias LiveDebugger.Utils.URL
   alias LiveDebugger.LiveComponents.NestedLiveViewsLinks
+  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -23,7 +24,8 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     session = %{
       "lv_process" => assigns.lv_process,
       "node_id" => assigns.node_id,
-      "url" => assigns.url
+      "url" => assigns.url,
+      "parent_socket_id" => assigns.socket.id
     }
 
     assigns = assign(assigns, session: session)
@@ -39,6 +41,14 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
 
   @impl true
   def mount(_params, session, socket) do
+    parent_socket_id = session["parent_socket_id"]
+
+    if connected?(socket) do
+      parent_socket_id
+      |> PubSubUtils.node_changed_topic()
+      |> PubSubUtils.subscribe()
+    end
+
     socket
     |> assign(:lv_process, session["lv_process"])
     |> assign(:node_id, session["node_id"])
@@ -112,6 +122,13 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
       true ->
         socket
     end
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info({:node_changed, node_id}, socket) do
+    socket
+    |> assign(:node_id, node_id)
     |> noreply()
   end
 
