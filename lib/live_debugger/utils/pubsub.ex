@@ -20,8 +20,14 @@ defmodule LiveDebugger.Utils.PubSub do
   end
 
   # FYI this topic is temporary, it will be replaced after the new tracing system is implemented
-  @spec new_trace_topic(lv_process :: LvProcess.t()) :: String.t()
-  def new_trace_topic(lv_process) do
+  @spec node_trace_topic(lv_process :: LvProcess.t()) :: String.t()
+  def node_trace_topic(lv_process) do
     "lvdbg/#{inspect(lv_process.transport_pid)}/#{lv_process.socket_id}/new_trace"
+  end
+
+  # FYI this topic is temporary, it will be replaced after the new tracing system is implemented
+  @spec session_trace_topic(lv_process :: LvProcess.t()) :: String.t()
+  def session_trace_topic(lv_process) do
+    "lvdbg/#{inspect(lv_process.transport_pid)}/new_trace"
   end
 end

@@ -50,7 +50,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       |> PubSubUtils.subscribe()
 
       lv_process
-      |> PubSubUtils.new_trace_topic()
+      |> PubSubUtils.node_trace_topic()
       |> PubSubUtils.subscribe()
     end
 

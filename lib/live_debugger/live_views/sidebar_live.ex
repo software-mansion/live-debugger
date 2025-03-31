@@ -42,15 +42,20 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   @impl true
   def mount(_params, session, socket) do
     parent_socket_id = session["parent_socket_id"]
+    lv_process = session["lv_process"]
 
     if connected?(socket) do
       parent_socket_id
       |> PubSubUtils.node_changed_topic()
       |> PubSubUtils.subscribe()
+
+      lv_process
+      |> PubSubUtils.session_trace_topic()
+      |> PubSubUtils.subscribe()
     end
 
     socket
-    |> assign(:lv_process, session["lv_process"])
+    |> assign(:lv_process, lv_process)
     |> assign(:node_id, session["node_id"])
     |> assign(:url, session["url"])
     |> assign(:highlight?, false)
