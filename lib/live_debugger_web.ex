@@ -6,9 +6,12 @@ defmodule LiveDebuggerWeb do
       use Phoenix.LiveView,
         layout: {LiveDebugger.Layout, :app}
 
+      on_mount({LiveDebugger.Flash, :add_hook})
+
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers
       import LiveDebugger.Components
+      import LiveDebugger.Flash, only: [put_flash!: 3]
     end
   end
 
@@ -19,6 +22,7 @@ defmodule LiveDebuggerWeb do
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers
       import LiveDebugger.Components
+      import LiveDebugger.Flash, only: [put_flash!: 3]
     end
   end
 
