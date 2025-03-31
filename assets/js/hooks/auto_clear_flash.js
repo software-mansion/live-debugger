@@ -18,3 +18,5 @@ const AutoClearFlash = {
     }, clearFlashAfter);
   },
 };
+
+export default AutoClearFlash;

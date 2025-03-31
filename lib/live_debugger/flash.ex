@@ -1,4 +1,8 @@
 defmodule LiveDebugger.Flash do
+  @moduledoc """
+  Functionalities to make flash messages work inside LiveComponents
+  See: https://sevenseacat.net/posts/2023/flash-messages-in-phoenix-liveview-components/
+  """
   import Phoenix.LiveView
 
   @doc """
@@ -8,10 +12,19 @@ defmodule LiveDebugger.Flash do
     {:cont, attach_hook(socket, :flash, :handle_info, &maybe_receive_flash/2)}
   end
 
-  @spec put_flash!(socket :: Phoenix.Socket.t(), type :: :info | :error, message :: String.t()) ::
-          Phoenix.Socket.t()
-  def put_flash!(socket, type, message) do
-    send(self(), {:put_flash, type, message})
+  @doc """
+  Function to put flash inside nested LiveViews/LiveComponents.
+  If used in nested LiveView use parent's pid.
+  """
+  @spec put_flash!(
+          socket :: Phoenix.LiveView.Socket.t(),
+          type :: :info | :error,
+          message :: String.t()
+        ) ::
+          Phoenix.LiveView.Socket.t()
+  def put_flash!(pid \\ self(), socket, type, message) do
+    send(pid, {:put_flash, type, message})
+
     socket
   end
 
