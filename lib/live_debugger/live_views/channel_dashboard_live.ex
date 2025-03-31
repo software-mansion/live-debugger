@@ -71,7 +71,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
             socket={@socket}
             lv_process={lv_process}
             url={@url}
-            node_id={@node_id}
+            node_id={@node_id || lv_process.pid}
           />
 
           <div class="flex flex-col flex-1 h-full overflow-auto">
