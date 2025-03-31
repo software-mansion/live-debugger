@@ -13,13 +13,12 @@ defmodule LiveDebugger.Components.Tree do
   @doc """
   Tree component which show nested tree of live view and live components.
   You need to pass TreeNode struct to render the tree.
-  This component emits `select_node` event with `node_id` param to the `event_target` when a node is clicked. `node_id` is parsed.
+  This component emits `select_node` event with `node_id` param when a node is clicked. `node_id` is parsed.
   To calculate `max_opened_node_level` it uses `max_nesting_level/2` function.
   """
 
   attr(:tree_node, :any, required: true, doc: "The TreeNode struct to render")
   attr(:title, :string, required: true, doc: "The title of the tree")
-  attr(:event_target, :any, required: true, doc: "The target for the click event")
   attr(:selected_node_id, :string, required: true, doc: "The id of the selected node")
   attr(:highlight?, :boolean, default: false, doc: "The highlight flag")
   attr(:class, :string, default: nil, doc: "CSS class")
@@ -35,19 +34,13 @@ defmodule LiveDebugger.Components.Tree do
       <div class="flex items-center justify-between">
         <div class="shrink-0 font-medium text-secondary-text px-6 py-3"><%= @title %></div>
         <%= if Application.get_env(:live_debugger, :browser_features?) and LiveDebugger.Env.dev? do %>
-          <.toggle_switch
-            label="Highlight"
-            checked={@highlight?}
-            phx-target={@event_target}
-            phx-click="toggle-highlight"
-          />
+          <.toggle_switch label="Highlight" checked={@highlight?} phx-click="toggle-highlight" />
         <% end %>
       </div>
       <div class="w-full px-1 overflow-y-auto">
         <.tree_node
           tree_node={@tree_node}
           selected_node_id={@selected_node_id}
-          event_target={@event_target}
           root?={true}
           max_opened_node_level={@max_opened_node_level}
           level={0}
@@ -80,7 +73,6 @@ defmodule LiveDebugger.Components.Tree do
 
   attr(:parent_dom_id, :string, default: nil)
   attr(:tree_node, :any, required: true)
-  attr(:event_target, :any, required: true)
   attr(:selected_node_id, :string, default: nil)
   attr(:root?, :boolean, default: false)
   attr(:max_opened_node_level, :integer, default: 0)
@@ -108,7 +100,6 @@ defmodule LiveDebugger.Components.Tree do
           <:label>
             <.label
               selected?={@selected?}
-              event_target={@event_target}
               parent_dom_id={@parent_dom_id}
               node={@tree_node}
               level={@level}
@@ -121,7 +112,6 @@ defmodule LiveDebugger.Components.Tree do
               parent_dom_id={if @tree_node[:dom_id], do: @tree_node.dom_id, else: @parent_dom_id}
               tree_node={child}
               selected_node_id={@selected_node_id}
-              event_target={@event_target}
               root?={false}
               max_opened_node_level={@max_opened_node_level}
               level={@level + 1}
@@ -131,7 +121,6 @@ defmodule LiveDebugger.Components.Tree do
         <.label
           :if={not @collapsible?}
           selected?={@selected?}
-          event_target={@event_target}
           parent_dom_id={@parent_dom_id}
           node={@tree_node}
           level={@level}
@@ -144,7 +133,6 @@ defmodule LiveDebugger.Components.Tree do
 
   attr(:parent_dom_id, :string, required: true)
   attr(:node, :any, required: true)
-  attr(:event_target, :any, required: true)
   attr(:level, :integer, required: true)
   attr(:collapsible?, :boolean, required: true)
   attr(:selected?, :boolean, required: true)
@@ -159,7 +147,6 @@ defmodule LiveDebugger.Components.Tree do
       id={"tree_node_button_" <> @node.parsed_id}
       phx-click="select_node"
       phx-value-node_id={@node.parsed_id}
-      phx-target={@event_target}
       phx-value-search-attribute={get_search_attribute(@node)}
       phx-value-search-value={get_search_value(@node, @parent_dom_id)}
       phx-hook="Highlight"
@@ -179,7 +166,7 @@ defmodule LiveDebugger.Components.Tree do
         >
           <div class={[
             "truncate",
-            if(@selected?, do: "font-medium")
+            if(@selected?, do: "font-semibold")
           ]}>
             <%= @node.label %>
           </div>

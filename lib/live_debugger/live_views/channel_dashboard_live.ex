@@ -5,6 +5,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
 
   require Logger
 
+  alias Phoenix.LiveView.JS
   alias LiveDebugger.Utils.URL
   alias Phoenix.LiveView.AsyncResult
 
@@ -18,6 +19,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
 
   alias LiveDebugger.LiveViews.StateLive
   alias LiveDebugger.LiveViews.TracesLive
+  alias LiveDebugger.LiveViews.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   @impl true
@@ -45,7 +47,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
         <div class="grow flex items-center justify-end">
           <.nav_icon
             :if={@lv_process.ok?}
-            phx-click="open-sidebar"
+            phx-click={JS.push("open-sidebar", target: "#sidebar")}
             class="flex sm:hidden"
             icon="icon-menu-hamburger"
           />
@@ -64,12 +66,12 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
         </:failed>
 
         <div class="flex grow w-full overflow-y-auto">
-          <.live_component
-            module={LiveDebugger.LiveComponents.Sidebar}
+          <SidebarLive.live_render
             id="sidebar"
+            socket={@socket}
             lv_process={lv_process}
             url={@url}
-            node_id={@node_id}
+            node_id={@node_id || lv_process.pid}
           />
 
           <div class="flex flex-col flex-1 h-full overflow-auto">
@@ -97,13 +99,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
       </.async_result>
     </div>
     """
-  end
-
-  @impl true
-  def handle_event("open-sidebar", _, socket) do
-    send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", show_sidebar?: true})
-
-    noreply(socket)
   end
 
   @impl true
@@ -178,20 +173,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
         (socket.assigns.lv_process.result &&
            socket.assigns.lv_process.result.pid)
 
-    if Trace.node_id(trace) == debugged_node_id do
-      socket.assigns.lv_process.result
-      |> case do
-        nil ->
-          :ok
-
-        lv_process ->
-          lv_process
-          |> PubSubUtils.new_trace_topic()
-          |> PubSubUtils.broadcast({:new_trace, trace})
-      end
-    end
-
-    send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", new_trace: trace})
+    maybe_broadcast_trace(socket.assigns.lv_process, trace, debugged_node_id)
 
     socket =
       if Trace.live_component_delete?(trace) and Trace.node_id(trace) == debugged_node_id do
@@ -207,6 +189,20 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   @impl true
   def terminate(_reason, socket) do
     CallbackTracingService.stop_tracing(socket.assigns.tracing_session)
+  end
+
+  defp maybe_broadcast_trace(%{result: nil} = _lv_process, _trace, _), do: :ok
+
+  defp maybe_broadcast_trace(%{result: lv_process}, trace, debugged_node_id) do
+    lv_process
+    |> PubSubUtils.session_trace_topic()
+    |> PubSubUtils.broadcast({:new_trace, trace})
+
+    if Trace.node_id(trace) == debugged_node_id do
+      lv_process
+      |> PubSubUtils.node_trace_topic()
+      |> PubSubUtils.broadcast({:new_trace, trace})
+    end
   end
 
   defp assign_node_id(socket, %{"node_id" => node_id}) do
