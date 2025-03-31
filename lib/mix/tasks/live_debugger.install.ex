@@ -67,14 +67,14 @@ if Code.ensure_loaded?(Igniter) do
     def info(_argv, _composing_task) do
       %Igniter.Mix.Task.Info{
         group: :live_debugger,
-        example: __MODULE__.Docs.example()
+        example: __MODULE__.Docs.example(),
+        only: [:dev]
       }
     end
 
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
-      |> Igniter.Project.Deps.set_dep_option(:live_debugger, :only, :dev)
       |> Igniter.Project.Config.configure_new(
         "dev.exs",
         :live_debugger,
