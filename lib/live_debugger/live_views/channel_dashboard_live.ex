@@ -18,6 +18,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
 
   alias LiveDebugger.LiveViews.StateLive
   alias LiveDebugger.LiveViews.TracesLive
+  alias LiveDebugger.LiveViews.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   @impl true
@@ -64,9 +65,9 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
         </:failed>
 
         <div class="flex grow w-full overflow-y-auto">
-          <.live_component
-            module={LiveDebugger.LiveComponents.Sidebar}
+          <SidebarLive.live_render
             id="sidebar"
+            socket={@socket}
             lv_process={lv_process}
             url={@url}
             node_id={@node_id}

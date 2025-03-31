@@ -1,9 +1,5 @@
-defmodule LiveDebugger.LiveComponents.Sidebar do
-  @moduledoc """
-  Sidebar component which displays tree of live view and it's live components.
-  It adds `node_id` query param to the URL when a node is clicked.
-  """
-  use LiveDebuggerWeb, :live_component
+defmodule LiveDebugger.LiveViews.SidebarLive do
+  use LiveDebuggerWeb, :live_view
 
   require Logger
 
@@ -17,16 +13,78 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   alias LiveDebugger.Utils.URL
   alias LiveDebugger.LiveComponents.NestedLiveViewsLinks
 
-  @impl true
-  def mount(socket) do
-    socket
-    |> hide_sidebar_side_over()
-    |> assign(:highlight?, false)
-    |> ok()
+  attr(:socket, :map, required: true)
+  attr(:id, :string, required: true)
+  attr(:lv_process, :map, required: true)
+  attr(:node_id, :string, required: true)
+  attr(:url, :string, required: true)
+
+  def live_render(assigns) do
+    session = %{
+      "lv_process" => assigns.lv_process,
+      "node_id" => assigns.node_id,
+      "url" => assigns.url
+    }
+
+    assigns = assign(assigns, session: session)
+
+    ~H"""
+    <%= live_render(@socket, __MODULE__, id: @id, session: @session) %>
+    """
   end
 
   @impl true
-  def update(%{new_trace: trace}, socket) do
+  def mount(_params, session, socket) do
+    socket
+    |> assign(:lv_process, session["lv_process"])
+    |> assign(:node_id, session["node_id"])
+    |> assign(:url, session["url"])
+    |> assign(:highlight?, false)
+    |> hide_sidebar_side_over()
+    |> assign_async_tree()
+    |> assign_async_parent_lv_process()
+    |> assign_async_existing_node_ids()
+    |> ok()
+  end
+
+  attr(:lv_process, :any, required: true)
+  attr(:node_id, :any, required: true)
+  attr(:url, :any, required: true)
+
+  @impl true
+  def render(assigns) do
+    ~H"""
+    <div id="sidebar" class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border">
+      <div class="hidden sm:flex max-h-full flex-col w-72 md:w-80 gap-1 justify-between">
+        <.sidebar_content
+          id="sidebar-content"
+          lv_process={@lv_process}
+          tree={@tree}
+          max_opened_node_level={@max_opened_node_level}
+          node_id={@node_id}
+          highlight?={@highlight?}
+          parent_lv_process={@parent_lv_process}
+        />
+        <.report_issue class="border-t border-default-border" />
+      </div>
+      <.sidebar_slide_over :if={not @hidden?}>
+        <.sidebar_content
+          id="sidebar-content-slide-over"
+          lv_process={@lv_process}
+          tree={@tree}
+          max_opened_node_level={@max_opened_node_level}
+          node_id={@node_id}
+          highlight?={@highlight?}
+          parent_lv_process={@parent_lv_process}
+        />
+        <.report_issue class="border-t border-default-border" />
+      </.sidebar_slide_over>
+    </div>
+    """
+  end
+
+  @impl true
+  def handle_info({:new_trace, trace}, socket) do
     existing_node_ids = socket.assigns.existing_node_ids
     trace_node_id = Trace.node_id(trace)
 
@@ -50,64 +108,7 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       true ->
         socket
     end
-    |> ok()
-  end
-
-  def update(%{show_sidebar?: true}, socket) do
-    socket
-    |> assign(:hidden?, false)
-    |> ok()
-  end
-
-  def update(assigns, socket) do
-    socket
-    |> assign(%{
-      lv_process: assigns.lv_process,
-      node_id: assigns.node_id,
-      url: assigns.url
-    })
-    |> assign_async_tree()
-    |> assign_async_parent_lv_process()
-    |> assign_async_existing_node_ids()
-    |> ok()
-  end
-
-  attr(:lv_process, :any, required: true)
-  attr(:node_id, :any, required: true)
-  attr(:url, :any, required: true)
-
-  @impl true
-  def render(assigns) do
-    ~H"""
-    <div id="sidebar" class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border">
-      <div class="hidden sm:flex max-h-full flex-col w-72 md:w-80 gap-1 justify-between">
-        <.sidebar_content
-          id="sidebar-content"
-          lv_process={@lv_process}
-          tree={@tree}
-          max_opened_node_level={@max_opened_node_level}
-          node_id={@node_id}
-          myself={@myself}
-          highlight?={@highlight?}
-          parent_lv_process={@parent_lv_process}
-        />
-        <.report_issue class="border-t border-default-border" />
-      </div>
-      <.sidebar_slide_over :if={not @hidden?} myself={@myself}>
-        <.sidebar_content
-          id="sidebar-content-slide-over"
-          lv_process={@lv_process}
-          tree={@tree}
-          max_opened_node_level={@max_opened_node_level}
-          node_id={@node_id}
-          myself={@myself}
-          highlight?={@highlight?}
-          parent_lv_process={@parent_lv_process}
-        />
-        <.report_issue class="border-t border-default-border" />
-      </.sidebar_slide_over>
-    </div>
-    """
+    |> noreply()
   end
 
   @impl true
@@ -161,7 +162,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   attr(:lv_process, LvProcess, required: true)
   attr(:tree, :any, required: true)
   attr(:node_id, :any, required: true)
-  attr(:myself, :any, required: true)
   attr(:max_opened_node_level, :any, required: true)
   attr(:highlight?, :boolean, required: true)
   attr(:parent_lv_process, :any, required: true)
@@ -182,7 +182,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       <.component_tree
         tree={@tree}
         selected_node_id={@node_id}
-        target={@myself}
         max_opened_node_level={@max_opened_node_level}
         highlight?={@highlight?}
       />
@@ -190,7 +189,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
     """
   end
 
-  attr(:myself, :any, required: true)
   slot(:inner_block)
 
   defp sidebar_slide_over(assigns) do
@@ -199,7 +197,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
       <div
         class="w-80 h-full flex flex-col bg-sidebar-bg justify-between"
         phx-click-away="close_mobile_content"
-        phx-target={@myself}
       >
         <.icon_button
           icon="icon-cross-small"
@@ -207,7 +204,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
           variant="secondary"
           size="sm"
           phx-click="close_mobile_content"
-          phx-target={@myself}
         />
         <%= render_slot(@inner_block) %>
       </div>
@@ -252,7 +248,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
   end
 
   attr(:tree, :any, required: true)
-  attr(:target, :any, required: true)
   attr(:max_opened_node_level, :any, required: true)
   attr(:selected_node_id, :string, default: nil)
   attr(:highlight?, :boolean, required: true)
@@ -272,7 +267,6 @@ defmodule LiveDebugger.LiveComponents.Sidebar do
         title="Components Tree"
         selected_node_id={@selected_node_id}
         tree_node={tree}
-        event_target={@target}
         max_opened_node_level={@max_opened_node_level.result}
         highlight?={@highlight?}
       />
