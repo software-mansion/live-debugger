@@ -40,7 +40,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     |> assign(:node_id, session["node_id"])
     |> assign(:url, session["url"])
     |> assign(:highlight?, false)
-    |> hide_sidebar_side_over()
+    |> assign(:hidden?, true)
     |> assign_async_tree()
     |> assign_async_parent_lv_process()
     |> assign_async_existing_node_ids()
@@ -112,6 +112,13 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   end
 
   @impl true
+  def handle_event("open-sidebar", _, socket) do
+    socket
+    |> assign(:hidden?, false)
+    |> noreply()
+  end
+
+  @impl true
   def handle_event("select_node", params, socket) do
     %{"node_id" => node_id, "search-attribute" => attr, "search-value" => val} = params
 
@@ -125,7 +132,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
 
     socket
     |> push_patch(to: URL.upsert_query_param(socket.assigns.url, "node_id", node_id))
-    |> hide_sidebar_side_over()
+    |> assign(:hidden?, true)
     |> noreply()
   end
 
@@ -154,7 +161,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   @impl true
   def handle_event("close_mobile_content", _params, socket) do
     socket
-    |> hide_sidebar_side_over()
+    |> assign(:hidden?, true)
     |> noreply()
   end
 
@@ -209,10 +216,6 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
       </div>
     </div>
     """
-  end
-
-  defp hide_sidebar_side_over(socket) do
-    assign(socket, :hidden?, true)
   end
 
   attr(:pid, :any, required: true)

@@ -5,6 +5,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
 
   require Logger
 
+  alias Phoenix.LiveView.JS
   alias LiveDebugger.Utils.URL
   alias Phoenix.LiveView.AsyncResult
 
@@ -46,7 +47,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
         <div class="grow flex items-center justify-end">
           <.nav_icon
             :if={@lv_process.ok?}
-            phx-click="open-sidebar"
+            phx-click={JS.push("open-sidebar", target: "#sidebar")}
             class="flex sm:hidden"
             icon="icon-menu-hamburger"
           />
@@ -98,13 +99,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
       </.async_result>
     </div>
     """
-  end
-
-  @impl true
-  def handle_event("open-sidebar", _, socket) do
-    send_update(LiveDebugger.LiveComponents.Sidebar, %{id: "sidebar", show_sidebar?: true})
-
-    noreply(socket)
   end
 
   @impl true
