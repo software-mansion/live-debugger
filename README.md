@@ -24,6 +24,9 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 
 After you start your application LiveDebugger will be running at a default port `http://localhost:4007`.
 
+> [!WARNING]  
+> LiveDebugger should not be used on production! Make sure that the dependency you've added is `:dev` only
+
 ## Browser features
 
 List of browser features:
@@ -65,6 +68,8 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
 ## Igniter
 
 LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an alternative for standard mix installation. It'll automatically add LiveDebugger scripts to `root.html.heex` and enable browser features in your `config/dev.exs` after you use the below command.
+
+Make sure that added dependency is `:dev` only.
 
 ```bash
 mix igniter.install live_debugger

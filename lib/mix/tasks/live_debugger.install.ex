@@ -29,9 +29,9 @@ if Code.ensure_loaded?(Igniter) do
     @moduledoc __MODULE__.Docs.long_doc()
 
     @root_layout_notice """
-    Live Debugger: 
+    Live Debugger:
 
-    Could not automatically modify root layout. 
+    Could not automatically modify root layout.
     Include live_debugger in the `<head>` of your root layout.
 
         <head>
@@ -67,7 +67,8 @@ if Code.ensure_loaded?(Igniter) do
     def info(_argv, _composing_task) do
       %Igniter.Mix.Task.Info{
         group: :live_debugger,
-        example: __MODULE__.Docs.example()
+        example: __MODULE__.Docs.example(),
+        only: [:dev]
       }
     end
 
