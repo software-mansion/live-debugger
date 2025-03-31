@@ -14,6 +14,9 @@
     --surface-1-bg-hover: var(--gray-700);
     --surface-2-bg: var(--gray-700);
     --surface-2-bg-hover: var(--gray-600);
+    --ui-surface: var(--gray-900);
+    --ui-muted: var(--gray-600);
+    --ui-accent: var(--swm-sea-blue-60);
 
     /* Navbar */
     --navbar-bg: var(--gray-900);
