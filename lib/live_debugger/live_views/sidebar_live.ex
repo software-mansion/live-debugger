@@ -29,7 +29,11 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     assigns = assign(assigns, session: session)
 
     ~H"""
-    <%= live_render(@socket, __MODULE__, id: @id, session: @session) %>
+    <%= live_render(@socket, __MODULE__,
+      id: @id,
+      session: @session,
+      container: {:div, class: "h-full"}
+    ) %>
     """
   end
 
@@ -54,7 +58,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id="sidebar" class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border">
+    <div class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border h-full">
       <div class="hidden sm:flex max-h-full flex-col w-72 md:w-80 gap-1 justify-between">
         <.sidebar_content
           id="sidebar-content"
