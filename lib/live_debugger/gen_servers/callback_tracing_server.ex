@@ -41,13 +41,22 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     |> ModuleDiscoveryService.live_component_modules()
     |> CallbackUtils.live_component_callbacks()
     |> Enum.concat(callbacks)
-    |> Enum.each(fn mfa -> :dbg.tp(mfa, []) end)
+    |> Enum.each(fn mfa -> :dbg.tp(mfa, [{:_, [], [{:return_trace}]}]) end)
 
     # This is not a callback created by user
     # We trace it to refresh the components tree
     :dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
 
     {:noreply, state}
+  end
+
+  defp trace_handler_(msg, n) do
+    dbg(msg)
+
+    msg
+    |> Tuple.to_list()
+    |> Enum.slice(0..3)
+    |> List.to_tuple()
   end
 
   # This handler is heavy because of fetching state and we do not care for order because it is not displayed to user

@@ -68,6 +68,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   end
 
   def handle_event("increment", _, socket) do
+    Process.sleep(1000)
     {:noreply, assign(socket, :counter, socket.assigns.counter + 1)}
   end
 
