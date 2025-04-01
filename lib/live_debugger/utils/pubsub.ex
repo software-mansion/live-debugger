@@ -37,19 +37,6 @@ defmodule LiveDebugger.Utils.PubSub do
     Phoenix.PubSub.unsubscribe(LiveDebugger.PubSub, topic)
   end
 
-  @spec node_changed_topic(socket_id :: String.t()) :: String.t()
-  def node_changed_topic(socket_id) do
-    "lvdbg/#{socket_id}/node_changed"
-  end
-
-  @spec tree_updated_topic(trace :: Trace.t()) :: String.t()
-  def tree_updated_topic(trace) do
-    socket_id = trace.socket_id
-    transport_pid = inspect(trace.transport_pid)
-
-    "lvdbg/#{socket_id}/#{transport_pid}/tree_updated"
-  end
-
   @spec trace_topics(trace :: Trace.t()) :: [String.t()]
   def trace_topics(trace) do
     socket_id = trace.socket_id
@@ -59,23 +46,47 @@ defmodule LiveDebugger.Utils.PubSub do
 
     [
       trace_topic(socket_id, transport_pid, node_id, fun),
+      trace_topic(socket_id, transport_pid, fun),
       trace_topic(socket_id, transport_pid, node_id),
       trace_topic(socket_id, transport_pid)
     ]
   end
 
+  @spec component_deleted_topic(trace :: Trace.t()) :: String.t()
+  def component_deleted_topic(trace) do
+    socket_id = trace.socket_id
+    transport_pid = trace.transport_pid
+
+    component_deleted_topic(socket_id, transport_pid)
+  end
+
+  @spec node_changed_topic(socket_id :: String.t()) :: String.t()
+  def node_changed_topic(socket_id) do
+    "lvdbg/#{socket_id}/node_changed"
+  end
+
+  @spec component_deleted_topic(socket_id :: String.t(), transport_pid :: pid()) :: String.t()
+  def component_deleted_topic(socket_id, transport_pid) do
+    "lvdbg/#{inspect(transport_pid)}/#{socket_id}/component_deleted"
+  end
+
   @spec trace_topic(String.t(), pid(), TreeNode.id(), atom()) :: String.t()
   def trace_topic(socket_id, transport_pid, node_id, fun) do
-    "#{socket_id}/#{inspect(transport_pid)}/#{inspect(node_id)}/#{inspect(fun)}"
+    "#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}/#{inspect(fun)}"
+  end
+
+  @spec trace_topic(String.t(), pid(), atom()) :: String.t()
+  def trace_topic(socket_id, transport_pid, fun) when is_atom(fun) do
+    "#{inspect(transport_pid)}/#{socket_id}/*/#{inspect(fun)}"
   end
 
   @spec trace_topic(String.t(), pid(), TreeNode.id()) :: String.t()
   def trace_topic(socket_id, transport_pid, node_id) do
-    "#{socket_id}/#{inspect(transport_pid)}/#{inspect(node_id)}/*"
+    "#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}/*"
   end
 
   @spec trace_topic(String.t(), pid()) :: String.t()
   def trace_topic(socket_id, transport_pid) do
-    "#{socket_id}/#{inspect(transport_pid)}/*/*"
+    "#{inspect(transport_pid)}/#{socket_id}/*/*"
   end
 end

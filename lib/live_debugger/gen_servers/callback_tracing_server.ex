@@ -13,6 +13,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+
   @callback_functions CallbackUtils.callbacks_functions()
 
   def start_link(args \\ []) do
@@ -46,9 +47,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     # We trace channel events to refresh the components tree
     :dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
 
-    # Write component is not perfect - it is triggered on send(self()) but it is better than tracing renders
-    :dbg.tp({Phoenix.LiveView.Diff, :write_component, 4}, [])
-
     {:noreply, state}
   end
 
@@ -71,18 +69,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
                pid,
                cid
              ) do
-        publish_trace(trace)
-      end
-    end)
-
-    n
-  end
-
-  # Similar to delete_component - we do not care about order
-  defp trace_handler({_, pid, _, {Phoenix.LiveView.Diff, :write_component, args}}, n) do
-    Task.start(fn ->
-      with trace <- Trace.new(n, Phoenix.LiveView.Diff, :write_component, args, pid),
-           true <- is_pid(trace.transport_pid) do
         publish_trace(trace)
       end
     end)
@@ -130,7 +116,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   defp do_publish(%{module: Phoenix.LiveView.Diff} = trace) do
     trace
-    |> PubSubUtils.tree_updated_topic()
+    |> PubSubUtils.component_deleted_topic()
     |> PubSubUtils.broadcast({:new_trace, trace})
   end
 

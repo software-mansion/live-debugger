@@ -49,10 +49,22 @@ defmodule LiveDebugger.Structs.Trace do
       module,
       function,
       args,
+      pid,
+      get_cid_from_args(args)
+    )
+  end
+
+  @spec new(integer(), atom(), atom(), list(), pid(), CommonTypes.cid()) :: t()
+  def new(id, module, function, args, pid, cid) do
+    new(
+      id,
+      module,
+      function,
+      args,
       get_socket_id_from_args(args),
       get_transport_pid_from_args(args),
       pid,
-      get_cid_from_args(args)
+      cid
     )
   end
 
