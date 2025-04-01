@@ -10,4 +10,5 @@ defmodule LiveDebugger.Env do
   @dialyzer {:no_match, dev?: 0}
 
   def dev?(), do: @env == :dev
+  def test?(), do: @env == :test
 end

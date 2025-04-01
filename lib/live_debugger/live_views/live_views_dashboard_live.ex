@@ -25,7 +25,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
       <div class="max-lg:p-8 pt-8 w-full lg:max-w-[40rem] h-full">
         <div class="flex gap-4 items-center justify-between">
           <.h1>Active LiveViews</.h1>
-          <.button phx-click="refresh">
+          <.button id="refresh" phx-click="refresh">
             <div class="flex items-center gap-2">
               <.icon name="icon-refresh" class="w-4 h-4" />
               <p>Refresh</p>
@@ -45,7 +45,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
                 Check logs for more
               </.alert>
             </:failed>
-            <div class="flex flex-col gap-4">
+            <div id="live-view-sessions" class="flex flex-col gap-4">
               <%= if Enum.empty?(groupped_lv_processes)  do %>
                 <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
                   <p class="text-secondary-text text-center">No active LiveViews</p>
