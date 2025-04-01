@@ -45,17 +45,18 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     parent_socket_id = session["parent_socket_id"]
     node_id = session["node_id"]
 
+    trace_topic =
+      PubSubUtils.trace_topic(lv_process.socket_id, lv_process.transport_pid, node_id)
+
     if connected?(socket) do
       parent_socket_id
       |> PubSubUtils.node_changed_topic()
-      |> PubSubUtils.subscribe()
-
-      "#{lv_process.socket_id}/#{inspect(lv_process.transport_pid)}/#{inspect(node_id)}/*"
       |> PubSubUtils.subscribe()
     end
 
     socket
     |> assign(:displayed_trace, nil)
+    |> assign(:trace_topic, trace_topic)
     |> TracingHelper.init()
     |> assign(traces_empty?: true)
     |> assign(node_id: node_id)
