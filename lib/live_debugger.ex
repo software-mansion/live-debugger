@@ -39,7 +39,8 @@ defmodule LiveDebugger do
        [
          check_origin: false,
          pubsub_server: LiveDebugger.PubSub
-       ]}
+       ]},
+      {LiveDebugger.GenServers.CallbackTracingServer, []}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: LiveDebugger.Supervisor)

@@ -4,6 +4,14 @@ defmodule LiveDebugger.Utils.PubSub do
   """
   alias LiveDebugger.Structs.LvProcess
 
+  @spec broadcast(topics :: [String.t()], payload :: term()) :: :ok
+  def broadcast(topics, payload) when is_list(topics) do
+    topics
+    |> Enum.each(&broadcast(&1, payload))
+
+    :ok
+  end
+
   @spec broadcast(topic :: String.t(), payload :: term()) :: :ok
   def broadcast(topic, payload) do
     Phoenix.PubSub.broadcast(LiveDebugger.PubSub, topic, payload)

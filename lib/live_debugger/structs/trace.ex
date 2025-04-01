@@ -13,7 +13,18 @@ defmodule LiveDebugger.Structs.Trace do
 
   alias LiveDebugger.CommonTypes
 
-  defstruct [:id, :module, :function, :arity, :args, :pid, :cid, :timestamp]
+  defstruct [
+    :id,
+    :module,
+    :function,
+    :arity,
+    :args,
+    :socket_id,
+    :transport_pid,
+    :pid,
+    :cid,
+    :timestamp
+  ]
 
   @type t() :: %__MODULE__{
           id: integer(),
@@ -21,6 +32,8 @@ defmodule LiveDebugger.Structs.Trace do
           function: atom(),
           arity: non_neg_integer(),
           args: list(),
+          socket_id: String.t(),
+          transport_pid: pid() | nil,
           pid: pid(),
           cid: struct() | nil,
           timestamp: non_neg_integer()
@@ -31,17 +44,28 @@ defmodule LiveDebugger.Structs.Trace do
   """
   @spec new(integer(), atom(), atom(), list(), pid()) :: t()
   def new(id, module, function, args, pid) do
-    new(id, module, function, args, pid, get_cid_from_args(args))
+    new(
+      id,
+      module,
+      function,
+      args,
+      get_socket_id_from_args(args),
+      get_transport_pid_from_args(args),
+      pid,
+      get_cid_from_args(args)
+    )
   end
 
-  @spec new(integer(), atom(), atom(), list(), pid(), CommonTypes.cid()) :: t()
-  def new(id, module, function, args, pid, cid) do
+  @spec new(integer(), atom(), atom(), list(), String.t(), pid(), pid(), CommonTypes.cid()) :: t()
+  def new(id, module, function, args, socket_id, transport_pid, pid, cid) do
     %__MODULE__{
       id: id,
       module: module,
       function: function,
       arity: length(args),
       args: args,
+      socket_id: socket_id,
+      transport_pid: transport_pid,
       pid: pid,
       cid: cid,
       timestamp: :os.system_time(:microsecond)
@@ -74,6 +98,26 @@ defmodule LiveDebugger.Structs.Trace do
   def callback_name(trace) do
     "#{trace.function}/#{trace.arity}"
   end
+
+  defp get_transport_pid_from_args(args) do
+    args
+    |> Enum.map(&maybe_get_transport_pid(&1))
+    |> Enum.find(fn elem -> is_pid(elem) end)
+  end
+
+  defp maybe_get_transport_pid(%{transport_pid: transport}), do: transport
+  defp maybe_get_transport_pid(%{socket: %{transport_pid: transport}}), do: transport
+  defp maybe_get_transport_pid(_), do: nil
+
+  defp get_socket_id_from_args(args) do
+    args
+    |> Enum.map(&maybe_get_socket_id(&1))
+    |> Enum.find(fn elem -> is_binary(elem) end)
+  end
+
+  defp maybe_get_socket_id(%Phoenix.LiveView.Socket{id: id}), do: id
+  defp maybe_get_socket_id(%{socket: %Phoenix.LiveView.Socket{id: id}}), do: id
+  defp maybe_get_socket_id(_), do: nil
 
   defp get_cid_from_args(args) do
     args
