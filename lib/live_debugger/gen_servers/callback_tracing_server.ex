@@ -26,8 +26,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   @impl true
   def handle_continue(:setup_tracing, state) do
-    # TODO check with Node.alive?()
-    Process.sleep(500)
     :dbg.tracer(:process, {&trace_handler/2, 0})
     :dbg.p(:all, :c)
 
@@ -80,6 +78,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     n
   end
 
+  # Similar to delete_component - we do not care about order
   defp trace_handler({_, pid, _, {Phoenix.LiveView.Diff, :write_component, args}}, n) do
     Task.start(fn ->
       with trace <- Trace.new(n, Phoenix.LiveView.Diff, :write_component, args, pid),
@@ -91,6 +90,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     n
   end
 
+  # This handles callbacks created by user that will be displayed to user
+  # It cannot be async because we care about order
   defp trace_handler({_, pid, _, {module, fun, args}}, n) when fun in @callback_functions do
     with trace <- Trace.new(n, module, fun, args, pid),
          true <- is_pid(trace.transport_pid),
@@ -127,26 +128,15 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
       {:error, err}
   end
 
-  defp do_publish(%{module: Phoenix.LiveView.Diff} = _trace) do
-    # socket_id = trace.socket_id
-    :ok
-
-    # PubSub.broadcast!(LiveDebugger.PubSub, "#{socket_id}/*/tree_updated", {:new_trace, trace})
+  defp do_publish(%{module: Phoenix.LiveView.Diff} = trace) do
+    trace
+    |> PubSubUtils.tree_updated_topic()
+    |> PubSubUtils.broadcast({:new_trace, trace})
   end
 
   defp do_publish(trace) do
-    socket_id = trace.socket_id
-    node_id = inspect(Trace.node_id(trace))
-    transport_pid = inspect(trace.transport_pid)
-    fun = inspect(trace.function)
-
-    PubSubUtils.broadcast(
-      [
-        "#{socket_id}/#{transport_pid}/#{node_id}/#{fun}",
-        "#{socket_id}/#{transport_pid}/#{node_id}/*",
-        "#{socket_id}/#{transport_pid}/*/*"
-      ],
-      {:new_trace, trace}
-    )
+    trace
+    |> PubSubUtils.trace_topics()
+    |> PubSubUtils.broadcast({:new_trace, trace})
   end
 end

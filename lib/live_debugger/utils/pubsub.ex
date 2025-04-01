@@ -2,7 +2,8 @@ defmodule LiveDebugger.Utils.PubSub do
   @moduledoc """
   This module provides helpers for LiveDebugger's PubSub.
   """
-  alias LiveDebugger.Structs.LvProcess
+
+  alias LiveDebugger.Structs.Trace
 
   @spec broadcast(topics :: [String.t()], payload :: term()) :: :ok
   def broadcast(topics, payload) when is_list(topics) do
@@ -17,6 +18,14 @@ defmodule LiveDebugger.Utils.PubSub do
     Phoenix.PubSub.broadcast(LiveDebugger.PubSub, topic, payload)
   end
 
+  @spec subscribe(topics :: [String.t()]) :: :ok
+  def subscribe(topics) when is_list(topics) do
+    topics
+    |> Enum.each(&subscribe(&1))
+
+    :ok
+  end
+
   @spec subscribe(topic :: String.t()) :: :ok
   def subscribe(topic) do
     Phoenix.PubSub.subscribe(LiveDebugger.PubSub, topic)
@@ -27,15 +36,25 @@ defmodule LiveDebugger.Utils.PubSub do
     "lvdbg/#{socket_id}/node_changed"
   end
 
-  # FYI this topic is temporary, it will be replaced after the new tracing system is implemented
-  @spec node_trace_topic(lv_process :: LvProcess.t()) :: String.t()
-  def node_trace_topic(lv_process) do
-    "lvdbg/#{inspect(lv_process.transport_pid)}/#{lv_process.socket_id}/new_trace"
+  @spec tree_updated_topic(trace :: Trace.t()) :: String.t()
+  def tree_updated_topic(trace) do
+    socket_id = trace.socket_id
+    transport_pid = inspect(trace.transport_pid)
+
+    "lvdbg/#{socket_id}/#{transport_pid}/tree_updated"
   end
 
-  # FYI this topic is temporary, it will be replaced after the new tracing system is implemented
-  @spec session_trace_topic(lv_process :: LvProcess.t()) :: String.t()
-  def session_trace_topic(lv_process) do
-    "lvdbg/#{inspect(lv_process.transport_pid)}/new_trace"
+  @spec trace_topics(trace :: Trace.t()) :: [String.t()]
+  def trace_topics(trace) do
+    socket_id = trace.socket_id
+    node_id = inspect(Trace.node_id(trace))
+    transport_pid = inspect(trace.transport_pid)
+    fun = inspect(trace.function)
+
+    [
+      "#{socket_id}/#{transport_pid}/#{node_id}/#{fun}",
+      "#{socket_id}/#{transport_pid}/#{node_id}/*",
+      "#{socket_id}/#{transport_pid}/*/*"
+    ]
   end
 end
