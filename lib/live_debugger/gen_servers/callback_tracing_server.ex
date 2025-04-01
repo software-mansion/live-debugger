@@ -9,9 +9,9 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Services.ModuleDiscoveryService
-  alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Services.System.ProcessService
+  alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   @callback_functions CallbackUtils.callbacks_functions()
@@ -43,20 +43,21 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     |> Enum.concat(callbacks)
     |> Enum.each(fn mfa -> :dbg.tp(mfa, []) end)
 
-    # These are not callbacks created by user
-    # We trace channel events to refresh the components tree
+    # This is not a callback created by user
+    # We trace it to refresh the components tree
     :dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
 
     {:noreply, state}
   end
 
-  # This handler is heavy because of fetching state and we do not care for order because it is no displayed to user
+  # This handler is heavy because of fetching state and we do not care for order because it is not displayed to user
   # Because of that we do it asynchronously to speed up tracer a bit
+  # We do not persist this trace because it is not displayed to user
   defp trace_handler({_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}}, n) do
     Task.start(fn ->
       with cid <- %Phoenix.LiveComponent.CID{cid: cid},
-           {:ok, %{socket: %{id: socket_id, transport_pid: transport_pid}}} <-
-             ProcessService.state(pid),
+           {:ok, %{socket: socket}} <- ProcessService.state(pid),
+           %{id: socket_id, transport_pid: transport_pid} <- socket,
            true <- is_pid(transport_pid),
            trace <-
              Trace.new(
