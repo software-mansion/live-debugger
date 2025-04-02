@@ -135,4 +135,6 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('test merge queue #3');
 
   console.log('test token');
+
+  console.log('test token #2');
 });
