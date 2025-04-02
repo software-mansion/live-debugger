@@ -291,7 +291,15 @@ defmodule LiveDebugger.LiveViews.TracesLive do
         <.icon name="icon-filters" class="w-4 h-4" />
         <div class="hidden @[29rem]/traces:block">Filters</div>
       </:button>
-      <div>Filters</div>
+      <div class="w-52">
+        <div class="p-4">
+          <p class="font-medium">Callbacks</p>
+        </div>
+        <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
+          <button class="text-link-primary hover:text-link-primary-hover">Clear&nbsp;filters</button>
+          <.button variant="primary" size="sm">Apply</.button>
+        </div>
+      </div>
     </.dropdown>
     """
   end

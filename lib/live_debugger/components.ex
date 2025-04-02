@@ -313,7 +313,7 @@ defmodule LiveDebugger.Components do
       <div
         id={@id <> "-content"}
         class={[
-          "absolute right-0 bg-surface-0-bg rounded border border-default-border p-4 mt-1"
+          "absolute right-0 bg-surface-0-bg rounded border border-default-border mt-1"
           | List.wrap(@open_class)
         ]}
       >
