@@ -135,4 +135,6 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('test merge queue #3');
 
   console.log('test assets build on pr');
+
+  console.log('test assets build on pr #2');
 });
