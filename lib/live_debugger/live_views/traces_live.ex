@@ -87,6 +87,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             >
               Clear
             </.button>
+            <.filter_dropdown :if={not @tracing_helper.tracing_started?} />
           </div>
         </:right_panel>
         <div class="w-full h-full lg:min-h-[10.25rem]">
@@ -277,6 +278,15 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     <.button phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
       <.icon name="icon-refresh" class="w-4 h-4" />
       <div>Refresh</div>
+    </.button>
+    """
+  end
+
+  defp filter_dropdown(assigns) do
+    ~H"""
+    <.button class="flex gap-2" variant="secondary" size="sm">
+      <.icon name="icon-filters" class="w-4 h-4" />
+      <div>Filters</div>
     </.button>
     """
   end
