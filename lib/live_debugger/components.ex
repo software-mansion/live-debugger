@@ -275,6 +275,41 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  slot :button, required: true do
+    attr(:class, :any, doc: "Additional classes to add to the button.")
+
+    attr(:size, :string,
+      values: ["sm", "md"],
+      doc: "Size of the button."
+    )
+
+    attr(:variant, :string,
+      values: ["primary", "secondary"],
+      doc: "Variant of the button."
+    )
+  end
+
+  slot(:inner_block, required: true)
+
+  def dropdown(assigns) do
+    ~H"""
+    <div class="relative">
+      <.button
+        :for={button_slot <- @button}
+        class={Map.get(button_slot, :class)}
+        variant={Map.get(button_slot, :variant, "secondary")}
+        size={Map.get(button_slot, :size, "sm")}
+      >
+        <%= render_slot(button_slot) %>
+      </.button>
+
+      <div class="absolute right-0 bg-surface-0-bg rounded border border-default-border p-4 mt-1">
+        Witam
+      </div>
+    </div>
+    """
+  end
+
   @doc """
   Renders a fullscreen using Fullscreen hook.
   It can be opened and via browser "open" event (by default) with JS.dispatch or via server event (check example in fullscreen button).

@@ -80,7 +80,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             <.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
             <.refresh_button :if={not @tracing_helper.tracing_started?} />
             <.clear_button :if={not @tracing_helper.tracing_started?} />
-            <.filter_dropdown :if={not @tracing_helper.tracing_started?} />
+            <.filters_dropdown :if={not @tracing_helper.tracing_started?} />
           </div>
         </:right_panel>
         <div class="w-full h-full lg:min-h-[10.25rem]">
@@ -284,12 +284,15 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     """
   end
 
-  defp filter_dropdown(assigns) do
+  defp filters_dropdown(assigns) do
     ~H"""
-    <.button class="flex gap-2" variant="secondary" size="sm">
-      <.icon name="icon-filters" class="w-4 h-4" />
-      <div class="hidden @[29rem]/traces:block">Filters</div>
-    </.button>
+    <.dropdown>
+      <:button class="flex gap-2">
+        <.icon name="icon-filters" class="w-4 h-4" />
+        <div class="hidden @[29rem]/traces:block">Filters</div>
+      </:button>
+      <div>Filters</div>
+    </.dropdown>
     """
   end
 
