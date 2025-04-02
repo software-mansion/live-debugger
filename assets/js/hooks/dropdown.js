@@ -3,17 +3,23 @@ const Dropdown = {
     const contentId = `${this.el.id.replace('-button', '')}-content`;
     this.contentEl = document.getElementById(contentId);
 
-    this.handleClick = () => {
+    this.el.addEventListener('click', (event) => {
       if (this.contentEl.classList.contains('hidden')) {
         this.contentEl.classList.remove('hidden');
-        this.contentEl.classList.add('block');
       } else {
         this.contentEl.classList.add('hidden');
-        this.contentEl.classList.remove('block');
       }
-    };
 
-    this.el.addEventListener('click', this.handleClick);
+      event.stopPropagation();
+    });
+
+    document.addEventListener('click', () => {
+      if (!this.contentEl.classList.contains('hidden')) {
+        this.contentEl.classList.add('hidden');
+      }
+
+      document.removeEventListener('click', this.handleClick);
+    });
   },
 };
 
