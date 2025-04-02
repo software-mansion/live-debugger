@@ -18,18 +18,17 @@ defmodule LiveDebugger.Flash do
   """
   @spec put_flash!(
           socket :: Phoenix.LiveView.Socket.t(),
-          type :: :info | :error,
           message :: String.t()
         ) ::
           Phoenix.LiveView.Socket.t()
-  def put_flash!(pid \\ self(), socket, type, message) do
-    send(pid, {:put_flash, type, message})
+  def put_flash!(pid \\ self(), socket, message) do
+    send(pid, {:put_flash, message})
 
     socket
   end
 
-  defp maybe_receive_flash({:put_flash, type, message}, socket) do
-    {:halt, put_flash(socket, type, message)}
+  defp maybe_receive_flash({:put_flash, message}, socket) do
+    {:halt, put_flash(socket, :error, message)}
   end
 
   defp maybe_receive_flash(_, socket), do: {:cont, socket}

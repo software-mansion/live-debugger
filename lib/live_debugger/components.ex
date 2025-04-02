@@ -128,54 +128,42 @@ defmodule LiveDebugger.Components do
 
   ## Examples
 
-      <.flash kind={:info} flash={@flash} />
-      <.flash kind={:info} phx-mounted={show("#flash")}>Welcome Back!</.flash>
+      <.flash flash={@flash} />
+      <.flash phx-mounted={show("#flash")}>Welcome Back!</.flash>
   """
   attr(:id, :string, doc: "the optional id of flash container")
   attr(:flash, :map, default: %{}, doc: "the map of flash messages to display")
-  attr(:kind, :atom, values: [:info, :error], doc: "used for styling and flash lookup")
   attr(:rest, :global, doc: "the arbitrary HTML attributes to add to the flash container")
 
   def flash(assigns) do
+    message = Phoenix.Flash.get(assigns.flash, :error)
+
     assigns =
       assigns
-      |> assign_new(:id, fn -> "flash-#{assigns.kind}" end)
-      |> assign(
-        :icon_name,
-        case assigns.kind do
-          :info -> "icon-check-circle"
-          :error -> "icon-x-circle"
-        end
-      )
+      |> assign_new(:id, fn -> "flash" end)
+      |> assign(:message, message)
 
     ~H"""
     <div
-      :if={msg = Phoenix.Flash.get(@flash, @kind)}
+      :if={@message}
       id={@id}
       phx-hook="AutoClearFlash"
       role="alert"
       class={[
-        "fixed top-2 right-2 w-80 sm:w-96 z-50 rounded-sm p-4 flex justify-between items-center gap-3",
-        @kind == :info && "bg-green-50 text-green-800 border-green-100",
-        @kind == :error && "bg-red-50 text-red-800 border-red-100"
+        "fixed left-2 bottom-2 w-80 sm:w-96 z-50 rounded-sm p-4 flex justify-between items-center gap-3",
+        "bg-error-bg text-error-text border-error-text border"
       ]}
       {@rest}
     >
       <div class="flex gap-3 items-center">
-        <.icon
-          name={@icon_name}
-          class={[
-            @kind == :info && "text-green-500",
-            @kind == :error && "text-red-500"
-          ]}
-        />
+        <.icon name="icon-x-circle" class="text-red-500" />
         <p>
-          <%= msg %>
+          <%= @message %>
         </p>
       </div>
       <button
         phx-click={
-          JS.push("lv:clear-flash", value: %{key: @kind})
+          JS.push("lv:clear-flash", value: %{key: :error})
           |> JS.hide(
             to: "##{@id}",
             time: 200,
@@ -189,17 +177,6 @@ defmodule LiveDebugger.Components do
       >
         <.icon name="icon-cross-small" />
       </button>
-    </div>
-    """
-  end
-
-  attr(:flash, :map, default: %{}, doc: "the map of flash messages to display")
-
-  def flash_group(assigns) do
-    ~H"""
-    <div>
-      <.flash kind={:info} flash={@flash} />
-      <.flash kind={:error} flash={@flash} />
     </div>
     """
   end

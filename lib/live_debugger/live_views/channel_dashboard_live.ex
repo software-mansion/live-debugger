@@ -219,7 +219,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
         Logger.error("Invalid node_id: #{inspect(node_id)}")
 
         socket
-        |> put_flash!(:error, "Invalid `node_id` param")
+        |> put_flash!("Invalid `node_id` param")
         |> assign(:node_id, nil)
     end
   end
