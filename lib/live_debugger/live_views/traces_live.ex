@@ -73,7 +73,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="max-w-full">
+    <div class="max-w-full @container/traces">
       <.section title="Callback traces" id="traces" inner_class="p-4">
         <:right_panel>
           <div class="flex gap-2 items-center">
@@ -270,7 +270,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     ~H"""
     <.button phx-click="clear-traces" class="flex gap-2" variant="secondary" size="sm">
       <.icon name="icon-trash" class="w-4 h-4" />
-      <div>Clear</div>
+      <div class="hidden @[29rem]/traces:block">Clear</div>
     </.button>
     """
   end
@@ -279,7 +279,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     ~H"""
     <.button phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
       <.icon name="icon-refresh" class="w-4 h-4" />
-      <div>Refresh</div>
+      <div class="hidden @[29rem]/traces:block">Refresh</div>
     </.button>
     """
   end
@@ -288,7 +288,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     ~H"""
     <.button class="flex gap-2" variant="secondary" size="sm">
       <.icon name="icon-filters" class="w-4 h-4" />
-      <div>Filters</div>
+      <div class="hidden @[29rem]/traces:block">Filters</div>
     </.button>
     """
   end
