@@ -167,10 +167,7 @@ defmodule LiveDebugger.Components do
           |> JS.hide(
             to: "##{@id}",
             time: 200,
-            transition:
-              {"transition-all transform ease-in duration-200",
-               "opacity-100 translate-y-0 sm:scale-100",
-               "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
+            transition: "max-sm:animate-fadeOutMobile sm:animate-fadeOut"
           )
         }
         aria-label="close"
