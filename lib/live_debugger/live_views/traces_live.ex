@@ -79,14 +79,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
           <div class="flex gap-2 items-center">
             <.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
             <.refresh_button :if={not @tracing_helper.tracing_started?} />
-            <.button
-              :if={not @tracing_helper.tracing_started?}
-              variant="secondary"
-              size="sm"
-              phx-click="clear-traces"
-            >
-              Clear
-            </.button>
+            <.clear_button :if={not @tracing_helper.tracing_started?} />
             <.filter_dropdown :if={not @tracing_helper.tracing_started?} />
           </div>
         </:right_panel>
@@ -269,6 +262,15 @@ defmodule LiveDebugger.LiveViews.TracesLive do
           <div>Start</div>
         <% end %>
       </div>
+    </.button>
+    """
+  end
+
+  defp clear_button(assigns) do
+    ~H"""
+    <.button phx-click="clear-traces" class="flex gap-2" variant="secondary" size="sm">
+      <.icon name="icon-trash" class="w-4 h-4" />
+      <div>Clear</div>
     </.button>
     """
   end
