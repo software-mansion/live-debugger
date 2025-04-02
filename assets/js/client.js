@@ -137,4 +137,6 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('test token');
 
   console.log('test deploy key');
+
+  console.log('test deploy key #2');
 });
