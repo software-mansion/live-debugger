@@ -162,6 +162,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
     CallbackTracingService.stop_tracing(socket.assigns.tracing_session)
 
     socket
+    |> push_patch(to: URL.remove_query_param(socket.assigns.url, "node_id"))
     |> start_async_assign_lv_process(%{"socket_id" => socket.assigns.socket_id})
     |> noreply()
   end
