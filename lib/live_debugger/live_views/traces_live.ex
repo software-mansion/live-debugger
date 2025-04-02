@@ -286,7 +286,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   defp filters_dropdown(assigns) do
     ~H"""
-    <.dropdown>
+    <.dropdown id="filters-dropdown">
       <:button class="flex gap-2">
         <.icon name="icon-filters" class="w-4 h-4" />
         <div class="hidden @[29rem]/traces:block">Filters</div>
