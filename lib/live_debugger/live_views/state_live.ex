@@ -111,19 +111,20 @@ defmodule LiveDebugger.LiveViews.StateLive do
         <.badge :if={@node_type == :live_view and @nested?} text="Nested" icon="icon-nested" />
       </:right_panel>
       <div class="p-4 flex flex-col gap-1">
-        <.info_row name="Module" value={Parsers.module_to_string(@node.module)} />
+        <.info_row id="module-name" name="Module" value={Parsers.module_to_string(@node.module)} />
         <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
       </div>
     </.section>
     """
   end
 
+  attr(:id, :string, default: nil)
   attr(:name, :string, required: true)
   attr(:value, :any, required: true)
 
   defp info_row(assigns) do
     ~H"""
-    <div class="flex gap-1 overflow-x-hidden">
+    <div id={@id} class="flex gap-1 overflow-x-hidden">
       <div class="font-medium">
         <%= @name %>
       </div>

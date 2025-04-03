@@ -258,7 +258,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   defp toggle_tracing_button(assigns) do
     ~H"""
-    <.button phx-click="switch-tracing" class="flex gap-2" size="sm">
+    <.button id="toggle-tracing" phx-click="switch-tracing" class="flex gap-2" size="sm">
       <div class="flex gap-1.5 items-center w-12">
         <%= if @tracing_started? do %>
           <.icon name="icon-stop" class="w-4 h-4" />
