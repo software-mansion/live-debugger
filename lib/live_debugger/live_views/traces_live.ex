@@ -7,6 +7,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   require Logger
 
+  alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.LiveHelpers.TracingHelper
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Components.ElixirDisplay
@@ -80,7 +81,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             <.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
             <.refresh_button :if={not @tracing_helper.tracing_started?} />
             <.clear_button :if={not @tracing_helper.tracing_started?} />
-            <.filters_dropdown :if={not @tracing_helper.tracing_started?} />
+            <.filters_dropdown :if={not @tracing_helper.tracing_started?} node_id={@node_id} />
           </div>
         </:right_panel>
         <div class="w-full h-full lg:min-h-[10.25rem]">
@@ -284,6 +285,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     """
   end
 
+  attr(:node_id, :map, required: true)
+
   defp filters_dropdown(assigns) do
     assigns = assign(assigns, :form, to_form(%{}))
 
@@ -297,13 +300,9 @@ defmodule LiveDebugger.LiveViews.TracesLive do
         <div class="p-4">
           <p class="font-medium mb-4">Callbacks</p>
           <.form for={@form} class="flex flex-col gap-3">
-            <.checkbox field={@form[:username]} label="handle_async/3" />
-            <.checkbox field={@form[:username]} label="handle_event/3" />
-            <.checkbox field={@form[:username]} label="handle_info/3" />
-            <.checkbox field={@form[:username]} label="handle_params/3" />
-            <.checkbox field={@form[:username]} label="handle_reply/3" />
-            <.checkbox field={@form[:username]} label="handle_sync/3" />
-            <.checkbox field={@form[:username]} label="handle_view/3" />
+            <%= for {function, arity} <- get_callback_options(@node_id) do %>
+              <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
+            <% end %>
           </.form>
         </div>
         <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
@@ -440,5 +439,14 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> start_async(:fetch_existing_traces, fn ->
       TraceService.existing_traces(ets_table_id, node_id, @stream_limit)
     end)
+  end
+
+  defp get_callback_options(node_id) do
+    node_id
+    |> TreeNode.type()
+    |> case do
+      :live_view -> LiveDebugger.Utils.Callbacks.live_view_callbacks()
+      :live_component -> LiveDebugger.Utils.Callbacks.live_component_callbacks()
+    end
   end
 end
