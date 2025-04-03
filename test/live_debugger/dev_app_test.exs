@@ -1,5 +1,5 @@
 defmodule LiveDebugger.DevAppTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   use Wallaby.Feature
 
   import Wallaby.Query
