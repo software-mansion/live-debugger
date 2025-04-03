@@ -55,7 +55,12 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
               >
                 Clear&nbsp;filters
               </button>
-              <.button variant="primary" size="sm" type="submit">Apply</.button>
+              <.button variant="primary" size="sm" type="submit">
+                Apply
+                <span :if={MapSet.size(@active_callbacks) > 0}>
+                  (<%= MapSet.size(@active_callbacks) %>)
+                </span>
+              </.button>
             </div>
           </div>
         </.form>
