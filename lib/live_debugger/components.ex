@@ -58,7 +58,7 @@ defmodule LiveDebugger.Components do
         id={@field.id}
         name={@field.name}
         type="checkbox"
-        value={@field.value}
+        checked={@field.value}
         class={[
           "outline-disabled w-4 h-4 text-ui-accent border border-default-border"
           | List.wrap(@input_class)
