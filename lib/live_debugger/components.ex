@@ -41,6 +41,38 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
+  Renders a checkbox.
+  """
+  attr(:field, Phoenix.HTML.FormField, required: true)
+  attr(:label, :string, default: nil)
+
+  attr(:wrapper_class, :any, default: nil)
+  attr(:input_class, :any, default: nil)
+  attr(:label_class, :any, default: nil)
+  attr(:rest, :global, include: ~w(type))
+
+  def checkbox(assigns) do
+    ~H"""
+    <div class={["flex items-center gap-2" | List.wrap(@wrapper_class)]}>
+      <input
+        id={@field.id}
+        name={@field.name}
+        type="checkbox"
+        value={@field.value}
+        class={[
+          "outline-disabled w-4 h-4 text-ui-accent border border-default-border"
+          | List.wrap(@input_class)
+        ]}
+        {@rest}
+      />
+      <label :if={@label} for={@field.id} class={["" | List.wrap(@label_class)]}>
+        <%= @label %>
+      </label>
+    </div>
+    """
+  end
+
+  @doc """
   Renders a button.
 
   """
@@ -575,7 +607,7 @@ defmodule LiveDebugger.Components do
         <%= @label %>
       </span>
       <input id="highlight-switch" type="checkbox" class="sr-only peer" checked={@checked} {@rest} />
-      <div class="relative w-9 h-5 bg-ui-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ui-accent rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-ui-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ui-accent ">
+      <div class="relative w-9 h-5 bg-ui-muted rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-ui-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ui-accent ">
       </div>
     </label>
     """

@@ -285,6 +285,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   defp filters_dropdown(assigns) do
+    assigns = assign(assigns, :form, to_form(%{}))
+
     ~H"""
     <.dropdown id="filters-dropdown">
       <:button class="flex gap-2">
@@ -293,7 +295,16 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       </:button>
       <div class="w-52">
         <div class="p-4">
-          <p class="font-medium">Callbacks</p>
+          <p class="font-medium mb-4">Callbacks</p>
+          <.form for={@form} class="flex flex-col gap-3">
+            <.checkbox field={@form[:username]} label="handle_async/3" />
+            <.checkbox field={@form[:username]} label="handle_event/3" />
+            <.checkbox field={@form[:username]} label="handle_info/3" />
+            <.checkbox field={@form[:username]} label="handle_params/3" />
+            <.checkbox field={@form[:username]} label="handle_reply/3" />
+            <.checkbox field={@form[:username]} label="handle_sync/3" />
+            <.checkbox field={@form[:username]} label="handle_view/3" />
+          </.form>
         </div>
         <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
           <button class="text-link-primary hover:text-link-primary-hover">Clear&nbsp;filters</button>

@@ -6,4 +6,8 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+.outline-disabled {
+  outline: none !important;
+  box-shadow: none !important;
+}
 /* You can add custom styles here */
