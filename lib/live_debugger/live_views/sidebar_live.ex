@@ -312,12 +312,16 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     base_id = "sidebar-content-nested-live-views"
     mobile_id = "sidebar-content-slide-over-nested-live-views"
 
-    if socket.assigns.hidden? do
-      [base_id]
-    else
-      [base_id, mobile_id]
+    ids =
+      if socket.assigns.hidden? do
+        [base_id]
+      else
+        [base_id, mobile_id]
+      end
+
+    for id <- ids do
+      send_update(NestedLiveViewsLinks, id: id, refresh: true)
     end
-    |> Enum.map(&send_update(NestedLiveViewsLinks, id: &1, refresh: true))
 
     socket
   end
