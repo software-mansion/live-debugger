@@ -309,10 +309,17 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   end
 
   defp update_nested_live_views_links(socket) do
-    for id <- [
-          "sidebar-content-nested-live-views",
-          "sidebar-content-slide-over-nested-live-views"
-        ] do
+    base_id = "sidebar-content-nested-live-views"
+    mobile_id = "sidebar-content-slide-over-nested-live-views"
+
+    ids =
+      if socket.assigns.hidden? do
+        [base_id]
+      else
+        [base_id, mobile_id]
+      end
+
+    for id <- ids do
       send_update(NestedLiveViewsLinks, id: id, refresh: true)
     end
 
