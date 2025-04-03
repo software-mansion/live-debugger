@@ -81,7 +81,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             <.refresh_button :if={not @tracing_helper.tracing_started?} />
             <.clear_button :if={not @tracing_helper.tracing_started?} />
             <.live_component
-              :if={not @tracing_helper.tracing_started?}
+              :if={not @tracing_helper.tracing_started? && LiveDebugger.Env.dev?()}
               module={LiveDebugger.LiveComponents.FiltersDropdown}
               id="filters-dropdown"
               node_id={@node_id}
