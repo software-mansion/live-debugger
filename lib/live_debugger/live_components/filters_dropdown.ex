@@ -1,6 +1,9 @@
 defmodule LiveDebugger.LiveComponents.FiltersDropdown do
   @moduledoc """
   Dropdown for filtering traces by callback.
+
+  Dropdowns by default should be operated via JavaScript, but since here we have to rerender this component
+  on change, we have to manually force it to have open? set to true. Otherwise it would close on rerender
   """
   use LiveDebuggerWeb, :live_component
 
@@ -19,6 +22,7 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
     |> assign(:node_id, assigns.node_id)
     |> assign(:active_callbacks, active_callbacks)
     |> assign(:callbacks, all_callbacks)
+    |> assign(:dropdown_open?, false)
     |> assign_form()
     |> ok()
   end
@@ -27,12 +31,12 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
   def render(assigns) do
     ~H"""
     <div id={@id <> "-wrapper"}>
-      <.dropdown id={@id}>
+      <.dropdown id={@id} open={@dropdown_open?}>
         <:button class="flex gap-2">
           <.icon name="icon-filters" class="w-4 h-4" />
           <div class="hidden @[29rem]/traces:block">Filters</div>
         </:button>
-        <.form for={@form} phx-submit="submit" phx-target={@myself}>
+        <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
           <div class="w-52">
             <div class="p-4">
               <p class="font-medium mb-4">Callbacks</p>
@@ -69,14 +73,32 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
 
     send(self(), {:filters_updated, filters})
 
-    {:noreply, socket}
+    socket
+    |> push_event("#{socket.assigns.id}-close", %{})
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("change", params, socket) do
+    filters =
+      params
+      |> Map.keys()
+      |> Enum.reject(&String.starts_with?(&1, "_"))
+      |> Enum.map(&String.to_existing_atom/1)
+
+    socket
+    |> assign(:active_callbacks, MapSet.new(filters))
+    |> assign_form()
+    |> assign(:dropdown_open?, true)
+    |> noreply()
   end
 
   @impl true
   def handle_event("clear", _params, socket) do
     socket
-    # |> assign(:active_callbacks, MapSet.new())
-    # |> assign_form()
+    |> assign(:active_callbacks, MapSet.new())
+    |> assign_form()
+    |> assign(:dropdown_open?, true)
     |> noreply()
   end
 

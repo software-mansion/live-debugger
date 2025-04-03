@@ -1,6 +1,7 @@
 const Dropdown = {
   mounted() {
-    const contentId = `${this.el.id.replace('-button', '')}-content`;
+    const dropdownId = this.el.id.replace('-button', '');
+    const contentId = `${dropdownId}-content`;
     this.contentEl = document.getElementById(contentId);
 
     function isHidden(el) {
@@ -11,6 +12,7 @@ const Dropdown = {
       return !el.contains(event.target);
     }
 
+    // Event from the browser
     this.el.addEventListener('click', (event) => {
       if (isHidden(this.contentEl)) {
         this.contentEl.classList.remove('hidden');
@@ -27,6 +29,11 @@ const Dropdown = {
       }
 
       document.removeEventListener('click', this.handleClick);
+    });
+
+    // Event from the server
+    this.handleEvent(`${dropdownId}-close`, () => {
+      this.contentEl.classList.add('hidden');
     });
   },
 };
