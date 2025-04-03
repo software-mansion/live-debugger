@@ -42,34 +42,12 @@ defmodule LiveDebugger.Structs.Trace do
   @doc """
   Creates a new trace struct.
   """
-  @spec new(integer(), atom(), atom(), list(), pid()) :: t()
-  def new(id, module, function, args, pid) do
-    new(
-      id,
-      module,
-      function,
-      args,
-      pid,
-      get_cid_from_args(args)
-    )
-  end
+  @spec new(integer(), atom(), atom(), list(), pid(), Keyword.t()) :: t()
+  def new(id, module, function, args, pid, opts \\ []) do
+    socket_id = Keyword.get(opts, :socket_id, get_socket_id_from_args(args))
+    transport_pid = Keyword.get(opts, :transport_pid, get_transport_pid_from_args(args))
+    cid = Keyword.get(opts, :cid, get_cid_from_args(args))
 
-  @spec new(integer(), atom(), atom(), list(), pid(), CommonTypes.cid()) :: t()
-  def new(id, module, function, args, pid, cid) do
-    new(
-      id,
-      module,
-      function,
-      args,
-      get_socket_id_from_args(args),
-      get_transport_pid_from_args(args),
-      pid,
-      cid
-    )
-  end
-
-  @spec new(integer(), atom(), atom(), list(), String.t(), pid(), pid(), CommonTypes.cid()) :: t()
-  def new(id, module, function, args, socket_id, transport_pid, pid, cid) do
     %__MODULE__{
       id: id,
       module: module,

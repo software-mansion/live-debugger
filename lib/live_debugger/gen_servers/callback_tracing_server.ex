@@ -65,10 +65,10 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
                Phoenix.LiveView.Diff,
                :delete_component,
                args,
-               socket_id,
-               transport_pid,
                pid,
-               cid
+               socket_id: socket_id,
+               transport_pid: transport_pid,
+               cid: cid
              ) do
         publish_trace(trace)
       end
