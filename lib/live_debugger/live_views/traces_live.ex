@@ -7,7 +7,6 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   require Logger
 
-  alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.LiveHelpers.TracingHelper
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Components.ElixirDisplay
@@ -81,7 +80,13 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             <.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
             <.refresh_button :if={not @tracing_helper.tracing_started?} />
             <.clear_button :if={not @tracing_helper.tracing_started?} />
-            <.filters_dropdown :if={not @tracing_helper.tracing_started?} node_id={@node_id} />
+            <.live_component
+              :if={not @tracing_helper.tracing_started?}
+              module={LiveDebugger.LiveComponents.FiltersDropdown}
+              id="filters-dropdown"
+              node_id={@node_id}
+              default_inactive_callbacks={[:render]}
+            />
           </div>
         </:right_panel>
         <div class="w-full h-full lg:min-h-[10.25rem]">
@@ -172,6 +177,13 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> TracingHelper.disable_tracing()
     |> assign(node_id: node_id)
     |> assign_async_existing_traces()
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info({:filters_updated, filters}, socket) do
+    socket
+    |> assign(:filters, filters)
     |> noreply()
   end
 
@@ -282,35 +294,6 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       <.icon name="icon-refresh" class="w-4 h-4" />
       <div class="hidden @[29rem]/traces:block">Refresh</div>
     </.button>
-    """
-  end
-
-  attr(:node_id, :map, required: true)
-
-  defp filters_dropdown(assigns) do
-    assigns = assign(assigns, :form, to_form(%{}))
-
-    ~H"""
-    <.dropdown id="filters-dropdown">
-      <:button class="flex gap-2">
-        <.icon name="icon-filters" class="w-4 h-4" />
-        <div class="hidden @[29rem]/traces:block">Filters</div>
-      </:button>
-      <div class="w-52">
-        <div class="p-4">
-          <p class="font-medium mb-4">Callbacks</p>
-          <.form for={@form} class="flex flex-col gap-3">
-            <%= for {function, arity} <- get_callback_options(@node_id) do %>
-              <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
-            <% end %>
-          </.form>
-        </div>
-        <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
-          <button class="text-link-primary hover:text-link-primary-hover">Clear&nbsp;filters</button>
-          <.button variant="primary" size="sm">Apply</.button>
-        </div>
-      </div>
-    </.dropdown>
     """
   end
 
@@ -439,14 +422,5 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> start_async(:fetch_existing_traces, fn ->
       TraceService.existing_traces(ets_table_id, node_id, @stream_limit)
     end)
-  end
-
-  defp get_callback_options(node_id) do
-    node_id
-    |> TreeNode.type()
-    |> case do
-      :live_view -> LiveDebugger.Utils.Callbacks.live_view_callbacks()
-      :live_component -> LiveDebugger.Utils.Callbacks.live_component_callbacks()
-    end
   end
 end
