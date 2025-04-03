@@ -2,11 +2,14 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
   use ExUnit.Case, async: true
 
   import Mox
+  import LiveDebugger.Test.Mocks
 
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.MockProcessService
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Test.Fakes
+
+  setup :set_mocks
 
   describe "debugged_lv_processes/0" do
     test "returns list of LvProcesses" do

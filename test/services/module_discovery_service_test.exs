@@ -2,8 +2,11 @@ defmodule LiveDebugger.Services.ModuleDiscoveryServiceTest do
   use ExUnit.Case, async: true
 
   import Mox
+  import LiveDebugger.Test.Mocks
 
   alias LiveDebugger.Services.ModuleDiscoveryService
+
+  setup :set_mocks
 
   describe "live_view_modules/1" do
     test "filters LiveView modules correctly" do

@@ -1,9 +1,13 @@
 defmodule LiveDebugger.Services.ChannelServiceTest do
   use ExUnit.Case, async: true
 
+  import LiveDebugger.Test.Mocks
+
   alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Structs.TreeNode
+
+  setup :set_mocks
 
   setup do
     live_view_pid = :c.pid(0, 0, 1)

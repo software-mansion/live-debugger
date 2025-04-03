@@ -3,6 +3,9 @@ defmodule LiveDebugger.ExampleTest do
   use Wallaby.Feature
 
   import Wallaby.Query
+  import LiveDebugger.Test.Mocks
+
+  setup :unset_mocks
 
   describe "Smoke" do
     feature "live debugger sessions page", %{session: session} do
