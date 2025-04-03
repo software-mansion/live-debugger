@@ -20,13 +20,13 @@ defmodule LiveDebuggerDev.LiveViews.Main do
     <.box title="Main [LiveView]" color="blue">
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
-          <.button phx-click="increment" color="blue">
+          <.button id="increment" phx-click="increment" color="blue">
             Increment
           </.button>
           <span class="text-xl"><%= @counter %></span>
         </div>
         <div class="flex items-center gap-1">
-          <.button phx-click="change_name" color="red">
+          <.button id="update" phx-click="change_name" color="red">
             Update
           </.button>
           <div>
