@@ -15,6 +15,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
+  alias LiveDebugger.Structs.TreeNode
 
   @stream_limit 128
   @separator %{id: "separator"}
@@ -63,6 +65,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> assign(id: session["id"])
     |> assign(ets_table_id: TraceService.ets_table_id(lv_process))
     |> assign(lv_process: lv_process)
+    |> assign(current_filters: default_filters(node_id))
     |> assign_async_existing_traces()
     |> ok()
   end
@@ -86,7 +89,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
               module={LiveDebugger.LiveComponents.FiltersDropdown}
               id="filters-dropdown"
               node_id={@node_id}
-              default_inactive_callbacks={[:render]}
+              filters={@current_filters}
             />
           </div>
         </:right_panel>
@@ -184,7 +187,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   @impl true
   def handle_info({:filters_updated, filters}, socket) do
     socket
-    |> assign(:filters, filters)
+    |> assign(:current_filters, filters)
     |> noreply()
   end
 
@@ -423,5 +426,16 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> start_async(:fetch_existing_traces, fn ->
       TraceService.existing_traces(ets_table_id, node_id, @stream_limit)
     end)
+  end
+
+  defp default_filters(node_id) do
+    node_id
+    |> TreeNode.type()
+    |> case do
+      :live_view -> UtilsCallbacks.live_view_callbacks()
+      :live_component -> UtilsCallbacks.live_component_callbacks()
+    end
+    |> Enum.map(fn {function, _} -> {function, true} end)
+    |> Keyword.replace(:render, false)
   end
 end

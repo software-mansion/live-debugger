@@ -4,27 +4,24 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
   """
   use LiveDebuggerWeb, :live_component
 
-  alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
+  alias LiveDebugger.Structs.TreeNode
 
   @impl true
   def update(assigns, socket) do
-    default_inactive_callbacks = MapSet.new(assigns.default_inactive_callbacks || [])
-    all_callbacks = get_callbacks(assigns.node_id)
-
-    active_callbacks = get_active_callbacks(all_callbacks, default_inactive_callbacks)
-
     socket
     |> assign(:id, assigns.id)
     |> assign(:node_id, assigns.node_id)
-    |> assign(:active_callbacks, active_callbacks)
-    |> assign(:callbacks, all_callbacks)
-    |> assign_form()
+    |> assign(:active_filters, assigns.filters)
+    |> assign_form(assigns.filters)
     |> ok()
   end
 
   @impl true
+  @spec render(any()) :: Phoenix.LiveView.Rendered.t()
   def render(assigns) do
+    assigns = assign(assigns, :selected_filters_number, calculate_selected_filters(assigns.form))
+
     ~H"""
     <div id={@id <> "-wrapper"}>
       <.live_component module={LiveDebugger.LiveComponents.LiveDropdown} id={@id}>
@@ -37,7 +34,7 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
             <div class="p-4">
               <p class="font-medium mb-4">Callbacks</p>
               <div class="flex flex-col gap-3">
-                <%= for {function, arity} <- @callbacks do %>
+                <%= for {function, arity} <- get_callbacks(@node_id) do %>
                   <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
                 <% end %>
               </div>
@@ -53,8 +50,8 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
               </button>
               <.button variant="primary" size="sm" type="submit">
                 Apply
-                <span :if={MapSet.size(@active_callbacks) > 0}>
-                  (<%= MapSet.size(@active_callbacks) %>)
+                <span :if={@selected_filters_number > 0}>
+                  (<%= @selected_filters_number %>)
                 </span>
               </.button>
             </div>
@@ -67,12 +64,10 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
 
   @impl true
   def handle_event("submit", params, socket) do
-    filters =
-      params
-      |> Map.keys()
-      |> Enum.map(&String.to_existing_atom/1)
+    filters = update_filters(socket.assigns.active_filters, params)
 
-    send(self(), {:filters_updated, filters})
+    dbg(filters)
+    # send(self(), {:filters_updated, filters})
     LiveDebugger.LiveComponents.LiveDropdown.close(socket.assigns.id)
 
     {:noreply, socket}
@@ -80,27 +75,32 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
 
   @impl true
   def handle_event("change", params, socket) do
-    filters =
-      params
-      |> Map.keys()
-      |> Enum.reject(&String.starts_with?(&1, "_"))
-      |> Enum.map(&String.to_existing_atom/1)
+    filters = update_filters(socket.assigns.active_filters, params)
 
     socket
-    |> assign(:active_callbacks, MapSet.new(filters))
-    |> assign_form()
+    |> assign_form(filters)
     |> noreply()
   end
 
   @impl true
   def handle_event("clear", _params, socket) do
     socket
-    |> assign(:active_callbacks, MapSet.new())
-    |> assign_form()
+    |> assign_form([])
     |> noreply()
   end
 
-  defp get_callbacks(node_id) do
+  def assign_form(socket, filters) do
+    form =
+      filters
+      |> Enum.reduce(%{}, fn {function, active}, acc ->
+        Map.put(acc, Atom.to_string(function), active)
+      end)
+      |> to_form()
+
+    assign(socket, :form, form)
+  end
+
+  def get_callbacks(node_id) do
     node_id
     |> TreeNode.type()
     |> case do
@@ -109,24 +109,16 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
     end
   end
 
-  def assign_form(socket) do
-    active_callbacks = socket.assigns.active_callbacks
-
-    form =
-      socket.assigns.callbacks
-      |> Enum.reduce(%{}, fn {function, _arity}, acc ->
-        active? = MapSet.member?(active_callbacks, function)
-        Map.put(acc, Atom.to_string(function), active?)
-      end)
-      |> to_form()
-
-    assign(socket, :form, form)
+  defp update_filters(active_filters, params) do
+    active_filters
+    |> Enum.map(fn {function, _} ->
+      {function, Map.has_key?(params, Atom.to_string(function))}
+    end)
   end
 
-  defp get_active_callbacks(all_callbacks, default_inactive_callbacks) do
-    all_callbacks
-    |> Enum.map(fn {function, _arity} -> function end)
-    |> MapSet.new()
-    |> MapSet.difference(default_inactive_callbacks)
+  defp calculate_selected_filters(form) do
+    form.params
+    |> Map.values()
+    |> Enum.count(fn active -> active end)
   end
 end
