@@ -6,7 +6,6 @@ import Fullscreen from './hooks/fullscreen';
 import ToggleTheme from './hooks/toggle_theme';
 import Tooltip from './hooks/tooltip';
 import Highlight from './hooks/highlight';
-import Dropdown from './hooks/dropdown';
 import LiveDropdown from './hooks/live_dropdown';
 import topbar from '../vendor/topbar';
 
@@ -25,7 +24,6 @@ function createHooks() {
     Tooltip,
     ToggleTheme,
     Highlight,
-    Dropdown,
     LiveDropdown,
   };
 }

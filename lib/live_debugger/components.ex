@@ -307,54 +307,6 @@ defmodule LiveDebugger.Components do
     """
   end
 
-  attr(:id, :string, required: true)
-  attr(:open, :boolean, default: false)
-
-  slot :button, required: true do
-    attr(:class, :any, doc: "Additional classes to add to the button.")
-
-    attr(:size, :string,
-      values: ["sm", "md"],
-      doc: "Size of the button."
-    )
-
-    attr(:variant, :string,
-      values: ["primary", "secondary"],
-      doc: "Variant of the button."
-    )
-  end
-
-  slot(:inner_block, required: true)
-
-  def dropdown(assigns) do
-    assigns = assign(assigns, :open_class, if(assigns.open, do: "block", else: "hidden"))
-
-    ~H"""
-    <div id={@id} class="relative">
-      <.button
-        :for={button_slot <- @button}
-        class={Map.get(button_slot, :class)}
-        variant={Map.get(button_slot, :variant, "secondary")}
-        size={Map.get(button_slot, :size, "sm")}
-        id={@id <> "-button"}
-        phx-hook="Dropdown"
-      >
-        <%= render_slot(button_slot) %>
-      </.button>
-
-      <div
-        id={@id <> "-content"}
-        class={[
-          "absolute right-0 bg-surface-0-bg rounded border border-default-border mt-1"
-          | List.wrap(@open_class)
-        ]}
-      >
-        <%= render_slot(@inner_block) %>
-      </div>
-    </div>
-    """
-  end
-
   @doc """
   Renders a fullscreen using Fullscreen hook.
   It can be opened and via browser "open" event (by default) with JS.dispatch or via server event (check example in fullscreen button).
