@@ -5,6 +5,14 @@ defmodule LiveDebugger.LiveComponents.LiveDropdown do
 
   use LiveDebuggerWeb, :live_component
 
+  def close(id) do
+    send_update(LiveDebugger.LiveComponents.LiveDropdown, id: id, action: :close)
+  end
+
+  def update(%{action: :close}, socket) do
+    {:ok, assign(socket, :open, false)}
+  end
+
   def update(assigns, %{assigns: %{mounted?: true}} = socket) do
     socket
     |> assign(:id, assigns.id)

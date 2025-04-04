@@ -76,10 +76,9 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
       |> Enum.map(&String.to_existing_atom/1)
 
     send(self(), {:filters_updated, filters})
+    LiveDebugger.LiveComponents.LiveDropdown.close(socket.assigns.id)
 
-    socket
-    |> push_event("#{socket.assigns.id}-close", %{})
-    |> noreply()
+    {:noreply, socket}
   end
 
   @impl true
