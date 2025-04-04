@@ -1,0 +1,82 @@
+defmodule LiveDebugger.LiveComponents.LiveDropdown do
+  @moduledoc """
+  Dropdown component that can be used to display a dropdown menu written via LiveComponents.
+  """
+
+  use LiveDebuggerWeb, :live_component
+
+  def update(assigns, %{assigns: %{mounted?: true}} = socket) do
+    socket
+    |> assign(:id, assigns.id)
+    |> assign(:button, assigns.button)
+    |> assign(:inner_block, assigns.inner_block)
+    |> ok()
+  end
+
+  def update(assigns, socket) do
+    socket
+    |> assign(:id, assigns.id)
+    |> assign(:button, assigns.button)
+    |> assign(:inner_block, assigns.inner_block)
+    |> assign(:open, assigns[:open] || false)
+    |> assign(:mounted?, true)
+    |> ok()
+  end
+
+  attr(:id, :string, required: true)
+  attr(:open, :boolean, required: true)
+
+  slot :button, required: true do
+    attr(:class, :any, doc: "Additional classes to add to the button.")
+
+    attr(:size, :string,
+      values: ["sm", "md"],
+      doc: "Size of the button."
+    )
+
+    attr(:variant, :string,
+      values: ["primary", "secondary"],
+      doc: "Variant of the button."
+    )
+  end
+
+  slot(:inner_block, required: true)
+
+  def render(assigns) do
+    assigns = assign(assigns, :open_class, if(assigns.open, do: "block", else: "hidden"))
+
+    ~H"""
+    <div id={@id <> "-live-dropdown-container"} class="relative" phx-hook="LiveDropdown">
+      <.button
+        :for={button_slot <- @button}
+        class={Map.get(button_slot, :class)}
+        variant={Map.get(button_slot, :variant, "secondary")}
+        size={Map.get(button_slot, :size, "sm")}
+        id={@id <> "-button"}
+        phx-click={unless @open, do: "open"}
+        phx-target={@myself}
+      >
+        <%= render_slot(button_slot) %>
+      </.button>
+
+      <div
+        id={@id <> "-content"}
+        class={[
+          "absolute right-0 bg-surface-0-bg rounded border border-default-border mt-1"
+          | List.wrap(@open_class)
+        ]}
+      >
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
+    """
+  end
+
+  def handle_event("open", _, socket) do
+    {:noreply, assign(socket, :open, true)}
+  end
+
+  def handle_event("close", _, socket) do
+    {:noreply, assign(socket, :open, false)}
+  end
+end

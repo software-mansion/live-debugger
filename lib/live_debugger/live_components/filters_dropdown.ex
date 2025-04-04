@@ -22,7 +22,6 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
     |> assign(:node_id, assigns.node_id)
     |> assign(:active_callbacks, active_callbacks)
     |> assign(:callbacks, all_callbacks)
-    |> assign(:dropdown_open?, false)
     |> assign_form()
     |> ok()
   end
@@ -31,7 +30,7 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
   def render(assigns) do
     ~H"""
     <div id={@id <> "-wrapper"}>
-      <.dropdown id={@id} open={@dropdown_open?}>
+      <.live_component module={LiveDebugger.LiveComponents.LiveDropdown} id={@id}>
         <:button class="flex gap-2">
           <.icon name="icon-filters" class="w-4 h-4" />
           <div class="hidden @[29rem]/traces:block">Filters</div>
@@ -64,7 +63,7 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
             </div>
           </div>
         </.form>
-      </.dropdown>
+      </.live_component>
     </div>
     """
   end
@@ -94,7 +93,6 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
     socket
     |> assign(:active_callbacks, MapSet.new(filters))
     |> assign_form()
-    |> assign(:dropdown_open?, true)
     |> noreply()
   end
 
@@ -103,7 +101,6 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
     socket
     |> assign(:active_callbacks, MapSet.new())
     |> assign_form()
-    |> assign(:dropdown_open?, true)
     |> noreply()
   end
 
