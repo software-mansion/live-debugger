@@ -1,9 +1,6 @@
 defmodule LiveDebugger.LiveComponents.FiltersDropdown do
   @moduledoc """
   Dropdown for filtering traces by callback.
-
-  Dropdowns by default should be operated via JavaScript, but since here we have to rerender this component
-  on change, we have to manually force it to have open? set to true. Otherwise it would close on rerender
   """
   use LiveDebuggerWeb, :live_component
 

@@ -5,6 +5,9 @@ defmodule LiveDebugger.LiveComponents.LiveDropdown do
 
   use LiveDebuggerWeb, :live_component
 
+  @doc """
+  Closes the dropdown. You can use it when you want to close the dropdown from other component.
+  """
   def close(id) do
     send_update(LiveDebugger.LiveComponents.LiveDropdown, id: id, action: :close)
   end
