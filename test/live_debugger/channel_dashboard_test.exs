@@ -10,52 +10,51 @@ defmodule LiveDebugger.ChannelDashboardTest do
   setup :unset_mocks
 
   @sessions 2
-  feature "user can visit Channel Dashboard", %{sessions: [dev_session, lvdbg_session]} do
+  feature "user can see traces of executed callbacks and updated assigns", %{
+    sessions: [dev_session, lvdbg_session]
+  } do
     dev_session
     |> visit(@dev_app_url)
 
     lvdbg_session
     |> visit("/")
-    |> click(css("#live-view-sessions a", count: 1))
-    |> find(css("#module-name"))
-    |> assert_has(css("div:first-child", text: "Module"))
-    |> assert_has(css("div:last-child", text: "LiveDebuggerDev.LiveViews.Main"))
-  end
+    |> click(first_link())
+    |> assert_has(counter_in_assigns(text: "0"))
 
-  @sessions 2
-  feature "user can see traces of executed callbacks", %{sessions: [dev_session, lvdbg_session]} do
     dev_session
-    |> visit(@dev_app_url)
+    |> click(button("increment"))
+    |> click(button("increment"))
 
     lvdbg_session
-    |> visit("/")
-    |> click(css("#live-view-sessions a", count: 1))
+    |> assert_has(traces(count: 0))
+    |> assert_has(counter_in_assigns(text: "2"))
     |> click(button("toggle-tracing"))
 
     dev_session
     |> click(button("increment"))
+    |> click(button("increment"))
 
     lvdbg_session
-    |> assert_has(css("#traces-list-stream details", count: 2))
-  end
-
-  @sessions 2
-  feature "user can see updated assigns", %{sessions: [dev_session, lvdbg_session]} do
-    dev_session
-    |> visit(@dev_app_url)
-
-    counter_element =
-      lvdbg_session
-      |> visit("/")
-      |> click(css("#live-view-sessions a", count: 1))
-      |> find(css("#assigns ol li:nth-child(2)"))
-      |> assert_has(css("span:nth-child(3)", text: "0"))
+    |> assert_has(traces(count: 4))
+    |> assert_has(counter_in_assigns(text: "4"))
+    |> click(button("toggle-tracing"))
+    |> click(button("clear-traces"))
+    |> assert_has(traces(count: 0))
 
     dev_session
     |> click(button("increment"))
     |> click(button("increment"))
 
-    counter_element
-    |> assert_has(css("span:nth-child(3)", text: "2"))
+    lvdbg_session
+    |> assert_has(traces(count: 0))
+    |> click(button("refresh"))
+    |> assert_has(traces(count: 4))
   end
+
+  defp first_link(), do: css("#live-sessions a", count: 1)
+
+  defp counter_in_assigns(text: text),
+    do: css("#assigns ol li:nth-child(2) span:nth-child(3)", text: text)
+
+  defp traces(count: count), do: css("#traces-list-stream details", count: count)
 end

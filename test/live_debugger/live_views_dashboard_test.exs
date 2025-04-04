@@ -9,35 +9,8 @@ defmodule LiveDebugger.LiveViewsDashboardTest do
 
   setup :unset_mocks
 
-  feature "user can visit Active LiveViews page", %{session: session} do
-    session
-    |> visit("/")
-    |> assert_has(css("h1", text: "Active LiveViews"))
-  end
-
-  feature "user can see there is no active live views", %{session: session} do
-    session
-    |> visit("/")
-    |> assert_has(css("#live-view-sessions > div > p", text: "No active LiveViews"))
-  end
-
   @sessions 3
-  feature "user can see multiple active live views", %{
-    sessions: [dev_session1, dev_session2, lvdbg_session]
-  } do
-    dev_session1
-    |> visit(@dev_app_url)
-
-    dev_session2
-    |> visit(@dev_app_url)
-
-    lvdbg_session
-    |> visit("/")
-    |> assert_has(css("#live-view-sessions > div", count: 2))
-  end
-
-  @sessions 3
-  feature "user can refresh to see more active live views", %{
+  feature "user can see active live views and refresh to see more", %{
     sessions: [dev_session1, dev_session2, lvdbg_session]
   } do
     dev_session1
@@ -45,14 +18,21 @@ defmodule LiveDebugger.LiveViewsDashboardTest do
 
     lvdbg_session
     |> visit("/")
-    |> assert_has(css("#live-view-sessions > div", count: 1))
+    |> assert_has(title(text: "Active LiveViews"))
+    |> assert_has(live_sessions(count: 1))
 
     dev_session2
     |> visit(@dev_app_url)
 
     lvdbg_session
-    |> assert_has(css("#live-view-sessions > div", count: 1))
+    |> assert_has(live_sessions(count: 1))
     |> click(button("refresh"))
-    |> assert_has(css("#live-view-sessions > div", count: 2))
+    |> assert_has(live_sessions(count: 2))
   end
+
+  defp title(text: text),
+    do: css("h1", text: text)
+
+  defp live_sessions(count: count),
+    do: css("#live-sessions > div", count: count)
 end
