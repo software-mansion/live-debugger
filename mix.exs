@@ -36,7 +36,7 @@ defmodule LiveDebugger.MixProject do
     [
       setup: ["deps.get", "cmd --cd assets npm install", "assets.setup", "assets.build:dev"],
       dev: "run --no-halt dev.exs",
-      test: ["test --exclude e2e"],
+      test: [&unit_tests_setup/1, "test --exclude e2e"],
       # We don't have any yet, but we'll have them soon
       e2e: [&e2e_tests_setup/1, "test --only e2e"],
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
@@ -49,8 +49,13 @@ defmodule LiveDebugger.MixProject do
     [preferred_envs: [e2e: :test]]
   end
 
+  defp unit_tests_setup(_) do
+    Application.put_env(:live_debugger, :test_mode?, true)
+  end
+
   defp e2e_tests_setup(_) do
-    Application.put_env(:live_debugger, :e2e, true)
+    Application.put_env(:live_debugger, :test_mode?, true)
+    Application.put_env(:live_debugger, :e2e?, true)
   end
 
   # Run "mix help deps" to learn about dependencies.

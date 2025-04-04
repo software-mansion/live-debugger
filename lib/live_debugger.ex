@@ -43,13 +43,13 @@ defmodule LiveDebugger do
     ]
 
     children =
-      if Application.get_env(:live_debugger, :e2e, false) do
+      if unit_test?() do
+        children
+      else
         children ++
           [
             {LiveDebugger.GenServers.CallbackTracingServer, []}
           ]
-      else
-        children
       end
 
     Supervisor.start_link(children, strategy: :one_for_one, name: LiveDebugger.Supervisor)
@@ -60,5 +60,10 @@ defmodule LiveDebugger do
       {:module, _} -> Bandit.PhoenixAdapter
       {:error, _} -> Phoenix.Endpoint.Cowboy2Adapter
     end
+  end
+
+  defp unit_test?() do
+    Application.get_env(:live_debugger, :test_mode?, false) and
+      not Application.get_env(:live_debugger, :e2e?, false)
   end
 end
