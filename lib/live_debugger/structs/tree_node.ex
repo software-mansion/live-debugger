@@ -25,9 +25,11 @@ defmodule LiveDebugger.Structs.TreeNode do
     * `:live_view`
     * `:live_component`
   """
-  @spec type(node :: t()) :: atom()
+  @spec type(t() | id()) :: atom()
   def type(%LiveViewNode{}), do: :live_view
   def type(%LiveComponentNode{}), do: :live_component
+  def type(pid) when is_pid(pid), do: :live_view
+  def type(%Phoenix.LiveComponent.CID{}), do: :live_component
 
   @doc """
   Returns string representation of the node's ID, ready to be displayed in the UI.
