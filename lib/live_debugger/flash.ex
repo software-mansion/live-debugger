@@ -13,15 +13,25 @@ defmodule LiveDebugger.Flash do
   end
 
   @doc """
-  Function to put flash inside nested LiveViews/LiveComponents.
-  If used in nested LiveView use parent's pid.
+  Extended Phoenix.LiveView.put_flash/3 which works inside nested LiveViews/LiveComponents.
+  If used in nested LiveView use root LiveView's pid.
   """
-  @spec put_flash!(
+  @spec push_flash(
           socket :: Phoenix.LiveView.Socket.t(),
           message :: String.t()
         ) ::
           Phoenix.LiveView.Socket.t()
-  def put_flash!(pid \\ self(), socket, message) do
+  def push_flash(socket, message) when is_binary(message) do
+    push_flash(self(), socket, message)
+  end
+
+  @spec push_flash(
+          pid :: pid(),
+          socket :: Phoenix.LiveView.Socket.t(),
+          message :: String.t()
+        ) ::
+          Phoenix.LiveView.Socket.t()
+  def push_flash(pid, socket, message) when is_pid(pid) and is_binary(message) do
     send(pid, {:put_flash, message})
 
     socket

@@ -11,7 +11,7 @@ defmodule LiveDebuggerWeb do
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers
       import LiveDebugger.Components
-      import LiveDebugger.Flash, only: [put_flash!: 2]
+      import LiveDebugger.Flash, only: [push_flash: 2, push_flash: 3]
     end
   end
 
@@ -22,7 +22,7 @@ defmodule LiveDebuggerWeb do
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers
       import LiveDebugger.Components
-      import LiveDebugger.Flash, only: [put_flash!: 2]
+      import LiveDebugger.Flash, only: [push_flash: 2, push_flash: 3]
     end
   end
 

@@ -163,7 +163,8 @@ defmodule LiveDebugger.Components do
       </div>
       <button
         phx-click={
-          JS.push("lv:clear-flash", value: %{key: :error})
+          "lv:clear-flash"
+          |> JS.push(value: %{key: :error})
           |> JS.hide(
             to: "##{@id}",
             time: 200,
