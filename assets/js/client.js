@@ -139,4 +139,6 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('test deploy key');
 
   console.log('test deploy key #2');
+
+  console.log('test deploy key #3');
 });
