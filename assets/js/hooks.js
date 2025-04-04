@@ -6,6 +6,7 @@ import Fullscreen from './hooks/fullscreen';
 import ToggleTheme from './hooks/toggle_theme';
 import Tooltip from './hooks/tooltip';
 import Highlight from './hooks/highlight';
+import AutoClearFlash from './hooks/auto_clear_flash';
 import topbar from '../vendor/topbar';
 
 Alpine.start();
@@ -23,6 +24,7 @@ function createHooks() {
     Tooltip,
     ToggleTheme,
     Highlight,
+    AutoClearFlash,
   };
 }
 

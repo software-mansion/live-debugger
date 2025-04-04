@@ -7,6 +7,8 @@ defmodule LiveDebugger.Layout do
 
   use Phoenix.Component
 
+  import LiveDebugger.Components
+
   @doc false
   def render(template, assigns)
 
@@ -65,6 +67,7 @@ defmodule LiveDebugger.Layout do
   def render("app.html", assigns) do
     ~H"""
     <main class="h-screen w-screen max-w-full">
+      <.flash flash={@flash} />
       <%= @inner_content %>
     </main>
     """
