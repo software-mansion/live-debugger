@@ -43,7 +43,7 @@ defmodule LiveDebugger do
     ]
 
     children =
-      if unit_test?() do
+      if LiveDebugger.Env.unit_test?() do
         children
       else
         children ++
@@ -60,10 +60,5 @@ defmodule LiveDebugger do
       {:module, _} -> Bandit.PhoenixAdapter
       {:error, _} -> Phoenix.Endpoint.Cowboy2Adapter
     end
-  end
-
-  defp unit_test?() do
-    Application.get_env(:live_debugger, :test_mode?, false) and
-      not Application.get_env(:live_debugger, :e2e?, false)
   end
 end
