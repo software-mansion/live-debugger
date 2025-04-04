@@ -43,24 +43,25 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   def mount(_params, session, socket) do
     lv_process = session["lv_process"]
     parent_socket_id = session["parent_socket_id"]
+    node_id = session["node_id"]
+
+    trace_topic =
+      PubSubUtils.trace_topic(lv_process.socket_id, lv_process.transport_pid, node_id)
 
     if connected?(socket) do
       parent_socket_id
       |> PubSubUtils.node_changed_topic()
       |> PubSubUtils.subscribe()
-
-      lv_process
-      |> PubSubUtils.node_trace_topic()
-      |> PubSubUtils.subscribe()
     end
 
     socket
     |> assign(:displayed_trace, nil)
+    |> assign(:trace_topic, trace_topic)
     |> TracingHelper.init()
     |> assign(traces_empty?: true)
-    |> assign(node_id: session["node_id"])
+    |> assign(node_id: node_id)
     |> assign(id: session["id"])
-    |> assign(ets_table_id: TraceService.ets_table_id(lv_process.socket_id))
+    |> assign(ets_table_id: TraceService.ets_table_id(lv_process))
     |> assign(lv_process: lv_process)
     |> assign_async_existing_traces()
     |> ok()

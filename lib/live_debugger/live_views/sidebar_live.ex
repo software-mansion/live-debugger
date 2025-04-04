@@ -54,8 +54,12 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
       |> PubSubUtils.node_changed_topic()
       |> PubSubUtils.subscribe()
 
-      lv_process
-      |> PubSubUtils.session_trace_topic()
+      lv_process.socket_id
+      |> PubSubUtils.component_deleted_topic(lv_process.transport_pid)
+      |> PubSubUtils.subscribe()
+
+      lv_process.socket_id
+      |> PubSubUtils.trace_topic(lv_process.transport_pid, :render)
       |> PubSubUtils.subscribe()
     end
 

@@ -6,6 +6,7 @@ defmodule LiveDebugger.Services.TraceService do
 
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.CommonTypes
+  alias LiveDebugger.Structs.LvProcess
   alias Phoenix.LiveComponent.CID
 
   @id_prefix "lvdbg-traces"
@@ -13,8 +14,15 @@ defmodule LiveDebugger.Services.TraceService do
   @doc """
   Returns the ETS table id for the given socket id.
   """
-  @spec ets_table_id(String.t()) :: :ets.table()
-  def ets_table_id(socket_id), do: String.to_atom("#{@id_prefix}-#{socket_id}")
+  @spec ets_table_id(pid(), String.t()) :: :ets.table()
+  def ets_table_id(transport_pid, socket_id) do
+    String.to_atom("#{@id_prefix}-#{inspect(transport_pid)}-#{socket_id}")
+  end
+
+  @spec ets_table_id(LvProcess.t()) :: :ets.table()
+  def ets_table_id(%LvProcess{transport_pid: transport_pid, socket_id: socket_id}) do
+    ets_table_id(transport_pid, socket_id)
+  end
 
   @doc """
   Initializes an ETS table with the given id if it doesn't exist.
@@ -25,23 +33,6 @@ defmodule LiveDebugger.Services.TraceService do
       :ets.new(ets_table_id, [:ordered_set, :public, :named_table])
     else
       ets_table_id
-    end
-  end
-
-  @doc """
-  Creates the id of next tuple based on the first tuple in the ETS table.
-  We need to store traces in this table in descending order.
-  To achieve this table is implemented as ordered_set with non-positive integer keys.
-  Because of that the element with the smallest key is the first element in the table.
-  """
-  @spec next_tuple_id(:ets.table()) :: integer()
-  def next_tuple_id(ets_table_id) do
-    ets_table_id
-    |> maybe_init_ets()
-    |> :ets.first()
-    |> case do
-      :"$end_of_table" -> 0
-      last_id -> last_id - 1
     end
   end
 

@@ -10,10 +10,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   alias Phoenix.LiveView.AsyncResult
 
   alias LiveDebugger.Components.Error
-  alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Services.LiveViewDiscoveryService
-  alias LiveDebugger.Services.CallbackTracingService
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.LiveHelpers.Routes
 
@@ -25,7 +23,6 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   @impl true
   def mount(params, _session, socket) do
     socket
-    |> assign(:tracing_session, nil)
     |> assign(:socket_id, params["socket_id"])
     |> start_async_assign_lv_process(params)
     |> ok()
@@ -124,22 +121,9 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   def handle_async(:fetch_lv_process, {:ok, fetched_lv_process}, socket) do
     Process.monitor(fetched_lv_process.pid)
 
-    socket.assigns.socket_id
-    |> CallbackTracingService.start_tracing(fetched_lv_process.pid, self())
-    |> case do
-      {:ok, tracing_session} ->
-        socket
-        |> assign(:lv_process, AsyncResult.ok(fetched_lv_process))
-        |> assign(:debugged_module, fetched_lv_process.module)
-        |> assign(:tracing_session, tracing_session)
-
-      {:error, reason} ->
-        assign(
-          socket,
-          :lv_process,
-          AsyncResult.failed(socket.assigns.lv_process, reason)
-        )
-    end
+    socket
+    |> assign(:lv_process, AsyncResult.ok(fetched_lv_process))
+    |> assign(:debugged_module, fetched_lv_process.module)
     |> patch_transport_pid(fetched_lv_process)
     |> noreply()
   end
@@ -159,51 +143,10 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
 
   @impl true
   def handle_info({:DOWN, _, :process, _closed_pid, _}, socket) do
-    CallbackTracingService.stop_tracing(socket.assigns.tracing_session)
-
     socket
     |> push_patch(to: URL.remove_query_param(socket.assigns.url, "node_id"))
     |> start_async_assign_lv_process(%{"socket_id" => socket.assigns.socket_id})
     |> noreply()
-  end
-
-  @impl true
-  def handle_info({:new_trace, trace}, socket) do
-    debugged_node_id =
-      socket.assigns.node_id ||
-        (socket.assigns.lv_process.result &&
-           socket.assigns.lv_process.result.pid)
-
-    maybe_broadcast_trace(socket.assigns.lv_process, trace, debugged_node_id)
-
-    socket =
-      if Trace.live_component_delete?(trace) and Trace.node_id(trace) == debugged_node_id do
-        url = URL.remove_query_param(socket.assigns.url, "node_id")
-        push_patch(socket, to: url)
-      else
-        socket
-      end
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def terminate(_reason, socket) do
-    CallbackTracingService.stop_tracing(socket.assigns.tracing_session)
-  end
-
-  defp maybe_broadcast_trace(%{result: nil} = _lv_process, _trace, _), do: :ok
-
-  defp maybe_broadcast_trace(%{result: lv_process}, trace, debugged_node_id) do
-    lv_process
-    |> PubSubUtils.session_trace_topic()
-    |> PubSubUtils.broadcast({:new_trace, trace})
-
-    if Trace.node_id(trace) == debugged_node_id do
-      lv_process
-      |> PubSubUtils.node_trace_topic()
-      |> PubSubUtils.broadcast({:new_trace, trace})
-    end
   end
 
   defp assign_node_id(socket, %{"node_id" => node_id}) do
