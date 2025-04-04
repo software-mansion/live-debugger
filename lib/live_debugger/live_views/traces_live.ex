@@ -82,6 +82,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             <.refresh_button :if={not @tracing_helper.tracing_started?} />
             <.button
               :if={not @tracing_helper.tracing_started?}
+              id="clear-traces"
               variant="secondary"
               size="sm"
               phx-click="clear-traces"
@@ -259,7 +260,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   defp toggle_tracing_button(assigns) do
     ~H"""
-    <.button phx-click="switch-tracing" class="flex gap-2" size="sm">
+    <.button id="toggle-tracing" phx-click="switch-tracing" class="flex gap-2" size="sm">
       <div class="flex gap-1.5 items-center w-12">
         <%= if @tracing_started? do %>
           <.icon name="icon-stop" class="w-4 h-4" />
@@ -275,7 +276,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   defp refresh_button(assigns) do
     ~H"""
-    <.button phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
+    <.button id="refresh" phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
       <.icon name="icon-refresh" class="w-4 h-4" />
       <div>Refresh</div>
     </.button>

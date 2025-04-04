@@ -10,6 +10,7 @@ defmodule LiveDebugger.Env do
   @dialyzer {:no_match, dev?: 0}
 
   def dev?(), do: @env == :dev
+  def test?(), do: @env == :test
 
   def unit_test?() do
     Application.get_env(:live_debugger, :test_mode?, false) and
