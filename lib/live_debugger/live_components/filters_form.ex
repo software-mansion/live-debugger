@@ -1,6 +1,6 @@
-defmodule LiveDebugger.LiveComponents.FiltersDropdown do
+defmodule LiveDebugger.LiveComponents.FiltersForm do
   @moduledoc """
-  Dropdown for filtering traces by callback.
+  Form for filtering traces by callback.
   """
   use LiveDebuggerWeb, :live_component
 
@@ -13,6 +13,7 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
     |> assign(:id, assigns.id)
     |> assign(:node_id, assigns.node_id)
     |> assign(:active_filters, assigns.filters)
+    |> assign(:parent_id, assigns.parent_id)
     |> assign_form(assigns.filters)
     |> ok()
   end
@@ -24,40 +25,34 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
 
     ~H"""
     <div id={@id <> "-wrapper"}>
-      <.live_component module={LiveDebugger.LiveComponents.LiveDropdown} id={@id}>
-        <:button class="flex gap-2">
-          <.icon name="icon-filters" class="w-4 h-4" />
-          <div class="hidden @[29rem]/traces:block">Filters</div>
-        </:button>
-        <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
-          <div class="w-52">
-            <div class="p-4">
-              <p class="font-medium mb-4">Callbacks</p>
-              <div class="flex flex-col gap-3">
-                <%= for {function, arity} <- get_callbacks(@node_id) do %>
-                  <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
-                <% end %>
-              </div>
-            </div>
-            <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
-              <button
-                class="text-link-primary hover:text-link-primary-hover"
-                type="button"
-                phx-click="clear"
-                phx-target={@myself}
-              >
-                Clear&nbsp;filters
-              </button>
-              <.button variant="primary" size="sm" type="submit">
-                Apply
-                <span :if={@selected_filters_number > 0}>
-                  (<%= @selected_filters_number %>)
-                </span>
-              </.button>
+      <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
+        <div class="w-52">
+          <div class="p-4">
+            <p class="font-medium mb-4">Callbacks</p>
+            <div class="flex flex-col gap-3">
+              <%= for {function, arity} <- get_callbacks(@node_id) do %>
+                <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
+              <% end %>
             </div>
           </div>
-        </.form>
-      </.live_component>
+          <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
+            <button
+              class="text-link-primary hover:text-link-primary-hover"
+              type="button"
+              phx-click="clear"
+              phx-target={@myself}
+            >
+              Clear&nbsp;filters
+            </button>
+            <.button variant="primary" size="sm" type="submit">
+              Apply
+              <span :if={@selected_filters_number > 0}>
+                (<%= @selected_filters_number %>)
+              </span>
+            </.button>
+          </div>
+        </div>
+      </.form>
     </div>
     """
   end
@@ -66,9 +61,8 @@ defmodule LiveDebugger.LiveComponents.FiltersDropdown do
   def handle_event("submit", params, socket) do
     filters = update_filters(socket.assigns.active_filters, params)
 
-    dbg(filters)
-    # send(self(), {:filters_updated, filters})
-    LiveDebugger.LiveComponents.LiveDropdown.close(socket.assigns.id)
+    send(self(), {:filters_updated, filters})
+    LiveDebugger.LiveComponents.LiveDropdown.close(socket.assigns.parent_id)
 
     {:noreply, socket}
   end

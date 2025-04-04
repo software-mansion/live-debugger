@@ -54,8 +54,6 @@ defmodule LiveDebugger.LiveComponents.LiveDropdown do
   slot(:inner_block, required: true)
 
   def render(assigns) do
-    assigns = assign(assigns, :open_class, if(assigns.open, do: "block", else: "hidden"))
-
     ~H"""
     <div id={@id <> "-live-dropdown-container"} class="relative" phx-hook="LiveDropdown">
       <.button
@@ -71,11 +69,9 @@ defmodule LiveDebugger.LiveComponents.LiveDropdown do
       </.button>
 
       <div
+        :if={@open}
         id={@id <> "-content"}
-        class={[
-          "absolute right-0 bg-surface-0-bg rounded border border-default-border mt-1"
-          | List.wrap(@open_class)
-        ]}
+        class="absolute right-0 bg-surface-0-bg rounded border border-default-border mt-1"
       >
         <%= render_slot(@inner_block) %>
       </div>

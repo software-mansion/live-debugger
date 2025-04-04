@@ -1,8 +1,7 @@
 const LiveDropdown = {
   mounted() {
     const dropdownId = this.el.id.replace('-live-dropdown-container', '');
-    const contentId = `${dropdownId}-content`;
-    this.contentEl = document.getElementById(contentId);
+    this.contentId = `${dropdownId}-content`;
 
     function isHidden(el) {
       return el.classList.contains('hidden');
@@ -13,7 +12,12 @@ const LiveDropdown = {
     }
 
     this.handleClick = (event) => {
-      if (!isHidden(this.contentEl) && isClickOutside(event, this.contentEl)) {
+      const contentEl = document.getElementById(this.contentId);
+      if (!contentEl) {
+        return;
+      }
+
+      if (!isHidden(contentEl) && isClickOutside(event, contentEl)) {
         this.pushEventTo(`#${this.el.id}`, 'close', {});
       }
     };

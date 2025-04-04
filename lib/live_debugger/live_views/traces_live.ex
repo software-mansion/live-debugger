@@ -86,11 +86,21 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             <.clear_button :if={not @tracing_helper.tracing_started?} />
             <.live_component
               :if={not @tracing_helper.tracing_started? && LiveDebugger.Env.dev?()}
-              module={LiveDebugger.LiveComponents.FiltersDropdown}
+              module={LiveDebugger.LiveComponents.LiveDropdown}
               id="filters-dropdown"
-              node_id={@node_id}
-              filters={@current_filters}
-            />
+            >
+              <:button class="flex gap-2">
+                <.icon name="icon-filters" class="w-4 h-4" />
+                <div class="hidden @[29rem]/traces:block">Filters</div>
+              </:button>
+              <.live_component
+                module={LiveDebugger.LiveComponents.FiltersForm}
+                id="filters-form"
+                node_id={@node_id}
+                filters={@current_filters}
+                parent_id="filters-dropdown"
+              />
+            </.live_component>
           </div>
         </:right_panel>
         <div class="w-full h-full lg:min-h-[10.25rem]">
