@@ -16,8 +16,7 @@ defmodule LiveDebugger.MixProject do
       name: "LiveDebugger",
       source_url: "https://github.com/software-mansion/live-debugger",
       description: "Tool for debugging LiveView applications",
-      docs: docs(),
-      preferred_cli_env: [e2e: :test]
+      docs: docs()
     ]
   end
 
@@ -44,6 +43,10 @@ defmodule LiveDebugger.MixProject do
       "assets.build:deploy": ["esbuild deploy_build", "tailwind deploy_build"],
       "assets.build:dev": ["esbuild dev_build", "tailwind dev_build"]
     ]
+  end
+
+  def cli() do
+    [preferred_envs: [e2e: :test]]
   end
 
   defp e2e_tests_setup(_) do
