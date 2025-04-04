@@ -8,4 +8,9 @@ defmodule LiveDebugger.Env do
   else
     def dev?(), do: false
   end
+
+  def unit_test?() do
+    Application.get_env(:live_debugger, :test_mode?, false) and
+      not Application.get_env(:live_debugger, :e2e?, false)
+  end
 end

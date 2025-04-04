@@ -1,4 +1,5 @@
 defmodule LiveDebugger.Services.ChannelServiceTest do
+  @moduledoc false
   use ExUnit.Case, async: true
 
   alias LiveDebugger.Services.System.ProcessService
@@ -15,7 +16,7 @@ defmodule LiveDebugger.Services.ChannelServiceTest do
     Mox.stub(LiveDebugger.MockProcessService, :state, fn pid ->
       case pid do
         ^live_view_pid ->
-          {:ok, LiveDebugger.Test.Fakes.state(socket_id: socket_id, root_pid: live_view_pid)}
+          {:ok, LiveDebugger.Fakes.state(socket_id: socket_id, root_pid: live_view_pid)}
 
         ^non_live_view_pid ->
           {:ok, :not_live_view}
