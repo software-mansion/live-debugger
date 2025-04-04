@@ -56,7 +56,8 @@ if config_env() == :test do
   config :wallaby,
     driver: Wallaby.Chrome,
     otp_app: :live_debugger,
-    chrome: [headless: true]
+    chrome: [headless: true],
+    js_logger: nil
 
   config :live_debugger, server: true
 
