@@ -16,7 +16,8 @@ defmodule LiveDebugger.MixProject do
       name: "LiveDebugger",
       source_url: "https://github.com/software-mansion/live-debugger",
       description: "Tool for debugging LiveView applications",
-      docs: docs()
+      docs: docs(),
+      preferred_cli_env: [e2e: :test]
     ]
   end
 
@@ -36,10 +37,17 @@ defmodule LiveDebugger.MixProject do
     [
       setup: ["deps.get", "cmd --cd assets npm install", "assets.setup", "assets.build:dev"],
       dev: "run --no-halt dev.exs",
+      test: ["test --exclude e2e"],
+      # We don't have any yet, but we'll have them soon
+      e2e: [&e2e_tests_setup/1, "test --only e2e"],
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
       "assets.build:deploy": ["esbuild deploy_build", "tailwind deploy_build"],
       "assets.build:dev": ["esbuild dev_build", "tailwind dev_build"]
     ]
+  end
+
+  defp e2e_tests_setup(_) do
+    Application.put_env(:live_debugger, :e2e, true)
   end
 
   # Run "mix help deps" to learn about dependencies.

@@ -39,9 +39,18 @@ defmodule LiveDebugger do
        [
          check_origin: false,
          pubsub_server: LiveDebugger.PubSub
-       ]},
-      {LiveDebugger.GenServers.CallbackTracingServer, []}
+       ]}
     ]
+
+    children =
+      if Application.get_env(:live_debugger, :e2e, false) do
+        children ++
+          [
+            {LiveDebugger.GenServers.CallbackTracingServer, []}
+          ]
+      else
+        children
+      end
 
     Supervisor.start_link(children, strategy: :one_for_one, name: LiveDebugger.Supervisor)
   end
