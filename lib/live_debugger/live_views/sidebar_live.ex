@@ -54,8 +54,12 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
       |> PubSubUtils.node_changed_topic()
       |> PubSubUtils.subscribe()
 
-      lv_process
-      |> PubSubUtils.session_trace_topic()
+      lv_process.socket_id
+      |> PubSubUtils.component_deleted_topic(lv_process.transport_pid)
+      |> PubSubUtils.subscribe()
+
+      lv_process.socket_id
+      |> PubSubUtils.trace_topic(lv_process.transport_pid, :render)
       |> PubSubUtils.subscribe()
     end
 
@@ -153,7 +157,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   def handle_event("select_node", params, socket) do
     %{"node_id" => node_id, "search-attribute" => attr, "search-value" => val} = params
 
-    if Application.get_env(:live_debugger, :browser_features?) do
+    if Application.get_env(:live_debugger, :browser_features?) and LiveDebugger.Env.dev?() do
       if !socket.assigns.hidden? and socket.assigns.highlight? do
         send_event(socket.assigns.lv_process.pid, "highlight", %{attr: attr, val: val})
       end
@@ -309,10 +313,17 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   end
 
   defp update_nested_live_views_links(socket) do
-    for id <- [
-          "sidebar-content-nested-live-views",
-          "sidebar-content-slide-over-nested-live-views"
-        ] do
+    base_id = "sidebar-content-nested-live-views"
+    mobile_id = "sidebar-content-slide-over-nested-live-views"
+
+    ids =
+      if socket.assigns.hidden? do
+        [base_id]
+      else
+        [base_id, mobile_id]
+      end
+
+    for id <- ids do
       send_update(NestedLiveViewsLinks, id: id, refresh: true)
     end
 

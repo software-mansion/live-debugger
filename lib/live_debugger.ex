@@ -50,6 +50,16 @@ defmodule LiveDebugger do
        ]}
     ]
 
+    children =
+      if LiveDebugger.Env.unit_test?() do
+        children
+      else
+        children ++
+          [
+            {LiveDebugger.GenServers.CallbackTracingServer, []}
+          ]
+      end
+
     Supervisor.start_link(children, strategy: :one_for_one, name: LiveDebugger.Supervisor)
   end
 

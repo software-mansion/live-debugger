@@ -1,13 +1,10 @@
 defmodule LiveDebugger.Services.ChannelServiceTest do
+  @moduledoc false
   use ExUnit.Case, async: true
-
-  import LiveDebugger.Test.Mocks
 
   alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Structs.TreeNode
-
-  setup :set_mocks
 
   setup do
     live_view_pid = :c.pid(0, 0, 1)
@@ -19,7 +16,7 @@ defmodule LiveDebugger.Services.ChannelServiceTest do
     Mox.stub(LiveDebugger.MockProcessService, :state, fn pid ->
       case pid do
         ^live_view_pid ->
-          {:ok, LiveDebugger.Test.Fakes.state(socket_id: socket_id, root_pid: live_view_pid)}
+          {:ok, LiveDebugger.Fakes.state(socket_id: socket_id, root_pid: live_view_pid)}
 
         ^non_live_view_pid ->
           {:ok, :not_live_view}

@@ -18,24 +18,34 @@ function getSessionId() {
   }
 }
 
-window.getLiveDebuggerURL = function () {
-  const baseURL = document
+function getLiveDebuggerBaseURL() {
+  return document
     .getElementById('live-debugger-scripts')
     .src.replace('/assets/live_debugger/client.js', '');
+}
 
+function getSessionURL(baseURL) {
   const session_id = getSessionId();
   const session_path = session_id ? `transport_pid/${session_id}` : '';
 
   return `${baseURL}/${session_path}`;
+}
+
+window.getLiveDebuggerURL = function () {
+  const baseURL = getLiveDebuggerBaseURL();
+  const sessionURL = getSessionURL(baseURL);
+
+  return sessionURL;
 };
 
-document.addEventListener('DOMContentLoaded', function () {
-  const URL = getLiveDebuggerURL();
+window.document.addEventListener('DOMContentLoaded', function () {
+  const baseURL = getLiveDebuggerBaseURL();
+  const sessionURL = getSessionURL(baseURL);
 
-  initDebugButton(URL);
+  initDebugButton(sessionURL);
 
   initHighlight();
 
   // Finalize
-  console.info(`LiveDebugger available at: ${URL}`);
+  console.info(`LiveDebugger available at: ${baseURL}`);
 });

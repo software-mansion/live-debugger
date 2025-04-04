@@ -11,4 +11,9 @@ defmodule LiveDebugger.Env do
 
   def dev?(), do: @env == :dev
   def test?(), do: @env == :test
+
+  def unit_test?() do
+    Application.get_env(:live_debugger, :test_mode?, false) and
+      not Application.get_env(:live_debugger, :e2e?, false)
+  end
 end

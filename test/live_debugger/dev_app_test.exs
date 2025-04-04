@@ -3,11 +3,10 @@ defmodule LiveDebugger.DevAppTest do
   use Wallaby.Feature
 
   import Wallaby.Query
-  import LiveDebugger.Test.Mocks
 
-  @dev_app_url LiveDebuggerDev.Endpoint.url()
+  @dev_app_url Application.compile_env(:live_debugger, :dev_app_url, "")
 
-  setup :unset_mocks
+  @moduletag :e2e
 
   feature "user can visit dev page", %{session: session} do
     session

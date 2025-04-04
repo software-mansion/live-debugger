@@ -3,11 +3,14 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
   This module provides a helper to manage tracing.
   It is responsible for determining if the tracing should be stopped.
   It introduces a fuse mechanism to prevent LiveView from being overloaded with traces.
+
+  It requires `trace_topic` to be set in the socket assigns.
   """
 
   import Phoenix.Component, only: [assign: 3]
 
   alias Phoenix.LiveView.Socket
+  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   @assign_name :tracing_helper
   @time_period 1_000_000
@@ -81,6 +84,10 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
       fuse: %{count: 0, start_time: now()}
     }
 
+    if Phoenix.LiveView.connected?(socket) && socket.assigns.trace_topic do
+      PubSubUtils.subscribe(socket.assigns.trace_topic)
+    end
+
     assign(socket, @assign_name, assigns)
   end
 
@@ -89,6 +96,10 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
       tracing_started?: false,
       fuse: nil
     }
+
+    if Phoenix.LiveView.connected?(socket) && socket.assigns.trace_topic do
+      PubSubUtils.unsubscribe(socket.assigns.trace_topic)
+    end
 
     assign(socket, @assign_name, assigns)
   end

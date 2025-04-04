@@ -3,11 +3,10 @@ defmodule LiveDebugger.LiveViewsDashboardTest do
   use Wallaby.Feature
 
   import Wallaby.Query
-  import LiveDebugger.Test.Mocks
 
-  @dev_app_url LiveDebuggerDev.Endpoint.url()
+  @dev_app_url Application.compile_env(:live_debugger, :dev_app_url)
 
-  setup :unset_mocks
+  @moduletag :e2e
 
   @sessions 3
   feature "user can see active live views and refresh to see more", %{

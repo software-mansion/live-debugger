@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Test.Fakes do
+defmodule LiveDebugger.Fakes do
   @moduledoc """
   Fake responses from internal services
   """

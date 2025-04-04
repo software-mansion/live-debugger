@@ -3,11 +3,10 @@ defmodule LiveDebugger.ChannelDashboardTest do
   use Wallaby.Feature
 
   import Wallaby.Query
-  import LiveDebugger.Test.Mocks
 
-  @dev_app_url LiveDebuggerDev.Endpoint.url()
+  @dev_app_url Application.compile_env(:live_debugger, :dev_app_url)
 
-  setup :unset_mocks
+  @moduletag :e2e
 
   @sessions 2
   feature "user can see traces of executed callbacks and updated assigns", %{
@@ -20,13 +19,14 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> visit("/")
     |> click(first_link())
     |> assert_has(counter_in_assigns(text: "0"))
+    |> assert_has(traces(count: 2))
 
     dev_session
     |> click(button("increment"))
     |> click(button("increment"))
 
     lvdbg_session
-    |> assert_has(traces(count: 0))
+    |> assert_has(traces(count: 2))
     |> assert_has(counter_in_assigns(text: "2"))
     |> click(button("toggle-tracing"))
 
@@ -35,7 +35,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> click(button("increment"))
 
     lvdbg_session
-    |> assert_has(traces(count: 4))
+    |> assert_has(traces(count: 6))
     |> assert_has(counter_in_assigns(text: "4"))
     |> click(button("toggle-tracing"))
     |> click(button("clear-traces"))
