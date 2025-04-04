@@ -6,7 +6,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.MockProcessService
   alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.Test.Fakes
+  alias LiveDebugger.Fakes
 
   describe "debugged_lv_processes/0" do
     test "returns list of LvProcesses" do
