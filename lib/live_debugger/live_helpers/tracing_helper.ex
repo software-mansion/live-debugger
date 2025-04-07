@@ -4,7 +4,6 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
   It is responsible for determining if the tracing should be stopped.
   It introduces a fuse mechanism to prevent LiveView from being overloaded with traces.
 
-  It requires `trace_topic` to be set in the socket assigns.
   """
 
   import Phoenix.Component, only: [assign: 3]
@@ -28,6 +27,19 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
     else
       start_tracing(socket)
     end
+  end
+
+  @spec update_tracing(Socket.t()) :: Socket.t()
+  def update_tracing(socket) do
+    socket
+    |> get_topics()
+    |> PubSubUtils.unsubscribe()
+
+    socket
+    |> get_active_topics()
+    |> PubSubUtils.subscribe()
+
+    socket
   end
 
   @spec disable_tracing(Socket.t()) :: Socket.t()
@@ -85,7 +97,9 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
     }
 
     if Phoenix.LiveView.connected?(socket) && socket.assigns.trace_topic do
-      PubSubUtils.subscribe(socket.assigns.trace_topic)
+      socket
+      |> get_active_topics()
+      |> PubSubUtils.subscribe()
     end
 
     assign(socket, @assign_name, assigns)
@@ -98,7 +112,9 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
     }
 
     if Phoenix.LiveView.connected?(socket) && socket.assigns.trace_topic do
-      PubSubUtils.unsubscribe(socket.assigns.trace_topic)
+      socket
+      |> get_topics()
+      |> PubSubUtils.unsubscribe()
     end
 
     assign(socket, @assign_name, assigns)
@@ -106,5 +122,20 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
 
   defp now() do
     :os.system_time(:microsecond)
+  end
+
+  defp get_active_topics(socket) do
+    topic = socket.assigns.trace_topic
+
+    socket.assigns.current_filters
+    |> Enum.filter(fn {_, active?} -> active? end)
+    |> Enum.map(fn {function, _} -> String.replace(topic, "*", inspect(function)) end)
+  end
+
+  defp get_topics(socket) do
+    topic = socket.assigns.trace_topic
+
+    socket.assigns.current_filters
+    |> Enum.map(fn {function, _} -> String.replace(topic, "*", inspect(function)) end)
   end
 end

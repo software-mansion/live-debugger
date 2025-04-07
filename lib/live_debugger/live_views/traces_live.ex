@@ -59,13 +59,13 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     socket
     |> assign(:displayed_trace, nil)
     |> assign(:trace_topic, trace_topic)
+    |> assign(current_filters: default_filters(node_id))
     |> TracingHelper.init()
     |> assign(traces_empty?: true)
     |> assign(node_id: node_id)
     |> assign(id: session["id"])
     |> assign(ets_table_id: TraceService.ets_table_id(lv_process))
     |> assign(lv_process: lv_process)
-    |> assign(current_filters: default_filters(node_id))
     |> assign_async_existing_traces()
     |> ok()
   end
@@ -188,6 +188,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   def handle_info({:node_changed, node_id}, socket) do
     socket
     |> TracingHelper.disable_tracing()
+    |> assign(current_filters: default_filters(node_id))
     |> assign(node_id: node_id)
     |> assign_async_existing_traces()
     |> noreply()
@@ -199,6 +200,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
     socket
     |> assign(:current_filters, filters)
+    |> TracingHelper.update_tracing()
     |> noreply()
   end
 

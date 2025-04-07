@@ -32,6 +32,14 @@ defmodule LiveDebugger.Utils.PubSub do
     Phoenix.PubSub.subscribe(LiveDebugger.PubSub, topic)
   end
 
+  @spec unsubscribe(topics :: [String.t()]) :: :ok
+  def unsubscribe(topics) when is_list(topics) do
+    topics
+    |> Enum.each(&unsubscribe(&1))
+
+    :ok
+  end
+
   @spec unsubscribe(topic :: String.t()) :: :ok
   def unsubscribe(topic) do
     Phoenix.PubSub.unsubscribe(LiveDebugger.PubSub, topic)
