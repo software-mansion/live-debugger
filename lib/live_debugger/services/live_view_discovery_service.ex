@@ -86,12 +86,12 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   def group_lv_processes(lv_processes) do
     lv_processes
     |> Enum.group_by(& &1.transport_pid)
-    |> Enum.map(fn {tpid, groupped_by_tpid} ->
-      groupped_by_tpid
+    |> Enum.map(fn {tpid, grouped_by_tpid} ->
+      grouped_by_tpid
       |> Enum.group_by(& &1.root_pid)
-      |> Enum.map(fn {rpid, groupped_by_rpid} ->
-        root_lv_process = Enum.find(groupped_by_rpid, &(&1.root_pid == rpid))
-        rest = Enum.reject(groupped_by_rpid, &(&1.pid == rpid))
+      |> Enum.map(fn {rpid, grouped_by_rpid} ->
+        root_lv_process = Enum.find(grouped_by_rpid, &(&1.root_pid == rpid))
+        rest = Enum.reject(grouped_by_rpid, &(&1.pid == rpid))
 
         {root_lv_process, rest}
       end)
