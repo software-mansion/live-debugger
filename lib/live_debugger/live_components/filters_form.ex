@@ -19,7 +19,6 @@ defmodule LiveDebugger.LiveComponents.FiltersForm do
   end
 
   @impl true
-  @spec render(any()) :: Phoenix.LiveView.Rendered.t()
   def render(assigns) do
     assigns = assign(assigns, :selected_filters_number, calculate_selected_filters(assigns.form))
 
