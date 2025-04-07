@@ -41,7 +41,7 @@ defmodule LiveDebugger.LiveComponents.FiltersForm do
               phx-click="clear"
               phx-target={@myself}
             >
-              Clear&nbsp;filters
+              Clear filters
             </button>
             <.button variant="primary" size="sm" type="submit">
               Apply
