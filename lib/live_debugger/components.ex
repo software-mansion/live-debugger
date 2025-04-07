@@ -155,6 +155,62 @@ defmodule LiveDebugger.Components do
     """
   end
 
+  @doc """
+  Renders flash notices.
+
+  ## Examples
+
+      <.flash flash={@flash} />
+      <.flash phx-mounted={show("#flash")}>Welcome Back!</.flash>
+  """
+  attr(:id, :string, doc: "the optional id of flash container")
+  attr(:flash, :map, default: %{}, doc: "the map of flash messages to display")
+  attr(:rest, :global, doc: "the arbitrary HTML attributes to add to the flash container")
+
+  def flash(assigns) do
+    message = Phoenix.Flash.get(assigns.flash, :error)
+
+    assigns =
+      assigns
+      |> assign_new(:id, fn -> "flash" end)
+      |> assign(:message, message)
+
+    ~H"""
+    <div
+      :if={@message}
+      id={@id}
+      phx-hook="AutoClearFlash"
+      role="alert"
+      class={[
+        "fixed left-2 bottom-2 w-80 sm:w-96 z-50 rounded-sm p-4 flex justify-between items-center gap-3",
+        "bg-error-bg text-error-text border-error-text border"
+      ]}
+      {@rest}
+    >
+      <div class="flex gap-3 items-center">
+        <.icon name="icon-x-circle" class="text-red-500" />
+        <p>
+          <%= @message %>
+        </p>
+      </div>
+      <button
+        phx-click={
+          "lv:clear-flash"
+          |> JS.push(value: %{key: :error})
+          |> JS.hide(
+            to: "##{@id}",
+            time: 200,
+            transition: "max-sm:animate-fadeOutMobile sm:animate-fadeOut"
+          )
+        }
+        aria-label="close"
+      >
+        <.icon name="icon-cross-small" />
+      </button>
+    </div>
+    """
+  end
+
   attr(:id, :string, required: true)
   attr(:title, :string, required: true)
   attr(:class, :any, default: nil)

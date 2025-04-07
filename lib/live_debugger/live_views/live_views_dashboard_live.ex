@@ -13,7 +13,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
   @impl true
   def handle_params(_unsigned_params, _uri, socket) do
     socket
-    |> assign_async_groupped_lv_processes()
+    |> assign_async_grouped_lv_processes()
     |> noreply()
   end
 
@@ -34,7 +34,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
         </div>
 
         <div class="mt-6">
-          <.async_result :let={groupped_lv_processes} assign={@groupped_lv_processes}>
+          <.async_result :let={grouped_lv_processes} assign={@grouped_lv_processes}>
             <:loading>
               <div class="flex items-center justify-center">
                 <.spinner size="md" />
@@ -46,15 +46,15 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
               </.alert>
             </:failed>
             <div class="flex flex-col gap-4">
-              <%= if Enum.empty?(groupped_lv_processes)  do %>
+              <%= if Enum.empty?(grouped_lv_processes)  do %>
                 <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
                   <p class="text-secondary-text text-center">No active LiveViews</p>
                 </div>
               <% else %>
                 <.tab_group
-                  :for={{transport_pid, groupped_lv_processes} <- groupped_lv_processes}
+                  :for={{transport_pid, grouped_lv_processes} <- grouped_lv_processes}
                   transport_pid={transport_pid}
-                  groupped_lv_processes={groupped_lv_processes}
+                  grouped_lv_processes={grouped_lv_processes}
                 />
               <% end %>
             </div>
@@ -68,13 +68,13 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
   @impl true
   def handle_event("refresh", _params, socket) do
     socket
-    |> assign(:groupped_lv_processes, AsyncResult.loading())
-    |> assign_async_groupped_lv_processes()
+    |> assign(:grouped_lv_processes, AsyncResult.loading())
+    |> assign_async_grouped_lv_processes()
     |> noreply()
   end
 
   attr(:transport_pid, :any, required: true)
-  attr(:groupped_lv_processes, :list, required: true)
+  attr(:grouped_lv_processes, :list, required: true)
 
   defp tab_group(assigns) do
     ~H"""
@@ -85,7 +85,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
         </p>
       </div>
       <div class="w-full flex bg-surface-0-bg">
-        <.list elements={@groupped_lv_processes}>
+        <.list elements={@grouped_lv_processes}>
           <:item :let={{root_lv_process, lv_processes}}>
             <div class="flex items-center w-full">
               <.list_element lv_process={root_lv_process} />
@@ -146,15 +146,15 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
     """
   end
 
-  defp assign_async_groupped_lv_processes(socket) do
-    assign_async(socket, :groupped_lv_processes, fn ->
+  defp assign_async_grouped_lv_processes(socket) do
+    assign_async(socket, :grouped_lv_processes, fn ->
       lv_processes =
         with [] <- fetch_lv_processes_after(200),
              [] <- fetch_lv_processes_after(800) do
           fetch_lv_processes_after(1000)
         end
 
-      {:ok, %{groupped_lv_processes: LiveViewDiscoveryService.group_lv_processes(lv_processes)}}
+      {:ok, %{grouped_lv_processes: LiveViewDiscoveryService.group_lv_processes(lv_processes)}}
     end)
   end
 
