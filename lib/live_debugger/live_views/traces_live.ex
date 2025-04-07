@@ -200,6 +200,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
     socket
     |> assign(:current_filters, filters)
+    |> assign_async_existing_traces()
     |> TracingHelper.update_tracing()
     |> noreply()
   end
@@ -433,11 +434,16 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.node_id
 
+    active_functions =
+      socket.assigns.current_filters
+      |> Enum.filter(fn {_, active?} -> active? end)
+      |> Enum.map(fn {function, _} -> function end)
+
     socket
     |> assign(:existing_traces_status, :loading)
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
-      TraceService.existing_traces(ets_table_id, node_id, @stream_limit)
+      TraceService.existing_traces(ets_table_id, node_id, @stream_limit, active_functions)
     end)
   end
 
