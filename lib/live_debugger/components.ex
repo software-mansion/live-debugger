@@ -60,7 +60,7 @@ defmodule LiveDebugger.Components do
         type="checkbox"
         checked={@field.value}
         class={[
-          "outline-disabled w-4 h-4 text-ui-accent border border-default-border"
+          "w-4 h-4 text-ui-accent border border-default-border"
           | List.wrap(@input_class)
         ]}
         {@rest}
