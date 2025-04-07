@@ -100,6 +100,7 @@ module.exports = {
   },
   plugins: [
     require('@tailwindcss/forms'),
+    require('@tailwindcss/container-queries'),
     plugin(({ addVariant }) =>
       addVariant('phx-click-loading', [
         '&.phx-click-loading',
