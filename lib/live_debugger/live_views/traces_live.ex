@@ -98,7 +98,6 @@ defmodule LiveDebugger.LiveViews.TracesLive do
                 id="filters-form"
                 node_id={@node_id}
                 filters={@current_filters}
-                parent_id="filters-dropdown"
               />
             </.live_component>
           </div>
@@ -196,6 +195,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   @impl true
   def handle_info({:filters_updated, filters}, socket) do
+    LiveDebugger.LiveComponents.LiveDropdown.close("filters-dropdown")
+
     socket
     |> assign(:current_filters, filters)
     |> noreply()

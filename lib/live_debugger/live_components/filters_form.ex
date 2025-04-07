@@ -14,7 +14,6 @@ defmodule LiveDebugger.LiveComponents.FiltersForm do
     |> assign(:id, assigns.id)
     |> assign(:node_id, assigns.node_id)
     |> assign(:active_filters, assigns.filters)
-    |> assign(:parent_id, assigns.parent_id)
     |> assign_form(assigns.filters)
     |> ok()
   end
@@ -62,7 +61,6 @@ defmodule LiveDebugger.LiveComponents.FiltersForm do
     filters = update_filters(socket.assigns.active_filters, params)
 
     send(self(), {:filters_updated, filters})
-    LiveDebugger.LiveComponents.LiveDropdown.close(socket.assigns.parent_id)
 
     {:noreply, socket}
   end
