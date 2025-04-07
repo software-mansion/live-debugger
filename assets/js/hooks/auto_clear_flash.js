@@ -1,7 +1,7 @@
 // https://dev.to/brunoanken/automatically-clearing-flash-messages-in-phoenix-liveview-2g7n
 const AutoClearFlash = {
   mounted() {
-    let hideElementAfter = 4000; // ms
+    let hideElementAfter = 5000; // ms
     let clearFlashAfter = hideElementAfter + 500; // ms
 
     setTimeout(() => {
