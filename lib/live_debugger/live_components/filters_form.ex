@@ -112,6 +112,6 @@ defmodule LiveDebugger.LiveComponents.FiltersForm do
   defp calculate_selected_filters(form) do
     form.params
     |> Map.values()
-    |> Enum.count(fn active -> active end)
+    |> Enum.count(&Function.identity/1)
   end
 end
