@@ -10,6 +10,7 @@ defmodule LiveDebugger.Services.TraceService do
   alias Phoenix.LiveComponent.CID
 
   @id_prefix "lvdbg-traces"
+  @default_limit 100
 
   @doc """
   Returns the ETS table id for the given socket id.
@@ -61,22 +62,35 @@ defmodule LiveDebugger.Services.TraceService do
   end
 
   @doc """
-  Returns existing traces for the given table id and CID or PID.
-  It returns up to `limit` traces.
+  Returns existing traces for the given table id with optional filters.
+
+  ## Options
+    * `:node_id` - PID or CID to filter traces by
+    * `:limit` - Maximum number of traces to return (default: 100)
+    * `:functions` - List of function names to filter traces by
   """
-  @spec existing_traces(atom(), pid() | CommonTypes.cid(), pos_integer(), [atom()]) :: [
-          Trace.t()
-        ]
-  def existing_traces(table_id, id, limit, functions) when limit >= 1 do
+  @spec existing_traces(atom(), keyword()) :: [Trace.t()]
+  def existing_traces(table_id, opts \\ []) do
+    limit = Keyword.get(opts, :limit, @default_limit)
+    functions = Keyword.get(opts, :functions, [])
+    node_id = Keyword.get(opts, :node_id)
+
+    if limit < 1 do
+      raise ArgumentError, "limit must be >= 1"
+    end
+
     matcher =
-      cond do
-        is_pid(id) ->
-          {:_, %{pid: id, cid: nil}}
+      case node_id do
+        nil ->
+          {:_, :_}
 
-        match?(%CID{}, id) ->
-          {:_, %{cid: id}}
+        pid when is_pid(pid) ->
+          {:_, %{pid: pid, cid: nil}}
 
-        true ->
+        %CID{} = cid ->
+          {:_, %{cid: cid}}
+
+        _ ->
           raise ArgumentError, "id must be either PID or CID"
       end
 
@@ -92,14 +106,6 @@ defmodule LiveDebugger.Services.TraceService do
       _ ->
         []
     end
-  end
-
-  @doc """
-  Returns all existing traces for the given table id.
-  """
-  @spec existing_traces(atom()) :: [Trace.t()]
-  def existing_traces(table_id) do
-    table_id |> maybe_init_ets() |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
   end
 
   @doc """

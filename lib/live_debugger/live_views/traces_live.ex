@@ -438,7 +438,11 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> assign(:existing_traces_status, :loading)
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
-      TraceService.existing_traces(ets_table_id, node_id, @stream_limit, active_functions)
+      TraceService.existing_traces(ets_table_id,
+        node_id: node_id,
+        limit: @stream_limit,
+        functions: active_functions
+      )
     end)
   end
 
