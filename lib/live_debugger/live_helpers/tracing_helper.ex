@@ -133,20 +133,20 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
     lv_process = socket.assigns.lv_process
     node_id = socket.assigns.node_id
 
-    topic = PubSubUtils.trace_topic(lv_process.socket_id, lv_process.transport_pid, node_id)
-
     socket.assigns.current_filters
     |> Enum.filter(fn {_, active?} -> active? end)
-    |> Enum.map(fn {function, _} -> String.replace(topic, "*", inspect(function)) end)
+    |> Enum.map(fn {function, _} ->
+      PubSubUtils.tsnf_topic(lv_process.socket_id, lv_process.transport_pid, node_id, function)
+    end)
   end
 
   defp get_topics(socket) do
     lv_process = socket.assigns.lv_process
     node_id = socket.assigns.node_id
 
-    topic = PubSubUtils.trace_topic(lv_process.socket_id, lv_process.transport_pid, node_id)
-
     socket.assigns.current_filters
-    |> Enum.map(fn {function, _} -> String.replace(topic, "*", inspect(function)) end)
+    |> Enum.map(fn {function, _} ->
+      PubSubUtils.tsnf_topic(lv_process.socket_id, lv_process.transport_pid, node_id, function)
+    end)
   end
 end

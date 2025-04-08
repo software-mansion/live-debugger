@@ -45,7 +45,7 @@ defmodule LiveDebugger.LiveViews.StateLive do
       |> PubSubUtils.subscribe()
 
       lv_process.socket_id
-      |> PubSubUtils.trace_topic(lv_process.transport_pid, node_id, :render)
+      |> PubSubUtils.tsnf_topic(lv_process.transport_pid, node_id, :render)
       |> PubSubUtils.subscribe()
     end
 

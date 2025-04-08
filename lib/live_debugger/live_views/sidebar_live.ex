@@ -59,7 +59,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
       |> PubSubUtils.subscribe()
 
       lv_process.socket_id
-      |> PubSubUtils.trace_topic(lv_process.transport_pid, :render)
+      |> PubSubUtils.ts_f_topic(lv_process.transport_pid, :render)
       |> PubSubUtils.subscribe()
     end
 
