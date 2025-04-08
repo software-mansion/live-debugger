@@ -1,51 +1,44 @@
 defmodule LiveDebugger.ChannelDashboardTest do
-  use ExUnit.Case
-  use Wallaby.Feature
-
-  import Wallaby.Query
-
-  @dev_app_url Application.compile_env(:live_debugger, :dev_app_url)
-
-  @moduletag :e2e
+  use LiveDebugger.E2ECase
 
   @sessions 2
   feature "user can see traces of executed callbacks and updated assigns", %{
-    sessions: [dev_session, lvdbg_session]
+    sessions: [dev_app, debugger]
   } do
-    dev_session
+    dev_app
     |> visit(@dev_app_url)
 
-    lvdbg_session
+    debugger
     |> visit("/")
     |> click(first_link())
     |> assert_has(counter_in_assigns(text: "0"))
     |> assert_has(traces(count: 2))
 
-    dev_session
+    dev_app
     |> click(button("increment"))
     |> click(button("increment"))
 
-    lvdbg_session
+    debugger
     |> assert_has(traces(count: 2))
     |> assert_has(counter_in_assigns(text: "2"))
     |> click(button("toggle-tracing"))
 
-    dev_session
+    dev_app
     |> click(button("increment"))
     |> click(button("increment"))
 
-    lvdbg_session
+    debugger
     |> assert_has(traces(count: 6))
     |> assert_has(counter_in_assigns(text: "4"))
     |> click(button("toggle-tracing"))
     |> click(button("clear-traces"))
     |> assert_has(traces(count: 0))
 
-    dev_session
+    dev_app
     |> click(button("increment"))
     |> click(button("increment"))
 
-    lvdbg_session
+    debugger
     |> assert_has(traces(count: 0))
     |> click(button("refresh"))
     |> assert_has(traces(count: 4))

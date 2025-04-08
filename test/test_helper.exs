@@ -4,7 +4,6 @@ if Application.get_env(:live_debugger, :e2e?, false) do
   {:ok, _} = Application.ensure_all_started([:wallaby, :live_debugger])
 
   Application.put_env(:wallaby, :base_url, LiveDebugger.Endpoint.url())
-  Application.put_env(:live_debugger, :dev_app_url, LiveDebuggerDev.Endpoint.url())
 else
   Mox.defmock(LiveDebugger.MockModuleService, for: LiveDebugger.Services.System.ModuleService)
   Application.put_env(:live_debugger, :module_service, LiveDebugger.MockModuleService)
