@@ -87,7 +87,12 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
   end
 
   defp reset_fuse(socket) do
-    start_tracing(socket)
+    assigns = %{
+      tracing_started?: true,
+      fuse: %{count: 0, start_time: now()}
+    }
+
+    assign(socket, @assign_name, assigns)
   end
 
   defp start_tracing(socket) do
@@ -96,7 +101,7 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
       fuse: %{count: 0, start_time: now()}
     }
 
-    if Phoenix.LiveView.connected?(socket) && socket.assigns.trace_topic do
+    if Phoenix.LiveView.connected?(socket) && socket.assigns[:lv_process] do
       socket
       |> get_active_topics()
       |> PubSubUtils.subscribe()
@@ -111,7 +116,7 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
       fuse: nil
     }
 
-    if Phoenix.LiveView.connected?(socket) && socket.assigns.trace_topic do
+    if Phoenix.LiveView.connected?(socket) && socket.assigns[:lv_process] do
       socket
       |> get_topics()
       |> PubSubUtils.unsubscribe()
@@ -125,7 +130,10 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
   end
 
   defp get_active_topics(socket) do
-    topic = socket.assigns.trace_topic
+    lv_process = socket.assigns.lv_process
+    node_id = socket.assigns.node_id
+
+    topic = PubSubUtils.trace_topic(lv_process.socket_id, lv_process.transport_pid, node_id)
 
     socket.assigns.current_filters
     |> Enum.filter(fn {_, active?} -> active? end)
@@ -133,7 +141,10 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
   end
 
   defp get_topics(socket) do
-    topic = socket.assigns.trace_topic
+    lv_process = socket.assigns.lv_process
+    node_id = socket.assigns.node_id
+
+    topic = PubSubUtils.trace_topic(lv_process.socket_id, lv_process.transport_pid, node_id)
 
     socket.assigns.current_filters
     |> Enum.map(fn {function, _} -> String.replace(topic, "*", inspect(function)) end)
