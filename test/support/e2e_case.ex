@@ -12,7 +12,7 @@ defmodule LiveDebugger.E2ECase do
 
       @moduletag :e2e
 
-      @dev_app_url LiveDebuggerDev.Endpoint.url()
+      @dev_app_url Application.compile_env(:live_debugger, :dev_app_url, "")
     end
   end
 end
