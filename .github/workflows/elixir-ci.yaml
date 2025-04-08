@@ -7,7 +7,7 @@ name: Elixir CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "223-introduce-wallaby-based-testing--test-action"]
   pull_request:
     branches: ["main"]
 
@@ -51,6 +51,9 @@ jobs:
 
       - name: Run tests
         run: mix test
+
+      - name: Run e2e tests
+        run: mix e2e
 
       - name: Check prettier
         working-directory: ./assets
