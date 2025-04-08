@@ -15,6 +15,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
+  alias LiveDebugger.Structs.TreeNode
 
   @stream_limit 128
   @separator %{id: "separator"}
@@ -63,6 +65,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> assign(id: session["id"])
     |> assign(ets_table_id: TraceService.ets_table_id(lv_process))
     |> assign(lv_process: lv_process)
+    |> assign(current_filters: default_filters(node_id))
     |> assign_async_existing_traces()
     |> ok()
   end
@@ -74,21 +77,29 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="max-w-full">
+    <div class="max-w-full @container/traces">
       <.section title="Callback traces" id="traces" inner_class="p-4">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
             <.refresh_button :if={not @tracing_helper.tracing_started?} />
-            <.button
-              :if={not @tracing_helper.tracing_started?}
-              id="clear-traces"
-              variant="secondary"
-              size="sm"
-              phx-click="clear-traces"
+            <.clear_button :if={not @tracing_helper.tracing_started?} />
+            <.live_component
+              :if={not @tracing_helper.tracing_started? && LiveDebugger.Env.dev?()}
+              module={LiveDebugger.LiveComponents.LiveDropdown}
+              id="filters-dropdown"
             >
-              Clear
-            </.button>
+              <:button class="flex gap-2">
+                <.icon name="icon-filters" class="w-4 h-4" />
+                <div class="hidden @[29rem]/traces:block">Filters</div>
+              </:button>
+              <.live_component
+                module={LiveDebugger.LiveComponents.FiltersForm}
+                id="filters-form"
+                node_id={@node_id}
+                filters={@current_filters}
+              />
+            </.live_component>
           </div>
         </:right_panel>
         <div class="w-full h-full lg:min-h-[10.25rem]">
@@ -179,6 +190,15 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> TracingHelper.disable_tracing()
     |> assign(node_id: node_id)
     |> assign_async_existing_traces()
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info({:filters_updated, filters}, socket) do
+    LiveDebugger.LiveComponents.LiveDropdown.close("filters-dropdown")
+
+    socket
+    |> assign(:current_filters, filters)
     |> noreply()
   end
 
@@ -274,11 +294,26 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     """
   end
 
+  defp clear_button(assigns) do
+    ~H"""
+    <.button
+      id="clear-traces"
+      phx-click="clear-traces"
+      class="flex gap-2"
+      variant="secondary"
+      size="sm"
+    >
+      <.icon name="icon-trash" class="w-4 h-4" />
+      <div class="hidden @[29rem]/traces:block">Clear</div>
+    </.button>
+    """
+  end
+
   defp refresh_button(assigns) do
     ~H"""
     <.button id="refresh" phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
       <.icon name="icon-refresh" class="w-4 h-4" />
-      <div>Refresh</div>
+      <div class="hidden @[29rem]/traces:block">Refresh</div>
     </.button>
     """
   end
@@ -408,5 +443,16 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> start_async(:fetch_existing_traces, fn ->
       TraceService.existing_traces(ets_table_id, node_id, @stream_limit)
     end)
+  end
+
+  defp default_filters(node_id) do
+    node_id
+    |> TreeNode.type()
+    |> case do
+      :live_view -> UtilsCallbacks.live_view_callbacks()
+      :live_component -> UtilsCallbacks.live_component_callbacks()
+    end
+    |> Enum.map(fn {function, _} -> {function, true} end)
+    |> Keyword.replace(:render, false)
   end
 end

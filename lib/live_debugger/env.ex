@@ -3,14 +3,17 @@ defmodule LiveDebugger.Env do
   Gives you a save option to check env in runtime
   """
 
-  @env Mix.env()
+  if Mix.env() == :dev do
+    def dev?(), do: true
+  else
+    def dev?(), do: false
+  end
 
-  # This is to avoid dialyzer warning
-  # Dialyzer uses :test as env always, and it gives a warning that == cannot be true
-  @dialyzer {:no_match, dev?: 0}
-
-  def dev?(), do: @env == :dev
-  def test?(), do: @env == :test
+  if Mix.env() == :test do
+    def test?(), do: true
+  else
+    def test?(), do: false
+  end
 
   def unit_test?() do
     Application.get_env(:live_debugger, :test_mode?, false) and

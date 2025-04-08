@@ -77,10 +77,30 @@ module.exports = {
         ],
       },
       fontSize: { '3xs': ['10px', '13px'], '2xs': ['11px', '20px'] },
+      keyframes: {
+        fadeOut: {
+          '0%': { opacity: '1', transform: 'scale(1)' },
+          '100%': { opacity: '0', transform: 'scale(0.95)' },
+        },
+        fadeOutMobile: {
+          '0%': { opacity: '1', transform: 'translateY(0)' },
+          '100%': { opacity: '0', transform: 'translateY(1rem)' },
+        },
+      },
+      animation: {
+        fadeOut: 'fadeOut 200ms ease-out forwards',
+        fadeOutMobile: 'fadeOutMobile 200ms ease-out forwards',
+      },
+    },
+  },
+  variants: {
+    extend: {
+      animationFillMode: ['forwards'],
     },
   },
   plugins: [
     require('@tailwindcss/forms'),
+    require('@tailwindcss/container-queries'),
     plugin(({ addVariant }) =>
       addVariant('phx-click-loading', [
         '&.phx-click-loading',
