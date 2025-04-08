@@ -53,8 +53,11 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
   defp first_link(), do: css("#live-sessions a", count: 1)
 
-  defp counter_in_assigns(opts),
-    do: css("#assigns ol li:nth-child(2) span:nth-child(3)", opts)
+  defp counter_in_assigns(text: text) do
+    xpath(
+      ".//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"counter:\")]/../*[contains(normalize-space(text()), \"#{text}\")]"
+    )
+  end
 
   defp traces(opts), do: css("#traces-list-stream details", opts)
 end
