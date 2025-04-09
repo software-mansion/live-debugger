@@ -79,29 +79,14 @@ defmodule LiveDebugger.Services.TraceService do
       raise ArgumentError, "limit must be >= 1"
     end
 
-    matcher =
-      case node_id do
-        nil ->
-          {:_, :_}
-
-        pid when is_pid(pid) ->
-          {:_, %{pid: pid, cid: nil}}
-
-        %CID{} = cid ->
-          {:_, %{cid: cid}}
-
-        _ ->
-          raise ArgumentError, "id must be either PID or CID"
-      end
+    match_spec = match_spec(node_id, functions)
 
     table_id
     |> maybe_init_ets()
-    |> :ets.match_object(matcher, limit)
+    |> :ets.select(match_spec, limit)
     |> case do
       {entries, _cont} ->
-        entries
-        |> Enum.map(&elem(&1, 1))
-        |> filter_by_functions(functions)
+        Enum.map(entries, &elem(&1, 1))
 
       _ ->
         []
@@ -124,9 +109,32 @@ defmodule LiveDebugger.Services.TraceService do
     |> :ets.match_delete({:_, %{pid: pid, cid: nil}})
   end
 
-  defp filter_by_functions(traces, functions) do
-    Enum.filter(traces, fn trace ->
-      trace.function in functions
-    end)
+  defp match_spec(node_id, functions) when is_pid(node_id) do
+    [
+      {{:_, %{function: :"$1", pid: node_id, cid: nil}}, to_spec(functions), [:"$_"]}
+    ]
+  end
+
+  defp match_spec(%CID{} = node_id, functions) do
+    [{{:_, %{function: :"$1", cid: node_id}}, to_spec(functions), [:"$_"]}]
+  end
+
+  defp match_spec(nil, functions) do
+    [{{:_, %{function: :"$1"}}, to_spec(functions), [:"$_"]}]
+  end
+
+  def to_spec([]), do: []
+
+  def to_spec([single]), do: [{:"=:=", :"$1", single}]
+
+  def to_spec([first, second | rest]) do
+    initial_orelse = {:orelse, List.first(to_spec([first])), List.first(to_spec([second]))}
+
+    result =
+      Enum.reduce(rest, initial_orelse, fn x, acc ->
+        {:orelse, acc, List.first(to_spec([x]))}
+      end)
+
+    [result]
   end
 end
