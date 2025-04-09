@@ -28,7 +28,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   @impl true
   def handle_continue(:setup_tracing, state) do
     :dbg.tracer(:process, {&trace_handler/2, 0})
-    :dbg.p(:all, :c)
+    :dbg.p(:all, [:c, :timestamp])
 
     all_modules = ModuleDiscoveryService.all_modules()
 
@@ -41,7 +41,10 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     |> ModuleDiscoveryService.live_component_modules()
     |> CallbackUtils.live_component_callbacks()
     |> Enum.concat(callbacks)
-    |> Enum.each(fn mfa -> :dbg.tp(mfa, [{:_, [], [{:return_trace}]}]) end)
+    |> Enum.each(fn mfa ->
+      :dbg.tp(mfa, [{:_, [], [{:return_trace}]}])
+      :dbg.tp(mfa, [{:_, [], [{:exception_trace}]}])
+    end)
 
     # This is not a callback created by user
     # We trace it to refresh the components tree
@@ -50,19 +53,13 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     {:noreply, state}
   end
 
-  defp trace_handler_(msg, n) do
-    dbg(msg)
-
-    msg
-    |> Tuple.to_list()
-    |> Enum.slice(0..3)
-    |> List.to_tuple()
-  end
-
   # This handler is heavy because of fetching state and we do not care for order because it is not displayed to user
   # Because of that we do it asynchronously to speed up tracer a bit
   # We do not persist this trace because it is not displayed to user
-  defp trace_handler({_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}}, n) do
+  defp trace_handler(
+         {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, _},
+         n
+       ) do
     Task.start(fn ->
       with cid <- %Phoenix.LiveComponent.CID{cid: cid},
            {:ok, %{socket: socket}} <- ProcessService.state(pid),
@@ -88,14 +85,33 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   # This handles callbacks created by user that will be displayed to user
   # It cannot be async because we care about order
-  defp trace_handler({_, pid, _, {module, fun, args}}, n) when fun in @callback_functions do
+  defp trace_handler({_, pid, :call, {module, fun, args}, timestamp}, n)
+       when fun in @callback_functions do
     with trace <- Trace.new(n, module, fun, args, pid),
          true <- is_pid(trace.transport_pid),
          :ok <- persist_trace(trace) do
+      :erlang.put({pid, module, fun}, {timestamp, trace})
       publish_trace(trace)
     end
 
     n - 1
+  end
+
+  defp trace_handler({_, _pid, :exception_from, {_module, fun, _}, _, _timestamp}, n)
+       when fun in @callback_functions do
+    n
+  end
+
+  defp trace_handler({_, pid, :return_from, {module, fun, _arity}, _, return_ts}, n)
+       when fun in @callback_functions do
+    with {call_ts, trace} <- :erlang.get({pid, module, fun}),
+         execution_time <- :timer.now_diff(return_ts, call_ts),
+         trace <- %{trace | execution_time: execution_time},
+         :ok <- persist_trace(trace) do
+      :erlang.erase({pid, module, fun})
+    end
+
+    n
   end
 
   defp trace_handler(trace, n) do

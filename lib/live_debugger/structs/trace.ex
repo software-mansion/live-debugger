@@ -23,7 +23,8 @@ defmodule LiveDebugger.Structs.Trace do
     :transport_pid,
     :pid,
     :cid,
-    :timestamp
+    :timestamp,
+    :execution_time
   ]
 
   @type t() :: %__MODULE__{
@@ -36,7 +37,8 @@ defmodule LiveDebugger.Structs.Trace do
           transport_pid: pid() | nil,
           pid: pid(),
           cid: struct() | nil,
-          timestamp: non_neg_integer()
+          timestamp: non_neg_integer(),
+          execution_time: non_neg_integer() | nil
         }
 
   @doc """
@@ -58,7 +60,8 @@ defmodule LiveDebugger.Structs.Trace do
       transport_pid: transport_pid,
       pid: pid,
       cid: cid,
-      timestamp: :os.system_time(:microsecond)
+      timestamp: :os.system_time(:microsecond),
+      execution_time: nil
     }
   end
 
