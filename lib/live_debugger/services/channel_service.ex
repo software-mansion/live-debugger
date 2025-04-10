@@ -7,8 +7,45 @@ defmodule LiveDebugger.Services.ChannelService do
   alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.CommonTypes
 
+  @table_id :"lvdbg-states"
+
+  @doc """
+  Saves state to the ETS table.
+  """
+  @spec save_state(pid :: pid(), state :: CommonTypes.channel_state()) :: true
+  def save_state(pid, state) when is_pid(pid) do
+    maybe_init_ets()
+    |> :ets.insert({pid, state})
+  end
+
+  @doc """
+  Returns previously saved state for the given pid.
+  """
+  @spec read_state(pid :: pid()) :: CommonTypes.channel_state() | nil
+  def read_state(pid) when is_pid(pid) do
+    maybe_init_ets()
+    |> :ets.lookup(pid)
+    |> case do
+      [{^pid, state}] ->
+        state
+
+      _ ->
+        nil
+    end
+  end
+
+  @doc """
+  Removes the state for the given pid from the ETS table.
+  """
+  @spec delete_state(pid :: pid()) :: true
+  def delete_state(pid) when is_pid(pid) do
+    maybe_init_ets()
+    |> :ets.delete(pid)
+  end
+
   @doc """
   Retrieves the state of the LiveView channel process identified by `pid`.
+  It calls `ProcessService.state/1` to get the state of the process.
   """
   @spec state(pid :: pid()) :: {:ok, CommonTypes.channel_state()} | {:error, term()}
   def state(pid) do
@@ -65,6 +102,14 @@ defmodule LiveDebugger.Services.ChannelService do
     pid = channel_state.socket.root_pid
 
     {:ok, Enum.map(component_cids, fn cid -> %Phoenix.LiveComponent.CID{cid: cid} end) ++ [pid]}
+  end
+
+  defp maybe_init_ets() do
+    if :ets.whereis(@table_id) == :undefined do
+      :ets.new(@table_id, [:set, :public, :named_table, read_concurrency: true])
+    else
+      @table_id
+    end
   end
 
   defp add_children(parent_element, nil, _live_components), do: parent_element

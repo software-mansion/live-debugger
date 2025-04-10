@@ -7,10 +7,11 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   require Logger
 
+  alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Services.ModuleDiscoveryService
   alias LiveDebugger.Structs.Trace
-  alias LiveDebugger.Services.System.ProcessService
+  alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
@@ -84,6 +85,10 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
          true <- is_pid(trace.transport_pid),
          :ok <- persist_trace(trace) do
       publish_trace(trace)
+
+      if trace.fun == :render do
+        persist_state(pid)
+      end
     end
 
     n - 1
@@ -104,6 +109,17 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     err ->
       Logger.error("Error while persisting trace: #{inspect(err)}")
       {:error, err}
+  end
+
+  defp persist_state(pid) do
+    case ChannelService.state(pid) do
+      {:ok, state} ->
+        ChannelService.save_state(pid, state)
+        :ok
+
+      {:error, _} ->
+        :error
+    end
   end
 
   defp publish_trace(%Trace{} = trace) do
