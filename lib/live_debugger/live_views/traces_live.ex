@@ -373,7 +373,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
           <p class="w-max text-xs font-normal text-secondary-text align-center">
             <%= Parsers.parse_timestamp(@trace.timestamp) %>
             <%= if @trace.execution_time do %>
-              <%= @trace.execution_time %> μs
+              <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
             <% else %>
               <.spinner size="xs" />
             <% end %>
