@@ -106,7 +106,7 @@ defmodule LiveDebugger.Services.ChannelService do
 
   defp maybe_init_ets() do
     if :ets.whereis(@table_id) == :undefined do
-      :ets.new(@table_id, [:set, :public, :named_table, read_concurrency: true])
+      :ets.new(@table_id, [:set, :public, :named_table])
     else
       @table_id
     end
