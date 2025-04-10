@@ -44,28 +44,23 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   @impl true
   def mount(_params, session, socket) do
     lv_process = session["lv_process"]
-    parent_socket_id = session["parent_socket_id"]
     node_id = session["node_id"]
 
-    trace_topic =
-      PubSubUtils.trace_topic(lv_process.socket_id, lv_process.transport_pid, node_id)
-
     if connected?(socket) do
-      parent_socket_id
+      session["parent_socket_id"]
       |> PubSubUtils.node_changed_topic()
-      |> PubSubUtils.subscribe()
+      |> PubSubUtils.subscribe!()
     end
 
     socket
     |> assign(:displayed_trace, nil)
-    |> assign(:trace_topic, trace_topic)
-    |> TracingHelper.init()
+    |> assign(current_filters: default_filters(node_id))
     |> assign(traces_empty?: true)
     |> assign(node_id: node_id)
     |> assign(id: session["id"])
     |> assign(ets_table_id: TraceService.ets_table_id(lv_process))
     |> assign(lv_process: lv_process)
-    |> assign(current_filters: default_filters(node_id))
+    |> TracingHelper.init()
     |> assign_async_existing_traces()
     |> ok()
   end
@@ -187,8 +182,9 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   @impl true
   def handle_info({:node_changed, node_id}, socket) do
     socket
-    |> TracingHelper.disable_tracing()
     |> assign(node_id: node_id)
+    |> TracingHelper.disable_tracing()
+    |> assign(current_filters: default_filters(node_id))
     |> assign_async_existing_traces()
     |> noreply()
   end
@@ -199,6 +195,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
     socket
     |> assign(:current_filters, filters)
+    |> assign_async_existing_traces()
     |> noreply()
   end
 
@@ -431,11 +428,20 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.node_id
 
+    active_functions =
+      socket.assigns.current_filters
+      |> Enum.filter(fn {_, active?} -> active? end)
+      |> Enum.map(fn {function, _} -> function end)
+
     socket
     |> assign(:existing_traces_status, :loading)
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
-      TraceService.existing_traces(ets_table_id, node_id, @stream_limit)
+      TraceService.existing_traces(ets_table_id,
+        node_id: node_id,
+        limit: @stream_limit,
+        functions: active_functions
+      )
     end)
   end
 
