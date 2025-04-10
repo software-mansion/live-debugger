@@ -196,7 +196,6 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     socket
     |> assign(:current_filters, filters)
     |> assign_async_existing_traces()
-    |> TracingHelper.update_tracing()
     |> noreply()
   end
 

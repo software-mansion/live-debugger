@@ -29,19 +29,6 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
     end
   end
 
-  @spec update_tracing(Socket.t()) :: Socket.t()
-  def update_tracing(socket) do
-    socket
-    |> get_topics()
-    |> PubSubUtils.unsubscribe()
-
-    socket
-    |> get_active_topics()
-    |> PubSubUtils.subscribe()
-
-    socket
-  end
-
   @spec disable_tracing(Socket.t()) :: Socket.t()
   def disable_tracing(socket) do
     clear_tracing(socket)
