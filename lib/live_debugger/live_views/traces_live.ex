@@ -185,6 +185,24 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   @impl true
+  def handle_info({:updated_trace, trace}, socket) do
+    socket
+    |> TracingHelper.check_fuse()
+    |> case do
+      {:ok, socket} ->
+        trace_display = TraceDisplay.from_trace(trace)
+
+        socket
+        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @stream_limit)
+
+      {_, socket} ->
+        # Add disappearing flash here in case of :stopped. (Issue 173)
+        socket
+    end
+    |> noreply()
+  end
+
+  @impl true
   def handle_info({:node_changed, node_id}, socket) do
     socket
     |> TracingHelper.disable_tracing()
@@ -347,11 +365,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       phx-value-trace-id={@trace.id}
     >
       <:label>
-        <div
-          id={@id <> "-label"}
-          class="w-[90%] grow flex items-center ml-2 gap-1.5"
-          phx-update="ignore"
-        >
+        <div id={@id <> "-label"} class="w-[90%] grow flex items-center ml-2 gap-1.5">
           <p class="font-medium text-sm"><%= @callback_name %></p>
           <.short_trace_content trace={@trace} />
           <p class="w-max text-xs font-normal text-secondary-text align-center">

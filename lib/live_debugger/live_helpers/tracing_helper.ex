@@ -85,6 +85,7 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
     }
 
     if Phoenix.LiveView.connected?(socket) && socket.assigns.trace_topic do
+      PubSubUtils.unsubscribe(socket.assigns.trace_topic)
       PubSubUtils.subscribe(socket.assigns.trace_topic)
     end
 

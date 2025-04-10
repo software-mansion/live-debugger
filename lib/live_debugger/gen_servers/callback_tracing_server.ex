@@ -109,6 +109,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
          trace <- %{trace | execution_time: execution_time},
          :ok <- persist_trace(trace) do
       :erlang.erase({pid, module, fun})
+      publish_update_trace(trace)
     end
 
     n
@@ -140,6 +141,15 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
       {:error, err}
   end
 
+  defp publish_update_trace(%Trace{} = trace) do
+    do_publish_update(trace)
+    :ok
+  rescue
+    err ->
+      Logger.error("Error while publishing trace: #{inspect(err)}")
+      {:error, err}
+  end
+
   defp do_publish(%{module: Phoenix.LiveView.Diff} = trace) do
     trace
     |> PubSubUtils.component_deleted_topic()
@@ -150,5 +160,14 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     trace
     |> PubSubUtils.trace_topics()
     |> PubSubUtils.broadcast({:new_trace, trace})
+  end
+
+  defp do_publish_update(trace) do
+    socket_id = trace.socket_id
+    node_id = Trace.node_id(trace)
+    transport_pid = trace.transport_pid
+
+    PubSubUtils.trace_topic(socket_id, transport_pid, node_id)
+    |> PubSubUtils.broadcast({:updated_trace, trace})
   end
 end
