@@ -49,7 +49,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     if connected?(socket) do
       session["parent_socket_id"]
       |> PubSubUtils.node_changed_topic()
-      |> PubSubUtils.subscribe()
+      |> PubSubUtils.subscribe!()
     end
 
     socket

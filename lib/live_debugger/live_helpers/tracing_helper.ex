@@ -91,7 +91,7 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
     if Phoenix.LiveView.connected?(socket) && socket.assigns[:lv_process] do
       socket
       |> get_active_topics()
-      |> PubSubUtils.subscribe()
+      |> PubSubUtils.subscribe!()
     end
 
     assign(socket, @assign_name, assigns)

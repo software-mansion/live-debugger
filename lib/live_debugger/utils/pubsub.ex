@@ -11,17 +11,20 @@ defmodule LiveDebugger.Utils.PubSub do
     Phoenix.PubSub.broadcast(LiveDebugger.PubSub, topic, payload)
   end
 
-  @spec subscribe(topics :: [String.t()]) :: :ok
-  def subscribe(topics) when is_list(topics) do
+  @spec subscribe!(topics :: [String.t()]) :: :ok
+  def subscribe!(topics) when is_list(topics) do
     topics
-    |> Enum.each(&subscribe(&1))
+    |> Enum.each(&subscribe!(&1))
 
     :ok
   end
 
-  @spec subscribe(topic :: String.t()) :: :ok
-  def subscribe(topic) do
-    Phoenix.PubSub.subscribe(LiveDebugger.PubSub, topic)
+  @spec subscribe!(topic :: String.t()) :: :ok
+  def subscribe!(topic) do
+    case Phoenix.PubSub.subscribe(LiveDebugger.PubSub, topic) do
+      :ok -> :ok
+      {:error, reason} -> raise reason
+    end
   end
 
   @spec unsubscribe(topics :: [String.t()]) :: :ok

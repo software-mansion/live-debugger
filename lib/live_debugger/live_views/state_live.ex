@@ -42,11 +42,11 @@ defmodule LiveDebugger.LiveViews.StateLive do
     if connected?(socket) do
       parent_socket_id
       |> PubSubUtils.node_changed_topic()
-      |> PubSubUtils.subscribe()
+      |> PubSubUtils.subscribe!()
 
       lv_process.socket_id
       |> PubSubUtils.tsnf_topic(lv_process.transport_pid, node_id, :render)
-      |> PubSubUtils.subscribe()
+      |> PubSubUtils.subscribe!()
     end
 
     socket
