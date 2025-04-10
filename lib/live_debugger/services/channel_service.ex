@@ -19,22 +19,6 @@ defmodule LiveDebugger.Services.ChannelService do
   end
 
   @doc """
-  Returns previously saved state for the given pid.
-  """
-  @spec read_state(pid :: pid()) :: CommonTypes.channel_state() | nil
-  def read_state(pid) when is_pid(pid) do
-    maybe_init_ets()
-    |> :ets.lookup(pid)
-    |> case do
-      [{^pid, state}] ->
-        state
-
-      _ ->
-        nil
-    end
-  end
-
-  @doc """
   Removes the state for the given pid from the ETS table.
   """
   @spec delete_state(pid :: pid()) :: true
@@ -45,15 +29,32 @@ defmodule LiveDebugger.Services.ChannelService do
 
   @doc """
   Retrieves the state of the LiveView channel process identified by `pid`.
-  It calls `ProcessService.state/1` to get the state of the process.
+  It has 2 modes:
+  - `:live_view` - retrieves the state of the LiveView process using `ProcessService.state/1`.
+  - `:dead_view` - retrieves the state of the LiveView process from the ETS table.
   """
-  @spec state(pid :: pid()) :: {:ok, CommonTypes.channel_state()} | {:error, term()}
-  def state(pid) do
+  @spec state(pid :: pid(), mode :: :live_view | :dead_view) ::
+          {:ok, CommonTypes.channel_state()} | {:error, term()}
+  def state(pid, mode \\ :live_view)
+
+  def state(pid, :live_view) when is_pid(pid) do
     case ProcessService.state(pid) do
       {:ok, %{socket: %Phoenix.LiveView.Socket{}, components: _} = state} -> {:ok, state}
       {:ok, _} -> {:error, "PID: #{inspect(pid)} is not a LiveView process"}
       {:error, :not_alive} -> {:error, :not_alive}
       {:error, _} -> {:error, "Could not get state from pid: #{inspect(pid)}"}
+    end
+  end
+
+  def state(pid, :dead_view) when is_pid(pid) do
+    maybe_init_ets()
+    |> :ets.lookup(pid)
+    |> case do
+      [{^pid, state}] ->
+        {:ok, state}
+
+      _ ->
+        {:error, :not_found}
     end
   end
 
