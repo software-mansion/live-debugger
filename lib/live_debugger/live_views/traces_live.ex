@@ -192,6 +192,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       {:ok, socket} ->
         trace_display = TraceDisplay.from_trace(trace)
 
+        # Process.sleep(2000)
+
         socket
         |> stream_insert(:existing_traces, trace_display, at: 0, limit: @stream_limit)
 
@@ -370,7 +372,11 @@ defmodule LiveDebugger.LiveViews.TracesLive do
           <.short_trace_content trace={@trace} />
           <p class="w-max text-xs font-normal text-secondary-text align-center">
             <%= Parsers.parse_timestamp(@trace.timestamp) %>
-            <%= if @trace.execution_time, do: @trace.execution_time, else: "?" %> μs
+            <%= if @trace.execution_time do %>
+              <%= @trace.execution_time %> μs
+            <% else %>
+              <.spinner size="xs" />
+            <% end %>
           </p>
         </div>
       </:label>
