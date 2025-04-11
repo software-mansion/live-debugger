@@ -5,6 +5,8 @@ defmodule LiveDebugger.Services.ChannelService do
 
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.CommonTypes
+  alias LiveDebugger.Services.System.ProcessService
+  alias LiveDebugger.GenServers.ChannelStateServer
 
   @doc """
   Saves state to the ETS table.
@@ -23,9 +25,9 @@ defmodule LiveDebugger.Services.ChannelService do
           {:ok, CommonTypes.channel_state()} | {:error, term()}
   def state(pid) when is_pid(pid) do
     if LiveDebugger.Env.state_cache?() do
-      LiveDebugger.GenServers.ChannelStateServer.get_state(pid)
+      ChannelStateServer.get_state(pid)
     else
-      case LiveDebugger.Services.System.ProcessService.state(pid) do
+      case ProcessService.state(pid) do
         {:ok, %{socket: %Phoenix.LiveView.Socket{}, components: _} = state} -> {:ok, state}
         {:ok, _} -> {:error, "PID: #{inspect(pid)} is not a LiveView process"}
         {:error, :not_alive} -> {:error, :not_alive}
