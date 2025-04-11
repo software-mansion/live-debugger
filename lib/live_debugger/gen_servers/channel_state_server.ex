@@ -37,18 +37,18 @@ defmodule LiveDebugger.GenServers.ChannelStateServer do
         Map.put(counters, pid, 0)
       end
 
-    self_pid = self()
+    counters =
+      case ProcessService.state(pid) do
+        {:ok, channel_state} ->
+          pid
+          |> ets_table_id()
+          |> :ets.insert({timestamp, channel_state})
 
-    Task.start(fn ->
-      with {:ok, channel_state} <-
-             ProcessService.state(pid) do
-        pid
-        |> ets_table_id()
-        |> :ets.insert({timestamp, channel_state})
+          Map.update!(counters, pid, &(&1 + 1))
 
-        send(self_pid, {:state_saved, pid})
+        {:error, _} ->
+          counters
       end
-    end)
 
     {:noreply, counters}
   end
@@ -69,12 +69,6 @@ defmodule LiveDebugger.GenServers.ChannelStateServer do
       end
 
     {:reply, reply, counters}
-  end
-
-  @impl true
-  def handle_info({:state_saved, pid}, counters) do
-    counters = Map.update!(counters, pid, &(&1 + 1))
-    {:noreply, counters}
   end
 
   defp init_table(table_id) do
