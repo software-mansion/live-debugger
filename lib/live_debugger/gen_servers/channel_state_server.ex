@@ -29,11 +29,15 @@ defmodule LiveDebugger.GenServers.ChannelStateServer do
 
   @impl true
   def handle_cast({:save_state, pid, timestamp}, counters) do
-    unless Map.has_key?(counters, pid) do
-      pid |> ets_table_id() |> init_table()
-    end
+    counters =
+      if Map.has_key?(counters, pid) do
+        counters
+      else
+        pid |> ets_table_id() |> init_table()
+        Map.put(counters, pid, 0)
+      end
 
-    counters = Map.update(counters, pid, 1, &(&1 + 1))
+    self_pid = self()
 
     Task.start(fn ->
       with {:ok, channel_state} <-
@@ -41,6 +45,8 @@ defmodule LiveDebugger.GenServers.ChannelStateServer do
         pid
         |> ets_table_id()
         |> :ets.insert({timestamp, channel_state})
+
+        send(self_pid, {:state_saved, pid})
       end
     end)
 
@@ -50,7 +56,7 @@ defmodule LiveDebugger.GenServers.ChannelStateServer do
   @impl true
   def handle_call({:get_state, pid}, _from, counters) do
     reply =
-      if Map.has_key?(counters, pid) do
+      if counters[pid] && counters[pid] > 0 do
         table_id = ets_table_id(pid)
         key = :ets.last(table_id)
 
@@ -63,6 +69,12 @@ defmodule LiveDebugger.GenServers.ChannelStateServer do
       end
 
     {:reply, reply, counters}
+  end
+
+  @impl true
+  def handle_info({:state_saved, pid}, counters) do
+    counters = Map.update!(counters, pid, &(&1 + 1))
+    {:noreply, counters}
   end
 
   defp init_table(table_id) do
