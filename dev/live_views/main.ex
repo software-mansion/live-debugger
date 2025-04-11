@@ -40,6 +40,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
 
         <.live_component id="many_assigns" module={LiveComponents.ManyAssigns} />
         <.live_component id="name_outer" name={@name} module={LiveComponents.Name} />
+        <.live_component id="crash" module={LiveComponents.Crash} />
         <.live_component id="send_outer" module={LiveComponents.Send}>
           <.live_component id="name_inner" name={@name} module={LiveComponents.Name} />
           <.live_component id="long_name" module={LiveComponents.LiveComponentWithVeryVeryLongName} />

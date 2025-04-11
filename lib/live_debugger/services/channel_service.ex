@@ -4,19 +4,35 @@ defmodule LiveDebugger.Services.ChannelService do
   """
 
   alias LiveDebugger.Structs.TreeNode
-  alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.CommonTypes
+  alias LiveDebugger.Services.System.ProcessService
+  alias LiveDebugger.GenServers.ChannelStateServer
+
+  @doc """
+  Saves state to the ETS table.
+  """
+  @spec save_state(pid :: pid()) :: :ok
+  def save_state(pid) when is_pid(pid) do
+    LiveDebugger.GenServers.ChannelStateServer.save_state(pid)
+  end
 
   @doc """
   Retrieves the state of the LiveView channel process identified by `pid`.
+  Based on `:state_cache?` config option, it either fetches the state from the ETS table or
+  calls `:sys.get_state/1` to get the state of the process.
   """
-  @spec state(pid :: pid()) :: {:ok, CommonTypes.channel_state()} | {:error, term()}
-  def state(pid) do
-    case ProcessService.state(pid) do
-      {:ok, %{socket: %Phoenix.LiveView.Socket{}, components: _} = state} -> {:ok, state}
-      {:ok, _} -> {:error, "PID: #{inspect(pid)} is not a LiveView process"}
-      {:error, :not_alive} -> {:error, :not_alive}
-      {:error, _} -> {:error, "Could not get state from pid: #{inspect(pid)}"}
+  @spec state(pid :: pid()) ::
+          {:ok, CommonTypes.channel_state()} | {:error, term()}
+  def state(pid) when is_pid(pid) do
+    if LiveDebugger.Env.state_cache?() do
+      ChannelStateServer.get_state(pid)
+    else
+      case ProcessService.state(pid) do
+        {:ok, %{socket: %Phoenix.LiveView.Socket{}, components: _} = state} -> {:ok, state}
+        {:ok, _} -> {:error, "PID: #{inspect(pid)} is not a LiveView process"}
+        {:error, :not_alive} -> {:error, :not_alive}
+        {:error, _} -> {:error, "Could not get state from pid: #{inspect(pid)}"}
+      end
     end
   end
 
