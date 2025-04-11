@@ -18,7 +18,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
   alias LiveDebugger.Structs.TreeNode
 
-  @stream_limit 128
+  @live_stream_limit 5
+  @page_size 10
   @separator %{id: "separator"}
 
   attr(:socket, :map, required: true)
@@ -155,7 +156,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     socket
     |> assign(existing_traces_status: :ok)
     |> assign(:traces_empty?, false)
-    |> stream(:existing_traces, trace_list, limit: @stream_limit)
+    |> stream(:existing_traces, trace_list)
     |> noreply()
   end
 
@@ -178,7 +179,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
         trace_display = TraceDisplay.from_trace(trace)
 
         socket
-        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @stream_limit)
+        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
         |> assign(:traces_empty?, false)
 
       {_, socket} ->
@@ -215,7 +216,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     if socket.assigns.tracing_helper.tracing_started? and !socket.assigns.traces_empty? do
       socket
       |> stream_delete(:existing_traces, @separator)
-      |> stream_insert(:existing_traces, @separator, at: 0, limit: @stream_limit)
+      |> stream_insert(:existing_traces, @separator, at: 0)
     else
       socket
     end
@@ -268,8 +269,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
         |> stream_insert(
           :existing_traces,
           TraceDisplay.from_trace(trace) |> TraceDisplay.render_body(),
-          at: abs(trace.id),
-          limit: @stream_limit
+          at: abs(trace.id)
         )
     end
     |> noreply()
@@ -448,7 +448,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> start_async(:fetch_existing_traces, fn ->
       TraceService.existing_traces(ets_table_id,
         node_id: node_id,
-        limit: @stream_limit,
+        limit: @page_size,
         functions: active_functions
       )
     end)
