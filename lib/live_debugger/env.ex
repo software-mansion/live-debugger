@@ -9,6 +9,12 @@ defmodule LiveDebugger.Env do
     def dev?(), do: false
   end
 
+  if Mix.env() == :test do
+    def test?(), do: true
+  else
+    def test?(), do: false
+  end
+
   def unit_test?() do
     Application.get_env(:live_debugger, :test_mode?, false) and
       not Application.get_env(:live_debugger, :e2e?, false)

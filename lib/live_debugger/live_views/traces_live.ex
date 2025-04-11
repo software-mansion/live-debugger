@@ -277,7 +277,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   defp toggle_tracing_button(assigns) do
     ~H"""
-    <.button phx-click="switch-tracing" class="flex gap-2" size="sm">
+    <.button id="toggle-tracing" phx-click="switch-tracing" class="flex gap-2" size="sm">
       <div class="flex gap-1.5 items-center w-12">
         <%= if @tracing_started? do %>
           <.icon name="icon-stop" class="w-4 h-4" />
@@ -293,7 +293,13 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   defp clear_button(assigns) do
     ~H"""
-    <.button phx-click="clear-traces" class="flex gap-2" variant="secondary" size="sm">
+    <.button
+      id="clear-traces"
+      phx-click="clear-traces"
+      class="flex gap-2"
+      variant="secondary"
+      size="sm"
+    >
       <.icon name="icon-trash" class="w-4 h-4" />
       <div class="hidden @[29rem]/traces:block">Clear</div>
     </.button>
@@ -302,7 +308,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   defp refresh_button(assigns) do
     ~H"""
-    <.button phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
+    <.button id="refresh" phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
       <.icon name="icon-refresh" class="w-4 h-4" />
       <div class="hidden @[29rem]/traces:block">Refresh</div>
     </.button>
