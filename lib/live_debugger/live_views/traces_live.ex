@@ -18,8 +18,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
   alias LiveDebugger.Structs.TreeNode
 
-  @live_stream_limit 5
-  @page_size 10
+  @live_stream_limit 128
+  @page_size 20
   @separator %{id: "separator"}
 
   attr(:socket, :map, required: true)
@@ -55,6 +55,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
     socket
     |> assign(:displayed_trace, nil)
+    |> assign(:traces_continuation, nil)
     |> assign(current_filters: default_filters(node_id))
     |> assign(traces_empty?: true)
     |> assign(node_id: node_id)
@@ -129,7 +130,11 @@ defmodule LiveDebugger.LiveViews.TracesLive do
           </div>
           <div class="flex items-center justify-center mt-4">
             <.button
-              :if={not @tracing_helper.tracing_started? && LiveDebugger.Env.dev?()}
+              :if={
+                not @tracing_helper.tracing_started? && @traces_continuation != :"$end_of_table" &&
+                  LiveDebugger.Env.dev?()
+              }
+              phx-click="load-more"
               class="w-40"
               variant="secondary"
             >
@@ -144,18 +149,20 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   @impl true
-  def handle_async(:fetch_existing_traces, {:ok, []}, socket) do
+  def handle_async(:fetch_existing_traces, {:ok, :"$end_of_table"}, socket) do
     socket
     |> assign(existing_traces_status: :ok)
+    |> assign(traces_continuation: :"$end_of_table")
     |> noreply()
   end
 
-  def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
+  def handle_async(:fetch_existing_traces, {:ok, {trace_list, cont}}, socket) do
     trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
 
     socket
     |> assign(existing_traces_status: :ok)
     |> assign(:traces_empty?, false)
+    |> assign(:traces_continuation, cont)
     |> stream(:existing_traces, trace_list)
     |> noreply()
   end
@@ -221,6 +228,38 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       socket
     end
     |> noreply()
+  end
+
+  @impl true
+  def handle_event("load-more", _, socket) do
+    ets_table_id = socket.assigns.ets_table_id
+    node_id = socket.assigns.node_id
+    cont = socket.assigns.traces_continuation
+
+    active_functions =
+      socket.assigns.current_filters
+      |> Enum.filter(fn {_, active?} -> active? end)
+      |> Enum.map(fn {function, _} -> function end)
+
+    case TraceService.existing_traces(ets_table_id,
+           node_id: node_id,
+           limit: @page_size,
+           cont: cont,
+           functions: active_functions
+         ) do
+      {traces, cont} ->
+        traces = Enum.map(traces, &TraceDisplay.from_trace/1)
+
+        socket
+        |> stream(:existing_traces, traces, at: -1)
+        |> assign(:traces_continuation, cont)
+        |> noreply()
+
+      :"$end_of_table" ->
+        socket
+        |> assign(:traces_continuation, :"$end_of_table")
+        |> noreply()
+    end
   end
 
   @impl true
