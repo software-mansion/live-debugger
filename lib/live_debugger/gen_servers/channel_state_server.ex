@@ -1,4 +1,8 @@
 defmodule LiveDebugger.GenServers.ChannelStateServer do
+  @moduledoc """
+  This gen_server is responsible for saving and retrieving the state of LiveView processes.
+  It uses ETS tables to store the state of each LiveView process.
+  """
   use GenServer
 
   alias LiveDebugger.Services.System.ProcessService

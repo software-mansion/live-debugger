@@ -57,10 +57,15 @@ defmodule LiveDebugger do
   end
 
   defp maybe_add_channel_state_server(children, config) do
-    if Keyword.get(config, :state_cache?, false) do
-      children ++ [LiveDebugger.GenServers.ChannelStateServer]
-    else
-      children
+    cond do
+      LiveDebugger.Env.unit_test?() ->
+        children
+
+      Keyword.get(config, :state_cache?, false) ->
+        children ++ [LiveDebugger.GenServers.ChannelStateServer]
+
+      true ->
+        children
     end
   end
 

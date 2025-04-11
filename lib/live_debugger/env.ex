@@ -13,4 +13,8 @@ defmodule LiveDebugger.Env do
     Application.get_env(:live_debugger, :test_mode?, false) and
       not Application.get_env(:live_debugger, :e2e?, false)
   end
+
+  def state_cache?() do
+    Application.get_env(:live_debugger, :state_cache?, false)
+  end
 end
