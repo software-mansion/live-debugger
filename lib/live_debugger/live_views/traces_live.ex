@@ -126,6 +126,15 @@ defmodule LiveDebugger.LiveViews.TracesLive do
               <% end %>
             <% end %>
           </div>
+          <div class="flex items-center justify-center mt-4">
+            <.button
+              :if={not @tracing_helper.tracing_started? && LiveDebugger.Env.dev?()}
+              class="w-40"
+              variant="secondary"
+            >
+              Load more
+            </.button>
+          </div>
         </div>
       </.section>
       <.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
