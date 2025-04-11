@@ -87,7 +87,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
       publish_trace(trace)
 
       if fun == :render do
-        persist_state(pid)
+        ChannelService.save_state(pid)
       end
     end
 
@@ -109,15 +109,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     err ->
       Logger.error("Error while persisting trace: #{inspect(err)}")
       {:error, err}
-  end
-
-  defp persist_state(pid) do
-    Task.start(fn ->
-      with {:ok, state} <- ChannelService.state(pid) do
-        ChannelService.save_state(pid, state)
-        :ok
-      end
-    end)
   end
 
   defp publish_trace(%Trace{} = trace) do

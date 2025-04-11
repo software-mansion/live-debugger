@@ -48,7 +48,8 @@ defmodule LiveDebugger do
       else
         children ++
           [
-            {LiveDebugger.GenServers.CallbackTracingServer, []}
+            LiveDebugger.GenServers.CallbackTracingServer,
+            LiveDebugger.GenServers.ChannelStateServer
           ]
       end
 
