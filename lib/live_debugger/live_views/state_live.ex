@@ -42,11 +42,11 @@ defmodule LiveDebugger.LiveViews.StateLive do
     if connected?(socket) do
       parent_socket_id
       |> PubSubUtils.node_changed_topic()
-      |> PubSubUtils.subscribe()
+      |> PubSubUtils.subscribe!()
 
       lv_process.socket_id
-      |> PubSubUtils.trace_topic(lv_process.transport_pid, node_id, :render)
-      |> PubSubUtils.subscribe()
+      |> PubSubUtils.tsnf_topic(lv_process.transport_pid, node_id, :render)
+      |> PubSubUtils.subscribe!()
     end
 
     socket
@@ -90,6 +90,12 @@ defmodule LiveDebugger.LiveViews.StateLive do
   def handle_info({:new_trace, _trace}, socket) do
     socket
     |> assign_async_node_with_type()
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info({:updated_trace, _trace}, socket) do
+    socket
     |> noreply()
   end
 
