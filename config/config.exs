@@ -47,5 +47,7 @@ if config_env() == :dev do
       ]
     ]
 
-  config :live_debugger, browser_features?: true
+  config :live_debugger,
+    browser_features?: true,
+    state_cache?: true
 end

@@ -14,14 +14,30 @@ defmodule LiveDebugger.Services.ChannelService do
     LiveDebugger.GenServers.ChannelStateServer.save_state(pid)
   end
 
-  @doc """
-  Retrieves the state of the LiveView channel process identified by `pid`.
-  States are stored in the ETS table and retrieved by the `pid`.
-  """
-  @spec state(pid :: pid()) ::
-          {:ok, CommonTypes.channel_state()} | {:error, term()}
-  def state(pid) when is_pid(pid) do
-    LiveDebugger.GenServers.ChannelStateServer.get_state(pid)
+  # Caching of state is disabled by default.
+  if Application.compile_env(:live_debugger, :state_cache?, false) do
+    @doc """
+    State is retrieved via stored state in the ETS table.
+    """
+    @spec state(pid :: pid()) ::
+            {:ok, CommonTypes.channel_state()} | {:error, term()}
+    def state(pid) when is_pid(pid) do
+      LiveDebugger.GenServers.ChannelStateServer.get_state(pid)
+    end
+  else
+    @doc """
+    State is retrieved via call of LiveDebugger.Services.System.ProcessService.state/1.
+    """
+    @spec state(pid :: pid()) ::
+            {:ok, CommonTypes.channel_state()} | {:error, term()}
+    def state(pid) when is_pid(pid) do
+      with {:ok, %{socket: %Phoenix.LiveView.Socket{}} = channel_state} <-
+             LiveDebugger.Services.System.ProcessService.state(pid) do
+        {:ok, channel_state}
+      else
+        {:error, reason} -> {:error, reason}
+      end
+    end
   end
 
   @doc """

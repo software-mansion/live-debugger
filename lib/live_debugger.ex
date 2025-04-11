@@ -33,27 +33,35 @@ defmodule LiveDebugger do
     Application.put_env(@app_name, LiveDebugger.Endpoint, endpoint_config)
     Application.put_env(@app_name, :assets_url, "http://#{ip_string}:#{port}/#{@assets_path}")
 
-    children = [
-      {Phoenix.PubSub, name: LiveDebugger.PubSub},
-      {LiveDebugger.Endpoint,
-       [
-         check_origin: false,
-         pubsub_server: LiveDebugger.PubSub
-       ]}
-    ]
-
     children =
-      if LiveDebugger.Env.unit_test?() do
-        children
-      else
-        children ++
-          [
-            LiveDebugger.GenServers.CallbackTracingServer,
-            LiveDebugger.GenServers.ChannelStateServer
-          ]
-      end
+      [
+        {Phoenix.PubSub, name: LiveDebugger.PubSub},
+        {LiveDebugger.Endpoint,
+         [
+           check_origin: false,
+           pubsub_server: LiveDebugger.PubSub
+         ]}
+      ]
+      |> maybe_add_callback_tracing_server()
+      |> maybe_add_channel_state_server(config)
 
     Supervisor.start_link(children, strategy: :one_for_one, name: LiveDebugger.Supervisor)
+  end
+
+  defp maybe_add_callback_tracing_server(children) do
+    if LiveDebugger.Env.unit_test?() do
+      children
+    else
+      children ++ [LiveDebugger.GenServers.CallbackTracingServer]
+    end
+  end
+
+  defp maybe_add_channel_state_server(children, config) do
+    if Keyword.get(config, :state_cache?, false) do
+      children ++ [LiveDebugger.GenServers.ChannelStateServer]
+    else
+      children
+    end
   end
 
   defp default_adapter() do
