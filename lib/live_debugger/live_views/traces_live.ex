@@ -347,11 +347,26 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   attr(:wrapped_trace, :map, required: true, doc: "The Trace to render")
 
   defp trace(assigns) do
+    trace = assigns.wrapped_trace.trace
+
     assigns =
       assigns
-      |> assign(:trace, assigns.wrapped_trace.trace)
+      |> assign(:trace, trace)
       |> assign(:render_body?, assigns.wrapped_trace.render_body?)
-      |> assign(:callback_name, Trace.callback_name(assigns.wrapped_trace.trace))
+      |> assign(:callback_name, Trace.callback_name(trace))
+      |> assign(
+        :threshold,
+        cond do
+          trace.execution_time && trace.execution_time > 500_000 ->
+            :very_slow
+
+          trace.execution_time && trace.execution_time > 100_000 ->
+            :slow
+
+          true ->
+            :ok
+        end
+      )
 
     ~H"""
     <.collapsible
@@ -367,13 +382,23 @@ defmodule LiveDebugger.LiveViews.TracesLive do
         <div id={@id <> "-label"} class="w-[90%] grow flex items-center ml-2 gap-1.5">
           <p class="font-medium text-sm"><%= @callback_name %></p>
           <.short_trace_content trace={@trace} />
-          <p class="w-max text-xs font-normal text-secondary-text align-center">
-            <%= Parsers.parse_timestamp(@trace.timestamp) %>
-            <%= if @trace.execution_time do %>
-              <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
-            <% else %>
-              <.spinner size="xs" />
-            <% end %>
+          <p class="w-max text-xs font-normal text-secondary-text align-right flex flex-col items-end">
+            <span>
+              <%= Parsers.parse_timestamp(@trace.timestamp) %>
+            </span>
+            <span class={
+              case @threshold do
+                :very_slow -> "text-error-text"
+                :slow -> "text-warning-text"
+                :ok -> ""
+              end
+            }>
+              <%= if @trace.execution_time do %>
+                <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
+              <% else %>
+                <.spinner size="xs" />
+              <% end %>
+            </span>
           </p>
         </div>
       </:label>

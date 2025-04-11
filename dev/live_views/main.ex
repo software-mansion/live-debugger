@@ -8,6 +8,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       socket
       |> assign(counter: 0)
       |> assign(slow_counter: 0)
+      |> assign(very_slow_counter: 0)
       |> assign(datetime: nil)
       |> assign(name: random_name())
       |> assign(single_element_list: [%Phoenix.LiveComponent.CID{cid: 1}])
@@ -31,6 +32,12 @@ defmodule LiveDebuggerDev.LiveViews.Main do
             Slow Increment
           </.button>
           <span class="text-xl"><%= @slow_counter %></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <.button phx-click="very-slow-increment" color="blue">
+            Very Slow Increment
+          </.button>
+          <span class="text-xl"><%= @very_slow_counter %></span>
         </div>
         <div class="flex items-center gap-1">
           <.button phx-click="change_name" color="red">
@@ -79,8 +86,13 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   end
 
   def handle_event("slow-increment", _, socket) do
-    Process.sleep(1200)
+    Process.sleep(200)
     {:noreply, assign(socket, :slow_counter, socket.assigns.slow_counter + 1)}
+  end
+
+  def handle_event("very-slow-increment", _, socket) do
+    Process.sleep(600)
+    {:noreply, assign(socket, :slow_counter, socket.assigns.very_slow_counter + 1)}
   end
 
   def handle_event("change_name", _, socket) do
