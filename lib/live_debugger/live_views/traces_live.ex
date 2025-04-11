@@ -182,7 +182,10 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
       {:stopped, socket} ->
         socket.assigns.root_pid
-        |> push_flash(socket, "Trace limit exceeded")
+        |> push_flash(
+          socket,
+          "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{TracingHelper.trace_limit_per_period()} callbacks in #{TracingHelper.time_period() / 1_000_000} s."
+        )
 
       {_, socket} ->
         socket
