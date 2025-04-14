@@ -18,13 +18,13 @@ defmodule LiveDebugger.LiveViewsDashboardTest do
 
     debugger
     |> assert_has(live_sessions(count: 1))
-    |> click(button("refresh"))
+    |> click(refresh_button())
     |> assert_has(live_sessions(count: 2))
   end
 
-  defp title(text: text),
-    do: css("h1", text: text)
+  defp title(text: text), do: css("h1", text: text)
 
-  defp live_sessions(count: count),
-    do: css("#live-sessions > div", count: count)
+  defp live_sessions(count: count), do: css("#live-sessions > div", count: count)
+
+  defp refresh_button(), do: css("button[phx-click=\"refresh\"]")
 end
