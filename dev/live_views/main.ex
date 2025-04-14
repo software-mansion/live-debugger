@@ -26,7 +26,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
           <span class="text-xl"><%= @counter %></span>
         </div>
         <div class="flex items-center gap-1">
-          <.button id="update" phx-click="change_name" color="red">
+          <.button id="update-button" phx-click="change_name" color="red">
             Update
           </.button>
           <div>
