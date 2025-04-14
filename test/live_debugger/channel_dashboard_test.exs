@@ -40,7 +40,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
     debugger
     |> assert_has(traces(count: 0))
-    |> click(button("refresh"))
+    |> click(refresh_button())
     |> assert_has(traces(count: 4))
   end
 
@@ -53,4 +53,6 @@ defmodule LiveDebugger.ChannelDashboardTest do
   end
 
   defp traces(opts), do: css("#traces-list-stream details", opts)
+
+  defp refresh_button(), do: css("button[phx-click=\"refresh-history\"]")
 end
