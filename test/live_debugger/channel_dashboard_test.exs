@@ -40,7 +40,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
     debugger
     |> assert_has(traces(count: 0))
-    |> click(button("refresh"))
+    |> click(css("button[phx-click=\"refresh-history\"]"))
     |> assert_has(traces(count: 4))
   end
 

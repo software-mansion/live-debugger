@@ -311,7 +311,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   defp refresh_button(assigns) do
     ~H"""
-    <.button id="refresh" phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
+    <.button phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
       <.icon name="icon-refresh" class="w-4 h-4" />
       <div class="hidden @[29rem]/traces:block">Refresh</div>
     </.button>
