@@ -129,7 +129,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             <%= if @traces_continuation != :loading do %>
               <.button
                 :if={
-                  not @tracing_helper.tracing_started? && @traces_continuation != :"$end_of_table" &&
+                  not @tracing_helper.tracing_started? && @traces_continuation != :end_of_table &&
                     LiveDebugger.Env.dev?()
                 }
                 phx-click="load-more"
@@ -162,10 +162,10 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   @impl true
-  def handle_async(:fetch_existing_traces, {:ok, :"$end_of_table"}, socket) do
+  def handle_async(:fetch_existing_traces, {:ok, :end_of_table}, socket) do
     socket
     |> assign(existing_traces_status: :ok)
-    |> assign(traces_continuation: :"$end_of_table")
+    |> assign(traces_continuation: :end_of_table)
     |> noreply()
   end
 
@@ -189,9 +189,9 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   @impl true
-  def handle_async(:load_more_existing_traces, {:ok, :"$end_of_table"}, socket) do
+  def handle_async(:load_more_existing_traces, {:ok, :end_of_table}, socket) do
     socket
-    |> assign(:traces_continuation, :"$end_of_table")
+    |> assign(:traces_continuation, :end_of_table)
     |> noreply()
   end
 

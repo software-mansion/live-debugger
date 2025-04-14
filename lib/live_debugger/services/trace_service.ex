@@ -70,40 +70,23 @@ defmodule LiveDebugger.Services.TraceService do
     * `:cont` - Used to get next page of items in the following queries
     * `:functions` - List of function names to filter traces by
   """
-  @spec existing_traces(atom(), keyword()) :: {[Trace.t()], term()} | :"$end_of_table"
+  @spec existing_traces(atom(), keyword()) :: {[Trace.t()], term()} | :end_of_table
   def existing_traces(table_id, opts \\ []) do
-    limit = Keyword.get(opts, :limit, @default_limit)
-    functions = Keyword.get(opts, :functions, [])
-    cont = Keyword.get(opts, :cont, nil)
-    node_id = Keyword.get(opts, :node_id)
-
-    if limit < 1 do
-      raise ArgumentError, "limit must be >= 1"
+    opts
+    |> Keyword.get(:cont, nil)
+    |> case do
+      nil -> existing_traces_start(table_id, opts)
+      _cont -> existing_traces_continuation(opts)
     end
+    |> case do
+      {entries, :"$end_of_table"} ->
+        {Enum.map(entries, &elem(&1, 1)), :end_of_table}
 
-    if cont == nil do
-      match_spec = match_spec(node_id, functions)
+      {entries, new_cont} ->
+        {Enum.map(entries, &elem(&1, 1)), new_cont}
 
-      table_id
-      |> maybe_init_ets()
-      |> :ets.select(match_spec, limit)
-      |> case do
-        {entries, new_cont} ->
-          {Enum.map(entries, &elem(&1, 1)), new_cont}
-
-        :"$end_of_table" ->
-          :"$end_of_table"
-      end
-    else
-      cont
-      |> :ets.select()
-      |> case do
-        {entries, new_cont} ->
-          {Enum.map(entries, &elem(&1, 1)), new_cont}
-
-        :"$end_of_table" ->
-          :"$end_of_table"
-      end
+      :"$end_of_table" ->
+        :end_of_table
     end
   end
 
@@ -121,6 +104,28 @@ defmodule LiveDebugger.Services.TraceService do
     table_id
     |> maybe_init_ets()
     |> :ets.match_delete({:_, %{pid: pid, cid: nil}})
+  end
+
+  defp existing_traces_start(table_id, opts) do
+    limit = Keyword.get(opts, :limit, @default_limit)
+    functions = Keyword.get(opts, :functions, [])
+    node_id = Keyword.get(opts, :node_id)
+
+    if limit < 1 do
+      raise ArgumentError, "limit must be >= 1"
+    end
+
+    match_spec = match_spec(node_id, functions)
+
+    table_id
+    |> maybe_init_ets()
+    |> :ets.select(match_spec, limit)
+  end
+
+  defp existing_traces_continuation(opts) do
+    cont = Keyword.get(opts, :cont, nil)
+
+    :ets.select(cont)
   end
 
   defp match_spec(node_id, functions) when is_pid(node_id) do
