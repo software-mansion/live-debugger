@@ -129,17 +129,21 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             <% end %>
           </div>
           <div class="flex items-center justify-center mt-4">
-            <.button
-              :if={
-                not @tracing_helper.tracing_started? && @traces_continuation != :"$end_of_table" &&
-                  LiveDebugger.Env.dev?()
-              }
-              phx-click="load-more"
-              class="w-40"
-              variant="secondary"
-            >
-              Load more
-            </.button>
+            <%= if @traces_continuation != :loading do %>
+              <.button
+                :if={
+                  not @tracing_helper.tracing_started? && @traces_continuation != :"$end_of_table" &&
+                    LiveDebugger.Env.dev?()
+                }
+                phx-click="load-more"
+                class="w-40"
+                variant="secondary"
+              >
+                Load more
+              </.button>
+            <% else %>
+              <.spinner size="sm" />
+            <% end %>
           </div>
         </div>
       </.section>
@@ -149,13 +153,6 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   @impl true
-  def handle_async(:fetch_existing_traces, {:ok, :"$end_of_table"}, socket) do
-    socket
-    |> assign(existing_traces_status: :ok)
-    |> assign(traces_continuation: :"$end_of_table")
-    |> noreply()
-  end
-
   def handle_async(:fetch_existing_traces, {:ok, {trace_list, cont}}, socket) do
     trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
 
@@ -167,6 +164,15 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> noreply()
   end
 
+  @impl true
+  def handle_async(:fetch_existing_traces, {:ok, :"$end_of_table"}, socket) do
+    socket
+    |> assign(existing_traces_status: :ok)
+    |> assign(traces_continuation: :"$end_of_table")
+    |> noreply()
+  end
+
+  @impl true
   def handle_async(:fetch_existing_traces, {:exit, reason}, socket) do
     Logger.error(
       "LiveDebugger encountered unexpected error while fetching existing traces: #{inspect(reason)}"
@@ -175,6 +181,32 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     socket
     |> assign(existing_traces_status: :error)
     |> noreply()
+  end
+
+  @impl true
+  def handle_async(:load_more_existing_traces, {:ok, {trace_list, cont}}, socket) do
+    trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
+
+    socket
+    |> assign(:traces_continuation, cont)
+    |> stream(:existing_traces, trace_list)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_async(:load_more_existing_traces, {:ok, :"$end_of_table"}, socket) do
+    socket
+    |> assign(:traces_continuation, :"$end_of_table")
+    |> noreply()
+  end
+
+  @impl true
+  def handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
+    Logger.error(
+      "LiveDebugger encountered unexpected error while loading more existing traces: #{inspect(reason)}"
+    )
+
+    socket
   end
 
   @impl true
@@ -232,34 +264,9 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   @impl true
   def handle_event("load-more", _, socket) do
-    ets_table_id = socket.assigns.ets_table_id
-    node_id = socket.assigns.node_id
-    cont = socket.assigns.traces_continuation
-
-    active_functions =
-      socket.assigns.current_filters
-      |> Enum.filter(fn {_, active?} -> active? end)
-      |> Enum.map(fn {function, _} -> function end)
-
-    case TraceService.existing_traces(ets_table_id,
-           node_id: node_id,
-           limit: @page_size,
-           cont: cont,
-           functions: active_functions
-         ) do
-      {traces, cont} ->
-        traces = Enum.map(traces, &TraceDisplay.from_trace/1)
-
-        socket
-        |> stream(:existing_traces, traces, at: -1)
-        |> assign(:traces_continuation, cont)
-        |> noreply()
-
-      :"$end_of_table" ->
-        socket
-        |> assign(:traces_continuation, :"$end_of_table")
-        |> noreply()
-    end
+    socket
+    |> load_more_existing_traces()
+    |> noreply()
   end
 
   @impl true
@@ -488,6 +495,30 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       TraceService.existing_traces(ets_table_id,
         node_id: node_id,
         limit: @page_size,
+        functions: active_functions
+      )
+    end)
+  end
+
+  defp load_more_existing_traces(socket) do
+    ets_table_id = socket.assigns.ets_table_id
+    node_id = socket.assigns.node_id
+    cont = socket.assigns.traces_continuation
+
+    active_functions =
+      socket.assigns.current_filters
+      |> Enum.filter(fn {_, active?} -> active? end)
+      |> Enum.map(fn {function, _} -> function end)
+
+    socket
+    |> assign(:traces_continuation, :loading)
+    |> start_async(:load_more_existing_traces, fn ->
+      Process.sleep(5000)
+
+      TraceService.existing_traces(ets_table_id,
+        node_id: node_id,
+        limit: @page_size,
+        cont: cont,
         functions: active_functions
       )
     end)
