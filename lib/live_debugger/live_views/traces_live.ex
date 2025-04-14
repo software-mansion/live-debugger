@@ -171,9 +171,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   @impl true
   def handle_async(:fetch_existing_traces, {:exit, reason}, socket) do
-    Logger.error(
-      "LiveDebugger encountered unexpected error while fetching existing traces: #{inspect(reason)}"
-    )
+    log_async_error("fetching existing traces", reason)
 
     socket
     |> assign(existing_traces_status: :error)
@@ -199,10 +197,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   @impl true
   def handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
-    Logger.error(
-      "LiveDebugger encountered unexpected error while loading more existing traces: #{inspect(reason)}"
-    )
-
+    log_async_error("loading more existing traces", reason)
     socket
   end
 
@@ -328,11 +323,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   defp assign_async_existing_traces(socket) do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.node_id
-
-    active_functions =
-      socket.assigns.current_filters
-      |> Enum.filter(fn {_, active?} -> active? end)
-      |> Enum.map(fn {function, _} -> function end)
+    active_functions = get_active_functions(socket)
 
     socket
     |> assign(:existing_traces_status, :loading)
@@ -350,17 +341,11 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.node_id
     cont = socket.assigns.traces_continuation
-
-    active_functions =
-      socket.assigns.current_filters
-      |> Enum.filter(fn {_, active?} -> active? end)
-      |> Enum.map(fn {function, _} -> function end)
+    active_functions = get_active_functions(socket)
 
     socket
     |> assign(:traces_continuation, :loading)
     |> start_async(:load_more_existing_traces, fn ->
-      Process.sleep(5000)
-
       TraceService.existing_traces(ets_table_id,
         node_id: node_id,
         limit: @page_size,
@@ -379,5 +364,17 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     end
     |> Enum.map(fn {function, _} -> {function, true} end)
     |> Keyword.replace(:render, false)
+  end
+
+  defp get_active_functions(socket) do
+    socket.assigns.current_filters
+    |> Enum.filter(fn {_, active?} -> active? end)
+    |> Enum.map(fn {function, _} -> function end)
+  end
+
+  defp log_async_error(operation, reason) do
+    Logger.error(
+      "LiveDebugger encountered unexpected error while #{operation}: #{inspect(reason)}"
+    )
   end
 end
