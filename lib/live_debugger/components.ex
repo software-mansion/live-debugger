@@ -222,7 +222,7 @@ defmodule LiveDebugger.Components do
   def section(assigns) do
     ~H"""
     <div class={[
-      "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex flex-col shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
+      "w-full min-w-[20rem] lg:max-w-[32rem] flex flex-col shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
       | List.wrap(@class)
     ]}>
       <div class="pl-4 flex items-center h-12 p-2 border-b border-default-border">
@@ -234,7 +234,7 @@ defmodule LiveDebugger.Components do
         </div>
       </div>
       <div class={[
-        "w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@inner_class)
+        "flex flex-1 overflow-auto rounded-sm bg-surface-0-bg m-2" | List.wrap(@inner_class)
       ]}>
         <%= render_slot(@inner_block) %>
       </div>

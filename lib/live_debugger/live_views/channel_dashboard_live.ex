@@ -62,7 +62,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
           <Error.unexpected_error_component :if={reason not in [:not_found, :session_limit]} />
         </:failed>
 
-        <div class="flex grow w-full overflow-y-auto">
+        <div class="flex flex-1 overflow-hidden">
           <SidebarLive.live_render
             id="sidebar"
             socket={@socket}
@@ -71,25 +71,23 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
             node_id={@node_id || lv_process.pid}
           />
 
-          <div class="flex flex-col flex-1 h-full overflow-auto">
-            <div class="overflow-auto grow p-8 items-center justify-start lg:items-start lg:justify-center flex flex-col lg:flex-row gap-4 lg:gap-8">
-              <div class="w-full lg:w-1/2">
-                <StateLive.live_render
-                  id="node-state-lv"
-                  socket={@socket}
-                  lv_process={lv_process}
-                  node_id={@node_id || lv_process.pid}
-                />
-              </div>
+          <div class="flex grow flex-col lg:flex-row gap-4 lg:gap-8 p-8 overflow-y-auto lg:overflow-y-hidden">
+            <div class="flex-1">
+              <StateLive.live_render
+                id="node-state-lv"
+                socket={@socket}
+                lv_process={lv_process}
+                node_id={@node_id || lv_process.pid}
+              />
+            </div>
 
-              <div class="w-full lg:w-1/2">
-                <TracesLive.live_render
-                  id="traces-list"
-                  socket={@socket}
-                  lv_process={lv_process}
-                  node_id={@node_id || lv_process.pid}
-                />
-              </div>
+            <div class="flex flex-1">
+              <TracesLive.live_render
+                id="traces-list"
+                socket={@socket}
+                lv_process={lv_process}
+                node_id={@node_id || lv_process.pid}
+              />
             </div>
           </div>
         </div>
