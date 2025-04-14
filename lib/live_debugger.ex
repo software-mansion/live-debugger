@@ -8,7 +8,6 @@ defmodule LiveDebugger do
 
   @default_ip {127, 0, 0, 1}
   @default_port 4007
-  @test_port 4008
   @default_secret_key_base "DEFAULT_SECRET_KEY_BASE_1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcd"
   @default_signing_salt "live_debugger_signing_salt"
 
@@ -20,13 +19,7 @@ defmodule LiveDebugger do
     default_adapter = default_adapter()
     ip = Keyword.get(config, :ip, @default_ip)
     ip_string = ip |> :inet.ntoa() |> List.to_string()
-
-    port =
-      if LiveDebugger.Env.test?() do
-        @test_port
-      else
-        Keyword.get(config, :port, @default_port)
-      end
+    port = Keyword.get(config, :port, @default_port)
 
     endpoint_config =
       [

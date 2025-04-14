@@ -5,7 +5,7 @@ defmodule LiveDebugger.DevAppTest do
     session
     |> visit(dev_path("/"))
     |> assert_has(css("main > div > span", text: "Main [LiveView]"))
-    |> assert_has(button("increment"))
+    |> assert_has(button("increment-button"))
     |> assert_has(button("update"))
     |> assert_has(button("send"))
 

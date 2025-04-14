@@ -59,7 +59,9 @@ if config_env() == :test do
     chrome: [headless: true],
     js_logger: nil
 
-  config :live_debugger, server: true
+  config :live_debugger,
+    server: true,
+    port: 4008
 
   # Print only warnings and errors during test
   config :logger, level: :warning
