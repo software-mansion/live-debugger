@@ -15,8 +15,8 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_has(traces(count: 2))
 
     dev_app
-    |> click(button("increment"))
-    |> click(button("increment"))
+    |> click(button("increment-button"))
+    |> click(button("increment-button"))
 
     debugger
     |> assert_has(traces(count: 2))
@@ -24,8 +24,8 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> click(button("toggle-tracing"))
 
     dev_app
-    |> click(button("increment"))
-    |> click(button("increment"))
+    |> click(button("increment-button"))
+    |> click(button("increment-button"))
 
     debugger
     |> assert_has(traces(count: 6))
@@ -35,8 +35,8 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_has(traces(count: 0))
 
     dev_app
-    |> click(button("increment"))
-    |> click(button("increment"))
+    |> click(button("increment-button"))
+    |> click(button("increment-button"))
 
     debugger
     |> assert_has(traces(count: 0))
