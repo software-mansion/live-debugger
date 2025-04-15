@@ -75,7 +75,7 @@ defmodule LiveDebugger.Components.Traces do
       id={@id}
       icon="icon-chevron-right"
       chevron_class="w-5 h-5 text-accent-icon"
-      class="max-w-full border border-default-border rounded"
+      class="max-w-full border border-default-border rounded last:mb-4"
       label_class="font-semibold bg-surface-1-bg h-10 p-2"
       phx-click={if(@render_body?, do: nil, else: "toggle-collapsible")}
       phx-value-trace-id={@trace.id}
@@ -93,7 +93,7 @@ defmodule LiveDebugger.Components.Traces do
           </p>
         </div>
       </:label>
-      <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto p-4">
+      <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto">
         <.fullscreen_button
           id={"trace-fullscreen-#{@id}"}
           class="absolute right-2 top-2"
