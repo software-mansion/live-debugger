@@ -377,7 +377,6 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       :live_component -> UtilsCallbacks.live_component_callbacks()
     end
     |> Enum.map(fn {function, _} -> {function, true} end)
-    |> Keyword.replace(:render, false)
   end
 
   defp get_active_functions(socket) do
