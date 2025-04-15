@@ -16,7 +16,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   alias LiveDebugger.Components.Traces
 
   @live_stream_limit 128
-  @page_size 20
+  @page_size 25
   @separator %{id: "separator"}
 
   attr(:socket, :map, required: true)
