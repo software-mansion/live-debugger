@@ -100,7 +100,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             </.live_component>
           </div>
         </:right_panel>
-        <div class="w-full h-full lg:min-h-[10.25rem]">
+        <div class="w-full h-full xl:min-h-[10.25rem]">
           <div id={"#{assigns.id}-stream"} phx-update="stream" class="flex flex-col gap-2">
             <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-secondary-text">
               <div :if={@existing_traces_status == :ok}>
