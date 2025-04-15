@@ -35,7 +35,11 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     assigns = assign(assigns, session: session)
 
     ~H"""
-    <%= live_render(@socket, __MODULE__, id: @id, session: @session) %>
+    <%= live_render(@socket, __MODULE__,
+      id: @id,
+      session: @session,
+      container: {:div, class: "flex flex-1"}
+    ) %>
     """
   end
 
@@ -71,8 +75,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="max-w-full @container/traces">
-      <.section title="Callback traces" id="traces" inner_class="p-4">
+    <div class="max-w-full @container/traces flex flex-1">
+      <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <Traces.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
