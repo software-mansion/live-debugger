@@ -224,7 +224,7 @@ defmodule LiveDebugger.Components do
     <div
       id={@id}
       class={[
-        "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex flex-col shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
+        "w-full min-w-[20rem] lg:max-w-[32rem] flex flex-col shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
         | List.wrap(@class)
       ]}
     >
@@ -237,7 +237,7 @@ defmodule LiveDebugger.Components do
         </div>
       </div>
       <div class={[
-        "w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@inner_class)
+        "flex flex-1 overflow-auto rounded-sm bg-surface-0-bg m-2" | List.wrap(@inner_class)
       ]}>
         <%= render_slot(@inner_block) %>
       </div>
