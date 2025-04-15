@@ -45,7 +45,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
           <.nav_icon
             :if={@lv_process.ok?}
             phx-click={JS.push("open-sidebar", target: "#sidebar")}
-            class="flex xl:hidden"
+            class="flex lg:hidden"
             icon="icon-menu-hamburger"
           />
         </div>
