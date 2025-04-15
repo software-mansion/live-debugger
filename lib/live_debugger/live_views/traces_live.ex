@@ -8,17 +8,16 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   require Logger
 
   alias LiveDebugger.LiveHelpers.TracingHelper
-  alias LiveDebugger.Structs.Trace
-  alias LiveDebugger.Components.ElixirDisplay
   alias LiveDebugger.Services.TraceService
-  alias LiveDebugger.Utils.TermParser
-  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
+  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode
+  alias LiveDebugger.Components.Traces
 
-  @stream_limit 128
+  @live_stream_limit 128
+  @page_size 20
   @separator %{id: "separator"}
 
   attr(:socket, :map, required: true)
@@ -60,6 +59,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
     socket
     |> assign(:displayed_trace, nil)
+    |> assign(:traces_continuation, nil)
     |> assign(current_filters: default_filters(node_id))
     |> assign(traces_empty?: true)
     |> assign(node_id: node_id)
@@ -83,9 +83,9 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
         <:right_panel>
           <div class="flex gap-2 items-center">
-            <.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
-            <.refresh_button :if={not @tracing_helper.tracing_started?} />
-            <.clear_button :if={not @tracing_helper.tracing_started?} />
+            <Traces.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
+            <Traces.refresh_button :if={not @tracing_helper.tracing_started?} />
+            <Traces.clear_button :if={not @tracing_helper.tracing_started?} />
             <.live_component
               :if={not @tracing_helper.tracing_started? && LiveDebugger.Env.dev?()}
               module={LiveDebugger.LiveComponents.LiveDropdown}
@@ -127,44 +127,83 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             </div>
             <%= for {dom_id, wrapped_trace} <- @streams.existing_traces do %>
               <%= if wrapped_trace.id == "separator" do %>
-                <.separator id={dom_id} />
+                <Traces.separator id={dom_id} />
               <% else %>
-                <.trace id={dom_id} wrapped_trace={wrapped_trace} />
+                <Traces.trace id={dom_id} wrapped_trace={wrapped_trace} />
               <% end %>
+            <% end %>
+          </div>
+          <div :if={LiveDebugger.Env.dev?()} class="flex items-center justify-center mt-4">
+            <%= if @traces_continuation != :loading  do %>
+              <.button
+                :if={not @tracing_helper.tracing_started? && @traces_continuation != :end_of_table}
+                phx-click="load-more"
+                class="w-40"
+                variant="secondary"
+              >
+                Load more
+              </.button>
+            <% else %>
+              <.spinner size="sm" />
             <% end %>
           </div>
         </div>
       </.section>
-      <.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
+      <Traces.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
     </div>
     """
   end
 
   @impl true
-  def handle_async(:fetch_existing_traces, {:ok, []}, socket) do
-    socket
-    |> assign(existing_traces_status: :ok)
-    |> noreply()
-  end
-
-  def handle_async(:fetch_existing_traces, {:ok, trace_list}, socket) do
+  def handle_async(:fetch_existing_traces, {:ok, {trace_list, cont}}, socket) do
     trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
 
     socket
     |> assign(existing_traces_status: :ok)
     |> assign(:traces_empty?, false)
-    |> stream(:existing_traces, trace_list, limit: @stream_limit)
+    |> assign(:traces_continuation, cont)
+    |> stream(:existing_traces, trace_list)
     |> noreply()
   end
 
+  @impl true
+  def handle_async(:fetch_existing_traces, {:ok, :end_of_table}, socket) do
+    socket
+    |> assign(existing_traces_status: :ok)
+    |> assign(traces_continuation: :end_of_table)
+    |> noreply()
+  end
+
+  @impl true
   def handle_async(:fetch_existing_traces, {:exit, reason}, socket) do
-    Logger.error(
-      "LiveDebugger encountered unexpected error while fetching existing traces: #{inspect(reason)}"
-    )
+    log_async_error("fetching existing traces", reason)
 
     socket
     |> assign(existing_traces_status: :error)
     |> noreply()
+  end
+
+  @impl true
+  def handle_async(:load_more_existing_traces, {:ok, {trace_list, cont}}, socket) do
+    trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
+
+    socket
+    |> assign(:traces_continuation, cont)
+    |> stream(:existing_traces, trace_list)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_async(:load_more_existing_traces, {:ok, :end_of_table}, socket) do
+    socket
+    |> assign(:traces_continuation, :end_of_table)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
+    log_async_error("loading more existing traces", reason)
+    socket
   end
 
   @impl true
@@ -176,7 +215,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
         trace_display = TraceDisplay.from_trace(trace)
 
         socket
-        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @stream_limit)
+        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
         |> assign(:traces_empty?, false)
 
       {:stopped, socket} ->
@@ -222,10 +261,17 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     if socket.assigns.tracing_helper.tracing_started? and !socket.assigns.traces_empty? do
       socket
       |> stream_delete(:existing_traces, @separator)
-      |> stream_insert(:existing_traces, @separator, at: 0, limit: @stream_limit)
+      |> stream_insert(:existing_traces, @separator, at: 0)
     else
       socket
     end
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("load-more", _, socket) do
+    socket
+    |> load_more_existing_traces()
     |> noreply()
   end
 
@@ -275,8 +321,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
         |> stream_insert(
           :existing_traces,
           TraceDisplay.from_trace(trace) |> TraceDisplay.render_body(),
-          at: abs(trace.id),
-          limit: @stream_limit
+          at: abs(trace.id)
         )
     end
     |> noreply()
@@ -289,165 +334,10 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> noreply()
   end
 
-  attr(:tracing_started?, :boolean, required: true)
-
-  defp toggle_tracing_button(assigns) do
-    ~H"""
-    <.button phx-click="switch-tracing" class="flex gap-2" size="sm">
-      <div class="flex gap-1.5 items-center w-12">
-        <%= if @tracing_started? do %>
-          <.icon name="icon-stop" class="w-4 h-4" />
-          <div>Stop</div>
-        <% else %>
-          <.icon name="icon-play" class="w-3.5 h-3.5" />
-          <div>Start</div>
-        <% end %>
-      </div>
-    </.button>
-    """
-  end
-
-  defp clear_button(assigns) do
-    ~H"""
-    <.button phx-click="clear-traces" class="flex gap-2" variant="secondary" size="sm">
-      <.icon name="icon-trash" class="w-4 h-4" />
-      <div class="hidden @[29rem]/traces:block">Clear</div>
-    </.button>
-    """
-  end
-
-  defp refresh_button(assigns) do
-    ~H"""
-    <.button phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
-      <.icon name="icon-refresh" class="w-4 h-4" />
-      <div class="hidden @[29rem]/traces:block">Refresh</div>
-    </.button>
-    """
-  end
-
-  attr(:id, :string, required: true)
-
-  defp separator(assigns) do
-    ~H"""
-    <div id={@id}>
-      <div class="h-6 my-1 font-normal text-xs text-secondary-text flex align items-center">
-        <div class="border-b border-default-border grow"></div>
-        <span class="mx-2">Past Traces</span>
-        <div class="border-b border-default-border grow"></div>
-      </div>
-    </div>
-    """
-  end
-
-  attr(:id, :string, required: true)
-  attr(:wrapped_trace, :map, required: true, doc: "The Trace to render")
-
-  defp trace(assigns) do
-    assigns =
-      assigns
-      |> assign(:trace, assigns.wrapped_trace.trace)
-      |> assign(:render_body?, assigns.wrapped_trace.render_body?)
-      |> assign(:callback_name, Trace.callback_name(assigns.wrapped_trace.trace))
-
-    ~H"""
-    <.collapsible
-      id={@id}
-      icon="icon-chevron-right"
-      chevron_class="w-5 h-5 text-accent-icon"
-      class="max-w-full border border-default-border rounded last:mb-4"
-      label_class="font-semibold bg-surface-1-bg h-10 p-2"
-      phx-click={if(@render_body?, do: nil, else: "toggle-collapsible")}
-      phx-value-trace-id={@trace.id}
-    >
-      <:label>
-        <div
-          id={@id <> "-label"}
-          class="w-[90%] grow flex items-center ml-2 gap-1.5"
-          phx-update="ignore"
-        >
-          <p class="font-medium text-sm"><%= @callback_name %></p>
-          <.short_trace_content trace={@trace} />
-          <p class="w-max text-xs font-normal text-secondary-text align-center">
-            <%= Parsers.parse_timestamp(@trace.timestamp) %>
-          </p>
-        </div>
-      </:label>
-      <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto">
-        <.fullscreen_button
-          id={"trace-fullscreen-#{@id}"}
-          class="absolute right-2 top-2"
-          phx-click="open-trace"
-          phx-value-data={@trace.id}
-        />
-
-        <%= if @render_body? do %>
-          <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-            <ElixirDisplay.term
-              id={@id <> "-#{index}"}
-              node={TermParser.term_to_display_tree(args)}
-              level={1}
-            />
-          <% end %>
-        <% else %>
-          <div class="w-full flex items-center justify-center">
-            <.spinner size="sm" />
-          </div>
-        <% end %>
-      </div>
-    </.collapsible>
-    """
-  end
-
-  defp short_trace_content(assigns) do
-    assigns = assign(assigns, :content, Enum.map_join(assigns.trace.args, " ", &inspect/1))
-
-    ~H"""
-    <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
-      <p class="hide-on-open mt-0.5"><%= @content %></p>
-    </div>
-    """
-  end
-
-  attr(:id, :string, required: true)
-  attr(:trace, :map, default: nil)
-
-  defp trace_fullscreen(assigns) do
-    assigns =
-      case assigns.trace do
-        nil ->
-          assigns
-          |> assign(:callback_name, "Unknown trace")
-          |> assign(:trace_args, [])
-
-        trace ->
-          assigns
-          |> assign(:callback_name, Trace.callback_name(trace))
-          |> assign(:trace_args, trace.args)
-      end
-
-    ~H"""
-    <.fullscreen id={@id} title={@callback_name}>
-      <div class="w-full flex flex-col gap-4 items-start justify-center">
-        <%= for {args, index} <- Enum.with_index(@trace_args) do %>
-          <ElixirDisplay.term
-            id={@id <> "-#{index}-fullscreen"}
-            node={TermParser.term_to_display_tree(args)}
-            level={1}
-          />
-        <% end %>
-      </div>
-    </.fullscreen>
-    """
-  end
-
   defp assign_async_existing_traces(socket) do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.node_id
-
-    active_functions =
-      socket.assigns.current_filters
-      |> Enum.filter(fn {_, active?} -> active? end)
-      |> Enum.map(fn {function, _} -> function end)
+    active_functions = get_active_functions(socket)
 
     socket
     |> assign(:existing_traces_status, :loading)
@@ -455,7 +345,25 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> start_async(:fetch_existing_traces, fn ->
       TraceService.existing_traces(ets_table_id,
         node_id: node_id,
-        limit: @stream_limit,
+        limit: @page_size,
+        functions: active_functions
+      )
+    end)
+  end
+
+  defp load_more_existing_traces(socket) do
+    ets_table_id = socket.assigns.ets_table_id
+    node_id = socket.assigns.node_id
+    cont = socket.assigns.traces_continuation
+    active_functions = get_active_functions(socket)
+
+    socket
+    |> assign(:traces_continuation, :loading)
+    |> start_async(:load_more_existing_traces, fn ->
+      TraceService.existing_traces(ets_table_id,
+        node_id: node_id,
+        limit: @page_size,
+        cont: cont,
         functions: active_functions
       )
     end)
@@ -470,5 +378,17 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     end
     |> Enum.map(fn {function, _} -> {function, true} end)
     |> Keyword.replace(:render, false)
+  end
+
+  defp get_active_functions(socket) do
+    socket.assigns.current_filters
+    |> Enum.filter(fn {_, active?} -> active? end)
+    |> Enum.map(fn {function, _} -> function end)
+  end
+
+  defp log_async_error(operation, reason) do
+    Logger.error(
+      "LiveDebugger encountered unexpected error while #{operation}: #{inspect(reason)}"
+    )
   end
 end
