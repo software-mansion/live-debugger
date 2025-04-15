@@ -10,7 +10,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Services.ModuleDiscoveryService
   alias LiveDebugger.Structs.Trace
-  alias LiveDebugger.Services.System.ProcessService
+  alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
@@ -59,7 +59,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   defp trace_handler({_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}}, n) do
     Task.start(fn ->
       with cid <- %Phoenix.LiveComponent.CID{cid: cid},
-           {:ok, %{socket: socket}} <- ProcessService.state(pid),
+           {:ok, %{socket: socket}} <- ChannelService.state(pid),
            %{id: socket_id, transport_pid: transport_pid} <- socket,
            true <- is_pid(transport_pid),
            trace <-
@@ -87,6 +87,10 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
          true <- is_pid(trace.transport_pid),
          :ok <- persist_trace(trace) do
       publish_trace(trace)
+
+      if fun == :render do
+        ChannelService.save_state(pid)
+      end
     end
 
     n - 1
