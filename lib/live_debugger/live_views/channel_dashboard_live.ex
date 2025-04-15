@@ -85,6 +85,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
               socket={@socket}
               lv_process={lv_process}
               node_id={@node_id || lv_process.pid}
+              root_pid={self()}
             />
           </div>
         </div>

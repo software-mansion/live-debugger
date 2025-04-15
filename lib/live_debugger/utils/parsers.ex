@@ -18,6 +18,14 @@ defmodule LiveDebugger.Utils.Parsers do
     end
   end
 
+  def parse_elapsed_time(microseconds) do
+    cond do
+      microseconds < 1_000 -> "#{microseconds} µs"
+      microseconds < 1_000_000 -> "#{div(microseconds, 1_000)} ms"
+      true -> "#{:io_lib.format("~.2f", [microseconds / 1_000_000])} s"
+    end
+  end
+
   @spec pid_to_string(pid :: pid()) :: String.t()
   def pid_to_string(pid) when is_pid(pid) do
     pid |> :erlang.pid_to_list() |> to_string() |> String.slice(1..-2//1)

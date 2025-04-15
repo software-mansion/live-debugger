@@ -12,6 +12,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
+  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Components.Traces
 
@@ -23,13 +24,15 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   attr(:id, :string, required: true)
   attr(:lv_process, :map, required: true)
   attr(:node_id, :string, required: true)
+  attr(:root_pid, :any, required: true)
 
   def live_render(assigns) do
     session = %{
       "lv_process" => assigns.lv_process,
       "node_id" => assigns.node_id,
       "id" => assigns.id,
-      "parent_socket_id" => assigns.socket.id
+      "parent_socket_id" => assigns.socket.id,
+      "root_pid" => assigns.root_pid
     }
 
     assigns = assign(assigns, session: session)
@@ -61,6 +64,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> assign(traces_empty?: true)
     |> assign(node_id: node_id)
     |> assign(id: session["id"])
+    |> assign(root_pid: session["root_pid"])
     |> assign(ets_table_id: TraceService.ets_table_id(lv_process))
     |> assign(lv_process: lv_process)
     |> TracingHelper.init()
@@ -214,8 +218,17 @@ defmodule LiveDebugger.LiveViews.TracesLive do
         |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
         |> assign(:traces_empty?, false)
 
+      {:stopped, socket} ->
+        limit = TracingHelper.trace_limit_per_period()
+        period = TracingHelper.time_period() |> Parsers.parse_elapsed_time()
+
+        socket.assigns.root_pid
+        |> push_flash(
+          socket,
+          "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}."
+        )
+
       {_, socket} ->
-        # Add disappearing flash here in case of :stopped. (Issue 173)
         socket
     end
     |> noreply()
