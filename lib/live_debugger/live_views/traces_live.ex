@@ -57,10 +57,13 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       |> PubSubUtils.subscribe!()
     end
 
+    default_filters = default_filters(node_id)
+
     socket
     |> assign(:displayed_trace, nil)
     |> assign(:traces_continuation, nil)
-    |> assign(current_filters: default_filters(node_id))
+    |> assign(current_filters: default_filters)
+    |> assign(default_filters: default_filters)
     |> assign(traces_empty?: true)
     |> assign(node_id: node_id)
     |> assign(id: session["id"])
@@ -100,6 +103,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
                 id="filters-form"
                 node_id={@node_id}
                 filters={@current_filters}
+                default_filters={@default_filters}
               />
             </.live_component>
           </div>
@@ -377,7 +381,6 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       :live_component -> UtilsCallbacks.live_component_callbacks()
     end
     |> Enum.map(fn {function, _} -> {function, true} end)
-    |> Keyword.replace(:render, false)
   end
 
   defp get_active_functions(socket) do
