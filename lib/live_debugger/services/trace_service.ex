@@ -75,6 +75,7 @@ defmodule LiveDebugger.Services.TraceService do
     opts
     |> Keyword.get(:cont, nil)
     |> case do
+      :end_of_table -> :end_of_table
       nil -> existing_traces_start(table_id, opts)
       _cont -> existing_traces_continuation(opts)
     end
@@ -85,7 +86,7 @@ defmodule LiveDebugger.Services.TraceService do
       {entries, new_cont} ->
         {Enum.map(entries, &elem(&1, 1)), new_cont}
 
-      :"$end_of_table" ->
+      _ ->
         :end_of_table
     end
   end
