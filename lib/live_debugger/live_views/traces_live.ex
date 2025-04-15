@@ -129,13 +129,10 @@ defmodule LiveDebugger.LiveViews.TracesLive do
               <% end %>
             <% end %>
           </div>
-          <div class="flex items-center justify-center mt-4">
-            <%= if @traces_continuation != :loading do %>
+          <div :if={LiveDebugger.Env.dev?()} class="flex items-center justify-center mt-4">
+            <%= if @traces_continuation != :loading  do %>
               <.button
-                :if={
-                  not @tracing_helper.tracing_started? && @traces_continuation != :end_of_table &&
-                    LiveDebugger.Env.dev?()
-                }
+                :if={not @tracing_helper.tracing_started? && @traces_continuation != :end_of_table}
                 phx-click="load-more"
                 class="w-40"
                 variant="secondary"
