@@ -59,7 +59,7 @@ defmodule LiveDebugger.LiveViews.StateLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col gap-4 lg:items-end">
+    <div class="flex flex-col gap-4 xl:items-end">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">

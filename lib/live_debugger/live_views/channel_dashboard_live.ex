@@ -45,7 +45,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
           <.nav_icon
             :if={@lv_process.ok?}
             phx-click={JS.push("open-sidebar", target: "#sidebar")}
-            class="flex md:hidden"
+            class="flex lg:hidden"
             icon="icon-menu-hamburger"
           />
         </div>
@@ -71,8 +71,8 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
             node_id={@node_id || lv_process.pid}
           />
 
-          <div class="flex grow flex-col lg:flex-row gap-4 lg:gap-8 p-8 overflow-y-auto lg:overflow-y-hidden">
-            <div class="lg:flex-1 shrink">
+          <div class="flex grow flex-col xl:flex-row gap-4 xl:gap-8 p-8 overflow-y-auto xl:overflow-y-hidden max-w-screen-2xl mx-auto">
+            <div class="xl:flex-1 shrink">
               <StateLive.live_render
                 id="node-state-lv"
                 socket={@socket}

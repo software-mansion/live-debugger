@@ -17,7 +17,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   alias LiveDebugger.Components.Traces
 
   @live_stream_limit 128
-  @page_size 20
+  @page_size 25
   @separator %{id: "separator"}
 
   attr(:socket, :map, required: true)
@@ -57,10 +57,13 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       |> PubSubUtils.subscribe!()
     end
 
+    default_filters = default_filters(node_id)
+
     socket
     |> assign(:displayed_trace, nil)
     |> assign(:traces_continuation, nil)
-    |> assign(current_filters: default_filters(node_id))
+    |> assign(current_filters: default_filters)
+    |> assign(default_filters: default_filters)
     |> assign(traces_empty?: true)
     |> assign(node_id: node_id)
     |> assign(id: session["id"])
@@ -100,11 +103,12 @@ defmodule LiveDebugger.LiveViews.TracesLive do
                 id="filters-form"
                 node_id={@node_id}
                 filters={@current_filters}
+                default_filters={@default_filters}
               />
             </.live_component>
           </div>
         </:right_panel>
-        <div class="w-full h-full lg:min-h-[10.25rem]">
+        <div class="w-full h-full xl:min-h-[10.25rem]">
           <div id={"#{assigns.id}-stream"} phx-update="stream" class="flex flex-col gap-2">
             <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-secondary-text">
               <div :if={@existing_traces_status == :ok}>
@@ -377,7 +381,6 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       :live_component -> UtilsCallbacks.live_component_callbacks()
     end
     |> Enum.map(fn {function, _} -> {function, true} end)
-    |> Keyword.replace(:render, false)
   end
 
   defp get_active_functions(socket) do
