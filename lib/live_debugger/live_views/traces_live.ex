@@ -39,36 +39,35 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     assigns = assign(assigns, session: session)
 
     ~H"""
-    <%= live_render(@socket, __MODULE__, id: @id, session: @session) %>
+    <%= live_render(@socket, __MODULE__,
+      id: @id,
+      session: @session,
+      container: {:div, class: "flex flex-1"}
+    ) %>
     """
   end
 
   @impl true
   def mount(_params, session, socket) do
     lv_process = session["lv_process"]
-    parent_socket_id = session["parent_socket_id"]
     node_id = session["node_id"]
 
-    trace_topic =
-      PubSubUtils.trace_topic(lv_process.socket_id, lv_process.transport_pid, node_id)
-
     if connected?(socket) do
-      parent_socket_id
+      session["parent_socket_id"]
       |> PubSubUtils.node_changed_topic()
-      |> PubSubUtils.subscribe()
+      |> PubSubUtils.subscribe!()
     end
 
     socket
     |> assign(:displayed_trace, nil)
-    |> assign(:trace_topic, trace_topic)
-    |> TracingHelper.init()
+    |> assign(current_filters: default_filters(node_id))
     |> assign(traces_empty?: true)
     |> assign(node_id: node_id)
     |> assign(id: session["id"])
     |> assign(root_pid: session["root_pid"])
     |> assign(ets_table_id: TraceService.ets_table_id(lv_process))
     |> assign(lv_process: lv_process)
-    |> assign(current_filters: default_filters(node_id))
+    |> TracingHelper.init()
     |> assign_async_existing_traces()
     |> ok()
   end
@@ -80,8 +79,8 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="max-w-full @container/traces">
-      <.section title="Callback traces" id="traces" inner_class="p-4">
+    <div class="max-w-full @container/traces flex flex-1">
+      <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
@@ -199,8 +198,9 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   @impl true
   def handle_info({:node_changed, node_id}, socket) do
     socket
-    |> TracingHelper.disable_tracing()
     |> assign(node_id: node_id)
+    |> TracingHelper.disable_tracing()
+    |> assign(current_filters: default_filters(node_id))
     |> assign_async_existing_traces()
     |> noreply()
   end
@@ -211,6 +211,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
     socket
     |> assign(:current_filters, filters)
+    |> assign_async_existing_traces()
     |> noreply()
   end
 
@@ -353,7 +354,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       id={@id}
       icon="icon-chevron-right"
       chevron_class="w-5 h-5 text-accent-icon"
-      class="max-w-full border border-default-border rounded"
+      class="max-w-full border border-default-border rounded last:mb-4"
       label_class="font-semibold bg-surface-1-bg h-10 p-2"
       phx-click={if(@render_body?, do: nil, else: "toggle-collapsible")}
       phx-value-trace-id={@trace.id}
@@ -371,7 +372,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
           </p>
         </div>
       </:label>
-      <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto p-4">
+      <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto">
         <.fullscreen_button
           id={"trace-fullscreen-#{@id}"}
           class="absolute right-2 top-2"
@@ -443,11 +444,20 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.node_id
 
+    active_functions =
+      socket.assigns.current_filters
+      |> Enum.filter(fn {_, active?} -> active? end)
+      |> Enum.map(fn {function, _} -> function end)
+
     socket
     |> assign(:existing_traces_status, :loading)
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
-      TraceService.existing_traces(ets_table_id, node_id, @stream_limit)
+      TraceService.existing_traces(ets_table_id,
+        node_id: node_id,
+        limit: @stream_limit,
+        functions: active_functions
+      )
     end)
   end
 

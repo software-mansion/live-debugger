@@ -4,7 +4,6 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
   It is responsible for determining if the tracing should be stopped.
   It introduces a fuse mechanism to prevent LiveView from being overloaded with traces.
 
-  It requires `trace_topic` to be set in the socket assigns.
   """
 
   import Phoenix.Component, only: [assign: 3]
@@ -78,7 +77,12 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
   end
 
   defp reset_fuse(socket) do
-    start_tracing(socket)
+    assigns = %{
+      tracing_started?: true,
+      fuse: %{count: 0, start_time: now()}
+    }
+
+    assign(socket, @assign_name, assigns)
   end
 
   defp start_tracing(socket) do
@@ -87,8 +91,10 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
       fuse: %{count: 0, start_time: now()}
     }
 
-    if Phoenix.LiveView.connected?(socket) && socket.assigns.trace_topic do
-      PubSubUtils.subscribe(socket.assigns.trace_topic)
+    if Phoenix.LiveView.connected?(socket) && socket.assigns[:lv_process] do
+      socket
+      |> get_active_topics()
+      |> PubSubUtils.subscribe!()
     end
 
     assign(socket, @assign_name, assigns)
@@ -100,8 +106,10 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
       fuse: nil
     }
 
-    if Phoenix.LiveView.connected?(socket) && socket.assigns.trace_topic do
-      PubSubUtils.unsubscribe(socket.assigns.trace_topic)
+    if Phoenix.LiveView.connected?(socket) && socket.assigns[:lv_process] do
+      socket
+      |> get_topics()
+      |> PubSubUtils.unsubscribe()
     end
 
     assign(socket, @assign_name, assigns)
@@ -109,5 +117,26 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
 
   defp now() do
     :os.system_time(:microsecond)
+  end
+
+  defp get_active_topics(socket) do
+    lv_process = socket.assigns.lv_process
+    node_id = socket.assigns.node_id
+
+    socket.assigns.current_filters
+    |> Enum.filter(fn {_, active?} -> active? end)
+    |> Enum.map(fn {function, _} ->
+      PubSubUtils.tsnf_topic(lv_process.socket_id, lv_process.transport_pid, node_id, function)
+    end)
+  end
+
+  defp get_topics(socket) do
+    lv_process = socket.assigns.lv_process
+    node_id = socket.assigns.node_id
+
+    socket.assigns.current_filters
+    |> Enum.map(fn {function, _} ->
+      PubSubUtils.tsnf_topic(lv_process.socket_id, lv_process.transport_pid, node_id, function)
+    end)
   end
 end

@@ -52,15 +52,15 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     if connected?(socket) do
       parent_socket_id
       |> PubSubUtils.node_changed_topic()
-      |> PubSubUtils.subscribe()
+      |> PubSubUtils.subscribe!()
 
       lv_process.socket_id
       |> PubSubUtils.component_deleted_topic(lv_process.transport_pid)
-      |> PubSubUtils.subscribe()
+      |> PubSubUtils.subscribe!()
 
       lv_process.socket_id
-      |> PubSubUtils.trace_topic(lv_process.transport_pid, :render)
-      |> PubSubUtils.subscribe()
+      |> PubSubUtils.ts_f_topic(lv_process.transport_pid, :render)
+      |> PubSubUtils.subscribe!()
     end
 
     socket
@@ -117,7 +117,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     trace_node_id = Trace.node_id(trace)
 
     cond do
-      existing_node_ids.ok? and not MapSet.member?(existing_node_ids.result, trace_node_id) ->
+      existing_node_ids.ok? && !MapSet.member?(existing_node_ids.result, trace_node_id) ->
         updated_map_set = MapSet.put(existing_node_ids.result, trace_node_id)
 
         socket
@@ -157,8 +157,8 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   def handle_event("select_node", params, socket) do
     %{"node_id" => node_id, "search-attribute" => attr, "search-value" => val} = params
 
-    if Application.get_env(:live_debugger, :browser_features?) and LiveDebugger.Env.dev?() do
-      if !socket.assigns.hidden? and socket.assigns.highlight? do
+    if Application.get_env(:live_debugger, :browser_features?) && LiveDebugger.Env.dev?() do
+      if !socket.assigns.hidden? && socket.assigns.highlight? do
         send_event(socket.assigns.lv_process.pid, "highlight", %{attr: attr, val: val})
       end
 

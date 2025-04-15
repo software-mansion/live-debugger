@@ -10,6 +10,7 @@ defmodule LiveDebugger.Services.TraceService do
   alias Phoenix.LiveComponent.CID
 
   @id_prefix "lvdbg-traces"
+  @default_limit 100
 
   @doc """
   Returns the ETS table id for the given socket id.
@@ -61,26 +62,28 @@ defmodule LiveDebugger.Services.TraceService do
   end
 
   @doc """
-  Returns existing traces for the given table id and CID or PID.
-  It returns up to `limit` traces.
+  Returns existing traces for the given table id with optional filters.
+
+  ## Options
+    * `:node_id` - PID or CID to filter traces by
+    * `:limit` - Maximum number of traces to return (default: 100)
+    * `:functions` - List of function names to filter traces by
   """
-  @spec existing_traces(atom(), pid() | CommonTypes.cid(), pos_integer()) :: [Trace.t()]
-  def existing_traces(table_id, id, limit) when limit >= 1 do
-    matcher =
-      cond do
-        is_pid(id) ->
-          {:_, %{pid: id, cid: nil}}
+  @spec existing_traces(atom(), keyword()) :: [Trace.t()]
+  def existing_traces(table_id, opts \\ []) do
+    limit = Keyword.get(opts, :limit, @default_limit)
+    functions = Keyword.get(opts, :functions, [])
+    node_id = Keyword.get(opts, :node_id)
 
-        match?(%CID{}, id) ->
-          {:_, %{cid: id}}
+    if limit < 1 do
+      raise ArgumentError, "limit must be >= 1"
+    end
 
-        true ->
-          raise ArgumentError, "id must be either PID or CID"
-      end
+    match_spec = match_spec(node_id, functions)
 
     table_id
     |> maybe_init_ets()
-    |> :ets.match_object(matcher, limit)
+    |> :ets.select(match_spec, limit)
     |> case do
       {entries, _cont} ->
         Enum.map(entries, &elem(&1, 1))
@@ -88,14 +91,6 @@ defmodule LiveDebugger.Services.TraceService do
       _ ->
         []
     end
-  end
-
-  @doc """
-  Returns all existing traces for the given table id.
-  """
-  @spec existing_traces(atom()) :: [Trace.t()]
-  def existing_traces(table_id) do
-    table_id |> maybe_init_ets() |> :ets.tab2list() |> Enum.map(&elem(&1, 1))
   end
 
   @doc """
@@ -112,5 +107,34 @@ defmodule LiveDebugger.Services.TraceService do
     table_id
     |> maybe_init_ets()
     |> :ets.match_delete({:_, %{pid: pid, cid: nil}})
+  end
+
+  defp match_spec(node_id, functions) when is_pid(node_id) do
+    [
+      {{:_, %{function: :"$1", pid: node_id, cid: nil}}, to_spec(functions), [:"$_"]}
+    ]
+  end
+
+  defp match_spec(%CID{} = node_id, functions) do
+    [{{:_, %{function: :"$1", cid: node_id}}, to_spec(functions), [:"$_"]}]
+  end
+
+  defp match_spec(nil, functions) do
+    [{{:_, %{function: :"$1"}}, to_spec(functions), [:"$_"]}]
+  end
+
+  def to_spec([]), do: []
+
+  def to_spec([single]), do: [{:"=:=", :"$1", single}]
+
+  def to_spec([first, second | rest]) do
+    initial_orelse = {:orelse, List.first(to_spec([first])), List.first(to_spec([second]))}
+
+    result =
+      Enum.reduce(rest, initial_orelse, fn x, acc ->
+        {:orelse, acc, List.first(to_spec([x]))}
+      end)
+
+    [result]
   end
 end
