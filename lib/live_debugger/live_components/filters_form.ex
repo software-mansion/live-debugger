@@ -14,6 +14,7 @@ defmodule LiveDebugger.LiveComponents.FiltersForm do
     |> assign(:id, assigns.id)
     |> assign(:node_id, assigns.node_id)
     |> assign(:active_filters, assigns.filters)
+    |> assign(:default_filters, assigns.default_filters)
     |> assign_form(assigns.filters)
     |> ok()
   end
@@ -38,10 +39,10 @@ defmodule LiveDebugger.LiveComponents.FiltersForm do
             <button
               class="text-link-primary hover:text-link-primary-hover"
               type="button"
-              phx-click="clear"
+              phx-click="reset"
               phx-target={@myself}
             >
-              Clear filters
+              Reset filters
             </button>
             <.button variant="primary" size="sm" type="submit">
               Apply
@@ -75,9 +76,9 @@ defmodule LiveDebugger.LiveComponents.FiltersForm do
   end
 
   @impl true
-  def handle_event("clear", _params, socket) do
+  def handle_event("reset", _params, socket) do
     socket
-    |> assign_form([])
+    |> assign_form(socket.assigns.default_filters)
     |> noreply()
   end
 

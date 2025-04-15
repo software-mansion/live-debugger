@@ -71,7 +71,7 @@ defmodule LiveDebugger.LiveComponents.LiveDropdown do
       <div
         :if={@open}
         id={@id <> "-content"}
-        class="absolute right-0 bg-surface-0-bg rounded border border-default-border mt-1"
+        class="absolute right-0 bg-surface-0-bg rounded border border-default-border mt-1 z-50"
       >
         <%= render_slot(@inner_block) %>
       </div>
