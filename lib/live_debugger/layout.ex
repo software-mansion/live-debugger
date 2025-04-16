@@ -48,7 +48,7 @@ defmodule LiveDebugger.Layout do
           });
 
           // Disable theme detection till we finish darkmode
-          <%= if LiveDebugger.Env.dev? do %>
+          <%= if LiveDebugger.Feature.enabled?(:dark_mode) do %>
             window.setTheme();
           <% end %>
 
