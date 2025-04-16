@@ -1,15 +1,56 @@
 function getLiveDebuggerSessionURL() {
   return new Promise((resolve, reject) => {
-    chrome.devtools.inspectedWindow.eval(
-      "getLiveDebuggerURL()",
-      (result, isException) => {
-        if (isException) {
-          reject(isException);
-        } else {
-          resolve(result);
+    const script = `
+      (function() {
+        function getSessionId() {
+          let el;
+          if ((el = document.querySelector('[data-phx-main]'))) {
+            return el.id;
+          }
+          if ((el = document.querySelector('[id^="phx-"]'))) {
+            return el.id;
+          }
+          if ((el = document.querySelector('[data-phx-root-id]'))) {
+            return el.getAttribute('data-phx-root-id');
+          }
+          return null;
         }
+
+        function handleMetaTagError() {
+          console.error(
+            'LiveDebugger meta tag not found!\\n' +
+            'If you have recently bumped LiveDebugger version, please update your layout according to the instructions in the GitHub README.'
+          );
+          throw new Error('LiveDebugger meta tag not found');
+        }
+
+        function getLiveDebuggerBaseURL() {
+          const metaTag = document.querySelector('meta[name="live-debugger-config"]');
+          if (metaTag) {
+            return metaTag.getAttribute('url');
+          } else {
+            handleMetaTagError();
+          }
+        }
+
+        function getSessionURL(baseURL) {
+          const session_id = getSessionId();
+          const session_path = session_id ? \`transport_pid/\${session_id}\` : '';
+          return \`\${baseURL}/\${session_path}\`;
+        }
+
+        const baseURL = getLiveDebuggerBaseURL();
+        return getSessionURL(baseURL);
+      })();
+    `;
+
+    chrome.devtools.inspectedWindow.eval(script, (result, isException) => {
+      if (isException || !result) {
+        reject(new Error("Error fetching LiveDebugger session URL"));
+      } else {
+        resolve(result);
       }
-    );
+    });
   });
 }
 

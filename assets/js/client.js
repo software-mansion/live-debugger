@@ -53,13 +53,6 @@ function getSessionURL(baseURL) {
   return `${baseURL}/${session_path}`;
 }
 
-window.getLiveDebuggerURL = function () {
-  const baseURL = getLiveDebuggerBaseURL();
-  const sessionURL = getSessionURL(baseURL);
-
-  return sessionURL;
-};
-
 window.document.addEventListener('DOMContentLoaded', function () {
   const baseURL = getLiveDebuggerBaseURL();
   const sessionURL = getSessionURL(baseURL);
