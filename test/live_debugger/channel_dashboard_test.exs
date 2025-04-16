@@ -21,7 +21,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     debugger
     |> assert_has(traces(count: 2))
     |> assert_has(counter_in_assigns(text: "2"))
-    |> click(button("toggle-tracing"))
+    |> click(toggle_tracing_button())
 
     dev_app
     |> click(button("increment-button"))
@@ -30,7 +30,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     debugger
     |> assert_has(traces(count: 6))
     |> assert_has(counter_in_assigns(text: "4"))
-    |> click(button("toggle-tracing"))
+    |> click(toggle_tracing_button())
     |> click(button("clear-traces"))
     |> assert_has(traces(count: 0))
 
@@ -55,4 +55,6 @@ defmodule LiveDebugger.ChannelDashboardTest do
   defp traces(opts), do: css("#traces-list-stream details", opts)
 
   defp refresh_button(), do: css("button[phx-click=\"refresh-history\"]")
+
+  defp toggle_tracing_button(), do: css("button[phx-click=\"switch-tracing\"]")
 end
