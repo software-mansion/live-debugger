@@ -11,7 +11,7 @@ defmodule LiveDebugger.Feature do
   ]
 
   def enabled?(feature_name) when feature_name in @experimental_features do
-    case Application.get_env(:live_debugger, :experimental_features?, false) do
+    case Application.get_env(:live_debugger, :experimental_features, false) do
       :all -> true
       features when is_list(features) -> Enum.member?(features, feature_name)
       _ -> false
