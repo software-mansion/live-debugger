@@ -164,9 +164,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   @spec persist_trace(Trace.t()) :: :ok | {:error, term()}
   defp persist_trace(%Trace{pid: pid, id: id} = trace) do
-    pid
-    |> table()
-    |> TraceService.insert(id, trace)
+    TraceService.insert(pid, id, trace)
 
     :ok
   rescue

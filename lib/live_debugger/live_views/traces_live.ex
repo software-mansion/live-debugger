@@ -68,7 +68,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> assign(node_id: node_id)
     |> assign(id: session["id"])
     |> assign(root_pid: session["root_pid"])
-    |> assign(ets_table: TraceService.ets_table(lv_process.pid))
+    |> assign(ets_table_id: lv_process.pid)
     |> assign(lv_process: lv_process)
     |> TracingHelper.init()
     |> assign_async_existing_traces()
@@ -290,10 +290,10 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   @impl true
   def handle_event("clear-traces", _, socket) do
-    ets_table = socket.assigns.ets_table
+    ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.node_id
 
-    TraceService.clear_traces(ets_table, node_id)
+    TraceService.clear_traces(ets_table_id, node_id)
 
     socket
     |> stream(:existing_traces, [], reset: true)
@@ -305,7 +305,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   def handle_event("open-trace", %{"data" => string_id}, socket) do
     trace_id = String.to_integer(string_id)
 
-    socket.assigns.ets_table
+    socket.assigns.ets_table_id
     |> TraceService.get(trace_id)
     |> case do
       nil ->
@@ -323,7 +323,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   def handle_event("toggle-collapsible", %{"trace-id" => string_trace_id}, socket) do
     trace_id = String.to_integer(string_trace_id)
 
-    socket.assigns.ets_table
+    socket.assigns.ets_table_id
     |> TraceService.get(trace_id)
     |> case do
       nil ->
@@ -348,7 +348,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   defp assign_async_existing_traces(socket) do
-    ets_table = socket.assigns.ets_table
+    ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.node_id
     active_functions = get_active_functions(socket)
 
@@ -356,7 +356,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> assign(:existing_traces_status, :loading)
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
-      TraceService.existing_traces(ets_table,
+      TraceService.existing_traces(ets_table_id,
         node_id: node_id,
         limit: @page_size,
         functions: active_functions
@@ -365,7 +365,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   end
 
   defp load_more_existing_traces(socket) do
-    ets_table = socket.assigns.ets_table
+    ets_table_id = socket.assigns.ets_table_id
     node_id = socket.assigns.node_id
     cont = socket.assigns.traces_continuation
     active_functions = get_active_functions(socket)
@@ -373,7 +373,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     socket
     |> assign(:traces_continuation, :loading)
     |> start_async(:load_more_existing_traces, fn ->
-      TraceService.existing_traces(ets_table,
+      TraceService.existing_traces(ets_table_id,
         node_id: node_id,
         limit: @page_size,
         cont: cont,
