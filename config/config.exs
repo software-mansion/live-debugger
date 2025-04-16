@@ -47,10 +47,8 @@ if config_env() == :dev do
       ]
     ]
 
-  config :live_debugger, server: true
-
-  config :live_debugger, browser_features?: true
   config :live_debugger, experimental_features: :all
+  config :live_debugger, debug_button?: true
 end
 
 if config_env() == :test do

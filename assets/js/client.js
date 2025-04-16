@@ -18,10 +18,24 @@ function getSessionId() {
   }
 }
 
+function debugButtonEnabled() {
+  const metaTag = document.querySelector('meta[name="live-debugger-config"]');
+
+  if (metaTag) {
+    return metaTag.hasAttribute('debug-button');
+  } else {
+    throw new Error('LiveDebugger meta tag not found');
+  }
+}
+
 function getLiveDebuggerBaseURL() {
-  return document
-    .getElementById('live-debugger-scripts')
-    .src.replace('/assets/live_debugger/client.js', '');
+  const metaTag = document.querySelector('meta[name="live-debugger-config"]');
+
+  if (metaTag) {
+    return metaTag.getAttribute('url');
+  } else {
+    throw new Error('LiveDebugger meta tag not found');
+  }
 }
 
 function getSessionURL(baseURL) {
@@ -42,7 +56,9 @@ window.document.addEventListener('DOMContentLoaded', function () {
   const baseURL = getLiveDebuggerBaseURL();
   const sessionURL = getSessionURL(baseURL);
 
-  initDebugButton(sessionURL);
+  if (debugButtonEnabled()) {
+    initDebugButton(sessionURL);
+  }
 
   initHighlight();
 
