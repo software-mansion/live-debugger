@@ -86,13 +86,13 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   end
 
   def handle_event("slow-increment", _, socket) do
-    Process.sleep(200)
+    Process.sleep(400)
     {:noreply, assign(socket, :slow_counter, socket.assigns.slow_counter + 1)}
   end
 
   def handle_event("very-slow-increment", _, socket) do
-    Process.sleep(600)
-    {:noreply, assign(socket, :slow_counter, socket.assigns.very_slow_counter + 1)}
+    Process.sleep(1600)
+    {:noreply, assign(socket, :very_slow_counter, socket.assigns.very_slow_counter + 1)}
   end
 
   def handle_event("change_name", _, socket) do

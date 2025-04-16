@@ -166,7 +166,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> TracingHelper.check_fuse()
     |> case do
       {:ok, socket} ->
-        trace_display = TraceDisplay.from_trace(trace)
+        trace_display = TraceDisplay.from_trace(trace, true)
 
         socket
         |> stream_insert(:existing_traces, trace_display, at: 0, limit: @stream_limit)
@@ -185,7 +185,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> TracingHelper.check_fuse()
     |> case do
       {:ok, socket} ->
-        trace_display = TraceDisplay.from_trace(trace)
+        trace_display = TraceDisplay.from_trace(trace, true)
 
         # Process.sleep(2000)
 
@@ -353,6 +353,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       assigns
       |> assign(:trace, trace)
       |> assign(:render_body?, assigns.wrapped_trace.render_body?)
+      |> assign(:from_tracing?, assigns.wrapped_trace.from_tracing?)
       |> assign(:callback_name, Trace.callback_name(trace))
       |> assign(
         :threshold,
@@ -386,13 +387,17 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             <span>
               <%= Parsers.parse_timestamp(@trace.timestamp) %>
             </span>
-            <span class={
-              case @threshold do
-                :very_slow -> "text-error-text"
-                :slow -> "text-warning-text"
-                :ok -> ""
-              end
-            }>
+            <span
+              id={@id <> "-exec-time"}
+              class={
+                case @threshold do
+                  :very_slow -> "text-error-text"
+                  :slow -> "text-warning-text"
+                  :ok -> ""
+                end
+              }
+              phx-hook={if @from_tracing?, do: "Trace"}
+            >
               <%= if @trace.execution_time do %>
                 <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
               <% else %>
