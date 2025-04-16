@@ -221,10 +221,13 @@ defmodule LiveDebugger.Components do
 
   def section(assigns) do
     ~H"""
-    <div class={[
-      "w-full min-w-[20rem] flex flex-col shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
-      | List.wrap(@class)
-    ]}>
+    <div
+      id={@id}
+      class={[
+        "w-full min-w-[20rem] flex flex-col shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
+        | List.wrap(@class)
+      ]}
+    >
       <div class="pl-4 flex items-center h-12 p-2 border-b border-default-border">
         <div class="flex justify-between items-center w-full">
           <div class="font-medium text-sm"><%= @title %></div>

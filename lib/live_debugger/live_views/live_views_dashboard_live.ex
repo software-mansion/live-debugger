@@ -45,7 +45,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
                 Check logs for more
               </.alert>
             </:failed>
-            <div class="flex flex-col gap-4">
+            <div id="live-sessions" class="flex flex-col gap-4">
               <%= if Enum.empty?(grouped_lv_processes)  do %>
                 <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
                   <p class="text-secondary-text text-center">No active LiveViews</p>

@@ -1,15 +1,49 @@
 defmodule LiveDebuggerDev.Runner do
   def run() do
     # Configures the endpoint
-    Application.put_env(:live_debugger_dev_app, LiveDebuggerDev.Endpoint,
+
+    config =
+      if Mix.env() == :test do
+        common_config() ++ test_only_config()
+      else
+        common_config() ++ dev_only_config()
+      end
+
+    Application.put_env(:live_debugger_dev_app, LiveDebuggerDev.Endpoint, config)
+
+    Application.put_env(:phoenix, :serve_endpoints, true)
+
+    Task.async(fn ->
+      children = [
+        {Phoenix.PubSub, name: LiveDebuggerDev.PubSub},
+        LiveDebuggerDev.Endpoint
+      ]
+
+      {:ok, _} = Supervisor.start_link(children, strategy: :one_for_one)
+
+      # For some reason `Application.put_env` doesn't work and LiveDebugger starts without config
+      Application.stop(:live_debugger)
+      Application.start(:live_debugger)
+
+      Process.sleep(:infinity)
+    end)
+  end
+
+  defp common_config() do
+    [
       url: [host: "localhost"],
       secret_key_base: "Hu4qQN3iKzTV4fJxhorPQlA/osH9fAMtbtjVS58PFgfw3ja5Z18Q/WSNR9wP4OfW",
       live_view: [signing_salt: "hMegieSe"],
-      http: [port: System.get_env("PORT") || 4004],
       debug_errors: true,
       check_origin: false,
       pubsub_server: LiveDebuggerDev.PubSub,
-      adapter: Bandit.PhoenixAdapter,
+      adapter: Bandit.PhoenixAdapter
+    ]
+  end
+
+  defp dev_only_config() do
+    [
+      http: [port: System.get_env("PORT") || 4004],
       watchers: [
         esbuild: {Esbuild, :install_and_run, [:dev_build, ~w(--watch)]},
         tailwind: {Tailwind, :install_and_run, [:dev_build, ~w(--watch)]}
@@ -28,23 +62,13 @@ defmodule LiveDebuggerDev.Runner do
           ~r"dev/layout.ex"
         ]
       ]
-    )
+    ]
+  end
 
-    Application.put_env(:phoenix, :serve_endpoints, true)
-
-    Task.async(fn ->
-      children = [
-        {Phoenix.PubSub, name: LiveDebuggerDev.PubSub},
-        LiveDebuggerDev.Endpoint
-      ]
-
-      {:ok, _} = Supervisor.start_link(children, strategy: :one_for_one)
-
-      # For some reason `Application.put_env` doesn't work and LiveDebugger starts without config
-      Application.stop(:live_debugger)
-      Application.start(:live_debugger)
-
-      Process.sleep(:infinity)
-    end)
+  defp test_only_config() do
+    [
+      http: [port: 4005],
+      server: true
+    ]
   end
 end
