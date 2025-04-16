@@ -398,11 +398,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
               }
               phx-hook={if @from_tracing?, do: "Trace"}
             >
-              <%= if @trace.execution_time do %>
-                <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
-              <% else %>
-                <.spinner size="xs" />
-              <% end %>
+              <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
             </span>
           </p>
         </div>

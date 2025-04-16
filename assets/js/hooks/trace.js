@@ -8,7 +8,7 @@ const Trace = {
 
       this.el.textContent = current + ' ms';
       console.log(current);
-    }, 10);
+    }, 16);
   },
   updated() {
     console.log('updated');

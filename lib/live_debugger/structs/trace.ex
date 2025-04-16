@@ -61,7 +61,7 @@ defmodule LiveDebugger.Structs.Trace do
       pid: pid,
       cid: cid,
       timestamp: :os.system_time(:microsecond),
-      execution_time: nil
+      execution_time: 0
     }
   end
 
