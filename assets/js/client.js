@@ -18,13 +18,21 @@ function getSessionId() {
   }
 }
 
+function handleMetaTagError(message) {
+  console.error(
+    'LiveDebugger meta tag not found!\n' +
+      'If you have recently bumped LiveDebugger version, please update your layout according to the instructions in the GitHub README.'
+  );
+  throw new Error(message);
+}
+
 function debugButtonEnabled() {
   const metaTag = document.querySelector('meta[name="live-debugger-config"]');
 
   if (metaTag) {
     return metaTag.hasAttribute('debug-button');
   } else {
-    throw new Error('LiveDebugger meta tag not found');
+    handleMetaTagError('LiveDebugger meta tag not found');
   }
 }
 
@@ -34,7 +42,7 @@ function getLiveDebuggerBaseURL() {
   if (metaTag) {
     return metaTag.getAttribute('url');
   } else {
-    throw new Error('LiveDebugger meta tag not found');
+    handleMetaTagError('LiveDebugger meta tag not found');
   }
 }
 
