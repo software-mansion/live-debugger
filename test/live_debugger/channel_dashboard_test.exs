@@ -31,7 +31,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_has(traces(count: 6))
     |> assert_has(counter_in_assigns(text: "4"))
     |> click(toggle_tracing_button())
-    |> click(button("clear-traces"))
+    |> click(clear_traces_button())
     |> assert_has(traces(count: 0))
 
     dev_app
@@ -57,4 +57,6 @@ defmodule LiveDebugger.ChannelDashboardTest do
   defp refresh_button(), do: css("button[phx-click=\"refresh-history\"]")
 
   defp toggle_tracing_button(), do: css("button[phx-click=\"switch-tracing\"]")
+
+  defp clear_traces_button(), do: css("button[phx-click=\"clear-traces\"]")
 end
