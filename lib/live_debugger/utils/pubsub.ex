@@ -3,6 +3,7 @@ defmodule LiveDebugger.Utils.PubSub do
   This module provides helpers for LiveDebugger's PubSub.
   """
 
+  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.TreeNode
 
@@ -56,6 +57,11 @@ defmodule LiveDebugger.Utils.PubSub do
   @spec component_deleted_topic(socket_id :: String.t(), transport_pid :: pid()) :: String.t()
   def component_deleted_topic(socket_id, transport_pid) do
     "lvdbg/#{inspect(transport_pid)}/#{socket_id}/component_deleted"
+  end
+
+  @spec process_status_topic(pid :: pid()) :: String.t()
+  def process_status_topic(pid) when is_pid(pid) do
+    "lvdbg/#{inspect(pid)}/status"
   end
 
   @doc """
