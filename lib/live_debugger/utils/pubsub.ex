@@ -3,7 +3,6 @@ defmodule LiveDebugger.Utils.PubSub do
   This module provides helpers for LiveDebugger's PubSub.
   """
 
-  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.TreeNode
 
