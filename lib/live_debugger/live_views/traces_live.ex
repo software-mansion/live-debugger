@@ -90,7 +90,10 @@ defmodule LiveDebugger.LiveViews.TracesLive do
             <Traces.refresh_button :if={not @tracing_helper.tracing_started?} />
             <Traces.clear_button :if={not @tracing_helper.tracing_started?} />
             <.live_component
-              :if={not @tracing_helper.tracing_started? && LiveDebugger.Env.dev?()}
+              :if={
+                not @tracing_helper.tracing_started? &&
+                  LiveDebugger.Feature.enabled?(:callback_filters)
+              }
               module={LiveDebugger.LiveComponents.LiveDropdown}
               id="filters-dropdown"
             >
@@ -137,7 +140,10 @@ defmodule LiveDebugger.LiveViews.TracesLive do
               <% end %>
             <% end %>
           </div>
-          <div :if={LiveDebugger.Env.dev?()} class="flex items-center justify-center mt-4">
+          <div
+            :if={LiveDebugger.Feature.enabled?(:callback_filters)}
+            class="flex items-center justify-center mt-4"
+          >
             <%= if @traces_continuation != :loading  do %>
               <.button
                 :if={not @tracing_helper.tracing_started? && @traces_continuation != :end_of_table}

@@ -553,7 +553,7 @@ defmodule LiveDebugger.Components do
           <.icon name="icon-logo-text" class="h-6 w-32" />
         </div>
         <div class="flex items-center">
-          <%= if LiveDebugger.Env.dev?() do %>
+          <%= if LiveDebugger.Feature.enabled?(:dark_mode) do %>
             <.nav_icon
               id="light-mode-switch"
               class="dark:hidden"
