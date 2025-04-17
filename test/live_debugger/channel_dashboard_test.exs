@@ -5,7 +5,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
   feature "user can see traces of executed callbacks and updated assigns", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebugger.GenServers.CallbackTracingServer.ping()
+    LiveDebugger.GenServers.CallbackTracingServer.ping!()
 
     dev_app
     |> visit(@dev_app_url)

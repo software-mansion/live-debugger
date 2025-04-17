@@ -25,24 +25,24 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   Returns ETS table reference.
   It creates table if none is associated with given pid
   """
-  @spec table(pid :: pid()) :: :ets.table()
-  def table(pid) when is_pid(pid) do
+  @spec table!(pid :: pid()) :: :ets.table()
+  def table!(pid) when is_pid(pid) do
     GenServer.call(__MODULE__, {:get_or_create_table, pid}, 1000)
   end
 
   @doc """
   If table for given `pid` exists it deletes it from ETS.
   """
-  @spec delete_table(pid :: pid()) :: :ok
-  def delete_table(pid) when is_pid(pid) do
+  @spec delete_table!(pid :: pid()) :: :ok
+  def delete_table!(pid) when is_pid(pid) do
     GenServer.call(__MODULE__, {:delete_table, pid}, 1000)
   end
 
   @doc """
   Checks if GenServer has been loaded
   """
-  @spec ping() :: :ok
-  def ping() do
+  @spec ping!() :: :ok
+  def ping!() do
     GenServer.call(__MODULE__, :ping)
   end
 
