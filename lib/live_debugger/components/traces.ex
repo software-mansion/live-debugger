@@ -68,7 +68,21 @@ defmodule LiveDebugger.Components.Traces do
       assigns
       |> assign(:trace, assigns.wrapped_trace.trace)
       |> assign(:render_body?, assigns.wrapped_trace.render_body?)
+      |> assign(:from_tracing?, assigns.wrapped_trace.from_tracing?)
       |> assign(:callback_name, Trace.callback_name(assigns.wrapped_trace.trace))
+      |> assign(
+        :threshold,
+        cond do
+          assigns.wrapped_trace.trace.execution_time > 500_000 ->
+            :very_slow
+
+          assigns.wrapped_trace.trace.execution_time > 100_000 ->
+            :slow
+
+          true ->
+            :ok
+        end
+      )
 
     ~H"""
     <.collapsible
@@ -81,15 +95,26 @@ defmodule LiveDebugger.Components.Traces do
       phx-value-trace-id={@trace.id}
     >
       <:label>
-        <div
-          id={@id <> "-label"}
-          class="w-[90%] grow flex items-center ml-2 gap-1.5"
-          phx-update="ignore"
-        >
+        <div id={@id <> "-label"} class="w-[90%] grow flex items-center ml-2 gap-1.5">
           <p class="font-medium text-sm"><%= @callback_name %></p>
           <.short_trace_content trace={@trace} />
           <p class="w-max text-xs font-normal text-secondary-text align-center">
-            <%= Parsers.parse_timestamp(@trace.timestamp) %>
+            <span>
+              <%= Parsers.parse_timestamp(@trace.timestamp) %>
+            </span>
+            <span
+              id={@id <> "-exec-time"}
+              class={
+                case @threshold do
+                  :very_slow -> "text-error-text"
+                  :slow -> "text-warning-text"
+                  :ok -> ""
+                end
+              }
+              phx-hook={if @from_tracing?, do: "TraceExecutionTime"}
+            >
+              <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
+            </span>
           </p>
         </div>
       </:label>

@@ -94,6 +94,12 @@ defmodule LiveDebugger.LiveViews.StateLive do
   end
 
   @impl true
+  def handle_info({:updated_trace, _trace}, socket) do
+    socket
+    |> noreply()
+  end
+
+  @impl true
   def handle_info({:node_changed, node_id}, socket) do
     socket
     |> assign(node_id: node_id)

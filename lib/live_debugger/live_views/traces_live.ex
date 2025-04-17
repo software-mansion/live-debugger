@@ -222,7 +222,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     |> TracingHelper.check_fuse()
     |> case do
       {:ok, socket} ->
-        trace_display = TraceDisplay.from_trace(trace)
+        trace_display = TraceDisplay.from_trace(trace, true)
 
         socket
         |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
@@ -241,6 +241,16 @@ defmodule LiveDebugger.LiveViews.TracesLive do
       {_, socket} ->
         socket
     end
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info({:updated_trace, trace}, socket) do
+    trace_display = TraceDisplay.from_trace(trace, true)
+
+    socket
+    |> push_event("stop-timer", %{})
+    |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
     |> noreply()
   end
 
