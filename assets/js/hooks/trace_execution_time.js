@@ -1,4 +1,4 @@
-const Trace = {
+const TraceExecutionTime = {
   mounted() {
     let start = Date.now();
     let current = start;
@@ -14,4 +14,4 @@ const Trace = {
   },
 };
 
-export default Trace;
+export default TraceExecutionTime;

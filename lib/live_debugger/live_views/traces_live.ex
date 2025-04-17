@@ -396,7 +396,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
                   :ok -> ""
                 end
               }
-              phx-hook={if @from_tracing?, do: "Trace"}
+              phx-hook={if @from_tracing?, do: "TraceExecutionTime"}
             >
               <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
             </span>
