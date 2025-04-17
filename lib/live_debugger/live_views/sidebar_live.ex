@@ -82,8 +82,8 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border h-full">
-      <div class="hidden lg:flex max-h-full flex-col w-72 lg:w-80 gap-1 justify-between">
+    <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
+      <div class="hidden lg:flex max-h-full flex-col w-72 border-x border-default-border lg:w-80 gap-1 justify-between">
         <.sidebar_content
           id="sidebar-content"
           lv_process={@lv_process}
