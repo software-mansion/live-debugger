@@ -22,6 +22,9 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
   end
 ```
 
+> [!WARNING]  
+> LiveDebugger should not be used on production! Make sure that the dependency you've added is `:dev` only
+
 For full experience we recommend adding below line to your application root layout. It attaches `meta` tag and LiveDebugger scripts in dev environment enabling browser features and integration with Chrome DevTools Extension.
 
 ```elixir
@@ -33,9 +36,6 @@ For full experience we recommend adding below line to your application root layo
 ```
 
 After you start your application LiveDebugger will be running at a default port `http://localhost:4007`.
-
-> [!WARNING]  
-> LiveDebugger should not be used on production! Make sure that the dependency you've added is `:dev` only
 
 ## Browser features
 
