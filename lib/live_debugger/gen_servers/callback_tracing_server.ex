@@ -38,6 +38,14 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     :ok
   end
 
+  @doc """
+  Checks if GenServer has been loaded
+  """
+  @spec ping() :: :ok
+  def ping() do
+    GenServer.call(__MODULE__, :ping)
+  end
+
   ## GenServer
 
   @doc false
@@ -102,6 +110,10 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   def handle_call({:delete_table, pid}, _from, table_refs) do
     {_, table_refs} = delete_ets_table(pid, table_refs)
     {:reply, :ok, table_refs}
+  end
+
+  def handle_call(:ping, _from, state) do
+    {:reply, :ok, state}
   end
 
   @spec create_ets_table() :: :ets.table()
