@@ -36,8 +36,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   @spec delete_table(pid :: pid()) :: :ok
   def delete_table(pid) when is_pid(pid) do
     GenServer.call(__MODULE__, {:delete_table, pid}, 1000)
-
-    :ok
   end
 
   @doc """
