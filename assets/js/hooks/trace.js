@@ -3,16 +3,14 @@ const Trace = {
     let start = Date.now();
     let current = start;
 
-    this.id = setInterval(() => {
+    this.intervalId = setInterval(() => {
       current = Date.now() - start;
 
       this.el.textContent = current + ' ms';
-      console.log(current);
     }, 16);
   },
   updated() {
-    console.log('updated');
-    clearInterval(this.id);
+    clearInterval(this.intervalId);
   },
 };
 
