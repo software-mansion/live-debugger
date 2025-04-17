@@ -88,6 +88,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     {:noreply, table_refs}
   end
 
+  @impl true
   def handle_info({:DOWN, _, :process, closed_pid, _}, table_refs) do
     {_, table_refs} = delete_ets_table(closed_pid, table_refs)
 
@@ -109,11 +110,13 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     end
   end
 
+  @impl true
   def handle_call({:delete_table, pid}, _from, table_refs) do
     {_, table_refs} = delete_ets_table(pid, table_refs)
     {:reply, :ok, table_refs}
   end
 
+  @impl true
   def handle_call(:ping, _from, state) do
     {:reply, :ok, state}
   end
