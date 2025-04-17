@@ -22,6 +22,16 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
   end
 ```
 
+For full experience we recommend adding below line to your application root layout. It attaches `meta` tag and LiveDebugger scripts in dev environment enabling browser features and integration with Chrome DevTools Extension.
+
+```elixir
+  # lib/my_app_web/components/layouts/root.html.heex
+
+  <head>
+    <%= Application.get_env(:live_debugger, :live_debugger_tags) %>
+  </head>
+```
+
 After you start your application LiveDebugger will be running at a default port `http://localhost:4007`.
 
 > [!WARNING]  
@@ -34,23 +44,16 @@ List of browser features:
 - Debug button
 - Components highlighting (coming soon!)
 
-Some features require injecting JS into the debugged application. To achieve that you need to turn them on in the config and add LiveDebugger scripts to your application root layout.
+Some features require injecting JS into the debugged application. You can disable them in your config.
 
 ```elixir
 # config/dev.exs
 
-config :live_debugger, browser_features?: true
-```
+# Disables all browser features and does not inject LiveDebugger JS
+config :live_debugger, browser_features?: false
 
-```elixir
-# lib/my_app_web/components/layouts/root.html.heex
-
-<head>
-  <%= if Application.get_env(:live_debugger, :browser_features?) do %>
-    <script id="live-debugger-scripts" src={Application.get_env(:live_debugger, :assets_url)}>
-    </script>
-  <% end %>
-</head>
+# Disables only debug button
+config :live_debugger, debug_button?: false
 ```
 
 ### Content Security Policy
@@ -67,13 +70,13 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
 
 ## Igniter
 
-LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an alternative for standard mix installation. It'll automatically add LiveDebugger scripts to `root.html.heex` and enable browser features in your `config/dev.exs` after you use the below command.
-
-Make sure that added dependency is `:dev` only.
+LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an alternative for standard mix installation. It'll automatically add LiveDebugger dependency and modify your `root.html.heex` after you use the below command.
 
 ```bash
 mix igniter.install live_debugger
 ```
+
+Make sure that added dependency is `:dev` only.
 
 ## Optional configuration
 
