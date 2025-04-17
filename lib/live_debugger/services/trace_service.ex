@@ -1,59 +1,41 @@
 defmodule LiveDebugger.Services.TraceService do
   @moduledoc """
-  This module provides functions that manages traces in the debugged application via ETS.
-  Created table is an ordered_set with non-positive integer keys.
+  This module is responsible for accessing traces from ETS.
+  It uses calls to `CallbackTracingServer` to get proper table reference.
   """
 
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.CommonTypes
-  alias LiveDebugger.Structs.LvProcess
+  alias LiveDebugger.GenServers.CallbackTracingServer
   alias Phoenix.LiveComponent.CID
 
-  @id_prefix "lvdbg-traces"
   @default_limit 100
 
-  @doc """
-  Returns the ETS table id for the given socket id.
+  @type ets_elem() :: {integer(), Trace.t()}
+  @type ets_continuation :: term()
+  @typedoc """
+  Pid is used to store mapping to table references.
+  It identifies ETS tables managed by CallbackTracingServer
   """
-  @spec ets_table_id(pid(), String.t()) :: :ets.table()
-  def ets_table_id(transport_pid, socket_id) do
-    String.to_atom("#{@id_prefix}-#{inspect(transport_pid)}-#{socket_id}")
-  end
-
-  @spec ets_table_id(LvProcess.t()) :: :ets.table()
-  def ets_table_id(%LvProcess{transport_pid: transport_pid, socket_id: socket_id}) do
-    ets_table_id(transport_pid, socket_id)
-  end
-
-  @doc """
-  Initializes an ETS table with the given id if it doesn't exist.
-  """
-  @spec maybe_init_ets(:ets.table()) :: :ets.table()
-  def maybe_init_ets(ets_table_id) do
-    if :ets.whereis(ets_table_id) == :undefined do
-      :ets.new(ets_table_id, [:ordered_set, :public, :named_table])
-    else
-      ets_table_id
-    end
-  end
+  @type ets_table_id() :: pid()
 
   @doc """
   Inserts a new trace into the ETS table.
   """
-  @spec insert(:ets.table(), integer(), Trace.t()) :: true
-  def insert(table_id, id, trace) do
-    table_id
-    |> maybe_init_ets()
+  @spec insert(Trace.t()) :: true
+  def insert(%Trace{pid: pid, id: id} = trace) do
+    pid
+    |> ets_table!()
     |> :ets.insert({id, trace})
   end
 
   @doc """
-  Gets a trace from the ETS table by its id.
+  Gets a trace of process from the ETS table by `id`.
   """
-  @spec get(:ets.table(), integer()) :: Trace.t() | nil
-  def get(table_id, id) do
-    table_id
-    |> maybe_init_ets()
+  @spec get(pid :: ets_table_id(), id :: integer()) :: Trace.t() | nil
+  def get(pid, id) when is_pid(pid) and is_integer(id) do
+    pid
+    |> ets_table!()
     |> :ets.lookup(id)
     |> case do
       [] -> nil
@@ -62,7 +44,7 @@ defmodule LiveDebugger.Services.TraceService do
   end
 
   @doc """
-  Returns existing traces for the given table id with optional filters.
+  Returns existing traces of a process for the table with optional filters.
 
   ## Options
     * `:node_id` - PID or CID to filter traces by
@@ -70,13 +52,14 @@ defmodule LiveDebugger.Services.TraceService do
     * `:cont` - Used to get next page of items in the following queries
     * `:functions` - List of function names to filter traces by
   """
-  @spec existing_traces(atom(), keyword()) :: {[Trace.t()], term()} | :end_of_table
-  def existing_traces(table_id, opts \\ []) do
+  @spec existing_traces(pid :: ets_table_id(), opts :: keyword()) ::
+          {[Trace.t()], ets_continuation()} | :end_of_table
+  def existing_traces(pid, opts \\ []) when is_pid(pid) do
     opts
     |> Keyword.get(:cont, nil)
     |> case do
       :end_of_table -> :end_of_table
-      nil -> existing_traces_start(table_id, opts)
+      nil -> existing_traces_start(pid, opts)
       _cont -> existing_traces_continuation(opts)
     end
     |> case do
@@ -92,21 +75,25 @@ defmodule LiveDebugger.Services.TraceService do
   end
 
   @doc """
-  Deletes all traces for the given table id and CID or PID.
+  Deletes traces for LiveView or LiveComponent for given pid.
+
+  * `node_id` - PID or CID which identifies node
   """
-  @spec clear_traces(atom(), pid() | CommonTypes.cid()) :: true
-  def clear_traces(table_id, %CID{} = cid) do
-    table_id
-    |> maybe_init_ets()
-    |> :ets.match_delete({:_, %{cid: cid}})
+  @spec clear_traces(pid :: ets_table_id(), node_id :: pid() | CommonTypes.cid()) :: true
+  def clear_traces(pid, %CID{} = node_id) when is_pid(pid) do
+    pid
+    |> ets_table!()
+    |> :ets.match_delete({:_, %{cid: node_id}})
   end
 
-  def clear_traces(table_id, pid) when is_pid(pid) do
-    table_id
-    |> maybe_init_ets()
-    |> :ets.match_delete({:_, %{pid: pid, cid: nil}})
+  def clear_traces(pid, node_id) when is_pid(pid) and is_pid(node_id) do
+    pid
+    |> ets_table!()
+    |> :ets.match_delete({:_, %{pid: node_id, cid: nil}})
   end
 
+  @spec existing_traces_start(ets_table_id(), Keyword.t()) ::
+          {[ets_elem()], ets_continuation()} | :"$end_of_table"
   defp existing_traces_start(table_id, opts) do
     limit = Keyword.get(opts, :limit, @default_limit)
     functions = Keyword.get(opts, :functions, [])
@@ -119,10 +106,12 @@ defmodule LiveDebugger.Services.TraceService do
     match_spec = match_spec(node_id, functions)
 
     table_id
-    |> maybe_init_ets()
+    |> ets_table!()
     |> :ets.select(match_spec, limit)
   end
 
+  @spec existing_traces_continuation(Keyword.t()) ::
+          {[ets_elem()], ets_continuation()} | :"$end_of_table"
   defp existing_traces_continuation(opts) do
     cont = Keyword.get(opts, :cont, nil)
 
@@ -156,5 +145,10 @@ defmodule LiveDebugger.Services.TraceService do
       end)
 
     [result]
+  end
+
+  @spec ets_table!(pid :: ets_table_id()) :: :ets.table()
+  defp ets_table!(pid) when is_pid(pid) do
+    CallbackTracingServer.table!(pid)
   end
 end
