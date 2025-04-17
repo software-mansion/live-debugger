@@ -7,7 +7,9 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   require Logger
 
-  alias LiveDebugger.Services.{ModuleDiscoveryService, ChannelService, TraceService}
+  alias LiveDebugger.Services.ModuleDiscoveryService
+  alias LiveDebugger.Services.ChannelService
+  alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
