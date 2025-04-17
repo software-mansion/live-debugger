@@ -22,15 +22,16 @@ defmodule LiveDebugger.Services.TraceService do
   @doc """
   Inserts a new trace into the ETS table.
   """
-  @spec insert(table_id :: ets_table_id(), id :: integer(), Trace.t()) :: true
-  def insert(table_id, id, trace) when is_pid(table_id) and is_integer(id) do
-    table_id
+  @spec insert(Trace.t()) :: true
+  def insert(%Trace{pid: pid, id: id} = trace) do
+    pid
     |> ets_table()
     |> :ets.insert({id, trace})
   end
 
   @doc """
-  Gets a trace from the ETS table by its id.
+  Gets a trace from the ETS table by id.
+  It uses table associated with given PID.
   """
   @spec get(table_id :: ets_table_id(), id :: integer()) :: Trace.t() | nil
   def get(table_id, id) when is_pid(table_id) and is_integer(id) do
@@ -145,8 +146,8 @@ defmodule LiveDebugger.Services.TraceService do
     [result]
   end
 
-  @spec ets_table(table_id :: ets_table_id()) :: :ets.table()
-  defp ets_table(table_id) when is_pid(table_id) do
-    CallbackTracingServer.table(table_id)
+  @spec ets_table(pid :: ets_table_id()) :: :ets.table()
+  defp ets_table(pid) when is_pid(pid) do
+    CallbackTracingServer.table(pid)
   end
 end

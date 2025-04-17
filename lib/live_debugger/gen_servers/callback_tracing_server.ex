@@ -101,12 +101,14 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   @impl true
   def handle_call({:get_or_create_table, pid}, _from, table_refs) do
-    if ref = Map.get(table_refs, pid) do
-      {:reply, ref, table_refs}
-    else
-      ref = create_ets_table()
-      Process.monitor(pid)
-      {:reply, ref, Map.put(table_refs, pid, ref)}
+    case Map.get(table_refs, pid) do
+      nil ->
+        ref = create_ets_table()
+        Process.monitor(pid)
+        {:reply, ref, Map.put(table_refs, pid, ref)}
+
+      ref ->
+        {:reply, ref, table_refs}
     end
   end
 
@@ -184,8 +186,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   end
 
   @spec persist_trace(Trace.t()) :: :ok | {:error, term()}
-  defp persist_trace(%Trace{pid: pid, id: id} = trace) do
-    TraceService.insert(pid, id, trace)
+  defp persist_trace(%Trace{} = trace) do
+    TraceService.insert(trace)
 
     :ok
   rescue
