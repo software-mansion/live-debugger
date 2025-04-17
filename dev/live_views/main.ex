@@ -7,8 +7,8 @@ defmodule LiveDebuggerDev.LiveViews.Main do
     socket =
       socket
       |> assign(counter: 0)
-      |> assign(slow_counter: 0)
-      |> assign(very_slow_counter: 0)
+      |> assign(counter_slow: 0)
+      |> assign(counter_very_slow: 0)
       |> assign(datetime: nil)
       |> assign(name: random_name())
       |> assign(single_element_list: [%Phoenix.LiveComponent.CID{cid: 1}])
@@ -22,7 +22,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
     <.box title="Main [LiveView]" color="blue">
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
-          <.button phx-click="increment" color="blue">
+          <.button id="increment-button" phx-click="increment" color="blue">
             Increment
           </.button>
           <span class="text-xl"><%= @counter %></span>
@@ -31,16 +31,16 @@ defmodule LiveDebuggerDev.LiveViews.Main do
           <.button phx-click="slow-increment" color="blue">
             Slow Increment
           </.button>
-          <span class="text-xl"><%= @slow_counter %></span>
+          <span class="text-xl"><%= @counter_slow %></span>
         </div>
         <div class="flex items-center gap-2">
           <.button phx-click="very-slow-increment" color="blue">
             Very Slow Increment
           </.button>
-          <span class="text-xl"><%= @very_slow_counter %></span>
+          <span class="text-xl"><%= @counter_very_slow %></span>
         </div>
         <div class="flex items-center gap-1">
-          <.button phx-click="change_name" color="red">
+          <.button id="update-button" phx-click="change_name" color="red">
             Update
           </.button>
           <div>
@@ -82,17 +82,17 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   end
 
   def handle_event("increment", _, socket) do
-    {:noreply, assign(socket, :counter, socket.assigns.counter + 1)}
+    {:noreply, update(socket, :counter, &(&1 + 1))}
   end
 
   def handle_event("slow-increment", _, socket) do
     Process.sleep(400)
-    {:noreply, assign(socket, :slow_counter, socket.assigns.slow_counter + 1)}
+    {:noreply, update(socket, :counter_slow, &(&1 + 1))}
   end
 
   def handle_event("very-slow-increment", _, socket) do
     Process.sleep(2500)
-    {:noreply, assign(socket, :very_slow_counter, socket.assigns.very_slow_counter + 1)}
+    {:noreply, update(socket, :counter_very_slow, &(&1 + 1))}
   end
 
   def handle_event("change_name", _, socket) do

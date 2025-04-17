@@ -20,10 +20,12 @@ defmodule LiveDebuggerDev.Endpoint do
   plug(Plug.Static, from: {:phoenix, "priv/static"}, at: "/assets/phoenix")
   plug(Plug.Static, from: {:phoenix_live_view, "priv/static"}, at: "/assets/phoenix_live_view")
 
-  socket("/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket)
+  if Mix.env() == :dev do
+    socket("/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket)
 
-  plug(Phoenix.LiveReloader)
-  plug(Phoenix.CodeReloader)
+    plug(Phoenix.LiveReloader)
+    plug(Phoenix.CodeReloader)
+  end
 
   plug(Plug.Session, @session_options)
 

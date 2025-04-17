@@ -22,11 +22,14 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   @impl true
   def init(_args) do
-    {:ok, [], {:continue, :setup_tracing}}
+    tracing_setup_delay = Application.get_env(:live_debugger, :tracing_setup_delay, 0)
+    Process.send_after(self(), :setup_tracing, tracing_setup_delay)
+
+    {:ok, []}
   end
 
   @impl true
-  def handle_continue(:setup_tracing, state) do
+  def handle_info(:setup_tracing, state) do
     :dbg.tracer(:process, {&trace_handler/2, 0})
     :dbg.p(:all, [:c, :timestamp])
 

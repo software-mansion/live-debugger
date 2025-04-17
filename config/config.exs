@@ -47,5 +47,30 @@ if config_env() == :dev do
       ]
     ]
 
+  config :live_debugger, server: true
+
   config :live_debugger, browser_features?: true
+  config :live_debugger, experimental_features: :all
+end
+
+if config_env() == :test do
+  config :wallaby,
+    driver: Wallaby.Chrome,
+    otp_app: :live_debugger,
+    chrome: [headless: true],
+    js_logger: nil
+
+  config :live_debugger,
+    server: true,
+    port: 4008
+
+  # Print only warnings and errors during test
+  config :logger, level: :warning
+
+  # Initialize plugs at runtime for faster test compilation
+  config :phoenix, :plug_init_mode, :runtime
+
+  config :phoenix_live_view,
+    # Enable helpful, but potentially expensive runtime checks
+    enable_expensive_runtime_checks: true
 end

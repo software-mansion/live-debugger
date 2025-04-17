@@ -83,7 +83,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   def render(assigns) do
     ~H"""
     <div class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border h-full">
-      <div class="hidden md:flex max-h-full flex-col w-72 md:w-80 gap-1 justify-between">
+      <div class="hidden lg:flex max-h-full flex-col w-72 lg:w-80 gap-1 justify-between">
         <.sidebar_content
           id="sidebar-content"
           lv_process={@lv_process}
@@ -117,7 +117,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     trace_node_id = Trace.node_id(trace)
 
     cond do
-      existing_node_ids.ok? and not MapSet.member?(existing_node_ids.result, trace_node_id) ->
+      existing_node_ids.ok? && !MapSet.member?(existing_node_ids.result, trace_node_id) ->
         updated_map_set = MapSet.put(existing_node_ids.result, trace_node_id)
 
         socket
@@ -157,8 +157,9 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   def handle_event("select_node", params, socket) do
     %{"node_id" => node_id, "search-attribute" => attr, "search-value" => val} = params
 
-    if Application.get_env(:live_debugger, :browser_features?) and LiveDebugger.Env.dev?() do
-      if !socket.assigns.hidden? and socket.assigns.highlight? do
+    if Application.get_env(:live_debugger, :browser_features?) &&
+         LiveDebugger.Feature.enabled?(:highlighting) do
+      if !socket.assigns.hidden? && socket.assigns.highlight? do
         send_event(socket.assigns.lv_process.pid, "highlight", %{attr: attr, val: val})
       end
 
@@ -235,7 +236,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
 
   defp sidebar_slide_over(assigns) do
     ~H"""
-    <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex md:hidden justify-end">
+    <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex lg:hidden justify-end">
       <div
         class="w-80 h-full flex flex-col bg-sidebar-bg justify-between"
         phx-click-away="close_mobile_content"

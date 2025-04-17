@@ -221,10 +221,13 @@ defmodule LiveDebugger.Components do
 
   def section(assigns) do
     ~H"""
-    <div class={[
-      "w-full min-w-[20rem] lg:max-w-[32rem] h-max flex flex-col shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
-      | List.wrap(@class)
-    ]}>
+    <div
+      id={@id}
+      class={[
+        "w-full min-w-[20rem] flex flex-col shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
+        | List.wrap(@class)
+      ]}
+    >
       <div class="pl-4 flex items-center h-12 p-2 border-b border-default-border">
         <div class="flex justify-between items-center w-full">
           <div class="font-medium text-sm"><%= @title %></div>
@@ -234,7 +237,7 @@ defmodule LiveDebugger.Components do
         </div>
       </div>
       <div class={[
-        "w-full flex overflow-auto rounded-sm bg-surface-0-bg p-2" | List.wrap(@inner_class)
+        "flex flex-1 overflow-auto rounded-sm bg-surface-0-bg m-2" | List.wrap(@inner_class)
       ]}>
         <%= render_slot(@inner_block) %>
       </div>
@@ -386,7 +389,7 @@ defmodule LiveDebugger.Components do
       id={@id}
       phx-hook="Fullscreen"
       class={[
-        "relative h-max w-full lg:w-max lg:min-w-[50rem] bg-surface-0-bg p-2 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
+        "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg p-2 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
       ]}
     >
@@ -553,7 +556,7 @@ defmodule LiveDebugger.Components do
           <.icon name="icon-logo-text" class="h-6 w-32" />
         </div>
         <div class="flex items-center">
-          <%= if LiveDebugger.Env.dev?() do %>
+          <%= if LiveDebugger.Feature.enabled?(:dark_mode) do %>
             <.nav_icon
               id="light-mode-switch"
               class="dark:hidden"

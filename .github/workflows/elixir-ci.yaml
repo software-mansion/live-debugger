@@ -49,8 +49,11 @@ jobs:
       - name: Compile project
         run: mix compile --warnings-as-errors
 
-      - name: Run tests
+      - name: Run unit tests
         run: mix test
+
+      - name: Run e2e tests
+        run: mix e2e
 
       - name: Check prettier
         working-directory: ./assets

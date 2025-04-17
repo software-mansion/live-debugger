@@ -15,6 +15,9 @@ defmodule LiveDebugger.LiveHelpers.TracingHelper do
   @time_period 1_000_000
   @trace_limit_per_period 100
 
+  def trace_limit_per_period(), do: @trace_limit_per_period
+  def time_period(), do: @time_period
+
   @spec init(Socket.t()) :: Socket.t()
   def init(socket) do
     clear_tracing(socket)
