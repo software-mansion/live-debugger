@@ -58,6 +58,11 @@ defmodule LiveDebugger.Utils.PubSub do
     "lvdbg/#{inspect(transport_pid)}/#{socket_id}/component_deleted"
   end
 
+  @spec process_status_topic(pid :: pid()) :: String.t()
+  def process_status_topic(pid) when is_pid(pid) do
+    "lvdbg/#{inspect(pid)}/status"
+  end
+
   @doc """
   It stands for transport_pid/socket_id/node_id/function.
 
