@@ -30,12 +30,11 @@ defmodule LiveDebugger.Services.TraceService do
   end
 
   @doc """
-  Gets a trace from the ETS table by id.
-  It uses table associated with given PID.
+  Gets a trace of process from the ETS table by `id`.
   """
-  @spec get(table_id :: ets_table_id(), id :: integer()) :: Trace.t() | nil
-  def get(table_id, id) when is_pid(table_id) and is_integer(id) do
-    table_id
+  @spec get(pid :: ets_table_id(), id :: integer()) :: Trace.t() | nil
+  def get(pid, id) when is_pid(pid) and is_integer(id) do
+    pid
     |> ets_table()
     |> :ets.lookup(id)
     |> case do
@@ -45,7 +44,7 @@ defmodule LiveDebugger.Services.TraceService do
   end
 
   @doc """
-  Returns existing traces for the given table id with optional filters.
+  Returns existing traces of a process for the table with optional filters.
 
   ## Options
     * `:node_id` - PID or CID to filter traces by
@@ -53,14 +52,14 @@ defmodule LiveDebugger.Services.TraceService do
     * `:cont` - Used to get next page of items in the following queries
     * `:functions` - List of function names to filter traces by
   """
-  @spec existing_traces(table_id :: ets_table_id(), opts :: keyword()) ::
+  @spec existing_traces(pid :: ets_table_id(), opts :: keyword()) ::
           {[Trace.t()], ets_continuation()} | :end_of_table
-  def existing_traces(table_id, opts \\ []) when is_pid(table_id) do
+  def existing_traces(pid, opts \\ []) when is_pid(pid) do
     opts
     |> Keyword.get(:cont, nil)
     |> case do
       :end_of_table -> :end_of_table
-      nil -> existing_traces_start(table_id, opts)
+      nil -> existing_traces_start(pid, opts)
       _cont -> existing_traces_continuation(opts)
     end
     |> case do
@@ -76,19 +75,21 @@ defmodule LiveDebugger.Services.TraceService do
   end
 
   @doc """
-  Deletes all traces for the given table id and CID or PID.
+  Deletes traces for LiveView or LiveComponent for given pid.
+
+  * `node_id` - PID or CID which identifies node
   """
-  @spec clear_traces(table_id :: ets_table_id(), pid() | CommonTypes.cid()) :: true
-  def clear_traces(table_id, %CID{} = cid) when is_pid(table_id) do
-    table_id
+  @spec clear_traces(pid :: ets_table_id(), node_id :: pid() | CommonTypes.cid()) :: true
+  def clear_traces(pid, %CID{} = node_id) when is_pid(pid) do
+    pid
     |> ets_table()
-    |> :ets.match_delete({:_, %{cid: cid}})
+    |> :ets.match_delete({:_, %{cid: node_id}})
   end
 
-  def clear_traces(table_id, pid) when is_pid(table_id) and is_pid(pid) do
-    table_id
+  def clear_traces(pid, node_id) when is_pid(pid) and is_pid(node_id) do
+    pid
     |> ets_table()
-    |> :ets.match_delete({:_, %{pid: pid, cid: nil}})
+    |> :ets.match_delete({:_, %{pid: node_id, cid: nil}})
   end
 
   @spec existing_traces_start(ets_table_id(), Keyword.t()) ::
