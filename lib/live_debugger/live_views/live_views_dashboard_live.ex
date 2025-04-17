@@ -20,10 +20,10 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full min-w-[25rem] flex flex-col items-center">
+    <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
       <.navbar return_link?={false} />
-      <div class="max-xl:p-8 pt-8 w-full xl:max-w-[40rem] h-full">
-        <div class="flex gap-4 items-center justify-between">
+      <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
+        <div class="flex items-center justify-between">
           <.h1>Active LiveViews</.h1>
           <.button phx-click="refresh">
             <div class="flex items-center gap-2">
