@@ -17,11 +17,12 @@ function getLiveDebuggerSessionURL() {
         }
 
         function handleMetaTagError() {
-          console.error(
-            'LiveDebugger meta tag not found!\\n' +
-            'If you have recently bumped LiveDebugger version, please update your layout according to the instructions in the GitHub README.'
-          );
-          throw new Error('LiveDebugger meta tag not found');
+          const message = \`
+          LiveDebugger meta tag not found!
+          If you have recently bumped LiveDebugger version, please update your layout according to the instructions in the GitHub README.
+          \`;
+          
+          throw new Error(message);
         }
 
         function getLiveDebuggerBaseURL() {
