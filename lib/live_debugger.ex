@@ -70,6 +70,7 @@ defmodule LiveDebugger do
 
     browser_features? = Keyword.get(config, :browser_features?, true)
     debug_button? = Keyword.get(config, :debug_button?, true)
+    highlighting? = Keyword.get(config, :highlighting?, true)
 
     live_debugger_url = "http://#{ip_string}:#{port}"
     live_debugger_assets_url = "http://#{ip_string}:#{port}/#{@assets_path}"
@@ -78,7 +79,8 @@ defmodule LiveDebugger do
       url: live_debugger_url,
       assets_url: live_debugger_assets_url,
       browser_features?: browser_features?,
-      debug_button?: debug_button?
+      debug_button?: debug_button?,
+      highlighting?: highlighting?
     }
 
     tags = LiveDebugger.Components.Config.live_debugger_tags(assigns)

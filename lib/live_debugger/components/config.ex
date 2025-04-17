@@ -10,10 +10,16 @@ defmodule LiveDebugger.Components.Config do
   attr(:assets_url, :string, required: true)
   attr(:browser_features?, :boolean, default: true)
   attr(:debug_button?, :boolean, default: true)
+  attr(:highlighting?, :boolean, default: true)
 
   def live_debugger_tags(assigns) do
     ~H"""
-    <meta name="live-debugger-config" url={@url} debug-button={@debug_button?} />
+    <meta
+      name="live-debugger-config"
+      url={@url}
+      debug-button={@debug_button?}
+      highlighting={@highlighting?}
+    />
     <%= if @browser_features? do %>
       <script src={@assets_url}>
       </script>

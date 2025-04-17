@@ -37,6 +37,14 @@ function debugButtonEnabled() {
   }
 }
 
+function highlightingEnabled() {
+  const metaTag = document.querySelector('meta[name="live-debugger-config"]');
+
+  if (metaTag) {
+    return metaTag.hasAttribute('highlighting');
+  }
+}
+
 function getLiveDebuggerBaseURL() {
   const metaTag = document.querySelector('meta[name="live-debugger-config"]');
 
@@ -62,7 +70,9 @@ window.document.addEventListener('DOMContentLoaded', function () {
     initDebugButton(sessionURL);
   }
 
-  initHighlight();
+  if (highlightingEnabled()) {
+    initHighlight();
+  }
 
   // Finalize
   console.info(`LiveDebugger available at: ${baseURL}`);
