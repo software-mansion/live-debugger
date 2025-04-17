@@ -25,10 +25,7 @@ defmodule Mix.Tasks.LiveDebugger.InstallTest do
     phx_test_project()
     |> Igniter.compose_task("live_debugger.install")
     |> assert_has_patch("lib/test_web/components/layouts/root.html.heex", """
-    + |    <%= if Application.get_env(:live_debugger, :browser_features?) do %>
-    + |      <script id="live-debugger-scripts" src={Application.get_env(:live_debugger, :assets_url)}>
-    + |      </script>
-    + |    <% end %>
+    + |    <%= Application.get_env(:live_debugger, :live_debugger_tags) %>
     """)
   end
 
@@ -47,10 +44,7 @@ defmodule Mix.Tasks.LiveDebugger.InstallTest do
     Include live_debugger in the `<head>` of your root layout.
 
         <head>
-          <%= if Application.get_env(:live_debugger, :browser_features?) do %>
-            <script id="live-debugger-scripts" src={Application.get_env(:live_debugger, :assets_url)}>
-            </script>
-          <% end %>
+          <%= Application.get_env(:live_debugger, :live_debugger_tags) %>
         </head>
     """)
   end
