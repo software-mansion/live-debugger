@@ -22,6 +22,7 @@ function handleMetaTagError() {
   const message = `
   LiveDebugger meta tag not found!
   If you have recently bumped LiveDebugger version, please update your layout according to the instructions in the GitHub README.
+  You can find it here: https://github.com/software-mansion/live-debugger#installation
   `;
 
   throw new Error(message);
