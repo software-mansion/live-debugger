@@ -246,19 +246,11 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   @impl true
   def handle_info({:updated_trace, trace}, socket) do
+    trace_display = TraceDisplay.from_trace(trace, true)
+
     socket
-    |> TracingHelper.check_fuse()
-    |> case do
-      {:ok, socket} ->
-        trace_display = TraceDisplay.from_trace(trace, true)
-
-        socket
-        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
-
-      {_, socket} ->
-        # Add disappearing flash here in case of :stopped. (Issue 173)
-        socket
-    end
+    |> push_event("stop-timer", %{})
+    |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
     |> noreply()
   end
 

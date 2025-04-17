@@ -5,12 +5,12 @@ const TraceExecutionTime = {
 
     this.intervalId = setInterval(() => {
       current = Date.now() - start;
-
       this.el.textContent = current + ' ms';
     }, 16);
-  },
-  updated() {
-    clearInterval(this.intervalId);
+
+    this.handleEvent('stop-timer', () => {
+      clearInterval(this.intervalId);
+    });
   },
 };
 
