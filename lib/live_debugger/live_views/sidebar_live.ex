@@ -39,7 +39,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     <%= live_render(@socket, __MODULE__,
       id: @id,
       session: @session,
-      container: {:div, class: "h-full"}
+      container: {:aside, class: "h-full"}
     ) %>
     """
   end

@@ -39,7 +39,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-screen h-screen flex flex-col">
+    <div class="w-screen h-screen grid grid-rows-[auto_1fr]">
       <.navbar return_link?={true}>
         <div class="grow flex items-center justify-end">
           <.nav_icon
@@ -52,7 +52,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
       </.navbar>
       <.async_result :let={lv_process} assign={@lv_process}>
         <:loading>
-          <div class="h-full flex items-center justify-center">
+          <div class="m-auto flex items-center justify-center">
             <.spinner size="xl" />
           </div>
         </:loading>
@@ -62,7 +62,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
           <Error.unexpected_error_component :if={reason not in [:not_found, :session_limit]} />
         </:failed>
 
-        <div class="flex flex-1 overflow-hidden">
+        <div class="flex overflow-hidden">
           <SidebarLive.live_render
             id="sidebar"
             socket={@socket}
