@@ -22,7 +22,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
   end
 ```
 
-For full experience we recommend adding below line to your application root layout. It attaches `meta` tag and LiveDebugger scripts in dev environment enabling browser features and integration with Chrome DevTools Extension.
+For full experience we recommend adding below line to your application root layout. It attaches `meta` tag and LiveDebugger scripts in dev environment enabling browser features.
 
 ```elixir
   # lib/my_app_web/components/layouts/root.html.heex
