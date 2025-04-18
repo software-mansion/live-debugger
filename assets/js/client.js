@@ -18,10 +18,42 @@ function getSessionId() {
   }
 }
 
+function handleMetaTagError() {
+  const message = `
+  LiveDebugger meta tag not found!
+  If you have recently bumped LiveDebugger version, please update your layout according to the instructions in the GitHub README.
+  You can find it here: https://github.com/software-mansion/live-debugger#installation
+  `;
+
+  throw new Error(message);
+}
+
+function debugButtonEnabled() {
+  const metaTag = document.querySelector('meta[name="live-debugger-config"]');
+
+  if (metaTag) {
+    return metaTag.hasAttribute('debug-button');
+  } else {
+    handleMetaTagError();
+  }
+}
+
+function highlightingEnabled() {
+  const metaTag = document.querySelector('meta[name="live-debugger-config"]');
+
+  if (metaTag) {
+    return metaTag.hasAttribute('highlighting');
+  }
+}
+
 function getLiveDebuggerBaseURL() {
-  return document
-    .getElementById('live-debugger-scripts')
-    .src.replace('/assets/live_debugger/client.js', '');
+  const metaTag = document.querySelector('meta[name="live-debugger-config"]');
+
+  if (metaTag) {
+    return metaTag.getAttribute('url');
+  } else {
+    handleMetaTagError();
+  }
 }
 
 function getSessionURL(baseURL) {
@@ -31,20 +63,17 @@ function getSessionURL(baseURL) {
   return `${baseURL}/${session_path}`;
 }
 
-window.getLiveDebuggerURL = function () {
-  const baseURL = getLiveDebuggerBaseURL();
-  const sessionURL = getSessionURL(baseURL);
-
-  return sessionURL;
-};
-
 window.document.addEventListener('DOMContentLoaded', function () {
   const baseURL = getLiveDebuggerBaseURL();
   const sessionURL = getSessionURL(baseURL);
 
-  initDebugButton(sessionURL);
+  if (debugButtonEnabled()) {
+    initDebugButton(sessionURL);
+  }
 
-  initHighlight();
+  if (highlightingEnabled()) {
+    initHighlight();
+  }
 
   // Finalize
   console.info(`LiveDebugger available at: ${baseURL}`);

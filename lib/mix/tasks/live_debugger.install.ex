@@ -35,10 +35,7 @@ if Code.ensure_loaded?(Igniter) do
     Include live_debugger in the `<head>` of your root layout.
 
         <head>
-          <%= if Application.get_env(:live_debugger, :browser_features?) do %>
-            <script id="live-debugger-scripts" src={Application.get_env(:live_debugger, :assets_url)}>
-            </script>
-          <% end %>
+          <%= Application.get_env(:live_debugger, :live_debugger_tags) %>
         </head>
     """
 
@@ -55,10 +52,7 @@ if Code.ensure_loaded?(Igniter) do
     """
 
     @script_tag """
-        <%= if Application.get_env(:live_debugger, :browser_features?) do %>
-          <script id="live-debugger-scripts" src={Application.get_env(:live_debugger, :assets_url)}>
-          </script>
-        <% end %>
+        <%= Application.get_env(:live_debugger, :live_debugger_tags) %>
     """
 
     use Igniter.Mix.Task
@@ -75,12 +69,6 @@ if Code.ensure_loaded?(Igniter) do
     @impl Igniter.Mix.Task
     def igniter(igniter) do
       igniter
-      |> Igniter.Project.Config.configure_new(
-        "dev.exs",
-        :live_debugger,
-        [:browser_features?],
-        true
-      )
       |> setup_root_layout()
       |> notify_csp()
     end

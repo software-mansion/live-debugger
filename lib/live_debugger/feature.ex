@@ -1,24 +1,32 @@
 defmodule LiveDebugger.Feature do
   @moduledoc """
-  Feature flags for LiveDebugger. If you create a new feature, you need to add it to the @experimental_features list.
-  This way we can easily find all the features that are experimental and not ready for production.
+  Feature flags for LiveDebugger.
+  If you create a new feature, create a new function here with defined rules for enabling it.
   """
 
-  @experimental_features [
-    :dark_mode,
-    :highlighting,
-    :callback_filters
-  ]
+  def enabled?(:highlighting) do
+    experimental_feature_enabled?(:highlighting) and
+      Application.get_env(:live_debugger, :browser_features?, true) and
+      Application.get_env(:live_debugger, :highlighting?, true)
+  end
 
-  def enabled?(feature_name) when feature_name in @experimental_features do
+  def enabled?(:dark_mode) do
+    experimental_feature_enabled?(:dark_mode)
+  end
+
+  def enabled?(:callback_filters) do
+    experimental_feature_enabled?(:callback_filters)
+  end
+
+  def enabled?(feature_name) do
+    raise "Feature #{feature_name} is not allowed"
+  end
+
+  defp experimental_feature_enabled?(feature_name) do
     case Application.get_env(:live_debugger, :experimental_features, false) do
       :all -> true
       features when is_list(features) -> Enum.member?(features, feature_name)
       _ -> false
     end
-  end
-
-  def enabled?(feature_name) do
-    raise "Feature #{feature_name} is not allowed"
   end
 end

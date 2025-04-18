@@ -82,8 +82,8 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-max flex bg-sidebar-bg shadow-custom border-x border-default-border h-full">
-      <div class="hidden lg:flex max-h-full flex-col w-72 lg:w-80 gap-1 justify-between">
+    <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
+      <div class="hidden lg:flex max-h-full flex-col w-72 border-x border-default-border lg:w-80 gap-1 justify-between">
         <.sidebar_content
           id="sidebar-content"
           lv_process={@lv_process}
@@ -157,8 +157,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   def handle_event("select_node", params, socket) do
     %{"node_id" => node_id, "search-attribute" => attr, "search-value" => val} = params
 
-    if Application.get_env(:live_debugger, :browser_features?) &&
-         LiveDebugger.Feature.enabled?(:highlighting) do
+    if LiveDebugger.Feature.enabled?(:highlighting) do
       if !socket.assigns.hidden? && socket.assigns.highlight? do
         send_event(socket.assigns.lv_process.pid, "highlight", %{attr: attr, val: val})
       end

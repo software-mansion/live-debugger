@@ -3,7 +3,7 @@
     <style>
       body {
         margin: 0;
-        background-color: rgb(241 245 249);
+        background-color: #f1f5f9;
       }
       iframe {
         border: none;
@@ -21,7 +21,7 @@
       #error-info svg {
         width: 48px;
         height: 48px;
-        color: rgb(76 43 138);
+        color: #ef4444;
       }
       #error-info div {
         font-weight: 600;
@@ -32,6 +32,14 @@
       #error-info p {
         max-width: 70%;
         margin: 0;
+      }
+      a {
+        color: #001a72;
+        text-decoration: none;
+      }
+      a:hover {
+        color: #33498b;
+        text-decoration: none;
       }
     </style>
   </head>
@@ -59,8 +67,15 @@
       </svg>
       <div>Debugger disconnected</div>
       <p>
-        Couldn't find url. Ensure you've turned on browser features in the
-        config and added LiveDebugger scripts to your application root layout.
+        Couldn't find LiveDebugger url - please update your root layout
+        according to the instructions in the GitHub README.
+        <br />
+        You can find it
+        <a
+          target="_blank"
+          href="https://github.com/software-mansion/live-debugger#installation"
+          >here</a
+        >
       </p>
     </div>
 
