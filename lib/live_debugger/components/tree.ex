@@ -30,7 +30,7 @@ defmodule LiveDebugger.Components.Tree do
 
   def tree(assigns) do
     ~H"""
-    <div class={["w-full overflow-y-auto flex flex-col", @class]}>
+    <div class={["min-h-20 w-full overflow-y-auto flex flex-col", @class]}>
       <div class="flex items-center justify-between">
         <div class="shrink-0 font-medium text-secondary-text px-6 py-3"><%= @title %></div>
         <%= if LiveDebugger.Feature.enabled?(:highlighting) do %>
