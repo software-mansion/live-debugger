@@ -70,19 +70,7 @@ defmodule LiveDebugger.Components.Traces do
       |> assign(:render_body?, assigns.wrapped_trace.render_body?)
       |> assign(:from_tracing?, assigns.wrapped_trace.from_tracing?)
       |> assign(:callback_name, Trace.callback_name(assigns.wrapped_trace.trace))
-      |> assign(
-        :threshold,
-        cond do
-          assigns.wrapped_trace.trace.execution_time > 500_000 ->
-            :very_slow
-
-          assigns.wrapped_trace.trace.execution_time > 100_000 ->
-            :slow
-
-          true ->
-            :ok
-        end
-      )
+      |> assign_threshold()
 
     ~H"""
     <.collapsible
@@ -184,5 +172,19 @@ defmodule LiveDebugger.Components.Traces do
       </div>
     </.fullscreen>
     """
+  end
+
+  defp assign_threshold(assigns) do
+    execution_time = assigns.wrapped_trace.trace.execution_time
+
+    assigns
+    |> assign(
+      :threshold,
+      cond do
+        execution_time > 500_000 -> :very_slow
+        execution_time > 100_000 -> :slow
+        true -> :ok
+      end
+    )
   end
 end
