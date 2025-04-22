@@ -72,7 +72,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
           />
 
           <div class="flex grow flex-col xl:flex-row gap-4 xl:gap-8 p-8 overflow-y-auto xl:overflow-y-hidden max-w-screen-2xl mx-auto">
-            <div class="xl:flex-1 shrink">
+            <div class="xl:w-1/2">
               <StateLive.live_render
                 id="node-state-lv"
                 socket={@socket}
@@ -82,6 +82,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
             </div>
             <TracesLive.live_render
               id="traces-list"
+              class="xl:w-1/2"
               socket={@socket}
               lv_process={lv_process}
               node_id={@node_id || lv_process.pid}
