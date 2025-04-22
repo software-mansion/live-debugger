@@ -93,27 +93,28 @@ defmodule LiveDebugger.Components.Traces do
           </p>
         </div>
       </:label>
-      <div class="relative flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto">
+      <div class="relative">
         <.fullscreen_button
           id={"trace-fullscreen-#{@id}"}
           class="absolute right-2 top-2"
           phx-click="open-trace"
           phx-value-data={@trace.id}
         />
-
-        <%= if @render_body? do %>
-          <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-            <ElixirDisplay.term
-              id={@id <> "-#{index}"}
-              node={TermParser.term_to_display_tree(args)}
-              level={1}
-            />
+        <div class="flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto">
+          <%= if @render_body? do %>
+            <%= for {args, index} <- Enum.with_index(@trace.args) do %>
+              <ElixirDisplay.term
+                id={@id <> "-#{index}"}
+                node={TermParser.term_to_display_tree(args)}
+                level={1}
+              />
+            <% end %>
+          <% else %>
+            <div class="w-full flex items-center justify-center">
+              <.spinner size="sm" />
+            </div>
           <% end %>
-        <% else %>
-          <div class="w-full flex items-center justify-center">
-            <.spinner size="sm" />
-          </div>
-        <% end %>
+        </div>
       </div>
     </.collapsible>
     """
