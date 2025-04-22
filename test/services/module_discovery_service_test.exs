@@ -5,6 +5,27 @@ defmodule LiveDebugger.Services.ModuleDiscoveryServiceTest do
 
   alias LiveDebugger.Services.ModuleDiscoveryService
 
+  describe "all_modules/0" do
+    test "returns all modules" do
+      modules = [
+        :"CoolApp.LiveViews.UserDashboard",
+        :"CoolApp.Service.UserService",
+        :"CoolApp.LiveComponent.UserElement"
+      ]
+
+      LiveDebugger.MockModuleService
+      |> expect(:all, 1, fn ->
+        [
+          {~c"CoolApp.LiveViews.UserDashboard", "", false},
+          {~c"CoolApp.Service.UserService", "", false},
+          {~c"CoolApp.LiveComponent.UserElement", "", false}
+        ]
+      end)
+
+      assert modules == ModuleDiscoveryService.all_modules()
+    end
+  end
+
   describe "live_view_modules/1" do
     test "filters LiveView modules correctly" do
       modules = [
