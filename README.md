@@ -47,14 +47,8 @@ LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an 
 mix igniter.install live_debugger
 ```
 
-## Browser features
-
-List of browser features:
-
-- Debug button
-- Components highlighting (coming soon!)
-
-Some features require injecting JS into the debugged application. You can disable them in your config.
+### Browser features
+Some features require injecting JS into the debugged application. They are enabled by default, but you can disable them in your config.
 
 ```elixir
 # config/dev.exs
@@ -78,7 +72,7 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
     plug :put_secure_browser_headers, %{"content-security-policy" => @csp}
 ```
 
-## Optional configuration
+### Optional configuration
 
 ```elixir
 # config/dev.exs
