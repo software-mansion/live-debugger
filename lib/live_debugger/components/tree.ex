@@ -94,6 +94,7 @@ defmodule LiveDebugger.Components.Tree do
       chevron_class="text-accent-icon h-5 w-5"
       open={@open}
       label_class="rounded-md py-1 hover:bg-surface-1-bg-hover"
+      chevron_only?={true}
       style={style_for_padding(@level, @collapsible?)}
     >
       <:label>
@@ -145,12 +146,8 @@ defmodule LiveDebugger.Components.Tree do
       |> assign(:button_id, "tree-node-button-#{assigns.node.parsed_id}-#{assigns.tree_id}")
 
     ~H"""
-    <button
+    <span
       id={@button_id}
-      phx-click="select_node"
-      phx-value-node_id={@node.parsed_id}
-      phx-value-search-attribute={get_search_attribute(@node)}
-      phx-value-search-value={get_search_value(@node, @parent_dom_id)}
       phx-hook="Highlight"
       class={[
         "flex shrink items-center rounded-md hover:bg-surface-1-bg-hover",
@@ -158,7 +155,13 @@ defmodule LiveDebugger.Components.Tree do
       ]}
       style={if(!@collapsible?, do: @padding_style)}
     >
-      <span class="flex flex-1 min-w-0 gap-0.5 items-center">
+      <button
+        class="flex min-w-0 gap-0.5 items-center"
+        phx-click="select_node"
+        phx-value-node_id={@node.parsed_id}
+        phx-value-search-attribute={get_search_attribute(@node)}
+        phx-value-search-value={get_search_value(@node, @parent_dom_id)}
+      >
         <.icon name={@node.icon} class="text-accent-icon w-5 h-5 shrink-0" />
         <.tooltip
           id={"tree-node-#{@node.parsed_id}-#{@tree_id}"}
@@ -169,8 +172,8 @@ defmodule LiveDebugger.Components.Tree do
             <%= @node.label %>
           </span>
         </.tooltip>
-      </span>
-    </button>
+      </button>
+    </span>
     """
   end
 
