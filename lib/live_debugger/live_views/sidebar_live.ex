@@ -39,7 +39,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     <%= live_render(@socket, __MODULE__,
       id: @id,
       session: @session,
-      container: {:div, class: "h-full"}
+      container: {:aside, class: "h-full"}
     ) %>
     """
   end
@@ -93,7 +93,6 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
           highlight?={@highlight?}
           parent_lv_process={@parent_lv_process}
         />
-        <.report_issue class="border-t border-default-border" />
       </div>
       <.sidebar_slide_over :if={not @hidden?}>
         <.sidebar_content
@@ -105,7 +104,6 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
           highlight?={@highlight?}
           parent_lv_process={@parent_lv_process}
         />
-        <.report_issue class="border-t border-default-border" />
       </.sidebar_slide_over>
     </div>
     """
@@ -210,7 +208,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
 
   defp sidebar_content(assigns) do
     ~H"""
-    <div class="flex flex-col max-h-full h-max">
+    <div class="grid grid-rows-[auto_auto_1fr_auto] h-full">
       <.basic_info
         pid={@lv_process.pid}
         socket_id={@lv_process.socket_id}
@@ -228,6 +226,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
         max_opened_node_level={@max_opened_node_level}
         highlight?={@highlight?}
       />
+      <.report_issue class="border-t border-default-border" />
     </div>
     """
   end

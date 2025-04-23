@@ -317,9 +317,15 @@ defmodule LiveDebugger.Components do
       assigns
       |> assign(:button_class, button_class)
       |> assign(:icon_class, icon_class)
+      |> assign(:aria_label, assigns[:"aria-label"] || icon_label(assigns.icon))
 
     ~H"""
-    <.button class={[@button_class | List.wrap(@class)]} variant={@variant} {@rest}>
+    <.button
+      aria-label={@aria_label}
+      class={[@button_class | List.wrap(@class)]}
+      variant={@variant}
+      {@rest}
+    >
       <.icon name={@icon} class={@icon_class} />
     </.button>
     """
@@ -333,6 +339,7 @@ defmodule LiveDebugger.Components do
   def nav_icon(assigns) do
     ~H"""
     <button
+      aria-label={icon_label(@icon)}
       class={[
         "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
         | List.wrap(@class)
@@ -546,7 +553,7 @@ defmodule LiveDebugger.Components do
 
   def navbar(assigns) do
     ~H"""
-    <div class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-navbar-bg text-navbar-logo border-b border-navbar-border">
+    <navbar class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-navbar-bg text-navbar-logo border-b border-navbar-border">
       <.link :if={@return_link?} patch={Routes.live_views_dashboard()}>
         <.nav_icon icon="icon-arrow-left" />
       </.link>
@@ -573,7 +580,7 @@ defmodule LiveDebugger.Components do
           <%= @inner_block && render_slot(@inner_block) %>
         </div>
       </div>
-    </div>
+    </navbar>
     """
   end
 
@@ -651,4 +658,10 @@ defmodule LiveDebugger.Components do
 
   defp button_size_classes("md"), do: "py-2 px-3"
   defp button_size_classes("sm"), do: "py-1.5 px-2"
+
+  defp icon_label("icon-" <> icon_name) do
+    icon_name
+    |> String.capitalize()
+    |> String.replace("-", " ")
+  end
 end
