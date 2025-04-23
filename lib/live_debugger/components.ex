@@ -103,7 +103,7 @@ defmodule LiveDebugger.Components do
   @doc """
   Collapsible element that can be toggled open and closed.
   It uses the `details` and `summary` HTML elements.
-  If you add `hide-on-open` class to element it will be hidden when collapsible is opened.
+  `hide-on-open` and `show-on-open` css classes are used to hide or show elements based on the open state of the collapsible.
 
   ## Examples
 
@@ -489,7 +489,7 @@ defmodule LiveDebugger.Components do
     <svg
       {@rest}
       class={
-        ["animate-spin", @size_class, unless(@show, do: "hidden")] ++
+        ["animate-spin", @size_class, if(!@show, do: "hidden")] ++
           List.wrap(@class)
       }
       xmlns="http://www.w3.org/2000/svg"
