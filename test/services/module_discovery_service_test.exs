@@ -15,11 +15,7 @@ defmodule LiveDebugger.Services.ModuleDiscoveryServiceTest do
 
       LiveDebugger.MockModuleService
       |> expect(:all, 1, fn ->
-        [
-          {~c"CoolApp.LiveViews.UserDashboard", "", false},
-          {~c"CoolApp.Service.UserService", "", false},
-          {~c"CoolApp.LiveComponent.UserElement", "", false}
-        ]
+        modules |> Enum.map(&{to_charlist(&1), "", false})
       end)
 
       assert modules == ModuleDiscoveryService.all_modules()
