@@ -41,7 +41,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
     <%= live_render(@socket, __MODULE__,
       id: @id,
       session: @session,
-      container: {:div, class: "flex xl:w-1/2"}
+      container: {:div, class: "flex max-xl:grow xl:w-1/2"}
     ) %>
     """
   end
