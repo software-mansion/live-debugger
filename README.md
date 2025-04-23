@@ -15,8 +15,8 @@ https://github.com/user-attachments/assets/37f1219c-93cc-4d06-96f7-9b2140a1c971
 > [!IMPORTANT]  
 > LiveDebugger should not be used on production - make sure that the dependency you've added is `:dev` only
 
-### Mix installation
 
+### Mix installation
 Add `live_debugger` to your list of dependencies in `mix.exs`:
 
 ```elixir
@@ -47,6 +47,8 @@ LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an 
 mix igniter.install live_debugger
 ```
 
+
+## Optional configuration
 ### Browser features
 Some features require injecting JS into the debugged application. They are enabled by default, but you can disable them in your config.
 
@@ -72,7 +74,7 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
     plug :put_secure_browser_headers, %{"content-security-policy" => @csp}
 ```
 
-### Optional configuration
+### Other
 
 ```elixir
 # config/dev.exs
@@ -80,7 +82,7 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
 config :live_debugger,
   ip: {127, 0, 0, 1}, # IP on which LiveDebugger will be hosted
   port: 4007, # Port on which LiveDebugger will be hosted
-  secret_key_base: <SECRET_KEY_BASE>, # Secret key used for LiveDebugger.Endpoint
+  secret_key_base: "YOUR_SECRET_KEY_BASE", # Secret key used for LiveDebugger.Endpoint
   signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
   adapter: Bandit.PhoenixAdapter # Adapter used in LiveDebugger.Endpoint
   tracing_setup_delay: 0 # Time in ms after tracing will be initialized. Useful in case multi-nodes envs
