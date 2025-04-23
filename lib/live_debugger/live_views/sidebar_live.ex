@@ -222,6 +222,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
         lv_process={@lv_process}
       />
       <.component_tree
+        id={@id}
         tree={@tree}
         selected_node_id={@node_id}
         max_opened_node_level={@max_opened_node_level}
@@ -285,6 +286,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     """
   end
 
+  attr(:id, :string, required: true)
   attr(:tree, :any, required: true)
   attr(:max_opened_node_level, :any, required: true)
   attr(:selected_node_id, :string, default: nil)
@@ -302,6 +304,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
 
       <Tree.tree
         :if={tree}
+        id={"component-tree-" <> @id}
         title="Components Tree"
         selected_node_id={@selected_node_id}
         tree_node={tree}
