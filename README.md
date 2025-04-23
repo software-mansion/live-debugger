@@ -1,4 +1,5 @@
-# LiveDebugger
+![LiveDebugger_Chrome_WebStore](https://github.com/user-attachments/assets/f3c8cce5-7cea-4465-9084-ff7c4bbb6f59)
+
 
 LiveDebugger is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
 
@@ -10,7 +11,11 @@ Designed to enhance your development experience LiveDebugger gives you:
 
 https://github.com/user-attachments/assets/37f1219c-93cc-4d06-96f7-9b2140a1c971
 
-## Installation
+## Getting started
+> [!IMPORTANT]  
+> LiveDebugger should not be used on production - make sure that the dependency you've added is `:dev` only
+
+### Mix installation
 
 Add `live_debugger` to your list of dependencies in `mix.exs`:
 
@@ -32,10 +37,15 @@ For full experience we recommend adding below line to your application root layo
   </head>
 ```
 
-After you start your application LiveDebugger will be running at a default port `http://localhost:4007`.
+After you start your application, LiveDebugger will be running at a default port `http://localhost:4007`.
 
-> [!WARNING]  
-> LiveDebugger should not be used on production! Make sure that the dependency you've added is `:dev` only
+### Igniter installation
+
+LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an alternative for standard mix installation. It'll automatically add LiveDebugger dependency and modify your `root.html.heex` after you use the below command.
+
+```bash
+mix igniter.install live_debugger
+```
 
 ## Browser features
 
@@ -67,16 +77,6 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
     # ...
     plug :put_secure_browser_headers, %{"content-security-policy" => @csp}
 ```
-
-## Igniter
-
-LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an alternative for standard mix installation. It'll automatically add LiveDebugger dependency and modify your `root.html.heex` after you use the below command.
-
-```bash
-mix igniter.install live_debugger
-```
-
-Make sure that added dependency is `:dev` only.
 
 ## Optional configuration
 
