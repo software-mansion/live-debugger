@@ -17,6 +17,7 @@ defmodule LiveDebugger.Components.Tree do
   To calculate `max_opened_node_level` it uses `max_nesting_level/2` function.
   """
 
+  attr(:id, :string, required: true, doc: "The id of the tree")
   attr(:tree_node, :any, required: true, doc: "The TreeNode struct to render")
   attr(:title, :string, required: true, doc: "The title of the tree")
   attr(:selected_node_id, :string, required: true, doc: "The id of the selected node")
@@ -39,6 +40,7 @@ defmodule LiveDebugger.Components.Tree do
       </div>
       <div class="w-full px-1 overflow-y-auto">
         <.tree_node
+          tree_id={@id}
           tree_node={@tree_node}
           selected_node_id={@selected_node_id}
           root?={true}
@@ -71,6 +73,7 @@ defmodule LiveDebugger.Components.Tree do
     |> elem(0)
   end
 
+  attr(:tree_id, :string, required: true)
   attr(:parent_dom_id, :string, default: nil)
   attr(:tree_node, :any, required: true)
   attr(:selected_node_id, :string, default: nil)
@@ -91,7 +94,7 @@ defmodule LiveDebugger.Components.Tree do
       <div class="w-full">
         <.collapsible
           :if={@collapsible?}
-          id={"collapsible-" <> @tree_node.parsed_id}
+          id={"collapsible-#{@tree_node.parsed_id}-#{@tree_id}"}
           chevron_class="text-accent-icon h-5 w-5"
           open={@open}
           label_class="w-full rounded-md py-1 hover:bg-surface-1-bg-hover"
@@ -99,6 +102,7 @@ defmodule LiveDebugger.Components.Tree do
         >
           <:label>
             <.label
+              tree_id={@tree_id}
               selected?={@selected?}
               parent_dom_id={@parent_dom_id}
               node={@tree_node}
@@ -109,6 +113,7 @@ defmodule LiveDebugger.Components.Tree do
           <div class="flex flex-col">
             <.tree_node
               :for={child <- @tree_node.children}
+              tree_id={@tree_id}
               parent_dom_id={if @tree_node[:dom_id], do: @tree_node.dom_id, else: @parent_dom_id}
               tree_node={child}
               selected_node_id={@selected_node_id}
@@ -120,6 +125,7 @@ defmodule LiveDebugger.Components.Tree do
         </.collapsible>
         <.label
           :if={not @collapsible?}
+          tree_id={@tree_id}
           selected?={@selected?}
           parent_dom_id={@parent_dom_id}
           node={@tree_node}
@@ -131,6 +137,7 @@ defmodule LiveDebugger.Components.Tree do
     """
   end
 
+  attr(:tree_id, :string, required: true)
   attr(:parent_dom_id, :string, required: true)
   attr(:node, :any, required: true)
   attr(:level, :integer, required: true)
@@ -144,7 +151,7 @@ defmodule LiveDebugger.Components.Tree do
 
     ~H"""
     <button
-      id={"tree_node_button_" <> @node.parsed_id}
+      id={"tree-node-button-#{@node.parsed_id}-#{@tree_id}"}
       phx-click="select_node"
       phx-value-node_id={@node.parsed_id}
       phx-value-search-attribute={get_search_attribute(@node)}
@@ -160,7 +167,7 @@ defmodule LiveDebugger.Components.Tree do
       <div class="flex w-full gap-0.5 items-center">
         <.icon name={@node.icon} class="text-accent-icon w-5 h-5 shrink-0" />
         <.tooltip
-          id={"tree_node_" <> @node.parsed_id}
+          id={"tree-node-#{@node.parsed_id}-#{@tree_id}"}
           content={@node.tooltip}
           class="w-full flex overflow-x-hidden"
         >
