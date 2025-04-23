@@ -1,4 +1,4 @@
-![LiveDebugger_Chrome_WebStore](https://github.com/user-attachments/assets/f3c8cce5-7cea-4465-9084-ff7c4bbb6f59)
+![LiveDebugger_Chrome_WebStore](https://github.com/user-attachments/assets/cf9aee3b-58ab-4c45-8a43-d73182cb3e02)
 
 
 LiveDebugger is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
