@@ -14,38 +14,47 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       GenServer.whereis(CallbackTracingServer)
     end)
 
-    CallbackTracingServer.start_link()
+    start_supervised(CallbackTracingServer)
+
     :ok
   end
 
+  setup do
+    pid =
+      spawn(fn ->
+        receive do
+          :stop ->
+            :ok
+        end
+      end)
+
+    on_exit(fn -> send(pid, :stop) end)
+
+    %{pid: pid}
+  end
+
+  test "gen server is started" do
+    pid = GenServer.whereis(CallbackTracingServer)
+    assert {:error, {:already_started, ^pid}} = CallbackTracingServer.start_link()
+    assert is_pid(pid)
+  end
+
   describe "table!/1" do
-    test "creates and remembers table for given pid" do
-      pid =
+    test "creates and remembers table for given pid", %{pid: pid} do
+      ref1 = CallbackTracingServer.table!(pid)
+
+      assert ref1 == CallbackTracingServer.table!(pid)
+      assert [] == :ets.tab2list(ref1)
+    end
+
+    test "creates different tables for different pids", %{pid: pid1} do
+      pid2 =
         spawn(fn ->
           receive do
             :stop ->
               :ok
           end
         end)
-
-      ref1 = CallbackTracingServer.table!(pid)
-
-      assert ref1 == CallbackTracingServer.table!(pid)
-      assert [] == :ets.tab2list(ref1)
-
-      send(pid, :stop)
-    end
-
-    test "creates different tables for different pids" do
-      [pid1, pid2] =
-        for _ <- 1..2 do
-          spawn(fn ->
-            receive do
-              :stop ->
-                :ok
-            end
-          end)
-        end
 
       ref1 = CallbackTracingServer.table!(pid1)
       ref2 = CallbackTracingServer.table!(pid2)
@@ -56,45 +65,30 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       assert [] == :ets.tab2list(ref1)
       assert [] == :ets.tab2list(ref2)
 
-      send(pid1, :stop)
       send(pid2, :stop)
     end
 
-    test "removes table after process exits" do
-      pid =
-        spawn(fn ->
-          receive do
-            :stop ->
-              :ok
-          end
-        end)
-
+    test "removes table after process exits", %{pid: pid} do
       ref = CallbackTracingServer.table!(pid)
 
       send(pid, :stop)
 
-      Process.sleep(1000)
+      Process.sleep(200)
 
       assert_raise ArgumentError, fn -> :ets.tab2list(ref) end
       assert ref != CallbackTracingServer.table!(pid)
     end
   end
 
-  test "delete_table!/1" do
-    pid =
-      spawn(fn ->
-        receive do
-          :stop ->
-            :ok
-        end
-      end)
-
+  test "delete_table!/1", %{pid: pid} do
     ref = CallbackTracingServer.table!(pid)
 
     assert :ok == CallbackTracingServer.delete_table!(pid)
     assert_raise ArgumentError, fn -> :ets.tab2list(ref) end
     assert ref != CallbackTracingServer.table!(pid)
+  end
 
-    send(pid, :stop)
+  test "ping!/1" do
+    assert :ok == CallbackTracingServer.ping!()
   end
 end
