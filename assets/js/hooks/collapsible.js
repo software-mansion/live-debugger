@@ -10,7 +10,6 @@ const CollapsibleChevronOnly = {
     this.details = this.el.parentElement;
     this.handleClick = (e) => {
       if (e.target === this.chevron) {
-        console.log('open');
         this.details.open = !this.details.open;
       }
       e.preventDefault();
