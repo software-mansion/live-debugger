@@ -94,7 +94,7 @@ defmodule LiveDebugger.Components.Traces do
         </div>
       </:label>
       <div class="relative">
-        <div class="absolute right-[17px] top-0 z-50">
+        <div class="absolute right-[17px] top-0 z-10">
           <.fullscreen_button
             id={"trace-fullscreen-#{@id}"}
             class="m-2"
