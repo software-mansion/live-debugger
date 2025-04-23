@@ -541,7 +541,7 @@ defmodule LiveDebugger.Components do
   @doc """
   Renders a tooltip using Tooltip hook.
   """
-  attr(:id, :string, required: true)
+  attr(:id, :string, required: true, doc: "ID of the tooltip. Prefix is added automatically.")
   attr(:content, :string, default: nil)
   attr(:position, :string, default: "top", values: ["top", "bottom"])
   attr(:rest, :global)
