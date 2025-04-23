@@ -21,15 +21,9 @@ defmodule Services.TraceServiceTest do
   end
 
   setup context do
-    pid =
-      spawn(fn ->
-        receive do
-          :stop ->
-            :ok
-        end
-      end)
+    pid = spawn(fn -> Process.sleep(:infinity) end)
 
-    on_exit(fn -> send(pid, :stop) end)
+    on_exit(fn -> Process.exit(pid, :kill) end)
 
     Map.put(context, :pid, pid)
   end

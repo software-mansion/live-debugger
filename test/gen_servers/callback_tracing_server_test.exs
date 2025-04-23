@@ -20,15 +20,9 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
   end
 
   setup do
-    pid =
-      spawn(fn ->
-        receive do
-          :stop ->
-            :ok
-        end
-      end)
+    pid = spawn(fn -> Process.sleep(:infinity) end)
 
-    on_exit(fn -> send(pid, :stop) end)
+    on_exit(fn -> Process.exit(pid, :kill) end)
 
     %{pid: pid}
   end
@@ -71,7 +65,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
     test "removes table after process exits", %{pid: pid} do
       ref = CallbackTracingServer.table!(pid)
 
-      send(pid, :stop)
+      Process.exit(pid, :kill)
 
       Process.sleep(200)
 
