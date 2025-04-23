@@ -11,7 +11,9 @@ defmodule LiveDebugger.Services.ModuleDiscoveryService do
   @spec all_modules() :: [module()]
   def all_modules() do
     ModuleService.all()
-    |> Enum.map(fn {module_charlist, _, _} -> module_charlist |> to_string |> String.to_atom() end)
+    |> Enum.map(fn {module_charlist, _, _} ->
+      module_charlist |> to_string |> String.to_atom()
+    end)
   end
 
   @doc """
