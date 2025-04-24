@@ -24,6 +24,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   attr(:lv_process, :map, required: true)
   attr(:node_id, :string, required: true)
   attr(:url, :string, required: true)
+  attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
@@ -39,7 +40,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     <%= live_render(@socket, __MODULE__,
       id: @id,
       session: @session,
-      container: {:aside, class: "h-full"}
+      container: {:aside, class: @class}
     ) %>
     """
   end

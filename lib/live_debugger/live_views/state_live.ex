@@ -18,6 +18,7 @@ defmodule LiveDebugger.LiveViews.StateLive do
   attr(:id, :string, required: true)
   attr(:lv_process, :map, required: true)
   attr(:node_id, :string, required: true)
+  attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
@@ -32,7 +33,7 @@ defmodule LiveDebugger.LiveViews.StateLive do
     <%= live_render(@socket, __MODULE__,
       id: @id,
       session: @session,
-      container: {:div, class: "flex xl:w-1/2"}
+      container: {:div, class: @class}
     ) %>
     """
   end
