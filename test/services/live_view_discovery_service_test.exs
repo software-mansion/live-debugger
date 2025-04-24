@@ -219,6 +219,62 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
     end
   end
 
+  describe "successor_lv_process/1" do
+    test "returns successor LvProcesses of the given module" do
+      successor_pid = :c.pid(0, 0, 1)
+      live_view_pid = :c.pid(0, 1, 0)
+
+      successor_module = :"Elixir.SomeLiveView"
+      other_module = :"Elixir.OtherLiveView"
+
+      MockProcessService
+      |> expect(:list, fn -> [successor_pid, live_view_pid] end)
+      |> expect(:initial_call, fn _ -> {successor_module, :mount} end)
+      |> expect(:initial_call, fn _ -> {other_module, :mount} end)
+      |> expect(:state, fn ^successor_pid ->
+        {:ok, Fakes.state(root_pid: successor_pid, module: successor_module)}
+      end)
+      |> expect(:state, fn ^live_view_pid ->
+        {:ok, Fakes.state(root_pid: live_view_pid, module: other_module)}
+      end)
+
+      assert %LvProcess{pid: ^successor_pid} =
+               LiveViewDiscoveryService.successor_lv_process(successor_module)
+    end
+
+    test "returns nil if no LiveView process of given module" do
+      live_view_pid = :c.pid(0, 0, 1)
+
+      successor_module = :"Elixir.SomeLiveView"
+      other_module = :"Elixir.OtherLiveView"
+
+      MockProcessService
+      |> expect(:list, fn -> [live_view_pid] end)
+      |> expect(:initial_call, fn _ -> {other_module, :mount} end)
+      |> expect(:state, fn ^live_view_pid ->
+        {:ok, Fakes.state(root_pid: live_view_pid, module: other_module)}
+      end)
+
+      assert nil == LiveViewDiscoveryService.successor_lv_process(successor_module)
+    end
+
+    test "returns nil if more than one LiveViewProcess of given module found" do
+      live_view_pid_1 = :c.pid(0, 0, 1)
+      live_view_pid_2 = :c.pid(0, 0, 2)
+
+      successor_module = :"Elixir.SomeLiveView"
+
+      MockProcessService
+      |> expect(:list, fn -> [live_view_pid_1, live_view_pid_2] end)
+      |> expect(:initial_call, 2, fn _ -> {successor_module, :mount} end)
+      |> expect(:state, 2, fn live_view_pid ->
+        {:ok, Fakes.state(root_pid: live_view_pid, module: successor_module)}
+      end)
+
+      assert nil == LiveViewDiscoveryService.successor_lv_process(successor_module)
+    end
+  end
+
   describe "children_lv_processes/1" do
     test "returns children LvProcesses of the given pid" do
       parent_pid = :c.pid(0, 0, 1)

@@ -5,6 +5,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
 
   require Logger
 
+  alias LiveDebugger.Structs.LvProcess
   alias Phoenix.LiveView.JS
   alias LiveDebugger.Utils.URL
   alias Phoenix.LiveView.AsyncResult
@@ -98,11 +99,10 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   @impl true
   def handle_async(:fetch_lv_process, {:ok, nil}, socket) do
     with %{debugged_module: module} when not is_nil(module) <- socket.assigns,
-         [lv_process] <- LiveViewDiscoveryService.successor_lv_processes(module) do
+         %LvProcess{socket_id: socket_id, transport_pid: transport_pid} <-
+           LiveViewDiscoveryService.successor_lv_process(module) do
       socket
-      |> push_navigate(
-        to: Routes.channel_dashboard(lv_process.socket_id, lv_process.transport_pid)
-      )
+      |> push_navigate(to: Routes.channel_dashboard(socket_id, transport_pid))
       |> noreply()
     else
       _ ->
