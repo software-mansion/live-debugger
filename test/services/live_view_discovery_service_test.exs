@@ -334,6 +334,31 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
              ])
   end
 
+  test "lv_processes/0 returns all LiveView processes" do
+    live_view_pid_1 = :c.pid(0, 0, 1)
+    live_view_pid_2 = :c.pid(0, 0, 2)
+    non_live_view_pid = :c.pid(0, 0, 3)
+
+    module = :"Elixir.SomeLiveView"
+    non_live_view_module = :"Elixir.SomeOtherModule"
+
+    MockProcessService
+    |> expect(:list, fn -> [live_view_pid_1, live_view_pid_2, non_live_view_pid] end)
+    |> expect(:initial_call, 2, fn _ -> {module, :mount} end)
+    |> expect(:initial_call, fn _ -> {non_live_view_module, :some_initial_call} end)
+    |> expect(:state, fn ^live_view_pid_1 ->
+      {:ok, Fakes.state(root_pid: live_view_pid_1, module: module)}
+    end)
+    |> expect(:state, fn ^live_view_pid_2 ->
+      {:ok, Fakes.state(root_pid: live_view_pid_2, module: module)}
+    end)
+
+    assert [
+             %LvProcess{pid: ^live_view_pid_1},
+             %LvProcess{pid: ^live_view_pid_2}
+           ] = LiveViewDiscoveryService.lv_processes()
+  end
+
   describe "children_lv_processes/1" do
     test "returns children LvProcesses of the given pid" do
       parent_pid = :c.pid(0, 0, 1)
