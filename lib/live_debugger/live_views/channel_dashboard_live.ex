@@ -65,6 +65,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
         <div class="flex overflow-hidden">
           <SidebarLive.live_render
             id="sidebar"
+            class="h-full"
             socket={@socket}
             lv_process={lv_process}
             url={@url}
@@ -72,17 +73,16 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
           />
 
           <div class="flex grow flex-col xl:flex-row gap-4 xl:gap-8 p-8 overflow-y-auto xl:overflow-y-hidden max-w-screen-2xl mx-auto scrollbar-main">
-            <div class="xl:w-1/2">
-              <StateLive.live_render
-                id="node-state-lv"
-                socket={@socket}
-                lv_process={lv_process}
-                node_id={@node_id || lv_process.pid}
-              />
-            </div>
+            <StateLive.live_render
+              id="node-state-lv"
+              class="flex xl:w-1/2"
+              socket={@socket}
+              lv_process={lv_process}
+              node_id={@node_id || lv_process.pid}
+            />
             <TracesLive.live_render
               id="traces-list"
-              class="xl:w-1/2"
+              class="flex max-xl:grow xl:w-1/2"
               socket={@socket}
               lv_process={lv_process}
               node_id={@node_id || lv_process.pid}

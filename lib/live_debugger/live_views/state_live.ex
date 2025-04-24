@@ -18,6 +18,7 @@ defmodule LiveDebugger.LiveViews.StateLive do
   attr(:id, :string, required: true)
   attr(:lv_process, :map, required: true)
   attr(:node_id, :string, required: true)
+  attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
@@ -29,7 +30,11 @@ defmodule LiveDebugger.LiveViews.StateLive do
     assigns = assign(assigns, session: session)
 
     ~H"""
-    <%= live_render(@socket, __MODULE__, id: @id, session: @session) %>
+    <%= live_render(@socket, __MODULE__,
+      id: @id,
+      session: @session,
+      container: {:div, class: @class}
+    ) %>
     """
   end
 
@@ -59,7 +64,7 @@ defmodule LiveDebugger.LiveViews.StateLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col gap-4 xl:items-end">
+    <div class="flex-1 max-w-full flex flex-col gap-4">
       <.async_result :let={node} assign={@node}>
         <:loading>
           <div class="w-full flex items-center justify-center">
