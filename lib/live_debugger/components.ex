@@ -121,11 +121,6 @@ defmodule LiveDebugger.Components do
   attr(:chevron_class, :any, default: nil, doc: "CSS class for the chevron icon")
   attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
 
-  attr(:chevron_only?, :boolean,
-    default: false,
-    doc: "Weather to make only chevron clickable to open/close the collapsible"
-  )
-
   attr(:icon, :string,
     default: "icon-chevron-right",
     doc: "Icon for chevron. It will be rotated 90 degrees when the collapsible is open"
@@ -148,20 +143,10 @@ defmodule LiveDebugger.Components do
     >
       <summary
         id={@id <> "-summary"}
-        class={
-          [
-            "block flex items-center",
-            if(@chevron_only?, do: "cursor-default", else: "cursor-pointer")
-          ] ++
-            List.wrap(@label_class)
-        }
-        {allow_only_chevron_to_collapse(@chevron_only?)}
+        class={["block flex items-center cursor-pointer" | List.wrap(@label_class)]}
         {@rest}
       >
-        <.icon
-          name={@icon}
-          class={["chevron cursor-pointer rotate-icon shrink-0" | List.wrap(@chevron_class)]}
-        />
+        <.icon name={@icon} class={["rotate-icon shrink-0" | List.wrap(@chevron_class)]} />
         <%= render_slot(@label) %>
       </summary>
       <%= render_slot(@inner_block) %>
@@ -264,12 +249,6 @@ defmodule LiveDebugger.Components do
   """
   def show_collapsible_assign(true), do: %{:"phx-hook" => "CollapsibleOpen"}
   def show_collapsible_assign(_), do: %{}
-
-  @doc """
-  Used to add CollapsibleChevronOnly hook to element based on condition.
-  """
-  def allow_only_chevron_to_collapse(true), do: %{:"phx-hook" => "CollapsibleChevronOnly"}
-  def allow_only_chevron_to_collapse(_), do: %{}
 
   @doc """
   Typography component to render headings.
