@@ -16,7 +16,10 @@ defmodule LiveDebugger.MixProject do
       name: "LiveDebugger",
       source_url: "https://github.com/software-mansion/live-debugger",
       description: "Tool for debugging LiveView applications",
-      docs: docs()
+      docs: docs(),
+      test_coverage: [
+        ignore_modules: [~r/^LiveDebuggerDev\./, DevWeb]
+      ]
     ]
   end
 
