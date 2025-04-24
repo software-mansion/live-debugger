@@ -275,6 +275,65 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
     end
   end
 
+  test "group_lv_processes/1 groups LvProcesses into proper map" do
+    pid_1 = :c.pid(0, 0, 1)
+    pid_2 = :c.pid(0, 0, 2)
+
+    root_pid_1 = :c.pid(0, 1, 1)
+    root_pid_2 = :c.pid(0, 1, 2)
+    root_pid_3 = :c.pid(0, 1, 3)
+
+    transport_pid_1 = :c.pid(0, 7, 1)
+    transport_pid_2 = :c.pid(0, 7, 2)
+
+    lv_process_1 = %LvProcess{
+      pid: root_pid_1,
+      root_pid: root_pid_1,
+      transport_pid: transport_pid_1
+    }
+
+    lv_process_2 = %LvProcess{
+      pid: pid_1,
+      root_pid: root_pid_1,
+      transport_pid: transport_pid_1
+    }
+
+    lv_process_3 = %LvProcess{
+      pid: root_pid_2,
+      root_pid: root_pid_2,
+      transport_pid: transport_pid_2
+    }
+
+    lv_process_4 = %LvProcess{
+      pid: pid_2,
+      root_pid: root_pid_2,
+      transport_pid: transport_pid_2
+    }
+
+    lv_process_5 = %LvProcess{
+      pid: root_pid_3,
+      root_pid: root_pid_3,
+      transport_pid: transport_pid_2
+    }
+
+    assert %{
+             transport_pid_1 => %{
+               lv_process_1 => [lv_process_2]
+             },
+             transport_pid_2 => %{
+               lv_process_3 => [lv_process_4],
+               lv_process_5 => []
+             }
+           } ==
+             LiveViewDiscoveryService.group_lv_processes([
+               lv_process_1,
+               lv_process_2,
+               lv_process_3,
+               lv_process_4,
+               lv_process_5
+             ])
+  end
+
   describe "children_lv_processes/1" do
     test "returns children LvProcesses of the given pid" do
       parent_pid = :c.pid(0, 0, 1)
