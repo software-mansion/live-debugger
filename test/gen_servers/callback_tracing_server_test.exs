@@ -1,6 +1,6 @@
 defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
   @moduledoc false
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   import Mox
 
@@ -8,7 +8,9 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
   setup_all do
     LiveDebugger.MockModuleService
-    |> stub(:all, fn -> [] end)
+    |> stub(:all, fn -> [{to_charlist(CoolApp.Dashboard), "", false}] end)
+    |> stub(:loaded?, fn _module -> true end)
+    |> stub(:behaviours, fn _module -> [Phoenix.LiveView] end)
 
     allow(LiveDebugger.MockModuleService, self(), fn ->
       GenServer.whereis(CallbackTracingServer)
@@ -84,5 +86,41 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
   test "ping!/1" do
     assert :ok == CallbackTracingServer.ping!()
+  end
+
+  describe "tracing mechanism" do
+    test "properly tracing callback call" do
+      Process.sleep(200)
+      CoolApp.Dashboard.handle_info(:msg, %{transport_pid: self()})
+
+      assert [{0, trace}] = CallbackTracingServer.table!(self()) |> :ets.tab2list()
+
+      assert trace.id == 0
+      assert trace.module == CoolApp.Dashboard
+      assert trace.function == :handle_info
+      assert trace.arity == 2
+      assert trace.args == [:msg, %{transport_pid: self()}]
+      assert trace.socket_id == nil
+      assert trace.transport_pid == self()
+      assert trace.pid == self()
+      assert trace.cid == nil
+    end
+
+    test "ignoring non-traced callbacks" do
+      Process.sleep(200)
+      CoolApp.Dashboard.non_traced_function(:arg)
+
+      assert [] == CallbackTracingServer.table!(self()) |> :ets.tab2list()
+    end
+  end
+end
+
+defmodule CoolApp.Dashboard do
+  def handle_info(_msg, state) do
+    {:noreply, state}
+  end
+
+  def non_traced_function(_arg) do
+    :ok
   end
 end

@@ -1,5 +1,5 @@
 defmodule Services.TraceServiceTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
 
   import Mox
 
