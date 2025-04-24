@@ -237,7 +237,7 @@ defmodule LiveDebugger.Components do
         </div>
       </div>
       <div class={[
-        "flex flex-1 overflow-auto rounded-sm bg-surface-0-bg m-2" | List.wrap(@inner_class)
+        "flex flex-1 overflow-auto rounded-sm bg-surface-0-bg" | List.wrap(@inner_class)
       ]}>
         <%= render_slot(@inner_block) %>
       </div>

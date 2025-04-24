@@ -18,6 +18,10 @@
     --ui-muted: var(--gray-600);
     --ui-accent: var(--swm-sea-blue-60);
 
+    /* Scrollbar */
+    --scrollbar-thumb: var(--gray-600);
+    --scrollbar-thumb-hover: var(--gray-500);
+
     /* Navbar */
     --navbar-bg: var(--gray-900);
     --navbar-border: var(--gray-700);
