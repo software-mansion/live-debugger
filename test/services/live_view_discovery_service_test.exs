@@ -55,6 +55,29 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
     end
   end
 
+  test "debugger_lv_processes/0 returns only LiveDebugger LvProcesses" do
+    live_debugger_pid = :c.pid(0, 0, 2)
+    live_view_pid = :c.pid(0, 0, 1)
+
+    live_debugger_module = :"Elixir.LiveDebugger.SomLiveView"
+    live_view_module = :"Elixir.SomeLiveView"
+
+    MockProcessService
+    |> expect(:list, fn -> [live_debugger_pid, live_view_pid] end)
+    |> expect(:initial_call, fn _ -> {live_debugger_module, :mount} end)
+    |> expect(:initial_call, fn _ -> {live_view_module, :mount} end)
+    |> expect(:state, fn ^live_debugger_pid ->
+      {:ok, Fakes.state(root_pid: live_debugger_pid, module: live_debugger_module)}
+    end)
+    |> expect(:state, fn ^live_view_pid ->
+      {:ok, Fakes.state(root_pid: live_view_pid, module: live_view_module)}
+    end)
+
+    assert [
+             %LvProcess{pid: ^live_debugger_pid}
+           ] = LiveViewDiscoveryService.debugger_lv_processes()
+  end
+
   describe "lv_process/1" do
     test "returns LvProcess based on socket_id" do
       searched_live_view_pid = :c.pid(0, 1, 0)
