@@ -4,6 +4,30 @@ defmodule LiveDebugger.Services.ModuleDiscoveryServiceTest do
   import Mox
 
   alias LiveDebugger.Services.ModuleDiscoveryService
+  alias LiveDebugger.MockModuleService
+
+  test "all_modules/0 returns all modules" do
+    modules = [
+      CoolApp.LiveViews.UserDashboard,
+      CoolApp.Service.UserService,
+      CoolApp.LiveComponent.UserElement
+    ]
+
+    MockModuleService
+    |> expect(:all, fn ->
+      [
+        {CoolApp.LiveViews.UserDashboard,
+         to_charlist("/prefix/lib/cool_app/live_views/user_dashboard.beam"), true},
+        {CoolApp.Service.UserService,
+         to_charlist("/prefix/lib/cool_app/service/user_service.beam"), false},
+        {CoolApp.LiveComponent.UserElement,
+         to_charlist("/prefix/lib/cool_app/live_component/user_element.beam"), true}
+      ]
+    end)
+
+    result = ModuleDiscoveryService.all_modules()
+    assert result == modules
+  end
 
   describe "live_view_modules/1" do
     test "filters LiveView modules correctly" do
@@ -13,7 +37,7 @@ defmodule LiveDebugger.Services.ModuleDiscoveryServiceTest do
         CoolApp.LiveComponent.UserElement
       ]
 
-      LiveDebugger.MockModuleService
+      MockModuleService
       |> expect(:loaded?, 3, fn _module -> true end)
       |> expect(:behaviours, 3, fn module ->
         case module do
@@ -34,7 +58,7 @@ defmodule LiveDebugger.Services.ModuleDiscoveryServiceTest do
         CoolApp.LiveComponent.UserElement
       ]
 
-      LiveDebugger.MockModuleService
+      MockModuleService
       |> expect(:loaded?, 3, fn _module -> false end)
 
       result = ModuleDiscoveryService.live_view_modules(modules)
@@ -50,7 +74,7 @@ defmodule LiveDebugger.Services.ModuleDiscoveryServiceTest do
         CoolApp.LiveComponent.UserElement
       ]
 
-      LiveDebugger.MockModuleService
+      MockModuleService
       |> expect(:loaded?, 3, fn _module -> true end)
       |> expect(:behaviours, 3, fn module ->
         case module do
@@ -71,7 +95,7 @@ defmodule LiveDebugger.Services.ModuleDiscoveryServiceTest do
         CoolApp.LiveComponent.UserElement
       ]
 
-      LiveDebugger.MockModuleService
+      MockModuleService
       |> expect(:loaded?, 3, fn _module -> false end)
 
       result = ModuleDiscoveryService.live_component_modules(modules)
