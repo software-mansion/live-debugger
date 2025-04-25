@@ -64,16 +64,20 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
       |> PubSubUtils.subscribe!()
     end
 
+    send(self(), :assign_memory_usage)
+
     socket
     |> assign(:lv_process, lv_process)
     |> assign(:node_id, session["node_id"])
     |> assign(:url, session["url"])
     |> assign(:highlight?, false)
     |> assign(:hidden?, true)
+    |> assign(:memory_raw_kb, 0)
+    |> assign(:memory_gc_kb, 0)
+    |> assign(:assigns_memory_kb, 0)
     |> assign_async_tree()
     |> assign_async_parent_lv_process()
     |> assign_async_existing_node_ids()
-    |> assign_memory_usuage(self())
     |> ok()
   end
 
@@ -118,6 +122,40 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   end
 
   @impl true
+  def handle_info(:assign_memory_usage, socket) do
+    Process.send_after(self(), :assign_memory_usage, 2000)
+
+    raw =
+      case :erlang.process_info(self(), :memory) do
+        {:memory, bytes} -> bytes
+        _ -> 0
+      end
+
+    :erlang.garbage_collect(self())
+
+    post_gc =
+      case :erlang.process_info(self(), :memory) do
+        {:memory, bytes} -> bytes
+        _ -> 0
+      end
+
+    assigns_size =
+      try do
+        words = :erts_debug.size(socket.assigns)
+        words * :erlang.system_info(:wordsize)
+      rescue
+        _ -> 0
+      end
+
+    {:noreply,
+     assign(socket,
+       memory_raw_kb: Float.round(raw / 1024, 1),
+       memory_gc_kb: Float.round(post_gc / 1024, 1),
+       assigns_memory_kb: Float.round(assigns_size / 1024, 1)
+     )}
+  end
+
+  @impl true
   def handle_info({:new_trace, trace}, socket) do
     existing_node_ids = socket.assigns.existing_node_ids
     trace_node_id = Trace.node_id(trace)
@@ -142,7 +180,6 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
       true ->
         socket
     end
-    |> assign_memory_usuage(self())
     |> noreply()
   end
 
@@ -150,7 +187,6 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   def handle_info({:node_changed, node_id}, socket) do
     socket
     |> assign(:node_id, node_id)
-    |> assign_memory_usuage(self())
     |> noreply()
   end
 
@@ -409,36 +445,5 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     }
 
     send(state.socket.transport_pid, state.serializer.encode!(message))
-  end
-
-  defp assign_memory_usuage(socket, pid) do
-    raw =
-      case :erlang.process_info(pid, :memory) do
-        {:memory, bytes} -> bytes
-        _ -> 0
-      end
-
-    :erlang.garbage_collect(pid)
-
-    post_gc =
-      case :erlang.process_info(pid, :memory) do
-        {:memory, bytes} -> bytes
-        _ -> 0
-      end
-
-    # Estimate size of assigns in bytes (words * 8)
-    assigns_size =
-      try do
-        words = :erts_debug.size(socket.assigns)
-        words * :erlang.system_info(:wordsize)
-      rescue
-        _ -> 0
-      end
-
-    assign(socket,
-      memory_raw_kb: Float.round(raw / 1024, 1),
-      memory_gc_kb: Float.round(post_gc / 1024, 1),
-      assigns_memory_kb: Float.round(assigns_size / 1024, 1)
-    )
   end
 end
