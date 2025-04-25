@@ -41,6 +41,18 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
+  Renders an input.
+  """
+  attr(:field, Phoenix.HTML.FormField, required: true)
+  attr(:rest, :global, include: ~w(type))
+
+  def input(assigns) do
+    ~H"""
+    <input id={@field.id} name={@field.name} value={@field.value} {@rest} />
+    """
+  end
+
+  @doc """
   Renders a checkbox.
   """
   attr(:field, Phoenix.HTML.FormField, required: true)
