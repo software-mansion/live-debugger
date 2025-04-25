@@ -15,14 +15,10 @@ defmodule LiveDebugger.Services.ModuleDiscoveryServiceTest do
 
     MockModuleService
     |> expect(:all, fn ->
-      [
-        {CoolApp.LiveViews.UserDashboard,
-         to_charlist("/prefix/lib/cool_app/live_views/user_dashboard.beam"), true},
-        {CoolApp.Service.UserService,
-         to_charlist("/prefix/lib/cool_app/service/user_service.beam"), false},
-        {CoolApp.LiveComponent.UserElement,
-         to_charlist("/prefix/lib/cool_app/live_component/user_element.beam"), true}
-      ]
+      Enum.map(modules, fn module ->
+        {to_charlist(module), to_charlist("/prefix/lib/#{module}.beam"),
+         module == CoolApp.LiveViews.UserDashboard}
+      end)
     end)
 
     result = ModuleDiscoveryService.all_modules()
