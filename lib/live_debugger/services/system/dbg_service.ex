@@ -3,22 +3,32 @@ defmodule LiveDebugger.Services.System.DbgService do
   This module provides wrappers for system functions that are used for debugging.
   """
 
-  @callback tracer(:process, handlerSpec) :: {:ok, pid()} | {:error, error :: term()}
-            when handlerSpec: {handlerFun, initialData :: term()},
-                 handlerFun: (event :: term(), data :: term() -> newData :: term())
-  @callback p(item :: term(), flags :: term()) :: {:ok, matchDesc} | {:error, term()}
-            when matchDesc: [matchNum],
-                 matchNum: {:matched, node(), integer()} | {:matched, node(), 0, rPCError},
-                 rPCError: term()
-  @callback tp(module | {module, function, arity}, matchSpec :: term()) ::
-              {:ok, matchDesc :: term()} | {:error, term()}
+  @type port_generator() :: (-> port())
+  @type handler_spec() :: {handler_fun(), initial_data :: term()}
+  @type handler_fun() :: (event :: term(), data :: term() -> new_data :: term())
+  @type module_spec() ::
+          (-> {tracer_module :: atom(), tracer_state :: term()})
+          | {tracer_module :: atom(), tracer_state :: term()}
+
+  @callback tracer(:port, port_generator()) :: {:ok, pid()} | {:error, term()}
+  @callback tracer(:process, handler_spec()) :: {:ok, pid()} | {:error, term()}
+  @callback tracer(:module, module_spec()) :: {:ok, pid()} | {:error, term()}
+  @callback tracer(:file, filename :: :file.name_all()) :: {:ok, pid()} | {:error, term()}
+
+  @type match_desc() :: [match_num()]
+  @type match_num() :: {:matched, node(), integer()} | {:matched, node(), 0, rPCError :: term()}
+
+  @callback p(item :: term(), flags :: term()) :: {:ok, match_desc()} | {:error, term()}
+
+  @callback tp(module() | mfa(), match_spec :: term()) :: {:ok, match_desc()} | {:error, term()}
 
   @doc """
   Wrapper for `:dbg.tracer/2` that starts a tracer for the given type and handler specification.
   """
-  @spec tracer(:process, handlerSpec) :: {:ok, pid()} | {:error, error :: term()}
-        when handlerSpec: {handlerFun, initialData :: term()},
-             handlerFun: (event :: term(), data :: term() -> newData :: term())
+  @spec tracer(:port, port_generator()) :: {:ok, pid()} | {:error, term()}
+  @spec tracer(:process, handler_spec()) :: {:ok, pid()} | {:error, term()}
+  @spec tracer(:module, module_spec()) :: {:ok, pid()} | {:error, term()}
+  @spec tracer(:file, filename :: :file.name_all()) :: {:ok, pid()} | {:error, term()}
   def tracer(type, handler_spec) do
     impl().tracer(type, handler_spec)
   end
@@ -28,10 +38,7 @@ defmodule LiveDebugger.Services.System.DbgService do
   Traces `Item` in accordance to the value specified by `Flags`.
   `p` stands for **p**rocess.
   """
-  @spec p(item :: term(), flags :: term()) :: {:ok, matchDesc} | {:error, term()}
-        when matchDesc: [matchNum],
-             matchNum: {:matched, node(), integer()} | {:matched, node(), 0, rPCError},
-             rPCError: term()
+  @spec p(item :: term(), flags :: term()) :: {:ok, match_desc()} | {:error, term()}
   def p(item, flags) do
     impl().p(item, flags)
   end
@@ -40,8 +47,7 @@ defmodule LiveDebugger.Services.System.DbgService do
   Wrapper for `:dbg.tp/2` that sets up a trace pattern.
   Enables call trace for one or more exported functions specified by `ModuleOrMFA`.
   """
-  @spec tp(module | {module, function, arity}, matchSpec :: term()) ::
-          {:ok, matchDesc :: term()} | {:error, term()}
+  @spec tp(module() | mfa(), match_spec :: term()) :: {:ok, match_desc()} | {:error, term()}
   def tp(module, match_spec) do
     impl().tp(module, match_spec)
   end
