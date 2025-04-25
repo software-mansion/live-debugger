@@ -1,0 +1,32 @@
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  publish:
+    name: Publish package to Hex.pm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+
+      - name: Publish to Hex.pm
+        uses: erlangpack/github-action@v3
+        env:
+          HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        if: github.ref_type == 'tag'
+        draft: true
+        prerelease: false
+        generate_release_notes: true
