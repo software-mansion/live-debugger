@@ -21,9 +21,9 @@ defmodule LiveDebugger.Services.ModuleDiscoveryService do
   Returns a list of loaded LiveView modules.
   """
 
-  @spec live_view_modules(loaded_modules :: [module()]) :: [module()]
-  def live_view_modules(loaded_modules) do
-    find_modules_by_behaviour(loaded_modules, @live_view_behaviour)
+  @spec live_view_modules(modules :: [module()]) :: [module()]
+  def live_view_modules(modules) do
+    find_modules_by_behaviour(modules, @live_view_behaviour)
   end
 
   @doc """
@@ -37,13 +37,13 @@ defmodule LiveDebugger.Services.ModuleDiscoveryService do
   iex> LiveDebugger.Services.ModuleDiscoveryService.live_view_modules(services)
   [MyAppWeb.LiveComponent, ...]
   """
-  @spec live_component_modules(loaded_modules :: [module()]) :: [module()]
-  def live_component_modules(loaded_modules) do
-    find_modules_by_behaviour(loaded_modules, @live_component_behaviour)
+  @spec live_component_modules(modules :: [module()]) :: [module()]
+  def live_component_modules(modules) do
+    find_modules_by_behaviour(modules, @live_component_behaviour)
   end
 
-  defp find_modules_by_behaviour(loaded_modules, behaviour) do
-    loaded_modules
+  defp find_modules_by_behaviour(modules, behaviour) do
+    modules
     |> Enum.filter(&ModuleService.loaded?/1)
     |> Enum.reject(&debugger?/1)
     |> Enum.filter(&behaviour?(&1, behaviour))
