@@ -103,7 +103,7 @@ defmodule LiveDebugger.Components do
   @doc """
   Collapsible element that can be toggled open and closed.
   It uses the `details` and `summary` HTML elements.
-  If you add `hide-on-open` class to element it will be hidden when collapsible is opened.
+  `hide-on-open` and `show-on-open` css classes are used to hide or show elements based on the open state of the collapsible.
 
   ## Examples
 
@@ -142,9 +142,8 @@ defmodule LiveDebugger.Components do
       {show_collapsible_assign(@open)}
     >
       <summary
-        class={[
-          "block flex items-center cursor-pointer" | List.wrap(@label_class)
-        ]}
+        id={@id <> "-summary"}
+        class={["flex items-center cursor-pointer" | List.wrap(@label_class)]}
         {@rest}
       >
         <.icon name={@icon} class={["rotate-icon shrink-0" | List.wrap(@chevron_class)]} />
@@ -246,7 +245,7 @@ defmodule LiveDebugger.Components do
   end
 
   @doc """
-  Used to add Hook to element based on condition.
+  Used to add CollapsibleOpen hook to element based on condition.
   """
   def show_collapsible_assign(true), do: %{:"phx-hook" => "CollapsibleOpen"}
   def show_collapsible_assign(_), do: %{}
@@ -489,7 +488,7 @@ defmodule LiveDebugger.Components do
     <svg
       {@rest}
       class={
-        ["animate-spin", @size_class, unless(@show, do: "hidden")] ++
+        ["animate-spin", @size_class, if(!@show, do: "hidden")] ++
           List.wrap(@class)
       }
       xmlns="http://www.w3.org/2000/svg"
@@ -521,7 +520,7 @@ defmodule LiveDebugger.Components do
   @doc """
   Renders a tooltip using Tooltip hook.
   """
-  attr(:id, :string, required: true)
+  attr(:id, :string, required: true, doc: "ID of the tooltip. Prefix is added automatically.")
   attr(:content, :string, default: nil)
   attr(:position, :string, default: "top", values: ["top", "bottom"])
   attr(:rest, :global)

@@ -31,23 +31,21 @@ defmodule LiveDebugger.Components.Tree do
 
   def tree(assigns) do
     ~H"""
-    <div class={["min-h-20 w-full overflow-y-auto flex flex-col", @class]}>
+    <div class={["min-h-20 px-1 overflow-y-auto overflow-x-hidden flex flex-col", @class]}>
       <div class="flex items-center justify-between">
         <div class="shrink-0 font-medium text-secondary-text px-6 py-3"><%= @title %></div>
         <%= if LiveDebugger.Feature.enabled?(:highlighting) do %>
           <.toggle_switch label="Highlight" checked={@highlight?} phx-click="toggle-highlight" />
         <% end %>
       </div>
-      <div class="w-full px-1 overflow-y-auto">
-        <.tree_node
-          tree_id={@id}
-          tree_node={@tree_node}
-          selected_node_id={@selected_node_id}
-          root?={true}
-          max_opened_node_level={@max_opened_node_level}
-          level={0}
-        />
-      </div>
+      <.tree_node
+        tree_id={@id}
+        tree_node={@tree_node}
+        selected_node_id={@selected_node_id}
+        root?={true}
+        max_opened_node_level={@max_opened_node_level}
+        level={0}
+      />
     </div>
     """
   end
@@ -90,50 +88,46 @@ defmodule LiveDebugger.Components.Tree do
       |> assign(:open, assigns.level < assigns.max_opened_node_level)
 
     ~H"""
-    <div class="relative flex max-w-full">
-      <div class="w-full">
-        <.collapsible
-          :if={@collapsible?}
-          id={"collapsible-#{@tree_node.parsed_id}-#{@tree_id}"}
-          chevron_class="text-accent-icon h-5 w-5"
-          open={@open}
-          label_class="w-full rounded-md py-1 hover:bg-surface-1-bg-hover"
-          style={style_for_padding(@level, @collapsible?)}
-        >
-          <:label>
-            <.label
-              tree_id={@tree_id}
-              selected?={@selected?}
-              parent_dom_id={@parent_dom_id}
-              node={@tree_node}
-              level={@level}
-              collapsible?={true}
-            />
-          </:label>
-          <div class="flex flex-col">
-            <.tree_node
-              :for={child <- @tree_node.children}
-              tree_id={@tree_id}
-              parent_dom_id={if @tree_node[:dom_id], do: @tree_node.dom_id, else: @parent_dom_id}
-              tree_node={child}
-              selected_node_id={@selected_node_id}
-              root?={false}
-              max_opened_node_level={@max_opened_node_level}
-              level={@level + 1}
-            />
-          </div>
-        </.collapsible>
+    <.collapsible
+      :if={@collapsible?}
+      id={"collapsible-#{@tree_node.parsed_id}-#{@tree_id}"}
+      chevron_class="text-accent-icon h-5 w-5"
+      open={@open}
+      label_class="rounded-md py-1 hover:bg-surface-1-bg-hover"
+      style={style_for_padding(@level, @collapsible?)}
+    >
+      <:label>
         <.label
-          :if={not @collapsible?}
           tree_id={@tree_id}
           selected?={@selected?}
           parent_dom_id={@parent_dom_id}
           node={@tree_node}
           level={@level}
-          collapsible?={false}
+          collapsible?={true}
+        />
+      </:label>
+      <div class="flex flex-col">
+        <.tree_node
+          :for={child <- @tree_node.children}
+          tree_id={@tree_id}
+          parent_dom_id={if @tree_node[:dom_id], do: @tree_node.dom_id, else: @parent_dom_id}
+          tree_node={child}
+          selected_node_id={@selected_node_id}
+          root?={false}
+          max_opened_node_level={@max_opened_node_level}
+          level={@level + 1}
         />
       </div>
-    </div>
+    </.collapsible>
+    <.label
+      :if={not @collapsible?}
+      tree_id={@tree_id}
+      selected?={@selected?}
+      parent_dom_id={@parent_dom_id}
+      node={@tree_node}
+      level={@level}
+      collapsible?={false}
+    />
     """
   end
 
@@ -143,43 +137,42 @@ defmodule LiveDebugger.Components.Tree do
   attr(:level, :integer, required: true)
   attr(:collapsible?, :boolean, required: true)
   attr(:selected?, :boolean, required: true)
-  attr(:class, :string, default: nil)
 
   defp label(assigns) do
     assigns =
-      assign(assigns, :padding_style, style_for_padding(assigns.level, assigns.collapsible?))
+      assigns
+      |> assign(:padding_style, style_for_padding(assigns.level, assigns.collapsible?))
+      |> assign(:button_id, "tree-node-button-#{assigns.node.parsed_id}-#{assigns.tree_id}")
 
     ~H"""
-    <button
-      id={"tree-node-button-#{@node.parsed_id}-#{@tree_id}"}
-      phx-click="select_node"
-      phx-value-node_id={@node.parsed_id}
-      phx-value-search-attribute={get_search_attribute(@node)}
-      phx-value-search-value={get_search_value(@node, @parent_dom_id)}
-      phx-hook="Highlight"
+    <span
       class={[
-        "flex w-full rounded-md hover:bg-surface-1-bg-hover",
-        unless(@collapsible?, do: "p-1"),
-        @class
+        "flex shrink grow items-center rounded-md hover:bg-surface-1-bg-hover",
+        if(!@collapsible?, do: "p-1")
       ]}
-      style={unless(@collapsible?, do: @padding_style)}
+      style={if(!@collapsible?, do: @padding_style)}
     >
-      <div class="flex w-full gap-0.5 items-center">
+      <button
+        id={@button_id}
+        phx-hook="Highlight"
+        phx-click="select_node"
+        phx-value-node_id={@node.parsed_id}
+        phx-value-search-attribute={get_search_attribute(@node)}
+        phx-value-search-value={get_search_value(@node, @parent_dom_id)}
+        class="flex min-w-0 gap-0.5 items-center"
+      >
         <.icon name={@node.icon} class="text-accent-icon w-5 h-5 shrink-0" />
         <.tooltip
           id={"tree-node-#{@node.parsed_id}-#{@tree_id}"}
           content={@node.tooltip}
-          class="w-full flex overflow-x-hidden"
+          class="truncate"
         >
-          <div class={[
-            "truncate",
-            if(@selected?, do: "font-semibold")
-          ]}>
+          <span class={["hover:underline", if(@selected?, do: "font-semibold")]}>
             <%= @node.label %>
-          </div>
+          </span>
         </.tooltip>
-      </div>
-    </button>
+      </button>
+    </span>
     """
   end
 

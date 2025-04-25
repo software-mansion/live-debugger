@@ -62,7 +62,7 @@ defmodule LiveDebugger.LiveComponents.LiveDropdown do
         variant={Map.get(button_slot, :variant, "secondary")}
         size={Map.get(button_slot, :size, "sm")}
         id={@id <> "-button"}
-        phx-click={unless @open, do: "open"}
+        phx-click={if !@open, do: "open"}
         phx-target={@myself}
       >
         <%= render_slot(button_slot) %>
