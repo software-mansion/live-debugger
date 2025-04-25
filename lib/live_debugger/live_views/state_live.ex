@@ -44,22 +44,6 @@ defmodule LiveDebugger.LiveViews.StateLive do
     parent_socket_id = session["parent_socket_id"]
     node_id = session["node_id"]
 
-    %{socket: debugged_socket} = :sys.get_state(lv_process.pid)
-
-    debugged_socket =
-      attach_hook(debugged_socket, :live_debugger_hook, :handle_info, fn
-        {:live_debugger_event, update_function}, socket ->
-          socket = update_function.(socket)
-          {:halt, socket}
-
-        _, socket ->
-          {:cont, socket}
-      end)
-
-    :sys.replace_state(lv_process.pid, fn state ->
-      %{state | socket: debugged_socket}
-    end)
-
     if connected?(socket) do
       parent_socket_id
       |> PubSubUtils.node_changed_topic()
@@ -93,7 +77,6 @@ defmodule LiveDebugger.LiveViews.StateLive do
           </.alert>
         </:failed>
 
-        <button phx-click="increment">Increment</button>
         <.info_section node={node} node_type={@node_type.result} nested?={@lv_process.nested?} />
         <.assigns_section assigns={node.assigns} />
         <.fullscreen id="assigns-display-fullscreen" title="Assigns">
@@ -106,24 +89,6 @@ defmodule LiveDebugger.LiveViews.StateLive do
       </.async_result>
     </div>
     """
-  end
-
-  @impl true
-  def handle_event("increment", _unsigned_params, socket) do
-    # This will come from params - client is choosing which handler wants to be called
-    module = socket.assigns.lv_process.module
-    function = :handle_event
-
-    send(
-      socket.assigns.lv_process.pid,
-      {:live_debugger_event,
-       fn socket ->
-         {_, socket} = apply(module, function, ["increment", %{}, socket])
-         socket
-       end}
-    )
-
-    {:noreply, socket}
   end
 
   @impl true
