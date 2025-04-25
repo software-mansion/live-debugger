@@ -7,6 +7,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   require Logger
 
+  alias LiveDebugger.Services.System.DbgService, as: Dbg
   alias LiveDebugger.Services.ModuleDiscoveryService
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Services.TraceService
@@ -63,8 +64,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   @impl true
   def handle_info(:setup_tracing, table_refs) do
-    :dbg.tracer(:process, {&handle_trace/2, 0})
-    :dbg.p(:all, :c)
+    Dbg.tracer(:process, {&handle_trace/2, 0})
+    Dbg.p(:all, :c)
 
     all_modules = ModuleDiscoveryService.all_modules()
 
@@ -77,11 +78,11 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     |> ModuleDiscoveryService.live_component_modules()
     |> CallbackUtils.live_component_callbacks()
     |> Enum.concat(callbacks)
-    |> Enum.each(fn mfa -> :dbg.tp(mfa, []) end)
+    |> Enum.each(fn mfa -> Dbg.tp(mfa, []) end)
 
     # This is not a callback created by user
     # We trace it to refresh the components tree
-    :dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
+    Dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
 
     {:noreply, table_refs}
   end
