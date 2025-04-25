@@ -1,12 +1,12 @@
 defmodule LiveDebugger.Services.TraceService do
   @moduledoc """
   This module is responsible for accessing traces from ETS.
-  It uses calls to `CallbackTracingServer` to get proper table reference.
+  It uses calls to `EtsTableServer` to get proper table reference.
   """
 
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.CommonTypes
-  alias LiveDebugger.GenServers.CallbackTracingServer
+  alias LiveDebugger.GenServers.EtsTableServer
   alias Phoenix.LiveComponent.CID
 
   @default_limit 100
@@ -15,7 +15,7 @@ defmodule LiveDebugger.Services.TraceService do
   @type ets_continuation :: term()
   @typedoc """
   Pid is used to store mapping to table references.
-  It identifies ETS tables managed by CallbackTracingServer
+  It identifies ETS tables managed by EtsTableServer.
   """
   @type ets_table_id() :: pid()
 
@@ -149,6 +149,6 @@ defmodule LiveDebugger.Services.TraceService do
 
   @spec ets_table!(pid :: ets_table_id()) :: :ets.table()
   defp ets_table!(pid) when is_pid(pid) do
-    CallbackTracingServer.table!(pid)
+    EtsTableServer.table!(pid)
   end
 end
