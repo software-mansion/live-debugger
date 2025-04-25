@@ -73,6 +73,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     |> assign_async_tree()
     |> assign_async_parent_lv_process()
     |> assign_async_existing_node_ids()
+    |> assign_memory_usuage(self())
     |> ok()
   end
 
@@ -93,6 +94,9 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
           node_id={@node_id}
           highlight?={@highlight?}
           parent_lv_process={@parent_lv_process}
+          memory_raw_kb={@memory_raw_kb}
+          memory_gc_kb={@memory_gc_kb}
+          assigns_memory_kb={@assigns_memory_kb}
         />
       </div>
       <.sidebar_slide_over :if={not @hidden?}>
@@ -104,6 +108,9 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
           node_id={@node_id}
           highlight?={@highlight?}
           parent_lv_process={@parent_lv_process}
+          memory_raw_kb={@memory_raw_kb}
+          memory_gc_kb={@memory_gc_kb}
+          assigns_memory_kb={@assigns_memory_kb}
         />
       </.sidebar_slide_over>
     </div>
@@ -135,6 +142,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
       true ->
         socket
     end
+    |> assign_memory_usuage(self())
     |> noreply()
   end
 
@@ -142,6 +150,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   def handle_info({:node_changed, node_id}, socket) do
     socket
     |> assign(:node_id, node_id)
+    |> assign_memory_usuage(self())
     |> noreply()
   end
 
@@ -206,6 +215,9 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   attr(:max_opened_node_level, :any, required: true)
   attr(:highlight?, :boolean, required: true)
   attr(:parent_lv_process, :any, required: true)
+  attr(:memory_raw_kb, :string, required: true)
+  attr(:memory_gc_kb, :string, required: true)
+  attr(:assigns_memory_kb, :string, required: true)
 
   defp sidebar_content(assigns) do
     ~H"""
@@ -214,6 +226,9 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
         pid={@lv_process.pid}
         socket_id={@lv_process.socket_id}
         parent_lv_process={@parent_lv_process}
+        memory_raw_kb={@memory_raw_kb}
+        memory_gc_kb={@memory_gc_kb}
+        assigns_memory_kb={@assigns_memory_kb}
       />
       <.live_component
         id={@id <> "-nested-live-views"}
@@ -257,6 +272,9 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   attr(:pid, :any, required: true)
   attr(:socket_id, :string, required: true)
   attr(:parent_lv_process, :any, required: true)
+  attr(:memory_raw_kb, :string, required: true)
+  attr(:memory_gc_kb, :string, required: true)
+  attr(:assigns_memory_kb, :string, required: true)
 
   defp basic_info(assigns) do
     ~H"""
@@ -269,7 +287,10 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
           :for={
             {text, value} <- [
               {"Monitored socket:", @socket_id},
-              {"Debugged PID:", Parsers.pid_to_string(@pid)}
+              {"Debugged PID:", Parsers.pid_to_string(@pid)},
+              {"Memory (KB before GC):", @memory_raw_kb},
+              {"Memory (KB after GC):", @memory_gc_kb},
+              {"Assigns (KB, heap only):", @assigns_memory_kb}
             ]
           }
           class="w-full flex flex-col"
@@ -388,5 +409,36 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     }
 
     send(state.socket.transport_pid, state.serializer.encode!(message))
+  end
+
+  defp assign_memory_usuage(socket, pid) do
+    raw =
+      case :erlang.process_info(pid, :memory) do
+        {:memory, bytes} -> bytes
+        _ -> 0
+      end
+
+    :erlang.garbage_collect(pid)
+
+    post_gc =
+      case :erlang.process_info(pid, :memory) do
+        {:memory, bytes} -> bytes
+        _ -> 0
+      end
+
+    # Estimate size of assigns in bytes (words * 8)
+    assigns_size =
+      try do
+        words = :erts_debug.size(socket.assigns)
+        words * :erlang.system_info(:wordsize)
+      rescue
+        _ -> 0
+      end
+
+    assign(socket,
+      memory_raw_kb: Float.round(raw / 1024, 1),
+      memory_gc_kb: Float.round(post_gc / 1024, 1),
+      assigns_memory_kb: Float.round(assigns_size / 1024, 1)
+    )
   end
 end
