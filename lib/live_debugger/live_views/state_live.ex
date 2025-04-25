@@ -77,6 +77,11 @@ defmodule LiveDebugger.LiveViews.StateLive do
           </.alert>
         </:failed>
 
+        <.live_component
+          id="send-event-form"
+          module={LiveDebugger.LiveComponents.SendEventForm}
+          lv_process={@lv_process}
+        />
         <.info_section node={node} node_type={@node_type.result} nested?={@lv_process.nested?} />
         <.assigns_section assigns={node.assigns} />
         <.fullscreen id="assigns-display-fullscreen" title="Assigns">

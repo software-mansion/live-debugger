@@ -8,7 +8,9 @@ defmodule LiveDebugger.LiveComponents.SendEventForm do
     %{socket: debugged_socket} = :sys.get_state(lv_process.pid)
 
     debugged_socket =
-      attach_hook(debugged_socket, :live_debugger_hook, :handle_info, fn
+      debugged_socket
+      |> detach_hook(:live_debugger_hook, :handle_info)
+      |> attach_hook(:live_debugger_hook, :handle_info, fn
         {:live_debugger_event, update_function}, socket ->
           socket = update_function.(socket)
           {:halt, socket}
@@ -21,14 +23,16 @@ defmodule LiveDebugger.LiveComponents.SendEventForm do
       %{state | socket: debugged_socket}
     end)
 
-    {:ok, socket}
+    socket
+    |> assign(lv_process: lv_process)
+    |> ok()
   end
 
   @impl true
   def render(assigns) do
     ~H"""
     <div>
-      <button phx-click="increment">Increment</button>
+      <button phx-click="increment" phx-target={@myself}>Increment</button>
     </div>
     """
   end
