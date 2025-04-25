@@ -143,7 +143,7 @@ defmodule LiveDebugger.Components do
     >
       <summary
         id={@id <> "-summary"}
-        class={["block flex items-center cursor-pointer" | List.wrap(@label_class)]}
+        class={["flex items-center cursor-pointer" | List.wrap(@label_class)]}
         {@rest}
       >
         <.icon name={@icon} class={["rotate-icon shrink-0" | List.wrap(@chevron_class)]} />
