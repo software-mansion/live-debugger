@@ -19,6 +19,8 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   alias LiveDebugger.LiveComponents.NestedLiveViewsLinks
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
+  @memory_poll_interval_ms 2_000
+
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
   attr(:lv_process, :map, required: true)
@@ -64,7 +66,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
       |> PubSubUtils.subscribe!()
     end
 
-    send(self(), :assign_memory_usage)
+    send(self(), {:assign_memory_usage, lv_process.root_pid, session["node_id"]})
 
     socket
     |> assign(:lv_process, lv_process)
@@ -122,28 +124,31 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   end
 
   @impl true
-  def handle_info(:assign_memory_usage, socket) do
-    Process.send_after(self(), :assign_memory_usage, 2000)
+  def handle_info({:assign_memory_usage, pid, node_id}, socket)
+      when not is_nil(pid) and not is_nil(node_id) do
+    Process.send_after(self(), {:assign_memory_usage, pid, node_id}, @memory_poll_interval_ms)
 
     raw =
-      case :erlang.process_info(self(), :memory) do
+      case :erlang.process_info(pid, :memory) do
         {:memory, bytes} -> bytes
         _ -> 0
       end
 
-    :erlang.garbage_collect(self())
+    :erlang.garbage_collect(pid)
 
     post_gc =
-      case :erlang.process_info(self(), :memory) do
+      case :erlang.process_info(pid, :memory) do
         {:memory, bytes} -> bytes
         _ -> 0
       end
 
     assigns_size =
-      try do
-        words = :erts_debug.size(socket.assigns)
+      with {:ok, channel_state} <- ChannelService.state(pid),
+           {:ok, node} <- ChannelService.get_node(channel_state, node_id),
+           assigns when not is_nil(node.assigns) <- node.assigns do
+        words = :erts_debug.size(assigns)
         words * :erlang.system_info(:wordsize)
-      rescue
+      else
         _ -> 0
       end
 
@@ -154,6 +159,9 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
        assigns_memory_kb: Float.round(assigns_size / 1024, 1)
      )}
   end
+
+  @impl true
+  def handle_info({:assign_memory_usage, _pid, _node_id}, socket), do: {:noreply, socket}
 
   @impl true
   def handle_info({:new_trace, trace}, socket) do
