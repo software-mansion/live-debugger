@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveViews.TracesLive do
+defmodule LiveDebuggerWeb.TracesLive do
   @moduledoc """
   This nested live view displays the traces of a LiveView.
   """
@@ -14,7 +14,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode
-  alias LiveDebugger.Components.Traces
+  alias LiveDebuggerWeb.Components.Traces
 
   @live_stream_limit 128
   @page_size 25

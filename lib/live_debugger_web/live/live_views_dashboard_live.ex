@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
+defmodule LiveDebuggerWeb.LiveViewsDashboardLive do
   @moduledoc """
   It displays all active LiveView sessions in the debugged application.
   """
@@ -8,7 +8,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.LiveHelpers.Routes
+  alias LiveDebuggerWeb.Helpers.RoutesHelper
 
   @impl true
   def handle_params(_unsigned_params, _uri, socket) do
@@ -121,7 +121,7 @@ defmodule LiveDebugger.LiveViews.LiveViewsDashboardLive do
   defp list_element(assigns) do
     ~H"""
     <.link
-      navigate={Routes.channel_dashboard(@lv_process.socket_id, @lv_process.transport_pid)}
+      navigate={RoutesHelper.channel_dashboard(@lv_process.socket_id, @lv_process.transport_pid)}
       class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm"
     >
       <div class="flex flex-col gap-1">

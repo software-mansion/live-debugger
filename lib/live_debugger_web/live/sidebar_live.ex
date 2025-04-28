@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveViews.SidebarLive do
+defmodule LiveDebuggerWeb.SidebarLive do
   @moduledoc """
   This live view is responsible for displaying the sidebar of the LiveDebugger.
   It receives events from the `ChannelDashboardLive` live to open the mobile sidebar.
@@ -11,12 +11,12 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.Components.Tree
-  alias LiveDebugger.Components.Links
+  alias LiveDebuggerWeb.Components.Tree
+  alias LiveDebuggerWeb.Components.Links
   alias LiveDebugger.Services.ChannelService
   alias Phoenix.Socket.Message
   alias LiveDebugger.Utils.URL
-  alias LiveDebugger.LiveComponents.NestedLiveViewsLinks
+  alias LiveDebuggerWeb.LiveComponents.NestedLiveViewsLinks
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   attr(:socket, :map, required: true)

@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Flash do
+defmodule LiveDebuggerWeb.Hooks.Flash do
   @moduledoc """
   Functionalities to make flash messages work inside LiveComponents
   See: https://sevenseacat.net/posts/2023/flash-messages-in-phoenix-liveview-components/

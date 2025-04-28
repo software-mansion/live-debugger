@@ -8,7 +8,7 @@ defmodule LiveDebugger.Fakes do
     root_pid = Keyword.get(opts, :root_pid, :c.pid(0, 0, 0))
     parent_pid = Keyword.get(opts, :parent_pid, nil)
     transport_pid = Keyword.get(opts, :transport_pid, :c.pid(0, 7, 0))
-    module = Keyword.get(opts, :module, LiveDebugger.LiveViews.Main)
+    module = Keyword.get(opts, :module, LiveDebuggerWeb.Main)
 
     %{
       socket: %Phoenix.LiveView.Socket{

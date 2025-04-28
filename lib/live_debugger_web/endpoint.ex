@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Endpoint do
+defmodule LiveDebuggerWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :live_debugger
 
   @session_options [
@@ -39,5 +39,5 @@ defmodule LiveDebugger.Endpoint do
   plug(Plug.Session, @session_options)
 
   plug(Plug.RequestId)
-  plug(LiveDebugger.Router)
+  plug(LiveDebuggerWeb.Router)
 end
