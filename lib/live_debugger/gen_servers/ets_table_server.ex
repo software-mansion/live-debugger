@@ -13,13 +13,16 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
   ## API
 
+  @callback table!(pid :: pid()) :: :ets.table()
+  @callback delete_table!(pid :: pid()) :: :ok
+
   @doc """
   Returns ETS table reference.
   It creates table if none is associated with given pid
   """
   @spec table!(pid :: pid()) :: :ets.table()
   def table!(pid) when is_pid(pid) do
-    GenServer.call(__MODULE__, {:get_or_create_table, pid}, 1000)
+    impl().table!(pid)
   end
 
   @doc """
@@ -27,7 +30,27 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   """
   @spec delete_table!(pid :: pid()) :: :ok
   def delete_table!(pid) when is_pid(pid) do
-    GenServer.call(__MODULE__, {:delete_table, pid}, 1000)
+    impl().delete_table!(pid)
+  end
+
+  def impl() do
+    Application.get_env(:live_debugger, :ets_table_server, __MODULE__.Impl)
+  end
+
+  defmodule Impl do
+    @moduledoc false
+    @behaviour LiveDebugger.GenServers.EtsTableServer
+    @server_module LiveDebugger.GenServers.EtsTableServer
+
+    @impl true
+    def table!(pid) do
+      GenServer.call(@server_module, {:get_or_create_table, pid}, 1000)
+    end
+
+    @impl true
+    def delete_table!(pid) do
+      GenServer.call(@server_module, {:delete_table, pid}, 1000)
+    end
   end
 
   ## GenServer
