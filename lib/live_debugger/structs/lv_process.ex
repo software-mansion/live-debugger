@@ -37,7 +37,7 @@ defmodule LiveDebugger.Structs.LvProcess do
     debugger? =
       socket.view
       |> Atom.to_string()
-      |> String.starts_with?("Elixir.LiveDebugger.")
+      |> String.starts_with?(["Elixir.LiveDebugger.", "Elixir.LiveDebuggerWeb."])
 
     embedded? = socket.host_uri == :not_mounted_at_router
 
