@@ -11,6 +11,9 @@ else
 
   Mox.defmock(LiveDebugger.MockProcessService, for: LiveDebugger.Services.System.ProcessService)
   Application.put_env(:live_debugger, :process_service, LiveDebugger.MockProcessService)
+
+  Mox.defmock(LiveDebugger.MockPubSubUtils, for: LiveDebugger.Utils.PubSub)
+  Application.put_env(:live_debugger, :pubsub_utils, LiveDebugger.MockPubSubUtils)
 end
 
 ExUnit.start()
