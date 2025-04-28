@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveComponents.FiltersForm do
+defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   @moduledoc """
   Form for filtering traces by callback.
   It sends `{:filters_updated, filters}` to the parent LiveView.

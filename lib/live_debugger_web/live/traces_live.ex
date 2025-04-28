@@ -94,7 +94,7 @@ defmodule LiveDebuggerWeb.TracesLive do
                 not @tracing_helper.tracing_started? &&
                   LiveDebugger.Feature.enabled?(:callback_filters)
               }
-              module={LiveDebugger.LiveComponents.LiveDropdown}
+              module={LiveDebuggerWeb.LiveComponents.LiveDropdown}
               id="filters-dropdown"
             >
               <:button class="flex gap-2">
@@ -102,7 +102,7 @@ defmodule LiveDebuggerWeb.TracesLive do
                 <div class="hidden @[29rem]/traces:block">Filters</div>
               </:button>
               <.live_component
-                module={LiveDebugger.LiveComponents.FiltersForm}
+                module={LiveDebuggerWeb.LiveComponents.FiltersForm}
                 id="filters-form"
                 node_id={@node_id}
                 filters={@current_filters}
@@ -259,7 +259,7 @@ defmodule LiveDebuggerWeb.TracesLive do
 
   @impl true
   def handle_info({:filters_updated, filters}, socket) do
-    LiveDebugger.LiveComponents.LiveDropdown.close("filters-dropdown")
+    LiveDebuggerWeb.LiveComponents.LiveDropdown.close("filters-dropdown")
 
     socket
     |> assign(:current_filters, filters)
