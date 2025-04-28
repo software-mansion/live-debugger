@@ -1,5 +1,14 @@
 ![LiveDebugger_Chrome_WebStore](https://github.com/user-attachments/assets/cf9aee3b-58ab-4c45-8a43-d73182cb3e02)
 
+<div align="center">
+
+![Version Badge](https://img.shields.io/badge/version-v0.1.6-%235bb9e0?link=https%3A%2F%2Fhexdocs.pm%2Flive_debugger)
+![Hex.pm Downloads](https://img.shields.io/hexpm/dw/live_debugger?style=flat&label=downloads&color=%235bb9e0&link=https%3A%2F%2Fhex.pm%2Fpackages%2Flive_debugger)
+![GitHub License](https://img.shields.io/github/license/software-mansion/live-debugger?color=%235bb9e0)
+
+</div>
+
+
 LiveDebugger is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
 
 Designed to enhance your development experience LiveDebugger gives you:
