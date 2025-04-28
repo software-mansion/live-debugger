@@ -34,6 +34,6 @@ config :live_debugger,
   port: 4007, # Port on which LiveDebugger will be hosted
   secret_key_base: "YOUR_SECRET_KEY_BASE", # Secret key used for LiveDebugger.Endpoint
   signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
-  adapter: Bandit.PhoenixAdapter # Adapter used in LiveDebugger.Endpoint
+  adapter: Bandit.PhoenixAdapter, # Adapter used in LiveDebugger.Endpoint
   tracing_setup_delay: 0 # Time in ms after tracing will be initialized. Useful in case multi-nodes envs
 ```
