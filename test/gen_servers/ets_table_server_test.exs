@@ -14,6 +14,26 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
     assert {:ok, %{}} = EtsTableServer.init([])
   end
 
+  describe "gen server api" do
+    test "table!/1" do
+      pid = :c.pid(0, 0, 1)
+
+      LiveDebugger.MockEtsTableServer
+      |> Mox.expect(:table!, fn ^pid -> :some_ref end)
+
+      assert :some_ref = EtsTableServer.table!(pid)
+    end
+
+    test "delete_table!/1" do
+      pid = :c.pid(0, 0, 1)
+
+      LiveDebugger.MockEtsTableServer
+      |> Mox.expect(:delete_table!, fn ^pid -> :ok end)
+
+      assert :ok = EtsTableServer.delete_table!(pid)
+    end
+  end
+
   describe "handle_info/2" do
     test "deletes table ref after process down" do
       pid = :c.pid(0, 0, 1)
@@ -58,6 +78,23 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
 
       assert [{:id, ^other_ref} | _] = :ets.info(other_ref)
       assert other_ref == Map.get(new_table_refs, other_pid)
+    end
+
+    test "ignores delete table on event {:delete_table, pid} when table does not exist" do
+      pid = :c.pid(0, 0, 1)
+      ref = :ets.new(:test_table, [])
+
+      other_pid = :c.pid(0, 0, 2)
+
+      table_refs = %{pid => ref}
+
+      assert {:reply, :ok, new_table_refs} =
+               EtsTableServer.handle_call({:delete_table, other_pid}, self(), table_refs)
+
+      assert [{:id, ^ref} | _] = :ets.info(ref)
+      assert ref == Map.get(new_table_refs, pid)
+
+      assert nil == Map.get(new_table_refs, other_pid)
     end
 
     test "creates table on event {:get_or_create_table, pid}" do
