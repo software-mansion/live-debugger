@@ -57,7 +57,11 @@ defmodule LiveDebugger.Services.ModuleDiscoveryService do
   defp debugger?(module) do
     stringified_module = Atom.to_string(module)
 
-    String.starts_with?(stringified_module, "LiveDebugger.") or
-      String.starts_with?(stringified_module, "Elixir.LiveDebugger.")
+    String.starts_with?(stringified_module, [
+      "Elixir.LiveDebugger.",
+      "Elixir.LiveDebuggerWeb.",
+      "LiveDebugger.",
+      "LiveDebuggerWeb."
+    ])
   end
 end
