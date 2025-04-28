@@ -1,5 +1,13 @@
 ![LiveDebugger_Chrome_WebStore](https://github.com/user-attachments/assets/cf9aee3b-58ab-4c45-8a43-d73182cb3e02)
 
+<div align="center">
+
+[![Version Badge](https://img.shields.io/badge/version-v0.1.6-%23b5e1f1)](https://hexdocs.pm/live_debugger)
+[![Hex.pm Downloads](https://img.shields.io/hexpm/dw/live_debugger?style=flat&label=downloads&color=%23b5e1f1)](https://hex.pm/packages/live_debugger)
+[![GitHub License](https://img.shields.io/github/license/software-mansion/live-debugger?color=%23b5e1f1)](https://github.com/software-mansion/live-debugger/blob/main/LICENSE)
+
+</div>
+
 
 LiveDebugger is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
 
@@ -12,11 +20,12 @@ Designed to enhance your development experience LiveDebugger gives you:
 https://github.com/user-attachments/assets/a09d440c-4217-4597-b30e-f8b911a9094a
 
 ## Getting started
+
 > [!IMPORTANT]  
 > LiveDebugger should not be used on production - make sure that the dependency you've added is `:dev` only
 
-
 ### Mix installation
+
 Add `live_debugger` to your list of dependencies in `mix.exs`:
 
 ```elixir
@@ -47,9 +56,10 @@ LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an 
 mix igniter.install live_debugger
 ```
 
-
 ## Optional configuration
+
 ### Browser features
+
 Some features require injecting JS into the debugged application. They are enabled by default, but you can disable them in your config.
 
 ```elixir
