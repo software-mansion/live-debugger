@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Layout do
+defmodule LiveDebuggerWeb.Layout do
   @moduledoc """
   Inspiration was taken from Phoenix LiveDashboard
   https://github.com/phoenixframework/phoenix_live_dashboard/blob/main/lib/phoenix/live_dashboard/layout_view.ex
@@ -7,7 +7,7 @@ defmodule LiveDebugger.Layout do
 
   use Phoenix.Component
 
-  import LiveDebugger.Components
+  import LiveDebuggerWeb.Components
 
   @doc false
   def render(template, assigns)

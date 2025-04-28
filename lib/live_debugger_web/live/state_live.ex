@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveViews.StateLive do
+defmodule LiveDebuggerWeb.StateLive do
   @moduledoc """
   This nested live view displays the state of a LiveView.
   """
@@ -7,7 +7,7 @@ defmodule LiveDebugger.LiveViews.StateLive do
 
   alias Phoenix.LiveView.AsyncResult
 
-  alias LiveDebugger.Components.ElixirDisplay
+  alias LiveDebuggerWeb.Components.ElixirDisplay
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Services.ChannelService

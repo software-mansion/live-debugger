@@ -36,7 +36,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       debugger_pid = :c.pid(0, 0, 2)
 
       module = :"Elixir.SomeLiveView"
-      live_debugger_module = :"Elixir.LiveDebugger.Debugger"
+      live_debugger_module = :"Elixir.LiveDebuggerWeb.Debugger"
 
       MockProcessService
       |> expect(:list, fn -> [live_view_pid, debugger_pid] end)
@@ -59,7 +59,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
     live_debugger_pid = :c.pid(0, 0, 2)
     live_view_pid = :c.pid(0, 0, 1)
 
-    live_debugger_module = :"Elixir.LiveDebugger.SomLiveView"
+    live_debugger_module = :"Elixir.LiveDebuggerWeb.SomLiveView"
     live_view_module = :"Elixir.SomeLiveView"
 
     MockProcessService

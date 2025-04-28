@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Components.ElixirDisplay do
+defmodule LiveDebuggerWeb.Components.ElixirDisplay do
   @moduledoc """
   This module provides a component to display a tree of terms.
   Check LiveDebugger.Utils.TermParser.

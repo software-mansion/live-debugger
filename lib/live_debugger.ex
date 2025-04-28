@@ -21,7 +21,7 @@ defmodule LiveDebugger do
 
     children = [
       {Phoenix.PubSub, name: LiveDebugger.PubSub},
-      {LiveDebugger.Endpoint,
+      {LiveDebuggerWeb.Endpoint,
        [
          check_origin: false,
          pubsub_server: LiveDebugger.PubSub
@@ -61,7 +61,7 @@ defmodule LiveDebugger do
         live_reload: Keyword.get(config, :live_reload, [])
       ]
 
-    Application.put_env(@app_name, LiveDebugger.Endpoint, endpoint_config)
+    Application.put_env(@app_name, LiveDebuggerWeb.Endpoint, endpoint_config)
   end
 
   defp put_live_debugger_tags(config) do
@@ -83,7 +83,7 @@ defmodule LiveDebugger do
       highlighting?: highlighting?
     }
 
-    tags = LiveDebugger.Components.Config.live_debugger_tags(assigns)
+    tags = LiveDebuggerWeb.Components.Config.live_debugger_tags(assigns)
     Application.put_env(@app_name, :live_debugger_tags, tags)
   end
 end

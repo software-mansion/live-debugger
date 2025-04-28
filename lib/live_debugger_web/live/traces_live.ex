@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveViews.TracesLive do
+defmodule LiveDebuggerWeb.TracesLive do
   @moduledoc """
   This nested live view displays the traces of a LiveView.
   """
@@ -14,7 +14,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode
-  alias LiveDebugger.Components.Traces
+  alias LiveDebuggerWeb.Components.Traces
 
   @live_stream_limit 128
   @page_size 25
@@ -94,7 +94,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
                 not @tracing_helper.tracing_started? &&
                   LiveDebugger.Feature.enabled?(:callback_filters)
               }
-              module={LiveDebugger.LiveComponents.LiveDropdown}
+              module={LiveDebuggerWeb.LiveComponents.LiveDropdown}
               id="filters-dropdown"
             >
               <:button class="flex gap-2">
@@ -102,7 +102,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
                 <div class="hidden @[29rem]/traces:block">Filters</div>
               </:button>
               <.live_component
-                module={LiveDebugger.LiveComponents.FiltersForm}
+                module={LiveDebuggerWeb.LiveComponents.FiltersForm}
                 id="filters-form"
                 node_id={@node_id}
                 filters={@current_filters}
@@ -259,7 +259,7 @@ defmodule LiveDebugger.LiveViews.TracesLive do
 
   @impl true
   def handle_info({:filters_updated, filters}, socket) do
-    LiveDebugger.LiveComponents.LiveDropdown.close("filters-dropdown")
+    LiveDebuggerWeb.LiveComponents.LiveDropdown.close("filters-dropdown")
 
     socket
     |> assign(:current_filters, filters)

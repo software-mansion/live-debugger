@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
+defmodule LiveDebuggerWeb.ChannelDashboardLive do
   @moduledoc false
 
   use LiveDebuggerWeb, :live_view
@@ -10,15 +10,15 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   alias LiveDebugger.Utils.URL
   alias Phoenix.LiveView.AsyncResult
 
-  alias LiveDebugger.Components.Error
+  alias LiveDebuggerWeb.Components.Error
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.LiveHelpers.Routes
+  alias LiveDebuggerWeb.Helpers.RoutesHelper
 
-  alias LiveDebugger.LiveViews.StateLive
-  alias LiveDebugger.LiveViews.TracesLive
-  alias LiveDebugger.LiveViews.SidebarLive
+  alias LiveDebuggerWeb.StateLive
+  alias LiveDebuggerWeb.TracesLive
+  alias LiveDebuggerWeb.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   @impl true
@@ -102,7 +102,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
          %LvProcess{socket_id: socket_id, transport_pid: transport_pid} <-
            LiveViewDiscoveryService.successor_lv_process(module) do
       socket
-      |> push_navigate(to: Routes.channel_dashboard(socket_id, transport_pid))
+      |> push_navigate(to: RoutesHelper.channel_dashboard(socket_id, transport_pid))
       |> noreply()
     else
       _ ->
@@ -210,7 +210,7 @@ defmodule LiveDebugger.LiveViews.ChannelDashboardLive do
   end
 
   defp patch_transport_pid(socket, lv_process) do
-    path = Routes.channel_dashboard(lv_process.socket_id, lv_process.transport_pid)
+    path = RoutesHelper.channel_dashboard(lv_process.socket_id, lv_process.transport_pid)
     url = URL.update_path(socket.assigns.url, path)
 
     push_patch(socket, to: url)

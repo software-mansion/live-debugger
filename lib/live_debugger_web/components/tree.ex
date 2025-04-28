@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Components.Tree do
+defmodule LiveDebuggerWeb.Components.Tree do
   @moduledoc """
   Tree component which show nested tree of live view and live components.
   """

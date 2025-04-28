@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Components.Config do
+defmodule LiveDebuggerWeb.Components.Config do
   @moduledoc """
   Renders the LiveDebugger config meta tag and the browser features script.
   It is meant to be injected to the debugged application layout.

@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Plugs.AllowIframe do
+defmodule LiveDebuggerWeb.Plugs.AllowIframe do
   @moduledoc """
   Plug to allow iframes to be embedded in the application.
   """

@@ -91,9 +91,9 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
 config :live_debugger,
   ip: {127, 0, 0, 1}, # IP on which LiveDebugger will be hosted
   port: 4007, # Port on which LiveDebugger will be hosted
-  secret_key_base: "YOUR_SECRET_KEY_BASE", # Secret key used for LiveDebugger.Endpoint
-  signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
-  adapter: Bandit.PhoenixAdapter, # Adapter used in LiveDebugger.Endpoint
+  secret_key_base: "YOUR_SECRET_KEY_BASE", # Secret key used for LiveDebuggerWeb.Endpoint
+  signing_salt: "your_signing_salt", # Signing salt used for LiveDebuggerWeb.Endpoint
+  adapter: Bandit.PhoenixAdapter, # Adapter used in LiveDebuggerWeb.Endpoint
   tracing_setup_delay: 0 # Time in ms after tracing will be initialized. Useful in case multi-nodes envs
 ```
 

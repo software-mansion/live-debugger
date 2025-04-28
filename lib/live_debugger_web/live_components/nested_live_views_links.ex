@@ -1,11 +1,11 @@
-defmodule LiveDebugger.LiveComponents.NestedLiveViewsLinks do
+defmodule LiveDebuggerWeb.LiveComponents.NestedLiveViewsLinks do
   @moduledoc """
   List of links to LvProcesses nested inside `lv_process`
   """
   use LiveDebuggerWeb, :live_component
 
   alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.Components.Links
+  alias LiveDebuggerWeb.Components.Links
   alias LiveDebugger.Services.LiveViewDiscoveryService
 
   @impl true

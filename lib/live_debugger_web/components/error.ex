@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Components.Error do
+defmodule LiveDebuggerWeb.Components.Error do
   @moduledoc false
 
   use LiveDebuggerWeb, :component
@@ -14,7 +14,7 @@ defmodule LiveDebugger.Components.Error do
         <%= render_slot(@heading) %>
       </div>
       <p class="mb-4"><%= render_slot(@description) %></p>
-      <.link navigate={LiveDebugger.LiveHelpers.Routes.live_views_dashboard()}>
+      <.link navigate={LiveDebuggerWeb.Helpers.RoutesHelper.live_views_dashboard()}>
         <.button>
           See active LiveViews
         </.button>

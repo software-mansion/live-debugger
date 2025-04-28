@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Components.Links do
+defmodule LiveDebuggerWeb.Components.Links do
   @moduledoc """
   Adds styling for links.
   """
@@ -6,7 +6,7 @@ defmodule LiveDebugger.Components.Links do
 
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.LiveHelpers.Routes
+  alias LiveDebuggerWeb.Helpers.RoutesHelper
 
   attr(:lv_process, LvProcess, required: true)
   attr(:id, :string, required: true)
@@ -17,7 +17,7 @@ defmodule LiveDebugger.Components.Links do
 
     ~H"""
     <.link
-      href={Routes.channel_dashboard(@lv_process.socket_id, @lv_process.transport_pid)}
+      href={RoutesHelper.channel_dashboard(@lv_process.socket_id, @lv_process.transport_pid)}
       class="w-full flex gap-1 text-primary-text"
     >
       <.icon :if={@icon} name={@icon} class="w-4 h-4 shrink-0 text-link-primary" />

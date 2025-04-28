@@ -1,9 +1,9 @@
-defmodule LiveDebugger.LiveHelpers.Routes do
+defmodule LiveDebuggerWeb.Helpers.RoutesHelper do
   @moduledoc """
   Helper module to generate url routes for the LiveDebugger application.
   """
 
-  use Phoenix.VerifiedRoutes, endpoint: LiveDebugger.Endpoint, router: LiveDebugger.Router
+  use Phoenix.VerifiedRoutes, endpoint: LiveDebuggerWeb.Endpoint, router: LiveDebuggerWeb.Router
 
   alias LiveDebugger.Utils.Parsers
 

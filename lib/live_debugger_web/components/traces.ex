@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Components.Traces do
+defmodule LiveDebuggerWeb.Components.Traces do
   @moduledoc """
   UI components for the TracesLive module.
   """
@@ -6,7 +6,7 @@ defmodule LiveDebugger.Components.Traces do
   use LiveDebuggerWeb, :live_component
 
   alias LiveDebugger.Structs.Trace
-  alias LiveDebugger.Components.ElixirDisplay
+  alias LiveDebuggerWeb.Components.ElixirDisplay
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
 

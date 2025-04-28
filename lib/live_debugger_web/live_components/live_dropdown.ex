@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveComponents.LiveDropdown do
+defmodule LiveDebuggerWeb.LiveComponents.LiveDropdown do
   @moduledoc """
   Dropdown component that can be used to display a dropdown menu written via LiveComponents.
   """
@@ -9,7 +9,7 @@ defmodule LiveDebugger.LiveComponents.LiveDropdown do
   Closes the dropdown. You can use it when you want to close the dropdown from other component.
   """
   def close(id) do
-    send_update(LiveDebugger.LiveComponents.LiveDropdown, id: id, action: :close)
+    send_update(LiveDebuggerWeb.LiveComponents.LiveDropdown, id: id, action: :close)
   end
 
   def update(%{action: :close}, socket) do
