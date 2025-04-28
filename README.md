@@ -8,7 +8,6 @@
 
 </div>
 
-
 LiveDebugger is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
 
 Designed to enhance your development experience LiveDebugger gives you:
@@ -94,7 +93,7 @@ config :live_debugger,
   port: 4007, # Port on which LiveDebugger will be hosted
   secret_key_base: "YOUR_SECRET_KEY_BASE", # Secret key used for LiveDebugger.Endpoint
   signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
-  adapter: Bandit.PhoenixAdapter # Adapter used in LiveDebugger.Endpoint
+  adapter: Bandit.PhoenixAdapter, # Adapter used in LiveDebugger.Endpoint
   tracing_setup_delay: 0 # Time in ms after tracing will be initialized. Useful in case multi-nodes envs
 ```
 
