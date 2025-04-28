@@ -56,7 +56,10 @@ defmodule LiveDebugger.Utils.URL do
       (uri.query || "")
       |> URI.decode_query()
       |> fun.()
-      |> URI.encode_query()
+      |> case do
+        params when map_size(params) == 0 -> nil
+        params -> URI.encode_query(params)
+      end
 
     URI.to_string(%URI{uri | query: params})
   end
