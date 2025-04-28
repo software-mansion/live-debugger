@@ -2,9 +2,9 @@
 
 <div align="center">
 
-![Version Badge](https://img.shields.io/badge/version-v0.1.6-%235bb9e0?link=https%3A%2F%2Fhexdocs.pm%2Flive_debugger)
-![Hex.pm Downloads](https://img.shields.io/hexpm/dw/live_debugger?style=flat&label=downloads&color=%235bb9e0&link=https%3A%2F%2Fhex.pm%2Fpackages%2Flive_debugger)
-![GitHub License](https://img.shields.io/github/license/software-mansion/live-debugger?color=%235bb9e0)
+[![Version Badge](https://img.shields.io/badge/version-v0.1.6-%23b5e1f1)](https://hexdocs.pm/live_debugger)
+[![Hex.pm Downloads](https://img.shields.io/hexpm/dw/live_debugger?style=flat&label=downloads&color=%23b5e1f1)](https://hex.pm/packages/live_debugger)
+[![GitHub License](https://img.shields.io/github/license/software-mansion/live-debugger?color=%23b5e1f1)](https://github.com/software-mansion/live-debugger/blob/main/LICENSE)
 
 </div>
 
