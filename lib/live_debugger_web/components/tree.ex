@@ -38,14 +38,16 @@ defmodule LiveDebuggerWeb.Components.Tree do
           <.toggle_switch label="Highlight" checked={@highlight?} phx-click="toggle-highlight" />
         <% end %>
       </div>
-      <.tree_node
-        tree_id={@id}
-        tree_node={@tree_node}
-        selected_node_id={@selected_node_id}
-        root?={true}
-        max_opened_node_level={@max_opened_node_level}
-        level={0}
-      />
+      <div class="flex-1">
+        <.tree_node
+          tree_id={@id}
+          tree_node={@tree_node}
+          selected_node_id={@selected_node_id}
+          root?={true}
+          max_opened_node_level={@max_opened_node_level}
+          level={0}
+        />
+      </div>
     </div>
     """
   end
