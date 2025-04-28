@@ -79,7 +79,10 @@ defmodule LiveDebugger.MixProject do
     [
       main: "welcome",
       logo: "./docs/images/logo.png",
-      extras: ["docs/welcome.md": [title: "Welcome to LiveDebugger"]],
+      extras: [
+        "docs/welcome.md": [title: "Welcome to LiveDebugger"],
+        "docs/config.md": [title: "Configuration"]
+      ],
       source_url: "https://github.com/software-mansion/live-debugger",
       source_ref: @version,
       api_reference: false,
