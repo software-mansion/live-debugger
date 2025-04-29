@@ -61,6 +61,15 @@ defmodule LiveDebugger do
         live_reload: Keyword.get(config, :live_reload, [])
       ]
 
+    endpoint_server = Keyword.get(config, :server)
+
+    endpoint_config =
+      if is_nil(endpoint_server) do
+        endpoint_config
+      else
+        Keyword.put(endpoint_config, :server, endpoint_server)
+      end
+
     Application.put_env(@app_name, LiveDebuggerWeb.Endpoint, endpoint_config)
   end
 
