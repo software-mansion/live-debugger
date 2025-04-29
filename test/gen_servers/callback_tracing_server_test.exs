@@ -4,123 +4,220 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
   import Mox
 
+  alias LiveDebugger.Structs.Trace
   alias LiveDebugger.GenServers.CallbackTracingServer
+  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebugger.MockModuleService
+  alias LiveDebugger.MockDbg
+  alias LiveDebugger.MockEtsTableServer
+  alias LiveDebugger.MockPubSubUtils
+  alias LiveDebugger.MockProcessService
 
-  setup_all do
-    LiveDebugger.MockModuleService
-    |> stub(:all, fn -> [{to_charlist(CoolApp.Dashboard), "", false}] end)
-    |> stub(:loaded?, fn _module -> true end)
-    |> stub(:behaviours, fn _module -> [Phoenix.LiveView] end)
+  @modules [
+    CoolApp.LiveViews.UserDashboard,
+    CoolApp.Service.UserService,
+    CoolApp.LiveComponent.UserElement
+  ]
 
-    allow(LiveDebugger.MockModuleService, self(), fn ->
-      GenServer.whereis(CallbackTracingServer)
-    end)
-
-    start_supervised(CallbackTracingServer)
-
-    :ok
+  test "init/1" do
+    assert {:ok, %{}} = CallbackTracingServer.init([])
+    assert_receive :setup_tracing, 1000
   end
 
-  setup do
-    pid = spawn(fn -> Process.sleep(:infinity) end)
-
-    on_exit(fn -> Process.exit(pid, :kill) end)
-
-    %{pid: pid}
-  end
-
-  test "gen server is started" do
-    pid = GenServer.whereis(CallbackTracingServer)
-    assert {:error, {:already_started, ^pid}} = CallbackTracingServer.start_link()
-    assert is_pid(pid)
-  end
-
-  describe "table!/1" do
-    test "creates and remembers table for given pid", %{pid: pid} do
-      ref1 = CallbackTracingServer.table!(pid)
-
-      assert ref1 == CallbackTracingServer.table!(pid)
-      assert [] == :ets.tab2list(ref1)
-    end
-
-    test "creates different tables for different pids", %{pid: pid1} do
-      pid2 =
-        spawn(fn ->
-          receive do
-            :stop ->
-              :ok
-          end
-        end)
-
-      ref1 = CallbackTracingServer.table!(pid1)
-      ref2 = CallbackTracingServer.table!(pid2)
-
-      assert ref1 != ref2
-      assert ref1 == CallbackTracingServer.table!(pid1)
-      assert ref2 == CallbackTracingServer.table!(pid2)
-      assert [] == :ets.tab2list(ref1)
-      assert [] == :ets.tab2list(ref2)
-
-      send(pid2, :stop)
-    end
-
-    test "removes table after process exits", %{pid: pid} do
-      ref = CallbackTracingServer.table!(pid)
-
-      Process.exit(pid, :kill)
-
-      Process.sleep(200)
-
-      assert_raise ArgumentError, fn -> :ets.tab2list(ref) end
-      assert ref != CallbackTracingServer.table!(pid)
-    end
-  end
-
-  test "delete_table!/1", %{pid: pid} do
-    ref = CallbackTracingServer.table!(pid)
-
-    assert :ok == CallbackTracingServer.delete_table!(pid)
-    assert_raise ArgumentError, fn -> :ets.tab2list(ref) end
-    assert ref != CallbackTracingServer.table!(pid)
-  end
-
-  test "ping!/1" do
-    assert :ok == CallbackTracingServer.ping!()
+  test "handle_call/3" do
+    assert {:reply, :ok, %{}} == CallbackTracingServer.handle_call(:ping, self(), %{})
   end
 
   describe "tracing mechanism" do
-    test "properly tracing callback call" do
-      Process.sleep(200)
-      CoolApp.Dashboard.handle_info(:msg, %{transport_pid: self()})
+    test "proper tracing setup" do
+      MockModuleService
+      |> expect(:all, fn ->
+        Enum.map(@modules, fn module -> {to_charlist(module), ~c"", false} end)
+      end)
+      |> expect(:loaded?, 6, fn _module -> true end)
+      |> expect(:behaviours, 6, fn module -> get_behaviours(module) end)
 
-      assert [{0, trace}] = CallbackTracingServer.table!(self()) |> :ets.tab2list()
+      MockDbg
+      |> expect(:tracer, fn :process, {_handler, 0} -> :ok end)
+      |> expect(:p, fn :all, :c -> :ok end)
 
-      assert trace.id == 0
-      assert trace.module == CoolApp.Dashboard
-      assert trace.function == :handle_info
-      assert trace.arity == 2
-      assert trace.args == [:msg, %{transport_pid: self()}]
-      assert trace.socket_id == nil
-      assert trace.transport_pid == self()
-      assert trace.pid == self()
-      assert trace.cid == nil
+      get_live_view_callbacks(CoolApp.LiveViews.UserDashboard)
+      |> Enum.each(&expect(MockDbg, :tp, fn &1, [] -> :ok end))
+
+      get_live_component_callbacks(CoolApp.LiveComponent.UserElement)
+      |> Enum.each(&expect(MockDbg, :tp, fn &1, [] -> :ok end))
+
+      MockDbg
+      |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
+
+      assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
     end
 
-    test "ignoring non-traced callbacks" do
-      Process.sleep(200)
-      CoolApp.Dashboard.non_traced_function(:arg)
+    test "handle delete component trace" do
+      transport_pid = :c.pid(0, 0, 1)
+      pid = :c.pid(0, 0, 2)
+      cid = 3
+      socket_id = "phx-GDrDzLLr4USWzwBC"
+      module = Phoenix.LiveView.Diff
+      function = :delete_component
+      args = [cid, %{}]
 
-      assert [] == CallbackTracingServer.table!(self()) |> :ets.tab2list()
+      MockModuleService
+      |> expect(:all, fn -> [] end)
+
+      MockProcessService
+      |> expect(:state, fn ^pid ->
+        {:ok, LiveDebugger.Fakes.state(transport_pid: transport_pid, socket_id: socket_id)}
+      end)
+
+      MockPubSubUtils
+      |> expect(:broadcast, fn topic, {:new_trace, trace} ->
+        assert PubSubUtils.component_deleted_topic(trace) == topic
+
+        assert %Trace{
+                 id: 0,
+                 module: ^module,
+                 function: ^function,
+                 arity: 2,
+                 args: ^args,
+                 socket_id: ^socket_id,
+                 transport_pid: ^transport_pid,
+                 pid: ^pid,
+                 cid: %Phoenix.LiveComponent.CID{cid: ^cid}
+               } = trace
+      end)
+      |> expect(:broadcast, fn topic, {:new_trace, trace} ->
+        assert PubSubUtils.component_deleted_topic(trace) == topic
+
+        assert %Trace{
+                 id: 0,
+                 module: ^module,
+                 function: ^function,
+                 arity: 2,
+                 args: ^args,
+                 socket_id: ^socket_id,
+                 transport_pid: ^transport_pid,
+                 pid: ^pid,
+                 cid: %Phoenix.LiveComponent.CID{cid: ^cid}
+               } = trace
+      end)
+
+      MockDbg
+      |> expect(:tracer, fn :process, {handle_trace, 0} ->
+        assert 0 == handle_trace.({:trace, pid, :call, {module, function, args}}, 0)
+      end)
+      |> expect(:p, fn :all, :c -> :ok end)
+      |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
+
+      assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
+
+      # Test needs to wait for async task to finish
+      Process.sleep(100)
+    end
+
+    test "handle standard live view trace" do
+      transport_pid = :c.pid(0, 0, 1)
+      pid = :c.pid(0, 0, 2)
+      socket_id = "phx-GDrDzLLr4USWzwBC"
+      module = CoolApp.LiveViews.UserDashboard
+      function = :handle_info
+
+      args = [
+        :msg,
+        %{
+          transport_pid: transport_pid,
+          socket: %Phoenix.LiveView.Socket{id: socket_id}
+        }
+      ]
+
+      table = :ets.new(:test_table, [:ordered_set, :public])
+
+      MockModuleService
+      |> expect(:all, fn -> [] end)
+
+      MockEtsTableServer
+      |> expect(:table!, 2, fn ^pid -> table end)
+
+      MockPubSubUtils
+      |> expect(:broadcast, fn topic, {:new_trace, _trace} ->
+        assert PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, function) ==
+                 topic
+      end)
+      |> expect(:broadcast, fn topic, {:new_trace, _trace} ->
+        assert PubSubUtils.ts_f_topic(socket_id, transport_pid, function) ==
+                 topic
+      end)
+
+      MockDbg
+      |> expect(:tracer, fn :process, {handle_trace, 0} ->
+        assert -1 == handle_trace.({:trace, pid, :call, {module, function, args}}, 0)
+      end)
+      |> expect(:p, fn :all, :c -> :ok end)
+      |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
+
+      assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
+
+      assert [{0, trace}] = :ets.tab2list(table)
+
+      assert %Trace{
+               id: 0,
+               module: ^module,
+               function: ^function,
+               arity: 2,
+               args: ^args,
+               socket_id: ^socket_id,
+               transport_pid: ^transport_pid,
+               pid: ^pid,
+               cid: nil
+             } = trace
+    end
+
+    test "handle unexpected trace" do
+      MockModuleService
+      |> expect(:all, fn -> [] end)
+
+      MockDbg
+      |> expect(:tracer, fn :process, {handle_trace, 0} ->
+        assert 0 == handle_trace.({:_, :c.pid(0, 0, 1), :_, {SomeModule, :some_func, []}}, 0)
+      end)
+      |> expect(:p, fn :all, :c -> :ok end)
+      |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
+
+      assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
     end
   end
-end
 
-defmodule CoolApp.Dashboard do
-  def handle_info(_msg, state) do
-    {:noreply, state}
+  defp get_behaviours(module) do
+    case module do
+      CoolApp.LiveViews.UserDashboard -> [Phoenix.LiveView]
+      CoolApp.Service.UserService -> []
+      CoolApp.LiveComponent.UserElement -> [Phoenix.LiveComponent]
+    end
   end
 
-  def non_traced_function(_arg) do
-    :ok
+  defp get_live_view_callbacks(module) do
+    [
+      {module, :mount, 2},
+      {module, :mount, 3},
+      {module, :handle_params, 3},
+      {module, :handle_info, 2},
+      {module, :handle_call, 3},
+      {module, :handle_cast, 2},
+      {module, :terminate, 2},
+      {module, :render, 1},
+      {module, :handle_event, 3},
+      {module, :handle_async, 3}
+    ]
+  end
+
+  defp get_live_component_callbacks(module) do
+    [
+      {module, :mount, 1},
+      {module, :update, 2},
+      {module, :update_many, 1},
+      {module, :render, 1},
+      {module, :handle_event, 3},
+      {module, :handle_async, 3}
+    ]
   end
 end

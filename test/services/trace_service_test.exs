@@ -5,12 +5,13 @@ defmodule Services.TraceServiceTest do
 
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Services.TraceService
-
-  @module CoolApp.LiveViews.UserDashboard
-  @pid :c.pid(0, 0, 1)
+  alias LiveDebugger.MockEtsTableServer
 
   setup_all do
-    %{module: @module, pid: @pid}
+    %{
+      module: CoolApp.LiveViews.UserDashboard,
+      pid: :c.pid(0, 0, 1)
+    }
   end
 
   setup context do
@@ -22,7 +23,7 @@ defmodule Services.TraceServiceTest do
   test "insert/1", %{module: module, pid: pid, table: table} do
     trace = Trace.new(1, module, :render, [], pid)
 
-    LiveDebugger.MockEtsTableServer
+    MockEtsTableServer
     |> expect(:table!, fn ^pid -> table end)
 
     assert true == TraceService.insert(trace)
@@ -35,7 +36,7 @@ defmodule Services.TraceServiceTest do
     :ets.insert(table, {trace1.id, trace1})
     :ets.insert(table, {trace2.id, trace2})
 
-    LiveDebugger.MockEtsTableServer
+    MockEtsTableServer
     |> expect(:table!, 3, fn ^pid -> table end)
 
     assert trace1 == TraceService.get(pid, trace1.id)
@@ -50,7 +51,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
 
-      LiveDebugger.MockEtsTableServer
+      MockEtsTableServer
       |> expect(:table!, fn ^pid -> table end)
 
       assert {[^trace1, ^trace2], _} = TraceService.existing_traces(pid)
@@ -64,7 +65,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace2.id, trace2})
       :ets.insert(table, {trace3.id, trace3})
 
-      LiveDebugger.MockEtsTableServer
+      MockEtsTableServer
       |> expect(:table!, 3, fn ^pid -> table end)
 
       {traces1, cont} = TraceService.existing_traces(pid, limit: 2)
@@ -89,7 +90,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace2.id, trace2})
       :ets.insert(table, {trace3.id, trace3})
 
-      LiveDebugger.MockEtsTableServer
+      MockEtsTableServer
       |> expect(:table!, 2, fn ^pid -> table end)
 
       assert {[^trace1], _} = TraceService.existing_traces(pid, functions: [:handle_info])
@@ -107,7 +108,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace2.id, trace2})
       :ets.insert(table, {trace3.id, trace3})
 
-      LiveDebugger.MockEtsTableServer
+      MockEtsTableServer
       |> expect(:table!, 2, fn ^pid -> table end)
 
       assert {[^trace1], _} = TraceService.existing_traces(pid, node_id: pid)
@@ -120,7 +121,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
 
-      LiveDebugger.MockEtsTableServer
+      MockEtsTableServer
       |> expect(:table!, fn ^pid -> table end)
 
       assert :end_of_table = TraceService.existing_traces(pid, functions: [:non_existent])
@@ -135,7 +136,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
 
-      LiveDebugger.MockEtsTableServer
+      MockEtsTableServer
       |> expect(:table!, 5, fn ^pid -> table end)
 
       assert {[^trace1, ^trace2], _} = TraceService.existing_traces(pid)
