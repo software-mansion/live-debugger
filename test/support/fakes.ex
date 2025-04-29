@@ -9,6 +9,7 @@ defmodule LiveDebugger.Fakes do
     parent_pid = Keyword.get(opts, :parent_pid, nil)
     transport_pid = Keyword.get(opts, :transport_pid, :c.pid(0, 7, 0))
     module = Keyword.get(opts, :module, LiveDebuggerWeb.Main)
+    host_uri = Keyword.get(opts, :host_uri, "https://localhost:4000")
 
     %{
       socket: %Phoenix.LiveView.Socket{
@@ -19,6 +20,7 @@ defmodule LiveDebugger.Fakes do
         root_pid: root_pid,
         router: LiveDebuggerDev.Router,
         transport_pid: transport_pid,
+        host_uri: host_uri,
         assigns: %{
           assign: :value,
           counter: 0,
