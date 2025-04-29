@@ -1,5 +1,5 @@
 defmodule LiveDebuggerWeb.Router do
-  use Phoenix.Router
+  use Phoenix.Router, helpers: false
 
   import Phoenix.LiveView.Router
 
