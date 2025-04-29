@@ -1,7 +1,6 @@
 name: Feature Request
 description: Suggest an idea for this project
-labels: enhancement
-type: "Feature"
+labels: feature
 projects: "software-mansion/42"
 
 body:
