@@ -7,7 +7,7 @@ defmodule LiveDebuggerWeb.TracesLive do
 
   require Logger
 
-  alias LiveDebugger.LiveHelpers.TracingHelper
+  alias LiveDebuggerWeb.Helpers.TracingHelper
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils

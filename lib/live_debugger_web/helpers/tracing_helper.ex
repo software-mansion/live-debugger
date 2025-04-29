@@ -1,4 +1,4 @@
-defmodule LiveDebugger.LiveHelpers.TracingHelper do
+defmodule LiveDebuggerWeb.Helpers.TracingHelper do
   @moduledoc """
   This module provides a helper to manage tracing.
   It is responsible for determining if the tracing should be stopped.
