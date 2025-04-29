@@ -1,5 +1,12 @@
 ![LiveDebugger_Chrome_WebStore](https://github.com/user-attachments/assets/cf9aee3b-58ab-4c45-8a43-d73182cb3e02)
 
+<div align="center">
+
+[![Version Badge](https://img.shields.io/badge/version-v0.1.7-%23b5e1f1)](https://hexdocs.pm/live_debugger)
+[![Hex.pm Downloads](https://img.shields.io/hexpm/dw/live_debugger?style=flat&label=downloads&color=%23b5e1f1)](https://hex.pm/packages/live_debugger)
+[![GitHub License](https://img.shields.io/github/license/software-mansion/live-debugger?color=%23b5e1f1)](https://github.com/software-mansion/live-debugger/blob/main/LICENSE)
+
+</div>
 
 LiveDebugger is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
 
@@ -12,17 +19,18 @@ Designed to enhance your development experience LiveDebugger gives you:
 https://github.com/user-attachments/assets/a09d440c-4217-4597-b30e-f8b911a9094a
 
 ## Getting started
+
 > [!IMPORTANT]  
 > LiveDebugger should not be used on production - make sure that the dependency you've added is `:dev` only
 
-
 ### Mix installation
+
 Add `live_debugger` to your list of dependencies in `mix.exs`:
 
 ```elixir
   defp deps do
     [
-      {:live_debugger, "~> 0.1.6", only: :dev}
+      {:live_debugger, "~> 0.1.7", only: :dev}
     ]
   end
 ```
@@ -47,9 +55,10 @@ LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an 
 mix igniter.install live_debugger
 ```
 
-
 ## Optional configuration
+
 ### Browser features
+
 Some features require injecting JS into the debugged application. They are enabled by default, but you can disable them in your config.
 
 ```elixir
@@ -82,9 +91,10 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
 config :live_debugger,
   ip: {127, 0, 0, 1}, # IP on which LiveDebugger will be hosted
   port: 4007, # Port on which LiveDebugger will be hosted
-  secret_key_base: "YOUR_SECRET_KEY_BASE", # Secret key used for LiveDebugger.Endpoint
-  signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
-  adapter: Bandit.PhoenixAdapter # Adapter used in LiveDebugger.Endpoint
+  secret_key_base: "YOUR_SECRET_KEY_BASE", # Secret key used for LiveDebuggerWeb.Endpoint
+  signing_salt: "your_signing_salt", # Signing salt used for LiveDebuggerWeb.Endpoint
+  adapter: Bandit.PhoenixAdapter, # Adapter used in LiveDebuggerWeb.Endpoint
+  server: true, # Forces LiveDebugger to start even if project is not started with the `mix phx.server`
   tracing_setup_delay: 0 # Time in ms after tracing will be initialized. Useful in case multi-nodes envs
 ```
 

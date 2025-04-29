@@ -46,15 +46,20 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   end
 
   @doc """
-  Finds potential successor LvProcess based on module when websocket connection breaks and new one is created.
-  This is a common scenario when user recompiles code or refreshes the page
+  Finds potential successors LvProcesses based on module when websocket connection breaks and new one is created.
+  This is a common scenario when user recompiles code or refreshes the page.
+  When more than one process is found, `nil` is returned.
   """
-  @spec successor_lv_processes(module :: module()) :: [LvProcess.t()]
-  def successor_lv_processes(module) do
+  @spec successor_lv_process(module :: module()) :: LvProcess.t() | nil
+  def successor_lv_process(module) when is_atom(module) do
     lv_processes()
     |> Enum.filter(fn lv_process ->
-      not lv_process.debugger? and lv_process.module == module
+      lv_process.module == module
     end)
+    |> case do
+      [lv_process] -> lv_process
+      _ -> nil
+    end
   end
 
   @doc """

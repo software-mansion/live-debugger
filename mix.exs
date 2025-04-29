@@ -1,7 +1,7 @@
 defmodule LiveDebugger.MixProject do
   use Mix.Project
 
-  @version "0.1.6"
+  @version "0.1.7"
 
   def project do
     [
@@ -77,10 +77,19 @@ defmodule LiveDebugger.MixProject do
 
   defp docs() do
     [
-      main: "readme",
-      extras: ["README.md", "LICENSE"],
+      main: "welcome",
+      logo: "./docs/images/logo.png",
+      extras: [
+        "docs/welcome.md": [title: "Welcome to LiveDebugger"],
+        "docs/config.md": [title: "Configuration"]
+      ],
       source_url: "https://github.com/software-mansion/live-debugger",
-      source_ref: @version
+      source_ref: @version,
+      api_reference: false,
+      assets: %{Path.expand("./docs/images") => "images"},
+      filter_modules: fn module, _meta ->
+        module == Mix.Tasks.LiveDebugger.Install
+      end
     ]
   end
 
