@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Version Badge](https://img.shields.io/badge/version-v0.1.6-%23b5e1f1)](https://hexdocs.pm/live_debugger)
+[![Version Badge](https://img.shields.io/badge/version-v0.1.7-%23b5e1f1)](https://hexdocs.pm/live_debugger)
 [![Hex.pm Downloads](https://img.shields.io/hexpm/dw/live_debugger?style=flat&label=downloads&color=%23b5e1f1)](https://hex.pm/packages/live_debugger)
 [![GitHub License](https://img.shields.io/github/license/software-mansion/live-debugger?color=%23b5e1f1)](https://github.com/software-mansion/live-debugger/blob/main/LICENSE)
 
@@ -30,7 +30,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:live_debugger, "~> 0.1.6", only: :dev}
+      {:live_debugger, "~> 0.1.7", only: :dev}
     ]
   end
 ```
