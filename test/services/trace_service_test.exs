@@ -7,6 +7,8 @@ defmodule Services.TraceServiceTest do
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.MockEtsTableServer
 
+  setup :verify_on_exit!
+
   setup_all do
     %{
       module: CoolApp.LiveViews.UserDashboard,
@@ -66,7 +68,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace3.id, trace3})
 
       MockEtsTableServer
-      |> expect(:table!, 3, fn ^pid -> table end)
+      |> expect(:table!, fn ^pid -> table end)
 
       {traces1, cont} = TraceService.existing_traces(pid, limit: 2)
       {traces2, cont} = TraceService.existing_traces(pid, cont: cont)
