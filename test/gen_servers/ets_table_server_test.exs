@@ -2,8 +2,12 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
   @moduledoc false
   use ExUnit.Case, async: true
 
+  import Mox
+
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.GenServers.EtsTableServer
+
+  setup :verify_on_exit!
 
   test "start_link/1" do
     assert {:ok, _pid} = EtsTableServer.start_link()
@@ -19,7 +23,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
       pid = :c.pid(0, 0, 1)
 
       LiveDebugger.MockEtsTableServer
-      |> Mox.expect(:table!, fn ^pid -> :some_ref end)
+      |> expect(:table!, fn ^pid -> :some_ref end)
 
       assert :some_ref = EtsTableServer.table!(pid)
     end
@@ -28,7 +32,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
       pid = :c.pid(0, 0, 1)
 
       LiveDebugger.MockEtsTableServer
-      |> Mox.expect(:delete_table!, fn ^pid -> :ok end)
+      |> expect(:delete_table!, fn ^pid -> :ok end)
 
       assert :ok = EtsTableServer.delete_table!(pid)
     end
@@ -47,7 +51,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
       topic = PubSubUtils.process_status_topic(pid)
 
       LiveDebugger.MockPubSubUtils
-      |> Mox.expect(:broadcast, fn ^topic, {:process_status, :dead} -> :ok end)
+      |> expect(:broadcast, fn ^topic, {:process_status, :dead} -> :ok end)
 
       assert {:noreply, new_table_refs} =
                EtsTableServer.handle_info({:DOWN, :_, :process, pid, :_}, table_refs)

@@ -19,41 +19,58 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
     CoolApp.LiveComponent.UserElement
   ]
 
+  setup :verify_on_exit!
+
   test "init/1" do
     assert {:ok, %{}} = CallbackTracingServer.init([])
-    assert_receive :setup_tracing, 1000
+    assert_receive :setup_tracing
   end
 
   test "handle_call/3" do
     assert {:reply, :ok, %{}} == CallbackTracingServer.handle_call(:ping, self(), %{})
   end
 
+  test "proper tracing setup" do
+    MockModuleService
+    |> expect(:all, fn ->
+      Enum.map(@modules, fn module -> {to_charlist(module), ~c"", false} end)
+    end)
+    |> expect(:loaded?, 6, fn _module -> true end)
+    |> expect(:behaviours, 6, fn module -> get_behaviours(module) end)
+
+    MockDbg
+    |> expect(:tracer, fn :process, {_handler, 0} -> :ok end)
+    |> expect(:p, fn :all, :c -> :ok end)
+
+    get_live_view_callbacks(CoolApp.LiveViews.UserDashboard)
+    |> Enum.each(&expect(MockDbg, :tp, fn &1, [] -> :ok end))
+
+    get_live_component_callbacks(CoolApp.LiveComponent.UserElement)
+    |> Enum.each(&expect(MockDbg, :tp, fn &1, [] -> :ok end))
+
+    MockDbg
+    |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
+
+    assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
+  end
+
   describe "tracing mechanism" do
-    test "proper tracing setup" do
+    setup do
+      parent = self()
+
       MockModuleService
-      |> expect(:all, fn ->
-        Enum.map(@modules, fn module -> {to_charlist(module), ~c"", false} end)
-      end)
-      |> expect(:loaded?, 6, fn _module -> true end)
-      |> expect(:behaviours, 6, fn module -> get_behaviours(module) end)
+      |> expect(:all, fn -> [] end)
 
       MockDbg
-      |> expect(:tracer, fn :process, {_handler, 0} -> :ok end)
       |> expect(:p, fn :all, :c -> :ok end)
-
-      get_live_view_callbacks(CoolApp.LiveViews.UserDashboard)
-      |> Enum.each(&expect(MockDbg, :tp, fn &1, [] -> :ok end))
-
-      get_live_component_callbacks(CoolApp.LiveComponent.UserElement)
-      |> Enum.each(&expect(MockDbg, :tp, fn &1, [] -> :ok end))
-
-      MockDbg
       |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
+      |> expect(:tracer, fn :process, {handle_trace, 0} -> send(parent, handle_trace) end)
 
-      assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
+      :ok
     end
 
     test "handle delete component trace" do
+      parent = self()
       transport_pid = :c.pid(0, 0, 1)
       pid = :c.pid(0, 0, 2)
       cid = 3
@@ -62,8 +79,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       function = :delete_component
       args = [cid, %{}]
 
-      MockModuleService
-      |> expect(:all, fn -> [] end)
+      expected_topic =
+        PubSubUtils.component_deleted_topic(%{socket_id: socket_id, transport_pid: transport_pid})
 
       MockProcessService
       |> expect(:state, fn ^pid ->
@@ -71,48 +88,27 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn topic, {:new_trace, trace} ->
-        assert PubSubUtils.component_deleted_topic(trace) == topic
-
-        assert %Trace{
-                 id: 0,
-                 module: ^module,
-                 function: ^function,
-                 arity: 2,
-                 args: ^args,
-                 socket_id: ^socket_id,
-                 transport_pid: ^transport_pid,
-                 pid: ^pid,
-                 cid: %Phoenix.LiveComponent.CID{cid: ^cid}
-               } = trace
+      |> expect(:broadcast, fn ^expected_topic, {:new_trace, trace} ->
+        send(parent, {:trace, trace})
       end)
-      |> expect(:broadcast, fn topic, {:new_trace, trace} ->
-        assert PubSubUtils.component_deleted_topic(trace) == topic
-
-        assert %Trace{
-                 id: 0,
-                 module: ^module,
-                 function: ^function,
-                 arity: 2,
-                 args: ^args,
-                 socket_id: ^socket_id,
-                 transport_pid: ^transport_pid,
-                 pid: ^pid,
-                 cid: %Phoenix.LiveComponent.CID{cid: ^cid}
-               } = trace
-      end)
-
-      MockDbg
-      |> expect(:tracer, fn :process, {handle_trace, 0} ->
-        assert 0 == handle_trace.({:trace, pid, :call, {module, function, args}}, 0)
-      end)
-      |> expect(:p, fn :all, :c -> :ok end)
-      |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
 
-      # Test needs to wait for async task to finish
-      Process.sleep(100)
+      assert_receive handle_trace
+      assert 0 == handle_trace.({:trace, pid, :call, {module, function, args}}, 0)
+      assert_receive {:trace, trace}
+
+      assert %Trace{
+               id: 0,
+               module: ^module,
+               function: ^function,
+               arity: 2,
+               args: ^args,
+               socket_id: ^socket_id,
+               transport_pid: ^transport_pid,
+               pid: ^pid,
+               cid: %Phoenix.LiveComponent.CID{cid: ^cid}
+             } = trace
     end
 
     test "handle standard live view trace" do
@@ -124,39 +120,24 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       args = [
         :msg,
-        %{
-          transport_pid: transport_pid,
-          socket: %Phoenix.LiveView.Socket{id: socket_id}
-        }
+        %{transport_pid: transport_pid, socket: %Phoenix.LiveView.Socket{id: socket_id}}
       ]
 
       table = :ets.new(:test_table, [:ordered_set, :public])
 
-      MockModuleService
-      |> expect(:all, fn -> [] end)
+      expected_tsnf_topic = PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, function)
+      expected_ts_f_topic = PubSubUtils.ts_f_topic(socket_id, transport_pid, function)
 
       MockEtsTableServer
-      |> expect(:table!, 2, fn ^pid -> table end)
+      |> expect(:table!, fn ^pid -> table end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn topic, {:new_trace, _trace} ->
-        assert PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, function) ==
-                 topic
-      end)
-      |> expect(:broadcast, fn topic, {:new_trace, _trace} ->
-        assert PubSubUtils.ts_f_topic(socket_id, transport_pid, function) ==
-                 topic
-      end)
-
-      MockDbg
-      |> expect(:tracer, fn :process, {handle_trace, 0} ->
-        assert -1 == handle_trace.({:trace, pid, :call, {module, function, args}}, 0)
-      end)
-      |> expect(:p, fn :all, :c -> :ok end)
-      |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
+      |> expect(:broadcast, fn ^expected_tsnf_topic, {:new_trace, _trace} -> :ok end)
+      |> expect(:broadcast, fn ^expected_ts_f_topic, {:new_trace, _trace} -> :ok end)
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
-
+      assert_receive handle_trace
+      assert -1 == handle_trace.({:trace, pid, :call, {module, function, args}}, 0)
       assert [{0, trace}] = :ets.tab2list(table)
 
       assert %Trace{
@@ -173,17 +154,9 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
     end
 
     test "handle unexpected trace" do
-      MockModuleService
-      |> expect(:all, fn -> [] end)
-
-      MockDbg
-      |> expect(:tracer, fn :process, {handle_trace, 0} ->
-        assert 0 == handle_trace.({:_, :c.pid(0, 0, 1), :_, {SomeModule, :some_func, []}}, 0)
-      end)
-      |> expect(:p, fn :all, :c -> :ok end)
-      |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
-
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
+      assert_receive handle_trace
+      assert 0 == handle_trace.({:_, :c.pid(0, 0, 1), :_, {SomeModule, :some_func, []}}, 0)
     end
   end
 
@@ -197,7 +170,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
   defp get_live_view_callbacks(module) do
     [
-      {module, :mount, 2},
       {module, :mount, 3},
       {module, :handle_params, 3},
       {module, :handle_info, 2},
