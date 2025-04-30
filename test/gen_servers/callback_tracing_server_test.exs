@@ -1,5 +1,4 @@
 defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
-  @moduledoc false
   use ExUnit.Case, async: true
 
   import Mox
