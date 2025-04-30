@@ -33,12 +33,12 @@ defmodule LiveDebugger.LiveComponents.SendEventForm do
   def render(assigns) do
     ~H"""
     <div>
-      <.form for={@form} class="flex flex-col gap-2" phx-submit="submit" phx-target={@myself}>
-        <.input class="w-full" field={@form[:module]} />
-        <.input class="w-full" field={@form[:function]} />
-        <.input class="w-full" field={@form[:arguments]} placeholder="arg1; arg2; arg3..." />
-        <.button type="submit">Send event</.button>
-      </.form>
+      <.button phx-click="change-live-view-assigns" phx-target={@myself}>
+        Change LiveView assigns
+      </.button>
+      <.button phx-click="change-live-component-assigns" phx-target={@myself}>
+        Change LiveComponent assigns
+      </.button>
     </div>
     """
   end
@@ -59,6 +59,25 @@ defmodule LiveDebugger.LiveComponents.SendEventForm do
     )
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("change-live-component-assigns", _params, socket) do
+    # From params
+    update = {%Phoenix.LiveComponent.CID{cid: 2}, %{name: "Krzysztof"}}
+    state = :sys.get_state(socket.assigns.lv_process.pid)
+
+    case Phoenix.LiveView.Diff.update_component(state.socket, state.components, update) do
+      {diff, new_components} when diff != %{} ->
+        state = %{state | components: new_components}
+        :sys.replace_state(socket.assigns.lv_process.pid, fn _ -> state end)
+        push_diff(state, diff)
+
+        {:noreply, socket}
+
+      _ ->
+        {:noreply, socket}
+    end
   end
 
   @impl true
@@ -83,6 +102,18 @@ defmodule LiveDebugger.LiveComponents.SendEventForm do
     )
 
     {:noreply, socket}
+  end
+
+  defp push_diff(state, diff) do
+    message = %Phoenix.Socket.Message{
+      topic: state.topic,
+      event: "diff",
+      payload: diff,
+      join_ref: state.join_ref
+    }
+
+    send(state.socket.transport_pid, state.serializer.encode!(message))
+    state
   end
 
   defp parse(str) when is_binary(str) do
