@@ -17,6 +17,9 @@ else
 
   Mox.defmock(LiveDebugger.MockEtsTableServer, for: LiveDebugger.GenServers.EtsTableServer)
   Application.put_env(:live_debugger, :ets_table_server, LiveDebugger.MockEtsTableServer)
+
+  Mox.defmock(LiveDebugger.MockDbg, for: LiveDebugger.Services.System.DbgService)
+  Application.put_env(:live_debugger, :dbg_service, LiveDebugger.MockDbg)
 end
 
 ExUnit.start()
