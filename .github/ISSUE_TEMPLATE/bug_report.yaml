@@ -1,7 +1,6 @@
 name: Bug Report
 description: Create a report to help us improve
 labels: bug
-type: "Bug"
 projects: "software-mansion/42"
 
 body:
@@ -48,6 +47,15 @@ body:
       placeholder: "`elixir -v` output"
     validations:
       required: true
+
+  - type: input
+    id: live-debugger-version
+    attributes:
+      label: "LiveDebugger version"
+      placeholder: "`mix deps` output for LiveDebugger"
+    validations:
+      required: true
+
   - type: input
     id: phoenix-version
     attributes:
@@ -55,6 +63,7 @@ body:
       placeholder: "`mix deps` output for Phoenix"
     validations:
       required: true
+
   - type: input
     id: liveview-version
     attributes:
@@ -62,6 +71,7 @@ body:
       placeholder: "`mix deps` output for LiveView"
     validations:
       required: true
+
   - type: input
     id: operating-system
     attributes:
@@ -69,6 +79,7 @@ body:
       placeholder: "Your operating system"
     validations:
       required: true
+
   - type: input
     id: browser
     attributes:

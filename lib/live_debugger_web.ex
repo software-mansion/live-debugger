@@ -4,14 +4,14 @@ defmodule LiveDebuggerWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {LiveDebugger.Layout, :app}
+        layout: {LiveDebuggerWeb.Layout, :app}
 
-      on_mount({LiveDebugger.Flash, :add_hook})
+      on_mount({LiveDebuggerWeb.Hooks.Flash, :add_hook})
 
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers
-      import LiveDebugger.Components
-      import LiveDebugger.Flash, only: [push_flash: 2, push_flash: 3]
+      import LiveDebuggerWeb.Components
+      import LiveDebuggerWeb.Hooks.Flash, only: [push_flash: 2, push_flash: 3]
     end
   end
 
@@ -21,8 +21,8 @@ defmodule LiveDebuggerWeb do
 
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers
-      import LiveDebugger.Components
-      import LiveDebugger.Flash, only: [push_flash: 2, push_flash: 3]
+      import LiveDebuggerWeb.Components
+      import LiveDebuggerWeb.Hooks.Flash, only: [push_flash: 2, push_flash: 3]
     end
   end
 
@@ -32,7 +32,7 @@ defmodule LiveDebuggerWeb do
 
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers
-      import LiveDebugger.Components
+      import LiveDebuggerWeb.Components
     end
   end
 

@@ -10,7 +10,7 @@ defmodule LiveDebugger.Services.System.ModuleService do
   @doc """
   Wrapper for `:code.all_loaded/0` that returns a list of loaded modules.
   """
-  @spec all() :: [{module(), charlist()}]
+  @spec all() :: [{charlist(), charlist(), boolean()}]
   def all(), do: impl().all()
 
   @doc """
