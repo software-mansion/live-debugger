@@ -18,6 +18,7 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
   alias LiveDebugger.Utils.URL
   alias LiveDebugger.LiveComponents.NestedLiveViewsLinks
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebugger.Services.System.ErlangService
 
   @memory_poll_interval_ms 2_000
 
@@ -129,17 +130,17 @@ defmodule LiveDebugger.LiveViews.SidebarLive do
     Process.send_after(self(), {:assign_memory_usage, pid, node_id}, @memory_poll_interval_ms)
 
     raw =
-      case :erlang.process_info(pid, :memory) do
-        {:memory, bytes} -> bytes
-        _ -> 0
+      case ErlangService.process_info(pid, :memory) do
+        {:ok, val} -> val
+        :error -> 0
       end
 
-    :erlang.garbage_collect(pid)
+    ErlangService.garbage_collect(pid)
 
     post_gc =
-      case :erlang.process_info(pid, :memory) do
-        {:memory, bytes} -> bytes
-        _ -> 0
+      case ErlangService.process_info(pid, :memory) do
+        {:ok, val} -> val
+        :error -> 0
       end
 
     assigns_size =
