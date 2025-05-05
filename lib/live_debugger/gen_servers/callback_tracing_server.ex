@@ -9,11 +9,11 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   alias LiveDebugger.Services.System.DbgService, as: Dbg
   alias LiveDebugger.Services.ModuleDiscoveryService
-  alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebugger.GenServers.StateServer
 
   @callback_functions CallbackUtils.callbacks_functions()
 
@@ -85,7 +85,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
        ) do
     Task.start(fn ->
       with cid <- %Phoenix.LiveComponent.CID{cid: cid},
-           {:ok, %{socket: socket}} <- ChannelService.state(pid),
+           {:ok, %{socket: socket}} <- StateServer.get(pid),
            %{id: socket_id, transport_pid: transport_pid} <- socket,
            true <- is_pid(transport_pid),
            trace <-
@@ -182,11 +182,15 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     |> PubSubUtils.broadcast({:new_trace, trace})
   end
 
-  defp do_publish(trace) do
+  defp do_publish(%Trace{} = trace) do
     socket_id = trace.socket_id
     node_id = Trace.node_id(trace)
     transport_pid = trace.transport_pid
     fun = trace.function
+
+    fun
+    |> PubSubUtils.___f_topic()
+    |> PubSubUtils.broadcast({:new_trace, trace})
 
     socket_id
     |> PubSubUtils.tsnf_topic(transport_pid, node_id, fun, :call)

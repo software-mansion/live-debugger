@@ -13,29 +13,19 @@ defmodule LiveDebugger.Utils.PubSub do
   @callback unsubscribe(topic :: String.t()) :: :ok
 
   @spec broadcast(topic :: String.t(), payload :: term()) :: :ok
-  def broadcast(topic, payload) do
-    impl().broadcast(topic, payload)
-  end
+  def broadcast(topic, payload), do: impl().broadcast(topic, payload)
 
   @spec subscribe!(topics :: [String.t()]) :: :ok
-  def subscribe!(topics) when is_list(topics) do
-    impl().subscribe!(topics)
-  end
+  def subscribe!(topics) when is_list(topics), do: impl().subscribe!(topics)
 
   @spec subscribe!(topic :: String.t()) :: :ok
-  def subscribe!(topic) do
-    impl().subscribe!(topic)
-  end
+  def subscribe!(topic), do: impl().subscribe!(topic)
 
   @spec unsubscribe(topics :: [String.t()]) :: :ok
-  def unsubscribe(topics) when is_list(topics) do
-    impl().unsubscribe(topics)
-  end
+  def unsubscribe(topics) when is_list(topics), do: impl().unsubscribe(topics)
 
   @spec unsubscribe(topic :: String.t()) :: :ok
-  def unsubscribe(topic) do
-    impl().unsubscribe(topic)
-  end
+  def unsubscribe(topic), do: impl().unsubscribe(topic)
 
   @spec component_deleted_topic(trace :: Trace.t()) :: String.t()
   def component_deleted_topic(trace) do
@@ -55,13 +45,18 @@ defmodule LiveDebugger.Utils.PubSub do
     "lvdbg/#{inspect(transport_pid)}/#{socket_id}/component_deleted"
   end
 
-  @spec process_status_topic(pid :: pid()) :: String.t()
-  def process_status_topic(pid) when is_pid(pid) do
-    "lvdbg/#{inspect(pid)}/status"
+  @spec process_died_topic(pid :: pid()) :: String.t()
+  def process_died_topic(pid) do
+    "lvdbg/#{inspect(pid)}/process_died"
+  end
+
+  @spec process_died_topic() :: String.t()
+  def process_died_topic() do
+    "lvdbg/*/process_died"
   end
 
   @doc """
-  It stands for transport_pid/socket_id/node_id/function.
+  It stands for `transport_pid/socket_id/node_id/function`.
 
   It gives you traces of given callback in given node in given LiveView
   Used to update assigns based on render callback and for filtering traces
@@ -78,7 +73,7 @@ defmodule LiveDebugger.Utils.PubSub do
   end
 
   @doc """
-  It stands for transport_pid/socket_id/*/function.
+  It stands for `transport_pid/socket_id/*/function`.
 
   It gives you traces of given callback in all nodes of given LiveView
   Used for detecting new nodes in sidebar
@@ -90,6 +85,16 @@ defmodule LiveDebugger.Utils.PubSub do
         ) :: String.t()
   def ts_f_topic(socket_id, transport_pid, fun) do
     "#{inspect(transport_pid)}/#{socket_id}/*/#{inspect(fun)}"
+  end
+
+  @doc """
+  Its stands for `*/*/*/function`.
+
+  It gives you traces of all callbacks of given function
+  """
+  @spec ___f_topic(fun :: atom()) :: String.t()
+  def ___f_topic(fun) do
+    "/*/*/*/#{inspect(fun)}"
   end
 
   @spec impl() :: module()

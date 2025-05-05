@@ -1,0 +1,87 @@
+defmodule LiveDebugger.GenServers.StateServer do
+  @moduledoc """
+  This gen_server is responsible for storing the state of the application.
+  It uses named ETS table to store the state of the LiveView channel process.
+  When process dies, it removes the state from the table.
+  """
+
+  use GenServer
+
+  alias LiveDebugger.Services.System.ProcessService
+  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebugger.CommonTypes
+  alias LiveDebugger.Structs.Trace
+
+  @ets_table_name :lvdbg_states
+
+  @callback get(pid :: pid()) :: {:ok, CommonTypes.channel_state()} | {:error, term()}
+
+  @doc """
+  Returns previously stored state of the LiveView channel process identified by `pid`.
+  If the state is not found, it returns `{:error, :not_found}`.
+  """
+  @spec get(pid :: pid()) :: {:ok, CommonTypes.channel_state()} | {:error, term()}
+  def get(pid) when is_pid(pid) do
+    impl().get(pid)
+  end
+
+  @doc false
+  @spec ets_table_name() :: atom()
+  def ets_table_name(), do: @ets_table_name
+
+  @doc false
+  def table_id(pid), do: "#{inspect(pid)}"
+
+  @doc false
+  def start_link(args \\ []) do
+    GenServer.start_link(__MODULE__, args, name: __MODULE__)
+  end
+
+  @impl GenServer
+  def init(_args) do
+    :ets.new(@ets_table_name, [:named_table, :public, :named_table])
+
+    :render
+    |> PubSubUtils.___f_topic()
+    |> PubSubUtils.subscribe!()
+
+    PubSubUtils.process_died_topic()
+    |> PubSubUtils.subscribe!()
+
+    {:ok, []}
+  end
+
+  @impl GenServer
+  def handle_info({:new_trace, %Trace{pid: pid}}, state) do
+    with {:ok, channel_state} <- ProcessService.state(pid) do
+      table_id = table_id(pid)
+      :ets.insert(@ets_table_name, {table_id, channel_state})
+    end
+
+    {:noreply, state}
+  end
+
+  def handle_info({:process_died, pid}, state) do
+    :ets.delete(@ets_table_name, table_id(pid))
+
+    {:noreply, state}
+  end
+
+  defp impl() do
+    Application.get_env(:live_debugger, :state_storing_server_impl, __MODULE__.Impl)
+  end
+
+  defmodule Impl do
+    @moduledoc false
+
+    @behaviour LiveDebugger.GenServers.StateServer
+    @server_module LiveDebugger.GenServers.StateServer
+
+    def get(pid) do
+      case :ets.lookup(@server_module.ets_table_name(), @server_module.table_id(pid)) do
+        [{_, channel_state}] -> {:ok, channel_state}
+        [] -> {:error, :not_found}
+      end
+    end
+  end
+end

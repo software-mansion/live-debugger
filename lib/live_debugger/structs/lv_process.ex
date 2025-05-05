@@ -59,7 +59,7 @@ defmodule LiveDebugger.Structs.LvProcess do
   """
   @spec new(pid :: pid()) :: t() | nil
   def new(pid) do
-    case LiveDebugger.Services.ChannelService.state(pid) do
+    case LiveDebugger.GenServers.StateServer.get(pid) do
       {:ok, %{socket: socket}} ->
         new(pid, socket)
 

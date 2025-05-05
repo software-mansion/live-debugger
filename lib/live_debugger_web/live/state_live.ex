@@ -13,6 +13,7 @@ defmodule LiveDebuggerWeb.StateLive do
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebugger.GenServers.StateServer
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -170,7 +171,7 @@ defmodule LiveDebuggerWeb.StateLive do
        )
        when not is_nil(node_id) do
     assign_async(socket, [:node, :node_type], fn ->
-      with {:ok, channel_state} <- ChannelService.state(pid),
+      with {:ok, channel_state} <- StateServer.get(pid),
            {:ok, node} <- ChannelService.get_node(channel_state, node_id),
            true <- not is_nil(node) do
         {:ok, %{node: node, node_type: TreeNode.type(node)}}
