@@ -38,7 +38,7 @@ defmodule LiveDebugger.Structs.Trace do
           pid: pid(),
           cid: struct() | nil,
           timestamp: non_neg_integer(),
-          execution_time: non_neg_integer() | nil
+          execution_time: non_neg_integer()
         }
 
   @doc """
