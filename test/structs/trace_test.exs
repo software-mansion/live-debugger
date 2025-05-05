@@ -26,8 +26,7 @@ defmodule LiveDebugger.Structs.TraceTest do
         module: LiveDebuggerTest.TestView,
         function: :handle_event,
         args: ["event", %{"key" => "value"}, %{}],
-        pid: :c.pid(0, 0, 1),
-        socket_id: "socket_id"
+        pid: :c.pid(0, 0, 1)
       }
 
       trace = call_trace_new_with_map(trace_map)
@@ -36,6 +35,82 @@ defmodule LiveDebugger.Structs.TraceTest do
 
       assert is_integer(trace.timestamp)
       assert abs(trace.timestamp - timestamp) < 200
+    end
+
+    test "properly gets transport_pid and socket_id from live view socket" do
+      pid = :c.pid(0, 0, 1)
+      transport_pid = :c.pid(0, 0, 2)
+      socket_id = "socket_id"
+
+      trace_map = %{
+        id: 1,
+        module: LiveDebuggerTest.TestView,
+        function: :handle_event,
+        args: [
+          "event",
+          %{"key" => "value"},
+          %Phoenix.LiveView.Socket{transport_pid: transport_pid, id: socket_id}
+        ],
+        pid: pid
+      }
+
+      assert %Trace{
+               transport_pid: ^transport_pid,
+               socket_id: ^socket_id
+             } = call_trace_new_with_map(trace_map)
+    end
+
+    test "properly gets transport_pid and socket_id from map" do
+      pid = :c.pid(0, 0, 1)
+      transport_pid = :c.pid(0, 0, 2)
+      socket_id = "socket_id"
+
+      trace_map = %{
+        id: 1,
+        module: LiveDebuggerTest.TestView,
+        function: :handle_event,
+        args: [
+          "event",
+          %{"key" => "value"},
+          %{socket: %Phoenix.LiveView.Socket{transport_pid: transport_pid, id: socket_id}}
+        ],
+        pid: pid
+      }
+
+      assert %Trace{
+               transport_pid: ^transport_pid,
+               socket_id: ^socket_id
+             } = call_trace_new_with_map(trace_map)
+    end
+
+    test "properly gets cid from myself in args" do
+      pid = :c.pid(0, 0, 1)
+      cid = %Phoenix.LiveComponent.CID{cid: 1}
+
+      trace_map = %{
+        id: 1,
+        module: LiveDebuggerTest.TestView,
+        function: :handle_event,
+        args: ["event", %{"key" => "value"}, %Phoenix.LiveView.Socket{assigns: %{myself: cid}}],
+        pid: pid
+      }
+
+      assert %Trace{cid: ^cid} = call_trace_new_with_map(trace_map)
+    end
+
+    test "properly gets cid from assigns in args" do
+      pid = :c.pid(0, 0, 1)
+      cid = %Phoenix.LiveComponent.CID{cid: 1}
+
+      trace_map = %{
+        id: 1,
+        module: LiveDebuggerTest.TestView,
+        function: :handle_event,
+        args: ["event", %{"key" => "value"}, %{myself: cid}],
+        pid: pid
+      }
+
+      assert %Trace{cid: ^cid} = call_trace_new_with_map(trace_map)
     end
   end
 
@@ -48,8 +123,7 @@ defmodule LiveDebugger.Structs.TraceTest do
         module: LiveDebuggerTest.TestView,
         function: :handle_event,
         args: ["event", %{"key" => "value"}, %{}],
-        pid: pid,
-        cid: nil
+        pid: pid
       }
 
       trace = call_trace_new_with_map(trace_map)
@@ -64,9 +138,8 @@ defmodule LiveDebugger.Structs.TraceTest do
         id: 1,
         module: LiveDebuggerTest.TestView,
         function: :handle_event,
-        args: ["event", %{"key" => "value"}, %{}],
+        args: ["event", %{"key" => "value"}, %Phoenix.LiveView.Socket{assigns: %{myself: cid}}],
         pid: :c.pid(0, 0, 1),
-        cid: cid,
         socket_id: "socket_id"
       }
 
@@ -86,7 +159,6 @@ defmodule LiveDebugger.Structs.TraceTest do
         function: :delete_component,
         args: [cid, {nil, nil, []}],
         pid: :c.pid(0, 0, 1),
-        cid: cid,
         socket_id: "socket_id"
       }
 
@@ -101,8 +173,7 @@ defmodule LiveDebugger.Structs.TraceTest do
         module: LiveDebuggerTest.TestView,
         function: :handle_event,
         args: ["event", %{"key" => "value"}, %{}],
-        pid: :c.pid(0, 0, 1),
-        cid: nil
+        pid: :c.pid(0, 0, 1)
       }
 
       trace = call_trace_new_with_map(trace_map)
@@ -117,8 +188,7 @@ defmodule LiveDebugger.Structs.TraceTest do
       module: LiveDebuggerTest.TestView,
       function: :handle_event,
       args: ["event", %{"key" => "value"}, %{}],
-      pid: :c.pid(0, 0, 1),
-      cid: nil
+      pid: :c.pid(0, 0, 1)
     }
 
     trace = call_trace_new_with_map(trace_map)
