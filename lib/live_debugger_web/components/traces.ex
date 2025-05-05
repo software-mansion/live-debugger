@@ -70,7 +70,6 @@ defmodule LiveDebuggerWeb.Components.Traces do
       |> assign(:render_body?, assigns.wrapped_trace.render_body?)
       |> assign(:from_tracing?, assigns.wrapped_trace.from_tracing?)
       |> assign(:callback_name, Trace.callback_name(assigns.wrapped_trace.trace))
-      |> assign_threshold()
 
     ~H"""
     <.collapsible
@@ -86,24 +85,7 @@ defmodule LiveDebuggerWeb.Components.Traces do
         <div id={@id <> "-label"} class="w-[90%] grow flex items-center ml-2 gap-1.5">
           <p class="font-medium text-sm"><%= @callback_name %></p>
           <.short_trace_content trace={@trace} />
-          <p class="w-max text-xs font-normal text-secondary-text align-center">
-            <span>
-              <%= Parsers.parse_timestamp(@trace.timestamp) %>
-            </span>
-            <span
-              id={@id <> "-exec-time"}
-              class={
-                case @threshold do
-                  :very_slow -> "text-error-text"
-                  :slow -> "text-warning-text"
-                  :ok -> ""
-                end
-              }
-              phx-hook={if @from_tracing?, do: "TraceExecutionTime"}
-            >
-              <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
-            </span>
-          </p>
+          <.trace_time_info id={@id} trace={@trace} from_tracing?={@from_tracing?} />
         </div>
       </:label>
       <div class="relative">
@@ -135,12 +117,48 @@ defmodule LiveDebuggerWeb.Components.Traces do
     """
   end
 
+  attr(:trace, :map, default: nil)
+
   def short_trace_content(assigns) do
     assigns = assign(assigns, :content, Enum.map_join(assigns.trace.args, " ", &inspect/1))
 
     ~H"""
     <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
       <p class="hide-on-open mt-0.5"><%= @content %></p>
+    </div>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:trace, :map, default: nil)
+  attr(:from_tracing?, :boolean, default: false)
+
+  def trace_time_info(assigns) do
+    assigns =
+      assigns
+      |> assign_threshold(assigns.trace.execution_time)
+
+    ~H"""
+    <div class="max-w-24 text-xs font-normal text-secondary-text align-center">
+      <.tooltip id={@id <> "-timestamp"} content="timestamp">
+        <%= Parsers.parse_timestamp(@trace.timestamp) %>
+      </.tooltip>
+
+      <.tooltip id={@id <> "-exec-time-tooltip"} content="execution time">
+        <span
+          id={@id <> "-exec-time"}
+          class={
+            case @threshold do
+              :very_slow -> "text-error-text"
+              :slow -> "text-warning-text"
+              :ok -> ""
+            end
+          }
+          phx-hook={if @from_tracing?, do: "TraceExecutionTime"}
+        >
+          <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
+        </span>
+      </.tooltip>
     </div>
     """
   end
@@ -177,9 +195,7 @@ defmodule LiveDebuggerWeb.Components.Traces do
     """
   end
 
-  defp assign_threshold(assigns) do
-    execution_time = assigns.wrapped_trace.trace.execution_time
-
+  defp assign_threshold(assigns, execution_time) do
     assigns
     |> assign(
       :threshold,
