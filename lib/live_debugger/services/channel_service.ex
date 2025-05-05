@@ -4,21 +4,7 @@ defmodule LiveDebugger.Services.ChannelService do
   """
 
   alias LiveDebugger.Structs.TreeNode
-  alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.CommonTypes
-
-  @doc """
-  Retrieves the state of the LiveView channel process identified by `pid`.
-  """
-  @spec state(pid :: pid()) :: {:ok, CommonTypes.channel_state()} | {:error, term()}
-  def state(pid) do
-    case ProcessService.state(pid) do
-      {:ok, %{socket: %Phoenix.LiveView.Socket{}, components: _} = state} -> {:ok, state}
-      {:ok, _} -> {:error, "PID: #{inspect(pid)} is not a LiveView process"}
-      {:error, :not_alive} -> {:error, :not_alive}
-      {:error, _} -> {:error, "Could not get state from pid: #{inspect(pid)}"}
-    end
-  end
 
   @doc """
   Retrieves a TreeNode with the given `id` from the channel state

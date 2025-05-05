@@ -39,6 +39,7 @@ defmodule LiveDebugger do
     else
       children ++
         [
+          {LiveDebugger.GenServers.StateServer, []},
           {LiveDebugger.GenServers.CallbackTracingServer, []},
           {LiveDebugger.GenServers.EtsTableServer, []}
         ]
