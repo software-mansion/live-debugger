@@ -16,27 +16,12 @@ defmodule LiveDebugger do
   def start(_type, _args) do
     config = Application.get_all_env(@app_name)
 
-    default_adapter = default_adapter()
-    ip = Keyword.get(config, :ip, @default_ip)
-    ip_string = ip |> :inet.ntoa() |> List.to_string()
-    port = Keyword.get(config, :port, @default_port)
-
-    endpoint_config =
-      [
-        http: [ip: ip, port: port],
-        secret_key_base: Keyword.get(config, :secret_key_base, @default_secret_key_base),
-        live_view: [signing_salt: Keyword.get(config, :signing_salt, @default_signing_salt)],
-        adapter: Keyword.get(config, :adapter, default_adapter),
-        live_reload: Keyword.get(config, :live_reload, []),
-        server: Keyword.get(config, :server, false)
-      ]
-
-    Application.put_env(@app_name, LiveDebugger.Endpoint, endpoint_config)
-    Application.put_env(@app_name, :assets_url, "http://#{ip_string}:#{port}/#{@assets_path}")
+    put_endpoint_config(config)
+    put_live_debugger_tags(config)
 
     children = [
       {Phoenix.PubSub, name: LiveDebugger.PubSub},
-      {LiveDebugger.Endpoint,
+      {LiveDebuggerWeb.Endpoint,
        [
          check_origin: false,
          pubsub_server: LiveDebugger.PubSub
@@ -49,7 +34,8 @@ defmodule LiveDebugger do
       else
         children ++
           [
-            {LiveDebugger.GenServers.CallbackTracingServer, []}
+            {LiveDebugger.GenServers.CallbackTracingServer, []},
+            {LiveDebugger.GenServers.EtsTableServer, []}
           ]
       end
 
@@ -61,5 +47,53 @@ defmodule LiveDebugger do
       {:module, _} -> Bandit.PhoenixAdapter
       {:error, _} -> Phoenix.Endpoint.Cowboy2Adapter
     end
+  end
+
+  defp put_endpoint_config(config) do
+    endpoint_config =
+      [
+        http: [
+          ip: Keyword.get(config, :ip, @default_ip),
+          port: Keyword.get(config, :port, @default_port)
+        ],
+        secret_key_base: Keyword.get(config, :secret_key_base, @default_secret_key_base),
+        live_view: [signing_salt: Keyword.get(config, :signing_salt, @default_signing_salt)],
+        adapter: Keyword.get(config, :adapter, default_adapter()),
+        live_reload: Keyword.get(config, :live_reload, [])
+      ]
+
+    endpoint_server = Keyword.get(config, :server)
+
+    endpoint_config =
+      if is_nil(endpoint_server) do
+        endpoint_config
+      else
+        Keyword.put(endpoint_config, :server, endpoint_server)
+      end
+
+    Application.put_env(@app_name, LiveDebuggerWeb.Endpoint, endpoint_config)
+  end
+
+  defp put_live_debugger_tags(config) do
+    ip_string = config |> Keyword.get(:ip, @default_ip) |> :inet.ntoa() |> List.to_string()
+    port = Keyword.get(config, :port, @default_port)
+
+    browser_features? = Keyword.get(config, :browser_features?, true)
+    debug_button? = Keyword.get(config, :debug_button?, true)
+    highlighting? = Keyword.get(config, :highlighting?, true)
+
+    live_debugger_url = "http://#{ip_string}:#{port}"
+    live_debugger_assets_url = "http://#{ip_string}:#{port}/#{@assets_path}"
+
+    assigns = %{
+      url: live_debugger_url,
+      assets_url: live_debugger_assets_url,
+      browser_features?: browser_features?,
+      debug_button?: debug_button?,
+      highlighting?: highlighting?
+    }
+
+    tags = LiveDebuggerWeb.Components.Config.live_debugger_tags(assigns)
+    Application.put_env(@app_name, :live_debugger_tags, tags)
   end
 end

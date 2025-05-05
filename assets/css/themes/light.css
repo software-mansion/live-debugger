@@ -18,6 +18,10 @@
     --ui-muted: var(--slate-300);
     --ui-accent: var(--swm-brand);
 
+    /* Scrollbar */
+    --scrollbar-thumb: var(--slate-300);
+    --scrollbar-thumb-hover: var(--slate-400);
+
     /* Navbar */
     --navbar-bg: var(--neutrals-white);
     --navbar-border: var(--slate-200);

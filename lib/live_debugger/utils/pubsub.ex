@@ -6,38 +6,35 @@ defmodule LiveDebugger.Utils.PubSub do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.TreeNode
 
+  @callback broadcast(topic :: String.t(), payload :: term()) :: :ok
+  @callback subscribe!(topics :: [String.t()]) :: :ok
+  @callback subscribe!(topic :: String.t()) :: :ok
+  @callback unsubscribe(topics :: [String.t()]) :: :ok
+  @callback unsubscribe(topic :: String.t()) :: :ok
+
   @spec broadcast(topic :: String.t(), payload :: term()) :: :ok
   def broadcast(topic, payload) do
-    Phoenix.PubSub.broadcast(LiveDebugger.PubSub, topic, payload)
+    impl().broadcast(topic, payload)
   end
 
   @spec subscribe!(topics :: [String.t()]) :: :ok
   def subscribe!(topics) when is_list(topics) do
-    topics
-    |> Enum.each(&subscribe!(&1))
-
-    :ok
+    impl().subscribe!(topics)
   end
 
   @spec subscribe!(topic :: String.t()) :: :ok
   def subscribe!(topic) do
-    case Phoenix.PubSub.subscribe(LiveDebugger.PubSub, topic) do
-      :ok -> :ok
-      {:error, reason} -> raise reason
-    end
+    impl().subscribe!(topic)
   end
 
   @spec unsubscribe(topics :: [String.t()]) :: :ok
   def unsubscribe(topics) when is_list(topics) do
-    topics
-    |> Enum.each(&unsubscribe(&1))
-
-    :ok
+    impl().unsubscribe(topics)
   end
 
   @spec unsubscribe(topic :: String.t()) :: :ok
   def unsubscribe(topic) do
-    Phoenix.PubSub.unsubscribe(LiveDebugger.PubSub, topic)
+    impl().unsubscribe(topic)
   end
 
   @spec component_deleted_topic(trace :: Trace.t()) :: String.t()
@@ -56,6 +53,11 @@ defmodule LiveDebugger.Utils.PubSub do
   @spec component_deleted_topic(socket_id :: String.t(), transport_pid :: pid()) :: String.t()
   def component_deleted_topic(socket_id, transport_pid) do
     "lvdbg/#{inspect(transport_pid)}/#{socket_id}/component_deleted"
+  end
+
+  @spec process_status_topic(pid :: pid()) :: String.t()
+  def process_status_topic(pid) when is_pid(pid) do
+    "lvdbg/#{inspect(pid)}/status"
   end
 
   @doc """
@@ -87,5 +89,53 @@ defmodule LiveDebugger.Utils.PubSub do
         ) :: String.t()
   def ts_f_topic(socket_id, transport_pid, fun) do
     "#{inspect(transport_pid)}/#{socket_id}/*/#{inspect(fun)}"
+  end
+
+  @spec impl() :: module()
+  defp impl() do
+    Application.get_env(
+      :live_debugger,
+      :pubsub_utils,
+      __MODULE__.Impl
+    )
+  end
+
+  defmodule Impl do
+    @moduledoc false
+    @behaviour LiveDebugger.Utils.PubSub
+
+    @impl true
+    def broadcast(topic, payload) do
+      Phoenix.PubSub.broadcast(LiveDebugger.PubSub, topic, payload)
+    end
+
+    @impl true
+    def subscribe!(topics) when is_list(topics) do
+      topics
+      |> Enum.each(&subscribe!(&1))
+
+      :ok
+    end
+
+    @impl true
+    def subscribe!(topic) do
+      case Phoenix.PubSub.subscribe(LiveDebugger.PubSub, topic) do
+        :ok -> :ok
+        {:error, reason} -> raise reason
+      end
+    end
+
+    @impl true
+    def unsubscribe(topics) when is_list(topics) do
+      topics
+      |> Enum.each(&unsubscribe(&1))
+
+      :ok
+    end
+
+    @impl true
+    def unsubscribe(topic) do
+      Phoenix.PubSub.unsubscribe(LiveDebugger.PubSub, topic)
+    end
   end
 end

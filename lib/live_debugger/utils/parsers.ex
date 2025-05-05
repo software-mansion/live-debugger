@@ -18,6 +18,7 @@ defmodule LiveDebugger.Utils.Parsers do
     end
   end
 
+  @spec parse_elapsed_time(non_neg_integer()) :: String.t()
   def parse_elapsed_time(microseconds) do
     cond do
       microseconds < 1_000 -> "#{microseconds} µs"
