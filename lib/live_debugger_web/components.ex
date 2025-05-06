@@ -73,6 +73,57 @@ defmodule LiveDebuggerWeb.Components do
   end
 
   @doc """
+  Renders an input with label.
+  """
+  attr(:id, :any, default: nil)
+  attr(:name, :any)
+  attr(:label, :string, default: nil)
+  attr(:value, :any)
+
+  attr(:type, :string,
+    default: "text",
+    values: ~w(checkbox color date datetime-local email file month number password
+               range search select tel text textarea time url week)
+  )
+
+  attr(:field, Phoenix.HTML.FormField, required: true)
+
+  attr(:rest, :global,
+    include: ~w(accept autocomplete capture cols disabled form list max maxlength min minlength
+                multiple pattern placeholder readonly required rows size step)
+  )
+
+  slot(:inner_block)
+
+  def input(%{field: %Phoenix.HTML.FormField{} = field} = assigns) do
+    assigns =
+      assigns
+      |> assign(field: nil, id: assigns.id || field.id)
+      |> assign_new(:name, fn -> field.name end)
+      |> assign_new(:value, fn -> field.value end)
+
+    ~H"""
+    <div phx-feedback-for={@name}>
+      <label for={@id} class="block font-medium text-xs">
+        <%= @label %>
+      </label>
+      <input
+        type={@type}
+        name={@name}
+        id={@id}
+        value={Phoenix.HTML.Form.normalize_value(@type, @value)}
+        class={[
+          "mt-2 block w-full rounded-lg bg-surface-1-bg  focus:ring-0 text-xs",
+          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
+          "border-default-border focus:border-secondary-text"
+        ]}
+        {@rest}
+      />
+    </div>
+    """
+  end
+
+  @doc """
   Renders a button.
 
   """
