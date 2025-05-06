@@ -29,6 +29,13 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
 ```elixir
 # config/dev.exs
 
+# Allows you to disable LiveDebugger manually if needed
+config :live_debugger, :disabled?, true
+
+# Time in ms after tracing will be initialized. Useful in case multi-nodes envs
+config :live_debugger, tracing_setup_delay: 0
+
+# LiveDebugger endpoint config
 config :live_debugger,
   ip: {127, 0, 0, 1}, # IP on which LiveDebugger will be hosted
   port: 4007, # Port on which LiveDebugger will be hosted
@@ -36,5 +43,4 @@ config :live_debugger,
   signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
   adapter: Bandit.PhoenixAdapter, # Adapter used in LiveDebugger.Endpoint
   server: true, # Forces LiveDebugger to start even if project is not started with the `mix phx.server`
-  tracing_setup_delay: 0 # Time in ms after tracing will be initialized. Useful in case multi-nodes envs
 ```
