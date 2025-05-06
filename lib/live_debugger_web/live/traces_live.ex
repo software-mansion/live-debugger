@@ -394,7 +394,7 @@ defmodule LiveDebuggerWeb.TracesLive do
 
     %{
       functions: functions,
-      time: [
+      execution_time: [
         {:exec_time_max, ""},
         {:exec_time_min, "0"}
       ]
