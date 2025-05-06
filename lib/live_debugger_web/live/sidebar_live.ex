@@ -153,9 +153,11 @@ defmodule LiveDebuggerWeb.SidebarLive do
   end
 
   @impl true
-  def handle_event("select_node", params, socket) do
-    %{"node_id" => node_id, "search-attribute" => attr, "search-value" => val} = params
-
+  def handle_event(
+        "select_node",
+        %{"node-id" => node_id, "search-attribute" => attr, "search-value" => val},
+        socket
+      ) do
     if LiveDebugger.Feature.enabled?(:highlighting) do
       if !socket.assigns.hidden? && socket.assigns.highlight? do
         send_event(socket.assigns.lv_process.pid, "highlight", %{attr: attr, val: val})

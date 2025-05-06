@@ -1,5 +1,4 @@
 defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
-  @moduledoc false
   use ExUnit.Case, async: true
 
   import Mox
@@ -57,15 +56,16 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
   describe "tracing mechanism" do
     setup do
-      parent = self()
-
       MockModuleService
       |> expect(:all, fn -> [] end)
 
       MockDbg
       |> expect(:p, fn :all, [:c, :timestamp] -> :ok end)
       |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
-      |> expect(:tracer, fn :process, {handle_trace, 0} -> send(parent, handle_trace) end)
+
+      # In order to keep CallbackTracingServer.handle_trace function private we extract it here
+      # and send to test process so that we can test it
+      |> expect(:tracer, fn :process, {handle_trace, 0} -> send(self(), handle_trace) end)
 
       :ok
     end

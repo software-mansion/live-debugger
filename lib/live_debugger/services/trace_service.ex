@@ -97,14 +97,14 @@ defmodule LiveDebugger.Services.TraceService do
   defp existing_traces_start(table_id, opts) do
     limit = Keyword.get(opts, :limit, @default_limit)
     functions = Keyword.get(opts, :functions, [])
-    execution_times = Keyword.get(opts, :execution_times, [])
+    execution_time = Keyword.get(opts, :execution_time, [])
     node_id = Keyword.get(opts, :node_id)
 
     if limit < 1 do
       raise ArgumentError, "limit must be >= 1"
     end
 
-    match_spec = match_spec(node_id, functions, execution_times)
+    match_spec = match_spec(node_id, functions, execution_time)
 
     table_id
     |> ets_table!()
@@ -119,23 +119,23 @@ defmodule LiveDebugger.Services.TraceService do
     :ets.select(cont)
   end
 
-  defp match_spec(node_id, functions, execution_times) when is_pid(node_id) do
+  defp match_spec(node_id, functions, execution_time) when is_pid(node_id) do
     [
       {{:_, %{function: :"$1", execution_time: :"$2", pid: node_id, cid: nil}},
-       to_spec(functions, execution_times), [:"$_"]}
+       to_spec(functions, execution_time), [:"$_"]}
     ]
   end
 
-  defp match_spec(%CID{} = node_id, functions, execution_times) do
+  defp match_spec(%CID{} = node_id, functions, execution_time) do
     [
       {{:_, %{function: :"$1", execution_time: :"$2", cid: node_id}},
-       to_spec(functions, execution_times), [:"$_"]}
+       to_spec(functions, execution_time), [:"$_"]}
     ]
   end
 
-  defp match_spec(nil, functions, execution_times) do
+  defp match_spec(nil, functions, execution_time) do
     [
-      {{:_, %{function: :"$1", execution_time: :"$2"}}, to_spec(functions, execution_times),
+      {{:_, %{function: :"$1", execution_time: :"$2"}}, to_spec(functions, execution_time),
        [:"$_"]}
     ]
   end
@@ -144,12 +144,12 @@ defmodule LiveDebugger.Services.TraceService do
 
   def to_spec(functions, []), do: functions_to_spec(functions)
 
-  def to_spec([], execution_times), do: execution_times_to_spec(execution_times)
+  def to_spec([], execution_time), do: execution_time_to_spec(execution_time)
 
-  def to_spec(functions, execution_times) do
+  def to_spec(functions, execution_time) do
     [
       {:andalso, List.first(functions_to_spec(functions)),
-       List.first(execution_times_to_spec(execution_times))}
+       List.first(execution_time_to_spec(execution_time))}
     ]
   end
 
@@ -169,11 +169,11 @@ defmodule LiveDebugger.Services.TraceService do
     [result]
   end
 
-  def execution_times_to_spec([]), do: []
+  def execution_time_to_spec([]), do: []
 
-  def execution_times_to_spec(execution_times) do
-    min_time = Keyword.get(execution_times, :exec_time_min, 0)
-    max_time = Keyword.get(execution_times, :exec_time_max, :infinity)
+  def execution_time_to_spec(execution_time) do
+    min_time = Keyword.get(execution_time, :exec_time_min, 0)
+    max_time = Keyword.get(execution_time, :exec_time_max, :infinity)
     [{:andalso, {:>=, :"$2", min_time}, {:"=<", :"$2", max_time}}]
   end
 

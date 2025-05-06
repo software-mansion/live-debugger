@@ -43,7 +43,8 @@ if config_env() == :dev do
     live_reload: [
       patterns: [
         ~r"priv/static/.*(js|css|svg)$",
-        ~r"priv/static/dev/.*(js|css|svg)$"
+        ~r"priv/static/dev/.*(js|css|svg)$",
+        ~r"lib/live_debugger_web/.*ex$"
       ]
     ]
 

@@ -88,9 +88,9 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     |> noreply()
   end
 
-  def assign_form(socket, %{functions: functions, time: time}) do
+  def assign_form(socket, %{functions: functions, execution_time: execution_time}) do
     form =
-      (functions ++ time)
+      (functions ++ execution_time)
       |> Enum.reduce(%{}, fn {filter, value}, acc ->
         Map.put(acc, Atom.to_string(filter), value)
       end)
@@ -115,13 +115,13 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
         {function, Map.has_key?(params, Atom.to_string(function))}
       end)
 
-    time =
-      active_filters.time
+    execution_time =
+      active_filters.execution_time
       |> Enum.map(fn {filter, value} ->
         {filter, Map.get(params, Atom.to_string(filter), value)}
       end)
 
-    %{functions: functions, time: time}
+    %{functions: functions, execution_time: execution_time}
   end
 
   defp calculate_selected_filters(form) do

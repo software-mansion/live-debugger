@@ -15,6 +15,7 @@ defmodule LiveDebuggerWeb.Components.Tree do
   You need to pass TreeNode struct to render the tree.
   This component emits `select_node` event with `node_id` param when a node is clicked. `node_id` is parsed.
   To calculate `max_opened_node_level` it uses `max_nesting_level/2` function.
+  Clicking on the node will emit `select_node` event with params: `node-id`, `search-attribute`, `search-value`.
   """
 
   attr(:id, :string, required: true, doc: "The id of the tree")
@@ -144,10 +145,15 @@ defmodule LiveDebuggerWeb.Components.Tree do
     assigns =
       assigns
       |> assign(:padding_style, style_for_padding(assigns.level, assigns.collapsible?))
+      |> assign(:id, "tree-node-#{assigns.node.parsed_id}-#{assigns.tree_id}")
       |> assign(:button_id, "tree-node-button-#{assigns.node.parsed_id}-#{assigns.tree_id}")
 
     ~H"""
     <span
+      id={@id}
+      phx-hook="Highlight"
+      phx-value-search-attribute={get_search_attribute(@node)}
+      phx-value-search-value={get_search_value(@node, @parent_dom_id)}
       class={[
         "flex shrink grow items-center rounded-md hover:bg-surface-1-bg-hover",
         if(!@collapsible?, do: "p-1")
@@ -156,9 +162,8 @@ defmodule LiveDebuggerWeb.Components.Tree do
     >
       <button
         id={@button_id}
-        phx-hook="Highlight"
         phx-click="select_node"
-        phx-value-node_id={@node.parsed_id}
+        phx-value-node-id={@node.parsed_id}
         phx-value-search-attribute={get_search_attribute(@node)}
         phx-value-search-value={get_search_value(@node, @parent_dom_id)}
         class="flex min-w-0 gap-0.5 items-center"
