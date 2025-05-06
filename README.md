@@ -14,7 +14,8 @@ Designed to enhance your development experience LiveDebugger gives you:
 
 - :deciduous_tree: A detailed view of your LiveComponents tree
 - :mag: The ability to inspect assigns for LiveViews and LiveComponents
-- :link: Tracing of their callback executions
+- :link: Tracing and filtering of their callback executions
+- 🔦 Components highlighting
 
 https://github.com/user-attachments/assets/a09d440c-4217-4597-b30e-f8b911a9094a
 
@@ -54,6 +55,15 @@ LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an 
 ```bash
 mix igniter.install live_debugger
 ```
+
+### DevTools extension
+Since version v0.2.0 you can install official LiveDebugger DevTools extension, giving you the ability to interact with its features alongside your application's runtime. 
+- [Chrome extension](https://chromewebstore.google.com/detail/gmdfnfcigbfkmghbjeelmbkbiglbmbpe?utm_source=item-share-cb)
+- Firefox extension - coming soon!
+
+> [!NOTE]  
+> Ensure the main LiveDebugger dependency is added to your mix project, as the browser plugin alone is not enough.
+
 
 ## Optional configuration
 
