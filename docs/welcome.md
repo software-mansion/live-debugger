@@ -23,7 +23,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:live_debugger, "~> 0.1.7", only: :dev}
+      {:live_debugger, "~> 0.2.0", only: :dev}
     ]
   end
 ```
