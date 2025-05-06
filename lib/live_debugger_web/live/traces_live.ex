@@ -361,6 +361,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
     active_functions = get_active_functions(socket)
+    execution_times = get_execution_times(socket)
 
     socket
     |> assign(:existing_traces_status, :loading)
@@ -369,7 +370,8 @@ defmodule LiveDebuggerWeb.TracesLive do
       TraceService.existing_traces(pid,
         node_id: node_id,
         limit: @page_size,
-        functions: active_functions
+        functions: active_functions,
+        execution_times: execution_times
       )
     end)
   end
@@ -379,6 +381,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     node_id = socket.assigns.node_id
     cont = socket.assigns.traces_continuation
     active_functions = get_active_functions(socket)
+    execution_times = get_execution_times(socket)
 
     socket
     |> assign(:traces_continuation, :loading)
@@ -387,7 +390,8 @@ defmodule LiveDebuggerWeb.TracesLive do
         node_id: node_id,
         limit: @page_size,
         cont: cont,
-        functions: active_functions
+        functions: active_functions,
+        execution_times: execution_times
       )
     end)
   end
@@ -415,6 +419,14 @@ defmodule LiveDebuggerWeb.TracesLive do
     socket.assigns.current_filters.functions
     |> Enum.filter(fn {_, active?} -> active? end)
     |> Enum.map(fn {function, _} -> function end)
+  end
+
+  defp get_execution_times(socket) do
+    socket.assigns.current_filters.time
+    |> Enum.map(fn
+      {filter, ""} -> {filter, :infinity}
+      {filter, value} -> {filter, String.to_integer(value)}
+    end)
   end
 
   defp log_async_error(operation, reason) do
