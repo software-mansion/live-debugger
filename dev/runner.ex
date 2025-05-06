@@ -52,11 +52,6 @@ defmodule LiveDebuggerDev.Runner do
         patterns: [
           ~r"priv/static/.*(js|css|svg)$",
           ~r"priv/static/dev/.*(js|css|svg)$",
-          ~r"lib/live_debugger/live_views/.*ex$",
-          ~r"lib/live_debugger/live_components/.*ex$",
-          ~r"lib/live_debugger/components/.*ex$",
-          ~r"lib/live_debugger/components.ex",
-          ~r"lib/live_debugger/layout.ex",
           ~r"dev/live_views/.*(ex)$",
           ~r"dev/live_components/.*(ex)$",
           ~r"dev/layout.ex"
