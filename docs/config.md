@@ -36,7 +36,7 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
 config :live_debugger, :disabled?, true
 
 # Time in ms after tracing will be initialized. Useful in case multi-nodes envs
-config :live_debugger, tracing_setup_delay: 0
+config :live_debugger, :tracing_setup_delay, 0
 
 # LiveDebugger endpoint config
 config :live_debugger,
