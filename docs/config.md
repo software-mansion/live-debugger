@@ -6,10 +6,13 @@ Some features require injecting JS into the debugged application. They are enabl
 # config/dev.exs
 
 # Disables all browser features and does not inject LiveDebugger JS
-config :live_debugger, browser_features?: false
+config :live_debugger, :browser_features?, false
 
 # Disables only debug button
-config :live_debugger, debug_button?: false
+config :live_debugger, :debug_button?, false
+
+# Disables only components highlighting
+config :live_debugger, :highlighting?, false
 ```
 
 ### Content Security Policy
