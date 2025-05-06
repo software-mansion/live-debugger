@@ -123,7 +123,7 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
     lv_process = socket.assigns.lv_process
     node_id = socket.assigns.node_id
 
-    socket.assigns.current_filters
+    socket.assigns.current_filters.functions
     |> Enum.filter(fn {_, active?} -> active? end)
     |> Enum.map(fn {function, _} ->
       PubSubUtils.tsnf_topic(lv_process.socket_id, lv_process.transport_pid, node_id, function)
@@ -134,7 +134,7 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
     lv_process = socket.assigns.lv_process
     node_id = socket.assigns.node_id
 
-    socket.assigns.current_filters
+    socket.assigns.current_filters.functions
     |> Enum.map(fn {function, _} ->
       PubSubUtils.tsnf_topic(lv_process.socket_id, lv_process.transport_pid, node_id, function)
     end)
