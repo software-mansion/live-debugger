@@ -36,6 +36,5 @@ config :live_debugger,
   signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
   adapter: Bandit.PhoenixAdapter, # Adapter used in LiveDebugger.Endpoint
   server: true, # Forces LiveDebugger to start even if project is not started with the `mix phx.server`
-  disabled: true, # Disables LiveDebugger
   tracing_setup_delay: 0 # Time in ms after tracing will be initialized. Useful in case multi-nodes envs
 ```
