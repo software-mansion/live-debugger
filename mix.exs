@@ -1,7 +1,7 @@
 defmodule LiveDebugger.MixProject do
   use Mix.Project
 
-  @version "0.2.0-dev"
+  @version "0.3.0-dev"
 
   def project do
     [
