@@ -50,8 +50,11 @@ defmodule LiveDebuggerWeb.StateLive do
       |> PubSubUtils.node_changed_topic()
       |> PubSubUtils.subscribe!()
 
-      lv_process.socket_id
-      |> PubSubUtils.tsnf_topic(lv_process.transport_pid, node_id, :render)
+      PubSubUtils.state_changed_topic(
+        lv_process.transport_pid,
+        lv_process.socket_id,
+        node_id
+      )
       |> PubSubUtils.subscribe!()
     end
 
@@ -93,7 +96,7 @@ defmodule LiveDebuggerWeb.StateLive do
   end
 
   @impl true
-  def handle_info({:new_trace, _trace}, socket) do
+  def handle_info({:state_changed, _state}, socket) do
     socket
     |> assign_async_node_with_type()
     |> noreply()

@@ -52,10 +52,12 @@ defmodule LiveDebugger.GenServers.StateServer do
   end
 
   @impl GenServer
-  def handle_info({:new_trace, %Trace{pid: pid}}, state) do
+  def handle_info({:new_trace, %Trace{pid: pid} = trace}, state) do
     with {:ok, channel_state} <- ProcessService.state(pid) do
       table_id = table_id(pid)
       :ets.insert(@ets_table_name, {table_id, channel_state})
+
+      publish_state_changed(trace, channel_state)
     end
 
     {:noreply, state}
@@ -65,6 +67,18 @@ defmodule LiveDebugger.GenServers.StateServer do
     :ets.delete(@ets_table_name, table_id(pid))
 
     {:noreply, state}
+  end
+
+  defp publish_state_changed(%Trace{} = trace, channel_state) do
+    socket_id = trace.socket_id
+    transport_pid = trace.transport_pid
+    node_id = trace.cid || trace.pid
+
+    PubSubUtils.state_changed_topic(transport_pid, socket_id, node_id)
+    |> PubSubUtils.broadcast({:state_changed, channel_state})
+
+    PubSubUtils.state_changed_topic(transport_pid, socket_id, nil)
+    |> PubSubUtils.broadcast({:state_changed, channel_state})
   end
 
   defp impl() do

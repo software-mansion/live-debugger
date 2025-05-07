@@ -55,6 +55,21 @@ defmodule LiveDebugger.Utils.PubSub do
     "lvdbg/*/process_died"
   end
 
+  @spec state_changed_topic(
+          transport_pid :: pid(),
+          socket_id :: String.t(),
+          node_id :: TreeNode.id() | nil
+        ) :: String.t()
+  def state_changed_topic(transport_pid, socket_id, node_id)
+      when is_pid(transport_pid) and is_binary(socket_id) and is_nil(node_id) do
+    "state_changed/#{inspect(transport_pid)}/#{socket_id}/*"
+  end
+
+  def state_changed_topic(transport_pid, socket_id, node_id)
+      when is_pid(transport_pid) and is_binary(socket_id) do
+    "state_changed/#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}"
+  end
+
   @doc """
   It stands for `transport_pid/socket_id/node_id/function`.
 
