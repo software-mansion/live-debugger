@@ -134,10 +134,6 @@ defmodule LiveDebuggerWeb.Components.Traces do
   attr(:from_tracing?, :boolean, default: false)
 
   def trace_time_info(assigns) do
-    assigns =
-      assigns
-      |> assign_threshold(assigns.trace.execution_time)
-
     ~H"""
     <div class="max-w-24 text-xs font-normal text-secondary-text align-center">
       <.tooltip id={@id <> "-timestamp"} content="timestamp">
@@ -147,13 +143,7 @@ defmodule LiveDebuggerWeb.Components.Traces do
       <.tooltip id={@id <> "-exec-time-tooltip"} content="execution time">
         <span
           id={@id <> "-exec-time"}
-          class={
-            case @threshold do
-              :very_slow -> "text-error-text"
-              :slow -> "text-warning-text"
-              :ok -> ""
-            end
-          }
+          class={get_threshold_class(@trace.execution_time)}
           phx-hook={if @from_tracing?, do: "TraceExecutionTime"}
         >
           <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
@@ -195,15 +185,11 @@ defmodule LiveDebuggerWeb.Components.Traces do
     """
   end
 
-  defp assign_threshold(assigns, execution_time) do
-    assigns
-    |> assign(
-      :threshold,
-      cond do
-        execution_time > 500_000 -> :very_slow
-        execution_time > 100_000 -> :slow
-        true -> :ok
-      end
-    )
+  def get_threshold_class(execution_time) do
+    cond do
+      execution_time > 500_000 -> "text-error-text"
+      execution_time > 100_000 -> "text-warning-text"
+      true -> ""
+    end
   end
 end
