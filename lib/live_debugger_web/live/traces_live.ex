@@ -263,6 +263,7 @@ defmodule LiveDebuggerWeb.TracesLive do
 
     socket
     |> assign(:current_filters, filters)
+    |> assign(:traces_empty?, true)
     |> assign_async_existing_traces()
     |> noreply()
   end
