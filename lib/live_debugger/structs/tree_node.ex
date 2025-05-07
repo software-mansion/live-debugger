@@ -49,17 +49,6 @@ defmodule LiveDebugger.Structs.TreeNode do
   end
 
   @doc """
-  Same as `id_from_string/1`, but raises an ArgumentError if the ID is invalid.
-  """
-  @spec id_from_string!(id :: String.t()) :: id()
-  def id_from_string!(string) do
-    case id_from_string(string) do
-      {:ok, id} -> id
-      :error -> raise ArgumentError, "Invalid ID: #{inspect(string)}"
-    end
-  end
-
-  @doc """
   Adds a child to the parent node.
   """
   @spec add_child(parent :: t(), child :: t()) :: t()
