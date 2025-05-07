@@ -90,6 +90,7 @@ defmodule LiveDebuggerWeb.TracesLive do
             <Traces.refresh_button :if={not @tracing_helper.tracing_started?} />
             <Traces.clear_button :if={not @tracing_helper.tracing_started?} />
             <.live_component
+              :if={not @tracing_helper.tracing_started?}
               module={LiveDebuggerWeb.LiveComponents.LiveDropdown}
               id="filters-dropdown"
             >
