@@ -13,6 +13,7 @@ const TraceExecutionTime = {
       if (!handled) {
         clearInterval(this.intervalId);
         this.el.closest('details').open = false;
+        handled = true;
       }
     });
   },
