@@ -187,6 +187,7 @@ defmodule LiveDebuggerWeb.Components.Traces do
 
   def get_threshold_class(execution_time) do
     cond do
+      execution_time == nil -> ""
       execution_time > 500_000 -> "text-error-text"
       execution_time > 100_000 -> "text-warning-text"
       true -> ""

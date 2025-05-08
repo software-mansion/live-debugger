@@ -16,6 +16,9 @@ const TraceExecutionTime = {
       }
     });
   },
+  destroyed() {
+    clearInterval(this.intervalId);
+  },
 };
 
 export default TraceExecutionTime;
