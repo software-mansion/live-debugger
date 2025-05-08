@@ -32,13 +32,13 @@ defmodule LiveDebuggerDev.LiveViews.Main do
           <span class="text-xl"><%= @counter %></span>
         </div>
         <div class="flex items-center gap-2">
-          <.button phx-click="slow-increment" color="blue">
+          <.button id="slow-increment-button" phx-click="slow-increment" color="blue">
             Slow Increment
           </.button>
           <span class="text-xl"><%= @counter_slow %></span>
         </div>
         <div class="flex items-center gap-2">
-          <.button phx-click="very-slow-increment" color="blue">
+          <.button id="very-slow-increment-button" phx-click="very-slow-increment" color="blue">
             Very Slow Increment
           </.button>
           <span class="text-xl"><%= @counter_very_slow %></span>
