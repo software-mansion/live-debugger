@@ -5,6 +5,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
 
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.MockProcessService
+  alias LiveDebugger.MockStateServer
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Fakes
 
@@ -18,10 +19,12 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       MockProcessService
       |> expect(:list, fn -> [live_view_pid_1, live_view_pid_2] end)
       |> expect(:initial_call, 2, fn _ -> {module, :mount} end)
-      |> expect(:state, fn ^live_view_pid_1 ->
+
+      MockStateServer
+      |> expect(:get, fn ^live_view_pid_1 ->
         {:ok, Fakes.state(root_pid: live_view_pid_1, module: module)}
       end)
-      |> expect(:state, fn ^live_view_pid_2 ->
+      |> expect(:get, fn ^live_view_pid_2 ->
         {:ok, Fakes.state(root_pid: live_view_pid_2, module: module)}
       end)
 
@@ -42,10 +45,12 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       |> expect(:list, fn -> [live_view_pid, debugger_pid] end)
       |> expect(:initial_call, fn _ -> {module, :mount} end)
       |> expect(:initial_call, fn _ -> {live_debugger_module, :mount} end)
-      |> expect(:state, fn ^live_view_pid ->
+
+      MockStateServer
+      |> expect(:get, fn ^live_view_pid ->
         {:ok, Fakes.state(root_pid: live_view_pid, module: module)}
       end)
-      |> expect(:state, fn ^debugger_pid ->
+      |> expect(:get, fn ^debugger_pid ->
         {:ok, Fakes.state(root_pid: debugger_pid, module: live_debugger_module)}
       end)
 
@@ -66,10 +71,12 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
     |> expect(:list, fn -> [live_debugger_pid, live_view_pid] end)
     |> expect(:initial_call, fn _ -> {live_debugger_module, :mount} end)
     |> expect(:initial_call, fn _ -> {live_view_module, :mount} end)
-    |> expect(:state, fn ^live_debugger_pid ->
+
+    MockStateServer
+    |> expect(:get, fn ^live_debugger_pid ->
       {:ok, Fakes.state(root_pid: live_debugger_pid, module: live_debugger_module)}
     end)
-    |> expect(:state, fn ^live_view_pid ->
+    |> expect(:get, fn ^live_view_pid ->
       {:ok, Fakes.state(root_pid: live_view_pid, module: live_view_module)}
     end)
 
@@ -93,7 +100,9 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       |> expect(:list, fn -> [searched_live_view_pid, live_view_pid_1, live_view_pid_2] end)
       |> expect(:initial_call, fn _ -> {searched_module, :mount} end)
       |> expect(:initial_call, 2, fn _ -> {other_module, :mount} end)
-      |> expect(:state, fn ^searched_live_view_pid ->
+
+      MockStateServer
+      |> expect(:get, fn ^searched_live_view_pid ->
         {:ok,
          Fakes.state(
            root_pid: searched_live_view_pid,
@@ -101,7 +110,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
            socket_id: socket_id
          )}
       end)
-      |> expect(:state, 2, fn live_view_pid ->
+      |> expect(:get, 2, fn live_view_pid ->
         {:ok,
          Fakes.state(root_pid: live_view_pid, module: other_module, socket_id: other_socket_id)}
       end)
@@ -117,7 +126,9 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       MockProcessService
       |> expect(:list, fn -> [:c.pid(0, 0, 0)] end)
       |> expect(:initial_call, fn _ -> {module, :mount} end)
-      |> expect(:state, fn _ -> {:ok, Fakes.state()} end)
+
+      MockStateServer
+      |> expect(:get, fn _ -> {:ok, Fakes.state()} end)
 
       assert LiveViewDiscoveryService.lv_process(bad_socket_id) == nil
     end
@@ -129,7 +140,9 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       MockProcessService
       |> expect(:list, fn -> [:c.pid(0, 0, 1), :c.pid(0, 0, 2)] end)
       |> expect(:initial_call, 2, fn _ -> {module, :mount} end)
-      |> expect(:state, 2, fn _ -> {:ok, Fakes.state()} end)
+
+      MockStateServer
+      |> expect(:get, 2, fn _ -> {:ok, Fakes.state()} end)
 
       assert LiveViewDiscoveryService.lv_process(socket_id) == nil
     end
@@ -152,7 +165,9 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       |> expect(:list, fn -> [searched_live_view_pid, live_view_pid_1, live_view_pid_2] end)
       |> expect(:initial_call, fn _ -> {searched_module, :mount} end)
       |> expect(:initial_call, 2, fn _ -> {other_module, :mount} end)
-      |> expect(:state, fn ^searched_live_view_pid ->
+
+      MockStateServer
+      |> expect(:get, fn ^searched_live_view_pid ->
         {:ok,
          Fakes.state(
            root_pid: searched_live_view_pid,
@@ -161,7 +176,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
            transport_pid: transport_pid
          )}
       end)
-      |> expect(:state, fn live_view_pid ->
+      |> expect(:get, fn live_view_pid ->
         {:ok,
          Fakes.state(
            root_pid: live_view_pid,
@@ -170,7 +185,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
            transport_pid: transport_pid
          )}
       end)
-      |> expect(:state, fn live_view_pid ->
+      |> expect(:get, fn live_view_pid ->
         {:ok,
          Fakes.state(
            root_pid: live_view_pid,
@@ -197,7 +212,9 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       MockProcessService
       |> expect(:list, fn -> [live_view_pid_1, live_view_pid_2] end)
       |> expect(:initial_call, 2, fn _ -> {:"Elixir.SomeLiveView", :mount} end)
-      |> expect(:state, fn live_view_pid ->
+
+      MockStateServer
+      |> expect(:get, fn live_view_pid ->
         {:ok,
          Fakes.state(
            root_pid: live_view_pid,
@@ -205,7 +222,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
            transport_pid: transport_pid
          )}
       end)
-      |> expect(:state, fn live_view_pid ->
+      |> expect(:get, fn live_view_pid ->
         {:ok,
          Fakes.state(
            root_pid: live_view_pid,
@@ -231,10 +248,12 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       |> expect(:list, fn -> [successor_pid, live_view_pid] end)
       |> expect(:initial_call, fn _ -> {successor_module, :mount} end)
       |> expect(:initial_call, fn _ -> {other_module, :mount} end)
-      |> expect(:state, fn ^successor_pid ->
+
+      MockStateServer
+      |> expect(:get, fn ^successor_pid ->
         {:ok, Fakes.state(root_pid: successor_pid, module: successor_module)}
       end)
-      |> expect(:state, fn ^live_view_pid ->
+      |> expect(:get, fn ^live_view_pid ->
         {:ok, Fakes.state(root_pid: live_view_pid, module: other_module)}
       end)
 
@@ -251,7 +270,9 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       MockProcessService
       |> expect(:list, fn -> [live_view_pid] end)
       |> expect(:initial_call, fn _ -> {other_module, :mount} end)
-      |> expect(:state, fn ^live_view_pid ->
+
+      MockStateServer
+      |> expect(:get, fn ^live_view_pid ->
         {:ok, Fakes.state(root_pid: live_view_pid, module: other_module)}
       end)
 
@@ -267,7 +288,9 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       MockProcessService
       |> expect(:list, fn -> [live_view_pid_1, live_view_pid_2] end)
       |> expect(:initial_call, 2, fn _ -> {successor_module, :mount} end)
-      |> expect(:state, 2, fn live_view_pid ->
+
+      MockStateServer
+      |> expect(:get, 2, fn live_view_pid ->
         {:ok, Fakes.state(root_pid: live_view_pid, module: successor_module)}
       end)
 
@@ -346,10 +369,12 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
     |> expect(:list, fn -> [live_view_pid_1, live_view_pid_2, non_live_view_pid] end)
     |> expect(:initial_call, 2, fn _ -> {module, :mount} end)
     |> expect(:initial_call, fn _ -> {non_live_view_module, :some_initial_call} end)
-    |> expect(:state, fn ^live_view_pid_1 ->
+
+    MockStateServer
+    |> expect(:get, fn ^live_view_pid_1 ->
       {:ok, Fakes.state(root_pid: live_view_pid_1, module: module)}
     end)
-    |> expect(:state, fn ^live_view_pid_2 ->
+    |> expect(:get, fn ^live_view_pid_2 ->
       {:ok, Fakes.state(root_pid: live_view_pid_2, module: module)}
     end)
 
@@ -370,7 +395,9 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       MockProcessService
       |> stub(:list, fn -> [parent_pid, child_pid_1, child_pid_2] end)
       |> stub(:initial_call, fn _ -> {module, :mount} end)
-      |> stub(:state, fn pid ->
+
+      MockStateServer
+      |> stub(:get, fn pid ->
         if pid == parent_pid do
           {:ok, Fakes.state(root_pid: parent_pid, module: module, parent_pid: nil)}
         else
@@ -395,7 +422,9 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       MockProcessService
       |> stub(:list, fn -> [parent_pid, child_pid_1, child_pid_2, grandchild_pid] end)
       |> stub(:initial_call, fn _ -> {module, :mount} end)
-      |> stub(:state, fn pid ->
+
+      MockStateServer
+      |> stub(:get, fn pid ->
         case pid do
           ^parent_pid ->
             {:ok, Fakes.state(root_pid: parent_pid, module: module, parent_pid: nil)}

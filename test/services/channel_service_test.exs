@@ -38,27 +38,6 @@ defmodule LiveDebugger.Services.ChannelServiceTest do
     }
   end
 
-  describe "state/1" do
-    test "returns the state of the LiveView channel process identified by pid", %{
-      live_view_pid: pid
-    } do
-      {:ok, state} = ProcessService.state(pid)
-      assert {:ok, ^state} = ChannelService.state(pid)
-    end
-
-    test "returns an error when the process is not a LiveView", %{non_live_view_pid: pid} do
-      assert {:error, "PID:" <> _} = ChannelService.state(pid)
-    end
-
-    test "returns an error when there is no process with the given pid", %{not_alive_pid: pid} do
-      assert {:error, :not_alive} = ChannelService.state(pid)
-    end
-
-    test "returns and error when something went wrong", %{exited_pid: pid} do
-      assert {:error, "Could not get state from pid:" <> _} = ChannelService.state(pid)
-    end
-  end
-
   describe "get_node/2" do
     test "returns LiveView node with the given id from the channel state when pid is passed", %{
       live_view_pid: pid

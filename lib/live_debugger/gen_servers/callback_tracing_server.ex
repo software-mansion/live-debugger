@@ -145,11 +145,15 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     |> PubSubUtils.broadcast({:new_trace, trace})
   end
 
-  defp do_publish(trace) do
+  defp do_publish(%Trace{} = trace) do
     socket_id = trace.socket_id
     node_id = Trace.node_id(trace)
     transport_pid = trace.transport_pid
     fun = trace.function
+
+    fun
+    |> PubSubUtils.___f_topic()
+    |> PubSubUtils.broadcast({:new_trace, trace})
 
     socket_id
     |> PubSubUtils.tsnf_topic(transport_pid, node_id, fun)
