@@ -5,6 +5,15 @@ defmodule LiveDebugger.Services.ChannelService do
 
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.CommonTypes
+  alias LiveDebugger.GenServers.StateServer
+
+  @doc """
+  Retrieves the state of the LiveView channel process identified by `pid`.
+  """
+  @spec state(pid :: pid()) :: {:ok, CommonTypes.channel_state()} | {:error, term()}
+  def state(pid) do
+    StateServer.get(pid)
+  end
 
   @doc """
   Retrieves a TreeNode with the given `id` from the channel state
