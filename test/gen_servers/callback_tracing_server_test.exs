@@ -10,7 +10,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
   alias LiveDebugger.MockDbg
   alias LiveDebugger.MockEtsTableServer
   alias LiveDebugger.MockPubSubUtils
-  alias LiveDebugger.MockProcessService
+  alias LiveDebugger.MockStateServer
 
   @modules [
     CoolApp.LiveViews.UserDashboard,
@@ -83,8 +83,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       expected_topic =
         PubSubUtils.component_deleted_topic(%{socket_id: socket_id, transport_pid: transport_pid})
 
-      MockProcessService
-      |> expect(:state, fn ^pid ->
+      MockStateServer
+      |> expect(:get, fn ^pid ->
         {:ok, LiveDebugger.Fakes.state(transport_pid: transport_pid, socket_id: socket_id)}
       end)
 
@@ -127,11 +127,13 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       expected_tsnf_topic = PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, fun)
       expected_ts_f_topic = PubSubUtils.ts_f_topic(socket_id, transport_pid, fun)
+      expected____f_topic = PubSubUtils.___f_topic(fun)
 
       MockEtsTableServer
       |> expect(:table!, fn ^pid -> table end)
 
       MockPubSubUtils
+      |> expect(:broadcast, fn ^expected____f_topic, {:new_trace, _trace} -> :ok end)
       |> expect(:broadcast, fn ^expected_tsnf_topic, {:new_trace, _trace} -> :ok end)
       |> expect(:broadcast, fn ^expected_ts_f_topic, {:new_trace, _trace} -> :ok end)
 
