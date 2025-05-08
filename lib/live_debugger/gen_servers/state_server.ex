@@ -30,14 +30,14 @@ defmodule LiveDebugger.GenServers.StateServer do
   def ets_table_name(), do: @ets_table_name
 
   @doc false
-  def table_id(pid), do: "#{inspect(pid)}"
+  def record_id(pid), do: "#{inspect(pid)}"
 
   @doc false
   def start_link(args \\ []) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
-  @impl GenServer
+  @impl true
   def init(_args) do
     :ets.new(@ets_table_name, [:named_table, :public, :named_table])
 
@@ -51,11 +51,11 @@ defmodule LiveDebugger.GenServers.StateServer do
     {:ok, []}
   end
 
-  @impl GenServer
+  @impl true
   def handle_info({:new_trace, %Trace{pid: pid} = trace}, state) do
     with {:ok, channel_state} <- ProcessService.state(pid) do
-      table_id = table_id(pid)
-      :ets.insert(@ets_table_name, {table_id, channel_state})
+      record_id = record_id(pid)
+      :ets.insert(@ets_table_name, {record_id, channel_state})
 
       publish_state_changed(trace, channel_state)
     end
@@ -64,7 +64,7 @@ defmodule LiveDebugger.GenServers.StateServer do
   end
 
   def handle_info({:process_status, {:dead, pid}}, state) do
-    :ets.delete(@ets_table_name, table_id(pid))
+    :ets.delete(@ets_table_name, record_id(pid))
 
     {:noreply, state}
   end
@@ -92,7 +92,7 @@ defmodule LiveDebugger.GenServers.StateServer do
     @server_module LiveDebugger.GenServers.StateServer
 
     def get(pid) do
-      case :ets.lookup(@server_module.ets_table_name(), @server_module.table_id(pid)) do
+      case :ets.lookup(@server_module.ets_table_name(), @server_module.record_id(pid)) do
         [{_, channel_state}] -> {:ok, channel_state}
         [] -> {:error, :not_found}
       end

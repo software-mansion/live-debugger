@@ -50,10 +50,12 @@ defmodule LiveDebuggerWeb.Components.Traces do
 
   def separator(assigns) do
     ~H"""
-    <div id={@id} class="h-6 my-1 font-normal text-xs text-secondary-text flex items-center">
-      <div class="border-b border-default-border flex-1"></div>
-      <span class="mx-2">Past Traces</span>
-      <div class="border-b border-default-border flex-1"></div>
+    <div id={@id}>
+      <div class="h-6 my-1 font-normal text-xs text-secondary-text flex align items-center">
+        <div class="border-b border-default-border grow"></div>
+        <span class="mx-2">Past Traces</span>
+        <div class="border-b border-default-border grow"></div>
+      </div>
     </div>
     """
   end
@@ -80,19 +82,25 @@ defmodule LiveDebuggerWeb.Components.Traces do
       phx-value-trace-id={@trace.id}
     >
       <:label>
-        <div id={@id <> "-label"} class="flex items-center gap-1.5 ml-2 w-[90%]" phx-update="ignore">
+        <div
+          id={@id <> "-label"}
+          class="w-[90%] grow flex items-center ml-2 gap-1.5"
+          phx-update="ignore"
+        >
           <p class="font-medium text-sm"><%= @callback_name %></p>
           <.short_trace_content trace={@trace} />
           <.trace_time_info id={@id} trace={@trace} from_tracing?={@from_tracing?} />
         </div>
       </:label>
       <div class="relative">
-        <.fullscreen_button
-          id={"trace-fullscreen-#{@id}"}
-          class="absolute right-0 top-0 z-10 m-2"
-          phx-click="open-trace"
-          phx-value-data={@trace.id}
-        />
+        <div class="absolute right-0 top-0 z-10">
+          <.fullscreen_button
+            id={"trace-fullscreen-#{@id}"}
+            class="m-2"
+            phx-click="open-trace"
+            phx-value-data={@trace.id}
+          />
+        </div>
         <div class="flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto p-4">
           <%= if @render_body? do %>
             <%= for {args, index} <- Enum.with_index(@trace.args) do %>
@@ -168,7 +176,7 @@ defmodule LiveDebuggerWeb.Components.Traces do
 
     ~H"""
     <.fullscreen id={@id} title={@callback_name}>
-      <div class="flex flex-col gap-4 items-start justify-center w-full">
+      <div class="w-full flex flex-col gap-4 items-start justify-center">
         <%= for {args, index} <- Enum.with_index(@trace_args) do %>
           <ElixirDisplay.term
             id={@id <> "-#{index}-fullscreen"}
