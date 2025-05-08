@@ -59,6 +59,9 @@ defmodule LiveDebuggerWeb.SidebarLive do
       lv_process.socket_id
       |> PubSubUtils.component_deleted_topic(lv_process.transport_pid)
       |> PubSubUtils.subscribe!()
+
+      PubSubUtils.ts_f_topic(lv_process.socket_id, lv_process.transport_pid, :render)
+      |> PubSubUtils.subscribe!()
     end
 
     socket
