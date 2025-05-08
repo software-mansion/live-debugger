@@ -188,7 +188,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     fun = trace.function
 
     socket_id
-    |> PubSubUtils.tsnf_topic(transport_pid, node_id, fun)
+    |> PubSubUtils.tsnf_topic(transport_pid, node_id, fun, :call)
     |> PubSubUtils.broadcast({:new_trace, trace})
 
     socket_id
@@ -204,7 +204,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     fun = trace.function
 
     socket_id
-    |> PubSubUtils.tsnf_topic(transport_pid, node_id, fun)
+    |> PubSubUtils.tsnf_topic(transport_pid, node_id, fun, :return)
     |> PubSubUtils.broadcast({:updated_trace, trace})
   end
 end
