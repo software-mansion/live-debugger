@@ -45,7 +45,7 @@ defmodule LiveDebugger.GenServers.StateServer do
     |> PubSubUtils.___f_topic()
     |> PubSubUtils.subscribe!()
 
-    PubSubUtils.process_died_topic()
+    PubSubUtils.process_status_topic()
     |> PubSubUtils.subscribe!()
 
     {:ok, []}
@@ -63,7 +63,7 @@ defmodule LiveDebugger.GenServers.StateServer do
     {:noreply, state}
   end
 
-  def handle_info({:process_died, pid}, state) do
+  def handle_info({:process_status, {:dead, pid}}, state) do
     :ets.delete(@ets_table_name, table_id(pid))
 
     {:noreply, state}
@@ -74,10 +74,10 @@ defmodule LiveDebugger.GenServers.StateServer do
     transport_pid = trace.transport_pid
     node_id = trace.cid || trace.pid
 
-    PubSubUtils.state_changed_topic(transport_pid, socket_id, node_id)
+    PubSubUtils.state_changed_topic(socket_id, transport_pid, node_id)
     |> PubSubUtils.broadcast({:state_changed, channel_state})
 
-    PubSubUtils.state_changed_topic(transport_pid, socket_id, nil)
+    PubSubUtils.state_changed_topic(socket_id, transport_pid, nil)
     |> PubSubUtils.broadcast({:state_changed, channel_state})
   end
 

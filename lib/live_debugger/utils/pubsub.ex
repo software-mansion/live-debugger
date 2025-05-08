@@ -45,27 +45,33 @@ defmodule LiveDebugger.Utils.PubSub do
     "lvdbg/#{inspect(transport_pid)}/#{socket_id}/component_deleted"
   end
 
-  @spec process_died_topic(pid :: pid()) :: String.t()
-  def process_died_topic(pid) do
-    "lvdbg/#{inspect(pid)}/process_died"
+  @doc """
+  Topic for broadcasting process status.
+
+  If `pid` is `nil`, it will broadcast all processes' statuses.
+  """
+  @spec process_status_topic(pid :: pid() | nil) :: String.t()
+  def process_status_topic(pid \\ nil)
+
+  def process_status_topic(nil) do
+    "lvdbg/*/process_status"
   end
 
-  @spec process_died_topic() :: String.t()
-  def process_died_topic() do
-    "lvdbg/*/process_died"
+  def process_status_topic(pid) when is_pid(pid) do
+    "lvdbg/#{inspect(pid)}/process_status"
   end
 
   @spec state_changed_topic(
-          transport_pid :: pid(),
           socket_id :: String.t(),
+          transport_pid :: pid(),
           node_id :: TreeNode.id() | nil
         ) :: String.t()
-  def state_changed_topic(transport_pid, socket_id, node_id)
+  def state_changed_topic(socket_id, transport_pid, node_id)
       when is_pid(transport_pid) and is_binary(socket_id) and is_nil(node_id) do
     "state_changed/#{inspect(transport_pid)}/#{socket_id}/*"
   end
 
-  def state_changed_topic(transport_pid, socket_id, node_id)
+  def state_changed_topic(socket_id, transport_pid, node_id)
       when is_pid(transport_pid) and is_binary(socket_id) do
     "state_changed/#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}"
   end
