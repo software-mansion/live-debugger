@@ -18,7 +18,6 @@ defmodule LiveDebuggerWeb.SidebarLive do
   alias LiveDebugger.Utils.URL
   alias LiveDebuggerWeb.LiveComponents.NestedLiveViewsLinks
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
-  alias LiveDebugger.GenServers.StateServer
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -340,7 +339,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
     pid = socket.assigns.lv_process.pid
 
     assign_async(socket, :existing_node_ids, fn ->
-      with {:ok, channel_state} <- StateServer.get(pid),
+      with {:ok, channel_state} <- ChannelService.state(pid),
            {:ok, node_ids} <- ChannelService.node_ids(channel_state) do
         {:ok, %{existing_node_ids: MapSet.new(node_ids)}}
       else
@@ -353,7 +352,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
     pid = socket.assigns.lv_process.pid
 
     assign_async(socket, [:tree, :max_opened_node_level], fn ->
-      with {:ok, channel_state} <- StateServer.get(pid),
+      with {:ok, channel_state} <- ChannelService.state(pid),
            {:ok, tree} <- ChannelService.build_tree(channel_state) do
         {:ok, %{tree: tree, max_opened_node_level: Tree.max_opened_node_level(tree)}}
       else
@@ -381,7 +380,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
   end
 
   defp send_event(pid, event, payload \\ %{}) do
-    {:ok, state} = StateServer.get(pid)
+    {:ok, state} = ChannelService.state(pid)
 
     message = %Message{
       topic: state.topic,

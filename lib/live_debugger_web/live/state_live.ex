@@ -5,7 +5,6 @@ defmodule LiveDebuggerWeb.StateLive do
 
   use LiveDebuggerWeb, :live_view
 
-  alias LiveDebugger.GenServers.StateServer
   alias Phoenix.LiveView.AsyncResult
 
   alias LiveDebuggerWeb.Components.ElixirDisplay
@@ -14,7 +13,6 @@ defmodule LiveDebuggerWeb.StateLive do
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
-  alias LiveDebugger.GenServers.StateServer
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -194,7 +192,7 @@ defmodule LiveDebuggerWeb.StateLive do
 
   defp maybe_get_state(pid, channel_state) do
     if is_nil(channel_state) do
-      StateServer.get(pid)
+      ChannelService.state(pid)
     else
       {:ok, channel_state}
     end
