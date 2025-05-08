@@ -68,6 +68,7 @@ defmodule LiveDebuggerWeb.Components.Traces do
       assigns
       |> assign(:trace, assigns.wrapped_trace.trace)
       |> assign(:render_body?, assigns.wrapped_trace.render_body?)
+      |> assign(:from_tracing?, assigns.wrapped_trace.from_tracing?)
       |> assign(:callback_name, Trace.callback_name(assigns.wrapped_trace.trace))
 
     ~H"""
@@ -81,16 +82,10 @@ defmodule LiveDebuggerWeb.Components.Traces do
       phx-value-trace-id={@trace.id}
     >
       <:label>
-        <div
-          id={@id <> "-label"}
-          class="w-[90%] grow flex items-center ml-2 gap-1.5"
-          phx-update="ignore"
-        >
+        <div id={@id <> "-label"} class="w-[90%] grow flex items-center ml-2 gap-1.5">
           <p class="font-medium text-sm"><%= @callback_name %></p>
           <.short_trace_content trace={@trace} />
-          <p class="w-max text-xs font-normal text-secondary-text align-center">
-            <%= Parsers.parse_timestamp(@trace.timestamp) %>
-          </p>
+          <.trace_time_info id={@id} trace={@trace} from_tracing?={@from_tracing?} />
         </div>
       </:label>
       <div class="relative">
@@ -122,12 +117,38 @@ defmodule LiveDebuggerWeb.Components.Traces do
     """
   end
 
+  attr(:trace, :map, default: nil)
+
   def short_trace_content(assigns) do
     assigns = assign(assigns, :content, Enum.map_join(assigns.trace.args, " ", &inspect/1))
 
     ~H"""
     <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
       <p class="hide-on-open mt-0.5"><%= @content %></p>
+    </div>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:trace, :map, default: nil)
+  attr(:from_tracing?, :boolean, default: false)
+
+  def trace_time_info(assigns) do
+    ~H"""
+    <div class="max-w-24 text-xs font-normal text-secondary-text align-center">
+      <.tooltip id={@id <> "-timestamp"} content="timestamp">
+        <%= Parsers.parse_timestamp(@trace.timestamp) %>
+      </.tooltip>
+
+      <.tooltip id={@id <> "-exec-time-tooltip"} content="execution time">
+        <span
+          id={@id <> "-exec-time"}
+          class={get_threshold_class(@trace.execution_time)}
+          phx-hook={if @from_tracing?, do: "TraceExecutionTime"}
+        >
+          <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
+        </span>
+      </.tooltip>
     </div>
     """
   end
@@ -162,5 +183,14 @@ defmodule LiveDebuggerWeb.Components.Traces do
       </div>
     </.fullscreen>
     """
+  end
+
+  def get_threshold_class(execution_time) do
+    cond do
+      execution_time == nil -> ""
+      execution_time > 500_000 -> "text-error-text"
+      execution_time > 100_000 -> "text-warning-text"
+      true -> ""
+    end
   end
 end

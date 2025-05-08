@@ -6,16 +6,17 @@ defmodule LiveDebugger.Structs.TraceDisplay do
 
   alias LiveDebugger.Structs.Trace
 
-  defstruct [:id, :trace, :render_body?, :counter]
+  defstruct [:id, :trace, :render_body?, :from_tracing?, :counter]
 
   @type t() :: %__MODULE__{
           id: integer(),
           trace: Trace.t(),
-          render_body?: boolean()
+          render_body?: boolean(),
+          from_tracing?: boolean()
         }
 
-  def from_trace(%Trace{} = trace) do
-    %__MODULE__{id: trace.id, trace: trace, render_body?: false}
+  def from_trace(%Trace{} = trace, from_tracing? \\ false) do
+    %__MODULE__{id: trace.id, trace: trace, render_body?: false, from_tracing?: from_tracing?}
   end
 
   def render_body(%__MODULE__{} = trace) do

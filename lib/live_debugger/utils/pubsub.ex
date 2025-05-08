@@ -70,10 +70,11 @@ defmodule LiveDebugger.Utils.PubSub do
           socket_id :: String.t(),
           transport_pid :: pid(),
           node_id :: TreeNode.id(),
-          fun :: atom()
+          fun :: atom(),
+          type :: :call | :return
         ) :: String.t()
-  def tsnf_topic(socket_id, transport_pid, node_id, fun) do
-    "#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}/#{inspect(fun)}"
+  def tsnf_topic(socket_id, transport_pid, node_id, fun, type \\ :call) do
+    "#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}/#{inspect(fun)}/#{inspect(type)}"
   end
 
   @doc """

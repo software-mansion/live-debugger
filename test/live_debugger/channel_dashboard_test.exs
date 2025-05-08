@@ -44,6 +44,40 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_has(traces(count: 0))
     |> click(refresh_button())
     |> assert_has(traces(count: 4))
+    |> click(clear_traces_button())
+
+    dev_app
+    |> click(button("slow-increment-button"))
+
+    debugger
+    |> click(refresh_button())
+    |> assert_has(traces(count: 0))
+
+    Process.sleep(405)
+
+    execution_time =
+      debugger
+      |> click(refresh_button())
+      |> take_screenshot()
+      |> find(traces(count: 2))
+      |> List.last()
+      |> find(css("span.text-warning-text"))
+      |> Element.text()
+
+    assert execution_time =~ ~r"^40\d ms$"
+
+    debugger
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(button("very-slow-increment-button"))
+
+    Process.sleep(2505)
+
+    debugger
+    |> find(traces(count: 4))
+    |> Enum.at(1)
+    |> assert_has(css("span.text-error-text", text: "2.50 s"))
   end
 
   defp first_link(), do: css("#live-sessions a", count: 1)
