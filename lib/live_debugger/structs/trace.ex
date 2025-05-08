@@ -44,8 +44,8 @@ defmodule LiveDebugger.Structs.Trace do
   @doc """
   Creates a new trace struct.
   """
-  @spec new(integer(), atom(), atom(), list(), pid(), Keyword.t()) :: t()
-  def new(id, module, function, args, pid, opts \\ []) do
+  @spec new(integer(), atom(), atom(), list(), pid(), non_neg_integer(), Keyword.t()) :: t()
+  def new(id, module, function, args, pid, timestamp, opts \\ []) do
     socket_id = Keyword.get(opts, :socket_id, get_socket_id_from_args(args))
     transport_pid = Keyword.get(opts, :transport_pid, get_transport_pid_from_args(args))
     cid = Keyword.get(opts, :cid, get_cid_from_args(args))
@@ -60,7 +60,7 @@ defmodule LiveDebugger.Structs.Trace do
       transport_pid: transport_pid,
       pid: pid,
       cid: cid,
-      timestamp: :os.system_time(:microsecond),
+      timestamp: :timer.now_diff(timestamp, {0, 0, 0}),
       execution_time: nil
     }
   end

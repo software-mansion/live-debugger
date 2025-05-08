@@ -80,7 +80,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   # We do not persist this trace because it is not displayed to user
   @spec handle_trace(term(), n :: integer()) :: integer()
   defp handle_trace(
-         {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, _},
+         {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, timestamp},
          n
        ) do
     Task.start(fn ->
@@ -95,6 +95,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
                :delete_component,
                args,
                pid,
+               timestamp,
                socket_id: socket_id,
                transport_pid: transport_pid,
                cid: cid
@@ -110,7 +111,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   # It cannot be async because we care about order
   defp handle_trace({_, pid, :call, {module, fun, args}, timestamp}, n)
        when fun in @callback_functions do
-    with trace <- Trace.new(n, module, fun, args, pid),
+    with trace <- Trace.new(n, module, fun, args, pid, timestamp),
          true <- is_pid(trace.transport_pid),
          :ok <- persist_trace(trace) do
       :erlang.put({pid, module, fun}, {timestamp, trace})
