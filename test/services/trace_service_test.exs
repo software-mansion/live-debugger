@@ -23,7 +23,7 @@ defmodule Services.TraceServiceTest do
   end
 
   test "insert/1", %{module: module, pid: pid, table: table} do
-    trace = Trace.new(1, module, :render, [], pid)
+    trace = new_trace(1, module, :render, [], pid)
 
     MockEtsTableServer
     |> expect(:table!, fn ^pid -> table end)
@@ -33,8 +33,8 @@ defmodule Services.TraceServiceTest do
   end
 
   test "get/2", %{module: module, pid: pid, table: table} do
-    trace1 = Trace.new(1, module, :handle_info, [], pid)
-    trace2 = Trace.new(2, module, :render, [], pid)
+    trace1 = new_trace(1, module, :handle_info, [], pid)
+    trace2 = new_trace(2, module, :render, [], pid)
     :ets.insert(table, {trace1.id, trace1})
     :ets.insert(table, {trace2.id, trace2})
 
@@ -48,8 +48,8 @@ defmodule Services.TraceServiceTest do
 
   describe "existing_traces/2" do
     test "returns traces with default limit", %{module: module, pid: pid, table: table} do
-      trace1 = Trace.new(1, module, :handle_info, [], pid)
-      trace2 = Trace.new(2, module, :render, [], pid)
+      trace1 = new_trace(1, module, :handle_info, [], pid)
+      trace2 = new_trace(2, module, :render, [], pid)
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
 
@@ -60,9 +60,9 @@ defmodule Services.TraceServiceTest do
     end
 
     test "returns traces with limit and continuation", %{module: module, pid: pid, table: table} do
-      trace1 = Trace.new(1, module, :handle_info, [], pid)
-      trace2 = Trace.new(2, module, :render, [], pid)
-      trace3 = Trace.new(3, module, :handle_event, [], pid)
+      trace1 = new_trace(1, module, :handle_info, [], pid)
+      trace2 = new_trace(2, module, :render, [], pid)
+      trace3 = new_trace(3, module, :handle_event, [], pid)
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
       :ets.insert(table, {trace3.id, trace3})
@@ -85,9 +85,9 @@ defmodule Services.TraceServiceTest do
     end
 
     test "returns traces with functions filter", %{module: module, pid: pid, table: table} do
-      trace1 = Trace.new(1, module, :handle_info, [], pid)
-      trace2 = Trace.new(2, module, :render, [], pid)
-      trace3 = Trace.new(3, module, :handle_event, [], pid)
+      trace1 = new_trace(1, module, :handle_info, [], pid)
+      trace2 = new_trace(2, module, :render, [], pid)
+      trace3 = new_trace(3, module, :handle_event, [], pid)
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
       :ets.insert(table, {trace3.id, trace3})
@@ -103,9 +103,9 @@ defmodule Services.TraceServiceTest do
 
     test "returns traces with node_id filter", %{module: module, pid: pid, table: table} do
       cid = %Phoenix.LiveComponent.CID{cid: 3}
-      trace1 = Trace.new(1, module, :handle_info, [], pid)
-      trace2 = Trace.new(2, module, :render, [], pid, cid: cid)
-      trace3 = Trace.new(3, module, :handle_event, [], pid, cid: cid)
+      trace1 = new_trace(1, module, :handle_info, [], pid)
+      trace2 = new_trace(2, module, :render, [], pid, cid: cid)
+      trace3 = new_trace(3, module, :handle_event, [], pid, cid: cid)
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
       :ets.insert(table, {trace3.id, trace3})
@@ -118,8 +118,8 @@ defmodule Services.TraceServiceTest do
     end
 
     test "returns :end_of_table when no traces match", %{module: module, pid: pid, table: table} do
-      trace1 = Trace.new(1, module, :handle_info, [], pid)
-      trace2 = Trace.new(2, module, :render, [], pid)
+      trace1 = new_trace(1, module, :handle_info, [], pid)
+      trace2 = new_trace(2, module, :render, [], pid)
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
 
@@ -128,13 +128,25 @@ defmodule Services.TraceServiceTest do
 
       assert :end_of_table = TraceService.existing_traces(pid, functions: [:non_existent])
     end
+
+    test "returns only finished traces", %{module: module, pid: pid, table: table} do
+      trace1 = new_trace(1, module, :handle_info, [], pid)
+      trace2 = new_trace(2, module, :render, [], pid, execution_time: nil)
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+
+      MockEtsTableServer
+      |> expect(:table!, fn ^pid -> table end)
+
+      assert {[^trace1], _} = TraceService.existing_traces(pid)
+    end
   end
 
   describe "clear_traces/2" do
     test "clears traces for LiveView or LiveComponent", %{module: module, pid: pid, table: table} do
       cid = %Phoenix.LiveComponent.CID{cid: 3}
-      trace1 = Trace.new(1, module, :handle_info, [], pid)
-      trace2 = Trace.new(2, module, :render, [], pid, cid: cid)
+      trace1 = new_trace(1, module, :handle_info, [], pid)
+      trace2 = new_trace(2, module, :render, [], pid, cid: cid)
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
 
@@ -151,5 +163,19 @@ defmodule Services.TraceServiceTest do
 
       assert :end_of_table = TraceService.existing_traces(pid)
     end
+  end
+
+  defp new_trace(id, module, function, args, pid, opts \\ []) do
+    %Trace{
+      id: id,
+      module: module,
+      function: function,
+      arity: length(args),
+      args: args,
+      pid: pid,
+      cid: Keyword.get(opts, :cid, nil),
+      timestamp: 1,
+      execution_time: Keyword.get(opts, :execution_time, 1)
+    }
   end
 end
