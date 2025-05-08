@@ -3,6 +3,31 @@ defmodule LiveDebugger.Utils.CallbacksTest do
 
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
 
+  test "live_view_callbacks/0" do
+    assert [
+             {:mount, 3},
+             {:handle_params, 3},
+             {:handle_info, 2},
+             {:handle_call, 3},
+             {:handle_cast, 2},
+             {:terminate, 2},
+             {:render, 1},
+             {:handle_event, 3},
+             {:handle_async, 3}
+           ] = CallbackUtils.live_view_callbacks()
+  end
+
+  test "live_component_callbacks/0" do
+    assert [
+             {:mount, 1},
+             {:update, 2},
+             {:update_many, 1},
+             {:render, 1},
+             {:handle_event, 3},
+             {:handle_async, 3}
+           ] = CallbackUtils.live_component_callbacks()
+  end
+
   describe "live_view_callbacks/1" do
     test "returns proper callbacks for LiveView module" do
       assert [
