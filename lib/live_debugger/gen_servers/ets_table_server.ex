@@ -46,11 +46,12 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     {_, table_refs} = delete_ets_table(closed_pid, table_refs)
 
     closed_pid
-    |> PubSubUtils.process_died_topic()
-    |> PubSubUtils.broadcast({:process_died, closed_pid})
+    |> PubSubUtils.process_status_topic()
+    |> PubSubUtils.broadcast({:process_status, :dead})
 
-    PubSubUtils.process_died_topic()
-    |> PubSubUtils.broadcast({:process_died, closed_pid})
+    nil
+    |> PubSubUtils.process_status_topic()
+    |> PubSubUtils.broadcast({:process_status, {:dead, closed_pid}})
 
     {:noreply, table_refs}
   end

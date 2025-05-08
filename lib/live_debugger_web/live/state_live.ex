@@ -51,8 +51,8 @@ defmodule LiveDebuggerWeb.StateLive do
       |> PubSubUtils.subscribe!()
 
       PubSubUtils.state_changed_topic(
-        lv_process.transport_pid,
         lv_process.socket_id,
+        lv_process.transport_pid,
         node_id
       )
       |> PubSubUtils.subscribe!()
