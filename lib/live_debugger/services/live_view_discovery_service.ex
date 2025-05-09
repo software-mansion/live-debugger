@@ -39,18 +39,47 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   end
 
   @doc """
-  Finds potential successors LvProcesses.
+  Finds a successor LiveView process based on the following priority:
+  1. A non-nested, non-embedded process with matching transport_pid
+  2. A non-nested process with matching transport_pid
+  3. A single process with matching transport_pid
+  4. A single non-nested, non-embedded process in the entire process list
+  5. A single non-nested process in the entire process list
+  6. A single process in the entire process list
+  Returns nil if no suitable successor is found.
   """
   @spec successor_lv_process(lv_process :: LvProcess.t()) :: LvProcess.t() | nil
   def successor_lv_process(lv_process) do
-    with processes <- debugged_lv_processes(),
-         processes <-
-           Enum.filter(processes, &(&1.transport_pid == lv_process.transport_pid)),
-         nil <- Enum.find(processes, &(not &1.nested? and not &1.embedded?)),
-         nil <- Enum.find(processes, &(not &1.nested?)) do
-      nil
-    else
-      lv_process -> lv_process
+    processes = debugged_lv_processes()
+    transport_processes = Enum.filter(processes, &(&1.transport_pid == lv_process.transport_pid))
+
+    cond do
+      # Priority 1: Find a non-nested, non-embedded process with matching transport_pid
+      successor = Enum.find(transport_processes, &(not &1.nested? and not &1.embedded?)) ->
+        successor
+
+      # Priority 2: Find a non-nested process with matching transport_pid
+      successor = Enum.find(transport_processes, &(not &1.nested?)) ->
+        successor
+
+      # Priority 3: Use single process with matching transport_pid if it exists
+      length(transport_processes) == 1 ->
+        List.first(transport_processes)
+
+      # Priority 4: Use single non-nested, non-embedded process if it exists
+      length(lv_list = Enum.filter(processes, fn p -> not p.nested? and not p.embedded? end)) == 1 ->
+        List.first(lv_list)
+
+      # Priority 5: Use single non-nested process if it exists
+      length(lv_list = Enum.filter(processes, fn p -> not p.nested? end)) == 1 ->
+        List.first(lv_list)
+
+      # Priority 6: Use single process if it exists
+      length(processes) == 1 ->
+        List.first(processes)
+
+      true ->
+        nil
     end
   end
 
