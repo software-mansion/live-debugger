@@ -20,12 +20,12 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias LiveDebuggerWeb.TracesLive
   alias LiveDebuggerWeb.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebugger.Utils.Parsers
 
   @impl true
-  def mount(params, _session, socket) do
+  def mount(%{"pid" => string_pid}, _session, socket) do
     socket
-    |> assign(:socket_id, params["socket_id"])
-    |> start_async_assign_lv_process(params)
+    |> start_async_assign_lv_process(string_pid)
     |> ok()
   end
 
@@ -59,8 +59,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
         </:loading>
         <:failed :let={reason}>
           <Error.not_found_component :if={reason == :not_found} />
-          <Error.session_limit_component :if={reason == :session_limit} />
-          <Error.unexpected_error_component :if={reason not in [:not_found, :session_limit]} />
+          <Error.unexpected_error_component :if={reason != :not_found} />
         </:failed>
 
         <div class="flex overflow-hidden">
@@ -96,35 +95,27 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
     """
   end
 
+  # When fetching LvProcess fails, we try to find a successor LvProcess
   @impl true
   def handle_async(:fetch_lv_process, {:ok, nil}, socket) do
-    with %{debugged_module: module} when not is_nil(module) <- socket.assigns,
-         %LvProcess{socket_id: socket_id, transport_pid: transport_pid} <-
-           LiveViewDiscoveryService.successor_lv_process(module) do
-      socket
-      |> push_navigate(to: RoutesHelper.channel_dashboard(socket_id, transport_pid))
-      |> noreply()
-    else
-      _ ->
-        socket
-        |> assign(
-          :lv_process,
-          AsyncResult.failed(socket.assigns.lv_process, :not_found)
-        )
-        |> noreply()
-    end
+    socket
+    |> handle_liveview_process_not_found()
+    |> noreply()
   end
 
+  # When fetching LvProcess succeeds, we subscribe to its process state
+  @impl true
   def handle_async(:fetch_lv_process, {:ok, fetched_lv_process}, socket) do
     subscribe_process_state(fetched_lv_process.pid)
 
     socket
     |> assign(:lv_process, AsyncResult.ok(fetched_lv_process))
     |> assign(:debugged_module, fetched_lv_process.module)
-    |> patch_transport_pid(fetched_lv_process)
     |> noreply()
   end
 
+  # When fetching LvProcess fails, we assign the error to the socket
+  @impl true
   def handle_async(:fetch_lv_process, {:exit, reason}, socket) do
     Logger.error(
       "LiveDebugger encountered unexpected error while fetching information for process: #{inspect(reason)}"
@@ -141,8 +132,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   @impl true
   def handle_info({:process_status, :dead}, socket) do
     socket
-    |> push_patch(to: URL.remove_query_param(socket.assigns.url, "node_id"))
-    |> start_async_assign_lv_process(%{"socket_id" => socket.assigns.socket_id})
+    |> handle_liveview_process_not_found()
     |> noreply()
   end
 
@@ -168,16 +158,13 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
     assign(socket, :node_id, nil)
   end
 
-  defp start_async_assign_lv_process(socket, %{
-         "socket_id" => socket_id,
-         "transport_pid" => transport_pid
-       }) do
-    case Parsers.string_to_pid(transport_pid) do
+  defp start_async_assign_lv_process(socket, string_pid) do
+    case Parsers.string_to_pid(string_pid) do
       {:ok, pid} ->
         socket
         |> assign(:lv_process, AsyncResult.loading())
         |> start_async(:fetch_lv_process, fn ->
-          fetch_lv_process(socket_id, pid)
+          delayed_fetch(fn -> LiveViewDiscoveryService.lv_process(pid) end)
         end)
 
       :error ->
@@ -189,36 +176,41 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
     end
   end
 
-  defp start_async_assign_lv_process(socket, %{"socket_id" => socket_id}) do
-    socket
-    |> assign(:lv_process, AsyncResult.loading())
-    |> start_async(:fetch_lv_process, fn ->
-      fetch_lv_process(socket_id)
-    end)
+  defp subscribe_process_state(pid) do
+    pid
+    |> PubSubUtils.process_status_topic()
+    |> PubSubUtils.subscribe!()
   end
 
-  defp fetch_lv_process(socket_id, transport_pid \\ nil) do
+  defp handle_liveview_process_not_found(socket) do
+    with %{lv_process: %{result: %LvProcess{} = lv_process}} <- socket.assigns,
+         %{pid: successor_pid} <-
+           delayed_fetch(fn -> LiveViewDiscoveryService.successor_lv_process(lv_process) end) do
+      socket
+      |> push_navigate(to: RoutesHelper.channel_dashboard(successor_pid))
+    else
+      _ ->
+        result = %AsyncResult{
+          ok?: false,
+          loading: nil,
+          failed: :not_found,
+          result: nil
+        }
+
+        socket
+        |> assign(:lv_process, result)
+    end
+  end
+
+  defp delayed_fetch(function) do
     fetch_after = fn milliseconds ->
       Process.sleep(milliseconds)
-      LiveViewDiscoveryService.lv_process(socket_id, transport_pid)
+      function.()
     end
 
     with nil <- fetch_after.(200),
          nil <- fetch_after.(800) do
       fetch_after.(1000)
     end
-  end
-
-  defp patch_transport_pid(socket, lv_process) do
-    path = RoutesHelper.channel_dashboard(lv_process.socket_id, lv_process.transport_pid)
-    url = URL.update_path(socket.assigns.url, path)
-
-    push_patch(socket, to: url)
-  end
-
-  defp subscribe_process_state(pid) do
-    pid
-    |> PubSubUtils.process_status_topic()
-    |> PubSubUtils.subscribe!()
   end
 end

@@ -24,41 +24,27 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   end
 
   @doc """
-  Returns LvProcess associated the given `socket_id` and `transport_pid`.
-  When only `socket_id` is provided, LvProcess with the given `socket_id` is returned.
-  When more than one process is found, `nil` is returned.
+  Returns LvProcess associated the given `pid`.
   """
-  @spec lv_process(socket_id :: String.t(), transport_pid :: pid() | nil) :: LvProcess.t() | nil
-  def lv_process(socket_id, transport_pid \\ nil)
-
-  def lv_process(socket_id, nil) when is_binary(socket_id) do
+  @spec lv_process(pid :: pid()) :: LvProcess.t() | nil
+  def lv_process(pid) when is_pid(pid) do
     debugged_lv_processes()
-    |> Enum.filter(&(&1.socket_id == socket_id))
-    |> case do
-      [lv_process] -> lv_process
-      _ -> nil
-    end
-  end
-
-  def lv_process(socket_id, transport_pid) when is_pid(transport_pid) and is_binary(socket_id) do
-    debugged_lv_processes()
-    |> Enum.find(&(&1.socket_id == socket_id and &1.transport_pid == transport_pid))
+    |> Enum.find(&(&1.pid == pid))
   end
 
   @doc """
-  Finds potential successors LvProcesses based on module when websocket connection breaks and new one is created.
-  This is a common scenario when user recompiles code or refreshes the page.
-  When more than one process is found, `nil` is returned.
+  Finds potential successors LvProcesses.
   """
-  @spec successor_lv_process(module :: module()) :: LvProcess.t() | nil
-  def successor_lv_process(module) when is_atom(module) do
-    lv_processes()
-    |> Enum.filter(fn lv_process ->
-      lv_process.module == module
-    end)
-    |> case do
-      [lv_process] -> lv_process
-      _ -> nil
+  @spec successor_lv_process(lv_process :: LvProcess.t()) :: LvProcess.t() | nil
+  def successor_lv_process(lv_process) do
+    with processes <- debugged_lv_processes(),
+         processes <-
+           Enum.filter(processes, &(&1.transport_pid == lv_process.transport_pid)),
+         nil <- Enum.find(processes, &(not &1.nested? and not &1.embedded?)),
+         nil <- Enum.find(processes, &(not &1.nested?)) do
+      nil
+    else
+      lv_process -> lv_process
     end
   end
 

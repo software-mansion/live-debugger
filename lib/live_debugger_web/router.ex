@@ -17,7 +17,6 @@ defmodule LiveDebuggerWeb.Router do
     pipe_through([:dbg_browser])
 
     live("/", LiveViewsDashboardLive)
-    live("/transport_pid/:socket_id", ChannelDashboardLive)
-    live("/:transport_pid/:socket_id", ChannelDashboardLive)
+    live("/:pid", ChannelDashboardLive)
   end
 end
