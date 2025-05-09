@@ -9,6 +9,8 @@ defmodule LiveDebuggerWeb.Plugs.AllowIframe do
 
   @spec call(Plug.Conn.t(), any) :: Plug.Conn.t()
   def call(conn, _opts) do
-    delete_resp_header(conn, "x-frame-options")
+    conn
+    |> delete_resp_header("x-frame-options")
+    |> delete_resp_header("content-security-policy")
   end
 end
