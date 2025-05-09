@@ -243,8 +243,8 @@ defmodule LiveDebuggerWeb.TracesLive do
     default_filters = default_filters(node_id)
 
     socket
-    |> assign(node_id: node_id)
     |> TracingHelper.disable_tracing()
+    |> assign(node_id: node_id)
     |> assign(current_filters: default_filters)
     |> assign(default_filters: default_filters)
     |> assign_async_existing_traces()
