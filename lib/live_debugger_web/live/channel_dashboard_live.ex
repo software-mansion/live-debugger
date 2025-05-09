@@ -163,9 +163,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
       {:ok, pid} ->
         socket
         |> assign(:lv_process, AsyncResult.loading())
-        |> start_async(:fetch_lv_process, fn ->
-          delayed_fetch(fn -> LiveViewDiscoveryService.lv_process(pid) end)
-        end)
+        |> start_async(:fetch_lv_process, fetch_lv_process_with_retries(pid))
 
       :error ->
         assign(
@@ -174,6 +172,10 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           AsyncResult.failed(AsyncResult.loading(), :invalid_transport_pid)
         )
     end
+  end
+
+  defp fetch_lv_process_with_retries(pid) do
+    fn -> fetch_with_retries(fn -> LiveViewDiscoveryService.lv_process(pid) end) end
   end
 
   defp subscribe_process_state(pid) do
@@ -185,7 +187,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   defp handle_liveview_process_not_found(socket) do
     with %{lv_process: %{result: %LvProcess{} = lv_process}} <- socket.assigns,
          %{pid: successor_pid} <-
-           delayed_fetch(fn -> LiveViewDiscoveryService.successor_lv_process(lv_process) end) do
+           fetch_with_retries(fn -> LiveViewDiscoveryService.successor_lv_process(lv_process) end) do
       socket
       |> push_navigate(to: RoutesHelper.channel_dashboard(successor_pid))
     else
@@ -202,15 +204,15 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
     end
   end
 
-  defp delayed_fetch(function) do
-    fetch_after = fn milliseconds ->
-      Process.sleep(milliseconds)
-      function.()
+  defp fetch_with_retries(function) do
+    with nil <- fetch_after(function, 200),
+         nil <- fetch_after(function, 800) do
+      fetch_after(function, 1000)
     end
+  end
 
-    with nil <- fetch_after.(200),
-         nil <- fetch_after.(800) do
-      fetch_after.(1000)
-    end
+  defp fetch_after(function, milliseconds) do
+    Process.sleep(milliseconds)
+    function.()
   end
 end
