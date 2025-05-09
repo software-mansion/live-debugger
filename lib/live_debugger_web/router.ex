@@ -16,7 +16,9 @@ defmodule LiveDebuggerWeb.Router do
   scope "/", LiveDebuggerWeb do
     pipe_through([:dbg_browser])
 
-    live("/", LiveViewsDashboardLive)
+    get("/redirect/:socket_id", SocketDiscoveryController, :redirect)
+
     live("/:pid", ChannelDashboardLive)
+    live("/", LiveViewsDashboardLive)
   end
 end

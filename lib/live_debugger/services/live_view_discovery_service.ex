@@ -24,12 +24,18 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   end
 
   @doc """
-  Returns LvProcess associated the given `pid`.
+  Returns LvProcess associated the given `pid` or `socket_id`.
   """
   @spec lv_process(pid :: pid()) :: LvProcess.t() | nil
   def lv_process(pid) when is_pid(pid) do
     debugged_lv_processes()
     |> Enum.find(&(&1.pid == pid))
+  end
+
+  @spec lv_process(socket_id :: String.t()) :: LvProcess.t() | nil
+  def lv_process(socket_id) when is_binary(socket_id) do
+    debugged_lv_processes()
+    |> Enum.find(&(&1.socket_id == socket_id))
   end
 
   @doc """

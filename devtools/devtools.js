@@ -31,7 +31,7 @@ function getLiveDebuggerSessionURL() {
 
         function getSessionURL(baseURL) {
           const session_id = getSessionId();
-          const session_path = session_id ? \`transport_pid/\${session_id}\` : '';
+          const session_path = session_id ? \`redirect/\${session_id}\` : '';
           return \`\${baseURL}/\${session_path}\`;
         }
 
