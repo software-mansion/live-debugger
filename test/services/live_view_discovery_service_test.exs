@@ -235,58 +235,311 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
   end
 
   describe "successor_lv_process/1" do
-    test "returns successor LvProcesses of the given module" do
-      successor_pid = :c.pid(0, 0, 1)
-      live_view_pid = :c.pid(0, 1, 0)
+    test "returns non-nested, non-embedded process with matching transport_pid (Priority 1)" do
+      transport_pid = :c.pid(0, 7, 1)
+      current_pid = :c.pid(0, 0, 1)
+      successor_pid = :c.pid(0, 0, 2)
+      other_pid = :c.pid(0, 0, 3)
+      module = :"Elixir.SomeLiveView"
 
-      successor_module = :"Elixir.SomeLiveView"
-      other_module = :"Elixir.OtherLiveView"
+      current_lv_process = %LvProcess{
+        pid: current_pid,
+        transport_pid: transport_pid,
+        nested?: false,
+        embedded?: false
+      }
 
       MockProcessService
-      |> expect(:list, fn -> [successor_pid, live_view_pid] end)
-      |> expect(:initial_call, fn _ -> {successor_module, :mount} end)
-      |> expect(:initial_call, fn _ -> {other_module, :mount} end)
-      |> expect(:state, fn ^successor_pid ->
-        {:ok, Fakes.state(root_pid: successor_pid, module: successor_module)}
-      end)
-      |> expect(:state, fn ^live_view_pid ->
-        {:ok, Fakes.state(root_pid: live_view_pid, module: other_module)}
+      |> stub(:list, fn -> [successor_pid, other_pid] end)
+      |> stub(:initial_call, fn _ -> {module, :mount} end)
+      |> stub(:state, fn pid ->
+        case pid do
+          ^successor_pid ->
+            {:ok,
+             Fakes.state(
+               pid: successor_pid,
+               transport_pid: transport_pid,
+               nested?: false,
+               embedded?: false,
+               module: module
+             )}
+
+          ^other_pid ->
+            {:ok,
+             Fakes.state(
+               pid: other_pid,
+               transport_pid: transport_pid,
+               nested?: true,
+               embedded?: false,
+               module: module
+             )}
+        end
       end)
 
       assert %LvProcess{pid: ^successor_pid} =
-               LiveViewDiscoveryService.successor_lv_process(successor_module)
+               LiveViewDiscoveryService.successor_lv_process(current_lv_process)
     end
 
-    test "returns nil if no LiveView process of given module" do
-      live_view_pid = :c.pid(0, 0, 1)
+    test "returns non-nested process with matching transport_pid when no non-embedded process exists (Priority 2)" do
+      transport_pid = :c.pid(0, 7, 1)
+      current_pid = :c.pid(0, 0, 1)
+      successor_pid = :c.pid(0, 0, 2)
+      other_pid = :c.pid(0, 0, 3)
+      module = :"Elixir.SomeLiveView"
 
-      successor_module = :"Elixir.SomeLiveView"
-      other_module = :"Elixir.OtherLiveView"
+      current_lv_process = %LvProcess{
+        pid: current_pid,
+        transport_pid: transport_pid,
+        nested?: false,
+        embedded?: true
+      }
 
       MockProcessService
-      |> expect(:list, fn -> [live_view_pid] end)
-      |> expect(:initial_call, fn _ -> {other_module, :mount} end)
-      |> expect(:state, fn ^live_view_pid ->
-        {:ok, Fakes.state(root_pid: live_view_pid, module: other_module)}
+      |> stub(:list, fn -> [successor_pid, other_pid] end)
+      |> stub(:initial_call, fn _ -> {module, :mount} end)
+      |> stub(:state, fn pid ->
+        case pid do
+          ^successor_pid ->
+            {:ok,
+             Fakes.state(
+               pid: successor_pid,
+               transport_pid: transport_pid,
+               nested?: false,
+               embedded?: true,
+               module: module
+             )}
+
+          ^other_pid ->
+            {:ok,
+             Fakes.state(
+               pid: other_pid,
+               transport_pid: transport_pid,
+               nested?: true,
+               embedded?: true,
+               module: module
+             )}
+        end
       end)
 
-      assert nil == LiveViewDiscoveryService.successor_lv_process(successor_module)
+      assert %LvProcess{pid: ^successor_pid} =
+               LiveViewDiscoveryService.successor_lv_process(current_lv_process)
     end
 
-    test "returns nil if more than one LiveViewProcess of given module found" do
-      live_view_pid_1 = :c.pid(0, 0, 1)
-      live_view_pid_2 = :c.pid(0, 0, 2)
+    test "returns single process with matching transport_pid when no non-nested process exists (Priority 3)" do
+      transport_pid = :c.pid(0, 7, 1)
+      other_transport_pid = :c.pid(0, 7, 2)
+      current_pid = :c.pid(0, 0, 1)
+      successor_pid = :c.pid(0, 0, 2)
+      other_pid = :c.pid(0, 0, 3)
 
-      successor_module = :"Elixir.SomeLiveView"
+      module = :"Elixir.SomeLiveView"
+
+      current_lv_process = %LvProcess{
+        pid: current_pid,
+        transport_pid: transport_pid,
+        nested?: true,
+        embedded?: true
+      }
 
       MockProcessService
-      |> expect(:list, fn -> [live_view_pid_1, live_view_pid_2] end)
-      |> expect(:initial_call, 2, fn _ -> {successor_module, :mount} end)
-      |> expect(:state, 2, fn live_view_pid ->
-        {:ok, Fakes.state(root_pid: live_view_pid, module: successor_module)}
+      |> stub(:list, fn -> [successor_pid, other_pid] end)
+      |> stub(:initial_call, fn _ -> {module, :mount} end)
+      |> stub(:state, fn pid ->
+        case pid do
+          ^successor_pid ->
+            {:ok,
+             Fakes.state(
+               pid: successor_pid,
+               transport_pid: transport_pid,
+               nested?: true,
+               embedded?: true,
+               module: module
+             )}
+
+          ^other_pid ->
+            {:ok,
+             Fakes.state(
+               pid: other_pid,
+               transport_pid: other_transport_pid,
+               nested?: true,
+               embedded?: true,
+               module: module
+             )}
+        end
       end)
 
-      assert nil == LiveViewDiscoveryService.successor_lv_process(successor_module)
+      assert %LvProcess{pid: ^successor_pid} =
+               LiveViewDiscoveryService.successor_lv_process(current_lv_process)
+    end
+
+    test "returns single non-nested, non-embedded process when no matching transport_pid process exists (Priority 4)" do
+      transport_pid = :c.pid(0, 7, 1)
+      other_transport_pid = :c.pid(0, 7, 2)
+      current_pid = :c.pid(0, 0, 1)
+      successor_pid = :c.pid(0, 0, 2)
+      other_pid = :c.pid(0, 0, 3)
+      module = :"Elixir.SomeLiveView"
+
+      current_lv_process = %LvProcess{
+        pid: current_pid,
+        transport_pid: transport_pid,
+        nested?: true,
+        embedded?: true
+      }
+
+      MockProcessService
+      |> stub(:list, fn -> [successor_pid, other_pid] end)
+      |> stub(:initial_call, fn _ -> {module, :mount} end)
+      |> stub(:state, fn pid ->
+        case pid do
+          ^successor_pid ->
+            {:ok,
+             Fakes.state(
+               pid: successor_pid,
+               transport_pid: other_transport_pid,
+               nested?: false,
+               embedded?: false,
+               module: module
+             )}
+
+          ^other_pid ->
+            {:ok,
+             Fakes.state(
+               pid: other_pid,
+               transport_pid: other_transport_pid,
+               nested?: false,
+               embedded?: true,
+               module: module
+             )}
+        end
+      end)
+
+      assert %LvProcess{pid: ^successor_pid} =
+               LiveViewDiscoveryService.successor_lv_process(current_lv_process)
+    end
+
+    test "returns single non-nested process when no non-embedded process exists (Priority 5)" do
+      transport_pid = :c.pid(0, 7, 1)
+      other_transport_pid = :c.pid(0, 7, 2)
+      current_pid = :c.pid(0, 0, 1)
+      successor_pid = :c.pid(0, 0, 2)
+      other_pid = :c.pid(0, 0, 3)
+      module = :"Elixir.SomeLiveView"
+
+      current_lv_process = %LvProcess{
+        pid: current_pid,
+        transport_pid: transport_pid,
+        nested?: true,
+        embedded?: true
+      }
+
+      MockProcessService
+      |> stub(:list, fn -> [successor_pid, other_pid] end)
+      |> stub(:initial_call, fn _ -> {module, :mount} end)
+      |> stub(:state, fn pid ->
+        case pid do
+          ^successor_pid ->
+            {:ok,
+             Fakes.state(
+               pid: successor_pid,
+               transport_pid: other_transport_pid,
+               nested?: false,
+               embedded?: true,
+               module: module
+             )}
+
+          ^other_pid ->
+            {:ok,
+             Fakes.state(
+               pid: other_pid,
+               transport_pid: other_transport_pid,
+               nested?: true,
+               embedded?: true,
+               module: module
+             )}
+        end
+      end)
+
+      assert %LvProcess{pid: ^successor_pid} =
+               LiveViewDiscoveryService.successor_lv_process(current_lv_process)
+    end
+
+    test "returns single process when no other suitable process exists (Priority 6)" do
+      transport_pid = :c.pid(0, 7, 1)
+      other_transport_pid = :c.pid(0, 7, 2)
+      current_pid = :c.pid(0, 0, 1)
+      successor_pid = :c.pid(0, 0, 2)
+      module = :"Elixir.SomeLiveView"
+
+      current_lv_process = %LvProcess{
+        pid: current_pid,
+        transport_pid: transport_pid,
+        nested?: true,
+        embedded?: true
+      }
+
+      MockProcessService
+      |> stub(:list, fn -> [successor_pid] end)
+      |> stub(:initial_call, fn _ -> {module, :mount} end)
+      |> stub(:state, fn ^successor_pid ->
+        {:ok,
+         Fakes.state(
+           pid: successor_pid,
+           transport_pid: other_transport_pid,
+           nested?: true,
+           embedded?: true,
+           module: module
+         )}
+      end)
+
+      assert %LvProcess{pid: ^successor_pid} =
+               LiveViewDiscoveryService.successor_lv_process(current_lv_process)
+    end
+
+    test "returns nil when no suitable successor process exists" do
+      transport_pid = :c.pid(0, 7, 1)
+      other_transport_pid = :c.pid(0, 7, 2)
+      current_pid = :c.pid(0, 0, 1)
+
+      module = :"Elixir.SomeLiveView"
+      other_pid_1 = :c.pid(0, 0, 2)
+      other_pid_2 = :c.pid(0, 0, 3)
+
+      current_lv_process = %LvProcess{
+        pid: current_pid,
+        transport_pid: transport_pid,
+        nested?: true,
+        embedded?: true
+      }
+
+      MockProcessService
+      |> stub(:list, fn -> [other_pid_1, other_pid_2] end)
+      |> stub(:initial_call, fn _ -> {module, :mount} end)
+      |> stub(:state, fn pid ->
+        case pid do
+          ^other_pid_1 ->
+            {:ok,
+             Fakes.state(
+               pid: other_pid_1,
+               transport_pid: other_transport_pid,
+               nested?: true,
+               embedded?: true,
+               module: module
+             )}
+
+          ^other_pid_2 ->
+            {:ok,
+             Fakes.state(
+               pid: other_pid_2,
+               transport_pid: other_transport_pid,
+               nested?: true,
+               embedded?: true,
+               module: module
+             )}
+        end
+      end)
+
+      assert nil == LiveViewDiscoveryService.successor_lv_process(current_lv_process)
     end
   end
 
