@@ -3,8 +3,6 @@ defmodule LiveDebuggerWeb.ErrorLive do
 
   @impl true
   def mount(%{"error" => error}, _, socket) do
-    dbg(error)
-
     socket
     |> assign(error: error)
     |> assign_heading()
