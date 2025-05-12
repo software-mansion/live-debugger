@@ -31,7 +31,7 @@ defmodule LiveDebugger.Structs.Trace do
 
   @type t() :: %__MODULE__{
           id: integer(),
-          module: atom(),
+          module: module(),
           function: atom(),
           arity: non_neg_integer(),
           args: list(),
@@ -39,14 +39,14 @@ defmodule LiveDebugger.Structs.Trace do
           transport_pid: pid() | nil,
           pid: pid(),
           cid: struct() | nil,
-          timestamp: timestamp(),
+          timestamp: integer(),
           execution_time: non_neg_integer() | nil
         }
 
   @doc """
   Creates a new trace struct.
   """
-  @spec new(integer(), atom(), atom(), list(), pid(), timestamp(), Keyword.t()) :: t()
+  @spec new(integer(), module(), atom(), [any()], pid(), timestamp(), Keyword.t()) :: t()
   def new(id, module, function, args, pid, timestamp, opts \\ []) do
     socket_id = Keyword.get(opts, :socket_id, get_socket_id_from_args(args))
     transport_pid = Keyword.get(opts, :transport_pid, get_transport_pid_from_args(args))

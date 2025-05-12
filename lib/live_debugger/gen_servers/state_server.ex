@@ -41,8 +41,7 @@ defmodule LiveDebugger.GenServers.StateServer do
   def init(_args) do
     :ets.new(@ets_table_name, [:named_table, :public, :named_table])
 
-    :render
-    |> PubSubUtils.___f_topic()
+    PubSubUtils.node_rendered()
     |> PubSubUtils.subscribe!()
 
     PubSubUtils.process_status_topic()
@@ -52,7 +51,7 @@ defmodule LiveDebugger.GenServers.StateServer do
   end
 
   @impl true
-  def handle_info({:new_trace, %Trace{pid: pid} = trace}, state) do
+  def handle_info({:render_trace, %Trace{pid: pid} = trace}, state) do
     with {:ok, channel_state} <- ProcessService.state(pid) do
       record_id = record_id(pid)
       :ets.insert(@ets_table_name, {record_id, channel_state})

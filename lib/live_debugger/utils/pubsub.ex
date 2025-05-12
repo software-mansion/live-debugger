@@ -77,6 +77,14 @@ defmodule LiveDebugger.Utils.PubSub do
   end
 
   @doc """
+  Used for broadcasting all render traces.
+  Use `{:render_trace, trace}` tuple for broadcasting.
+  """
+  def node_rendered do
+    "lvdbg/node_rendered"
+  end
+
+  @doc """
   It stands for `transport_pid/socket_id/node_id/function`.
 
   It gives you traces of given callback in given node in given LiveView
@@ -90,7 +98,7 @@ defmodule LiveDebugger.Utils.PubSub do
           type :: :call | :return
         ) :: String.t()
   def tsnf_topic(socket_id, transport_pid, node_id, fun, type \\ :call) do
-    "#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}/#{inspect(fun)}/#{inspect(type)}"
+    "trace/#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}/#{inspect(fun)}/#{inspect(type)}"
   end
 
   @doc """
@@ -105,17 +113,7 @@ defmodule LiveDebugger.Utils.PubSub do
           fun :: atom()
         ) :: String.t()
   def ts_f_topic(socket_id, transport_pid, fun) do
-    "#{inspect(transport_pid)}/#{socket_id}/*/#{inspect(fun)}"
-  end
-
-  @doc """
-  Its stands for `*/*/*/function`.
-
-  It gives you traces of all callbacks of given function
-  """
-  @spec ___f_topic(fun :: atom()) :: String.t()
-  def ___f_topic(fun) do
-    "/*/*/*/#{inspect(fun)}"
+    "trace/#{inspect(transport_pid)}/#{socket_id}/*/#{inspect(fun)}"
   end
 
   @spec impl() :: module()
