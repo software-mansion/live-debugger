@@ -41,11 +41,10 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   @doc """
   Finds a successor LiveView process based on the following priority:
   1. A non-nested, non-embedded process with matching transport_pid
-  2. A non-nested process with matching transport_pid
-  3. A single process with matching transport_pid
-  4. A single non-nested, non-embedded process in the entire process list
-  5. A single non-nested process in the entire process list
-  6. A single process in the entire process list
+  2. A single process with matching transport_pid
+  3. A single non-nested, non-embedded process in the entire process list with matching module
+  4. A single non-nested process in the entire process list with matching module
+  5. A single process in the entire process list with matching module
   Returns nil if no suitable successor is found.
   """
   @spec successor_lv_process(lv_process :: LvProcess.t()) :: LvProcess.t() | nil
