@@ -61,5 +61,8 @@
     --error-border: var(--gray-700);
     --error-icon: var(--swm-pink-80);
     --error-text: var(--swm-pink-80);
+
+    /* Warning */
+    --warning-text: var(--swm-yellow-40);
   }
 }

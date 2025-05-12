@@ -66,6 +66,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     |> assign(current_filters: default_filters)
     |> assign(default_filters: default_filters)
     |> assign(traces_empty?: true)
+    |> assign(trace_callback_running?: false)
     |> assign(node_id: node_id)
     |> assign(id: session["id"])
     |> assign(root_pid: session["root_pid"])
@@ -90,10 +91,7 @@ defmodule LiveDebuggerWeb.TracesLive do
             <Traces.refresh_button :if={not @tracing_helper.tracing_started?} />
             <Traces.clear_button :if={not @tracing_helper.tracing_started?} />
             <.live_component
-              :if={
-                not @tracing_helper.tracing_started? &&
-                  LiveDebugger.Feature.enabled?(:callback_filters)
-              }
+              :if={not @tracing_helper.tracing_started?}
               module={LiveDebuggerWeb.LiveComponents.LiveDropdown}
               id="filters-dropdown"
             >
@@ -140,10 +138,7 @@ defmodule LiveDebuggerWeb.TracesLive do
               <% end %>
             <% end %>
           </div>
-          <div
-            :if={LiveDebugger.Feature.enabled?(:callback_filters)}
-            class="flex items-center justify-center mt-4"
-          >
+          <div class="flex items-center justify-center mt-4">
             <%= if @traces_continuation != :loading  do %>
               <.button
                 :if={not @tracing_helper.tracing_started? && @traces_continuation != :end_of_table}
@@ -222,11 +217,12 @@ defmodule LiveDebuggerWeb.TracesLive do
     |> TracingHelper.check_fuse()
     |> case do
       {:ok, socket} ->
-        trace_display = TraceDisplay.from_trace(trace)
+        trace_display = TraceDisplay.from_trace(trace, true)
 
         socket
         |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
-        |> assign(:traces_empty?, false)
+        |> assign(traces_empty?: false)
+        |> assign(trace_callback_running?: true)
 
       {:stopped, socket} ->
         limit = TracingHelper.trace_limit_per_period()
@@ -245,12 +241,30 @@ defmodule LiveDebuggerWeb.TracesLive do
   end
 
   @impl true
+  def handle_info({:updated_trace, trace}, socket) when socket.assigns.trace_callback_running? do
+    trace_display = TraceDisplay.from_trace(trace, true)
+
+    socket
+    |> assign(trace_callback_running?: false)
+    |> TracingHelper.maybe_disable_tracing_after_update()
+    |> push_event("stop-timer", %{})
+    |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info({:updated_trace, _trace}, socket) do
+    socket
+    |> noreply()
+  end
+
+  @impl true
   def handle_info({:node_changed, node_id}, socket) do
     default_filters = default_filters(node_id)
 
     socket
-    |> assign(node_id: node_id)
     |> TracingHelper.disable_tracing()
+    |> assign(node_id: node_id)
     |> assign(current_filters: default_filters)
     |> assign(default_filters: default_filters)
     |> assign_async_existing_traces()
@@ -263,6 +277,7 @@ defmodule LiveDebuggerWeb.TracesLive do
 
     socket
     |> assign(:current_filters, filters)
+    |> assign(:traces_empty?, true)
     |> assign_async_existing_traces()
     |> noreply()
   end

@@ -37,6 +37,15 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
     clear_tracing(socket)
   end
 
+  @spec maybe_disable_tracing_after_update(Socket.t()) :: Socket.t()
+  def maybe_disable_tracing_after_update(socket) do
+    if socket.assigns[@assign_name].tracing_started? do
+      socket
+    else
+      clear_tracing(socket)
+    end
+  end
+
   @doc """
   Checks if the fuse is blown and stops tracing if it is.
   It uses the `#{@assign_name}` assign to store information.
@@ -108,8 +117,14 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
 
     if Phoenix.LiveView.connected?(socket) && socket.assigns[:lv_process] do
       socket
-      |> get_topics()
+      |> get_topics(:call)
       |> PubSubUtils.unsubscribe()
+
+      if not socket.assigns.trace_callback_running? do
+        socket
+        |> get_topics(:return)
+        |> PubSubUtils.unsubscribe()
+      end
     end
 
     assign(socket, @assign_name, assigns)
@@ -125,18 +140,39 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
 
     socket.assigns.current_filters.functions
     |> Enum.filter(fn {_, active?} -> active? end)
-    |> Enum.map(fn {function, _} ->
-      PubSubUtils.tsnf_topic(lv_process.socket_id, lv_process.transport_pid, node_id, function)
+    |> Enum.flat_map(fn {function, _} ->
+      [
+        PubSubUtils.tsnf_topic(
+          lv_process.socket_id,
+          lv_process.transport_pid,
+          node_id,
+          function,
+          :call
+        ),
+        PubSubUtils.tsnf_topic(
+          lv_process.socket_id,
+          lv_process.transport_pid,
+          node_id,
+          function,
+          :return
+        )
+      ]
     end)
   end
 
-  defp get_topics(socket) do
+  defp get_topics(socket, type) do
     lv_process = socket.assigns.lv_process
     node_id = socket.assigns.node_id
 
     socket.assigns.current_filters.functions
     |> Enum.map(fn {function, _} ->
-      PubSubUtils.tsnf_topic(lv_process.socket_id, lv_process.transport_pid, node_id, function)
+      PubSubUtils.tsnf_topic(
+        lv_process.socket_id,
+        lv_process.transport_pid,
+        node_id,
+        function,
+        type
+      )
     end)
   end
 end

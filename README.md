@@ -2,9 +2,9 @@
 
 <div align="center">
 
-[![Version Badge](https://img.shields.io/badge/version-v0.1.7-%23b5e1f1)](https://hexdocs.pm/live_debugger)
-[![Hex.pm Downloads](https://img.shields.io/hexpm/dw/live_debugger?style=flat&label=downloads&color=%23b5e1f1)](https://hex.pm/packages/live_debugger)
-[![GitHub License](https://img.shields.io/github/license/software-mansion/live-debugger?color=%23b5e1f1)](https://github.com/software-mansion/live-debugger/blob/main/LICENSE)
+[![Version Badge](https://img.shields.io/github/v/release/software-mansion/live-debugger?color=lawn-green)](https://hexdocs.pm/live_debugger)
+[![Hex.pm Downloads](https://img.shields.io/hexpm/dw/live_debugger?style=flat&label=downloads&color=blue)](https://hex.pm/packages/live_debugger)
+[![GitHub License](https://img.shields.io/github/license/software-mansion/live-debugger)](https://github.com/software-mansion/live-debugger/blob/main/LICENSE)
 
 </div>
 
@@ -14,7 +14,8 @@ Designed to enhance your development experience LiveDebugger gives you:
 
 - :deciduous_tree: A detailed view of your LiveComponents tree
 - :mag: The ability to inspect assigns for LiveViews and LiveComponents
-- :link: Tracing of their callback executions
+- :link: Tracing and filtering of their callback executions
+- :flashlight: Components highlighting
 
 https://github.com/user-attachments/assets/a09d440c-4217-4597-b30e-f8b911a9094a
 
@@ -30,7 +31,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:live_debugger, "~> 0.1.7", only: :dev}
+      {:live_debugger, "~> 0.2.0", only: :dev}
     ]
   end
 ```
@@ -55,6 +56,16 @@ LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an 
 mix igniter.install live_debugger
 ```
 
+### DevTools extension
+
+Since version v0.2.0 you can install official LiveDebugger DevTools extension, giving you the ability to interact with its features alongside your application's runtime.
+
+- [Chrome extension](https://chromewebstore.google.com/detail/gmdfnfcigbfkmghbjeelmbkbiglbmbpe?utm_source=item-share-cb)
+- Firefox extension - coming soon!
+
+> [!NOTE]  
+> Ensure the main LiveDebugger dependency is added to your mix project, as the browser plugin alone is not enough.
+
 ## Optional configuration
 
 ### Browser features
@@ -65,10 +76,13 @@ Some features require injecting JS into the debugged application. They are enabl
 # config/dev.exs
 
 # Disables all browser features and does not inject LiveDebugger JS
-config :live_debugger, browser_features?: false
+config :live_debugger, :browser_features?, false
 
 # Disables only debug button
-config :live_debugger, debug_button?: false
+config :live_debugger, :debug_button?, false
+
+# Disables only components highlighting
+config :live_debugger, :highlighting?, false
 ```
 
 ### Content Security Policy
@@ -88,14 +102,20 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
 ```elixir
 # config/dev.exs
 
+# Allows you to disable LiveDebugger manually if needed
+config :live_debugger, :disabled?, true
+
+# Time in ms after tracing will be initialized. Useful in case multi-nodes envs
+config :live_debugger, :tracing_setup_delay, 0
+
+# LiveDebugger endpoint config
 config :live_debugger,
   ip: {127, 0, 0, 1}, # IP on which LiveDebugger will be hosted
   port: 4007, # Port on which LiveDebugger will be hosted
-  secret_key_base: "YOUR_SECRET_KEY_BASE", # Secret key used for LiveDebuggerWeb.Endpoint
-  signing_salt: "your_signing_salt", # Signing salt used for LiveDebuggerWeb.Endpoint
-  adapter: Bandit.PhoenixAdapter, # Adapter used in LiveDebuggerWeb.Endpoint
+  secret_key_base: "YOUR_SECRET_KEY_BASE", # Secret key used for LiveDebugger.Endpoint
+  signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
+  adapter: Bandit.PhoenixAdapter, # Adapter used in LiveDebugger.Endpoint
   server: true, # Forces LiveDebugger to start even if project is not started with the `mix phx.server`
-  tracing_setup_delay: 0 # Time in ms after tracing will be initialized. Useful in case multi-nodes envs
 ```
 
 ## Contributing
@@ -114,6 +134,10 @@ LiveReload is working both for `.ex` files and static files, but if some styles 
 ```console
 mix assets.build:dev
 ```
+
+## What's next
+
+To learn about our upcoming plans and developments, please visit our [discussion page](https://github.com/software-mansion/live-debugger/discussions/355).
 
 ## Authors
 
