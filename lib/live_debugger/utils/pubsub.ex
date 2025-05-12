@@ -38,7 +38,8 @@ defmodule LiveDebugger.Utils.PubSub do
 
   @doc "Use `{:component_deleted, delete_trace}` for broadcasting"
   @spec component_deleted_topic(socket_id :: String.t(), transport_pid :: pid()) :: String.t()
-  def component_deleted_topic(socket_id, transport_pid) do
+  def component_deleted_topic(socket_id, transport_pid)
+      when is_binary(socket_id) and is_pid(transport_pid) do
     "lvdbg/#{inspect(transport_pid)}/#{socket_id}/component_deleted"
   end
 
@@ -50,7 +51,7 @@ defmodule LiveDebugger.Utils.PubSub do
 
   @doc "Use `{:node_changed, node_id}` for broadcasting"
   @spec node_changed_topic(socket_id :: String.t()) :: String.t()
-  def node_changed_topic(socket_id) do
+  def node_changed_topic(socket_id) when is_binary(socket_id) do
     "lvdbg/#{socket_id}/node_changed"
   end
 

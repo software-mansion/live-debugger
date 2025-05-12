@@ -82,11 +82,7 @@ defmodule LiveDebuggerWeb.Components.Traces do
       phx-value-trace-id={@trace.id}
     >
       <:label>
-        <div
-          id={@id <> "-label"}
-          class="w-[90%] grow flex items-center ml-2 gap-1.5"
-          phx-update="ignore"
-        >
+        <div id={@id <> "-label"} class="w-[90%] grow flex items-center ml-2 gap-1.5">
           <p class="font-medium text-sm"><%= @callback_name %></p>
           <.short_trace_content trace={@trace} />
           <.trace_time_info id={@id} trace={@trace} from_tracing?={@from_tracing?} />
