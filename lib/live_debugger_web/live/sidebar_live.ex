@@ -136,6 +136,13 @@ defmodule LiveDebuggerWeb.SidebarLive do
   end
 
   @impl true
+  def handle_info({:node_changed, node_id}, socket) do
+    socket
+    |> assign(:node_id, node_id)
+    |> noreply()
+  end
+
+  @impl true
   def handle_event("open-sidebar", _, socket) do
     socket
     |> assign(:hidden?, false)
