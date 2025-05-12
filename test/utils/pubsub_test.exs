@@ -27,13 +27,8 @@ defmodule LiveDebugger.Utils.PubSubTest do
              PubSubUtils.component_deleted_topic(socket_id, transport_pid)
   end
 
-  test "process_status_topic/1" do
-    pid = :c.pid(0, 1, 0)
-    assert "lvdbg/#PID<0.1.0>/process_status" = PubSubUtils.process_status_topic(pid)
-  end
-
   test "process_status_topic/0" do
-    assert "lvdbg/*/process_status" = PubSubUtils.process_status_topic()
+    assert "lvdbg/process_status" = PubSubUtils.process_status_topic()
   end
 
   test "tsnf_topic/4" do
