@@ -76,21 +76,21 @@ defmodule LiveDebuggerWeb.Components do
   Renders an input with label.
   """
   attr(:field, Phoenix.HTML.FormField, required: true)
-  attr(:label, :string, default: nil)
+  attr(:label_text, :string, default: nil)
   attr(:type, :string, default: "text")
 
   attr(:wrapper_class, :any, default: nil)
   attr(:input_class, :any, default: nil)
   attr(:label_class, :any, default: nil)
-  attr(:rest, :global)
+  attr(:rest, :global, include: ~w(min max))
 
-  slot(:inner_block)
+  slot(:label)
 
   def input(assigns) do
     ~H"""
     <div phx-feedback-for={@field.name} class={["" | List.wrap(@wrapper_class)]}>
       <label for={@field.id} class={["block font-medium text-xs" | List.wrap(@label_class)]}>
-        <%= @label %>
+        <%= if @label != [], do: render_slot(@label), else: @label_text %>
       </label>
       <input
         type={@type}
