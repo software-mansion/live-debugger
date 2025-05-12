@@ -18,6 +18,9 @@ defmodule LiveDebuggerWeb.SidebarLive do
   alias LiveDebugger.Utils.URL
   alias LiveDebuggerWeb.LiveComponents.NestedLiveViewsLinks
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebugger.Services.System.ErlangService
+
+  @memory_poll_interval_ms 2_000
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -64,12 +67,17 @@ defmodule LiveDebuggerWeb.SidebarLive do
       |> PubSubUtils.subscribe!()
     end
 
+    send(self(), {:assign_memory_usage, lv_process.root_pid, session["node_id"]})
+
     socket
     |> assign(:lv_process, lv_process)
     |> assign(:node_id, session["node_id"])
     |> assign(:url, session["url"])
     |> assign(:highlight?, false)
     |> assign(:hidden?, true)
+    |> assign(:memory_raw_kb, 0)
+    |> assign(:memory_gc_kb, 0)
+    |> assign(:assigns_memory_kb, 0)
     |> assign_async_tree()
     |> assign_async_parent_lv_process()
     |> assign_async_existing_node_ids()
@@ -93,6 +101,9 @@ defmodule LiveDebuggerWeb.SidebarLive do
           node_id={@node_id}
           highlight?={@highlight?}
           parent_lv_process={@parent_lv_process}
+          memory_raw_kb={@memory_raw_kb}
+          memory_gc_kb={@memory_gc_kb}
+          assigns_memory_kb={@assigns_memory_kb}
         />
       </div>
       <.sidebar_slide_over :if={not @hidden?}>
@@ -104,11 +115,54 @@ defmodule LiveDebuggerWeb.SidebarLive do
           node_id={@node_id}
           highlight?={@highlight?}
           parent_lv_process={@parent_lv_process}
+          memory_raw_kb={@memory_raw_kb}
+          memory_gc_kb={@memory_gc_kb}
+          assigns_memory_kb={@assigns_memory_kb}
         />
       </.sidebar_slide_over>
     </div>
     """
   end
+
+  @impl true
+  def handle_info({:assign_memory_usage, pid, node_id}, socket)
+      when not is_nil(pid) and not is_nil(node_id) do
+    Process.send_after(self(), {:assign_memory_usage, pid, node_id}, @memory_poll_interval_ms)
+
+    raw =
+      case ErlangService.process_info(pid, :memory) do
+        {:ok, val} -> val
+        :error -> 0
+      end
+
+    ErlangService.garbage_collect(pid)
+
+    post_gc =
+      case ErlangService.process_info(pid, :memory) do
+        {:ok, val} -> val
+        :error -> 0
+      end
+
+    assigns_size =
+      with {:ok, channel_state} <- ChannelService.state(pid),
+           {:ok, node} <- ChannelService.get_node(channel_state, node_id),
+           assigns when not is_nil(node.assigns) <- node.assigns do
+        words = :erts_debug.size(assigns)
+        words * :erlang.system_info(:wordsize)
+      else
+        _ -> 0
+      end
+
+    {:noreply,
+     assign(socket,
+       memory_raw_kb: Float.round(raw / 1024, 1),
+       memory_gc_kb: Float.round(post_gc / 1024, 1),
+       assigns_memory_kb: Float.round(assigns_size / 1024, 1)
+     )}
+  end
+
+  @impl true
+  def handle_info({:assign_memory_usage, _pid, _node_id}, socket), do: {:noreply, socket}
 
   @impl true
   def handle_info({:new_trace, trace}, socket) do
@@ -208,6 +262,9 @@ defmodule LiveDebuggerWeb.SidebarLive do
   attr(:max_opened_node_level, :any, required: true)
   attr(:highlight?, :boolean, required: true)
   attr(:parent_lv_process, :any, required: true)
+  attr(:memory_raw_kb, :string, required: true)
+  attr(:memory_gc_kb, :string, required: true)
+  attr(:assigns_memory_kb, :string, required: true)
 
   defp sidebar_content(assigns) do
     ~H"""
@@ -216,6 +273,9 @@ defmodule LiveDebuggerWeb.SidebarLive do
         pid={@lv_process.pid}
         socket_id={@lv_process.socket_id}
         parent_lv_process={@parent_lv_process}
+        memory_raw_kb={@memory_raw_kb}
+        memory_gc_kb={@memory_gc_kb}
+        assigns_memory_kb={@assigns_memory_kb}
       />
       <.live_component
         id={@id <> "-nested-live-views"}
@@ -259,6 +319,9 @@ defmodule LiveDebuggerWeb.SidebarLive do
   attr(:pid, :any, required: true)
   attr(:socket_id, :string, required: true)
   attr(:parent_lv_process, :any, required: true)
+  attr(:memory_raw_kb, :string, required: true)
+  attr(:memory_gc_kb, :string, required: true)
+  attr(:assigns_memory_kb, :string, required: true)
 
   defp basic_info(assigns) do
     ~H"""
@@ -271,7 +334,10 @@ defmodule LiveDebuggerWeb.SidebarLive do
           :for={
             {text, value} <- [
               {"Monitored socket:", @socket_id},
-              {"Debugged PID:", Parsers.pid_to_string(@pid)}
+              {"Debugged PID:", Parsers.pid_to_string(@pid)},
+              {"Memory (KB before GC):", @memory_raw_kb},
+              {"Memory (KB after GC):", @memory_gc_kb},
+              {"Assigns (KB, heap only):", @assigns_memory_kb}
             ]
           }
           class="w-full flex flex-col"
