@@ -55,16 +55,10 @@ defmodule LiveDebugger.Utils.PubSub do
     "lvdbg/#{socket_id}/node_changed"
   end
 
-  @doc "Use `{:process_status, status}` for broadcasting"
+  @doc "Use `{:process_status, {status, pid}}` for broadcasting"
   @spec process_status_topic() :: String.t()
   def process_status_topic() do
-    "lvdbg/*/process_status"
-  end
-
-  @doc "Use `{:process_status, {status, pid}}` for broadcasting"
-  @spec process_status_topic(pid :: pid()) :: String.t()
-  def process_status_topic(pid) when is_pid(pid) do
-    "lvdbg/#{inspect(pid)}/process_status"
+    "lvdbg/process_status"
   end
 
   @doc "Use `{:state_changed, new_state, triggered_trace}` for broadcasting"

@@ -116,7 +116,8 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   end
 
   def handle_async(:fetch_lv_process, {:ok, fetched_lv_process}, socket) do
-    subscribe_process_state(fetched_lv_process.pid)
+    PubSubUtils.process_status_topic()
+    |> PubSubUtils.subscribe!()
 
     socket
     |> assign(:lv_process, AsyncResult.ok(fetched_lv_process))
@@ -139,12 +140,17 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   end
 
   @impl true
-  def handle_info({:process_status, :dead}, socket) do
+  def handle_info(
+        {:process_status, {:dead, pid}},
+        %{assigns: %{lv_process: %{result: %LvProcess{pid: pid}}}} = socket
+      ) do
     socket
     |> push_patch(to: URL.remove_query_param(socket.assigns.url, "node_id"))
     |> start_async_assign_lv_process(%{"socket_id" => socket.assigns.socket_id})
     |> noreply()
   end
+
+  def handle_info({:process_status, _}, socket), do: noreply(socket)
 
   defp assign_node_id(socket, %{"node_id" => node_id}) do
     case TreeNode.id_from_string(node_id) do
@@ -214,11 +220,5 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
     url = URL.update_path(socket.assigns.url, path)
 
     push_patch(socket, to: url)
-  end
-
-  defp subscribe_process_state(pid) do
-    pid
-    |> PubSubUtils.process_status_topic()
-    |> PubSubUtils.subscribe!()
   end
 end

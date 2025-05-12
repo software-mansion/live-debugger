@@ -45,10 +45,6 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   def handle_info({:DOWN, _, :process, closed_pid, _}, table_refs) do
     {_, table_refs} = delete_ets_table(closed_pid, table_refs)
 
-    closed_pid
-    |> PubSubUtils.process_status_topic()
-    |> PubSubUtils.broadcast({:process_status, :dead})
-
     PubSubUtils.process_status_topic()
     |> PubSubUtils.broadcast({:process_status, {:dead, closed_pid}})
 
