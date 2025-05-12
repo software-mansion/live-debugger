@@ -246,7 +246,8 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         pid: current_pid,
         transport_pid: transport_pid,
         nested?: false,
-        embedded?: false
+        embedded?: false,
+        module: module
       }
 
       MockProcessService
@@ -291,7 +292,8 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         pid: current_pid,
         transport_pid: transport_pid,
         nested?: false,
-        embedded?: true
+        embedded?: true,
+        module: module
       }
 
       MockProcessService
@@ -338,7 +340,8 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         pid: current_pid,
         transport_pid: transport_pid,
         nested?: true,
-        embedded?: true
+        embedded?: true,
+        module: module
       }
 
       MockProcessService
@@ -384,7 +387,8 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         pid: current_pid,
         transport_pid: transport_pid,
         nested?: true,
-        embedded?: true
+        embedded?: true,
+        module: module
       }
 
       MockProcessService
@@ -430,7 +434,8 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         pid: current_pid,
         transport_pid: transport_pid,
         nested?: true,
-        embedded?: true
+        embedded?: true,
+        module: module
       }
 
       MockProcessService
@@ -475,7 +480,8 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         pid: current_pid,
         transport_pid: transport_pid,
         nested?: true,
-        embedded?: true
+        embedded?: true,
+        module: module
       }
 
       MockProcessService
@@ -509,7 +515,8 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         pid: current_pid,
         transport_pid: transport_pid,
         nested?: true,
-        embedded?: true
+        embedded?: true,
+        module: module
       }
 
       MockProcessService
