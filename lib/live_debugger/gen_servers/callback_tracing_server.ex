@@ -179,7 +179,10 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   defp do_publish(%{module: Phoenix.LiveView.Diff} = trace) do
     trace
     |> PubSubUtils.component_deleted_topic()
-    |> PubSubUtils.broadcast({:new_trace, trace})
+    |> PubSubUtils.broadcast({:component_deleted, trace})
+
+    PubSubUtils.component_deleted_topic()
+    |> PubSubUtils.broadcast({:component_deleted, trace})
   end
 
   defp do_publish(%Trace{} = trace) do
@@ -211,6 +214,10 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
     socket_id
     |> PubSubUtils.tsnf_topic(transport_pid, node_id, fun, :return)
+    |> PubSubUtils.broadcast({:updated_trace, trace})
+
+    socket_id
+    |> PubSubUtils.ts_f_topic(transport_pid, fun, :return)
     |> PubSubUtils.broadcast({:updated_trace, trace})
   end
 end

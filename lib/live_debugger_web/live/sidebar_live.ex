@@ -60,7 +60,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
       |> PubSubUtils.subscribe!()
 
       lv_process.socket_id
-      |> PubSubUtils.ts_f_topic(lv_process.transport_pid, :render)
+      |> PubSubUtils.ts_f_topic(lv_process.transport_pid, :render, :return)
       |> PubSubUtils.subscribe!()
     end
 
@@ -111,29 +111,36 @@ defmodule LiveDebuggerWeb.SidebarLive do
   end
 
   @impl true
-  def handle_info({:new_trace, trace}, socket) do
+  def handle_info({:component_deleted, trace}, socket) do
     existing_node_ids = socket.assigns.existing_node_ids
     trace_node_id = Trace.node_id(trace)
 
-    cond do
-      existing_node_ids.ok? && !MapSet.member?(existing_node_ids.result, trace_node_id) ->
-        updated_map_set = MapSet.put(existing_node_ids.result, trace_node_id)
+    if Trace.live_component_delete?(trace) do
+      updated_map_set = MapSet.delete(existing_node_ids.result, trace_node_id)
 
-        socket
-        |> assign_async_tree()
-        |> update_nested_live_views_links()
-        |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
+      socket
+      |> assign_async_tree()
+      |> update_nested_live_views_links()
+      |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
+    else
+      socket
+    end
+    |> noreply()
+  end
 
-      Trace.live_component_delete?(trace) ->
-        updated_map_set = MapSet.delete(existing_node_ids.result, trace_node_id)
+  def handle_info({:updated_trace, trace}, socket) do
+    existing_node_ids = socket.assigns.existing_node_ids
+    trace_node_id = Trace.node_id(trace)
 
-        socket
-        |> assign_async_tree()
-        |> update_nested_live_views_links()
-        |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
+    if existing_node_ids.ok? && !MapSet.member?(existing_node_ids.result, trace_node_id) do
+      updated_map_set = MapSet.put(existing_node_ids.result, trace_node_id)
 
-      true ->
-        socket
+      socket
+      |> assign_async_tree()
+      |> update_nested_live_views_links()
+      |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
+    else
+      socket
     end
     |> noreply()
   end

@@ -49,8 +49,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     |> PubSubUtils.process_status_topic()
     |> PubSubUtils.broadcast({:process_status, :dead})
 
-    nil
-    |> PubSubUtils.process_status_topic()
+    PubSubUtils.process_status_topic()
     |> PubSubUtils.broadcast({:process_status, {:dead, closed_pid}})
 
     {:noreply, table_refs}

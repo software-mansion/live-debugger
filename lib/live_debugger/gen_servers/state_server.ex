@@ -44,6 +44,9 @@ defmodule LiveDebugger.GenServers.StateServer do
     PubSubUtils.node_rendered()
     |> PubSubUtils.subscribe!()
 
+    PubSubUtils.component_deleted_topic()
+    |> PubSubUtils.subscribe!()
+
     PubSubUtils.process_status_topic()
     |> PubSubUtils.subscribe!()
 
@@ -51,13 +54,14 @@ defmodule LiveDebugger.GenServers.StateServer do
   end
 
   @impl true
-  def handle_info({:render_trace, %Trace{pid: pid} = trace}, state) do
-    with {:ok, channel_state} <- ProcessService.state(pid) do
-      record_id = record_id(pid)
-      :ets.insert(@ets_table_name, {record_id, channel_state})
+  def handle_info({:component_deleted, trace}, state) do
+    save_state(trace)
 
-      publish_state_changed(trace, channel_state)
-    end
+    {:noreply, state}
+  end
+
+  def handle_info({:render_trace, trace}, state) do
+    save_state(trace)
 
     {:noreply, state}
   end
@@ -68,6 +72,15 @@ defmodule LiveDebugger.GenServers.StateServer do
     {:noreply, state}
   end
 
+  defp save_state(%Trace{pid: pid} = trace) do
+    with {:ok, channel_state} <- ProcessService.state(pid) do
+      record_id = record_id(pid)
+      :ets.insert(@ets_table_name, {record_id, channel_state})
+
+      publish_state_changed(trace, channel_state)
+    end
+  end
+
   defp publish_state_changed(%Trace{} = trace, channel_state) do
     socket_id = trace.socket_id
     transport_pid = trace.transport_pid
@@ -76,7 +89,7 @@ defmodule LiveDebugger.GenServers.StateServer do
     PubSubUtils.state_changed_topic(socket_id, transport_pid, node_id)
     |> PubSubUtils.broadcast({:state_changed, channel_state})
 
-    PubSubUtils.state_changed_topic(socket_id, transport_pid, nil)
+    PubSubUtils.state_changed_topic(socket_id, transport_pid)
     |> PubSubUtils.broadcast({:state_changed, channel_state})
   end
 
