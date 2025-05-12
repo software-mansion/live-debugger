@@ -17,6 +17,13 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   @impl true
+  def mount(params, _session, socket) do
+    socket
+    |> subscribe_to_inspect_element(params["socket_id"])
+    |> ok()
+  end
+
+  @impl true
   def handle_params(params, url, socket) do
     socket
     |> assign_node_id(params)
@@ -77,6 +84,12 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
     """
   end
 
+  def handle_info({:inspect_component, component_id}, socket) do
+    socket
+    |> push_patch(to: URL.upsert_query_param(socket.assigns.url, "node_id", component_id))
+    |> noreply()
+  end
+
   defp assign_node_id(socket, %{"node_id" => node_id}) do
     case TreeNode.id_from_string(node_id) do
       {:ok, id} ->
@@ -97,5 +110,13 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
 
   defp assign_node_id(socket, _params) do
     assign(socket, :node_id, nil)
+  end
+
+  defp subscribe_to_inspect_element(socket, nil), do: socket
+
+  defp subscribe_to_inspect_element(socket, socket_id) do
+    PubSubUtils.subscribe!("lvdbg/inspect-element/#{socket_id}")
+
+    socket
   end
 end

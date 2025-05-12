@@ -81,7 +81,7 @@ window.document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (inspectEnabled()) {
-    initInspect();
+    initInspect(getSessionId(), baseURL);
   }
 
   // Finalize
