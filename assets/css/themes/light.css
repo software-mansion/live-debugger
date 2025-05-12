@@ -61,5 +61,8 @@
     --error-border: var(--red-100);
     --error-icon: var(--red-500);
     --error-text: var(--red-800);
+
+    /* Warning */
+    --warning-text: #9a7e00;
   }
 }

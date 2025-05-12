@@ -38,8 +38,14 @@ defmodule LiveDebugger.Utils.PubSubTest do
     node_id = :c.pid(0, 2, 0)
     fun = :handle_info
 
-    assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/#PID<0.2.0>/:handle_info" =
+    assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/#PID<0.2.0>/:handle_info/:call" =
              PubSubUtils.tsnf_topic(socket_id, transport_pid, node_id, fun)
+
+    assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/#PID<0.2.0>/:handle_info/:call" =
+             PubSubUtils.tsnf_topic(socket_id, transport_pid, node_id, fun, :call)
+
+    assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/#PID<0.2.0>/:handle_info/:return" =
+             PubSubUtils.tsnf_topic(socket_id, transport_pid, node_id, fun, :return)
   end
 
   test "ts_f_topic/3" do
