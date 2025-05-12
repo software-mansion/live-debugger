@@ -18,6 +18,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
   alias LiveDebugger.Utils.URL
   alias LiveDebuggerWeb.LiveComponents.NestedLiveViewsLinks
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebuggerWeb.Helpers.StateHelper
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -341,7 +342,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
     pid = socket.assigns.lv_process.pid
 
     assign_async(socket, [:tree, :max_opened_node_level], fn ->
-      with {:ok, channel_state} <- maybe_get_state(pid, state),
+      with {:ok, channel_state} <- StateHelper.maybe_get_state(pid, state),
            {:ok, tree} <- ChannelService.build_tree(channel_state) do
         {:ok, %{tree: tree, max_opened_node_level: Tree.max_opened_node_level(tree)}}
       else
@@ -379,13 +380,5 @@ defmodule LiveDebuggerWeb.SidebarLive do
     }
 
     send(state.socket.transport_pid, state.serializer.encode!(message))
-  end
-
-  defp maybe_get_state(pid, channel_state) do
-    if is_nil(channel_state) do
-      ChannelService.state(pid)
-    else
-      {:ok, channel_state}
-    end
   end
 end

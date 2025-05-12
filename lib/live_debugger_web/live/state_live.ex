@@ -13,6 +13,7 @@ defmodule LiveDebuggerWeb.StateLive do
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebuggerWeb.Helpers.StateHelper
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -167,7 +168,7 @@ defmodule LiveDebuggerWeb.StateLive do
        )
        when not is_nil(node_id) do
     assign_async(socket, [:node, :node_type], fn ->
-      with {:ok, channel_state} <- maybe_get_state(pid, channel_state),
+      with {:ok, channel_state} <- StateHelper.maybe_get_state(pid, channel_state),
            {:ok, node} <- ChannelService.get_node(channel_state, node_id),
            true <- not is_nil(node) do
         {:ok, %{node: node, node_type: TreeNode.type(node)}}
@@ -182,14 +183,6 @@ defmodule LiveDebuggerWeb.StateLive do
     socket
     |> assign(:node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
     |> assign(:node_type, AsyncResult.failed(%AsyncResult{}, :no_node_id))
-  end
-
-  defp maybe_get_state(pid, channel_state) do
-    if is_nil(channel_state) do
-      ChannelService.state(pid)
-    else
-      {:ok, channel_state}
-    end
   end
 
   defp title(:live_component), do: "LiveComponent"
