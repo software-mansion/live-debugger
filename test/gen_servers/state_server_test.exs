@@ -12,7 +12,7 @@ defmodule LiveDebugger.GenServers.StateServerTest do
   setup :verify_on_exit!
 
   test "init/1" do
-    node_rendered_topic = PubSubUtils.node_rendered()
+    node_rendered_topic = PubSubUtils.node_rendered_topic()
     process_status_topic = PubSubUtils.process_status_topic()
     component_deleted_topic = PubSubUtils.component_deleted_topic()
 

@@ -66,46 +66,28 @@ defmodule LiveDebugger.Utils.PubSub do
   end
 
   @doc "Use `{:render_trace, trace}` for broadcasting."
-  @spec node_rendered() :: String.t()
-  def node_rendered() do
+  @spec node_rendered_topic() :: String.t()
+  def node_rendered_topic() do
     "lvdbg/node_rendered"
   end
 
   @doc """
-  It stands for `transport_pid/socket_id/node_id/function`.
+  It stands for `transport_pid/socket_id/node_id/function/type`.
 
   It gives you traces of given callback in given node in given LiveView
   Used to update assigns based on render callback and for filtering traces
 
   Use `{:new_trace, trace}` or `{:updated_trace, trace}` for broadcasting.
   """
-  @spec tsnf_topic(
+  @spec trace_topic(
           socket_id :: String.t(),
           transport_pid :: pid(),
           node_id :: TreeNode.id(),
           fun :: atom(),
           type :: :call | :return
         ) :: String.t()
-  def tsnf_topic(socket_id, transport_pid, node_id, fun, type \\ :call) do
+  def trace_topic(socket_id, transport_pid, node_id, fun, type \\ :call) do
     "#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}/#{inspect(fun)}/#{inspect(type)}"
-  end
-
-  @doc """
-  It stands for `transport_pid/socket_id/*/function`.
-
-  It gives you traces of given callback in all nodes of given LiveView
-  Used for detecting new nodes in sidebar
-
-  Use `{:new_trace, trace}` or `{:updated_trace, trace}` for broadcasting.
-  """
-  @spec ts_f_topic(
-          socket_id :: String.t(),
-          transport_pid :: pid(),
-          fun :: atom(),
-          type :: :call | :return
-        ) :: String.t()
-  def ts_f_topic(socket_id, transport_pid, fun, type \\ :call) do
-    "#{inspect(transport_pid)}/#{socket_id}/*/#{inspect(fun)}/#{inspect(type)}"
   end
 
   @spec impl() :: module()

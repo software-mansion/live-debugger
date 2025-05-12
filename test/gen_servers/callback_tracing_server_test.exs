@@ -125,15 +125,13 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       table = :ets.new(:test_table, [:ordered_set, :public])
 
-      expected_tsnf_topic = PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, fun)
-      expected_ts_f_topic = PubSubUtils.ts_f_topic(socket_id, transport_pid, fun)
+      expected_trace_topic = PubSubUtils.trace_topic(socket_id, transport_pid, pid, fun)
 
       MockEtsTableServer
       |> expect(:table!, fn ^pid -> table end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn ^expected_tsnf_topic, {:new_trace, _trace} -> :ok end)
-      |> expect(:broadcast, fn ^expected_ts_f_topic, {:new_trace, _trace} -> :ok end)
+      |> expect(:broadcast, fn ^expected_trace_topic, {:new_trace, _trace} -> :ok end)
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
       assert_receive handle_trace

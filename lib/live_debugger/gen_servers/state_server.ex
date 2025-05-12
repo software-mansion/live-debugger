@@ -42,7 +42,7 @@ defmodule LiveDebugger.GenServers.StateServer do
   def init(_args) do
     :ets.new(@ets_table_name, [:named_table, :public, :ordered_set])
 
-    PubSubUtils.node_rendered()
+    PubSubUtils.node_rendered_topic()
     |> PubSubUtils.subscribe!()
 
     PubSubUtils.component_deleted_topic()
