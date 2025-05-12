@@ -115,16 +115,12 @@ defmodule LiveDebuggerWeb.SidebarLive do
     existing_node_ids = socket.assigns.existing_node_ids
     trace_node_id = Trace.node_id(trace)
 
-    if Trace.live_component_delete?(trace) do
-      updated_map_set = MapSet.delete(existing_node_ids.result, trace_node_id)
+    updated_map_set = MapSet.delete(existing_node_ids.result, trace_node_id)
 
-      socket
-      |> assign_async_tree()
-      |> update_nested_live_views_links()
-      |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
-    else
-      socket
-    end
+    socket
+    |> assign_async_tree()
+    |> update_nested_live_views_links()
+    |> assign(:existing_node_ids, Map.put(existing_node_ids, :result, updated_map_set))
     |> noreply()
   end
 
