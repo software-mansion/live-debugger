@@ -3,7 +3,7 @@ defmodule LiveDebugger.Utils.PubSubTest do
 
   import Mox
 
-  alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Fakes
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.MockPubSubUtils
 
@@ -13,7 +13,7 @@ defmodule LiveDebugger.Utils.PubSubTest do
   end
 
   test "component_deleted_topic/1" do
-    trace = %Trace{socket_id: "phx-GBsi_6M7paYhySQj", transport_pid: :c.pid(0, 1, 0)}
+    trace = Fakes.trace(socket_id: "phx-GBsi_6M7paYhySQj", transport_pid: :c.pid(0, 1, 0))
 
     assert "lvdbg/#PID<0.1.0>/phx-GBsi_6M7paYhySQj/component_deleted" =
              PubSubUtils.component_deleted_topic(trace)

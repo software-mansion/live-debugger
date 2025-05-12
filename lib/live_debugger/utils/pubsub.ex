@@ -98,7 +98,7 @@ defmodule LiveDebugger.Utils.PubSub do
           type :: :call | :return
         ) :: String.t()
   def tsnf_topic(socket_id, transport_pid, node_id, fun, type \\ :call) do
-    "trace/#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}/#{inspect(fun)}/#{inspect(type)}"
+    "#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}/#{inspect(fun)}/#{inspect(type)}"
   end
 
   @doc """
@@ -113,7 +113,7 @@ defmodule LiveDebugger.Utils.PubSub do
           fun :: atom()
         ) :: String.t()
   def ts_f_topic(socket_id, transport_pid, fun) do
-    "trace/#{inspect(transport_pid)}/#{socket_id}/*/#{inspect(fun)}"
+    "#{inspect(transport_pid)}/#{socket_id}/*/#{inspect(fun)}"
   end
 
   @spec impl() :: module()

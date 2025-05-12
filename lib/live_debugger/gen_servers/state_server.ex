@@ -39,7 +39,7 @@ defmodule LiveDebugger.GenServers.StateServer do
 
   @impl true
   def init(_args) do
-    :ets.new(@ets_table_name, [:named_table, :public, :named_table])
+    :ets.new(@ets_table_name, [:named_table, :public, :ordered_set])
 
     PubSubUtils.node_rendered()
     |> PubSubUtils.subscribe!()

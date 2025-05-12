@@ -1,7 +1,25 @@
 defmodule LiveDebugger.Fakes do
   @moduledoc """
-  Fake responses from internal services
+  Fake complex structures
   """
+
+  def trace(opts \\ []) do
+    default = [
+      id: 1,
+      module: LiveDebuggerTest.LiveView,
+      function: :render,
+      arity: 1,
+      args: [%{socket_id: "socket_id"}],
+      socket_id: "socket_id",
+      pid: :c.pid(0, 1, 0),
+      timestamp: :erlang.timestamp(),
+      execution_time: 1
+    ]
+
+    fields = Keyword.merge(default, opts)
+
+    Kernel.struct!(LiveDebugger.Structs.Trace, fields)
+  end
 
   def state(opts \\ []) do
     socket_id = Keyword.get(opts, :socket_id, "phx-GBsi_6M7paYhySQj")
