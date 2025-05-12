@@ -51,25 +51,24 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   @spec successor_lv_process(lv_process :: LvProcess.t()) :: LvProcess.t() | nil
   def successor_lv_process(lv_process) do
     processes = debugged_lv_processes()
+    module = lv_process.module
     transport_processes = Enum.filter(processes, &(&1.transport_pid == lv_process.transport_pid))
 
-    find_successor_by_priority(transport_processes, processes)
+    find_successor_by_priority(transport_processes, processes, module)
   end
 
-  defp find_successor_by_priority(transport_processes, all_processes) do
+  defp find_successor_by_priority(transport_processes, all_processes, module) do
     find_first_match([
       # Priority 1: Find a non-nested, non-embedded process with matching transport_pid
       fn -> find_non_nested_non_embedded(transport_processes) end,
-      # Priority 2: Find a non-nested process with matching transport_pid
-      fn -> find_non_nested(transport_processes) end,
-      # Priority 3: Use single process with matching transport_pid if it exists
+      # Priority 2: Use single process with matching transport_pid if it exists
       fn -> find_single_process(transport_processes) end,
-      # Priority 4: Use single non-nested, non-embedded process if it exists
-      fn -> find_single_non_nested_non_embedded(all_processes) end,
-      # Priority 5: Use single non-nested process if it exists
-      fn -> find_single_non_nested(all_processes) end,
-      # Priority 6: Use single process if it exists
-      fn -> find_single_process(all_processes) end
+      # Priority 3: Use single non-nested, non-embedded process if it exists
+      fn -> find_single_non_nested_non_embedded(all_processes, module) end,
+      # Priority 4: Use single non-nested process if it exists
+      fn -> find_single_non_nested(all_processes, module) end,
+      # Priority 5: Use single process if it exists
+      fn -> find_single_process(all_processes, module) end
     ])
   end
 
@@ -86,23 +85,25 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
     Enum.find(processes, &(not &1.nested? and not &1.embedded?))
   end
 
-  defp find_non_nested(processes) do
-    Enum.find(processes, &(not &1.nested?))
-  end
-
   defp find_single_process(processes) do
     if length(processes) == 1, do: List.first(processes), else: nil
   end
 
-  defp find_single_non_nested_non_embedded(processes) do
+  defp find_single_process(processes, module) do
     processes
-    |> Enum.filter(&(not &1.nested? and not &1.embedded?))
+    |> Enum.filter(&(&1.module == module))
     |> then(&if(length(&1) == 1, do: List.first(&1), else: nil))
   end
 
-  defp find_single_non_nested(processes) do
+  defp find_single_non_nested_non_embedded(processes, module) do
     processes
-    |> Enum.filter(&(not &1.nested?))
+    |> Enum.filter(&(not &1.nested? and not &1.embedded? and &1.module == module))
+    |> then(&if(length(&1) == 1, do: List.first(&1), else: nil))
+  end
+
+  defp find_single_non_nested(processes, module) do
+    processes
+    |> Enum.filter(&(not &1.nested? and &1.module == module))
     |> then(&if(length(&1) == 1, do: List.first(&1), else: nil))
   end
 
