@@ -56,8 +56,10 @@ defmodule LiveDebugger.GenServers.StateServerTest do
       |> expect(:state, fn ^pid -> {:ok, state} end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn ^state_changed_node_topic, {:state_changed, ^state} -> :ok end)
-      |> expect(:broadcast, fn ^state_changed_topic, {:state_changed, ^state} -> :ok end)
+      |> expect(:broadcast, fn ^state_changed_node_topic, {:state_changed, ^state, ^trace} ->
+        :ok
+      end)
+      |> expect(:broadcast, fn ^state_changed_topic, {:state_changed, ^state, ^trace} -> :ok end)
 
       StateServer.handle_info({:component_deleted, trace}, [])
 
@@ -88,8 +90,10 @@ defmodule LiveDebugger.GenServers.StateServerTest do
       |> expect(:state, fn ^pid -> {:ok, state} end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn ^state_changed_node_topic, {:state_changed, ^state} -> :ok end)
-      |> expect(:broadcast, fn ^state_changed_topic, {:state_changed, ^state} -> :ok end)
+      |> expect(:broadcast, fn ^state_changed_node_topic, {:state_changed, ^state, ^trace} ->
+        :ok
+      end)
+      |> expect(:broadcast, fn ^state_changed_topic, {:state_changed, ^state, ^trace} -> :ok end)
 
       StateServer.handle_info({:render_trace, trace}, [])
 

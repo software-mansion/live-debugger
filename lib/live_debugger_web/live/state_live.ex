@@ -92,7 +92,7 @@ defmodule LiveDebuggerWeb.StateLive do
   end
 
   @impl true
-  def handle_info({:state_changed, channel_state}, socket) do
+  def handle_info({:state_changed, channel_state, _trace}, socket) do
     socket
     |> assign_async_node_with_type(channel_state)
     |> noreply()

@@ -1,6 +1,7 @@
 defmodule LiveDebugger.GenServers.StateServer do
   @moduledoc """
   This gen_server is responsible for storing the state of the application.
+  It collects state when `render` or `delete_component` callbacks are traced.
   It uses named ETS table to store the state of the LiveView channel process.
   When process dies, it removes the state from the table.
   """
@@ -87,10 +88,10 @@ defmodule LiveDebugger.GenServers.StateServer do
     node_id = trace.cid || trace.pid
 
     PubSubUtils.state_changed_topic(socket_id, transport_pid, node_id)
-    |> PubSubUtils.broadcast({:state_changed, channel_state})
+    |> PubSubUtils.broadcast({:state_changed, channel_state, trace})
 
     PubSubUtils.state_changed_topic(socket_id, transport_pid)
-    |> PubSubUtils.broadcast({:state_changed, channel_state})
+    |> PubSubUtils.broadcast({:state_changed, channel_state, trace})
   end
 
   defp impl() do
