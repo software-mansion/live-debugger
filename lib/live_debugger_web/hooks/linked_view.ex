@@ -54,7 +54,7 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
   # When fetching LvProcess fails, we try to find a successor LvProcess
   def handle_async(:fetch_lv_process, {:ok, nil}, socket) do
     socket
-    |> handle_liveview_process_not_found()
+    |> find_successor_lv_process()
     |> halt()
   end
 
@@ -82,13 +82,13 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
 
   def handle_info({:process_status, :dead}, socket) do
     socket
-    |> handle_liveview_process_not_found()
+    |> find_successor_lv_process()
     |> halt()
   end
 
   def handle_info(_, socket), do: {:cont, socket}
 
-  defp handle_liveview_process_not_found(socket) do
+  defp find_successor_lv_process(socket) do
     with %{lv_process: %{result: %LvProcess{} = lv_process}} <- socket.assigns,
          %{pid: successor_pid} <-
            fetch_with_retries(fn -> LiveViewDiscoveryService.successor_lv_process(lv_process) end) do
