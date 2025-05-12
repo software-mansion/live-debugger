@@ -80,8 +80,11 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       fun = :delete_component
       args = [cid, %{}]
 
-      expected_topic =
+      component_deleted_topic =
         PubSubUtils.component_deleted_topic(%{socket_id: socket_id, transport_pid: transport_pid})
+
+      component_deleted_all_topic =
+        PubSubUtils.component_deleted_topic()
 
       MockStateServer
       |> expect(:get, fn ^pid ->
@@ -89,14 +92,18 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn ^expected_topic, {:new_trace, trace} ->
-        send(parent, {:trace, trace})
+      |> expect(:broadcast, fn ^component_deleted_topic, {:component_deleted, trace} ->
+        send(parent, {:trace1, trace})
+      end)
+      |> expect(:broadcast, fn ^component_deleted_all_topic, {:component_deleted, trace} ->
+        send(parent, {:trace2, trace})
       end)
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
       assert_receive handle_trace
       assert 0 = handle_trace.({:trace, pid, :call, {module, fun, args}, :erlang.timestamp()}, 0)
-      assert_receive {:trace, trace}
+      assert_receive {:trace1, trace}
+      assert_receive {:trace2, ^trace}
 
       assert %Trace{
                id: 0,

@@ -13,10 +13,12 @@ defmodule LiveDebugger.GenServers.StateServerTest do
 
   test "init/1" do
     node_rendered_topic = PubSubUtils.node_rendered()
-    process_status_topic = PubSubUtils.process_status_topic(nil)
+    process_status_topic = PubSubUtils.process_status_topic()
+    component_deleted_topic = PubSubUtils.component_deleted_topic()
 
     MockPubSubUtils
     |> expect(:subscribe!, fn ^node_rendered_topic -> :ok end)
+    |> expect(:subscribe!, fn ^component_deleted_topic -> :ok end)
     |> expect(:subscribe!, fn ^process_status_topic -> :ok end)
 
     assert {:ok, []} = StateServer.init([])
@@ -30,6 +32,38 @@ defmodule LiveDebugger.GenServers.StateServerTest do
   end
 
   describe "handle_info/2" do
+    test "handles component deleted trace and updates state" do
+      pid = :c.pid(0, 1, 0)
+      transport_pid = :c.pid(0, 7, 0)
+      socket_id = "socket_id"
+      :ets.new(StateServer.ets_table_name(), [:named_table, :public, :ordered_set])
+      :ets.insert(StateServer.ets_table_name(), {inspect(pid), :old_state})
+
+      trace =
+        Fakes.trace(
+          function: :render,
+          pid: pid,
+          transport_pid: transport_pid,
+          socket_id: socket_id
+        )
+
+      state_changed_node_topic = PubSubUtils.state_changed_topic(socket_id, transport_pid, pid)
+      state_changed_topic = PubSubUtils.state_changed_topic(socket_id, transport_pid)
+
+      state = Fakes.state()
+
+      MockProcessService
+      |> expect(:state, fn ^pid -> {:ok, state} end)
+
+      MockPubSubUtils
+      |> expect(:broadcast, fn ^state_changed_node_topic, {:state_changed, ^state} -> :ok end)
+      |> expect(:broadcast, fn ^state_changed_topic, {:state_changed, ^state} -> :ok end)
+
+      StateServer.handle_info({:component_deleted, trace}, [])
+
+      assert [{_, ^state}] = :ets.lookup(StateServer.ets_table_name(), inspect(pid))
+    end
+
     test "handles render trace and updates state" do
       pid = :c.pid(0, 1, 0)
       transport_pid = :c.pid(0, 7, 0)
@@ -46,7 +80,7 @@ defmodule LiveDebugger.GenServers.StateServerTest do
         )
 
       state_changed_node_topic = PubSubUtils.state_changed_topic(socket_id, transport_pid, pid)
-      state_changed_topic = PubSubUtils.state_changed_topic(socket_id, transport_pid, nil)
+      state_changed_topic = PubSubUtils.state_changed_topic(socket_id, transport_pid)
 
       state = Fakes.state()
 

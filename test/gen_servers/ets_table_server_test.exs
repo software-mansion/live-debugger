@@ -48,7 +48,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
       table_refs = %{pid => ref, other_pid => other_ref}
 
       topic1 = PubSubUtils.process_status_topic(pid)
-      topic2 = PubSubUtils.process_status_topic(nil)
+      topic2 = PubSubUtils.process_status_topic()
 
       LiveDebugger.MockPubSubUtils
       |> expect(:broadcast, fn ^topic1, {:process_status, :dead} -> :ok end)

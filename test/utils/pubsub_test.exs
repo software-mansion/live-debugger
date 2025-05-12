@@ -57,7 +57,7 @@ defmodule LiveDebugger.Utils.PubSubTest do
     transport_pid = :c.pid(0, 1, 0)
     fun = :handle_info
 
-    assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/*/:handle_info" =
+    assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/*/:handle_info/:call" =
              PubSubUtils.ts_f_topic(socket_id, transport_pid, fun)
   end
 
