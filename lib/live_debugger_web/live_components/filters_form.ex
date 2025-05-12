@@ -22,7 +22,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   @impl true
   def render(assigns) do
     assigns =
-      assign(assigns, :selected_filters_number, calculate_selected_filters(assigns.form) - 2)
+      assign(assigns, :selected_filters_number, calculate_selected_filters(assigns.form))
 
     ~H"""
     <div id={@id <> "-wrapper"}>
@@ -37,8 +37,8 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
             </div>
             <p class="font-medium mb-4 mt-6">Callback execution time</p>
             <div class="flex flex-col gap-3">
-              <.input label="max [us]" field={@form[:exec_time_max]} type="number" min="0" />
-              <.input label="min [us]" field={@form[:exec_time_min]} type="number" min="0" />
+              <.input label="max [μs]" field={@form[:exec_time_max]} type="number" min="0" />
+              <.input label="min [μs]" field={@form[:exec_time_min]} type="number" min="0" />
             </div>
           </div>
           <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
@@ -125,8 +125,12 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   end
 
   defp calculate_selected_filters(form) do
+    callbacks =
+      UtilsCallbacks.callbacks_functions()
+      |> Enum.map(&Atom.to_string/1)
+
     form.params
-    |> Map.values()
+    |> Enum.filter(fn {name, value} -> Enum.member?(callbacks, name) && value end)
     |> Enum.count(&Function.identity/1)
   end
 end
