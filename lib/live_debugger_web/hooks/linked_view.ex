@@ -1,8 +1,28 @@
 defmodule LiveDebuggerWeb.Hooks.LinkedView do
   @moduledoc """
-  Hook to handle linked views.
-  """
+    This hook should be used for views that are monitoring a debugged LiveView process.
 
+    It assumes that the view is mounted with a `pid` param that identifies the LiveView process.
+    It starts an async job to fetch the LiveView process via `lv_process` assign that is `AsyncResult` struct.
+    - If the `lv_process` assign is not found, it will try to find a successor LiveView process and navigate to it.
+    - If no successor is found, it will navigate to the error page.
+
+    It also handles a case when the LiveView process dies by trying to find a successor LiveView process.
+
+    The only thing you need to do after adding this hook is to handle loading state in the template.
+    ## Example
+
+    ```html
+    <.async_result :let={lv_process} assign={@lv_process}>
+      <:loading>
+        <div class="m-auto flex items-center justify-center">
+          <.spinner size="xl" />
+        </div>
+      </:loading>
+      <!-- Loaded state -->
+    </.async_result>
+  ```
+  """
   require Logger
 
   import Phoenix.LiveView
@@ -26,10 +46,9 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
 
   def on_mount(:add_hook, %{"pid" => string_pid}, _session, socket) do
     socket
-    |> start_async_assign_lv_process(string_pid)
     |> attach_hook(:linked_view, :handle_async, &handle_async/3)
     |> attach_hook(:linked_view, :handle_info, &handle_info/2)
-    |> cont()
+    |> start_async_assign_lv_process(string_pid)
   end
 
   # When fetching LvProcess fails, we try to find a successor LvProcess
@@ -55,10 +74,7 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
     )
 
     socket
-    |> assign(
-      :lv_process,
-      AsyncResult.failed(socket.assigns.lv_process, reason)
-    )
+    |> push_navigate(to: RoutesHelper.error("unexpected_error"))
     |> halt()
   end
 
@@ -76,19 +92,10 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
     with %{lv_process: %{result: %LvProcess{} = lv_process}} <- socket.assigns,
          %{pid: successor_pid} <-
            fetch_with_retries(fn -> LiveViewDiscoveryService.successor_lv_process(lv_process) end) do
-      socket
-      |> push_navigate(to: RoutesHelper.channel_dashboard(successor_pid))
+      push_navigate(socket, to: RoutesHelper.channel_dashboard(successor_pid))
     else
       _ ->
-        result = %AsyncResult{
-          ok?: false,
-          loading: nil,
-          failed: :not_found,
-          result: nil
-        }
-
-        socket
-        |> assign(:lv_process, result)
+        push_navigate(socket, to: RoutesHelper.error("not_found"))
     end
   end
 
@@ -98,13 +105,12 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
         socket
         |> assign(:lv_process, AsyncResult.loading())
         |> start_async(:fetch_lv_process, fetch_lv_process_with_retries(pid))
+        |> cont()
 
       :error ->
-        assign(
-          socket,
-          :lv_process,
-          AsyncResult.failed(AsyncResult.loading(), :invalid_transport_pid)
-        )
+        socket
+        |> push_navigate(to: RoutesHelper.error("invalid_pid"))
+        |> halt()
     end
   end
 

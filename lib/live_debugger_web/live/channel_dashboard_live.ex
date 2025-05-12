@@ -9,7 +9,6 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias Phoenix.LiveView.JS
   alias LiveDebugger.Utils.URL
 
-  alias LiveDebuggerWeb.Components.Error
   alias LiveDebugger.Structs.TreeNode
 
   alias LiveDebuggerWeb.StateLive
@@ -45,11 +44,6 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
             <.spinner size="xl" />
           </div>
         </:loading>
-        <:failed :let={reason}>
-          <Error.not_found_component :if={reason == :not_found} />
-          <Error.unexpected_error_component :if={reason != :not_found} />
-        </:failed>
-
         <div class="flex overflow-hidden">
           <SidebarLive.live_render
             id="sidebar"
