@@ -3,7 +3,6 @@ defmodule LiveDebugger.Utils.PubSubTest do
 
   import Mox
 
-  alias LiveDebugger.Fakes
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.MockPubSubUtils
 
@@ -12,19 +11,9 @@ defmodule LiveDebugger.Utils.PubSubTest do
              PubSubUtils.node_changed_topic("phx-GBsi_6M7paYhySQj")
   end
 
-  test "component_deleted_topic/1" do
-    trace = Fakes.trace(socket_id: "phx-GBsi_6M7paYhySQj", transport_pid: :c.pid(0, 1, 0))
-
-    assert "lvdbg/#PID<0.1.0>/phx-GBsi_6M7paYhySQj/component_deleted" =
-             PubSubUtils.component_deleted_topic(trace)
-  end
-
-  test "component_deleted_topic/2" do
-    socket_id = "phx-GBsi_6M7paYhySQj"
-    transport_pid = :c.pid(0, 1, 0)
-
-    assert "lvdbg/#PID<0.1.0>/phx-GBsi_6M7paYhySQj/component_deleted" =
-             PubSubUtils.component_deleted_topic(socket_id, transport_pid)
+  test "component_deleted_topic/0" do
+    assert "lvdbg/component_deleted" =
+             PubSubUtils.component_deleted_topic()
   end
 
   test "process_status_topic/0" do

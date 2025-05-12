@@ -177,10 +177,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   @spec do_publish(Trace.t()) :: :ok
   defp do_publish(%{module: Phoenix.LiveView.Diff} = trace) do
-    trace
-    |> PubSubUtils.component_deleted_topic()
-    |> PubSubUtils.broadcast({:component_deleted, trace})
-
     PubSubUtils.component_deleted_topic()
     |> PubSubUtils.broadcast({:component_deleted, trace})
   end

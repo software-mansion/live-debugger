@@ -3,7 +3,6 @@ defmodule LiveDebugger.Utils.PubSub do
   This module provides helpers for LiveDebugger's PubSub.
   """
 
-  alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.TreeNode
 
   @callback broadcast(topic :: String.t(), payload :: term()) :: :ok
@@ -28,25 +27,9 @@ defmodule LiveDebugger.Utils.PubSub do
   def unsubscribe(topic), do: impl().unsubscribe(topic)
 
   @doc "Use `{:component_deleted, delete_trace}` for broadcasting"
-  @spec component_deleted_topic(trace :: Trace.t()) :: String.t()
-  def component_deleted_topic(trace) do
-    socket_id = trace.socket_id
-    transport_pid = trace.transport_pid
-
-    component_deleted_topic(socket_id, transport_pid)
-  end
-
-  @doc "Use `{:component_deleted, delete_trace}` for broadcasting"
-  @spec component_deleted_topic(socket_id :: String.t(), transport_pid :: pid()) :: String.t()
-  def component_deleted_topic(socket_id, transport_pid)
-      when is_binary(socket_id) and is_pid(transport_pid) do
-    "lvdbg/#{inspect(transport_pid)}/#{socket_id}/component_deleted"
-  end
-
-  @doc "Use `{:component_deleted, delete_trace}` for broadcasting"
   @spec component_deleted_topic() :: String.t()
   def component_deleted_topic() do
-    "lvdbg/*/*/component_deleted"
+    "lvdbg/component_deleted"
   end
 
   @doc "Use `{:node_changed, node_id}` for broadcasting"
