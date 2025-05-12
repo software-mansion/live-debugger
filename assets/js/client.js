@@ -3,6 +3,7 @@
 
 import { initDebugButton } from './client/debug_button';
 import { initHighlight } from './client/highlight';
+import initInspect from './client/inspect';
 
 // Fetch LiveDebugger URL
 function getSessionId() {
@@ -46,6 +47,10 @@ function highlightingEnabled() {
   }
 }
 
+function inspectEnabled() {
+  return true;
+}
+
 function getLiveDebuggerBaseURL() {
   const metaTag = document.querySelector('meta[name="live-debugger-config"]');
 
@@ -73,6 +78,10 @@ window.document.addEventListener('DOMContentLoaded', function () {
 
   if (highlightingEnabled()) {
     initHighlight();
+  }
+
+  if (inspectEnabled()) {
+    initInspect();
   }
 
   // Finalize
