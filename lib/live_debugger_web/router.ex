@@ -19,7 +19,7 @@ defmodule LiveDebuggerWeb.Router do
     get("/redirect/:socket_id", SocketDiscoveryController, :redirect)
 
     live("/error/:error", ErrorLive)
-    live("/:pid", ChannelDashboardLive)
+    live("/pid/:pid", ChannelDashboardLive)
     live("/", LiveViewsDashboardLive)
   end
 end

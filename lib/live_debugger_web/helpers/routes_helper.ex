@@ -14,7 +14,7 @@ defmodule LiveDebuggerWeb.Helpers.RoutesHelper do
 
   @spec channel_dashboard(pid :: pid()) :: String.t()
   def channel_dashboard(pid) when is_pid(pid) do
-    ~p"/#{Parsers.pid_to_string(pid)}"
+    ~p"/pid/#{Parsers.pid_to_string(pid)}"
   end
 
   @spec error(String.t()) :: String.t()
