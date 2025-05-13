@@ -10,12 +10,20 @@ defmodule LiveDebugger.WindowDashboardTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> assert_has(title(text: "Active LiveViews"))
+    |> assert_has(live_sessions(count: 1))
+
+    debugger
+    |> click(window_link())
     |> assert_has(title(text: "Active LiveViews for window"))
     |> assert_has(live_sessions(count: 1))
 
     dev_app2
     |> visit(@dev_app_url)
+
+    debugger
+    |> click(refresh_button())
+    |> assert_has(live_sessions(count: 1))
 
     debugger
     |> visit("/")
@@ -27,7 +35,7 @@ defmodule LiveDebugger.WindowDashboardTest do
 
   defp live_sessions(count: count), do: css("#live-sessions ", count: count)
 
-  defp first_link(), do: css("#live-sessions a", count: 1)
+  defp window_link(), do: css("#live-sessions a.window-link", count: 1)
 
   defp refresh_button(), do: css("button[phx-click=\"refresh\"]")
 end
