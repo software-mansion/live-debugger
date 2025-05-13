@@ -120,21 +120,22 @@ defmodule LiveDebugger.Services.TraceService do
 
   defp match_spec(node_id, functions) when is_pid(node_id) do
     [
-      {{:_, %{function: :"$1", pid: node_id, cid: nil}}, to_spec(functions), [:"$_"]}
+      {{:_, %{function: :"$1", execution_time: :"$2", pid: node_id, cid: nil}},
+       to_spec(functions), [:"$_"]}
     ]
   end
 
   defp match_spec(%CID{} = node_id, functions) do
-    [{{:_, %{function: :"$1", cid: node_id}}, to_spec(functions), [:"$_"]}]
+    [{{:_, %{function: :"$1", execution_time: :"$2", cid: node_id}}, to_spec(functions), [:"$_"]}]
   end
 
   defp match_spec(nil, functions) do
-    [{{:_, %{function: :"$1"}}, to_spec(functions), [:"$_"]}]
+    [{{:_, %{function: :"$1", execution_time: :"$2"}}, to_spec(functions), [:"$_"]}]
   end
 
-  def to_spec([]), do: []
+  def to_spec([]), do: [{:"/=", :"$2", nil}]
 
-  def to_spec([single]), do: [{:"=:=", :"$1", single}]
+  def to_spec([single]), do: [{:andalso, {:"=:=", :"$1", single}, {:"/=", :"$2", nil}}]
 
   def to_spec([first, second | rest]) do
     initial_orelse = {:orelse, List.first(to_spec([first])), List.first(to_spec([second]))}
@@ -144,7 +145,7 @@ defmodule LiveDebugger.Services.TraceService do
         {:orelse, acc, List.first(to_spec([x]))}
       end)
 
-    [result]
+    [{:andalso, result, {:"/=", :"$2", nil}}]
   end
 
   @spec ets_table!(pid :: ets_table_id()) :: :ets.table()

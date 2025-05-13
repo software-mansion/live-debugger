@@ -39,13 +39,14 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
     MockDbg
     |> expect(:tracer, fn :process, {_handler, 0} -> :ok end)
-    |> expect(:p, fn :all, :c -> :ok end)
-
-    get_live_view_callbacks(CoolApp.LiveViews.UserDashboard)
-    |> Enum.each(&expect(MockDbg, :tp, fn &1, [] -> :ok end))
+    |> expect(:p, fn :all, [:c, :timestamp] -> :ok end)
 
     get_live_component_callbacks(CoolApp.LiveComponent.UserElement)
-    |> Enum.each(&expect(MockDbg, :tp, fn &1, [] -> :ok end))
+    |> Enum.concat(get_live_view_callbacks(CoolApp.LiveViews.UserDashboard))
+    |> Enum.each(fn mfa ->
+      expect(MockDbg, :tp, fn ^mfa, [{:_, [], [{:return_trace}]}] -> :ok end)
+      expect(MockDbg, :tp, fn ^mfa, [{:_, [], [{:exception_trace}]}] -> :ok end)
+    end)
 
     MockDbg
     |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
@@ -59,7 +60,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       |> expect(:all, fn -> [] end)
 
       MockDbg
-      |> expect(:p, fn :all, :c -> :ok end)
+      |> expect(:p, fn :all, [:c, :timestamp] -> :ok end)
       |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
 
       # In order to keep CallbackTracingServer.handle_trace function private we extract it here
@@ -76,7 +77,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       cid = 3
       socket_id = "phx-GDrDzLLr4USWzwBC"
       module = Phoenix.LiveView.Diff
-      function = :delete_component
+      fun = :delete_component
       args = [cid, %{}]
 
       expected_topic =
@@ -93,15 +94,14 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       end)
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
-
       assert_receive handle_trace
-      assert 0 == handle_trace.({:trace, pid, :call, {module, function, args}}, 0)
+      assert 0 = handle_trace.({:trace, pid, :call, {module, fun, args}, :erlang.timestamp()}, 0)
       assert_receive {:trace, trace}
 
       assert %Trace{
                id: 0,
                module: ^module,
-               function: ^function,
+               function: ^fun,
                arity: 2,
                args: ^args,
                socket_id: ^socket_id,
@@ -116,7 +116,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       pid = :c.pid(0, 0, 2)
       socket_id = "phx-GDrDzLLr4USWzwBC"
       module = CoolApp.LiveViews.UserDashboard
-      function = :handle_info
+      fun = :handle_info
 
       args = [
         :msg,
@@ -125,8 +125,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       table = :ets.new(:test_table, [:ordered_set, :public])
 
-      expected_tsnf_topic = PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, function)
-      expected_ts_f_topic = PubSubUtils.ts_f_topic(socket_id, transport_pid, function)
+      expected_tsnf_topic = PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, fun)
+      expected_ts_f_topic = PubSubUtils.ts_f_topic(socket_id, transport_pid, fun)
 
       MockEtsTableServer
       |> expect(:table!, fn ^pid -> table end)
@@ -137,13 +137,13 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
       assert_receive handle_trace
-      assert -1 == handle_trace.({:trace, pid, :call, {module, function, args}}, 0)
+      assert -1 = handle_trace.({:trace, pid, :call, {module, fun, args}, :erlang.timestamp()}, 0)
       assert [{0, trace}] = :ets.tab2list(table)
 
       assert %Trace{
                id: 0,
                module: ^module,
-               function: ^function,
+               function: ^fun,
                arity: 2,
                args: ^args,
                socket_id: ^socket_id,

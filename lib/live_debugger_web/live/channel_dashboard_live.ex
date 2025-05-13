@@ -17,6 +17,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias LiveDebuggerWeb.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Helpers.RoutesHelper
+
   @impl true
   def handle_params(params, url, socket) do
     socket

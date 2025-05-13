@@ -62,6 +62,7 @@ module.exports = {
         'error-border': 'var(--error-border)',
         'error-icon': 'var(--error-icon)',
         'error-text': 'var(--error-text)',
+        'warning-text': 'var(--warning-text)',
       },
       screens: { xs: '380px' },
       fontFamily: {

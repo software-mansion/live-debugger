@@ -10,31 +10,17 @@ defmodule LiveDebugger.Structs.TraceTest do
       function = :handle_event
       args = ["event", %{"key" => "value"}, %{}]
       pid = :c.pid(0, 0, 1)
+      timestamp = :erlang.timestamp()
+      calculated_timestamp = :timer.now_diff(timestamp, {0, 0, 0})
 
       assert %Trace{
                id: ^id,
                module: ^module,
                function: ^function,
                args: ^args,
-               pid: ^pid
-             } = Trace.new(id, module, function, args, pid)
-    end
-
-    test "adds timestamp when created" do
-      trace_map = %{
-        id: 1,
-        module: LiveDebuggerTest.TestView,
-        function: :handle_event,
-        args: ["event", %{"key" => "value"}, %{}],
-        pid: :c.pid(0, 0, 1)
-      }
-
-      trace = call_trace_new_with_map(trace_map)
-
-      timestamp = :os.system_time(:microsecond)
-
-      assert is_integer(trace.timestamp)
-      assert abs(trace.timestamp - timestamp) < 200
+               pid: ^pid,
+               timestamp: ^calculated_timestamp
+             } = Trace.new(id, module, function, args, pid, timestamp)
     end
 
     test "properly gets transport_pid and socket_id from live view socket" do
@@ -51,7 +37,8 @@ defmodule LiveDebugger.Structs.TraceTest do
           %{"key" => "value"},
           %Phoenix.LiveView.Socket{transport_pid: transport_pid, id: socket_id}
         ],
-        pid: pid
+        pid: pid,
+        timestamp: :erlang.timestamp()
       }
 
       assert %Trace{
@@ -74,7 +61,8 @@ defmodule LiveDebugger.Structs.TraceTest do
           %{"key" => "value"},
           %{socket: %Phoenix.LiveView.Socket{transport_pid: transport_pid, id: socket_id}}
         ],
-        pid: pid
+        pid: pid,
+        timestamp: :erlang.timestamp()
       }
 
       assert %Trace{
@@ -92,7 +80,8 @@ defmodule LiveDebugger.Structs.TraceTest do
         module: LiveDebuggerTest.TestView,
         function: :handle_event,
         args: ["event", %{"key" => "value"}, %Phoenix.LiveView.Socket{assigns: %{myself: cid}}],
-        pid: pid
+        pid: pid,
+        timestamp: :erlang.timestamp()
       }
 
       assert %Trace{cid: ^cid} = call_trace_new_with_map(trace_map)
@@ -107,7 +96,8 @@ defmodule LiveDebugger.Structs.TraceTest do
         module: LiveDebuggerTest.TestView,
         function: :handle_event,
         args: ["event", %{"key" => "value"}, %{myself: cid}],
-        pid: pid
+        pid: pid,
+        timestamp: :erlang.timestamp()
       }
 
       assert %Trace{cid: ^cid} = call_trace_new_with_map(trace_map)
@@ -123,7 +113,8 @@ defmodule LiveDebugger.Structs.TraceTest do
         module: LiveDebuggerTest.TestView,
         function: :handle_event,
         args: ["event", %{"key" => "value"}, %{}],
-        pid: pid
+        pid: pid,
+        timestamp: :erlang.timestamp()
       }
 
       trace = call_trace_new_with_map(trace_map)
@@ -140,7 +131,8 @@ defmodule LiveDebugger.Structs.TraceTest do
         function: :handle_event,
         args: ["event", %{"key" => "value"}, %Phoenix.LiveView.Socket{assigns: %{myself: cid}}],
         pid: :c.pid(0, 0, 1),
-        socket_id: "socket_id"
+        socket_id: "socket_id",
+        timestamp: :erlang.timestamp()
       }
 
       trace = call_trace_new_with_map(trace_map)
@@ -159,7 +151,8 @@ defmodule LiveDebugger.Structs.TraceTest do
         function: :delete_component,
         args: [cid, {nil, nil, []}],
         pid: :c.pid(0, 0, 1),
-        socket_id: "socket_id"
+        socket_id: "socket_id",
+        timestamp: :erlang.timestamp()
       }
 
       trace = call_trace_new_with_map(trace_map)
@@ -173,7 +166,8 @@ defmodule LiveDebugger.Structs.TraceTest do
         module: LiveDebuggerTest.TestView,
         function: :handle_event,
         args: ["event", %{"key" => "value"}, %{}],
-        pid: :c.pid(0, 0, 1)
+        pid: :c.pid(0, 0, 1),
+        timestamp: :erlang.timestamp()
       }
 
       trace = call_trace_new_with_map(trace_map)
@@ -188,7 +182,8 @@ defmodule LiveDebugger.Structs.TraceTest do
       module: LiveDebuggerTest.TestView,
       function: :handle_event,
       args: ["event", %{"key" => "value"}, %{}],
-      pid: :c.pid(0, 0, 1)
+      pid: :c.pid(0, 0, 1),
+      timestamp: :erlang.timestamp()
     }
 
     trace = call_trace_new_with_map(trace_map)
@@ -202,14 +197,15 @@ defmodule LiveDebugger.Structs.TraceTest do
            module: module,
            function: function,
            args: args,
-           pid: pid
+           pid: pid,
+           timestamp: timestamp
          } = map
        ) do
     opts =
       map
-      |> Map.drop([:id, :module, :function, :args, :pid])
+      |> Map.drop([:id, :module, :function, :args, :pid, :timestamp])
       |> Enum.into([])
 
-    Trace.new(id, module, function, args, pid, opts)
+    Trace.new(id, module, function, args, pid, timestamp, opts)
   end
 end
