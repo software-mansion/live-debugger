@@ -1,5 +1,6 @@
 defmodule LiveDebuggerWeb.WindowDashboardLive do
   use LiveDebuggerWeb, :live_view
+  use LiveDebuggerWeb.Hooks.IframeDetector
 
   alias LiveDebugger.Utils.Parsers
   alias LiveDebuggerWeb.Helpers.RoutesHelper
@@ -26,8 +27,12 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
-      <.navbar return_link?={true} />
+    <div
+      id="window-dashboard"
+      phx-hook="IframeDetector"
+      class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]"
+    >
+      <.navbar return_link={get_return_link(@in_iframe?)} />
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
         <div class="flex items-center justify-between">
           <.h1>Active LiveViews for window <%= Parsers.pid_to_string(@transport_pid) %></.h1>
@@ -97,4 +102,7 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
 
     LiveViewDiscoveryService.debugged_lv_processes(transport_pid)
   end
+
+  defp get_return_link(true), do: nil
+  defp get_return_link(false), do: RoutesHelper.live_views_dashboard()
 end

@@ -6,7 +6,6 @@ defmodule LiveDebuggerWeb.Components do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  alias LiveDebuggerWeb.Helpers.RoutesHelper
 
   @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
 
@@ -543,9 +542,9 @@ defmodule LiveDebuggerWeb.Components do
   @doc """
   Renders navbar with possible link to return to the main page.
   """
-  attr(:return_link?, :boolean,
-    required: true,
-    doc: "Whether to show a link to return to the main page."
+  attr(:return_link, :string,
+    default: nil,
+    doc: "Link to return to the main page."
   )
 
   slot(:inner_block)
@@ -553,7 +552,7 @@ defmodule LiveDebuggerWeb.Components do
   def navbar(assigns) do
     ~H"""
     <navbar class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-navbar-bg text-navbar-logo border-b border-navbar-border">
-      <.link :if={@return_link?} patch={RoutesHelper.live_views_dashboard()}>
+      <.link :if={@return_link} patch={@return_link}>
         <.nav_icon icon="icon-arrow-left" />
       </.link>
 

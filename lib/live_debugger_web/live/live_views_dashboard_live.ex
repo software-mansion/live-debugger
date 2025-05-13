@@ -20,7 +20,7 @@ defmodule LiveDebuggerWeb.LiveViewsDashboardLive do
   def render(assigns) do
     ~H"""
     <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
-      <.navbar return_link?={false} />
+      <.navbar />
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
         <div class="flex items-center justify-between">
           <.h1>Active LiveViews</.h1>

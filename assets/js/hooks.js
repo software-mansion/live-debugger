@@ -8,7 +8,7 @@ import Tooltip from './hooks/tooltip';
 import Highlight from './hooks/highlight';
 import LiveDropdown from './hooks/live_dropdown';
 import AutoClearFlash from './hooks/auto_clear_flash';
-
+import IframeDetector from './hooks/iframe_detector';
 import topbar from '../vendor/topbar';
 
 Alpine.start();
@@ -28,6 +28,7 @@ function createHooks() {
     Highlight,
     LiveDropdown,
     AutoClearFlash,
+    IframeDetector,
   };
 }
 
