@@ -88,6 +88,10 @@ defmodule LiveDebuggerWeb.Components do
   attr(:rest, :global, include: ~w(min max))
 
   def input(assigns) do
+    assigns =
+      assigns
+      |> assign(:errors, assigns.field.errors)
+
     ~H"""
     <div phx-feedback-for={@field.name} class={["" | List.wrap(@wrapper_class)]}>
       <label for={@field.id} class={["block font-medium text-xs" | List.wrap(@label_class)]}>
@@ -101,11 +105,15 @@ defmodule LiveDebuggerWeb.Components do
         class={[
           "mt-2 block w-full rounded-lg bg-surface-1-bg  focus:ring-0 text-xs",
           "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
-          "border-default-border focus:border-secondary-text"
+          @errors == [] && "border-default-border focus:border-secondary-text",
+          @errors != [] && "border-error-text focus:border-error-text"
           | List.wrap(@input_class)
         ]}
         {@rest}
       />
+      <p :for={msg <- @errors} class="mt-2 block text-error-text">
+        <%= msg %>
+      </p>
     </div>
     """
   end
