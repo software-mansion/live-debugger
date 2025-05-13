@@ -20,6 +20,7 @@ defmodule LiveDebuggerWeb.Router do
 
     live("/error/:error", ErrorLive)
     live("/pid/:pid", ChannelDashboardLive)
+    live("/transport_pid/:transport_pid", WindowDashboardLive)
     live("/", LiveViewsDashboardLive)
   end
 end
