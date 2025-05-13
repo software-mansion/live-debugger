@@ -53,6 +53,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     # We trace it to refresh the components tree
     Dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
 
+    # We need to get information when code reloads to properly trace modules
     Dbg.tp({Phoenix.CodeReloader, :reload, 2}, [{:_, [], [{:return_trace}]}])
     Dbg.tp({Phoenix.CodeReloader, :reload!, 2}, [{:_, [], [{:return_trace}]}])
 
