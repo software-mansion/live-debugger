@@ -21,7 +21,8 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :selected_filters_number, calculate_selected_filters(assigns.form))
+    assigns =
+      assign(assigns, :selected_filters_number, calculate_selected_filters(assigns.form))
 
     ~H"""
     <div id={@id <> "-wrapper"}>
@@ -33,6 +34,15 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
               <%= for {function, arity} <- get_callbacks(@node_id) do %>
                 <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
               <% end %>
+            </div>
+            <p class="font-medium mb-4 mt-6">Callback execution time</p>
+            <div class="flex flex-col gap-3">
+              <.input field={@form[:exec_time_max]} type="number" min="0">
+                <:label>max [&micro;s]</:label>
+              </.input>
+              <.input field={@form[:exec_time_min]} type="number" min="0">
+                <:label>min [&micro;s]</:label>
+              </.input>
             </div>
           </div>
           <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
@@ -82,11 +92,11 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     |> noreply()
   end
 
-  def assign_form(socket, filters) do
+  def assign_form(socket, %{functions: functions, execution_time: execution_time}) do
     form =
-      filters
-      |> Enum.reduce(%{}, fn {function, active}, acc ->
-        Map.put(acc, Atom.to_string(function), active)
+      (functions ++ execution_time)
+      |> Enum.reduce(%{}, fn {filter, value}, acc ->
+        Map.put(acc, Atom.to_string(filter), value)
       end)
       |> to_form()
 
@@ -103,15 +113,28 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   end
 
   defp update_filters(active_filters, params) do
-    active_filters
-    |> Enum.map(fn {function, _} ->
-      {function, Map.has_key?(params, Atom.to_string(function))}
-    end)
+    functions =
+      active_filters.functions
+      |> Enum.map(fn {function, _} ->
+        {function, Map.has_key?(params, Atom.to_string(function))}
+      end)
+
+    execution_time =
+      active_filters.execution_time
+      |> Enum.map(fn {filter, value} ->
+        {filter, Map.get(params, Atom.to_string(filter), value)}
+      end)
+
+    %{functions: functions, execution_time: execution_time}
   end
 
   defp calculate_selected_filters(form) do
+    callbacks =
+      UtilsCallbacks.callbacks_functions()
+      |> Enum.map(&Atom.to_string/1)
+
     form.params
-    |> Map.values()
+    |> Enum.filter(fn {name, value} -> Enum.member?(callbacks, name) && value end)
     |> Enum.count(&Function.identity/1)
   end
 end

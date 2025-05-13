@@ -263,8 +263,8 @@ defmodule LiveDebuggerWeb.TracesLive do
     default_filters = default_filters(node_id)
 
     socket
-    |> assign(node_id: node_id)
     |> TracingHelper.disable_tracing()
+    |> assign(node_id: node_id)
     |> assign(current_filters: default_filters)
     |> assign(default_filters: default_filters)
     |> assign_async_existing_traces()
@@ -400,17 +400,26 @@ defmodule LiveDebuggerWeb.TracesLive do
   end
 
   defp default_filters(node_id) do
-    node_id
-    |> TreeNode.type()
-    |> case do
-      :live_view -> UtilsCallbacks.live_view_callbacks()
-      :live_component -> UtilsCallbacks.live_component_callbacks()
-    end
-    |> Enum.map(fn {function, _} -> {function, true} end)
+    functions =
+      node_id
+      |> TreeNode.type()
+      |> case do
+        :live_view -> UtilsCallbacks.live_view_callbacks()
+        :live_component -> UtilsCallbacks.live_component_callbacks()
+      end
+      |> Enum.map(fn {function, _} -> {function, true} end)
+
+    %{
+      functions: functions,
+      execution_time: [
+        {:exec_time_max, ""},
+        {:exec_time_min, "0"}
+      ]
+    }
   end
 
   defp get_active_functions(socket) do
-    socket.assigns.current_filters
+    socket.assigns.current_filters.functions
     |> Enum.filter(fn {_, active?} -> active? end)
     |> Enum.map(fn {function, _} -> function end)
   end
