@@ -21,37 +21,13 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   It creates table if none is associated with given pid
   """
   @spec table!(pid :: pid()) :: :ets.table()
-  def table!(pid) when is_pid(pid) do
-    impl().table!(pid)
-  end
+  def table!(pid) when is_pid(pid), do: impl().table!(pid)
 
   @doc """
   If table for given `pid` exists it deletes it from ETS.
   """
   @spec delete_table!(pid :: pid()) :: :ok
-  def delete_table!(pid) when is_pid(pid) do
-    impl().delete_table!(pid)
-  end
-
-  def impl() do
-    Application.get_env(:live_debugger, :ets_table_server, __MODULE__.Impl)
-  end
-
-  defmodule Impl do
-    @moduledoc false
-    @behaviour LiveDebugger.GenServers.EtsTableServer
-    @server_module LiveDebugger.GenServers.EtsTableServer
-
-    @impl true
-    def table!(pid) do
-      GenServer.call(@server_module, {:get_or_create_table, pid}, 1000)
-    end
-
-    @impl true
-    def delete_table!(pid) do
-      GenServer.call(@server_module, {:delete_table, pid}, 1000)
-    end
-  end
+  def delete_table!(pid) when is_pid(pid), do: impl().delete_table!(pid)
 
   ## GenServer
 
@@ -69,9 +45,8 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   def handle_info({:DOWN, _, :process, closed_pid, _}, table_refs) do
     {_, table_refs} = delete_ets_table(closed_pid, table_refs)
 
-    closed_pid
-    |> PubSubUtils.process_status_topic()
-    |> PubSubUtils.broadcast({:process_status, :dead})
+    PubSubUtils.process_status_topic()
+    |> PubSubUtils.broadcast({:process_status, {:dead, closed_pid}})
 
     {:noreply, table_refs}
   end
@@ -93,6 +68,26 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   def handle_call({:delete_table, pid}, _from, table_refs) do
     {_, table_refs} = delete_ets_table(pid, table_refs)
     {:reply, :ok, table_refs}
+  end
+
+  defp impl() do
+    Application.get_env(:live_debugger, :ets_table_server, __MODULE__.Impl)
+  end
+
+  defmodule Impl do
+    @moduledoc false
+    @behaviour LiveDebugger.GenServers.EtsTableServer
+    @server_module LiveDebugger.GenServers.EtsTableServer
+
+    @impl true
+    def table!(pid) do
+      GenServer.call(@server_module, {:get_or_create_table, pid}, 1000)
+    end
+
+    @impl true
+    def delete_table!(pid) do
+      GenServer.call(@server_module, {:delete_table, pid}, 1000)
+    end
   end
 
   @spec create_ets_table() :: :ets.table()
