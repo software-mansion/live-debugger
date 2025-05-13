@@ -17,7 +17,7 @@ defmodule LiveDebuggerWeb.Components.Links do
 
     ~H"""
     <.link
-      href={RoutesHelper.channel_dashboard(@lv_process.socket_id, @lv_process.transport_pid)}
+      href={RoutesHelper.channel_dashboard(@lv_process.pid)}
       class="w-full flex gap-1 text-primary-text"
     >
       <.icon :if={@icon} name={@icon} class="w-4 h-4 shrink-0 text-link-primary" />
