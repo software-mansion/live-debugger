@@ -79,6 +79,20 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       module = Phoenix.LiveView.Diff
       fun = :delete_component
       args = [cid, %{}]
+      timestamp = :erlang.timestamp()
+
+      expected_trace = %Trace{
+        id: 0,
+        module: module,
+        function: fun,
+        arity: 2,
+        args: args,
+        socket_id: socket_id,
+        transport_pid: transport_pid,
+        pid: pid,
+        cid: %Phoenix.LiveComponent.CID{cid: cid},
+        timestamp: :timer.now_diff(timestamp, {0, 0, 0})
+      }
 
       expected_topic =
         PubSubUtils.component_deleted_topic(%{socket_id: socket_id, transport_pid: transport_pid})
@@ -89,26 +103,14 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn ^expected_topic, {:new_trace, trace} ->
-        send(parent, {:trace, trace})
+      |> expect(:broadcast, fn ^expected_topic, {:new_trace, ^expected_trace} ->
+        send(parent, :broadcasted)
       end)
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
       assert_receive handle_trace
-      assert 0 = handle_trace.({:trace, pid, :call, {module, fun, args}, :erlang.timestamp()}, 0)
-      assert_receive {:trace, trace}
-
-      assert %Trace{
-               id: 0,
-               module: ^module,
-               function: ^fun,
-               arity: 2,
-               args: ^args,
-               socket_id: ^socket_id,
-               transport_pid: ^transport_pid,
-               pid: ^pid,
-               cid: %Phoenix.LiveComponent.CID{cid: ^cid}
-             } = trace
+      assert 0 = handle_trace.({:trace, pid, :call, {module, fun, args}, timestamp}, 0)
+      assert_receive :broadcasted
     end
 
     test "handle standard live view trace" do
@@ -125,20 +127,29 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       table = :ets.new(:test_table, [:ordered_set, :public])
 
-      expected_tsnf_topic = PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, fun)
+      expected_tsnf_call_topic = PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, fun, :call)
+
+      expected_tsnf_return_topic =
+        PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, fun, :return)
+
       expected_ts_f_topic = PubSubUtils.ts_f_topic(socket_id, transport_pid, fun)
 
       MockEtsTableServer
-      |> expect(:table!, fn ^pid -> table end)
+      |> expect(:table!, 2, fn ^pid -> table end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn ^expected_tsnf_topic, {:new_trace, _trace} -> :ok end)
+      |> expect(:broadcast, fn ^expected_tsnf_call_topic, {:new_trace, _trace} -> :ok end)
       |> expect(:broadcast, fn ^expected_ts_f_topic, {:new_trace, _trace} -> :ok end)
+      |> expect(:broadcast, fn ^expected_tsnf_return_topic, {:updated_trace, _trace} -> :ok end)
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
       assert_receive handle_trace
-      assert -1 = handle_trace.({:trace, pid, :call, {module, fun, args}, :erlang.timestamp()}, 0)
+
+      call_timestamp = :erlang.timestamp()
+      assert -1 = handle_trace.({:trace, pid, :call, {module, fun, args}, call_timestamp}, 0)
       assert [{0, trace}] = :ets.tab2list(table)
+
+      expected_timestamp = :timer.now_diff(call_timestamp, {0, 0, 0})
 
       assert %Trace{
                id: 0,
@@ -149,8 +160,25 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
                socket_id: ^socket_id,
                transport_pid: ^transport_pid,
                pid: ^pid,
-               cid: nil
+               cid: nil,
+               timestamp: ^expected_timestamp,
+               execution_time: nil
              } = trace
+
+      return_timestamp = :erlang.timestamp()
+
+      assert -1 =
+               handle_trace.(
+                 {:trace, pid, :return_from, {module, fun, length(args)}, {:noreply, %{}},
+                  return_timestamp},
+                 -1
+               )
+
+      assert [{0, updated_trace}] = :ets.tab2list(table)
+
+      expected_execution_time = :timer.now_diff(return_timestamp, call_timestamp)
+
+      assert %{trace | execution_time: expected_execution_time} == updated_trace
     end
 
     test "handle unexpected trace" do
