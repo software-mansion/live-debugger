@@ -84,26 +84,26 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
     Enum.find(processes, &(not &1.nested? and not &1.embedded?))
   end
 
-  defp find_single_process(processes) do
-    if length(processes) == 1, do: List.first(processes), else: nil
-  end
-
   defp find_single_process(processes, module) do
     processes
     |> Enum.filter(&(&1.module == module))
-    |> then(&if(length(&1) == 1, do: List.first(&1), else: nil))
+    |> find_single_process()
   end
 
   defp find_single_non_nested_non_embedded(processes, module) do
     processes
     |> Enum.filter(&(not &1.nested? and not &1.embedded? and &1.module == module))
-    |> then(&if(length(&1) == 1, do: List.first(&1), else: nil))
+    |> find_single_process()
   end
 
   defp find_single_non_nested(processes, module) do
     processes
     |> Enum.filter(&(not &1.nested? and &1.module == module))
-    |> then(&if(length(&1) == 1, do: List.first(&1), else: nil))
+    |> find_single_process()
+  end
+
+  defp find_single_process(processes) do
+    if length(processes) == 1, do: List.first(processes), else: nil
   end
 
   @doc """
