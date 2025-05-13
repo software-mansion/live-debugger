@@ -101,6 +101,50 @@ defmodule Services.TraceServiceTest do
                TraceService.existing_traces(pid, functions: [:handle_info, :render, :mount])
     end
 
+    test "returns traces with execution time filter", %{module: module, pid: pid, table: table} do
+      trace1 = new_trace(1, module, :handle_info, [], pid, execution_time: 11)
+      trace2 = new_trace(2, module, :render, [], pid, execution_time: 25)
+      trace3 = new_trace(3, module, :handle_event, [], pid, execution_time: 100)
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+      :ets.insert(table, {trace3.id, trace3})
+
+      MockEtsTableServer
+      |> expect(:table!, 2, fn ^pid -> table end)
+
+      assert {[^trace2], _} =
+               TraceService.existing_traces(pid,
+                 execution_times: [exec_time_min: 15, exec_time_max: 50]
+               )
+
+      assert {[^trace2, ^trace3], _} =
+               TraceService.existing_traces(pid,
+                 execution_times: [exec_time_min: 15, exec_time_max: :infinity]
+               )
+    end
+
+    test "returns traces with functions filter and execution time filter", %{
+      module: module,
+      pid: pid,
+      table: table
+    } do
+      trace1 = new_trace(1, module, :handle_info, [], pid, execution_time: 11)
+      trace2 = new_trace(2, module, :render, [], pid, execution_time: 25)
+      trace3 = new_trace(3, module, :handle_event, [], pid, execution_time: 100)
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+      :ets.insert(table, {trace3.id, trace3})
+
+      MockEtsTableServer
+      |> expect(:table!, fn ^pid -> table end)
+
+      assert {[^trace2], _} =
+               TraceService.existing_traces(pid,
+                 functions: [:handle_info, :render, :mount],
+                 execution_times: [exec_time_min: 15, exec_time_max: 150]
+               )
+    end
+
     test "returns traces with node_id filter", %{module: module, pid: pid, table: table} do
       cid = %Phoenix.LiveComponent.CID{cid: 3}
       trace1 = new_trace(1, module, :handle_info, [], pid)
