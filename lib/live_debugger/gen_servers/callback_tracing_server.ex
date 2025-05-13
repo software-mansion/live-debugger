@@ -47,25 +47,14 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     Dbg.tracer(:process, {&handle_trace/2, 0})
     Dbg.p(:all, [:c, :timestamp])
 
-    all_modules = ModuleDiscoveryService.all_modules()
-
-    callbacks =
-      all_modules
-      |> ModuleDiscoveryService.live_view_modules()
-      |> CallbackUtils.live_view_callbacks()
-
-    all_modules
-    |> ModuleDiscoveryService.live_component_modules()
-    |> CallbackUtils.live_component_callbacks()
-    |> Enum.concat(callbacks)
-    |> Enum.each(fn mfa ->
-      Dbg.tp(mfa, [{:_, [], [{:return_trace}]}])
-      Dbg.tp(mfa, [{:_, [], [{:exception_trace}]}])
-    end)
+    add_live_modules_to_tracer()
 
     # This is not a callback created by user
     # We trace it to refresh the components tree
     Dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
+
+    Dbg.tp({Phoenix.CodeReloader, :reload, 2}, [{:_, [], [{:return_trace}]}])
+    Dbg.tp({Phoenix.CodeReloader, :reload!, 2}, [{:_, [], [{:return_trace}]}])
 
     {:noreply, state}
   end
@@ -79,6 +68,11 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   # Because of that we do it asynchronously to speed up tracer a bit
   # We do not persist this trace because it is not displayed to user
   @spec handle_trace(term(), n :: integer()) :: integer()
+  defp handle_trace({_, _, :return_from, {Phoenix.CodeReloader, _, _}, _, _}, n) do
+    add_live_modules_to_tracer()
+    n
+  end
+
   defp handle_trace(
          {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, timestamp},
          n
@@ -142,6 +136,24 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   defp handle_trace(trace, n) do
     Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
     n
+  end
+
+  defp add_live_modules_to_tracer() do
+    all_modules = ModuleDiscoveryService.all_modules()
+
+    callbacks =
+      all_modules
+      |> ModuleDiscoveryService.live_view_modules()
+      |> CallbackUtils.live_view_callbacks()
+
+    all_modules
+    |> ModuleDiscoveryService.live_component_modules()
+    |> CallbackUtils.live_component_callbacks()
+    |> Enum.concat(callbacks)
+    |> Enum.each(fn mfa ->
+      Dbg.tp(mfa, [{:_, [], [{:return_trace}]}])
+      Dbg.tp(mfa, [{:_, [], [{:exception_trace}]}])
+    end)
   end
 
   @spec persist_trace(Trace.t()) :: :ok | {:error, term()}
