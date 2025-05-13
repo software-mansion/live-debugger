@@ -4,6 +4,8 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebuggerWeb.Helpers.RoutesHelper
   alias LiveDebugger.Services.LiveViewDiscoveryService
+  alias LiveDebuggerWeb.Components.TabGroup
+  alias Phoenix.LiveView.AsyncResult
 
   @impl true
   def mount(%{"transport_pid" => string_transport_pid}, _session, socket) do
@@ -13,7 +15,7 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
       {:ok, transport_pid} ->
         socket
         |> assign(:transport_pid, transport_pid)
-        |> assign_async_lv_processes()
+        |> assign_async_grouped_lv_processes()
 
       :error ->
         push_navigate(socket, to: RoutesHelper.error("invalid_pid"))
@@ -24,19 +26,68 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>Window Dashboard</div>
+    <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
+      <.navbar return_link?={true} />
+      <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
+        <div class="flex items-center justify-between">
+          <.h1>Active LiveViews in current window</.h1>
+          <.button phx-click="refresh">
+            <div class="flex items-center gap-2">
+              <.icon name="icon-refresh" class="w-4 h-4" />
+              <p>Refresh</p>
+            </div>
+          </.button>
+        </div>
+
+        <div class="mt-6">
+          <.async_result :let={grouped_lv_processes} assign={@grouped_lv_processes}>
+            <:loading>
+              <div class="flex items-center justify-center">
+                <.spinner size="md" />
+              </div>
+            </:loading>
+            <:failed>
+              <.alert variant="danger" with_icon heading="Error fetching active LiveViews">
+                Check logs for more
+              </.alert>
+            </:failed>
+            <div id="live-sessions" class="flex flex-col gap-4">
+              <%= if Enum.empty?(grouped_lv_processes)  do %>
+                <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
+                  <p class="text-secondary-text text-center">No active LiveViews</p>
+                </div>
+              <% else %>
+                <TabGroup.group
+                  :for={{transport_pid, grouped_lv_processes} <- grouped_lv_processes}
+                  transport_pid={transport_pid}
+                  grouped_lv_processes={grouped_lv_processes}
+                />
+              <% end %>
+            </div>
+          </.async_result>
+        </div>
+      </div>
+    </div>
     """
   end
 
-  defp assign_async_lv_processes(%{assigns: %{transport_pid: transport_pid}} = socket) do
-    assign_async(socket, :lv_processes, fn ->
+  @impl true
+  def handle_event("refresh", _params, socket) do
+    socket
+    |> assign(:grouped_lv_processes, AsyncResult.loading())
+    |> assign_async_grouped_lv_processes()
+    |> noreply()
+  end
+
+  defp assign_async_grouped_lv_processes(%{assigns: %{transport_pid: transport_pid}} = socket) do
+    assign_async(socket, :grouped_lv_processes, fn ->
       lv_processes =
         with [] <- fetch_lv_processes_after(200, transport_pid),
              [] <- fetch_lv_processes_after(800, transport_pid) do
           fetch_lv_processes_after(1000, transport_pid)
         end
 
-      {:ok, %{lv_processes: lv_processes}}
+      {:ok, %{grouped_lv_processes: LiveViewDiscoveryService.group_lv_processes(lv_processes)}}
     end)
   end
 
