@@ -37,12 +37,20 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
             </div>
             <p class="font-medium mb-4 mt-6">Callback execution time</p>
             <div class="flex flex-col gap-3">
-              <.input field={@form[:exec_time_max]} type="number" min="0">
-                <:label>max [&micro;s]</:label>
-              </.input>
-              <.input field={@form[:exec_time_min]} type="number" min="0">
-                <:label>min [&micro;s]</:label>
-              </.input>
+              <.input
+                label_text="max [&micro;s]"
+                label_raw
+                field={@form[:exec_time_max]}
+                type="number"
+                min="0"
+              />
+              <.input
+                label_text="min [&micro;s]"
+                label_raw
+                field={@form[:exec_time_min]}
+                type="number"
+                min="0"
+              />
             </div>
           </div>
           <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">

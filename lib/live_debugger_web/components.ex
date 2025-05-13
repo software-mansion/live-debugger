@@ -5,6 +5,8 @@ defmodule LiveDebuggerWeb.Components do
 
   use Phoenix.Component
 
+  import Phoenix.HTML
+
   alias Phoenix.LiveView.JS
   alias LiveDebuggerWeb.Helpers.RoutesHelper
 
@@ -77,6 +79,7 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:field, Phoenix.HTML.FormField, required: true)
   attr(:label_text, :string, default: nil)
+  attr(:label_raw, :boolean, default: false)
   attr(:type, :string, default: "text")
 
   attr(:wrapper_class, :any, default: nil)
@@ -84,13 +87,11 @@ defmodule LiveDebuggerWeb.Components do
   attr(:label_class, :any, default: nil)
   attr(:rest, :global, include: ~w(min max))
 
-  slot(:label)
-
   def input(assigns) do
     ~H"""
     <div phx-feedback-for={@field.name} class={["" | List.wrap(@wrapper_class)]}>
       <label for={@field.id} class={["block font-medium text-xs" | List.wrap(@label_class)]}>
-        <%= if @label != [], do: render_slot(@label), else: @label_text %>
+        <%= if @label_raw, do: raw(@label_text), else: @label_text %>
       </label>
       <input
         type={@type}
