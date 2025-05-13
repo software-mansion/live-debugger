@@ -19,7 +19,7 @@ defmodule LiveDebuggerWeb.Components.TabGroup do
         class="pl-4 p-3 flex items-center h-10 border-b border-default-border"
       >
         <p class="text-primary-text text-xs font-medium">
-          <.link href={RoutesHelper.window_dashboard(@transport_pid)}>
+          <.link navigate={RoutesHelper.window_dashboard(@transport_pid)} class="window-link">
             <%= Parsers.pid_to_string(@transport_pid) %>
           </.link>
         </p>
@@ -62,7 +62,7 @@ defmodule LiveDebuggerWeb.Components.TabGroup do
     ~H"""
     <.link
       navigate={RoutesHelper.channel_dashboard(@lv_process.pid)}
-      class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm"
+      class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm live-view-link"
     >
       <div class="flex flex-col gap-1">
         <div class="text-link-primary flex items-center gap-1">

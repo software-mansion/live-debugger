@@ -46,7 +46,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_has(traces(count: 4))
   end
 
-  defp first_link(), do: css("#live-sessions a", count: 1)
+  defp first_link(), do: css("#live-sessions a.live-view-link", count: 1)
 
   defp counter_in_assigns(text: text) do
     xpath(
