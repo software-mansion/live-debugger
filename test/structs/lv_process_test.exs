@@ -36,8 +36,8 @@ defmodule LiveDebugger.Structs.LvProcessTest do
 
   describe "new/1" do
     test "returns nil if the process is not found" do
-      LiveDebugger.MockStateServer
-      |> expect(:get, fn _pid ->
+      LiveDebugger.MockProcessService
+      |> expect(:state, fn _pid ->
         {:error, :not_found}
       end)
 
@@ -52,8 +52,8 @@ defmodule LiveDebugger.Structs.LvProcessTest do
       transport_pid = nil
       module = LiveDebuggerTest.TestView
 
-      LiveDebugger.MockStateServer
-      |> expect(:get, fn _pid ->
+      LiveDebugger.MockProcessService
+      |> expect(:state, fn _pid ->
         {:ok,
          LiveDebugger.Fakes.state(
            socket_id: socket_id,
@@ -85,8 +85,8 @@ defmodule LiveDebugger.Structs.LvProcessTest do
       transport_pid = :c.pid(0, 7, 0)
       module = LiveDebuggerTest.TestView
 
-      LiveDebugger.MockStateServer
-      |> expect(:get, fn _pid ->
+      LiveDebugger.MockProcessService
+      |> expect(:state, fn _pid ->
         {:ok,
          LiveDebugger.Fakes.state(
            socket_id: socket_id,
@@ -119,8 +119,8 @@ defmodule LiveDebugger.Structs.LvProcessTest do
       transport_pid = nil
       module = LiveDebugger.TestView
 
-      LiveDebugger.MockStateServer
-      |> expect(:get, fn _pid ->
+      LiveDebugger.MockProcessService
+      |> expect(:state, fn _pid ->
         {:ok,
          LiveDebugger.Fakes.state(
            socket_id: socket_id,
@@ -152,8 +152,8 @@ defmodule LiveDebugger.Structs.LvProcessTest do
       transport_pid = nil
       module = LiveDebuggerTest.TestView
 
-      LiveDebugger.MockStateServer
-      |> expect(:get, fn _pid ->
+      LiveDebugger.MockProcessService
+      |> expect(:state, fn _pid ->
         {:ok,
          LiveDebugger.Fakes.state(
            socket_id: socket_id,
@@ -187,8 +187,8 @@ defmodule LiveDebugger.Structs.LvProcessTest do
       transport_pid = nil
       module = LiveDebuggerTest.TestView
 
-      LiveDebugger.MockStateServer
-      |> expect(:get, fn ^parent_pid ->
+      LiveDebugger.MockProcessService
+      |> expect(:state, fn ^parent_pid ->
         {:ok,
          LiveDebugger.Fakes.state(
            socket_id: socket_id,
