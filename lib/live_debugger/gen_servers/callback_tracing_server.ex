@@ -74,7 +74,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     n
   end
 
-  defp handle_trace({_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _, _}, n) do
+  defp handle_trace({_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _}, n) do
     n
   end
 
