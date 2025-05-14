@@ -54,8 +54,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     Dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
 
     # We need to get information when code reloads to properly trace modules
-    Dbg.tp({Phoenix.CodeReloader, :reload, 2}, [{:_, [], [{:return_trace}]}])
-    Dbg.tp({Phoenix.CodeReloader, :reload!, 2}, [{:_, [], [{:return_trace}]}])
+    Dbg.tp({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
 
     {:noreply, state}
   end
@@ -69,8 +68,13 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   # Because of that we do it asynchronously to speed up tracer a bit
   # We do not persist this trace because it is not displayed to user
   @spec handle_trace(term(), n :: integer()) :: integer()
-  defp handle_trace({_, _, :return_from, {Phoenix.CodeReloader, _, _}, _, _}, n) do
+  defp handle_trace({_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, _, _}, n) do
+    Process.sleep(100)
     add_live_modules_to_tracer()
+    n
+  end
+
+  defp handle_trace({_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _, _}, n) do
     n
   end
 
