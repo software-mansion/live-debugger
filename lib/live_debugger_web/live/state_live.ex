@@ -99,9 +99,20 @@ defmodule LiveDebuggerWeb.StateLive do
   end
 
   @impl true
-  def handle_info({:node_changed, node_id}, socket) do
+  def handle_info({:node_changed, new_node_id}, socket) do
+    lv_process = socket.assigns.lv_process
+    old_node_id = socket.assigns.node_id
+
+    lv_process.socket_id
+    |> PubSubUtils.tsnf_topic(lv_process.transport_pid, old_node_id, :render)
+    |> PubSubUtils.unsubscribe()
+
+    lv_process.socket_id
+    |> PubSubUtils.tsnf_topic(lv_process.transport_pid, new_node_id, :render)
+    |> PubSubUtils.subscribe!()
+
     socket
-    |> assign(node_id: node_id)
+    |> assign(node_id: new_node_id)
     |> assign_async_node_with_type()
     |> noreply()
   end
