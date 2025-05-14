@@ -424,7 +424,7 @@ defmodule LiveDebuggerWeb.TracesLive do
       functions: functions,
       execution_time: [
         {:exec_time_max, ""},
-        {:exec_time_min, "0"}
+        {:exec_time_min, ""}
       ]
     }
   end
@@ -437,10 +437,8 @@ defmodule LiveDebuggerWeb.TracesLive do
 
   defp get_execution_times(socket) do
     socket.assigns.current_filters.execution_time
-    |> Enum.map(fn
-      {filter, ""} -> {filter, :infinity}
-      {filter, value} -> {filter, String.to_integer(value)}
-    end)
+    |> Enum.filter(fn {_, value} -> value != "" end)
+    |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
   end
 
   defp log_async_error(operation, reason) do
