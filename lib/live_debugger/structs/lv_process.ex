@@ -1,6 +1,7 @@
 defmodule LiveDebugger.Structs.LvProcess do
   @moduledoc """
   This module provides a struct to represent a LiveView process.
+  It uses `LiveDebugger.Services.System.ProcessService` to fetch process state
 
   * nested? - whether the process is a nested LiveView process
   * debugger? - whether the process is a LiveDebugger process
@@ -59,7 +60,7 @@ defmodule LiveDebugger.Structs.LvProcess do
   """
   @spec new(pid :: pid()) :: t() | nil
   def new(pid) do
-    case LiveDebugger.Services.ChannelService.state(pid) do
+    case LiveDebugger.Services.System.ProcessService.state(pid) do
       {:ok, %{socket: socket}} ->
         new(pid, socket)
 
