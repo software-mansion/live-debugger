@@ -121,7 +121,7 @@ defmodule LiveDebuggerWeb.LiveViewsDashboardLive do
   defp list_element(assigns) do
     ~H"""
     <.link
-      navigate={RoutesHelper.channel_dashboard(@lv_process.socket_id, @lv_process.transport_pid)}
+      navigate={RoutesHelper.channel_dashboard(@lv_process.pid)}
       class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm"
     >
       <div class="flex flex-col gap-1">

@@ -3,7 +3,6 @@ defmodule LiveDebugger.Utils.PubSubTest do
 
   import Mox
 
-  alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.MockPubSubUtils
 
@@ -12,49 +11,29 @@ defmodule LiveDebugger.Utils.PubSubTest do
              PubSubUtils.node_changed_topic("phx-GBsi_6M7paYhySQj")
   end
 
-  test "component_deleted_topic/1" do
-    trace = %Trace{socket_id: "phx-GBsi_6M7paYhySQj", transport_pid: :c.pid(0, 1, 0)}
-
-    assert "lvdbg/#PID<0.1.0>/phx-GBsi_6M7paYhySQj/component_deleted" =
-             PubSubUtils.component_deleted_topic(trace)
+  test "component_deleted_topic/0" do
+    assert "lvdbg/component_deleted" =
+             PubSubUtils.component_deleted_topic()
   end
 
-  test "component_deleted_topic/2" do
-    socket_id = "phx-GBsi_6M7paYhySQj"
-    transport_pid = :c.pid(0, 1, 0)
-
-    assert "lvdbg/#PID<0.1.0>/phx-GBsi_6M7paYhySQj/component_deleted" =
-             PubSubUtils.component_deleted_topic(socket_id, transport_pid)
+  test "process_status_topic/0" do
+    assert "lvdbg/process_status" = PubSubUtils.process_status_topic()
   end
 
-  test "process_status_topic/1" do
-    pid = :c.pid(0, 1, 0)
-    assert "lvdbg/#PID<0.1.0>/status" = PubSubUtils.process_status_topic(pid)
-  end
-
-  test "tsnf_topic/4" do
+  test "trace_topic/4" do
     socket_id = "phx-GBsi_6M7paYhySQj"
     transport_pid = :c.pid(0, 1, 0)
     node_id = :c.pid(0, 2, 0)
     fun = :handle_info
 
     assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/#PID<0.2.0>/:handle_info/:call" =
-             PubSubUtils.tsnf_topic(socket_id, transport_pid, node_id, fun)
+             PubSubUtils.trace_topic(socket_id, transport_pid, node_id, fun)
 
     assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/#PID<0.2.0>/:handle_info/:call" =
-             PubSubUtils.tsnf_topic(socket_id, transport_pid, node_id, fun, :call)
+             PubSubUtils.trace_topic(socket_id, transport_pid, node_id, fun, :call)
 
     assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/#PID<0.2.0>/:handle_info/:return" =
-             PubSubUtils.tsnf_topic(socket_id, transport_pid, node_id, fun, :return)
-  end
-
-  test "ts_f_topic/3" do
-    socket_id = "phx-GBsi_6M7paYhySQj"
-    transport_pid = :c.pid(0, 1, 0)
-    fun = :handle_info
-
-    assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/*/:handle_info" =
-             PubSubUtils.ts_f_topic(socket_id, transport_pid, fun)
+             PubSubUtils.trace_topic(socket_id, transport_pid, node_id, fun, :return)
   end
 
   describe "mock" do

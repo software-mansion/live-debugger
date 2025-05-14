@@ -10,7 +10,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
   alias LiveDebugger.MockDbg
   alias LiveDebugger.MockEtsTableServer
   alias LiveDebugger.MockPubSubUtils
-  alias LiveDebugger.MockProcessService
+  alias LiveDebugger.MockStateServer
 
   @modules [
     CoolApp.LiveViews.UserDashboard,
@@ -94,16 +94,16 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
         timestamp: :timer.now_diff(timestamp, {0, 0, 0})
       }
 
-      expected_topic =
-        PubSubUtils.component_deleted_topic(%{socket_id: socket_id, transport_pid: transport_pid})
+      component_deleted_topic =
+        PubSubUtils.component_deleted_topic()
 
-      MockProcessService
-      |> expect(:state, fn ^pid ->
+      MockStateServer
+      |> expect(:get, fn ^pid ->
         {:ok, LiveDebugger.Fakes.state(transport_pid: transport_pid, socket_id: socket_id)}
       end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn ^expected_topic, {:new_trace, ^expected_trace} ->
+      |> expect(:broadcast, fn ^component_deleted_topic, {:component_deleted, ^expected_trace} ->
         send(parent, :broadcasted)
       end)
 
@@ -127,20 +127,18 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       table = :ets.new(:test_table, [:ordered_set, :public])
 
-      expected_tsnf_call_topic = PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, fun, :call)
+      expected_trace_call_topic =
+        PubSubUtils.trace_topic(socket_id, transport_pid, pid, fun, :call)
 
-      expected_tsnf_return_topic =
-        PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, fun, :return)
-
-      expected_ts_f_topic = PubSubUtils.ts_f_topic(socket_id, transport_pid, fun)
+      expected_trace_return_topic =
+        PubSubUtils.trace_topic(socket_id, transport_pid, pid, fun, :return)
 
       MockEtsTableServer
       |> expect(:table!, 2, fn ^pid -> table end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn ^expected_tsnf_call_topic, {:new_trace, _trace} -> :ok end)
-      |> expect(:broadcast, fn ^expected_ts_f_topic, {:new_trace, _trace} -> :ok end)
-      |> expect(:broadcast, fn ^expected_tsnf_return_topic, {:updated_trace, _trace} -> :ok end)
+      |> expect(:broadcast, fn ^expected_trace_call_topic, {:new_trace, _trace} -> :ok end)
+      |> expect(:broadcast, fn ^expected_trace_return_topic, {:updated_trace, _trace} -> :ok end)
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
       assert_receive handle_trace

@@ -1,15 +1,48 @@
 defmodule LiveDebugger.Fakes do
   @moduledoc """
-  Fake responses from internal services
+  Fake complex structures
   """
+
+  def trace(opts \\ []) do
+    default = [
+      id: 1,
+      module: LiveDebuggerTest.LiveView,
+      function: :render,
+      arity: 1,
+      args: [%{socket_id: "socket_id"}],
+      socket_id: "socket_id",
+      pid: :c.pid(0, 1, 0),
+      timestamp: :erlang.timestamp(),
+      execution_time: 1
+    ]
+
+    fields = Keyword.merge(default, opts)
+
+    Kernel.struct!(LiveDebugger.Structs.Trace, fields)
+  end
 
   def state(opts \\ []) do
     socket_id = Keyword.get(opts, :socket_id, "phx-GBsi_6M7paYhySQj")
-    root_pid = Keyword.get(opts, :root_pid, :c.pid(0, 0, 0))
     parent_pid = Keyword.get(opts, :parent_pid, nil)
     transport_pid = Keyword.get(opts, :transport_pid, :c.pid(0, 7, 0))
     module = Keyword.get(opts, :module, LiveDebuggerWeb.Main)
-    host_uri = Keyword.get(opts, :host_uri, "https://localhost:4000")
+
+    host_uri =
+      if Keyword.get(opts, :embedded?, false) do
+        :not_mounted_at_router
+      else
+        Keyword.get(opts, :host_uri, "https://localhost:4000")
+      end
+
+    root_pid =
+      case Keyword.get(opts, :nested?, nil) do
+        false ->
+          if not Keyword.has_key?(opts, :pid), do: raise("pid is required for nested processes")
+          Keyword.get(opts, :pid)
+
+        _ ->
+          Keyword.get(opts, :root_pid, :c.pid(0, 0, 0))
+      end
 
     %{
       socket: %Phoenix.LiveView.Socket{

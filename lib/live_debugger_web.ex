@@ -47,5 +47,10 @@ defmodule LiveDebuggerWeb.Helpers do
   def empty_map(_), do: %{}
 
   def ok(socket), do: {:ok, socket}
+
   def noreply(socket), do: {:noreply, socket}
+
+  def cont(socket), do: {:cont, socket}
+
+  def halt(socket), do: {:halt, socket}
 end

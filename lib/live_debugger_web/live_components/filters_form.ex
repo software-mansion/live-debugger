@@ -37,12 +37,20 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
             </div>
             <p class="font-medium mb-4 mt-6">Callback execution time</p>
             <div class="flex flex-col gap-3">
-              <.input field={@form[:exec_time_max]} type="number" min="0">
-                <:label>max [&micro;s]</:label>
-              </.input>
-              <.input field={@form[:exec_time_min]} type="number" min="0">
-                <:label>min [&micro;s]</:label>
-              </.input>
+              <.input
+                label_text="max [&micro;s]"
+                label_raw
+                field={@form[:exec_time_max]}
+                type="number"
+                min="0"
+              />
+              <.input
+                label_text="min [&micro;s]"
+                label_raw
+                field={@form[:exec_time_min]}
+                type="number"
+                min="0"
+              />
             </div>
           </div>
           <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
@@ -69,20 +77,31 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
   @impl true
   def handle_event("submit", params, socket) do
-    filters = update_filters(socket.assigns.active_filters, params)
+    case update_filters(socket.assigns.active_filters, params) do
+      {:ok, filters} ->
+        send(self(), {:filters_updated, filters})
 
-    send(self(), {:filters_updated, filters})
+      _ ->
+        nil
+    end
 
-    {:noreply, socket}
+    socket
+    |> noreply()
   end
 
   @impl true
   def handle_event("change", params, socket) do
-    filters = update_filters(socket.assigns.active_filters, params)
+    case update_filters(socket.assigns.active_filters, params) do
+      {:ok, filters} ->
+        socket
+        |> assign_form(filters)
+        |> noreply()
 
-    socket
-    |> assign_form(filters)
-    |> noreply()
+      {:error, errors} ->
+        socket
+        |> assign(form: to_form(params, errors: errors))
+        |> noreply()
+    end
   end
 
   @impl true
@@ -125,7 +144,14 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
         {filter, Map.get(params, Atom.to_string(filter), value)}
       end)
 
-    %{functions: functions, execution_time: execution_time}
+    min_time = Keyword.get(execution_time, :exec_time_min, 0)
+    max_time = Keyword.get(execution_time, :exec_time_max, :infinity)
+
+    if String.to_integer(min_time) > String.to_integer(max_time) do
+      {:error, [exec_time_min: "min must be less than max", exec_time_max: ""]}
+    else
+      {:ok, %{functions: functions, execution_time: execution_time}}
+    end
   end
 
   defp calculate_selected_filters(form) do
