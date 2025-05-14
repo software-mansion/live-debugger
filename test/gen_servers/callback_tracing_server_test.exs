@@ -50,8 +50,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
     MockDbg
     |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
-    |> expect(:tp, fn {Phoenix.CodeReloader, :reload, 2}, [{:_, [], [{:return_trace}]}] -> :ok end)
-    |> expect(:tp, fn {Phoenix.CodeReloader, :reload!, 2}, [{:_, [], [{:return_trace}]}] ->
+    |> expect(:tp, fn {Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}] ->
       :ok
     end)
 
@@ -66,10 +65,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       MockDbg
       |> expect(:p, fn :all, [:c, :timestamp] -> :ok end)
       |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
-      |> expect(:tp, fn {Phoenix.CodeReloader, :reload, 2}, [{:_, [], [{:return_trace}]}] ->
-        :ok
-      end)
-      |> expect(:tp, fn {Phoenix.CodeReloader, :reload!, 2}, [{:_, [], [{:return_trace}]}] ->
+      |> expect(:tp, fn {Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}] ->
         :ok
       end)
 
