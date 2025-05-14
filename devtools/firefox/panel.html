@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <style>
+      body {
+        margin: 0;
+        background-color: #f1f5f9;
+      }
+      iframe {
+        border: none;
+      }
+      #error-info {
+        height: 100%;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-left: 32px;
+        margin-right: 32px;
+        text-align: center;
+      }
+      #error-info svg {
+        width: 48px;
+        height: 48px;
+        color: #ef4444;
+      }
+      #error-info div {
+        font-weight: 600;
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+        margin-bottom: 0.5rem;
+      }
+      #error-info p {
+        max-width: 70%;
+        margin: 0;
+      }
+      a {
+        color: #001a72;
+        text-decoration: none;
+      }
+      a:hover {
+        color: #33498b;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe
+      id="content"
+      title="DevTools Panel"
+      width="100%"
+      height="100%"
+    ></iframe>
+    <div id="error-info" hidden>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="size-6"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
+        />
+      </svg>
+      <div>Debugger disconnected</div>
+      <p>
+        Couldn't find LiveDebugger url - please update your root layout
+        according to the instructions in the GitHub README.
+        <br />
+        You can find it
+        <a
+          target="_blank"
+          href="https://github.com/software-mansion/live-debugger#installation"
+          >here</a
+        >
+      </p>
+    </div>
+
+    <script src="panel.js"></script>
+  </body>
+</html>
