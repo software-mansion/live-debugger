@@ -13,7 +13,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     debugger
     |> visit("/")
     |> click(first_link())
-    |> assert_has(counter_in_assigns(text: "0"))
+    |> assert_has(assigns_entry(key: "counter", value: "0"))
     |> assert_has(traces(count: 2))
 
     dev_app
@@ -22,7 +22,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
     debugger
     |> assert_has(traces(count: 2))
-    |> assert_has(counter_in_assigns(text: "2"))
+    |> assert_has(assigns_entry(key: "counter", value: "2"))
     |> click(toggle_tracing_button())
 
     dev_app
@@ -31,7 +31,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
     debugger
     |> assert_has(traces(count: 6))
-    |> assert_has(counter_in_assigns(text: "4"))
+    |> assert_has(assigns_entry(key: "counter", value: "4"))
     |> click(toggle_tracing_button())
     |> click(clear_traces_button())
     |> assert_has(traces(count: 0))
@@ -58,7 +58,6 @@ defmodule LiveDebugger.ChannelDashboardTest do
     execution_time =
       debugger
       |> click(refresh_button())
-      |> take_screenshot()
       |> find(traces(count: 2))
       |> List.last()
       |> find(css("span.text-warning-text"))
@@ -80,11 +79,45 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_has(css("span.text-error-text", text: "2.50 s"))
   end
 
+  @sessions 2
+  feature "user can change nodes using node tree and see their assigns and callback traces", %{
+    sessions: [dev_app, debugger]
+  } do
+    LiveDebugger.GenServers.CallbackTracingServer.ping!()
+
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> click(conditional_component_5_node_button())
+    |> find(css("#info"))
+    |> assert_text("LiveComponent")
+    |> assert_text("LiveDebuggerDev.LiveComponents.Conditional")
+
+    debugger
+    |> assert_has(assigns_entry(key: "show_child?", value: "false"))
+    |> assert_has(traces(count: 2))
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(button("conditional-button"))
+
+    debugger
+    |> assert_has(assigns_entry(key: "show_child?", value: "true"))
+    |> assert_has(traces(count: 4))
+    |> click(conditional_component_6_node_button())
+    |> click(conditional_component_5_node_button())
+    |> assert_has(assigns_entry(key: "show_child?", value: "true"))
+    |> assert_has(traces(count: 4))
+  end
+
   defp first_link(), do: css("#live-sessions a", count: 1)
 
-  defp counter_in_assigns(text: text) do
+  defp assigns_entry(key: key, value: value) do
     xpath(
-      ".//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"counter:\")]/../*[contains(normalize-space(text()), \"#{text}\")]"
+      ".//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"#{key}:\")]/../*[contains(normalize-space(text()), \"#{value}\")]"
     )
   end
 
@@ -95,4 +128,10 @@ defmodule LiveDebugger.ChannelDashboardTest do
   defp toggle_tracing_button(), do: css("button[phx-click=\"switch-tracing\"]")
 
   defp clear_traces_button(), do: css("button[phx-click=\"clear-traces\"]")
+
+  defp conditional_component_5_node_button(),
+    do: css("#tree-node-button-5-component-tree-sidebar-content")
+
+  defp conditional_component_6_node_button(),
+    do: css("#tree-node-button-6-component-tree-sidebar-content")
 end
