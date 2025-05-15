@@ -144,13 +144,21 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
         {filter, Map.get(params, Atom.to_string(filter), value)}
       end)
 
+    case validate_execution_time(execution_time) do
+      :ok -> {:ok, %{functions: functions, execution_time: execution_time}}
+      {:error, errors} -> {:error, errors}
+    end
+  end
+
+  defp validate_execution_time(execution_time) do
     min_time = Keyword.get(execution_time, :exec_time_min, 0)
     max_time = Keyword.get(execution_time, :exec_time_max, :infinity)
 
-    if String.to_integer(min_time) > String.to_integer(max_time) do
+    if min_time != "" and max_time != "" and
+         String.to_integer(min_time) > String.to_integer(max_time) do
       {:error, [exec_time_min: "min must be less than max", exec_time_max: ""]}
     else
-      {:ok, %{functions: functions, execution_time: execution_time}}
+      :ok
     end
   end
 

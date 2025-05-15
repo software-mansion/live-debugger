@@ -23,7 +23,7 @@ defmodule Services.TraceServiceTest do
   end
 
   test "insert/1", %{module: module, pid: pid, table: table} do
-    trace = Fakes.trace(id: 1, module: module, function: :render, args: [], pid: pid)
+    trace = Fakes.trace(id: 1, module: module, function: :render, pid: pid)
 
     MockEtsTableServer
     |> expect(:table!, fn ^pid -> table end)
@@ -33,8 +33,8 @@ defmodule Services.TraceServiceTest do
   end
 
   test "get/2", %{module: module, pid: pid, table: table} do
-    trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, args: [], pid: pid)
-    trace2 = Fakes.trace(id: 2, module: module, function: :render, args: [], pid: pid)
+    trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, pid: pid)
+    trace2 = Fakes.trace(id: 2, module: module, function: :render, pid: pid)
     :ets.insert(table, {trace1.id, trace1})
     :ets.insert(table, {trace2.id, trace2})
 
@@ -48,8 +48,8 @@ defmodule Services.TraceServiceTest do
 
   describe "existing_traces/2" do
     test "returns traces with default limit", %{module: module, pid: pid, table: table} do
-      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, args: [], pid: pid)
-      trace2 = Fakes.trace(id: 2, module: module, function: :render, args: [], pid: pid)
+      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, pid: pid)
+      trace2 = Fakes.trace(id: 2, module: module, function: :render, pid: pid)
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
 
@@ -60,9 +60,9 @@ defmodule Services.TraceServiceTest do
     end
 
     test "returns traces with limit and continuation", %{module: module, pid: pid, table: table} do
-      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, args: [], pid: pid)
-      trace2 = Fakes.trace(id: 2, module: module, function: :render, args: [], pid: pid)
-      trace3 = Fakes.trace(id: 3, module: module, function: :handle_event, args: [], pid: pid)
+      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, pid: pid)
+      trace2 = Fakes.trace(id: 2, module: module, function: :render, pid: pid)
+      trace3 = Fakes.trace(id: 3, module: module, function: :handle_event, pid: pid)
 
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
@@ -86,9 +86,9 @@ defmodule Services.TraceServiceTest do
     end
 
     test "returns traces with functions filter", %{module: module, pid: pid, table: table} do
-      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, args: [], pid: pid)
-      trace2 = Fakes.trace(id: 2, module: module, function: :render, args: [], pid: pid)
-      trace3 = Fakes.trace(id: 3, module: module, function: :handle_event, args: [], pid: pid)
+      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, pid: pid)
+      trace2 = Fakes.trace(id: 2, module: module, function: :render, pid: pid)
+      trace3 = Fakes.trace(id: 3, module: module, function: :handle_event, pid: pid)
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
       :ets.insert(table, {trace3.id, trace3})
@@ -102,13 +102,69 @@ defmodule Services.TraceServiceTest do
                TraceService.existing_traces(pid, functions: [:handle_info, :render, :mount])
     end
 
-    test "returns traces with node_id filter", %{module: module, pid: pid, table: table} do
-      cid = %Phoenix.LiveComponent.CID{cid: 3}
-      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, args: [], pid: pid)
-      trace2 = Fakes.trace(id: 2, module: module, function: :render, args: [], pid: pid, cid: cid)
+    test "returns traces with execution time filter", %{module: module, pid: pid, table: table} do
+      trace1 =
+        Fakes.trace(id: 1, module: module, function: :handle_info, pid: pid, execution_time: 11)
+
+      trace2 =
+        Fakes.trace(id: 2, module: module, function: :render, pid: pid, execution_time: 25)
 
       trace3 =
-        Fakes.trace(id: 3, module: module, function: :handle_event, args: [], pid: pid, cid: cid)
+        Fakes.trace(id: 3, module: module, function: :handle_event, pid: pid, execution_time: 100)
+
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+      :ets.insert(table, {trace3.id, trace3})
+
+      MockEtsTableServer
+      |> expect(:table!, 2, fn ^pid -> table end)
+
+      assert {[^trace2], _} =
+               TraceService.existing_traces(pid,
+                 execution_times: [exec_time_min: 15, exec_time_max: 50]
+               )
+
+      assert {[^trace2, ^trace3], _} =
+               TraceService.existing_traces(pid,
+                 execution_times: [exec_time_min: 15, exec_time_max: :infinity]
+               )
+    end
+
+    test "returns traces with functions filter and execution time filter", %{
+      module: module,
+      pid: pid,
+      table: table
+    } do
+      trace1 =
+        Fakes.trace(id: 1, module: module, function: :handle_info, pid: pid, execution_time: 11)
+
+      trace2 =
+        Fakes.trace(id: 2, module: module, function: :render, pid: pid, execution_time: 25)
+
+      trace3 =
+        Fakes.trace(id: 3, module: module, function: :handle_event, pid: pid, execution_time: 100)
+
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+      :ets.insert(table, {trace3.id, trace3})
+
+      MockEtsTableServer
+      |> expect(:table!, fn ^pid -> table end)
+
+      assert {[^trace2], _} =
+               TraceService.existing_traces(pid,
+                 functions: [:handle_info, :render, :mount],
+                 execution_times: [exec_time_min: 15, exec_time_max: 150]
+               )
+    end
+
+    test "returns traces with node_id filter", %{module: module, pid: pid, table: table} do
+      cid = %Phoenix.LiveComponent.CID{cid: 3}
+      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, pid: pid)
+      trace2 = Fakes.trace(id: 2, module: module, function: :render, pid: pid, cid: cid)
+
+      trace3 =
+        Fakes.trace(id: 3, module: module, function: :handle_event, pid: pid, cid: cid)
 
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
@@ -122,8 +178,8 @@ defmodule Services.TraceServiceTest do
     end
 
     test "returns :end_of_table when no traces match", %{module: module, pid: pid, table: table} do
-      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, args: [], pid: pid)
-      trace2 = Fakes.trace(id: 2, module: module, function: :render, args: [], pid: pid)
+      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, pid: pid)
+      trace2 = Fakes.trace(id: 2, module: module, function: :render, pid: pid)
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
 
@@ -134,17 +190,10 @@ defmodule Services.TraceServiceTest do
     end
 
     test "returns only finished traces", %{module: module, pid: pid, table: table} do
-      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, args: [], pid: pid)
+      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, pid: pid)
 
       trace2 =
-        Fakes.trace(
-          id: 2,
-          module: module,
-          function: :render,
-          args: [],
-          pid: pid,
-          execution_time: nil
-        )
+        Fakes.trace(id: 2, module: module, function: :render, pid: pid, execution_time: nil)
 
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
@@ -160,24 +209,8 @@ defmodule Services.TraceServiceTest do
     test "clears traces for LiveView or LiveComponent", %{module: module, pid: pid, table: table} do
       cid = %Phoenix.LiveComponent.CID{cid: 3}
 
-      trace1 =
-        Fakes.trace(
-          id: 1,
-          module: module,
-          function: :handle_info,
-          args: [],
-          pid: pid
-        )
-
-      trace2 =
-        Fakes.trace(
-          id: 2,
-          module: module,
-          function: :render,
-          args: [],
-          pid: pid,
-          cid: cid
-        )
+      trace1 = Fakes.trace(id: 1, module: module, function: :handle_info, pid: pid)
+      trace2 = Fakes.trace(id: 2, module: module, function: :render, pid: pid, cid: cid)
 
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
