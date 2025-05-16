@@ -113,6 +113,98 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_has(traces(count: 4))
   end
 
+  @sessions 2
+  feature "user can filter callback traces", %{sessions: [dev_app, debugger]} do
+    LiveDebugger.GenServers.CallbackTracingServer.ping!()
+
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(traces(count: 2))
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(button("send-button"))
+    |> click(button("send-button"))
+
+    traces = debugger |> find(traces(count: 6))
+
+    Enum.at(traces, 0) |> has_text?("render/1")
+    Enum.at(traces, 1) |> has_text?("handle_info/2")
+    Enum.at(traces, 2) |> has_text?("render/1")
+    Enum.at(traces, 3) |> has_text?("handle_info/2")
+    Enum.at(traces, 4) |> has_text?("render/1")
+    Enum.at(traces, 5) |> has_text?("mount/3")
+
+    debugger
+    |> click(toggle_tracing_button())
+    |> click(filters_button())
+    |> click(checkbox("mount"))
+    |> click(checkbox("render"))
+    |> click(css("button", text: "Apply (7)"))
+
+    traces = debugger |> find(traces(count: 2))
+
+    Enum.at(traces, 0) |> has_text?("handle_info/1")
+    Enum.at(traces, 1) |> has_text?("handle_info/2")
+
+    dev_app
+    |> click(button("increment-button"))
+    |> click(button("increment-button"))
+
+    traces =
+      debugger
+      |> click(refresh_button())
+      |> find(traces(count: 4))
+
+    Enum.at(traces, 0) |> has_text?("handle_event/3")
+    Enum.at(traces, 1) |> has_text?("handle_event/3")
+    Enum.at(traces, 2) |> has_text?("handle_info/2")
+    Enum.at(traces, 3) |> has_text?("handle_info/2")
+
+    debugger
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(button("send-button"))
+    |> click(button("send-button"))
+
+    traces = debugger |> find(traces(count: 6))
+
+    Enum.at(traces, 0) |> has_text?("handle_info/2")
+    Enum.at(traces, 1) |> has_text?("handle_info/2")
+    Enum.at(traces, 2) |> has_text?("handle_event/3")
+    Enum.at(traces, 3) |> has_text?("handle_event/3")
+    Enum.at(traces, 4) |> has_text?("handle_info/2")
+    Enum.at(traces, 5) |> has_text?("handle_info/2")
+
+    debugger
+    |> click(toggle_tracing_button())
+    |> click(filters_button())
+    |> click(reset_filters_button())
+    |> click(css("button", text: "Apply (9)"))
+
+    traces = debugger |> find(traces(count: 14))
+
+    Enum.at(traces, 0) |> has_text?("render/1")
+    Enum.at(traces, 1) |> has_text?("handle_info/2")
+    Enum.at(traces, 2) |> has_text?("render/1")
+    Enum.at(traces, 3) |> has_text?("handle_info/2")
+    Enum.at(traces, 4) |> has_text?("render/1")
+    Enum.at(traces, 5) |> has_text?("handle_event/3")
+    Enum.at(traces, 6) |> has_text?("render/1")
+    Enum.at(traces, 7) |> has_text?("handle_event/3")
+    Enum.at(traces, 8) |> has_text?("render/1")
+    Enum.at(traces, 9) |> has_text?("handle_info/2")
+    Enum.at(traces, 10) |> has_text?("render/1")
+    Enum.at(traces, 11) |> has_text?("handle_info/2")
+    Enum.at(traces, 12) |> has_text?("render/1")
+    Enum.at(traces, 13) |> has_text?("mount/3")
+  end
+
   defp first_link(), do: css("#live-sessions a", count: 1)
 
   defp assigns_entry(key: key, value: value) do
@@ -123,11 +215,15 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
   defp traces(opts), do: css("#traces-list-stream details", opts)
 
-  defp refresh_button(), do: css("button[phx-click=\"refresh-history\"]")
-
   defp toggle_tracing_button(), do: css("button[phx-click=\"switch-tracing\"]")
 
+  defp refresh_button(), do: css("button[phx-click=\"refresh-history\"]")
+
   defp clear_traces_button(), do: css("button[phx-click=\"clear-traces\"]")
+
+  defp filters_button(), do: css("button[phx-click=\"open\"]")
+
+  defp reset_filters_button(), do: css("button[phx-click=\"reset\"]")
 
   defp conditional_component_5_node_button(),
     do: css("#tree-node-button-5-component-tree-sidebar-content")
