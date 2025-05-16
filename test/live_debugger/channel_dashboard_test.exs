@@ -58,7 +58,6 @@ defmodule LiveDebugger.ChannelDashboardTest do
     execution_time =
       debugger
       |> click(refresh_button())
-      |> take_screenshot()
       |> find(traces(count: 2))
       |> List.last()
       |> find(css("span.text-warning-text"))
