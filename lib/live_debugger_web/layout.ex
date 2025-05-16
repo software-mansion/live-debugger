@@ -40,7 +40,10 @@ defmodule LiveDebuggerWeb.Layout do
         <script>
           let liveSocket = new window.LiveView.LiveSocket('/live', window.Phoenix.Socket, {
             longPollFallbackMs: 2500,
-            params: { _csrf_token: window.getCsrfToken() },
+            params: {
+              _csrf_token: window.getCsrfToken(),
+              "in_iframe?": window.location !== window.parent.location
+            },
             hooks: window.createHooks(),
             dom: {
               onBeforeElUpdated: window.saveDialogAndDetailsState(),
