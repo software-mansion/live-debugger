@@ -1,6 +1,5 @@
 defmodule LiveDebuggerWeb.WindowDashboardLive do
   use LiveDebuggerWeb, :live_view
-  use LiveDebuggerWeb.Hooks.IframeDetector
 
   alias LiveDebugger.Utils.Parsers
   alias LiveDebuggerWeb.Helpers.RoutesHelper
@@ -27,11 +26,7 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div
-      id="window-dashboard"
-      phx-hook="IframeDetector"
-      class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]"
-    >
+    <div id="window-dashboard" class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
       <.navbar return_link={get_return_link(@in_iframe?)} />
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
         <div class="flex items-center justify-between">

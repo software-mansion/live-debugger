@@ -3,7 +3,6 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
 
   use LiveDebuggerWeb, :live_view
   use LiveDebuggerWeb.Hooks.LinkedView
-  use LiveDebuggerWeb.Hooks.IframeDetector
 
   require Logger
 
@@ -29,11 +28,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div
-      id="channel-dashboard"
-      phx-hook="IframeDetector"
-      class="w-screen h-screen grid grid-rows-[auto_1fr]"
-    >
+    <div id="channel-dashboard" class="w-screen h-screen grid grid-rows-[auto_1fr]">
       <.navbar return_link={get_return_link(@lv_process, @in_iframe?)}>
         <div class="grow flex items-center justify-end">
           <.nav_icon

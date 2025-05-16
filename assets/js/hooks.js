@@ -8,7 +8,6 @@ import Tooltip from './hooks/tooltip';
 import Highlight from './hooks/highlight';
 import LiveDropdown from './hooks/live_dropdown';
 import AutoClearFlash from './hooks/auto_clear_flash';
-import IframeDetector from './hooks/iframe_detector';
 import TraceExecutionTime from './hooks/trace_execution_time';
 
 import topbar from '../vendor/topbar';
@@ -30,7 +29,6 @@ function createHooks() {
     Highlight,
     LiveDropdown,
     AutoClearFlash,
-    IframeDetector,
     TraceExecutionTime,
   };
 }
