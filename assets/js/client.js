@@ -56,11 +56,12 @@ function getLiveDebuggerBaseURL() {
   }
 }
 
-function getSessionURL(baseURL) {
-  const session_id = getSessionId();
-  const session_path = session_id ? `redirect/${session_id}` : '';
+function getButtonURL(baseURL) {
+  const sessionID = getSessionId();
+  const sessionPath = sessionID ? `redirect/${sessionID}` : '';
+  const windowID = sessionStorage.getItem('lvdbg:window-id');
 
-  return `${baseURL}/${session_path}`;
+  return `${baseURL}/${sessionPath}?window_id=${windowID}`;
 }
 
 function uuidv4() {
@@ -72,16 +73,16 @@ function uuidv4() {
   );
 }
 
-if (!sessionStorage.getItem('live-debugger-window-id')) {
-  sessionStorage.setItem('live-debugger-window-id', uuidv4());
+if (!sessionStorage.getItem('lvdbg:window-id')) {
+  sessionStorage.setItem('lvdbg:window-id', uuidv4());
 }
 
 window.document.addEventListener('DOMContentLoaded', function () {
   const baseURL = getLiveDebuggerBaseURL();
-  const sessionURL = getSessionURL(baseURL);
+  const buttonURL = getButtonURL(baseURL);
 
   if (debugButtonEnabled()) {
-    initDebugButton(sessionURL);
+    initDebugButton(buttonURL);
   }
 
   if (highlightingEnabled()) {
