@@ -55,15 +55,13 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
     Process.sleep(405)
 
-    execution_time =
-      debugger
-      |> click(refresh_button())
-      |> find(traces(count: 2))
-      |> List.last()
-      |> find(css("span.text-warning-text"))
-      |> Element.text()
-
-    assert execution_time =~ ~r"^40\d ms$"
+    assert debugger
+           |> click(refresh_button())
+           |> find(traces(count: 2))
+           |> List.last()
+           |> find(css("span.text-warning-text"))
+           |> Element.text()
+           |> String.match?(~r"^40\d ms$")
 
     debugger
     |> click(toggle_tracing_button())
@@ -92,11 +90,11 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> visit("/")
     |> click(first_link())
     |> click(conditional_component_5_node_button())
-    |> find(css("#info"))
-    |> assert_text("LiveComponent")
-    |> assert_text("LiveDebuggerDev.LiveComponents.Conditional")
-
-    debugger
+    |> find(css("#info"), fn info ->
+      info
+      |> assert_text("LiveComponent")
+      |> assert_text("LiveDebuggerDev.LiveComponents.Conditional")
+    end)
     |> assert_has(assigns_entry(key: "show_child?", value: "false"))
     |> assert_has(traces(count: 2))
     |> click(toggle_tracing_button())
@@ -130,79 +128,83 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> click(button("send-button"))
     |> click(button("send-button"))
 
-    traces = debugger |> find(traces(count: 6))
-
-    Enum.at(traces, 0) |> has_text?("render/1")
-    Enum.at(traces, 1) |> has_text?("handle_info/2")
-    Enum.at(traces, 2) |> has_text?("render/1")
-    Enum.at(traces, 3) |> has_text?("handle_info/2")
-    Enum.at(traces, 4) |> has_text?("render/1")
-    Enum.at(traces, 5) |> has_text?("mount/3")
-
     debugger
+    |> assert_traces(6, [
+      "render/1",
+      "handle_info/2",
+      "render/1",
+      "handle_info/2",
+      "render/1",
+      "mount/3"
+    ])
     |> click(toggle_tracing_button())
     |> click(filters_button())
     |> click(checkbox("mount"))
     |> click(checkbox("render"))
     |> click(css("button", text: "Apply (7)"))
-
-    traces = debugger |> find(traces(count: 2))
-
-    Enum.at(traces, 0) |> has_text?("handle_info/1")
-    Enum.at(traces, 1) |> has_text?("handle_info/2")
+    |> assert_traces(2, [
+      "handle_info/2",
+      "handle_info/2"
+    ])
 
     dev_app
     |> click(button("increment-button"))
     |> click(button("increment-button"))
 
-    traces =
-      debugger
-      |> click(refresh_button())
-      |> find(traces(count: 4))
-
-    Enum.at(traces, 0) |> has_text?("handle_event/3")
-    Enum.at(traces, 1) |> has_text?("handle_event/3")
-    Enum.at(traces, 2) |> has_text?("handle_info/2")
-    Enum.at(traces, 3) |> has_text?("handle_info/2")
-
     debugger
+    |> click(refresh_button())
+    |> assert_traces(4, [
+      "handle_event/3",
+      "handle_event/3",
+      "handle_info/2",
+      "handle_info/2"
+    ])
     |> click(toggle_tracing_button())
 
     dev_app
     |> click(button("send-button"))
     |> click(button("send-button"))
 
-    traces = debugger |> find(traces(count: 6))
-
-    Enum.at(traces, 0) |> has_text?("handle_info/2")
-    Enum.at(traces, 1) |> has_text?("handle_info/2")
-    Enum.at(traces, 2) |> has_text?("handle_event/3")
-    Enum.at(traces, 3) |> has_text?("handle_event/3")
-    Enum.at(traces, 4) |> has_text?("handle_info/2")
-    Enum.at(traces, 5) |> has_text?("handle_info/2")
-
     debugger
+    |> assert_traces(6, [
+      "handle_info/2",
+      "handle_info/2",
+      "handle_event/3",
+      "handle_event/3",
+      "handle_info/2",
+      "handle_info/2"
+    ])
     |> click(toggle_tracing_button())
     |> click(filters_button())
     |> click(reset_filters_button())
     |> click(css("button", text: "Apply (9)"))
+    |> assert_traces(14, [
+      "render/1",
+      "handle_info/2",
+      "render/1",
+      "handle_info/2",
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "handle_info/2",
+      "render/1",
+      "handle_info/2",
+      "render/1",
+      "mount/3"
+    ])
+  end
 
-    traces = debugger |> find(traces(count: 14))
+  defp assert_traces(session, count, callback_names) do
+    session
+    |> find(traces(count: count))
+    |> Enum.zip(callback_names)
+    |> Enum.each(fn {trace, callback_name} ->
+      trace |> assert_text(callback_name)
+    end)
 
-    Enum.at(traces, 0) |> has_text?("render/1")
-    Enum.at(traces, 1) |> has_text?("handle_info/2")
-    Enum.at(traces, 2) |> has_text?("render/1")
-    Enum.at(traces, 3) |> has_text?("handle_info/2")
-    Enum.at(traces, 4) |> has_text?("render/1")
-    Enum.at(traces, 5) |> has_text?("handle_event/3")
-    Enum.at(traces, 6) |> has_text?("render/1")
-    Enum.at(traces, 7) |> has_text?("handle_event/3")
-    Enum.at(traces, 8) |> has_text?("render/1")
-    Enum.at(traces, 9) |> has_text?("handle_info/2")
-    Enum.at(traces, 10) |> has_text?("render/1")
-    Enum.at(traces, 11) |> has_text?("handle_info/2")
-    Enum.at(traces, 12) |> has_text?("render/1")
-    Enum.at(traces, 13) |> has_text?("mount/3")
+    session
   end
 
   defp first_link(), do: css("#live-sessions a", count: 1)
