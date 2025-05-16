@@ -207,11 +207,63 @@ defmodule LiveDebugger.ChannelDashboardTest do
     session
   end
 
+  @sessions 2
+  feature "user can inspect arguments of executed callback", %{sessions: [dev_app, debugger]} do
+    LiveDebugger.GenServers.CallbackTracingServer.ping!()
+
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(button("increment-button"))
+    |> click(button("send-button"))
+
+    [render3_trace, send_trace, render2_trace, increment_trace, render1_trace, _] =
+      debugger
+      |> find(traces(count: 6))
+
+    render1_trace
+    |> click(css("summary"))
+    |> assert_has(map_entry(key: "datetime", value: "nil"))
+    |> assert_has(map_entry(key: "counter", value: "0"))
+
+    increment_trace
+    |> click(css("summary"))
+    |> assert_text("handle_event/3")
+    |> assert_text("increment")
+
+    render2_trace
+    |> click(css("summary"))
+    |> assert_has(map_entry(key: "datetime", value: "nil"))
+    |> assert_has(map_entry(key: "counter", value: "1"))
+
+    send_trace
+    |> click(css("summary"))
+    |> assert_text("handle_info/2")
+    |> assert_text(":new_datetime")
+
+    render3_trace
+    |> click(css("summary"))
+    |> assert_has(map_entry(key: "datetime", value: "~U["))
+    |> assert_has(map_entry(key: "counter", value: "1"))
+  end
+
   defp first_link(), do: css("#live-sessions a", count: 1)
 
   defp assigns_entry(key: key, value: value) do
     xpath(
       ".//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"#{key}:\")]/../*[contains(normalize-space(text()), \"#{value}\")]"
+    )
+  end
+
+  defp map_entry(key: key, value: value) do
+    xpath(
+      ".//*[contains(normalize-space(text()), \"#{key}:\")]/../*[contains(normalize-space(text()), \"#{value}\")]"
     )
   end
 
