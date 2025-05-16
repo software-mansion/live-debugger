@@ -58,7 +58,6 @@ defmodule LiveDebugger.ChannelDashboardTest do
     execution_time =
       debugger
       |> click(refresh_button())
-      |> take_screenshot()
       |> find(traces(count: 2))
       |> List.last()
       |> find(css("span.text-warning-text"))
@@ -80,7 +79,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_has(css("span.text-error-text", text: "2.50 s"))
   end
 
-  defp first_link(), do: css("#live-sessions a", count: 1)
+  defp first_link(), do: css("#live-sessions a.live-view-link", count: 1)
 
   defp counter_in_assigns(text: text) do
     xpath(

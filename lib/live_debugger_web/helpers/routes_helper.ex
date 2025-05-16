@@ -17,6 +17,11 @@ defmodule LiveDebuggerWeb.Helpers.RoutesHelper do
     ~p"/pid/#{Parsers.pid_to_string(pid)}"
   end
 
+  @spec window_dashboard(pid :: pid()) :: String.t()
+  def window_dashboard(pid) when is_pid(pid) do
+    ~p"/transport_pid/#{Parsers.pid_to_string(pid)}"
+  end
+
   @spec error(String.t()) :: String.t()
   def error(error) do
     ~p"/error/#{error}"
