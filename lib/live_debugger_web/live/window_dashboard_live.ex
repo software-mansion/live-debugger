@@ -32,7 +32,7 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
       <.navbar return_link={get_return_link(@in_iframe?)} />
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
         <div class="flex items-center justify-between">
-          <.h1>Active LiveViews for window <%= Parsers.pid_to_string(@transport_pid) %></.h1>
+          <.h1>Active LiveViews in single window</.h1>
           <.button phx-click="refresh">
             <div class="flex items-center gap-2">
               <.icon name="icon-refresh" class="w-4 h-4" />
@@ -63,7 +63,6 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
                   :for={{transport_pid, grouped_lv_processes} <- grouped_lv_processes}
                   transport_pid={transport_pid}
                   grouped_lv_processes={grouped_lv_processes}
-                  show_transport_pid?={false}
                 />
               <% end %>
             </div>
