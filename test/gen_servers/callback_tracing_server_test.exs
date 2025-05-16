@@ -10,7 +10,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
   alias LiveDebugger.MockDbg
   alias LiveDebugger.MockEtsTableServer
   alias LiveDebugger.MockPubSubUtils
-  alias LiveDebugger.MockProcessService
+  alias LiveDebugger.MockStateServer
 
   @modules [
     CoolApp.LiveViews.UserDashboard,
@@ -50,6 +50,9 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
     MockDbg
     |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
+    |> expect(:tp, fn {Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}] ->
+      :ok
+    end)
 
     assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
   end
@@ -62,6 +65,9 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       MockDbg
       |> expect(:p, fn :all, [:c, :timestamp] -> :ok end)
       |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
+      |> expect(:tp, fn {Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}] ->
+        :ok
+      end)
 
       # In order to keep CallbackTracingServer.handle_trace function private we extract it here
       # and send to test process so that we can test it
@@ -80,16 +86,16 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       fun = :delete_component
       args = [cid, %{}]
 
-      expected_topic =
-        PubSubUtils.component_deleted_topic(%{socket_id: socket_id, transport_pid: transport_pid})
+      component_deleted_topic =
+        PubSubUtils.component_deleted_topic()
 
-      MockProcessService
-      |> expect(:state, fn ^pid ->
+      MockStateServer
+      |> expect(:get, fn ^pid ->
         {:ok, LiveDebugger.Fakes.state(transport_pid: transport_pid, socket_id: socket_id)}
       end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn ^expected_topic, {:new_trace, trace} ->
+      |> expect(:broadcast, fn ^component_deleted_topic, {:component_deleted, trace} ->
         send(parent, {:trace, trace})
       end)
 
@@ -125,15 +131,13 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       table = :ets.new(:test_table, [:ordered_set, :public])
 
-      expected_tsnf_topic = PubSubUtils.tsnf_topic(socket_id, transport_pid, pid, fun)
-      expected_ts_f_topic = PubSubUtils.ts_f_topic(socket_id, transport_pid, fun)
+      expected_trace_topic = PubSubUtils.trace_topic(socket_id, transport_pid, pid, fun)
 
       MockEtsTableServer
       |> expect(:table!, fn ^pid -> table end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn ^expected_tsnf_topic, {:new_trace, _trace} -> :ok end)
-      |> expect(:broadcast, fn ^expected_ts_f_topic, {:new_trace, _trace} -> :ok end)
+      |> expect(:broadcast, fn ^expected_trace_topic, {:new_trace, _trace} -> :ok end)
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
       assert_receive handle_trace

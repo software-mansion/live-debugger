@@ -47,25 +47,14 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     Dbg.tracer(:process, {&handle_trace/2, 0})
     Dbg.p(:all, [:c, :timestamp])
 
-    all_modules = ModuleDiscoveryService.all_modules()
-
-    callbacks =
-      all_modules
-      |> ModuleDiscoveryService.live_view_modules()
-      |> CallbackUtils.live_view_callbacks()
-
-    all_modules
-    |> ModuleDiscoveryService.live_component_modules()
-    |> CallbackUtils.live_component_callbacks()
-    |> Enum.concat(callbacks)
-    |> Enum.each(fn mfa ->
-      Dbg.tp(mfa, [{:_, [], [{:return_trace}]}])
-      Dbg.tp(mfa, [{:_, [], [{:exception_trace}]}])
-    end)
+    add_live_modules_to_tracer()
 
     # This is not a callback created by user
     # We trace it to refresh the components tree
     Dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
+
+    # We need to get information when code reloads to properly trace modules
+    Dbg.tp({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
 
     {:noreply, state}
   end
@@ -79,6 +68,16 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   # Because of that we do it asynchronously to speed up tracer a bit
   # We do not persist this trace because it is not displayed to user
   @spec handle_trace(term(), n :: integer()) :: integer()
+  defp handle_trace({_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, _, _}, n) do
+    Process.sleep(100)
+    add_live_modules_to_tracer()
+    n
+  end
+
+  defp handle_trace({_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _}, n) do
+    n
+  end
+
   defp handle_trace(
          {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, timestamp},
          n
@@ -144,6 +143,24 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     n
   end
 
+  defp add_live_modules_to_tracer() do
+    all_modules = ModuleDiscoveryService.all_modules()
+
+    callbacks =
+      all_modules
+      |> ModuleDiscoveryService.live_view_modules()
+      |> CallbackUtils.live_view_callbacks()
+
+    all_modules
+    |> ModuleDiscoveryService.live_component_modules()
+    |> CallbackUtils.live_component_callbacks()
+    |> Enum.concat(callbacks)
+    |> Enum.each(fn mfa ->
+      Dbg.tp(mfa, [{:_, [], [{:return_trace}]}])
+      Dbg.tp(mfa, [{:_, [], [{:exception_trace}]}])
+    end)
+  end
+
   @spec persist_trace(Trace.t()) :: :ok | {:error, term()}
   defp persist_trace(%Trace{} = trace) do
     TraceService.insert(trace)
@@ -177,23 +194,18 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   @spec do_publish(Trace.t()) :: :ok
   defp do_publish(%{module: Phoenix.LiveView.Diff} = trace) do
-    trace
-    |> PubSubUtils.component_deleted_topic()
-    |> PubSubUtils.broadcast({:new_trace, trace})
+    PubSubUtils.component_deleted_topic()
+    |> PubSubUtils.broadcast({:component_deleted, trace})
   end
 
-  defp do_publish(trace) do
+  defp do_publish(%Trace{} = trace) do
     socket_id = trace.socket_id
     node_id = Trace.node_id(trace)
     transport_pid = trace.transport_pid
     fun = trace.function
 
     socket_id
-    |> PubSubUtils.tsnf_topic(transport_pid, node_id, fun, :call)
-    |> PubSubUtils.broadcast({:new_trace, trace})
-
-    socket_id
-    |> PubSubUtils.ts_f_topic(transport_pid, fun)
+    |> PubSubUtils.trace_topic(transport_pid, node_id, fun, :call)
     |> PubSubUtils.broadcast({:new_trace, trace})
   end
 
@@ -204,8 +216,13 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     transport_pid = trace.transport_pid
     fun = trace.function
 
+    if fun == :render do
+      PubSubUtils.node_rendered_topic()
+      |> PubSubUtils.broadcast({:render_trace, trace})
+    end
+
     socket_id
-    |> PubSubUtils.tsnf_topic(transport_pid, node_id, fun, :return)
+    |> PubSubUtils.trace_topic(transport_pid, node_id, fun, :return)
     |> PubSubUtils.broadcast({:updated_trace, trace})
   end
 end

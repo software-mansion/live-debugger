@@ -60,7 +60,8 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
 
   # When fetching LvProcess succeeds, we subscribe to its process state
   def handle_async(:fetch_lv_process, {:ok, fetched_lv_process}, socket) do
-    subscribe_process_state(fetched_lv_process.pid)
+    PubSubUtils.process_status_topic()
+    |> PubSubUtils.subscribe!()
 
     socket
     |> assign(:lv_process, AsyncResult.ok(fetched_lv_process))
@@ -80,11 +81,17 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
 
   def handle_async(_, _, socket), do: {:cont, socket}
 
-  def handle_info({:process_status, :dead}, socket) do
+  def handle_info(
+        {:process_status, {:dead, pid}},
+        %{assigns: %{lv_process: %{result: %LvProcess{pid: pid}}}} = socket
+      )
+      when is_pid(pid) do
     socket
     |> find_successor_lv_process()
     |> halt()
   end
+
+  def handle_info({:process_status, _}, socket), do: halt(socket)
 
   def handle_info(_, socket), do: {:cont, socket}
 
@@ -123,12 +130,6 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
          nil <- fetch_after(function, 800) do
       fetch_after(function, 1000)
     end
-  end
-
-  defp subscribe_process_state(pid) do
-    pid
-    |> PubSubUtils.process_status_topic()
-    |> PubSubUtils.subscribe!()
   end
 
   defp fetch_after(function, milliseconds) do

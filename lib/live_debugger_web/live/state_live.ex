@@ -13,6 +13,7 @@ defmodule LiveDebuggerWeb.StateLive do
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebuggerWeb.Helpers.StateHelper
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -50,7 +51,7 @@ defmodule LiveDebuggerWeb.StateLive do
       |> PubSubUtils.subscribe!()
 
       lv_process.socket_id
-      |> PubSubUtils.tsnf_topic(lv_process.transport_pid, node_id, :render)
+      |> PubSubUtils.state_changed_topic(lv_process.transport_pid, node_id)
       |> PubSubUtils.subscribe!()
     end
 
@@ -92,22 +93,27 @@ defmodule LiveDebuggerWeb.StateLive do
   end
 
   @impl true
-  def handle_info({:new_trace, _trace}, socket) do
+  def handle_info({:state_changed, channel_state, _trace}, socket) do
     socket
-    |> assign_async_node_with_type()
+    |> assign_async_node_with_type(channel_state)
     |> noreply()
   end
 
   @impl true
-  def handle_info({:updated_trace, _trace}, socket) do
-    socket
-    |> noreply()
-  end
+  def handle_info({:node_changed, new_node_id}, socket) do
+    lv_process = socket.assigns.lv_process
+    old_node_id = socket.assigns.node_id
 
-  @impl true
-  def handle_info({:node_changed, node_id}, socket) do
+    lv_process.socket_id
+    |> PubSubUtils.state_changed_topic(lv_process.transport_pid, old_node_id)
+    |> PubSubUtils.unsubscribe()
+
+    lv_process.socket_id
+    |> PubSubUtils.state_changed_topic(lv_process.transport_pid, new_node_id)
+    |> PubSubUtils.subscribe!()
+
     socket
-    |> assign(node_id: node_id)
+    |> assign(node_id: new_node_id)
     |> assign_async_node_with_type()
     |> noreply()
   end
@@ -165,12 +171,15 @@ defmodule LiveDebuggerWeb.StateLive do
     """
   end
 
+  defp assign_async_node_with_type(socket, channel_state \\ nil)
+
   defp assign_async_node_with_type(
-         %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket
+         %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket,
+         channel_state
        )
        when not is_nil(node_id) do
     assign_async(socket, [:node, :node_type], fn ->
-      with {:ok, channel_state} <- ChannelService.state(pid),
+      with {:ok, channel_state} <- StateHelper.maybe_get_state(pid, channel_state),
            {:ok, node} <- ChannelService.get_node(channel_state, node_id),
            true <- not is_nil(node) do
         {:ok, %{node: node, node_type: TreeNode.type(node)}}
@@ -181,7 +190,7 @@ defmodule LiveDebuggerWeb.StateLive do
     end)
   end
 
-  defp assign_async_node_with_type(socket) do
+  defp assign_async_node_with_type(socket, _channel_state) do
     socket
     |> assign(:node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
     |> assign(:node_type, AsyncResult.failed(%AsyncResult{}, :no_node_id))

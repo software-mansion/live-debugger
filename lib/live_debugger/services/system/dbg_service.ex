@@ -29,9 +29,7 @@ defmodule LiveDebugger.Services.System.DbgService do
   @spec tracer(:process, handler_spec()) :: {:ok, pid()} | {:error, term()}
   @spec tracer(:module, module_spec()) :: {:ok, pid()} | {:error, term()}
   @spec tracer(:file, filename :: :file.name_all()) :: {:ok, pid()} | {:error, term()}
-  def tracer(type, handler_spec) do
-    impl().tracer(type, handler_spec)
-  end
+  def tracer(type, handler_spec), do: impl().tracer(type, handler_spec)
 
   @doc """
   Wrapper for `:dbg.p/2`.
@@ -39,18 +37,14 @@ defmodule LiveDebugger.Services.System.DbgService do
   `p` stands for **p**rocess.
   """
   @spec p(item :: term(), flags :: term()) :: {:ok, match_desc()} | {:error, term()}
-  def p(item, flags) do
-    impl().p(item, flags)
-  end
+  def p(item, flags), do: impl().p(item, flags)
 
   @doc """
   Wrapper for `:dbg.tp/2` that sets up a trace pattern.
   Enables call trace for one or more exported functions specified by `ModuleOrMFA`.
   """
   @spec tp(module() | mfa(), match_spec :: term()) :: {:ok, match_desc()} | {:error, term()}
-  def tp(module, match_spec) do
-    impl().tp(module, match_spec)
-  end
+  def tp(module, match_spec), do: impl().tp(module, match_spec)
 
   defp impl() do
     Application.get_env(
