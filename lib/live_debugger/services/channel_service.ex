@@ -3,7 +3,6 @@ defmodule LiveDebugger.Services.ChannelService do
   This module provides functions that performs operation on state of LiveView channel.
   """
 
-  alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.CommonTypes
   alias LiveDebugger.GenServers.StateServer
@@ -11,17 +10,9 @@ defmodule LiveDebugger.Services.ChannelService do
   @doc """
   Retrieves the state of the LiveView channel process identified by `pid`.
   """
-  @spec state(pid :: pid(), mode :: :cache | :fetch) ::
-          {:ok, CommonTypes.channel_state()} | {:error, term()}
   @spec state(pid :: pid()) :: {:ok, CommonTypes.channel_state()} | {:error, term()}
-  def state(pid, mode \\ :cache)
-
-  def state(pid, :cache) when is_pid(pid) do
+  def state(pid) do
     StateServer.get(pid)
-  end
-
-  def state(pid, :fetch) when is_pid(pid) do
-    ProcessService.state(pid)
   end
 
   @doc """
