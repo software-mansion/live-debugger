@@ -63,6 +63,8 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
     PubSubUtils.process_status_topic()
     |> PubSubUtils.subscribe!()
 
+    LiveDebugger.GenServers.EtsTableServer.watch(fetched_lv_process.pid)
+
     socket
     |> assign(:lv_process, AsyncResult.ok(fetched_lv_process))
     |> halt()
