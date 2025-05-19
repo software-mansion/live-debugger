@@ -253,6 +253,40 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_has(map_entry(key: "counter", value: "1"))
   end
 
+  @sessions 2
+  feature "when user navigates in debugged app, debugger reloads properly", %{
+    sessions: [dev_app, debugger]
+  } do
+    LiveDebugger.GenServers.CallbackTracingServer.ping!()
+
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> find(css("#info"))
+    |> assert_text("LiveDebuggerDev.LiveViews.Main")
+
+    dev_app
+    |> click(link("Side"))
+
+    Process.sleep(500)
+
+    debugger
+    |> find(css("#info"))
+    |> assert_text("LiveDebuggerDev.LiveViews.Side")
+
+    dev_app
+    |> click(link("Nested"))
+
+    Process.sleep(500)
+
+    debugger
+    |> find(css("#info"))
+    |> assert_text("LiveDebuggerDev.LiveViews.Nested")
+  end
+
   defp first_link(), do: css("#live-sessions a", count: 1)
 
   defp assigns_entry(key: key, value: value) do
