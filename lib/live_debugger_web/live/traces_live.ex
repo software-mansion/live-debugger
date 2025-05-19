@@ -244,11 +244,20 @@ defmodule LiveDebuggerWeb.TracesLive do
   def handle_info({:updated_trace, trace}, socket) when socket.assigns.trace_callback_running? do
     trace_display = TraceDisplay.from_trace(trace, true)
 
-    socket
+    execution_time = get_execution_times(socket)
+    min_time = Keyword.get(execution_time, :exec_time_min, 0)
+    max_time = Keyword.get(execution_time, :exec_time_max, :infinity)
+
+    if trace.execution_time >= min_time and trace.execution_time <= max_time do
+      socket
+      |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
+    else
+      socket
+      |> stream_delete(:existing_traces, trace_display)
+    end
     |> assign(trace_callback_running?: false)
     |> TracingHelper.maybe_disable_tracing_after_update()
     |> push_event("stop-timer", %{})
-    |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
     |> noreply()
   end
 
@@ -366,6 +375,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
     active_functions = get_active_functions(socket)
+    execution_times = get_execution_times(socket)
 
     socket
     |> assign(:existing_traces_status, :loading)
@@ -374,7 +384,8 @@ defmodule LiveDebuggerWeb.TracesLive do
       TraceService.existing_traces(pid,
         node_id: node_id,
         limit: @page_size,
-        functions: active_functions
+        functions: active_functions,
+        execution_times: execution_times
       )
     end)
   end
@@ -384,6 +395,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     node_id = socket.assigns.node_id
     cont = socket.assigns.traces_continuation
     active_functions = get_active_functions(socket)
+    execution_times = get_execution_times(socket)
 
     socket
     |> assign(:traces_continuation, :loading)
@@ -392,7 +404,8 @@ defmodule LiveDebuggerWeb.TracesLive do
         node_id: node_id,
         limit: @page_size,
         cont: cont,
-        functions: active_functions
+        functions: active_functions,
+        execution_times: execution_times
       )
     end)
   end
@@ -411,7 +424,7 @@ defmodule LiveDebuggerWeb.TracesLive do
       functions: functions,
       execution_time: [
         {:exec_time_max, ""},
-        {:exec_time_min, "0"}
+        {:exec_time_min, ""}
       ]
     }
   end
@@ -420,6 +433,12 @@ defmodule LiveDebuggerWeb.TracesLive do
     socket.assigns.current_filters.functions
     |> Enum.filter(fn {_, active?} -> active? end)
     |> Enum.map(fn {function, _} -> function end)
+  end
+
+  defp get_execution_times(socket) do
+    socket.assigns.current_filters.execution_time
+    |> Enum.filter(fn {_, value} -> value != "" end)
+    |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
   end
 
   defp log_async_error(operation, reason) do
