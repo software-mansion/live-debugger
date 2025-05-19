@@ -70,7 +70,7 @@ browser.devtools.panels.create(
       }
     });
 
-    chrome.webNavigation.onCompleted.addListener(async () => {
+    browser.webNavigation.onCompleted.addListener(async () => {
       try {
         panelWindow.set_iframe_url(await getLiveDebuggerSessionURL());
       } catch (error) {
