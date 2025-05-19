@@ -18,22 +18,22 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
   end
 
   describe "gen server api" do
-    test "table!/1" do
+    test "table/1" do
       pid = :c.pid(0, 0, 1)
 
       LiveDebugger.MockEtsTableServer
-      |> expect(:table!, fn ^pid -> :some_ref end)
+      |> expect(:table, fn ^pid -> :some_ref end)
 
-      assert :some_ref = EtsTableServer.table!(pid)
+      assert :some_ref = EtsTableServer.table(pid)
     end
 
-    test "delete_table!/1" do
+    test "delete_table/1" do
       pid = :c.pid(0, 0, 1)
 
       LiveDebugger.MockEtsTableServer
-      |> expect(:delete_table!, fn ^pid -> :ok end)
+      |> expect(:delete_table, fn ^pid -> :ok end)
 
-      assert :ok = EtsTableServer.delete_table!(pid)
+      assert :ok = EtsTableServer.delete_table(pid)
     end
   end
 
