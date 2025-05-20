@@ -134,6 +134,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> click(button("conditional-button"))
 
     debugger
+    |> assert_has(many_assigns_15_node_button())
     |> assert_has(assigns_entry(key: "show_child?", value: "true"))
     |> assert_has(traces(count: 4))
     |> click(conditional_component_6_node_button())
@@ -344,9 +345,15 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
   defp reset_filters_button(), do: css("button[phx-click=\"reset\"]")
 
-  defp conditional_component_5_node_button(),
-    do: css("#tree-node-button-5-component-tree-sidebar-content")
+  defp conditional_component_5_node_button() do
+    css("#tree-node-button-5-component-tree-sidebar-content")
+  end
 
-  defp conditional_component_6_node_button(),
-    do: css("#tree-node-button-6-component-tree-sidebar-content")
+  defp conditional_component_6_node_button() do
+    css("#tree-node-button-6-component-tree-sidebar-content")
+  end
+
+  defp many_assigns_15_node_button() do
+    css("#tree-node-button-15-component-tree-sidebar-content")
+  end
 end
