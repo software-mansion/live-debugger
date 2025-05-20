@@ -10,6 +10,9 @@ export function setTooltipPosition(tooltipEl, referencedElement) {
   if (rect.left + tooltipRect.width > window.innerWidth) {
     tooltipEl.style.right = `${window.innerWidth - rect.right}px`;
     tooltipEl.style.left = 'auto';
+  } else if (rect.right < tooltipRect.width) {
+    tooltipEl.style.left = `${rect.left}px`;
+    tooltipEl.style.right = 'auto';
   } else {
     tooltipEl.style.left = `${rect.left + rect.width / 2 - tooltipRect.width / 2}px`;
     tooltipEl.style.right = 'auto';

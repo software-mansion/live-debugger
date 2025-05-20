@@ -675,7 +675,7 @@ defmodule LiveDebuggerWeb.Components do
   end
 
   @doc """
-  Renders a button which copies specified vaue to clipboard.
+  Renders a button which copies specified value to clipboard.
   """
   attr(:id, :string, required: true)
   attr(:value, :string, required: true)
