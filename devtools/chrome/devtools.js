@@ -18,11 +18,13 @@ chrome.devtools.panels.create(
       }
     });
 
-    chrome.webNavigation.onCompleted.addListener(async () => {
-      try {
-        panelWindow.set_iframe_url(await getLiveDebuggerSessionURL(chrome));
-      } catch (error) {
-        panelWindow.set_iframe_url(null);
+    chrome.webNavigation.onCompleted.addListener(async (details) => {
+      if (details.tabId === chrome.devtools.inspectedWindow.tabId) {
+        try {
+          panelWindow.set_iframe_url(await getLiveDebuggerSessionURL(chrome));
+        } catch (error) {
+          panelWindow.set_iframe_url(null);
+        }
       }
     });
   },
