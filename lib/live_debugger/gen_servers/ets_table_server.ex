@@ -31,12 +31,14 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   Returns ETS table reference.
   It creates table if none is associated with given pid
   """
+  @spec table(pid :: pid()) :: :ets.table()
   def table(pid) when is_pid(pid), do: impl().table(pid)
 
   @doc """
   Adds watcher to indicate when to delete table from ETS.
   It uses pid of process which the function was called.
   """
+  @spec watch(pid :: pid()) :: :ok | {:error, term()}
   def watch(pid) when is_pid(pid) do
     impl().watch(pid)
   end
@@ -143,6 +145,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     with {%TableInfo{alive?: false} = table_info, updated_state} <- Map.pop(state, pid),
          true <- Enum.empty?(table_info.watchers) do
       :ets.delete(table_info.table)
+      IO.inspect(pid, label: "DELETING TABLE")
       updated_state
     else
       _ ->
