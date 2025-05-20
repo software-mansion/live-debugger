@@ -24,17 +24,12 @@ const Tooltip = {
       tooltipEl.style.zIndex = 100;
     };
     this.handleMouseLeave = () => {
-      // tooltipEl.style.display = 'none';
+      tooltipEl.style.display = 'none';
     };
     let tooltipEl = document.querySelector('#tooltip');
     tooltipEl.style.pointerEvents = 'none';
     this.el.addEventListener('mouseenter', this.handleMouseEnter);
     this.el.addEventListener('mouseleave', this.handleMouseLeave);
-
-    this.el.addEventListener('update', ({ detail }) => {
-      console.log('update');
-      this.el.innerHTHML = detail.content;
-    });
   },
   destroyed() {
     document.querySelector('#tooltip').style.display = 'none';

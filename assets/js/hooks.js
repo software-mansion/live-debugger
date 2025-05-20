@@ -9,6 +9,7 @@ import Highlight from './hooks/highlight';
 import LiveDropdown from './hooks/live_dropdown';
 import AutoClearFlash from './hooks/auto_clear_flash';
 import TraceExecutionTime from './hooks/trace_execution_time';
+import CopyButton from './hooks/copy_button';
 
 import topbar from '../vendor/topbar';
 
@@ -19,12 +20,6 @@ window.Alpine = Alpine;
 topbar.config({ barColors: { 0: '#29d' }, shadowColor: 'rgba(0, 0, 0, .3)' });
 window.addEventListener('phx:page-loading-start', (_info) => topbar.show(300));
 window.addEventListener('phx:page-loading-stop', (_info) => topbar.hide());
-window.addEventListener('phx:copy', ({ detail }) => {
-  console.log(detail);
-  navigator.clipboard.writeText(detail.value);
-  document.getElementById('tooltip').innerHTML =
-    '<span class="icon-check-small w-5 h-5"></span> Copied';
-});
 
 function createHooks() {
   return {
@@ -36,6 +31,7 @@ function createHooks() {
     LiveDropdown,
     AutoClearFlash,
     TraceExecutionTime,
+    CopyButton,
   };
 }
 

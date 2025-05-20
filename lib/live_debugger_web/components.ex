@@ -684,8 +684,11 @@ defmodule LiveDebuggerWeb.Components do
     ~H"""
     <.tooltip id={@id} content="Copy">
       <button
-        phx-click={JS.dispatch("phx:copy", detail: %{value: @value, tooltip_id: "tooltip_" <> @id})}
+        id={"copy-button_" <>@id}
         class="hover:text-secondary-text"
+        phx-hook="CopyButton"
+        data-info="<span class='icon-check w-3 h-3'></span>Copied"
+        data-value={@value}
       >
         <.icon name="icon-copy" class="w-4 h-4" />
       </button>
