@@ -28,8 +28,8 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1.18.0
         with:
-          elixir-version: "1.17.3" # [Required] Define the Elixir version
-          otp-version: "27.1.2" # [Required] Define the Erlang/OTP version
+          elixir-version: "1.18.3" # [Required] Define the Elixir version
+          otp-version: "27.3.4" # [Required] Define the Erlang/OTP version
 
       - name: Cache Mix
         uses: actions/cache@v4
