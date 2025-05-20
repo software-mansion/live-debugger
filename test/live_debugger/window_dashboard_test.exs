@@ -15,7 +15,7 @@ defmodule LiveDebugger.WindowDashboardTest do
 
     debugger
     |> click(window_link())
-    |> assert_has(title(text: "Active LiveViews in single window"))
+    |> assert_has(title(text: "Active LiveViews in a single window"))
     |> assert_has(live_sessions(count: 1))
 
     dev_app2
