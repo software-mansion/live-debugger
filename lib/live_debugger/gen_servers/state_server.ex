@@ -83,14 +83,15 @@ defmodule LiveDebugger.GenServers.StateServer do
   end
 
   defp publish_state_changed(%Trace{} = trace, channel_state) do
-    socket_id = trace.socket_id
-    transport_pid = trace.transport_pid
+    pid = trace.pid
     node_id = trace.cid || trace.pid
 
-    PubSubUtils.state_changed_topic(socket_id, transport_pid, node_id)
+    pid
+    |> PubSubUtils.state_changed_topic(node_id)
     |> PubSubUtils.broadcast({:state_changed, channel_state, trace})
 
-    PubSubUtils.state_changed_topic(socket_id, transport_pid)
+    pid
+    |> PubSubUtils.state_changed_topic()
     |> PubSubUtils.broadcast({:state_changed, channel_state, trace})
   end
 
