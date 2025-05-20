@@ -15,6 +15,15 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   end
 
   @doc """
+  Returns all LiveDebugger's LvProcesses associated with the given `transport_pid`.
+  """
+  @spec debugged_lv_processes(transport_pid :: pid()) :: [LvProcess.t()]
+  def debugged_lv_processes(transport_pid) do
+    debugged_lv_processes()
+    |> Enum.filter(&(&1.transport_pid == transport_pid))
+  end
+
+  @doc """
   Returns all LiveDebugger's LvProcesses.
   """
   @spec debugger_lv_processes() :: [LvProcess.t()]

@@ -1,29 +1,36 @@
-defmodule LiveDebuggerWeb.LiveViewsDashboardLive do
-  @moduledoc """
-  It displays all active LiveView sessions in the debugged application.
-  """
-
+defmodule LiveDebuggerWeb.WindowDashboardLive do
   use LiveDebuggerWeb, :live_view
 
-  alias Phoenix.LiveView.AsyncResult
+  alias LiveDebugger.Utils.Parsers
+  alias LiveDebuggerWeb.Helpers.RoutesHelper
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebuggerWeb.Components.TabGroup
+  alias Phoenix.LiveView.AsyncResult
 
   @impl true
-  def handle_params(_unsigned_params, _uri, socket) do
-    socket
-    |> assign_async_grouped_lv_processes()
-    |> noreply()
+  def mount(%{"transport_pid" => string_transport_pid}, _session, socket) do
+    string_transport_pid
+    |> Parsers.string_to_pid()
+    |> case do
+      {:ok, transport_pid} ->
+        socket
+        |> assign(:transport_pid, transport_pid)
+        |> assign_async_grouped_lv_processes()
+
+      :error ->
+        push_navigate(socket, to: RoutesHelper.error("invalid_pid"))
+    end
+    |> ok()
   end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
-      <.navbar />
+    <div id="window-dashboard" class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
+      <.navbar return_link={get_return_link(@in_iframe?)} />
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
         <div class="flex items-center justify-between">
-          <.h1>Active LiveViews</.h1>
+          <.h1>Active LiveViews in a single window</.h1>
           <.button phx-click="refresh">
             <div class="flex items-center gap-2">
               <.icon name="icon-refresh" class="w-4 h-4" />
@@ -52,6 +59,7 @@ defmodule LiveDebuggerWeb.LiveViewsDashboardLive do
               <% else %>
                 <TabGroup.group
                   :for={{transport_pid, grouped_lv_processes} <- grouped_lv_processes}
+                  window_link?={false}
                   transport_pid={transport_pid}
                   grouped_lv_processes={grouped_lv_processes}
                 />
@@ -72,21 +80,24 @@ defmodule LiveDebuggerWeb.LiveViewsDashboardLive do
     |> noreply()
   end
 
-  defp assign_async_grouped_lv_processes(socket) do
+  defp assign_async_grouped_lv_processes(%{assigns: %{transport_pid: transport_pid}} = socket) do
     assign_async(socket, :grouped_lv_processes, fn ->
       lv_processes =
-        with [] <- fetch_lv_processes_after(200),
-             [] <- fetch_lv_processes_after(800) do
-          fetch_lv_processes_after(1000)
+        with [] <- fetch_lv_processes_after(200, transport_pid),
+             [] <- fetch_lv_processes_after(800, transport_pid) do
+          fetch_lv_processes_after(1000, transport_pid)
         end
 
       {:ok, %{grouped_lv_processes: LiveViewDiscoveryService.group_lv_processes(lv_processes)}}
     end)
   end
 
-  defp fetch_lv_processes_after(milliseconds) do
+  defp fetch_lv_processes_after(milliseconds, transport_pid) do
     Process.sleep(milliseconds)
 
-    LiveViewDiscoveryService.debugged_lv_processes()
+    LiveViewDiscoveryService.debugged_lv_processes(transport_pid)
   end
+
+  defp get_return_link(true), do: nil
+  defp get_return_link(false), do: RoutesHelper.live_views_dashboard()
 end

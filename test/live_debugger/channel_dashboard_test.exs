@@ -318,7 +318,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_text("LiveDebuggerDev.LiveViews.Nested")
   end
 
-  defp first_link(), do: css("#live-sessions a", count: 1)
+  defp first_link(), do: css("#live-sessions a.live-view-link", count: 1)
 
   defp assigns_entry(key: key, value: value) do
     xpath(
