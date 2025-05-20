@@ -16,14 +16,6 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias LiveDebuggerWeb.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Helpers.RoutesHelper
-  alias LiveDebuggerWeb.Assigns
-
-  @impl true
-  def mount(_params, _session, socket) do
-    socket
-    |> Assigns.assign_in_iframe?()
-    |> ok()
-  end
 
   @impl true
   def handle_params(params, url, socket) do

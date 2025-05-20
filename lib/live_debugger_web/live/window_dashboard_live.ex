@@ -6,7 +6,6 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebuggerWeb.Components.TabGroup
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebuggerWeb.Assigns
 
   @impl true
   def mount(%{"transport_pid" => string_transport_pid}, _session, socket) do
@@ -15,7 +14,6 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
     |> case do
       {:ok, transport_pid} ->
         socket
-        |> Assigns.assign_in_iframe?()
         |> assign(:transport_pid, transport_pid)
         |> assign_async_grouped_lv_processes()
 
