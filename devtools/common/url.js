@@ -1,4 +1,4 @@
-function getLiveDebuggerSessionURL(browser) {
+function getLiveDebuggerSessionURL(browserElement) {
   return new Promise((resolve, reject) => {
     const script = `
       (function() {
@@ -40,12 +40,15 @@ function getLiveDebuggerSessionURL(browser) {
       })();
     `;
 
-    browser.devtools.inspectedWindow.eval(script, (result, isException) => {
-      if (isException || !result) {
-        reject(new Error("Error fetching LiveDebugger session URL"));
-      } else {
-        resolve(result);
-      }
-    });
+    browserElement.devtools.inspectedWindow.eval(
+      script,
+      (result, isException) => {
+        if (isException || !result) {
+          reject(new Error("Error fetching LiveDebugger session URL"));
+        } else {
+          resolve(result);
+        }
+      },
+    );
   });
 }
