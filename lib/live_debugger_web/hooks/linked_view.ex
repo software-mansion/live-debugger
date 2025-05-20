@@ -44,7 +44,11 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
     end
   end
 
-  def on_mount(:add_hook, %{"pid" => string_pid}, _session, socket) do
+  def on_mount(:add_hook, %{"pid" => string_pid} = params, _session, socket) do
+    if params["window_id"] && connected?(socket) do
+      PubSubUtils.subscribe!(params["window_id"])
+    end
+
     socket
     |> attach_hook(:linked_view, :handle_async, &handle_async/3)
     |> attach_hook(:linked_view, :handle_info, &handle_info/2)
@@ -93,6 +97,20 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
 
   def handle_info({:process_status, _}, socket), do: halt(socket)
 
+  def handle_info(:do_redirect, socket) do
+    socket
+    |> push_navigate(to: RoutesHelper.error("not_found"))
+    |> halt()
+  end
+
+  def handle_info({:window_updated, window_id, socket_id}, socket) do
+    dbg("window_updated: #{window_id} #{socket_id}")
+
+    socket
+    |> push_navigate(to: RoutesHelper.redirect(window_id, socket_id))
+    |> halt()
+  end
+
   def handle_info(_, socket), do: {:cont, socket}
 
   defp find_successor_lv_process(socket) do
@@ -102,7 +120,10 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
       push_navigate(socket, to: RoutesHelper.channel_dashboard(successor_pid))
     else
       _ ->
-        push_navigate(socket, to: RoutesHelper.error("not_found"))
+        # If new liveview was started with the same window_id message is already waiting in the mailbox
+        # If no this message will cause a redirect to the error page
+        send(self(), :do_redirect)
+        socket
     end
   end
 

@@ -73,16 +73,23 @@ function uuidv4() {
   );
 }
 
-if (!sessionStorage.getItem('lvdbg:window-id')) {
-  sessionStorage.setItem('lvdbg:window-id', uuidv4());
-}
-
 window.document.addEventListener('DOMContentLoaded', function () {
   const baseURL = getLiveDebuggerBaseURL();
   const buttonURL = getButtonURL(baseURL);
 
   if (debugButtonEnabled()) {
     initDebugButton(buttonURL);
+
+    if (!sessionStorage.getItem('lvdbg:window-id')) {
+      sessionStorage.setItem('lvdbg:window-id', uuidv4());
+    } else {
+      const baseURL = getLiveDebuggerBaseURL();
+      console.log(baseURL);
+
+      fetch(
+        `${baseURL}/window/${sessionStorage.getItem('lvdbg:window-id')}?socket_id=${getSessionId()}`
+      );
+    }
   }
 
   if (highlightingEnabled()) {

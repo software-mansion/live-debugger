@@ -13,6 +13,16 @@ defmodule LiveDebuggerWeb.Router do
     plug(LiveDebuggerWeb.Plugs.AllowIframe)
   end
 
+  pipeline :public do
+    plug(:accepts, ["json"])
+  end
+
+  scope "/window", LiveDebuggerWeb do
+    pipe_through([:public])
+
+    get("/:window_id", SocketDiscoveryController, :update_window)
+  end
+
   scope "/", LiveDebuggerWeb do
     pipe_through([:dbg_browser])
 

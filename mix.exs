@@ -65,6 +65,7 @@ defmodule LiveDebugger.MixProject do
   defp deps do
     [
       {:phoenix_live_view, "~> 0.20 or ~> 1.0"},
+      {:cors_plug, "~> 3.0"},
       {:igniter, "~> 0.5 and >= 0.5.40", optional: true},
       {:bandit, "~> 1.6", only: [:dev, :test]},
       {:phoenix_live_reload, "~> 1.5", only: :dev},

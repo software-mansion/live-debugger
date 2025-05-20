@@ -37,6 +37,7 @@ defmodule LiveDebuggerWeb.Endpoint do
   end
 
   plug(Plug.Session, @session_options)
+  plug(CORSPlug, origin: ~r/http:\/\/localhost:.*/)
 
   plug(Plug.RequestId)
   plug(LiveDebuggerWeb.Router)

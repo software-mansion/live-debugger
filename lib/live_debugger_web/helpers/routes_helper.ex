@@ -12,9 +12,19 @@ defmodule LiveDebuggerWeb.Helpers.RoutesHelper do
     ~p"/"
   end
 
-  @spec channel_dashboard(pid :: pid()) :: String.t()
-  def channel_dashboard(pid) when is_pid(pid) do
+  @spec channel_dashboard(pid :: pid(), window_id :: String.t() | nil) :: String.t()
+  def channel_dashboard(pid, window_id \\ nil)
+
+  def channel_dashboard(pid, nil) do
     ~p"/pid/#{Parsers.pid_to_string(pid)}"
+  end
+
+  def channel_dashboard(pid, window_id) do
+    ~p"/pid/#{Parsers.pid_to_string(pid)}?window_id=#{window_id}"
+  end
+
+  def redirect(window_id, socket_id) do
+    ~p"/redirect/#{socket_id}?window_id=#{window_id}"
   end
 
   @spec error(String.t()) :: String.t()
