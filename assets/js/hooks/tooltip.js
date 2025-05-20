@@ -16,7 +16,7 @@ const Tooltip = {
         tooltipEl.style.right = `${window.innerWidth - rect.right}px`;
         tooltipEl.style.left = 'auto';
       } else {
-        tooltipEl.style.left = `${rect.left}px`;
+        tooltipEl.style.left = `${rect.left + rect.width / 2 - tooltipRect.width / 2}px`;
         tooltipEl.style.right = 'auto';
       }
 
@@ -24,12 +24,17 @@ const Tooltip = {
       tooltipEl.style.zIndex = 100;
     };
     this.handleMouseLeave = () => {
-      tooltipEl.style.display = 'none';
+      // tooltipEl.style.display = 'none';
     };
     let tooltipEl = document.querySelector('#tooltip');
     tooltipEl.style.pointerEvents = 'none';
     this.el.addEventListener('mouseenter', this.handleMouseEnter);
     this.el.addEventListener('mouseleave', this.handleMouseLeave);
+
+    this.el.addEventListener('update', ({ detail }) => {
+      console.log('update');
+      this.el.innerHTHML = detail.content;
+    });
   },
   destroyed() {
     document.querySelector('#tooltip').style.display = 'none';

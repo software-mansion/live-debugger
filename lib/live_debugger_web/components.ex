@@ -674,6 +674,25 @@ defmodule LiveDebuggerWeb.Components do
     """
   end
 
+  @doc """
+  Renders a button which copies specified vaue to clipboard.
+  """
+  attr(:id, :string, required: true)
+  attr(:value, :string, required: true)
+
+  def copy_button(assigns) do
+    ~H"""
+    <.tooltip id={@id} content="Copy">
+      <button
+        phx-click={JS.dispatch("phx:copy", detail: %{value: @value, tooltip_id: "tooltip_" <> @id})}
+        class="hover:text-secondary-text"
+      >
+        <.icon name="icon-copy" class="w-4 h-4" />
+      </button>
+    </.tooltip>
+    """
+  end
+
   attr(:variant, :string, required: true, values: ["danger"])
 
   defp alert_icon(assigns) do
