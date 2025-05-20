@@ -100,11 +100,8 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   @impl true
   def handle_call({:watch, pid}, {watcher, _}, state) do
     case Map.get(state, pid) do
-      %TableInfo{watchers: watchers} = table_info ->
-        updated_watchers = MapSet.put(watchers, watcher)
-
-        updated_state =
-          Map.put(state, pid, %{table_info | watchers: updated_watchers})
+      %TableInfo{} ->
+        updated_state = update_watchers(state, pid, &MapSet.put(&1, watcher))
 
         Process.monitor(watcher)
 
@@ -144,8 +141,10 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   defp maybe_delete_ets_table(state, pid) do
     with {%TableInfo{alive?: false} = table_info, updated_state} <- Map.pop(state, pid),
          true <- Enum.empty?(table_info.watchers) do
+      PubSubUtils.process_status_topic()
+      |> PubSubUtils.broadcast({:process_status, {:not_watched, pid}})
+
       :ets.delete(table_info.table)
-      IO.inspect(pid, label: "DELETING TABLE")
       updated_state
     else
       _ ->
@@ -153,18 +152,21 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     end
   end
 
-  @spec remove_watcher(state(), pid()) :: {state(), [pid()]}
+  @spec remove_watcher(state(), pid()) :: {updated_state :: state(), touched_pids :: [pid()]}
   defp remove_watcher(state, watcher) when is_pid(watcher) do
-    Enum.reduce(state, {state, []}, fn {pid, %{watchers: watchers} = table_info},
-                                       {state_acc, pids} ->
+    Enum.reduce(state, {state, []}, fn {pid, %{watchers: watchers}}, {state_acc, pids} ->
       if Enum.member?(watchers, watcher) do
-        updated_state =
-          Map.put(state_acc, pid, %{table_info | watchers: MapSet.delete(watchers, watcher)})
+        updated_state = update_watchers(state_acc, pid, &MapSet.delete(&1, watcher))
 
         {updated_state, [pid | pids]}
       else
         {state_acc, pids}
       end
     end)
+  end
+
+  defp update_watchers(state, pid, update_fn) when is_map_key(state, pid) do
+    table_info = Map.get(state, pid)
+    Map.put(state, pid, %{table_info | watchers: update_fn.(table_info.watchers)})
   end
 end
