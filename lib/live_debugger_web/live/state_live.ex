@@ -129,7 +129,10 @@ defmodule LiveDebuggerWeb.StateLive do
         <.badge :if={@node_type == :live_view and @nested?} text="Nested" icon="icon-nested" />
       </:right_panel>
       <div class="p-4 flex flex-col gap-1">
-        <.info_row name="Module" value={Parsers.module_to_string(@node.module)} />
+        <div class="flex gap-3">
+          <.info_row name="Module" value={Parsers.module_to_string(@node.module)} />
+          <.copy_button id="module-name" value={Parsers.module_to_string(@node.module)} />
+        </div>
         <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
       </div>
     </.section>

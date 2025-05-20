@@ -4,7 +4,10 @@
   "version": "0.1.0",
   "description": "Extension which allows running LiveDebugger inside DevTools",
   "author": "SWM",
-  "permissions": ["webNavigation"],
+  "permissions": [
+    "webNavigation",
+    "clipboardWrite"
+  ],
   "icons": {
     "16": "images/icon-16.png",
     "32": "images/icon-32.png",
