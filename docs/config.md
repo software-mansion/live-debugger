@@ -38,6 +38,10 @@ config :live_debugger, :disabled?, true
 # Time in ms after tracing will be initialized. Useful in case multi-nodes envs
 config :live_debugger, :tracing_setup_delay, 0
 
+# Used when working with code reloading and traces are not visible.
+# WARNING! This may cause some performance issues.
+config :live_debugger, :tracing_update_on_code_reload?, true
+
 # LiveDebugger endpoint config
 config :live_debugger,
   ip: {127, 0, 0, 1}, # IP on which LiveDebugger will be hosted
