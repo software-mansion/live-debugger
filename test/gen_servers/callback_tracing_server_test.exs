@@ -49,9 +49,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
     MockDbg
     |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
-    |> expect(:tp, fn {Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}] ->
-      :ok
-    end)
 
     assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
   end
@@ -64,9 +61,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       MockDbg
       |> expect(:p, fn :all, :c -> :ok end)
       |> expect(:tp, fn {Phoenix.LiveView.Diff, :delete_component, 2}, [] -> :ok end)
-      |> expect(:tp, fn {Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}] ->
-        :ok
-      end)
 
       # In order to keep CallbackTracingServer.handle_trace function private we extract it here
       # and send to test process so that we can test it
