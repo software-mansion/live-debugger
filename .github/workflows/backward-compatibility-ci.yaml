@@ -28,8 +28,11 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1.18.0
         with:
-          elixir-version: "1.15.4" # [Required] Define the Elixir version
-          otp-version: "26.0" # [Required] Define the Erlang/OTP version
+          elixir-version: "1.16.0" # [Required] Define the Elixir version
+          otp-version: "27.0.0" # [Required] Define the Erlang/OTP version
+
+      - name: Copy mix.lock
+        run: cp ./.github/workflows/assets/mix.lock mix.lock
 
       - name: Cache Mix
         uses: actions/cache@v4
@@ -40,17 +43,8 @@ jobs:
           key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
           restore-keys: ${{ runner.os }}-mix-
 
-      - name: Copy mix.lock
-        run: cp ./.github/workflows/assets/mix.lock mix.lock
-
       - name: Install Dependencies
         run: mix deps.get
-
-      - name: Check formatting
-        run: mix format --check-formatted
-
-      - name: Check credo
-        run: mix credo
 
       - name: Compile project
         run: mix compile --warnings-as-errors
@@ -60,7 +54,3 @@ jobs:
 
       - name: Run e2e tests
         run: mix e2e
-
-      - name: Check prettier
-        working-directory: ./assets
-        run: npx prettier . --check
