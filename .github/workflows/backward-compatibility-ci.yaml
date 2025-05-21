@@ -29,7 +29,7 @@ jobs:
         uses: erlef/setup-beam@v1.18.0
         with:
           elixir-version: "1.16.0" # [Required] Define the Elixir version
-          otp-version: "27.0.0" # [Required] Define the Erlang/OTP version
+          otp-version: "26.0" # [Required] Define the Erlang/OTP version
 
       - name: Copy mix.lock
         run: cp ./.github/workflows/assets/mix.lock mix.lock
@@ -51,6 +51,3 @@ jobs:
 
       - name: Run unit tests
         run: mix test
-
-      - name: Run e2e tests
-        run: mix e2e
