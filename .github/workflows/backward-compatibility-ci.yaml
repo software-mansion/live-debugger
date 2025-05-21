@@ -1,0 +1,66 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Backward Compatibility CI
+
+on:
+  push:
+    branches:
+      - main
+      - "v*.*"
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1.18.0
+        with:
+          elixir-version: "1.15.4" # [Required] Define the Elixir version
+          otp-version: "25.3" # [Required] Define the Erlang/OTP version
+
+      - name: Cache Mix
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Copy mix.lock
+        run: cp ./.github/workflows/assets/mix.lock mix.lock
+
+      - name: Install Dependencies
+        run: mix deps.get
+
+      - name: Check formatting
+        run: mix format --check-formatted
+
+      - name: Check credo
+        run: mix credo
+
+      - name: Compile project
+        run: mix compile --warnings-as-errors
+
+      - name: Run unit tests
+        run: mix test
+
+      - name: Run e2e tests
+        run: mix e2e
+
+      - name: Check prettier
+        working-directory: ./assets
+        run: npx prettier . --check
