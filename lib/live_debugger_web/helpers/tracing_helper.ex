@@ -143,15 +143,13 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
     |> Enum.flat_map(fn {function, _} ->
       [
         PubSubUtils.trace_topic(
-          lv_process.socket_id,
-          lv_process.transport_pid,
+          lv_process.pid,
           node_id,
           function,
           :call
         ),
         PubSubUtils.trace_topic(
-          lv_process.socket_id,
-          lv_process.transport_pid,
+          lv_process.pid,
           node_id,
           function,
           :return
@@ -167,8 +165,7 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
     socket.assigns.current_filters.functions
     |> Enum.map(fn {function, _} ->
       PubSubUtils.trace_topic(
-        lv_process.socket_id,
-        lv_process.transport_pid,
+        lv_process.pid,
         node_id,
         function,
         type

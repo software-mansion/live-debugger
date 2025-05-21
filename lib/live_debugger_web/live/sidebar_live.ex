@@ -56,8 +56,8 @@ defmodule LiveDebuggerWeb.SidebarLive do
       |> PubSubUtils.node_changed_topic()
       |> PubSubUtils.subscribe!()
 
-      lv_process.socket_id
-      |> PubSubUtils.state_changed_topic(lv_process.transport_pid)
+      lv_process.pid
+      |> PubSubUtils.state_changed_topic()
       |> PubSubUtils.subscribe!()
     end
 

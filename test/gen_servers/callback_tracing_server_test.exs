@@ -134,10 +134,10 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       table = :ets.new(:test_table, [:ordered_set, :public])
 
       expected_trace_call_topic =
-        PubSubUtils.trace_topic(socket_id, transport_pid, pid, fun, :call)
+        PubSubUtils.trace_topic(pid, pid, fun, :call)
 
       expected_trace_return_topic =
-        PubSubUtils.trace_topic(socket_id, transport_pid, pid, fun, :return)
+        PubSubUtils.trace_topic(pid, pid, fun, :return)
 
       MockEtsTableServer
       |> expect(:table!, 2, fn ^pid -> table end)

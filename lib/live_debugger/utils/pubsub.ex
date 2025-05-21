@@ -34,7 +34,7 @@ defmodule LiveDebugger.Utils.PubSub do
 
   @doc "Use `{:node_changed, node_id}` for broadcasting"
   @spec node_changed_topic(socket_id :: String.t()) :: String.t()
-  def node_changed_topic(socket_id) when is_binary(socket_id) do
+  def node_changed_topic(socket_id) do
     "lvdbg/#{socket_id}/node_changed"
   end
 
@@ -44,50 +44,41 @@ defmodule LiveDebugger.Utils.PubSub do
     "lvdbg/process_status"
   end
 
-  @doc "Use `{:state_changed, new_state, triggered_trace}` for broadcasting"
-  @spec state_changed_topic(
-          socket_id :: String.t(),
-          transport_pid :: pid()
-        ) :: String.t()
-  def state_changed_topic(socket_id, transport_pid)
-      when is_pid(transport_pid) and is_binary(socket_id) do
-    "lvdbg/#{inspect(transport_pid)}/#{socket_id}/*/state_changed"
-  end
-
-  @doc "Use `{:state_changed, new_state, triggered_trace}` for broadcasting"
-  @spec state_changed_topic(
-          socket_id :: String.t(),
-          transport_pid :: pid(),
-          node_id :: TreeNode.id()
-        ) :: String.t()
-  def state_changed_topic(socket_id, transport_pid, node_id)
-      when is_pid(transport_pid) and is_binary(socket_id) do
-    "lvdbg/#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}/state_changed"
-  end
-
   @doc "Use `{:render_trace, trace}` for broadcasting."
   @spec node_rendered_topic() :: String.t()
   def node_rendered_topic() do
     "lvdbg/node_rendered"
   end
 
-  @doc """
-  It stands for `transport_pid/socket_id/node_id/function/type`.
+  @doc "Use `{:state_changed, new_state, triggered_trace}` for broadcasting"
+  @spec state_changed_topic(pid :: pid()) :: String.t()
+  def state_changed_topic(pid) do
+    "lvdbg/#{inspect(pid)}/*/state_changed"
+  end
 
+  @doc "Use `{:state_changed, new_state, triggered_trace}` for broadcasting"
+  @spec state_changed_topic(
+          pid :: pid(),
+          node_id :: TreeNode.id()
+        ) :: String.t()
+  def state_changed_topic(pid, node_id) do
+    "lvdbg/#{inspect(pid)}/#{inspect(node_id)}/state_changed"
+  end
+
+  @doc """
   It gives you traces of given callback in given node in given LiveView
   Used to update assigns based on render callback and for filtering traces
 
   Use `{:new_trace, trace}` or `{:updated_trace, trace}` for broadcasting.
   """
   @spec trace_topic(
-          socket_id :: String.t(),
-          transport_pid :: pid(),
+          pid :: pid(),
           node_id :: TreeNode.id(),
           fun :: atom(),
           type :: :call | :return
         ) :: String.t()
-  def trace_topic(socket_id, transport_pid, node_id, fun, type \\ :call) do
-    "#{inspect(transport_pid)}/#{socket_id}/#{inspect(node_id)}/#{inspect(fun)}/#{inspect(type)}"
+  def trace_topic(pid, node_id, fun, type \\ :call) do
+    "#{inspect(pid)}/#{inspect(node_id)}/#{inspect(fun)}/#{inspect(type)}"
   end
 
   @spec impl() :: module()
