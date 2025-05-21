@@ -1,4 +1,4 @@
-function getLiveDebuggerSessionURL() {
+function getLiveDebuggerSessionURL(browserElement) {
   return new Promise((resolve, reject) => {
     const script = `
       (function() {
@@ -40,42 +40,15 @@ function getLiveDebuggerSessionURL() {
       })();
     `;
 
-    chrome.devtools.inspectedWindow.eval(script, (result, isException) => {
-      if (isException || !result) {
-        reject(new Error("Error fetching LiveDebugger session URL"));
-      } else {
-        resolve(result);
-      }
-    });
+    browserElement.devtools.inspectedWindow.eval(
+      script,
+      (result, isException) => {
+        if (isException || !result) {
+          reject(new Error("Error fetching LiveDebugger session URL"));
+        } else {
+          resolve(result);
+        }
+      },
+    );
   });
 }
-
-chrome.devtools.panels.create(
-  "LiveDebugger",
-  "images/icon-16.png",
-  "panel.html",
-  function (panel) {
-    let panelWindow;
-    let isShown = false;
-
-    panel.onShown.addListener(async (window) => {
-      if (!isShown) {
-        panelWindow = window;
-        isShown = true;
-        try {
-          window.set_iframe_url(await getLiveDebuggerSessionURL());
-        } catch (error) {
-          window.set_iframe_url(null);
-        }
-      }
-    });
-
-    chrome.webNavigation.onCompleted.addListener(async () => {
-      try {
-        panelWindow.set_iframe_url(await getLiveDebuggerSessionURL());
-      } catch (error) {
-        panelWindow.set_iframe_url(null);
-      }
-    });
-  }
-);
