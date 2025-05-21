@@ -102,7 +102,7 @@ defmodule LiveDebuggerWeb.Components.Traces do
             phx-value-data={@trace.id}
           />
         </div>
-        <div class="flex flex-col gap-4 overflow-x-auto max-w-full h-[30vh] max-h-max overflow-y-auto p-4">
+        <div class="flex flex-col gap-4 overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
           <%= if @render_body? do %>
             <%= for {args, index} <- Enum.with_index(@trace.args) do %>
               <ElixirDisplay.term
