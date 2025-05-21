@@ -53,8 +53,10 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     # We trace it to refresh the components tree
     Dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
 
-    # We need to get information when code reloads to properly trace modules
-    Dbg.tp({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
+    if Application.get_env(:live_debugger, :tracing_reset_on_code_reload?, false) do
+      # We need to get information when code reloads to properly trace modules
+      Dbg.tp({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
+    end
 
     {:noreply, state}
   end
@@ -64,11 +66,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     {:reply, :ok, state}
   end
 
-  # This handler is heavy because of fetching state and we do not care for order because it is not displayed to user
-  # Because of that we do it asynchronously to speed up tracer a bit
-  # We do not persist this trace because it is not displayed to user
   @spec handle_trace(term(), n :: integer()) :: integer()
-  defp handle_trace({_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, _, _}, n) do
+  defp handle_trace({_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, n) do
     Process.sleep(100)
     add_live_modules_to_tracer()
     n
@@ -78,6 +77,13 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     n
   end
 
+  defp handle_trace({_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _, _}, n) do
+    n
+  end
+
+  # This handler is heavy because of fetching state and we do not care for order because it is not displayed to user
+  # Because of that we do it asynchronously to speed up tracer a bit
+  # We do not persist this trace because it is not displayed to user
   defp handle_trace(
          {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, timestamp},
          n
