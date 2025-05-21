@@ -50,8 +50,8 @@ defmodule LiveDebuggerWeb.StateLive do
       |> PubSubUtils.node_changed_topic()
       |> PubSubUtils.subscribe!()
 
-      lv_process.socket_id
-      |> PubSubUtils.state_changed_topic(lv_process.transport_pid, node_id)
+      lv_process.pid
+      |> PubSubUtils.state_changed_topic(node_id)
       |> PubSubUtils.subscribe!()
     end
 
@@ -104,12 +104,12 @@ defmodule LiveDebuggerWeb.StateLive do
     lv_process = socket.assigns.lv_process
     old_node_id = socket.assigns.node_id
 
-    lv_process.socket_id
-    |> PubSubUtils.state_changed_topic(lv_process.transport_pid, old_node_id)
+    lv_process.pid
+    |> PubSubUtils.state_changed_topic(old_node_id)
     |> PubSubUtils.unsubscribe()
 
-    lv_process.socket_id
-    |> PubSubUtils.state_changed_topic(lv_process.transport_pid, new_node_id)
+    lv_process.pid
+    |> PubSubUtils.state_changed_topic(new_node_id)
     |> PubSubUtils.subscribe!()
 
     socket

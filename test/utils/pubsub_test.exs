@@ -21,19 +21,18 @@ defmodule LiveDebugger.Utils.PubSubTest do
   end
 
   test "trace_topic/4" do
-    socket_id = "phx-GBsi_6M7paYhySQj"
-    transport_pid = :c.pid(0, 1, 0)
+    pid = :c.pid(0, 1, 0)
     node_id = :c.pid(0, 2, 0)
     fun = :handle_info
 
-    assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/#PID<0.2.0>/:handle_info/:call" =
-             PubSubUtils.trace_topic(socket_id, transport_pid, node_id, fun)
+    assert "#PID<0.1.0>/#PID<0.2.0>/:handle_info/:call" =
+             PubSubUtils.trace_topic(pid, node_id, fun)
 
-    assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/#PID<0.2.0>/:handle_info/:call" =
-             PubSubUtils.trace_topic(socket_id, transport_pid, node_id, fun, :call)
+    assert "#PID<0.1.0>/#PID<0.2.0>/:handle_info/:call" =
+             PubSubUtils.trace_topic(pid, node_id, fun, :call)
 
-    assert "#PID<0.1.0>/phx-GBsi_6M7paYhySQj/#PID<0.2.0>/:handle_info/:return" =
-             PubSubUtils.trace_topic(socket_id, transport_pid, node_id, fun, :return)
+    assert "#PID<0.1.0>/#PID<0.2.0>/:handle_info/:return" =
+             PubSubUtils.trace_topic(pid, node_id, fun, :return)
   end
 
   describe "mock" do

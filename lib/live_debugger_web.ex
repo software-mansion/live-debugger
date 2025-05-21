@@ -7,6 +7,7 @@ defmodule LiveDebuggerWeb do
         layout: {LiveDebuggerWeb.Layout, :app}
 
       on_mount({LiveDebuggerWeb.Hooks.Flash, :add_hook})
+      on_mount({LiveDebuggerWeb.Hooks.IframeCheck, :add_hook})
 
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers

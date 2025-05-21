@@ -15,6 +15,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias LiveDebuggerWeb.TracesLive
   alias LiveDebuggerWeb.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebuggerWeb.Helpers.RoutesHelper
 
   @impl true
   def handle_params(params, url, socket) do
@@ -27,8 +28,8 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-screen h-screen grid grid-rows-[auto_1fr]">
-      <.navbar return_link?={true}>
+    <div id="channel-dashboard" class="w-screen h-screen grid grid-rows-[auto_1fr]">
+      <.navbar return_link={get_return_link(@lv_process, @in_iframe?)}>
         <div class="grow flex items-center justify-end">
           <.nav_icon
             :if={@lv_process.ok?}
@@ -97,5 +98,18 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
 
   defp assign_node_id(socket, _params) do
     assign(socket, :node_id, nil)
+  end
+
+  defp get_return_link(lv_process, in_iframe?) do
+    cond do
+      not in_iframe? ->
+        RoutesHelper.live_views_dashboard()
+
+      not lv_process.ok? ->
+        nil
+
+      in_iframe? ->
+        RoutesHelper.window_dashboard(lv_process.result.transport_pid)
+    end
   end
 end
