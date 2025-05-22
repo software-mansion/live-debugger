@@ -67,7 +67,7 @@ defmodule LiveDebugger.GenServers.StateServer do
     {:noreply, state}
   end
 
-  def handle_info({:process_status, {:not_watched, pid}}, state) do
+  def handle_info({:process_status, {:dead, pid}}, state) do
     :ets.delete(@ets_table_name, record_id(pid))
 
     {:noreply, state}

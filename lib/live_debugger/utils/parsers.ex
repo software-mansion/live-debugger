@@ -62,4 +62,11 @@ defmodule LiveDebugger.Utils.Parsers do
     |> Module.split()
     |> Enum.join(".")
   end
+
+  @spec kebab_to_text(text :: String.t()) :: String.t()
+  def kebab_to_text(text) do
+    text
+    |> String.capitalize()
+    |> String.replace("-", " ")
+  end
 end
