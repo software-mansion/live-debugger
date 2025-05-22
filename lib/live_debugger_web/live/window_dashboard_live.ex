@@ -5,6 +5,7 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
   alias LiveDebuggerWeb.Helpers.RoutesHelper
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebuggerWeb.Components.TabGroup
+  alias LiveDebuggerWeb.Components.Navbar
   alias Phoenix.LiveView.AsyncResult
 
   @impl true
@@ -27,7 +28,12 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
   def render(assigns) do
     ~H"""
     <div id="window-dashboard" class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
-      <.navbar return_link={get_return_link(@in_iframe?)} />
+      <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto]">
+        <Navbar.return_link link={get_return_link(@in_iframe?)} />
+        <Navbar.live_debugger_logo />
+        <Navbar.fill />
+        <Navbar.theme_toggle />
+      </Navbar.navbar>
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
         <div class="flex items-center justify-between">
           <.h1>Active LiveViews in a single window</.h1>

@@ -17,9 +17,8 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias LiveDebuggerWeb.TracesLive
   alias LiveDebuggerWeb.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
-  alias LiveDebuggerWeb.Helpers.RoutesHelper
-
   alias LiveDebugger.Utils.Parsers
+
   @impl true
   def handle_params(params, url, socket) do
     socket
@@ -33,7 +32,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
     ~H"""
     <div id="channel-dashboard" class="w-screen h-screen grid grid-rows-[auto_1fr]">
       <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto_auto]">
-        <Navbar.return_link link={RoutesHelper.get_return_link(@lv_process, @in_iframe?)} />
+        <Navbar.return_link link={get_return_link(@lv_process, @in_iframe?)} />
         <Navbar.live_debugger_logo_icon />
         <Navbar.connected
           :if={@lv_process.ok?}
