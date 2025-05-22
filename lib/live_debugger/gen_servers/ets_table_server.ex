@@ -4,6 +4,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   """
 
   defmodule TableInfo do
+    @moduledoc false
     defstruct [:table, alive?: true, watchers: MapSet.new()]
 
     @type t() :: %__MODULE__{
@@ -65,7 +66,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
       |> maybe_delete_ets_table(closed_pid)
 
     PubSubUtils.process_status_topic()
-    |> PubSubUtils.broadcast({:process_status, {:dead, closed_pid}})
+    |> PubSubUtils.broadcast({:process_status, {:died, closed_pid}})
 
     {:noreply, state}
   end
@@ -142,7 +143,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     with {%TableInfo{alive?: false} = table_info, updated_state} <- Map.pop(state, pid),
          true <- Enum.empty?(table_info.watchers) do
       PubSubUtils.process_status_topic()
-      |> PubSubUtils.broadcast({:process_status, {:not_watched, pid}})
+      |> PubSubUtils.broadcast({:process_status, {:dead, pid}})
 
       :ets.delete(table_info.table)
       updated_state

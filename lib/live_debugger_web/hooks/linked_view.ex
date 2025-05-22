@@ -84,7 +84,7 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
   def handle_async(_, _, socket), do: {:cont, socket}
 
   def handle_info(
-        {:process_status, {:dead, pid}},
+        {:process_status, {:died, pid}},
         %{assigns: %{lv_process: %{result: %LvProcess{pid: pid}}}} = socket
       )
       when is_pid(pid) do
