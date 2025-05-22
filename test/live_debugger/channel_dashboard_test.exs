@@ -286,7 +286,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
   end
 
   @sessions 2
-  feature "when user navigates in debugged app, debugger reloads properly", %{
+  feature "when user navigates in debugged app, it causes dead view mode", %{
     sessions: [dev_app, debugger]
   } do
     LiveDebugger.GenServers.CallbackTracingServer.ping!()
@@ -306,17 +306,17 @@ defmodule LiveDebugger.ChannelDashboardTest do
     Process.sleep(500)
 
     debugger
-    |> find(css("#info"))
-    |> assert_text("LiveDebuggerDev.LiveViews.Side")
+    |> find(css("#navbar-connected"))
+    |> assert_text("Disconnected")
 
-    dev_app
-    |> click(link("Nested"))
+    debugger
+    |> click(css("button", text: "Continue"))
 
-    Process.sleep(500)
+    Process.sleep(1000)
 
     debugger
     |> find(css("#info"))
-    |> assert_text("LiveDebuggerDev.LiveViews.Nested")
+    |> assert_text("LiveDebuggerDev.LiveViews.Side")
   end
 
   defp first_link(), do: css("#live-sessions a.live-view-link", count: 1)

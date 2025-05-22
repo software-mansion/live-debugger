@@ -34,3 +34,5 @@ node_modules/
 /priv/static/dev/
 
 devtools_*
+
+screenshots/

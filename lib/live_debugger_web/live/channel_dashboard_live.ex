@@ -36,6 +36,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
         <Navbar.live_debugger_logo_icon />
         <Navbar.connected
           :if={@lv_process.ok?}
+          id="navbar-connected"
           connected?={@lv_process.result.alive?}
           pid={Parsers.pid_to_string(@lv_process.result.pid)}
         />
