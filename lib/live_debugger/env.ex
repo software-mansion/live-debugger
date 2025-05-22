@@ -19,4 +19,8 @@ defmodule LiveDebugger.Env do
     Application.get_env(:live_debugger, :test_mode?, false) and
       not Application.get_env(:live_debugger, :e2e?, false)
   end
+
+  def dead_view_mode?() do
+    Application.get_env(:live_debugger, :dead_view_mode?, false)
+  end
 end

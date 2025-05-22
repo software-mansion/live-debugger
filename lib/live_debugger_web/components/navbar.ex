@@ -107,6 +107,7 @@ defmodule LiveDebuggerWeb.Components.Navbar do
 
   @doc """
   Component for displaying the connection status of a LiveView.
+  When button is clicked, it will trigger a `find-successor` event with the PID of the LiveView.
   """
   attr(:connected?, :boolean, required: true, doc: "Whether LiveView is connected.")
   attr(:pid, :string, required: true, doc: "The PID of the LiveView.")
@@ -121,6 +122,7 @@ defmodule LiveDebuggerWeb.Components.Navbar do
         <%= @pid %>
       <% else %>
         <span class="font-medium">Disconnected</span>
+        <.button phx-click="find-successor" variant="secondary" size="sm">Continue</.button>
       <% end %>
     </div>
     """

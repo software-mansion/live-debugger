@@ -63,7 +63,9 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
     PubSubUtils.process_status_topic()
     |> PubSubUtils.subscribe!()
 
-    LiveDebugger.GenServers.EtsTableServer.watch(fetched_lv_process.pid)
+    if LiveDebugger.Env.dead_view_mode?() do
+      LiveDebugger.GenServers.EtsTableServer.watch(fetched_lv_process.pid)
+    end
 
     socket
     |> assign(:lv_process, AsyncResult.ok(fetched_lv_process))
@@ -83,6 +85,12 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
 
   def handle_async(_, _, socket), do: {:cont, socket}
 
+  def handle_info(:find_successor, socket) do
+    socket
+    |> find_successor_lv_process()
+    |> halt()
+  end
+
   def handle_info(
         {:process_status, {:died, pid}},
         %{assigns: %{lv_process: %{result: %LvProcess{pid: pid}}}} = socket
@@ -93,7 +101,17 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
     |> halt()
   end
 
-  def handle_info({:process_status, _}, socket), do: halt(socket)
+  def handle_info(
+        {:process_status, {:dead, pid}},
+        %{assigns: %{lv_process: %{result: %LvProcess{pid: pid}}}} = socket
+      ) do
+    if LiveDebugger.Env.dead_view_mode?() do
+      socket
+    else
+      find_successor_lv_process(socket)
+    end
+    |> halt()
+  end
 
   def handle_info(_, socket), do: {:cont, socket}
 
