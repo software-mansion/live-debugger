@@ -38,7 +38,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
   end
 
   describe "handle_info/2" do
-    test "deletes table ref after process down" do
+    test "deletes table ref after process down and no watchers left" do
       pid = :c.pid(0, 0, 1)
       ref = :ets.new(:test_table, [])
 
@@ -53,6 +53,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
       topic = PubSubUtils.process_status_topic()
 
       LiveDebugger.MockPubSubUtils
+      |> expect(:broadcast, fn ^topic, {:process_status, {:died, _}} -> :ok end)
       |> expect(:broadcast, fn ^topic, {:process_status, {:dead, _}} -> :ok end)
 
       assert {:noreply, new_table_refs} =
@@ -63,6 +64,41 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
 
       assert [{:id, ^other_ref} | _] = :ets.info(other_ref)
       assert other_ref == Map.get(new_table_refs, other_pid).table
+    end
+
+    test "removes watcher when it dies" do
+      pid = :c.pid(0, 0, 1)
+      watcher_pid = :c.pid(0, 0, 2)
+      ref = :ets.new(:test_table, [])
+
+      table_refs = %{
+        pid => %EtsTableServer.TableInfo{table: ref, watchers: MapSet.new([watcher_pid])}
+      }
+
+      assert {:noreply, new_table_refs} =
+               EtsTableServer.handle_info({:DOWN, :_, :process, watcher_pid, :_}, table_refs)
+
+      assert MapSet.new([]) == Map.get(new_table_refs, pid).watchers
+    end
+
+    test "doesn't delete table if there are watchers left" do
+      pid = :c.pid(0, 0, 1)
+      watcher_pid = :c.pid(0, 0, 2)
+      ref = :ets.new(:test_table, [])
+
+      table_refs = %{
+        pid => %EtsTableServer.TableInfo{table: ref, watchers: MapSet.new([watcher_pid])}
+      }
+
+      topic = PubSubUtils.process_status_topic()
+
+      LiveDebugger.MockPubSubUtils
+      |> expect(:broadcast, fn ^topic, {:process_status, {:died, _}} -> :ok end)
+
+      assert {:noreply, new_table_refs} =
+               EtsTableServer.handle_info({:DOWN, :_, :process, pid, :_}, table_refs)
+
+      assert MapSet.new([watcher_pid]) == Map.get(new_table_refs, pid).watchers
     end
   end
 
@@ -87,6 +123,20 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
                EtsTableServer.handle_call({:get_or_create_table, pid}, self(), table_refs)
 
       assert ref == Map.get(new_table_refs, pid).table
+    end
+
+    test "adds watcher on event {:watch, pid}" do
+      pid = :c.pid(0, 0, 1)
+      watcher_pid = :c.pid(0, 0, 2)
+
+      table_refs = %{
+        pid => %EtsTableServer.TableInfo{table: :ets.new(:test_table, [])}
+      }
+
+      assert {:reply, :ok, new_table_refs} =
+               EtsTableServer.handle_call({:watch, pid}, {watcher_pid, nil}, table_refs)
+
+      assert MapSet.new([watcher_pid]) == Map.get(new_table_refs, pid).watchers
     end
   end
 end
