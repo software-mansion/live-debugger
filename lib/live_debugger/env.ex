@@ -21,6 +21,6 @@ defmodule LiveDebugger.Env do
   end
 
   def dead_view_mode?() do
-    Application.get_env(:live_debugger, :dead_view_mode?, false)
+    Application.get_env(:live_debugger, :dead_view_mode?, true)
   end
 end
