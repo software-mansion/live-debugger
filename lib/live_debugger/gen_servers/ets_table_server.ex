@@ -65,8 +65,10 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
       |> Map.update!(closed_pid, fn table_info -> %{table_info | alive?: false} end)
       |> maybe_delete_ets_table(closed_pid)
 
-    PubSubUtils.process_status_topic()
-    |> PubSubUtils.broadcast({:process_status, {:died, closed_pid}})
+    if LiveDebugger.Env.dead_view_mode?() do
+      PubSubUtils.process_status_topic()
+      |> PubSubUtils.broadcast({:process_status, {:died, closed_pid}})
+    end
 
     {:noreply, state}
   end

@@ -86,6 +86,13 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
     """
   end
 
+  @impl true
+  def handle_event("find-successor", _, socket) do
+    send(self(), :find_successor)
+
+    {:noreply, socket}
+  end
+
   defp assign_node_id(socket, %{"node_id" => node_id}) do
     case TreeNode.id_from_string(node_id) do
       {:ok, id} ->
