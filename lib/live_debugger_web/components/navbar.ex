@@ -26,6 +26,15 @@ defmodule LiveDebuggerWeb.Components.Navbar do
   end
 
   @doc """
+  Used to better layout the navbar when using grid.
+  """
+  def fill(assigns) do
+    ~H"""
+    <div class="w-0 h-0"></div>
+    """
+  end
+
+  @doc """
   Renders the LiveDebugger logo with text in the navbar.
   """
   def live_debugger_logo(assigns) do
@@ -127,7 +136,7 @@ defmodule LiveDebuggerWeb.Components.Navbar do
     ]}>
       <.icon
         name={if(@connected?, do: "icon-check-small", else: "icon-cross-small")}
-        class=" w-4 h-4"
+        class="bg-white w-4 h-4"
       />
     </div>
     """
