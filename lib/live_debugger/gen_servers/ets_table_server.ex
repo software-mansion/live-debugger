@@ -1,6 +1,12 @@
 defmodule LiveDebugger.GenServers.EtsTableServer do
   @moduledoc """
   This gen_server is responsible for managing ETS tables.
+
+  It sends `{:process_status, {:dead, pid}}` to the process status topic.
+
+  ## Dead View Mode
+  When in dead view mode, the gen_server will send `{:process_status, {:dead, pid}}` to the process status topic when a process dies.
+  It will wait for all watchers to be removed and then delete the ETS table and sends `{:process_status, {:dead, pid}}` to the process status topic.
   """
 
   defmodule TableInfo do
@@ -131,7 +137,11 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
     @impl true
     def watch(pid) do
-      GenServer.call(@server_module, {:watch, pid}, 1000)
+      if LiveDebugger.Env.dead_view_mode?() do
+        GenServer.call(@server_module, {:watch, pid}, 1000)
+      else
+        {:error, :not_in_dead_view_mode}
+      end
     end
   end
 
