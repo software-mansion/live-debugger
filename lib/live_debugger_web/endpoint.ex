@@ -18,31 +18,22 @@ defmodule LiveDebuggerWeb.Endpoint do
   plug(Plug.Static, from: {:phoenix, "priv/static"}, at: "/assets/phoenix")
   plug(Plug.Static, from: {:phoenix_live_view, "priv/static"}, at: "/assets/phoenix_live_view")
 
-  cond do
-    LiveDebugger.Env.dev?() ->
-      plug(Plug.Static,
-        at: "/assets/live_debugger",
-        from: {:live_debugger, "priv/static/dev"},
-        gzip: false
-      )
+  if LiveDebugger.Env.dev?() do
+    plug(Plug.Static,
+      at: "/assets/live_debugger",
+      from: {:live_debugger, "priv/static/dev"},
+      gzip: false
+    )
 
-      socket("/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket)
-      plug(Phoenix.LiveReloader)
-      plug(Phoenix.CodeReloader)
-
-    LiveDebugger.Env.test?() ->
-      plug(Plug.Static,
-        at: "/assets/live_debugger",
-        from: {:live_debugger, "priv/static/dev"},
-        gzip: false
-      )
-
-    true ->
-      plug(Plug.Static,
-        at: "/assets/live_debugger",
-        from: {:live_debugger, "priv/static"},
-        gzip: false
-      )
+    socket("/phoenix/live_reload/socket", Phoenix.LiveReloader.Socket)
+    plug(Phoenix.LiveReloader)
+    plug(Phoenix.CodeReloader)
+  else
+    plug(Plug.Static,
+      at: "/assets/live_debugger",
+      from: {:live_debugger, "priv/static"},
+      gzip: false
+    )
   end
 
   plug(Plug.Session, @session_options)
