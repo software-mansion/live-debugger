@@ -25,7 +25,7 @@ defmodule LiveDebugger.Services.TraceService do
   @spec insert(Trace.t()) :: true
   def insert(%Trace{pid: pid, id: id} = trace) do
     pid
-    |> ets_table!()
+    |> ets_table()
     |> :ets.insert({id, trace})
   end
 
@@ -35,7 +35,7 @@ defmodule LiveDebugger.Services.TraceService do
   @spec get(pid :: ets_table_id(), id :: integer()) :: Trace.t() | nil
   def get(pid, id) when is_pid(pid) and is_integer(id) do
     pid
-    |> ets_table!()
+    |> ets_table()
     |> :ets.lookup(id)
     |> case do
       [] -> nil
@@ -82,13 +82,13 @@ defmodule LiveDebugger.Services.TraceService do
   @spec clear_traces(pid :: ets_table_id(), node_id :: pid() | CommonTypes.cid()) :: true
   def clear_traces(pid, %CID{} = node_id) when is_pid(pid) do
     pid
-    |> ets_table!()
+    |> ets_table()
     |> :ets.match_delete({:_, %{cid: node_id}})
   end
 
   def clear_traces(pid, node_id) when is_pid(pid) and is_pid(node_id) do
     pid
-    |> ets_table!()
+    |> ets_table()
     |> :ets.match_delete({:_, %{pid: node_id, cid: nil}})
   end
 
@@ -107,7 +107,7 @@ defmodule LiveDebugger.Services.TraceService do
     match_spec = match_spec(node_id, functions, execution_times)
 
     table_id
-    |> ets_table!()
+    |> ets_table()
     |> :ets.select(match_spec, limit)
   end
 
@@ -178,8 +178,8 @@ defmodule LiveDebugger.Services.TraceService do
     [{:andalso, {:>=, :"$2", min_time}, {:"=<", :"$2", max_time}}]
   end
 
-  @spec ets_table!(pid :: ets_table_id()) :: :ets.table()
-  defp ets_table!(pid) when is_pid(pid) do
-    EtsTableServer.table!(pid)
+  @spec ets_table(pid :: ets_table_id()) :: :ets.table()
+  defp ets_table(pid) when is_pid(pid) do
+    EtsTableServer.table(pid)
   end
 end

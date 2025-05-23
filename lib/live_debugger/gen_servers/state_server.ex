@@ -73,6 +73,8 @@ defmodule LiveDebugger.GenServers.StateServer do
     {:noreply, state}
   end
 
+  def handle_info({:process_status, _}, state), do: {:noreply, state}
+
   defp save_state(%Trace{pid: pid} = trace) do
     with {:ok, channel_state} <- ProcessService.state(pid) do
       record_id = record_id(pid)
