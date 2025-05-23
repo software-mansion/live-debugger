@@ -1,3 +1,8 @@
+function parseElapsedTime(ms) {
+  if (ms < 1000) return ms + ' ms';
+  return (ms / 1000).toFixed(2) + ' s';
+}
+
 const TraceExecutionTime = {
   mounted() {
     let start = Date.now();
@@ -6,7 +11,7 @@ const TraceExecutionTime = {
 
     this.intervalId = setInterval(() => {
       current = Date.now() - start;
-      this.el.textContent = current + ' ms';
+      this.el.textContent = parseElapsedTime(current);
     }, 16);
 
     this.handleEvent('stop-timer', () => {
