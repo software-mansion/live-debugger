@@ -16,7 +16,6 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_has(assigns_entry(key: "counter", value: "0"))
     |> assert_has(traces(count: 2))
 
-    # Callback traces appear in debugger
     dev_app
     |> click(button("increment-button"))
     |> click(button("increment-button"))
@@ -77,35 +76,6 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> find(traces(count: 4))
     |> Enum.at(1)
     |> assert_has(css("span.text-error-text", text: "2.50 s"))
-
-    # Filtering callback traces by execution time works
-    debugger
-    |> click(toggle_tracing_button())
-    |> click(filters_button())
-    |> fill_in(text_field("exec_time_min"), with: 100)
-    |> fill_in(text_field("exec_time_max"), with: 2_000_000)
-    |> send_keys([:enter])
-    |> find(traces(count: 1))
-    |> find(css("span.text-warning-text"))
-    |> Element.text()
-    |> String.match?(~r"^40\d ms$")
-
-    debugger
-    |> click(toggle_tracing_button())
-
-    dev_app
-    |> click(button("increment-button"))
-    |> click(button("slow-increment-button"))
-
-    Process.sleep(405)
-
-    debugger
-    |> find(traces(count: 2))
-    |> Enum.each(fn trace ->
-      find(trace, css("span.text-warning-text"))
-      |> Element.text()
-      |> String.match?(~r"^40\d ms$")
-    end)
   end
 
   @sessions 2
@@ -144,7 +114,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
   end
 
   @sessions 2
-  feature "user can filter callback traces", %{sessions: [dev_app, debugger]} do
+  feature "user can filter traces by callback name", %{sessions: [dev_app, debugger]} do
     LiveDebugger.GenServers.CallbackTracingServer.ping!()
 
     dev_app
@@ -226,6 +196,61 @@ defmodule LiveDebugger.ChannelDashboardTest do
       "render/1",
       "mount/3"
     ])
+  end
+
+  @sessions 2
+  feature "user can filter traces by execution time", %{sessions: [dev_app, debugger]} do
+    LiveDebugger.GenServers.CallbackTracingServer.ping!()
+
+    dev_app
+    |> visit(@dev_app_url)
+    |> click(button("slow-increment-button"))
+
+    Process.sleep(405)
+
+    dev_app
+    |> click(button("very-slow-increment-button"))
+
+    Process.sleep(2505)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_traces(6, [
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "mount/3"
+    ])
+    |> click(filters_button())
+    |> set_value(select("min_unit"), "ms")
+    |> fill_in(text_field("exec_time_min"), with: 100)
+    |> set_value(select("max_unit"), "s")
+    |> fill_in(text_field("exec_time_max"), with: 2)
+    |> send_keys([:enter])
+    |> find(traces(count: 1))
+    |> find(css("span.text-warning-text"))
+    |> Element.text()
+    |> String.match?(~r"^40\d ms$")
+
+    debugger
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(button("increment-button"))
+    |> click(button("slow-increment-button"))
+
+    Process.sleep(405)
+
+    debugger
+    |> find(traces(count: 2))
+    |> Enum.each(fn trace ->
+      find(trace, css("span.text-warning-text"))
+      |> Element.text()
+      |> String.match?(~r"^40\d ms$")
+    end)
   end
 
   defp assert_traces(session, count, callback_names) do

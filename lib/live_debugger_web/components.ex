@@ -5,8 +5,6 @@ defmodule LiveDebuggerWeb.Components do
 
   use Phoenix.Component
 
-  import Phoenix.HTML
-
   alias Phoenix.LiveView.JS
 
   @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
