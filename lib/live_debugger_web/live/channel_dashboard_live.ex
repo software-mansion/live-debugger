@@ -55,17 +55,17 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           </div>
         </:loading>
         <div class="flex overflow-hidden">
-          <div class="flex grow flex-col xl:flex-row gap-4 xl:gap-8 p-8 overflow-y-auto xl:overflow-y-hidden max-w-screen-2xl mx-auto scrollbar-main">
+          <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
             <StateLive.live_render
               id="node-state-lv"
-              class="flex xl:w-1/2"
+              class="flex"
               socket={@socket}
               lv_process={lv_process}
               node_id={@node_id || lv_process.pid}
             />
             <TracesLive.live_render
               id="traces-list"
-              class="flex max-xl:grow xl:w-1/2"
+              class="flex"
               socket={@socket}
               lv_process={lv_process}
               node_id={@node_id || lv_process.pid}
