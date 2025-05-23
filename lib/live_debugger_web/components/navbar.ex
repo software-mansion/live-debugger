@@ -91,7 +91,7 @@ defmodule LiveDebuggerWeb.Components.Navbar do
 
   def connected(assigns) do
     ~H"""
-    <div id={@id} class="flex items-center gap-1 text-xs text-primary">
+    <div id={@id} class="flex items-center gap-1 text-xs text-primary ml-1">
       <.status_icon connected?={@connected?} />
       <%= if @connected? do %>
         <span class="font-medium">Monitored PID </span>
