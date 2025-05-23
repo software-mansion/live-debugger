@@ -55,15 +55,6 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           </div>
         </:loading>
         <div class="flex overflow-hidden">
-          <SidebarLive.live_render
-            id="sidebar"
-            class="h-full"
-            socket={@socket}
-            lv_process={lv_process}
-            url={@url}
-            node_id={@node_id || lv_process.pid}
-          />
-
           <div class="flex grow flex-col xl:flex-row gap-4 xl:gap-8 p-8 overflow-y-auto xl:overflow-y-hidden max-w-screen-2xl mx-auto scrollbar-main">
             <StateLive.live_render
               id="node-state-lv"
@@ -81,6 +72,14 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
               root_pid={self()}
             />
           </div>
+          <SidebarLive.live_render
+            id="sidebar"
+            class="h-full"
+            socket={@socket}
+            lv_process={lv_process}
+            url={@url}
+            node_id={@node_id || lv_process.pid}
+          />
         </div>
       </.async_result>
     </div>
