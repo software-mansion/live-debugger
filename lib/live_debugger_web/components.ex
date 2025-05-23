@@ -102,7 +102,7 @@ defmodule LiveDebuggerWeb.Components do
         id={@field.id}
         value={Phoenix.HTML.Form.normalize_value(@type, @field.value)}
         class={[
-          "mt-2 block w-full rounded-lg bg-surface-1-bg  focus:ring-0 text-xs",
+          "block w-full rounded-lg bg-surface-1-bg  focus:ring-0 text-xs",
           "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           @errors == [] && "border-default-border focus:border-secondary-text",
           @errors != [] && "border-error-text focus:border-error-text"

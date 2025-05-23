@@ -27,7 +27,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     ~H"""
     <div id={@id <> "-wrapper"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
-        <div class="w-52">
+        <div class="w-[500px]">
           <div class="p-4">
             <p class="font-medium mb-4">Callbacks</p>
             <div class="flex flex-col gap-3">
@@ -35,22 +35,13 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
                 <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
               <% end %>
             </div>
-            <p class="font-medium mb-4 mt-6">Callback execution time</p>
-            <div class="flex flex-col gap-3">
-              <.input
-                label_text="max [&micro;s]"
-                label_raw
-                field={@form[:exec_time_max]}
-                type="number"
-                min="0"
-              />
-              <.input
-                label_text="min [&micro;s]"
-                label_raw
-                field={@form[:exec_time_min]}
-                type="number"
-                min="0"
-              />
+            <p class="font-medium mb-4 mt-6">Execution Time</p>
+            <div class="flex gap-3 items-center">
+              <.input field={@form[:exec_time_max]} type="number" min="0" placeholder="min" /> -
+              <.input field={@form[:exec_time_min]} type="number" min="0" placeholder="max" />
+            </div>
+            <div class="mt-3 flex gap-3 items-center">
+              <.time_input /> - <.time_input />
             </div>
           </div>
           <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
@@ -71,6 +62,31 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           </div>
         </div>
       </.form>
+    </div>
+    """
+  end
+
+  defp time_input(assigns) do
+    ~H"""
+    <div class="shadow-sm">
+      <div class=" flex items-center rounded-[4px] outline outline-1 -outline-offset-1 outline-default-border has-[input:focus-within]:outline has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2 has-[input:focus-within]:outline-ui-accent">
+        <input
+          type="number"
+          class="block remove-arrow max-w-20 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0"
+          placeholder="min"
+        />
+        <div class="grid shrink-0 grid-cols-1 focus-within:relative">
+          <select
+            aria-label="Currency"
+            class="border-none bg-surface-0-bg col-start-1 row-start-1 w-full appearance-none rounded-md py-1.5 pl-3 pr-7 text-xs text-secondary-text placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-ui-accent"
+            defa
+          >
+            <option selected>&micro;s</option>
+            <option>ms</option>
+            <option>s</option>
+          </select>
+        </div>
+      </div>
     </div>
     """
   end
