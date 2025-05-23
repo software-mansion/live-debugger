@@ -45,7 +45,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           :if={@lv_process.ok?}
           phx-click={JS.push("open-sidebar", target: "#sidebar")}
           class="flex lg:hidden"
-          icon="icon-menu-hamburger"
+          icon="icon-panel-right"
         />
       </Navbar.navbar>
       <.async_result :let={lv_process} assign={@lv_process}>
