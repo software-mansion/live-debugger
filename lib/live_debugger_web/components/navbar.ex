@@ -57,7 +57,18 @@ defmodule LiveDebuggerWeb.Components.Navbar do
 
   def return_link(assigns) do
     ~H"""
-    <.link patch={@link}>
+    <.live_component
+      module={LiveDebuggerWeb.LiveComponents.LiveDropdown}
+      id="navigation-bar-dropdown"
+      class="sm:hidden"
+    >
+      <:button>
+        <.nav_icon icon="icon-menu-hamburger" />
+      </:button>
+      Test
+    </.live_component>
+
+    <.link patch={@link} class="hidden sm:block">
       <.nav_icon icon="icon-arrow-left" />
     </.link>
     """

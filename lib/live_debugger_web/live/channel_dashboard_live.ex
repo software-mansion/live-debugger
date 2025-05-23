@@ -58,7 +58,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           </div>
         </:loading>
         <div class="flex overflow-hidden">
-          <.navigation_bar />
+          <.navigation_bar class="hidden sm:flex" />
           <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
             <StateLive.live_render
               id="node-state-lv"
