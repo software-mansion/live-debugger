@@ -424,7 +424,9 @@ defmodule LiveDebuggerWeb.TracesLive do
       functions: functions,
       execution_time: [
         {:exec_time_max, ""},
-        {:exec_time_min, ""}
+        {:exec_time_min, ""},
+        {:min_unit, ""},
+        {:max_unit, ""}
       ]
     }
   end
@@ -436,9 +438,25 @@ defmodule LiveDebuggerWeb.TracesLive do
   end
 
   defp get_execution_times(socket) do
-    socket.assigns.current_filters.execution_time
-    |> Enum.filter(fn {_, value} -> value != "" end)
+    execution_time = socket.assigns.current_filters.execution_time
+
+    execution_time
+    |> Enum.filter(fn {_, value} -> value not in ["", "µs", "ms", "s"] end)
     |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
+    |> Enum.map(fn {filter, value} ->
+      case filter do
+        :exec_time_min -> {filter, apply_time_unit(value, execution_time[:min_unit])}
+        :exec_time_max -> {filter, apply_time_unit(value, execution_time[:max_unit])}
+      end
+    end)
+  end
+
+  defp apply_time_unit(value, unit) do
+    case unit do
+      "ms" -> value * 1000
+      "s" -> value * 1_000_000
+      _ -> value
+    end
   end
 
   defp log_async_error(operation, reason) do
