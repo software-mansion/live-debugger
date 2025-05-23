@@ -31,7 +31,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   def render(assigns) do
     ~H"""
     <div id="channel-dashboard" class="w-screen h-screen grid grid-rows-[auto_1fr]">
-      <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto_auto] pl-2">
+      <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto_auto] pl-2 pr-0 lg:pr-4">
         <Navbar.return_link link={get_return_link(@lv_process, @in_iframe?)} />
         <Navbar.live_debugger_logo_icon />
         <Navbar.connected
@@ -40,13 +40,16 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           connected?={@lv_process.result.alive?}
           pid={Parsers.pid_to_string(@lv_process.result.pid)}
         />
-        <Navbar.theme_toggle />
-        <.nav_icon
-          :if={@lv_process.ok?}
-          phx-click={JS.push("open-sidebar", target: "#sidebar")}
-          class="flex lg:hidden"
-          icon="icon-panel-right"
-        />
+        <div class="flex items-center gap-2">
+          <Navbar.theme_toggle />
+          <span class="h-5 border-r border-default-border lg:hidden"></span>
+          <.nav_icon
+            :if={@lv_process.ok?}
+            phx-click={JS.push("open-sidebar", target: "#sidebar")}
+            class="flex lg:hidden"
+            icon="icon-panel-right"
+          />
+        </div>
       </Navbar.navbar>
       <.async_result :let={lv_process} assign={@lv_process}>
         <:loading>
