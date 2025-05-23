@@ -2,6 +2,28 @@ function getLiveDebuggerSessionURL(browserElement) {
   return new Promise((resolve, reject) => {
     const script = `
       (function() {
+        function getMetaTag() {
+          const metaTag = document.querySelector('meta[name="live-debugger-config"]');
+          if (metaTag) {
+            return metaTag;
+          } else {
+            handleMetaTagError();
+          }
+        }
+
+        function handleMetaTagError() {
+          throw new Error("LiveDebugger meta tag not found!");
+        }
+
+        function getLiveDebuggerBaseURL(metaTag) {
+          return metaTag.getAttribute('url');
+        }
+
+        function getVersion(metaTag) {
+          const version = metaTag.getAttribute('version');
+          return version ? version : "0.2"
+        }
+
         function getSessionId() {
           let el;
           if ((el = document.querySelector('[data-phx-main]'))) {
@@ -16,27 +38,26 @@ function getLiveDebuggerSessionURL(browserElement) {
           return null;
         }
 
-        function handleMetaTagError() {
-          throw new Error("LiveDebugger meta tag not found!");
-        }
-
-        function getLiveDebuggerBaseURL() {
-          const metaTag = document.querySelector('meta[name="live-debugger-config"]');
-          if (metaTag) {
-            return metaTag.getAttribute('url');
+        function getSessionURL(baseURL, version, sessionId) {
+          let prefix = '';
+          if (version.startsWith("0.2")) {
+            prefix = "transport_pid";
           } else {
-            handleMetaTagError();
+            prefix = "redirect";
           }
-        }
 
-        function getSessionURL(baseURL) {
-          const session_id = getSessionId();
-          const session_path = session_id ? \`redirect/\${session_id}\` : '';
+          const session_path = sessionId ? \`\${prefix}/\${sessionId}\` : '';
           return \`\${baseURL}/\${session_path}\`;
         }
 
-        const baseURL = getLiveDebuggerBaseURL();
-        return getSessionURL(baseURL);
+        const metaTag = getMetaTag();
+
+        const version = getVersion(metaTag);
+        const baseURL = getLiveDebuggerBaseURL(metaTag);
+        const sessionId = getSessionId();
+        const url = getSessionURL(baseURL, version, sessionId);
+        
+        return url;
       })();
     `;
 
@@ -48,7 +69,7 @@ function getLiveDebuggerSessionURL(browserElement) {
         } else {
           resolve(result);
         }
-      },
+      }
     );
   });
 }
