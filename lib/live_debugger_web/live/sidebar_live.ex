@@ -8,6 +8,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
 
   require Logger
 
+  alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Utils.Parsers
@@ -210,9 +211,9 @@ defmodule LiveDebuggerWeb.SidebarLive do
     ~H"""
     <div class="grid grid-rows-[auto_auto_1fr_auto] h-full">
       <.basic_info
-        pid={@lv_process.pid}
-        socket_id={@lv_process.socket_id}
+        module={@lv_process.module}
         parent_lv_process={@parent_lv_process}
+        node_type={TreeNode.type(@node_id)}
       />
       <.live_component
         id={@id <> "-nested-live-views"}
@@ -253,9 +254,9 @@ defmodule LiveDebuggerWeb.SidebarLive do
     """
   end
 
-  attr(:pid, :any, required: true)
-  attr(:socket_id, :string, required: true)
-  attr(:parent_lv_process, :any, required: true)
+  attr(:module, :atom, required: true)
+  attr(:node_type, :atom, required: true)
+  attr(:parent_lv_process, :map, required: true)
 
   defp basic_info(assigns) do
     ~H"""
@@ -267,8 +268,8 @@ defmodule LiveDebuggerWeb.SidebarLive do
         <div
           :for={
             {text, value} <- [
-              {"Monitored socket:", @socket_id},
-              {"Debugged PID:", Parsers.pid_to_string(@pid)}
+              {"Type:", node_type(@node_type)},
+              {"Module:", Parsers.module_to_string(@module)}
             ]
           }
           class="w-full flex flex-col"
@@ -388,4 +389,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
 
     send(state.socket.transport_pid, state.serializer.encode!(message))
   end
+
+  defp node_type(:live_component), do: "LiveComponent"
+  defp node_type(:live_view), do: "LiveView"
 end
