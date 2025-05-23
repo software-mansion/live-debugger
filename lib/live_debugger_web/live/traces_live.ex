@@ -95,9 +95,11 @@ defmodule LiveDebuggerWeb.TracesLive do
               module={LiveDebuggerWeb.LiveComponents.LiveDropdown}
               id="filters-dropdown"
             >
-              <:button class="flex gap-2">
-                <.icon name="icon-filters" class="w-4 h-4" />
-                <div class="hidden @[29rem]/traces:block">Filters</div>
+              <:button>
+                <.button class="flex gap-2" variant="secondary" size="sm">
+                  <.icon name="icon-filters" class="w-4 h-4" />
+                  <div class="hidden @[29rem]/traces:block">Filters</div>
+                </.button>
               </:button>
               <.live_component
                 module={LiveDebuggerWeb.LiveComponents.FiltersForm}
