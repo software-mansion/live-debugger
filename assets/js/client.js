@@ -3,7 +3,7 @@
 
 import { initDebugButton } from './client/debug_button';
 import { initHighlight } from './client/highlight';
-
+import { Socket } from 'phoenix';
 // Fetch LiveDebugger URL
 function getSessionId() {
   let el;
@@ -77,4 +77,39 @@ window.document.addEventListener('DOMContentLoaded', function () {
 
   // Finalize
   console.info(`LiveDebugger available at: ${baseURL}`);
+
+  // Add LiveDebugger Socket
+
+  const wsUrl = baseURL.replace(/^http/, 'ws') + '/client';
+
+  const liveDebuggerSocket = new Socket(wsUrl, {
+    params: { sessionId: getSessionId() ? getSessionId() : 'embedded' },
+  });
+
+  liveDebuggerSocket.connect();
+
+  const liveDebuggerChannel = liveDebuggerSocket.channel('client');
+
+  window.addEventListener('click', (event) => {
+    if (channelJoined) {
+      liveDebuggerChannel.push('client-message', {
+        event: event.target,
+        sessionId: getSessionId(),
+      });
+    }
+  });
+
+  liveDebuggerChannel.on('lvdbg-message', (payload) => {
+    console.log('Received message from server:', payload);
+  });
+
+  liveDebuggerChannel
+    .join()
+    .receive('ok', (resp) => {
+      console.log('Joined successfully', resp);
+      channelJoined = true;
+    })
+    .receive('error', (resp) => {
+      console.log('Unable to join', resp);
+    });
 });
