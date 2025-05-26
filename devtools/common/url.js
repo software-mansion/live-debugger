@@ -73,3 +73,28 @@ function getLiveDebuggerSessionURL(browserElement) {
     );
   });
 }
+
+function allowRedirects() {
+  return new Promise((resolve, reject) => {
+    const script = `
+      (function() {
+        const metaTag = document.querySelector('meta[name="live-debugger-config"]');
+        if (metaTag) {
+          return metaTag.getAttribute('devtools-allow-redirects') === 'true';
+        } 
+        return false;
+      })();
+    `;
+
+    browserElement.devtools.inspectedWindow.eval(
+      script,
+      (result, isException) => {
+        if (isException) {
+          reject(new Error("Error checking allow redirects"));
+        } else {
+          resolve(result);
+        }
+      }
+    );
+  });
+}
