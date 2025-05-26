@@ -51,7 +51,7 @@ defmodule LiveDebuggerWeb.Components.Navbar do
   end
 
   @doc """
-  Renders a link to return to the previous page.0
+  Renders a link to return to the previous page.
   """
 
   attr(:return_link, :any, required: true, doc: "Link to navigate to.")
