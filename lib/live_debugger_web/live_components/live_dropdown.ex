@@ -5,6 +5,21 @@ defmodule LiveDebuggerWeb.LiveComponents.LiveDropdown do
 
   use LiveDebuggerWeb, :live_component
 
+  attr(:icon, :string, required: true)
+  attr(:label, :string, required: true)
+  attr(:link, :string, default: nil)
+  attr(:selected?, :boolean, default: false)
+
+  @spec dropdown_item(map()) :: Phoenix.LiveView.Rendered.t()
+  def dropdown_item(assigns) do
+    ~H"""
+    <div class="flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer">
+      <.icon name={@icon} class="h-4 w-4" />
+      <span class={if @selected?, do: "font-semibold"}>{@label}</span>
+    </div>
+    """
+  end
+
   @doc """
   Closes the dropdown. You can use it when you want to close the dropdown from other component.
   """
@@ -20,6 +35,7 @@ defmodule LiveDebuggerWeb.LiveComponents.LiveDropdown do
     socket
     |> assign(:id, assigns.id)
     |> assign(:class, assigns[:class] || "")
+    |> assign(:direction, assigns[:direction] || "left")
     |> assign(:button, assigns.button)
     |> assign(:inner_block, assigns.inner_block)
     |> ok()
@@ -29,6 +45,7 @@ defmodule LiveDebuggerWeb.LiveComponents.LiveDropdown do
     socket
     |> assign(:id, assigns.id)
     |> assign(:class, assigns[:class] || "")
+    |> assign(:direction, assigns[:direction] || "left")
     |> assign(:button, assigns.button)
     |> assign(:inner_block, assigns.inner_block)
     |> assign(:open, assigns[:open] || false)
@@ -39,6 +56,7 @@ defmodule LiveDebuggerWeb.LiveComponents.LiveDropdown do
   attr(:id, :string, required: true)
   attr(:open, :boolean, required: true)
   attr(:class, :string, default: "")
+  attr(:direction, :string, default: "left")
 
   slot(:button, required: true)
   slot(:inner_block, required: true)
@@ -60,7 +78,11 @@ defmodule LiveDebuggerWeb.LiveComponents.LiveDropdown do
       <div
         :if={@open}
         id={@id <> "-content"}
-        class="absolute right-0 bg-surface-0-bg rounded border border-default-border mt-1 z-50"
+        class={[
+          "absolute bg-surface-0-bg rounded border border-default-border mt-1 z-50",
+          @direction == "left" && "right-0",
+          @direction == "right" && "left-0"
+        ]}
       >
         <%= render_slot(@inner_block) %>
       </div>

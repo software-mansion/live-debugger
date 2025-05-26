@@ -2,8 +2,10 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
   @moduledoc """
   Set of components used in the navigation menu.
   """
-
   use LiveDebuggerWeb, :component
+
+  alias LiveDebuggerWeb.LiveComponents.LiveDropdown
+  alias LiveDebuggerWeb.Helpers.RoutesHelper
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
 
@@ -24,14 +26,22 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
   def dropdown(assigns) do
     ~H"""
     <.live_component
-      module={LiveDebuggerWeb.LiveComponents.LiveDropdown}
+      module={LiveDropdown}
       id="navigation-bar-dropdown"
       class={@class}
+      direction="right"
     >
       <:button>
         <.nav_icon icon="icon-menu-hamburger" />
       </:button>
-      Test
+      <div class="min-w-44 flex flex-col p-1">
+        <.link navigate={RoutesHelper.live_views_dashboard()}>
+          <LiveDropdown.dropdown_item icon="icon-arrow-left" label="Back to Home" />
+        </.link>
+        <span class="w-full border-b border-default-border my-1"></span>
+        <LiveDropdown.dropdown_item icon="icon-info" label="Node Inspector" />
+        <LiveDropdown.dropdown_item icon="icon-globe" label="Global Callbacks" />
+      </div>
     </.live_component>
     """
   end
