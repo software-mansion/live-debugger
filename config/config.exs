@@ -40,7 +40,6 @@ if config_env() == :dev do
     ]
 
   config :live_debugger,
-    devtools_allow_redirects: false,
     live_reload: [
       patterns: [
         ~r"priv/static/.*(js|css|svg)$",
