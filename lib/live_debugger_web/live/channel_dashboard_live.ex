@@ -40,7 +40,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           connected?={@lv_process.result.alive?}
           pid={Parsers.pid_to_string(@lv_process.result.pid)}
         />
-        <Navbar.theme_toggle />
+        <Navbar.settings_button />
         <Navbar.nav_icon
           :if={@lv_process.ok?}
           phx-click={JS.push("open-sidebar", target: "#sidebar")}

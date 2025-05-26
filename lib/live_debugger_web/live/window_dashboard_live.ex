@@ -32,7 +32,7 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
         <Navbar.return_link link={get_return_link(@in_iframe?)} />
         <Navbar.live_debugger_logo />
         <Navbar.fill />
-        <Navbar.theme_toggle />
+        <Navbar.settings_button />
       </Navbar.navbar>
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
         <div class="flex items-center justify-between">
