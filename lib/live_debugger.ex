@@ -85,6 +85,8 @@ defmodule LiveDebugger do
     browser_features? = Keyword.get(config, :browser_features?, true)
     debug_button? = Keyword.get(config, :debug_button?, true)
     highlighting? = Keyword.get(config, :highlighting?, true)
+    version = Application.spec(:live_debugger)[:vsn] |> to_string()
+    devtools_allow_redirects = Keyword.get(config, :devtools_allow_redirects, true)
 
     live_debugger_url = "http://#{ip_string}:#{port}"
     live_debugger_assets_url = "http://#{ip_string}:#{port}/#{@assets_path}"
@@ -94,7 +96,9 @@ defmodule LiveDebugger do
       assets_url: live_debugger_assets_url,
       browser_features?: browser_features?,
       debug_button?: debug_button?,
-      highlighting?: highlighting?
+      highlighting?: highlighting?,
+      version: version,
+      devtools_allow_redirects: devtools_allow_redirects
     }
 
     tags = LiveDebuggerWeb.Components.Config.live_debugger_tags(assigns)

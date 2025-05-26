@@ -53,9 +53,6 @@ defmodule LiveDebuggerWeb.Components.Navbar do
   @doc """
   Renders a link to return to the previous page.
   """
-  attr(:return_link, :any, required: true, doc: "Link to navigate to.")
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the link.")
-
   def return_link(assigns) do
     ~H"""
     <.link patch={@return_link} class={@class}>
@@ -92,16 +89,27 @@ defmodule LiveDebuggerWeb.Components.Navbar do
 
   def connected(assigns) do
     ~H"""
-    <div id={@id} class="flex items-center gap-1 text-xs text-primary ml-1">
-      <.status_icon connected?={@connected?} />
-      <%= if @connected? do %>
-        <span class="font-medium">Monitored PID </span>
-        <%= @pid %>
-      <% else %>
-        <span class="font-medium">Disconnected</span>
-        <.button phx-click="find-successor" variant="secondary" size="sm">Continue</.button>
-      <% end %>
-    </div>
+    <.tooltip
+      id={@id}
+      position="bottom"
+      content={
+        if(@connected?,
+          do: "LiveView process is alive.",
+          else: "LiveView process is dead. You can still debug the last state."
+        )
+      }
+    >
+      <div id={@id} class="flex items-center gap-1 text-xs text-primary ml-1">
+        <.status_icon connected?={@connected?} />
+        <%= if @connected? do %>
+          <span class="font-medium">Monitored PID </span>
+          <%= @pid %>
+        <% else %>
+          <span class="font-medium">Disconnected</span>
+          <.button phx-click="find-successor" variant="secondary" size="sm">Continue</.button>
+        <% end %>
+      </div>
+    </.tooltip>
     """
   end
 

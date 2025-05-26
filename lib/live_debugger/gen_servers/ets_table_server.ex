@@ -10,7 +10,11 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   """
 
   defmodule TableInfo do
-    @moduledoc false
+    @moduledoc """
+    - `table`: ETS table reference.
+    - `alive?`: Indicates if the process is alive.
+    - `watchers`: Set of pids that are watching this table.
+    """
     defstruct [:table, alive?: true, watchers: MapSet.new()]
 
     @type t() :: %__MODULE__{
@@ -66,7 +70,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   @impl true
   def handle_info({:DOWN, _, :process, closed_pid, _}, state)
       when is_map_key(state, closed_pid) do
-    if LiveDebugger.Env.dead_view_mode?() do
+    if LiveDebugger.Feature.enabled?(:dead_view_mode) do
       PubSubUtils.process_status_topic()
       |> PubSubUtils.broadcast({:process_status, {:died, closed_pid}})
     end
@@ -137,7 +141,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
     @impl true
     def watch(pid) do
-      if LiveDebugger.Env.dead_view_mode?() do
+      if LiveDebugger.Feature.enabled?(:dead_view_mode) do
         GenServer.call(@server_module, {:watch, pid}, 1000)
       else
         {:error, :not_in_dead_view_mode}
