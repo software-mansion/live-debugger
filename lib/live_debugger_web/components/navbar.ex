@@ -116,7 +116,16 @@ defmodule LiveDebuggerWeb.Components.Navbar do
 
   def connected(assigns) do
     ~H"""
-    <.tooltip id={@id} position="bottom" content="Shows if debugged LiveView process is still alive.">
+    <.tooltip
+      id={@id}
+      position="bottom"
+      content={
+        if(@connected?,
+          do: "LiveView process is alive.",
+          else: "LiveView process is dead. You can still debug the last state."
+        )
+      }
+    >
       <div id={@id} class="flex items-center gap-1 text-xs text-primary">
         <.status_icon connected?={@connected?} />
         <%= if @connected? do %>
