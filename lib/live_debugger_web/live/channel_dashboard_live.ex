@@ -33,8 +33,14 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
     ~H"""
     <div id="channel-dashboard" class="w-screen h-screen grid grid-rows-[auto_1fr]">
       <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto_auto] pl-2 pr-0 lg:pr-4">
-        <Navbar.return_link link={get_return_link(@lv_process, @in_iframe?)} class="hidden sm:block" />
-        <NavigationMenu.dropdown class="sm:hidden" />
+        <Navbar.return_link
+          return_link={get_return_link(@lv_process, @in_iframe?)}
+          class="hidden sm:block"
+        />
+        <NavigationMenu.dropdown
+          return_link={get_return_link(@lv_process, @in_iframe?)}
+          class="sm:hidden"
+        />
         <Navbar.live_debugger_logo_icon />
         <Navbar.connected
           :if={@lv_process.ok?}

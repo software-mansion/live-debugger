@@ -53,12 +53,12 @@ defmodule LiveDebuggerWeb.Components.Navbar do
   @doc """
   Renders a link to return to the previous page.
   """
-  attr(:link, :any, required: true, doc: "Link to navigate to.")
+  attr(:return_link, :any, required: true, doc: "Link to navigate to.")
   attr(:class, :any, default: nil, doc: "Additional classes to add to the link.")
 
   def return_link(assigns) do
     ~H"""
-    <.link patch={@link} class={@class}>
+    <.link patch={@return_link} class={@class}>
       <.nav_icon icon="icon-arrow-left" />
     </.link>
     """

@@ -5,7 +5,6 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
   use LiveDebuggerWeb, :component
 
   alias LiveDebuggerWeb.LiveComponents.LiveDropdown
-  alias LiveDebuggerWeb.Helpers.RoutesHelper
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
 
@@ -22,6 +21,7 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
   end
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
+  attr(:return_link, :any, required: true, doc: "Link to navigate to.")
 
   def dropdown(assigns) do
     ~H"""
@@ -35,7 +35,7 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
         <.nav_icon icon="icon-menu-hamburger" />
       </:button>
       <div class="min-w-44 flex flex-col p-1">
-        <.link navigate={RoutesHelper.live_views_dashboard()}>
+        <.link navigate={@return_link}>
           <LiveDropdown.dropdown_item icon="icon-arrow-left" label="Back to Home" />
         </.link>
         <span class="w-full border-b border-default-border my-1"></span>

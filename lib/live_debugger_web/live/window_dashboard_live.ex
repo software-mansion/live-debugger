@@ -29,7 +29,7 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
     ~H"""
     <div id="window-dashboard" class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
       <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto] pl-2">
-        <Navbar.return_link link={get_return_link(@in_iframe?)} />
+        <Navbar.return_link return_link={get_return_link(@in_iframe?)} />
         <Navbar.live_debugger_logo />
         <Navbar.fill />
         <Navbar.theme_toggle />
