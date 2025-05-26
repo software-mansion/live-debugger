@@ -10,7 +10,11 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   """
 
   defmodule TableInfo do
-    @moduledoc false
+    @moduledoc """
+    - `table`: ETS table reference.
+    - `alive?`: Indicates if the process is alive.
+    - `watchers`: Set of pids that are watching this table.
+    """
     defstruct [:table, alive?: true, watchers: MapSet.new()]
 
     @type t() :: %__MODULE__{
