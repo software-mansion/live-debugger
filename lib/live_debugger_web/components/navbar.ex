@@ -54,21 +54,11 @@ defmodule LiveDebuggerWeb.Components.Navbar do
   Renders a link to return to the previous page.
   """
   attr(:link, :any, required: true, doc: "Link to navigate to.")
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the link.")
 
   def return_link(assigns) do
     ~H"""
-    <.live_component
-      module={LiveDebuggerWeb.LiveComponents.LiveDropdown}
-      id="navigation-bar-dropdown"
-      class="sm:hidden"
-    >
-      <:button>
-        <.nav_icon icon="icon-menu-hamburger" />
-      </:button>
-      Test
-    </.live_component>
-
-    <.link patch={@link} class="hidden sm:block">
+    <.link patch={@link} class={@class}>
       <.nav_icon icon="icon-arrow-left" />
     </.link>
     """

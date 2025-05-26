@@ -18,6 +18,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias LiveDebuggerWeb.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.Utils.Parsers
+  alias LiveDebuggerWeb.Components.NavigationMenu
 
   @impl true
   def handle_params(params, url, socket) do
@@ -32,7 +33,8 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
     ~H"""
     <div id="channel-dashboard" class="w-screen h-screen grid grid-rows-[auto_1fr]">
       <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto_auto] pl-2 pr-0 lg:pr-4">
-        <Navbar.return_link link={get_return_link(@lv_process, @in_iframe?)} />
+        <Navbar.return_link link={get_return_link(@lv_process, @in_iframe?)} class="hidden sm:block" />
+        <NavigationMenu.dropdown class="sm:hidden" />
         <Navbar.live_debugger_logo_icon />
         <Navbar.connected
           :if={@lv_process.ok?}
@@ -58,7 +60,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           </div>
         </:loading>
         <div class="flex overflow-hidden">
-          <.navigation_bar class="hidden sm:flex" />
+          <NavigationMenu.sidebar class="hidden sm:flex" />
           <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
             <StateLive.live_render
               id="node-state-lv"

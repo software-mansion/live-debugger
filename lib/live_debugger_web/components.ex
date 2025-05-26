@@ -613,20 +613,6 @@ defmodule LiveDebuggerWeb.Components do
     """
   end
 
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
-
-  def navigation_bar(assigns) do
-    ~H"""
-    <div class={[
-      "flex flex-col gap-3 bg-sidebar-bg shadow-custom h-full p-2 border-r border-default-border"
-      | List.wrap(@class)
-    ]}>
-      <.nav_icon icon="icon-info" />
-      <.nav_icon icon="icon-globe" />
-    </div>
-    """
-  end
-
   @doc """
   Renders an icon with navbar styles.
   """
