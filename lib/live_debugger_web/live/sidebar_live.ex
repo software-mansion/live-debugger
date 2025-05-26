@@ -211,6 +211,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
     ~H"""
     <div class="grid grid-rows-[auto_auto_1fr_auto] h-full">
       <.basic_info
+        id={@id <> "-basic-info"}
         module={@lv_process.module}
         parent_lv_process={@parent_lv_process}
         node_type={TreeNode.type(@node_id)}
@@ -254,13 +255,14 @@ defmodule LiveDebuggerWeb.SidebarLive do
     """
   end
 
+  attr(:id, :string, required: true)
   attr(:module, :atom, required: true)
   attr(:node_type, :atom, required: true)
   attr(:parent_lv_process, :map, required: true)
 
   defp basic_info(assigns) do
     ~H"""
-    <div class="w-full p-6 shrink-0 flex flex-col gap-2 border-b border-default-border">
+    <div id={@id} class="w-full p-6 shrink-0 flex flex-col gap-2 border-b border-default-border">
       <.async_result :let={parent_lv_process} assign={@parent_lv_process}>
         <:loading>
           <div class="w-full h-30 flex justify-center items-center"><.spinner size="sm" /></div>
