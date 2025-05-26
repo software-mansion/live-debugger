@@ -66,24 +66,6 @@ defmodule LiveDebuggerWeb.Components.Navbar do
     """
   end
 
-  @doc """
-  Renders a theme toggle button.
-  """
-  # TODO: move it to settings page
-  def theme_toggle(assigns) do
-    ~H"""
-    <div class="flex">
-      <.nav_icon id="light-mode-switch" class="dark:hidden" icon="icon-moon" phx-hook="ToggleTheme" />
-      <.nav_icon
-        id="dark-mode-switch"
-        class="hidden dark:block"
-        icon="icon-sun"
-        phx-hook="ToggleTheme"
-      />
-    </div>
-    """
-  end
-
   attr(:class, :any, default: nil, doc: "Additional classes to add to the link.")
 
   def settings_button(assigns) do
