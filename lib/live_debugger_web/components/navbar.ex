@@ -116,16 +116,18 @@ defmodule LiveDebuggerWeb.Components.Navbar do
 
   def connected(assigns) do
     ~H"""
-    <div id={@id} class="flex items-center gap-1 text-xs text-primary">
-      <.status_icon connected?={@connected?} />
-      <%= if @connected? do %>
-        <span class="font-medium">Monitored PID </span>
-        <%= @pid %>
-      <% else %>
-        <span class="font-medium">Disconnected</span>
-        <.button phx-click="find-successor" variant="secondary" size="sm">Continue</.button>
-      <% end %>
-    </div>
+    <.tooltip id={@id} position="bottom" content="Shows if debugged LiveView process is still alive.">
+      <div id={@id} class="flex items-center gap-1 text-xs text-primary">
+        <.status_icon connected?={@connected?} />
+        <%= if @connected? do %>
+          <span class="font-medium">Monitored PID </span>
+          <%= @pid %>
+        <% else %>
+          <span class="font-medium">Disconnected</span>
+          <.button phx-click="find-successor" variant="secondary" size="sm">Continue</.button>
+        <% end %>
+      </div>
+    </.tooltip>
     """
   end
 
