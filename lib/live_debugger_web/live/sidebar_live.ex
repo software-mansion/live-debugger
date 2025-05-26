@@ -69,6 +69,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
     |> assign(:highlight?, false)
     |> assign(:hidden?, true)
     |> assign_async_tree()
+    |> assign_async_node_module()
     |> assign_async_parent_lv_process()
     |> assign_async_existing_node_ids()
     |> ok()
@@ -91,6 +92,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
           node_id={@node_id}
           highlight?={@highlight?}
           parent_lv_process={@parent_lv_process}
+          node_module={@node_module}
         />
       </div>
       <.sidebar_slide_over :if={not @hidden?}>
@@ -102,6 +104,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
           node_id={@node_id}
           highlight?={@highlight?}
           parent_lv_process={@parent_lv_process}
+          node_module={@node_module}
         />
       </.sidebar_slide_over>
     </div>
@@ -140,6 +143,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
   def handle_info({:node_changed, node_id}, socket) do
     socket
     |> assign(:node_id, node_id)
+    |> assign_async_node_module()
     |> noreply()
   end
 
@@ -206,13 +210,14 @@ defmodule LiveDebuggerWeb.SidebarLive do
   attr(:max_opened_node_level, :any, required: true)
   attr(:highlight?, :boolean, required: true)
   attr(:parent_lv_process, :any, required: true)
+  attr(:node_module, :any, required: true)
 
   defp sidebar_content(assigns) do
     ~H"""
     <div class="grid grid-rows-[auto_auto_1fr_auto] h-full">
       <.basic_info
         id={@id <> "-basic-info"}
-        module={@lv_process.module}
+        module={@node_module}
         parent_lv_process={@parent_lv_process}
         node_type={TreeNode.type(@node_id)}
       />
@@ -267,17 +272,13 @@ defmodule LiveDebuggerWeb.SidebarLive do
         <:loading>
           <div class="w-full h-30 flex justify-center items-center"><.spinner size="sm" /></div>
         </:loading>
-        <div
-          :for={
-            {text, value} <- [
-              {"Type:", node_type(@node_type)},
-              {"Module:", Parsers.module_to_string(@module)}
-            ]
-          }
-          class="w-full flex flex-col"
-        >
-          <span class="font-medium"><%= text %></span>
-          <span><%= value %></span>
+        <div class="w-full flex flex-col">
+          <span class="font-medium">Type:</span>
+          <span><%= node_type(@node_type) %></span>
+        </div>
+        <div class="w-full flex flex-col">
+          <span class="font-medium">Module:</span>
+          <span :if={@module.ok?}><%= Parsers.module_to_string(@module.result) %></span>
         </div>
         <div :if={parent_lv_process} class="w-full flex flex-col">
           <span class="font-medium">Parent LiveView Process</span>
@@ -333,6 +334,18 @@ defmodule LiveDebuggerWeb.SidebarLive do
     end
 
     socket
+  end
+
+  defp assign_async_node_module(%{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket) do
+    assign_async(socket, :node_module, fn ->
+      with {:ok, channel_state} <- ChannelService.state(pid),
+           {:ok, node} <- ChannelService.get_node(channel_state, node_id),
+           true <- not is_nil(node) do
+        {:ok, %{node_module: node.module}}
+      else
+        err -> err
+      end
+    end)
   end
 
   defp assign_async_existing_node_ids(socket) do

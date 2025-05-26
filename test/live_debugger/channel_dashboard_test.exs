@@ -121,7 +121,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> visit("/")
     |> click(first_link())
     |> click(conditional_component_5_node_button())
-    |> find(css("#info"), fn info ->
+    |> find(css("#sidebar-content-basic-info"), fn info ->
       info
       |> assert_text("LiveComponent")
       |> assert_text("LiveDebuggerDev.LiveComponents.Conditional")
