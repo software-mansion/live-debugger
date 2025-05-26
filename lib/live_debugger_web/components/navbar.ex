@@ -6,6 +6,7 @@ defmodule LiveDebuggerWeb.Components.Navbar do
   use LiveDebuggerWeb, :component
 
   alias LiveDebugger.Utils.Parsers
+  alias LiveDebuggerWeb.Helpers.RoutesHelper
 
   @doc """
   Renders base navbar component.
@@ -87,7 +88,7 @@ defmodule LiveDebuggerWeb.Components.Navbar do
 
   def settings_button(assigns) do
     ~H"""
-    <.link class={@class}>
+    <.link navigate={RoutesHelper.settings()} class={@class}>
       <.nav_icon icon="icon-settings" />
     </.link>
     """

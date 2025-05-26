@@ -26,4 +26,9 @@ defmodule LiveDebuggerWeb.Helpers.RoutesHelper do
   def error(error) do
     ~p"/error/#{error}"
   end
+
+  @spec settings() :: String.t()
+  def settings() do
+    ~p"/settings"
+  end
 end
