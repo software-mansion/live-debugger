@@ -1,7 +1,7 @@
 const iframe = document.getElementById("content");
 const errorInfo = document.getElementById("error-info");
 
-function set_iframe_url(url) {
+function setIframeUrl(url) {
   if (url) {
     iframe.src = url;
     iframe.hidden = false;
