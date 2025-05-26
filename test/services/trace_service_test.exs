@@ -7,6 +7,8 @@ defmodule Services.TraceServiceTest do
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.MockEtsTableServer
 
+  @all_functions LiveDebugger.Utils.Callbacks.callbacks_functions()
+
   setup :verify_on_exit!
 
   setup_all do
@@ -56,7 +58,8 @@ defmodule Services.TraceServiceTest do
       MockEtsTableServer
       |> expect(:table!, fn ^pid -> table end)
 
-      assert {[^trace1, ^trace2], _} = TraceService.existing_traces(pid)
+      assert {[^trace1, ^trace2], _} =
+               TraceService.existing_traces(pid, functions: @all_functions)
     end
 
     test "returns traces with limit and continuation", %{module: module, pid: pid, table: table} do
@@ -71,12 +74,13 @@ defmodule Services.TraceServiceTest do
       MockEtsTableServer
       |> expect(:table!, fn ^pid -> table end)
 
-      {traces1, cont} = TraceService.existing_traces(pid, limit: 2)
-      {traces2, cont} = TraceService.existing_traces(pid, cont: cont)
+      {traces1, cont} = TraceService.existing_traces(pid, limit: 2, functions: @all_functions)
+      {traces2, cont} = TraceService.existing_traces(pid, cont: cont, functions: @all_functions)
 
       assert [trace1, trace2] == traces1
       assert [trace3] == traces2
       assert cont == :end_of_table
+
       assert :end_of_table == TraceService.existing_traces(pid, cont: :end_of_table)
     end
 
@@ -121,12 +125,14 @@ defmodule Services.TraceServiceTest do
 
       assert {[^trace2], _} =
                TraceService.existing_traces(pid,
-                 execution_times: [exec_time_min: 15, exec_time_max: 50]
+                 execution_times: [exec_time_min: 15, exec_time_max: 50],
+                 functions: @all_functions
                )
 
       assert {[^trace2, ^trace3], _} =
                TraceService.existing_traces(pid,
-                 execution_times: [exec_time_min: 15, exec_time_max: :infinity]
+                 execution_times: [exec_time_min: 15, exec_time_max: :infinity],
+                 functions: @all_functions
                )
     end
 
@@ -173,8 +179,11 @@ defmodule Services.TraceServiceTest do
       MockEtsTableServer
       |> expect(:table!, 2, fn ^pid -> table end)
 
-      assert {[^trace1], _} = TraceService.existing_traces(pid, node_id: pid)
-      assert {[^trace2, ^trace3], _} = TraceService.existing_traces(pid, node_id: cid)
+      assert {[^trace1], _} =
+               TraceService.existing_traces(pid, node_id: pid, functions: @all_functions)
+
+      assert {[^trace2, ^trace3], _} =
+               TraceService.existing_traces(pid, node_id: cid, functions: @all_functions)
     end
 
     test "returns :end_of_table when no traces match", %{module: module, pid: pid, table: table} do
@@ -201,7 +210,7 @@ defmodule Services.TraceServiceTest do
       MockEtsTableServer
       |> expect(:table!, fn ^pid -> table end)
 
-      assert {[^trace1], _} = TraceService.existing_traces(pid)
+      assert {[^trace1], _} = TraceService.existing_traces(pid, functions: @all_functions)
     end
   end
 
@@ -218,15 +227,16 @@ defmodule Services.TraceServiceTest do
       MockEtsTableServer
       |> expect(:table!, 5, fn ^pid -> table end)
 
-      assert {[^trace1, ^trace2], _} = TraceService.existing_traces(pid)
+      assert {[^trace1, ^trace2], _} =
+               TraceService.existing_traces(pid, functions: @all_functions)
 
       TraceService.clear_traces(pid, trace1.pid)
 
-      assert {[^trace2], _} = TraceService.existing_traces(pid)
+      assert {[^trace2], _} = TraceService.existing_traces(pid, functions: @all_functions)
 
       TraceService.clear_traces(pid, trace2.cid)
 
-      assert :end_of_table = TraceService.existing_traces(pid)
+      assert :end_of_table = TraceService.existing_traces(pid, functions: @all_functions)
     end
   end
 end
