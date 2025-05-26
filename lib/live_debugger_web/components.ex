@@ -598,11 +598,15 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:checked, :boolean, default: false, doc: "Whether the switch is checked.")
   attr(:label, :string, default: "", doc: "Label for the switch.")
+  attr(:wrapper_class, :any, default: nil, doc: "Additional classes to add to the switch.")
   attr(:rest, :global)
 
   def toggle_switch(assigns) do
     ~H"""
-    <label class="inline-flex items-center cursor-pointer pr-6 py-3">
+    <label class={[
+      "inline-flex items-center cursor-pointer pr-6 py-3"
+      | List.wrap(@wrapper_class)
+    ]}>
       <span class="text-xs font-normal text-primary-text mx-2">
         <%= @label %>
       </span>
