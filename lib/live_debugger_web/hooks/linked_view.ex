@@ -63,7 +63,7 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
     PubSubUtils.process_status_topic()
     |> PubSubUtils.subscribe!()
 
-    if LiveDebugger.Env.dead_view_mode?() do
+    if LiveDebugger.Feature.enabled?(:dead_view_mode) do
       LiveDebugger.GenServers.EtsTableServer.watch(fetched_lv_process.pid)
     end
 
@@ -105,7 +105,7 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
         {:process_status, {:dead, pid}},
         %{assigns: %{lv_process: %{result: %LvProcess{pid: pid}}}} = socket
       ) do
-    if LiveDebugger.Env.dead_view_mode?() do
+    if LiveDebugger.Feature.enabled?(:dead_view_mode) do
       socket
     else
       find_successor_lv_process(socket)
