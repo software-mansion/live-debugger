@@ -3,6 +3,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
 
   import Mox
 
+  alias LiveDebugger.Fakes
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.GenServers.EtsTableServer
 
@@ -37,8 +38,8 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
     end
   end
 
-  describe "handle_info/2" do
-    test "deletes table ref after process down and no watchers left" do
+  describe "handle_info/2 with `{:DOWN, _, :process, _, _}`" do
+    test "`down`deletes table ref after process down and no watchers left" do
       pid = :c.pid(0, 0, 1)
       ref = :ets.new(:test_table, [])
 
@@ -99,6 +100,41 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
                EtsTableServer.handle_info({:DOWN, :_, :process, pid, :_}, table_refs)
 
       assert MapSet.new([watcher_pid]) == Map.get(new_table_refs, pid).watchers
+    end
+  end
+
+  describe "handle_info/2 with `garbage_collect`" do
+    test "deletes records if it has too many" do
+      pid = :c.pid(0, 0, 1)
+      ref = :ets.new(:test_table, [:ordered_set, :public])
+
+      Enum.each(-1..-301//-3, fn id ->
+        :ets.insert(ref, {id, Fakes.trace(id: id, pid: pid)})
+      end)
+
+      table_refs = %{pid => %EtsTableServer.TableInfo{table: ref}}
+
+      assert {:noreply, _} = EtsTableServer.handle_info(:garbage_collect, table_refs)
+
+      Process.sleep(100)
+
+      assert 100 == :ets.select_count(ref, [{{:"$1", :"$2"}, [], [true]}])
+    end
+
+    test "does not trigger when not enough records are in table" do
+      pid = :c.pid(0, 0, 1)
+      ref = :ets.new(:test_table, [:ordered_set, :public])
+      table_refs = %{pid => %EtsTableServer.TableInfo{table: ref}}
+
+      Enum.each(-1..-301//-5, fn id ->
+        :ets.insert(ref, {id, Fakes.trace(id: id, pid: pid)})
+      end)
+
+      count = :ets.select_count(ref, [{{:"$1", :"$2"}, [], [true]}])
+
+      assert {:noreply, _} = EtsTableServer.handle_info(:garbage_collect, table_refs)
+
+      assert count == :ets.select_count(ref, [{{:"$1", :"$2"}, [], [true]}])
     end
   end
 

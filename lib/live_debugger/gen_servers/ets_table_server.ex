@@ -86,19 +86,6 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     {:noreply, state}
   end
 
-  @impl true
-  def handle_info(:garbage_collect, state) do
-    state
-    |> Enum.map(fn {_, %TableInfo{table: table}} -> {table, :ets.info(table, :size)} end)
-    |> Enum.filter(fn {_, size} -> size > @max_table_size end)
-    |> Enum.each(fn {table, _} ->
-      Task.start(fn -> trim_ets_table(table, @max_table_size) end)
-    end)
-
-    Process.send_after(self(), :garbage_collect, @garbage_collect_interval)
-    {:noreply, state}
-  end
-
   # This is for watchers processes
   @impl true
   def handle_info({:DOWN, _, :process, closed_pid, _}, state) do
@@ -111,6 +98,19 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
       end)
 
     {:noreply, updated_state}
+  end
+
+  @impl true
+  def handle_info(:garbage_collect, state) do
+    state
+    |> Enum.map(fn {_, %TableInfo{table: table}} -> {table, :ets.info(table, :size)} end)
+    |> Enum.filter(fn {_, size} -> size > @max_table_size end)
+    |> Enum.each(fn {table, _} ->
+      Task.start(fn -> trim_ets_table(table, @max_table_size) end)
+    end)
+
+    Process.send_after(self(), :garbage_collect, @garbage_collect_interval)
+    {:noreply, state}
   end
 
   @impl true
