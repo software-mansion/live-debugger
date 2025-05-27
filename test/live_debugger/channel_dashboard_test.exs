@@ -226,6 +226,18 @@ defmodule LiveDebugger.ChannelDashboardTest do
       "render/1",
       "mount/3"
     ])
+    |> click(filters_button())
+    |> click(checkbox("mount"))
+    |> click(checkbox("handle_params"))
+    |> click(checkbox("handle_info"))
+    |> click(checkbox("handle_call"))
+    |> click(checkbox("handle_cast"))
+    |> click(checkbox("terminate"))
+    |> click(checkbox("render"))
+    |> click(checkbox("handle_event"))
+    |> click(checkbox("handle_async"))
+    |> click(css("button", text: "Apply"))
+    |> assert_has(traces(count: 0))
   end
 
   defp assert_traces(session, count, callback_names) do
