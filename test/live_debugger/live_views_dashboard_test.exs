@@ -22,6 +22,20 @@ defmodule LiveDebugger.LiveViewsDashboardTest do
     |> assert_has(live_sessions(count: 2))
   end
 
+  @sessions 2
+  feature "settings button exists and redirects to settings page", %{
+    sessions: [dev_app, debugger]
+  } do
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> assert_has(css("navbar a[href=\"/settings\"]"))
+    |> click(css("navbar a[href=\"/settings\"]"))
+    |> assert_has(css("h1", text: "Settings"))
+  end
+
   defp title(text: text), do: css("h1", text: text)
 
   defp live_sessions(count: count), do: css("#live-sessions > div", count: count)

@@ -82,7 +82,7 @@ defmodule LiveDebuggerWeb.Components.Traces do
       phx-value-trace-id={@trace.id}
     >
       <:label>
-        <div id={@id <> "-label"} class="w-[90%] grow flex items-center ml-2 gap-1.5">
+        <div id={@id <> "-label"} class="w-[90%] grow flex items-center ml-2 gap-3">
           <p class="font-medium text-sm"><%= @callback_name %></p>
           <.short_trace_content trace={@trace} />
           <.trace_time_info id={@id} trace={@trace} from_tracing?={@from_tracing?} />
@@ -100,6 +100,8 @@ defmodule LiveDebuggerWeb.Components.Traces do
         <div class="flex flex-col gap-4 overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
           <%= if @render_body? do %>
             <%= for {args, index} <- Enum.with_index(@trace.args) do %>
+              <div :if={index > 0} class="border-t border-default-border"></div>
+              <p class="font-semibold">Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)</p>
               <ElixirDisplay.term
                 id={@id <> "-#{index}"}
                 node={TermParser.term_to_display_tree(args)}
@@ -135,15 +137,15 @@ defmodule LiveDebuggerWeb.Components.Traces do
 
   def trace_time_info(assigns) do
     ~H"""
-    <div class="max-w-24 text-xs font-normal text-secondary-text align-center">
-      <.tooltip id={@id <> "-timestamp"} content="timestamp">
+    <div class="flex text-xs font-normal text-secondary-text align-center">
+      <.tooltip id={@id <> "-timestamp"} content="timestamp" class="min-w-24">
         <%= Parsers.parse_timestamp(@trace.timestamp) %>
       </.tooltip>
-
-      <.tooltip id={@id <> "-exec-time-tooltip"} content="execution time">
+      <span class="mx-2 border-r border-default-border"></span>
+      <.tooltip id={@id <> "-exec-time-tooltip"} content="execution time" class="min-w-11">
         <span
           id={@id <> "-exec-time"}
-          class={get_threshold_class(@trace.execution_time)}
+          class={["text-nowrap", get_threshold_class(@trace.execution_time)]}
           phx-hook={if @from_tracing?, do: "TraceExecutionTime"}
         >
           <%= Parsers.parse_elapsed_time(@trace.execution_time) %>
@@ -174,6 +176,10 @@ defmodule LiveDebuggerWeb.Components.Traces do
     <.fullscreen id={@id} title={@callback_name}>
       <div class="w-full flex flex-col gap-4 items-start justify-center">
         <%= for {args, index} <- Enum.with_index(@trace_args) do %>
+          <div :if={index > 0} class="border-t border-default-border w-full"></div>
+          <p class="font-semibold shrink-0">
+            Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)
+          </p>
           <ElixirDisplay.term
             id={@id <> "-#{index}-fullscreen"}
             node={TermParser.term_to_display_tree(args)}

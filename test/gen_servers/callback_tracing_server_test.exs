@@ -134,7 +134,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
         PubSubUtils.trace_topic(pid, pid, fun, :return)
 
       MockEtsTableServer
-      |> expect(:table!, 2, fn ^pid -> table end)
+      |> expect(:table, 2, fn ^pid -> table end)
 
       MockPubSubUtils
       |> expect(:broadcast, fn ^expected_trace_call_topic, {:new_trace, _trace} -> :ok end)

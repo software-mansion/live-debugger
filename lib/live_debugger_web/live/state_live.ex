@@ -8,7 +8,6 @@ defmodule LiveDebuggerWeb.StateLive do
   alias Phoenix.LiveView.AsyncResult
 
   alias LiveDebuggerWeb.Components.ElixirDisplay
-  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Services.ChannelService
   alias LiveDebugger.Utils.TermParser
@@ -78,7 +77,6 @@ defmodule LiveDebuggerWeb.StateLive do
           </.alert>
         </:failed>
 
-        <.info_section node={node} node_type={@node_type.result} nested?={@lv_process.nested?} />
         <.assigns_section assigns={node.assigns} />
         <.fullscreen id="assigns-display-fullscreen" title="Assigns">
           <ElixirDisplay.term
@@ -116,40 +114,6 @@ defmodule LiveDebuggerWeb.StateLive do
     |> assign(node_id: new_node_id)
     |> assign_async_node_with_type()
     |> noreply()
-  end
-
-  attr(:node, :any, required: true)
-  attr(:node_type, :atom, required: true)
-  attr(:nested?, :boolean, default: false)
-
-  defp info_section(assigns) do
-    ~H"""
-    <.section id="info" title={title(@node_type)}>
-      <:right_panel>
-        <.badge :if={@node_type == :live_view and @nested?} text="Nested" icon="icon-nested" />
-      </:right_panel>
-      <div class="p-4 flex flex-col gap-1">
-        <.info_row name="Module" value={Parsers.module_to_string(@node.module)} />
-        <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
-      </div>
-    </.section>
-    """
-  end
-
-  attr(:name, :string, required: true)
-  attr(:value, :any, required: true)
-
-  defp info_row(assigns) do
-    ~H"""
-    <div class="flex gap-1 overflow-x-hidden">
-      <div class="font-medium">
-        <%= @name %>
-      </div>
-      <div class="font-normal break-all">
-        <%= @value %>
-      </div>
-    </div>
-    """
   end
 
   attr(:assigns, :list, required: true)
@@ -195,10 +159,4 @@ defmodule LiveDebuggerWeb.StateLive do
     |> assign(:node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
     |> assign(:node_type, AsyncResult.failed(%AsyncResult{}, :no_node_id))
   end
-
-  defp title(:live_component), do: "LiveComponent"
-  defp title(:live_view), do: "LiveView"
-
-  defp id_type(:live_component), do: "CID"
-  defp id_type(:live_view), do: "PID"
 end

@@ -7,7 +7,7 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
     - If the `lv_process` assign is not found, it will try to find a successor LiveView process and navigate to it.
     - If no successor is found, it will navigate to the error page.
 
-    It also handles a case when the LiveView process dies by trying to find a successor LiveView process.
+    It also handles situation when process dies by updating `lv_process.alive?` field.
 
     The only thing you need to do after adding this hook is to handle loading state in the template.
     ## Example
@@ -63,6 +63,10 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
     PubSubUtils.process_status_topic()
     |> PubSubUtils.subscribe!()
 
+    if LiveDebugger.Feature.enabled?(:dead_view_mode) do
+      LiveDebugger.GenServers.EtsTableServer.watch(fetched_lv_process.pid)
+    end
+
     socket
     |> assign(:lv_process, AsyncResult.ok(fetched_lv_process))
     |> halt()
@@ -81,17 +85,33 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
 
   def handle_async(_, _, socket), do: {:cont, socket}
 
-  def handle_info(
-        {:process_status, {:dead, pid}},
-        %{assigns: %{lv_process: %{result: %LvProcess{pid: pid}}}} = socket
-      )
-      when is_pid(pid) do
+  def handle_info(:find_successor, socket) do
     socket
     |> find_successor_lv_process()
     |> halt()
   end
 
-  def handle_info({:process_status, _}, socket), do: halt(socket)
+  def handle_info(
+        {:process_status, {:died, pid}},
+        %{assigns: %{lv_process: %{result: %LvProcess{pid: pid}}}} = socket
+      )
+      when is_pid(pid) do
+    socket
+    |> make_lv_process_dead()
+    |> halt()
+  end
+
+  def handle_info(
+        {:process_status, {:dead, pid}},
+        %{assigns: %{lv_process: %{result: %LvProcess{pid: pid}}}} = socket
+      ) do
+    if LiveDebugger.Feature.enabled?(:dead_view_mode) do
+      socket
+    else
+      find_successor_lv_process(socket)
+    end
+    |> halt()
+  end
 
   def handle_info(_, socket), do: {:cont, socket}
 
@@ -122,7 +142,7 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
   end
 
   defp fetch_lv_process_with_retries(pid) do
-    fn -> fetch_with_retries(fn -> LiveViewDiscoveryService.lv_process(pid) end) end
+    fn -> fetch_with_retries(fn -> LvProcess.new(pid) end) end
   end
 
   defp fetch_with_retries(function) do
@@ -135,5 +155,13 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
   defp fetch_after(function, milliseconds) do
     Process.sleep(milliseconds)
     function.()
+  end
+
+  defp make_lv_process_dead(
+         %{assigns: %{lv_process: %AsyncResult{ok?: true, result: result}}} = socket
+       ) do
+    lv_process = AsyncResult.ok(%LvProcess{result | alive?: false})
+
+    assign(socket, :lv_process, lv_process)
   end
 end

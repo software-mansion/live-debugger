@@ -26,7 +26,7 @@ defmodule Services.TraceServiceTest do
     trace = Fakes.trace(id: 1, module: module, function: :render, pid: pid)
 
     MockEtsTableServer
-    |> expect(:table!, fn ^pid -> table end)
+    |> expect(:table, fn ^pid -> table end)
 
     assert true == TraceService.insert(trace)
     assert [{trace.id, trace}] == :ets.lookup(table, trace.id)
@@ -39,7 +39,7 @@ defmodule Services.TraceServiceTest do
     :ets.insert(table, {trace2.id, trace2})
 
     MockEtsTableServer
-    |> expect(:table!, 3, fn ^pid -> table end)
+    |> expect(:table, 3, fn ^pid -> table end)
 
     assert trace1 == TraceService.get(pid, trace1.id)
     assert trace2 == TraceService.get(pid, trace2.id)
@@ -54,7 +54,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace2.id, trace2})
 
       MockEtsTableServer
-      |> expect(:table!, fn ^pid -> table end)
+      |> expect(:table, fn ^pid -> table end)
 
       assert {[^trace1, ^trace2], _} = TraceService.existing_traces(pid)
     end
@@ -69,7 +69,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace3.id, trace3})
 
       MockEtsTableServer
-      |> expect(:table!, fn ^pid -> table end)
+      |> expect(:table, fn ^pid -> table end)
 
       {traces1, cont} = TraceService.existing_traces(pid, limit: 2)
       {traces2, cont} = TraceService.existing_traces(pid, cont: cont)
@@ -94,7 +94,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace3.id, trace3})
 
       MockEtsTableServer
-      |> expect(:table!, 2, fn ^pid -> table end)
+      |> expect(:table, 2, fn ^pid -> table end)
 
       assert {[^trace1], _} = TraceService.existing_traces(pid, functions: [:handle_info])
 
@@ -117,7 +117,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace3.id, trace3})
 
       MockEtsTableServer
-      |> expect(:table!, 2, fn ^pid -> table end)
+      |> expect(:table, 2, fn ^pid -> table end)
 
       assert {[^trace2], _} =
                TraceService.existing_traces(pid,
@@ -149,7 +149,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace3.id, trace3})
 
       MockEtsTableServer
-      |> expect(:table!, fn ^pid -> table end)
+      |> expect(:table, fn ^pid -> table end)
 
       assert {[^trace2], _} =
                TraceService.existing_traces(pid,
@@ -171,7 +171,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace3.id, trace3})
 
       MockEtsTableServer
-      |> expect(:table!, 2, fn ^pid -> table end)
+      |> expect(:table, 2, fn ^pid -> table end)
 
       assert {[^trace1], _} = TraceService.existing_traces(pid, node_id: pid)
       assert {[^trace2, ^trace3], _} = TraceService.existing_traces(pid, node_id: cid)
@@ -184,7 +184,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace2.id, trace2})
 
       MockEtsTableServer
-      |> expect(:table!, fn ^pid -> table end)
+      |> expect(:table, fn ^pid -> table end)
 
       assert :end_of_table = TraceService.existing_traces(pid, functions: [:non_existent])
     end
@@ -199,7 +199,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace2.id, trace2})
 
       MockEtsTableServer
-      |> expect(:table!, fn ^pid -> table end)
+      |> expect(:table, fn ^pid -> table end)
 
       assert {[^trace1], _} = TraceService.existing_traces(pid)
     end
@@ -216,7 +216,7 @@ defmodule Services.TraceServiceTest do
       :ets.insert(table, {trace2.id, trace2})
 
       MockEtsTableServer
-      |> expect(:table!, 5, fn ^pid -> table end)
+      |> expect(:table, 5, fn ^pid -> table end)
 
       assert {[^trace1, ^trace2], _} = TraceService.existing_traces(pid)
 

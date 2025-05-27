@@ -5,6 +5,9 @@ defmodule LiveDebuggerWeb.Components do
 
   use Phoenix.Component
 
+  import Phoenix.HTML
+
+  alias LiveDebugger.Utils.Parsers
   alias Phoenix.LiveView.JS
 
   @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
@@ -352,7 +355,7 @@ defmodule LiveDebuggerWeb.Components do
       assigns
       |> assign(:button_class, button_class)
       |> assign(:icon_class, icon_class)
-      |> assign(:aria_label, assigns[:"aria-label"] || icon_label(assigns.icon))
+      |> assign(:aria_label, assigns[:"aria-label"] || Parsers.kebab_to_text(assigns.icon))
 
     ~H"""
     <.button
@@ -363,26 +366,6 @@ defmodule LiveDebuggerWeb.Components do
     >
       <.icon name={@icon} class={@icon_class} />
     </.button>
-    """
-  end
-
-  attr(:icon, :string, required: true, doc: "Icon to be displayed.")
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
-
-  attr(:rest, :global, include: ~w(id))
-
-  def nav_icon(assigns) do
-    ~H"""
-    <button
-      aria-label={icon_label(@icon)}
-      class={[
-        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
-        | List.wrap(@class)
-      ]}
-      {@rest}
-    >
-      <.icon name={@icon} class="h-6 w-6" />
-    </button>
     """
   end
 
@@ -576,47 +559,6 @@ defmodule LiveDebuggerWeb.Components do
     """
   end
 
-  @doc """
-  Renders navbar with possible link to return to the main page.
-  """
-  attr(:return_link, :string,
-    default: nil,
-    doc: "Link to return to the main page."
-  )
-
-  slot(:inner_block)
-
-  def navbar(assigns) do
-    ~H"""
-    <navbar class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-navbar-bg text-navbar-logo border-b border-navbar-border">
-      <.link :if={@return_link} patch={@return_link}>
-        <.nav_icon icon="icon-arrow-left" />
-      </.link>
-
-      <div class="grow flex items-center justify-between">
-        <div>
-          <.icon name="icon-logo-text" class="h-6 w-32" />
-        </div>
-        <div class="flex items-center">
-          <.nav_icon
-            id="light-mode-switch"
-            class="dark:hidden"
-            icon="icon-moon"
-            phx-hook="ToggleTheme"
-          />
-          <.nav_icon
-            id="dark-mode-switch"
-            class="hidden dark:block"
-            icon="icon-sun"
-            phx-hook="ToggleTheme"
-          />
-          <%= @inner_block && render_slot(@inner_block) %>
-        </div>
-      </div>
-    </navbar>
-    """
-  end
-
   attr(:class, :any, default: nil)
   attr(:text, :string, default: "See any issues?")
 
@@ -649,11 +591,15 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:checked, :boolean, default: false, doc: "Whether the switch is checked.")
   attr(:label, :string, default: "", doc: "Label for the switch.")
+  attr(:wrapper_class, :any, default: nil, doc: "Additional classes to add to the switch.")
   attr(:rest, :global)
 
   def toggle_switch(assigns) do
     ~H"""
-    <label class="inline-flex items-center cursor-pointer pr-6 py-3">
+    <label class={[
+      "inline-flex items-center cursor-pointer pr-6 py-3"
+      | List.wrap(@wrapper_class)
+    ]}>
       <span class="text-xs font-normal text-primary-text mx-2">
         <%= @label %>
       </span>
@@ -661,6 +607,29 @@ defmodule LiveDebuggerWeb.Components do
       <div class="relative w-9 h-5 bg-ui-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ui-accent rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-ui-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ui-accent ">
       </div>
     </label>
+    """
+  end
+
+  @doc """
+  Renders an icon with navbar styles.
+  """
+  attr(:icon, :string, required: true, doc: "Icon to be displayed.")
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
+
+  attr(:rest, :global, include: ~w(id))
+
+  def nav_icon(assigns) do
+    ~H"""
+    <button
+      aria-label={Parsers.kebab_to_text(@icon)}
+      class={[
+        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
+        | List.wrap(@class)
+      ]}
+      {@rest}
+    >
+      <.icon name={@icon} class="h-6 w-6" />
+    </button>
     """
   end
 
@@ -691,10 +660,4 @@ defmodule LiveDebuggerWeb.Components do
 
   defp button_size_classes("md"), do: "py-2 px-3"
   defp button_size_classes("sm"), do: "py-1.5 px-2"
-
-  defp icon_label("icon-" <> icon_name) do
-    icon_name
-    |> String.capitalize()
-    |> String.replace("-", " ")
-  end
 end
