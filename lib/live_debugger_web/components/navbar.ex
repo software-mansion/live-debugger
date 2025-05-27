@@ -5,7 +5,6 @@ defmodule LiveDebuggerWeb.Components.Navbar do
 
   use LiveDebuggerWeb, :component
 
-  alias LiveDebugger.Utils.Parsers
   alias LiveDebuggerWeb.Helpers.RoutesHelper
 
   @doc """
