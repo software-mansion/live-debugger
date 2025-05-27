@@ -72,7 +72,7 @@ defmodule LiveDebuggerWeb.Components.Navbar do
 
   def settings_button(assigns) do
     ~H"""
-    <.link navigate={RoutesHelper.settings(@return_to)} class={@class}>
+    <.link navigate={RoutesHelper.settings(@return_to)} class={@class} id="settings-button">
       <.nav_icon icon="icon-settings" />
     </.link>
     """

@@ -42,8 +42,8 @@ defmodule LiveDebugger.WindowDashboardTest do
     |> visit("/")
     |> click(window_link())
     |> assert_has(title(text: "Active LiveViews in a single window"))
-    |> assert_has(css("navbar a[href=\"/settings\"]"))
-    |> click(css("navbar a[href=\"/settings\"]"))
+    |> assert_has(css("navbar a#settings-button"))
+    |> click(css("navbar a#settings-button"))
     |> assert_has(css("h1", text: "Settings"))
   end
 

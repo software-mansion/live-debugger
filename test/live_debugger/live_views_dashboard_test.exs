@@ -31,8 +31,8 @@ defmodule LiveDebugger.LiveViewsDashboardTest do
 
     debugger
     |> visit("/")
-    |> assert_has(css("navbar a[href=\"/settings\"]"))
-    |> click(css("navbar a[href=\"/settings\"]"))
+    |> assert_has(css("navbar a#settings-button"))
+    |> click(css("navbar a#settings-button"))
     |> assert_has(css("h1", text: "Settings"))
   end
 
