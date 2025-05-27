@@ -33,7 +33,10 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
   @ets_table_name :lvdbg_traces
   @garbage_collect_interval 2000
-  @max_table_size 100
+  # 10 KB
+  @non_watched_table_max_size 10240
+  # 1 MB
+  @watched_table_max_size 1_048_576
 
   ## API
 
@@ -65,7 +68,8 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
   @impl true
   def init(_args) do
-    Process.send_after(self(), :garbage_collect, @garbage_collect_interval)
+    init_garbage_collection_loop(self())
+
     {:ok, %{}}
   end
 
@@ -103,13 +107,22 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   @impl true
   def handle_info(:garbage_collect, state) do
     state
-    |> Enum.map(fn {_, %TableInfo{table: table}} -> {table, :ets.info(table, :size)} end)
-    |> Enum.filter(fn {_, size} -> size > @max_table_size end)
-    |> Enum.each(fn {table, _} ->
-      Task.start(fn -> trim_ets_table(table, @max_table_size) end)
+    |> Enum.map(fn {_, %TableInfo{table: table} = table_info} ->
+      {table_info, table_size(table)}
+    end)
+    |> Enum.each(fn {%TableInfo{table: table, watchers: watchers}, size} ->
+      cond do
+        Enum.empty?(watchers) and size > @non_watched_table_max_size ->
+          trim_ets_table(table, @non_watched_table_max_size)
+
+        size > @watched_table_max_size ->
+          trim_ets_table(table, @watched_table_max_size)
+
+        true ->
+          :ok
+      end
     end)
 
-    Process.send_after(self(), :garbage_collect, @garbage_collect_interval)
     {:noreply, state}
   end
 
@@ -167,6 +180,15 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     end
   end
 
+  @spec init_garbage_collection_loop(pid()) :: {:ok, pid()}
+  defp init_garbage_collection_loop(pid) do
+    Task.start(fn ->
+      Process.sleep(@garbage_collect_interval)
+      send(pid, :garbage_collect)
+      init_garbage_collection_loop(pid)
+    end)
+  end
+
   @spec create_ets_table() :: :ets.table()
   defp create_ets_table() do
     :ets.new(@ets_table_name, [:ordered_set, :public])
@@ -206,20 +228,32 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     Map.put(state, pid, %{table_info | watchers: update_fn.(table_info.watchers)})
   end
 
-  @spec trim_ets_table(table :: :ets.table(), max_size :: non_neg_integer()) :: :ok
-  defp trim_ets_table(table, max_size) when is_integer(max_size) and max_size > 0 do
+  @spec trim_ets_table(:ets.table(), non_neg_integer()) :: :ok
+  defp trim_ets_table(table, max_size) when is_integer(max_size) do
     :ets.safe_fixtable(table, true)
-    {matches, _} = :ets.match(table, {:"$1", :"$2"}, max_size)
 
-    case List.last(matches) do
-      [last_key, _] ->
-        :ets.select_delete(table, [{{:"$1", :_}, [{:>, :"$1", last_key}], [true]}])
+    fold_fn = fn {key, _} = record, acc ->
+      size = :erlang.external_size(record)
 
-      _ ->
-        raise "Failed to retrieve last key from #{matches} for ETS table #{inspect(table)}"
+      if acc + size > max_size do
+        throw({:key, key})
+      else
+        acc + size
+      end
+    end
+
+    try do
+      :ets.foldr(fold_fn, 0, table)
+    catch
+      {:key, key} ->
+        :ets.select_delete(table, [{{:"$1", :_}, [{:>, :"$1", key}], [true]}])
     end
 
     :ets.safe_fixtable(table, false)
     :ok
+  end
+
+  defp table_size(table) do
+    :ets.info(table, :memory) * :erlang.system_info(:wordsize)
   end
 end

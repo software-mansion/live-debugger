@@ -126,7 +126,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
       ref = :ets.new(:test_table, [:ordered_set, :public])
       table_refs = %{pid => %EtsTableServer.TableInfo{table: ref}}
 
-      Enum.each(-1..-301//-5, fn id ->
+      Enum.each(-1..-100//-5, fn id ->
         :ets.insert(ref, {id, Fakes.trace(id: id, pid: pid)})
       end)
 
