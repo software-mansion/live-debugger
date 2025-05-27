@@ -28,7 +28,13 @@ defmodule LiveDebuggerWeb.Helpers.RoutesHelper do
   end
 
   @spec settings() :: String.t()
-  def settings() do
+  def settings(return_to \\ nil)
+
+  def settings(nil) do
     ~p"/settings"
+  end
+
+  def settings(return_to) do
+    ~p"/settings?return_to=#{return_to}"
   end
 end
