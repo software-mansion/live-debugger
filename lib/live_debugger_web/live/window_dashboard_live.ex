@@ -28,8 +28,11 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
   def render(assigns) do
     ~H"""
     <div id="window-dashboard" class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
-      <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto] pl-2">
-        <Navbar.return_link return_link={get_return_link(@in_iframe?)} />
+      <Navbar.navbar class={"grid  #{if @in_iframe?, do: "grid-cols-[auto_1fr_auto] ", else: "grid-cols-[auto_auto_1fr_auto] pl-2"} "}>
+        <Navbar.return_link
+          class={if @in_iframe?, do: "hidden", else: ""}
+          return_link={RoutesHelper.live_views_dashboard()}
+        />
         <Navbar.live_debugger_logo />
         <Navbar.fill />
         <Navbar.theme_toggle />
@@ -103,7 +106,4 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
 
     LiveViewDiscoveryService.debugged_lv_processes(transport_pid)
   end
-
-  defp get_return_link(true), do: nil
-  defp get_return_link(false), do: RoutesHelper.live_views_dashboard()
 end
