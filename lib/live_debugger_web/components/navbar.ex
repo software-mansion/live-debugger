@@ -61,7 +61,7 @@ defmodule LiveDebuggerWeb.Components.Navbar do
 
   def return_link(assigns) do
     ~H"""
-    <.link patch={@return_link} class={@class}>
+    <.link patch={@return_link} class={@class} id="return-button">
       <.nav_icon icon="icon-arrow-left" />
     </.link>
     """
