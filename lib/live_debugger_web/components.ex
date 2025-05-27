@@ -5,8 +5,6 @@ defmodule LiveDebuggerWeb.Components do
 
   use Phoenix.Component
 
-  import Phoenix.HTML
-
   alias LiveDebugger.Utils.Parsers
   alias Phoenix.LiveView.JS
 
