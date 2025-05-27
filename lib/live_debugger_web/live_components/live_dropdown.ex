@@ -10,7 +10,6 @@ defmodule LiveDebuggerWeb.LiveComponents.LiveDropdown do
   attr(:link, :string, default: nil)
   attr(:selected?, :boolean, default: false)
 
-  @spec dropdown_item(map()) :: Phoenix.LiveView.Rendered.t()
   def dropdown_item(assigns) do
     ~H"""
     <div class="flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer">
