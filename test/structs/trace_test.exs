@@ -176,6 +176,80 @@ defmodule LiveDebugger.Structs.TraceTest do
     end
   end
 
+  describe "arg_name/2" do
+    test "returns correct args for handle_async/3" do
+      trace = %{function: :handle_async, arity: 3}
+
+      assert args_list(trace) == ["name", "async_fun_result", "socket"]
+    end
+
+    test "returns correct args for handle_call/3" do
+      trace = %{function: :handle_call, arity: 3}
+
+      assert args_list(trace) == ["message", "from", "socket"]
+    end
+
+    test "returns correct args for handle_cast/2" do
+      trace = %{function: :handle_cast, arity: 2}
+
+      assert args_list(trace) == ["message", "socket"]
+    end
+
+    test "returns correct args for handle_event/3" do
+      trace = %{function: :handle_event, arity: 3}
+
+      assert args_list(trace) == ["event", "unsigned_params", "socket"]
+    end
+
+    test "returns correct args for handle_info/2" do
+      trace = %{function: :handle_info, arity: 2}
+
+      assert args_list(trace) == ["message", "socket"]
+    end
+
+    test "returns correct args for handle_params/3" do
+      trace = %{function: :handle_params, arity: 3}
+
+      assert args_list(trace) == ["unsigned_params", "uri", "socket"]
+    end
+
+    test "returns correct args for mount/3" do
+      trace = %{function: :mount, arity: 3}
+
+      assert args_list(trace) == ["params", "session", "socket"]
+    end
+
+    test "returns correct args for mount/1" do
+      trace = %{function: :mount, arity: 1}
+
+      assert args_list(trace) == ["socket"]
+    end
+
+    test "returns correct args for render/1" do
+      trace = %{function: :render, arity: 1}
+
+      assert args_list(trace) == ["assigns"]
+    end
+
+    test "returns correct args for terminate/2" do
+      trace = %{function: :terminate, arity: 2}
+
+      assert args_list(trace) == ["reason", "socket"]
+    end
+
+    test "returns correct args for update/2" do
+      trace = %{function: :update, arity: 2}
+
+      assert args_list(trace) == ["assigns", "socket"]
+    end
+
+    test "returns correct args for update_many/1" do
+      trace = %{function: :update_many, arity: 1}
+
+      assert args_list(trace) == ["list"]
+    end
+  end
+
   test "callback_name/1 returns callback with arity" do
     trace_map = %{
       id: 1,
@@ -207,5 +281,11 @@ defmodule LiveDebugger.Structs.TraceTest do
       |> Enum.into([])
 
     Trace.new(id, module, function, args, pid, timestamp, opts)
+  end
+
+  defp args_list(trace) do
+    for index <- 0..(trace.arity - 1) do
+      Trace.arg_name(trace, index)
+    end
   end
 end
