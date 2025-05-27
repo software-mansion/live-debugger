@@ -21,74 +21,68 @@ defmodule LiveDebuggerWeb.SettingsLive do
           <.h1>Settings</.h1>
         </div>
 
-        <div class="mt-6">
-          <div class="bg-surface-0-bg rounded shadow-custom border border-default-border">
-            <div class="p-6">
-              <p class="font-semibold	mb-3">Appearance</p>
-              <div class="flex gap-2">
-                <.dark_mode_button />
-                <.light_mode_button />
+        <div class="mt-6 bg-surface-0-bg rounded shadow-custom border border-default-border">
+          <div class="p-6">
+            <p class="font-semibold	mb-3">Appearance</p>
+            <div class="flex gap-2">
+              <.dark_mode_button />
+              <.light_mode_button />
+            </div>
+          </div>
+          <div class="p-6 border-t border-default-border flex flex-col gap-3">
+            <div class="flex items-center">
+              <.toggle_switch
+                checked={false}
+                wrapper_class="pr-3 py-0"
+                phx-click="update"
+                phx-value-setting="deadview_mode"
+              />
+              <div class="flex flex-col gap-0.5">
+                <p class="font-semibold">Enable DeadView mode</p>
+                <p class="text-secondary-text">
+                  When enabled, LiveDebugger won't redirect to new LiveView after page redirect or reload, allowing you to browse assigns and traces of dead LiveViews.
+                </p>
               </div>
             </div>
-            <div class="p-6 border-t border-default-border flex flex-col gap-3">
-              <div class="flex items-center">
-                <.toggle_switch
-                  checked={false}
-                  wrapper_class="pr-3 py-0"
-                  phx-click="update"
-                  phx-value-setting="deadview_mode"
-                />
-                <div class="flex flex-col gap-0.5">
-                  <p class="font-semibold">Enable DeadView mode</p>
-                  <p class="text-secondary-text">
-                    When enabled, LiveDebugger won't redirect to new LiveView after page redirect or reload, allowing you to browse assigns and traces of dead LiveViews.
-                  </p>
-                </div>
+            <div class="flex items-center">
+              <.toggle_switch
+                checked={false}
+                wrapper_class="pr-3 py-0"
+                phx-click="update"
+                phx-value-setting="global_tracing"
+              />
+              <div class="flex flex-col gap-0.5">
+                <p class="font-semibold">Enable global tracing</p>
+                <p class="text-secondary-text">
+                  Enabling this feature may have a negative impact on application performance.
+                </p>
               </div>
-              <div class="flex items-center">
-                <.toggle_switch
-                  checked={false}
-                  wrapper_class="pr-3 py-0"
-                  phx-click="update"
-                  phx-value-setting="global_tracing"
-                />
-                <div class="flex flex-col gap-0.5">
-                  <p class="font-semibold">Enable global tracing</p>
-                  <p class="text-secondary-text">
-                    Enabling this feature may have a negative impact on application performance.
-                  </p>
-                </div>
-              </div>
-              <div class="flex items-center">
-                <.toggle_switch
-                  checked={false}
-                  wrapper_class="pr-3 py-0"
-                  phx-click="update"
-                  phx-value-setting="refresh_tracing_on_reload"
-                />
-                <div class="flex flex-col gap-0.5">
-                  <p class="font-semibold">Refresh tracing on reload</p>
-                  <p class="text-secondary-text">
-                    Enabling this feature may have a negative impact on application performance.
-                  </p>
-                </div>
+            </div>
+            <div class="flex items-center">
+              <.toggle_switch
+                checked={false}
+                wrapper_class="pr-3 py-0"
+                phx-click="update"
+                phx-value-setting="refresh_tracing_on_reload"
+              />
+              <div class="flex flex-col gap-0.5">
+                <p class="font-semibold">Refresh tracing on reload</p>
+                <p class="text-secondary-text">
+                  Enabling this feature may have a negative impact on application performance.
+                </p>
               </div>
             </div>
           </div>
         </div>
-        <div class="mt-6">
-          <div class="bg-surface-0-bg rounded shadow-custom border border-default-border">
-            <div class="p-6">
-              <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                <div class="flex flex-col gap-1">
-                  <p class="font-semibold">Restart LiveDebugger</p>
-                  <p class="text-secondary-text">
-                    Use this option if LiveDebugger appears to stop responding or not working properly.
-                  </p>
-                </div>
-                <.button variant="secondary" phx-click="restart">Restart&nbsp;LiveDebugger</.button>
-              </div>
+        <div class="mt-6 bg-surface-0-bg rounded shadow-custom border border-default-border">
+          <div class="p-6 flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div class="flex flex-col gap-1">
+              <p class="font-semibold">Restart LiveDebugger</p>
+              <p class="text-secondary-text">
+                Use this option if LiveDebugger appears to stop responding or not working properly.
+              </p>
             </div>
+            <.button variant="secondary" phx-click="restart">Restart&nbsp;LiveDebugger</.button>
           </div>
         </div>
       </div>
