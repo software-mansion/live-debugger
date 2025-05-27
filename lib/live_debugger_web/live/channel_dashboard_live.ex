@@ -55,7 +55,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           pid={Parsers.pid_to_string(@lv_process.result.pid)}
         />
         <div class="flex items-center gap-2">
-          <Navbar.theme_toggle />
+          <Navbar.settings_button />
           <span :if={@lv_process.ok?} class="h-5 border-r border-default-border lg:hidden"></span>
           <.nav_icon
             :if={@lv_process.ok?}

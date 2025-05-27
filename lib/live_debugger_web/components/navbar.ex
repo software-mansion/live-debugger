@@ -5,6 +5,8 @@ defmodule LiveDebuggerWeb.Components.Navbar do
 
   use LiveDebuggerWeb, :component
 
+  alias LiveDebuggerWeb.Helpers.RoutesHelper
+
   @doc """
   Renders base navbar component.
   """
@@ -65,20 +67,13 @@ defmodule LiveDebuggerWeb.Components.Navbar do
     """
   end
 
-  @doc """
-  Renders a theme toggle button.
-  """
-  def theme_toggle(assigns) do
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the link.")
+
+  def settings_button(assigns) do
     ~H"""
-    <div class="flex">
-      <.nav_icon id="light-mode-switch" class="dark:hidden" icon="icon-moon" phx-hook="ToggleTheme" />
-      <.nav_icon
-        id="dark-mode-switch"
-        class="hidden dark:block"
-        icon="icon-sun"
-        phx-hook="ToggleTheme"
-      />
-    </div>
+    <.link navigate={RoutesHelper.settings()} class={@class}>
+      <.nav_icon icon="icon-settings" />
+    </.link>
     """
   end
 

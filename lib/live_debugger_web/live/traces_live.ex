@@ -84,7 +84,7 @@ defmodule LiveDebuggerWeb.TracesLive do
   def render(assigns) do
     ~H"""
     <div class="max-w-full @container/traces flex flex-1">
-      <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
+      <.section title="Callback traces" id="traces" inner_class="mx-0 mt-4 px-4" class="flex-1">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <Traces.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
@@ -145,13 +145,13 @@ defmodule LiveDebuggerWeb.TracesLive do
               <.button
                 :if={not @tracing_helper.tracing_started? && @traces_continuation != :end_of_table}
                 phx-click="load-more"
-                class="w-40"
+                class="w-4 mb-4"
                 variant="secondary"
               >
                 Load more
               </.button>
             <% else %>
-              <.spinner size="sm" />
+              <.spinner size="sm" class="mb-4" />
             <% end %>
           </div>
         </div>
