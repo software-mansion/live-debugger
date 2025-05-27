@@ -27,6 +27,8 @@ defmodule LiveDebuggerWeb.Hooks.IframeCheck do
   end
 
   defmodule Impl do
+    @moduledoc false
+
     import Phoenix.LiveView
     import Phoenix.Component
 
