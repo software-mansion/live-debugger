@@ -7,6 +7,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
   alias LiveDebugger.Structs.TreeNode
+  alias LiveDebugger.Utils.Parsers
 
   @impl true
   def update(assigns, socket) do
@@ -39,16 +40,18 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
             </div>
             <p class="font-medium mb-4 mt-6">Execution Time</p>
             <div class="mt-3 flex gap-3 items-center">
-              <.time_input
+              <.input_with_units
                 value_field={@form[:exec_time_min]}
                 unit_field={@form[:min_unit]}
+                units={Parsers.time_units()}
                 min="0"
                 placeholder="min"
               /> -
-              <.time_input
+              <.input_with_units
                 value_field={@form[:exec_time_max]}
                 unit_field={@form[:max_unit]}
                 min="0"
+                units={Parsers.time_units()}
                 placeholder="max"
               />
             </div>
@@ -74,44 +77,6 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           </div>
         </div>
       </.form>
-    </div>
-    """
-  end
-
-  attr(:value_field, Phoenix.HTML.FormField, required: true)
-  attr(:unit_field, Phoenix.HTML.FormField, required: true)
-  attr(:rest, :global, include: ~w(min max placeholder))
-
-  defp time_input(assigns) do
-    assigns =
-      assigns
-      |> assign(:errors, assigns.value_field.errors)
-
-    ~H"""
-    <div class="shadow-sm">
-      <div class={[
-        "flex items-center rounded-[4px] outline outline-1 -outline-offset-1 has-[input:focus-within]:outline has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2",
-        @errors == [] && "outline-default-border has-[input:focus-within]:outline-ui-accent",
-        @errors != [] && "outline-error-text has-[input:focus-within]:outline-error-text"
-      ]}>
-        <input
-          id={@value_field.id}
-          name={@value_field.name}
-          type="number"
-          class="block remove-arrow max-w-20 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0"
-          value={Phoenix.HTML.Form.normalize_value("number", @value_field.value)}
-          {@rest}
-        />
-        <div class="grid shrink-0 grid-cols-1 focus-within:relative">
-          <select
-            id={@unit_field.id}
-            name={@unit_field.name}
-            class="border-none bg-surface-0-bg col-start-1 row-start-1 w-full appearance-none rounded-md py-1.5 pl-3 pr-7 text-xs text-secondary-text placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-ui-accent"
-          >
-            <%= Phoenix.HTML.Form.options_for_select(["µs", "ms", "s"], @unit_field.value) %>
-          </select>
-        </div>
-      </div>
     </div>
     """
   end
@@ -205,9 +170,10 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     end
   end
 
-  defp apply_unit_factor(value, "µs"), do: String.to_integer(value)
-  defp apply_unit_factor(value, "ms"), do: String.to_integer(value) * 1000
-  defp apply_unit_factor(value, "s"), do: String.to_integer(value) * 1_000_000
+  defp apply_unit_factor(value, unit) do
+    String.to_integer(value)
+    |> Parsers.time_to_microseconds(unit)
+  end
 
   defp calculate_selected_filters(form) do
     callbacks =

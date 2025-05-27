@@ -3,6 +3,11 @@ defmodule LiveDebugger.Utils.Parsers do
   This module provides functions to parse some structs to string representation and vice versa.
   """
 
+  @time_units ["µs", "ms", "s"]
+
+  @spec time_units() :: [String.t()]
+  def time_units(), do: @time_units
+
   @spec parse_timestamp(non_neg_integer()) :: String.t()
   def parse_timestamp(timestamp) do
     timestamp
@@ -26,6 +31,15 @@ defmodule LiveDebugger.Utils.Parsers do
       microseconds < 1_000 -> "#{microseconds} µs"
       microseconds < 1_000_000 -> "#{div(microseconds, 1_000)} ms"
       true -> "#{:io_lib.format("~.2f", [microseconds / 1_000_000])} s"
+    end
+  end
+
+  @spec time_to_microseconds(value :: non_neg_integer(), unit :: String.t()) :: non_neg_integer()
+  def time_to_microseconds(value, unit) when unit in @time_units do
+    case unit do
+      "s" -> value * 1_000_000
+      "ms" -> value * 1_000
+      "µs" -> value
     end
   end
 
