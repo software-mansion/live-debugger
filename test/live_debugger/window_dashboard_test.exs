@@ -13,8 +13,10 @@ defmodule LiveDebugger.WindowDashboardTest do
     |> assert_has(title(text: "Active LiveViews"))
     |> assert_has(live_sessions(count: 1))
 
+    transport_pid = get_transport_pid(debugger)
+
     debugger
-    |> click(window_link())
+    |> visit("/transport_pid/#{transport_pid}")
     |> assert_has(title(text: "Active LiveViews in a single window"))
     |> assert_has(live_sessions(count: 1))
 
@@ -38,9 +40,10 @@ defmodule LiveDebugger.WindowDashboardTest do
     dev_app
     |> visit(@dev_app_url)
 
+    transport_pid = get_transport_pid(debugger)
+
     debugger
-    |> visit("/")
-    |> click(window_link())
+    |> visit("/transport_pid/#{transport_pid}")
     |> assert_has(title(text: "Active LiveViews in a single window"))
     |> assert_has(css("navbar a#settings-button"))
     |> click(css("navbar a#settings-button"))
@@ -51,7 +54,12 @@ defmodule LiveDebugger.WindowDashboardTest do
 
   defp live_sessions(count: count), do: css("#live-sessions ", count: count)
 
-  defp window_link(), do: css("#live-sessions a.window-link", count: 1)
+  defp get_transport_pid(debugger) do
+    debugger
+    |> visit("/")
+    |> find(css("#live-sessions .transport-pid"))
+    |> Element.text()
+  end
 
   defp refresh_button(), do: css("button[phx-click=\"refresh\"]")
 end

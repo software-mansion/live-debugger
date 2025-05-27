@@ -14,7 +14,7 @@ defmodule LiveDebuggerWeb.Components.TabGroup do
     ~H"""
     <div class="w-full h-max flex flex-col shadow-custom rounded-sm bg-surface-2-bg border border-default-border">
       <div class="pl-4 p-3 flex items-center h-10 border-b border-default-border">
-        <p class="text-primary-text text-xs font-medium">
+        <p class="text-primary-text text-xs font-medium transport-pid">
           <%= Parsers.pid_to_string(@transport_pid) %>
         </p>
       </div>
