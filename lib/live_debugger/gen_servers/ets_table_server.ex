@@ -32,6 +32,8 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   @type state() :: %{pid() => TableInfo.t()}
 
   @ets_table_name :lvdbg_traces
+  @garbage_collect_interval 2000
+  @max_table_size 100
 
   ## API
 
@@ -63,6 +65,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
   @impl true
   def init(_args) do
+    Process.send_after(self(), :garbage_collect, @garbage_collect_interval)
     {:ok, %{}}
   end
 
@@ -80,6 +83,19 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
       |> Map.update!(closed_pid, fn table_info -> %{table_info | alive?: false} end)
       |> maybe_delete_ets_table(closed_pid)
 
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info(:garbage_collect, state) do
+    state
+    |> Enum.map(fn {_, %TableInfo{table: table}} -> {table, :ets.info(table, :size)} end)
+    |> Enum.filter(fn {_, size} -> size > @max_table_size end)
+    |> Enum.each(fn {table, _} ->
+      Task.start(fn -> trim_ets_table(table, @max_table_size) end)
+    end)
+
+    Process.send_after(self(), :garbage_collect, @garbage_collect_interval)
     {:noreply, state}
   end
 
@@ -132,17 +148,19 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   defmodule Impl do
     @moduledoc false
     @behaviour LiveDebugger.GenServers.EtsTableServer
+
     @server_module LiveDebugger.GenServers.EtsTableServer
+    @call_timeout 1000
 
     @impl true
     def table(pid) do
-      GenServer.call(@server_module, {:get_or_create_table, pid}, 1000)
+      GenServer.call(@server_module, {:get_or_create_table, pid}, @call_timeout)
     end
 
     @impl true
     def watch(pid) do
       if LiveDebugger.Feature.enabled?(:dead_view_mode) do
-        GenServer.call(@server_module, {:watch, pid}, 1000)
+        GenServer.call(@server_module, {:watch, pid}, @call_timeout)
       else
         {:error, :not_in_dead_view_mode}
       end
@@ -182,8 +200,26 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     end)
   end
 
+  @spec update_watchers(state(), pid(), (MapSet.t() -> MapSet.t())) :: state()
   defp update_watchers(state, pid, update_fn) when is_map_key(state, pid) do
     table_info = Map.get(state, pid)
     Map.put(state, pid, %{table_info | watchers: update_fn.(table_info.watchers)})
+  end
+
+  @spec trim_ets_table(table :: :ets.table(), max_size :: non_neg_integer()) :: :ok
+  defp trim_ets_table(table, max_size) when is_integer(max_size) and max_size > 0 do
+    :ets.safe_fixtable(table, true)
+    {matches, _} = :ets.match(table, {:"$1", :"$2"}, max_size)
+
+    case List.last(matches) do
+      [last_key, _] ->
+        :ets.select_delete(table, [{{:"$1", :_}, [{:>, :"$1", last_key}], [true]}])
+
+      _ ->
+        raise "Failed to retrieve last key from #{matches} for ETS table #{inspect(table)}"
+    end
+
+    :ets.safe_fixtable(table, false)
+    :ok
   end
 end
