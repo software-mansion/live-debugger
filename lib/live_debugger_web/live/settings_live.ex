@@ -36,7 +36,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
                 <div class="flex flex-col gap-0.5">
                   <p class="font-semibold">Enable DeadView mode</p>
                   <p class="text-secondary-text">
-                    TODO write description
+                    When enabled, LiveDebugger won't redirect to new LiveView after page redirect or reload, allowing you to browse assigns and traces of dead LiveViews.
                   </p>
                 </div>
               </div>
