@@ -109,7 +109,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
   end
 
   @sessions 2
-  feature "settings button exists and redirects to settings page", %{
+  feature "settings button exits and redirects works as expected", %{
     sessions: [dev_app, debugger]
   } do
     dev_app
@@ -118,9 +118,48 @@ defmodule LiveDebugger.ChannelDashboardTest do
     debugger
     |> visit("/")
     |> click(first_link())
-    |> assert_has(css("navbar a#settings-button"))
-    |> click(css("navbar a#settings-button"))
+    |> assert_has(css("div#traces", text: "Callback traces"))
+    |> assert_has(settings_button())
+    |> click(settings_button())
     |> assert_has(css("h1", text: "Settings"))
+    |> assert_has(return_button())
+    |> click(return_button())
+    |> assert_has(css("div#traces", text: "Callback traces"))
+  end
+
+  @sessions 2
+  feature "return button redirects to window dashboard in case of iframe", %{
+    sessions: [dev_app, debugger]
+  } do
+    LiveDebugger.MockIframeCheck
+    |> stub(:on_mount, fn _, _, _, socket ->
+      {:cont, Phoenix.Component.assign(socket, :in_iframe?, true)}
+    end)
+
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(css("div#traces", text: "Callback traces"))
+    |> click(return_button())
+    |> assert_has(css("h1", text: "Active LiveViews in a single window"))
+  end
+
+  @sessions 2
+  feature "return button redirects to active live views dashboard not in iframe", %{
+    sessions: [dev_app, debugger]
+  } do
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(css("div#traces", text: "Callback traces"))
+    |> click(return_button())
+    |> assert_has(css("h1", text: "Active LiveViews"))
   end
 
   @sessions 2
@@ -371,4 +410,8 @@ defmodule LiveDebugger.ChannelDashboardTest do
   defp many_assigns_15_node_button() do
     css("#tree-node-button-15-component-tree-sidebar-content")
   end
+
+  defp settings_button(), do: css("navbar a#settings-button")
+
+  defp return_button(), do: css("navbar a#return-button")
 end
