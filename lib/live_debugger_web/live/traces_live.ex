@@ -145,13 +145,13 @@ defmodule LiveDebuggerWeb.TracesLive do
               <.button
                 :if={not @tracing_helper.tracing_started? && @traces_continuation != :end_of_table}
                 phx-click="load-more"
-                class="w-40"
+                class="w-4 mb-4"
                 variant="secondary"
               >
                 Load more
               </.button>
             <% else %>
-              <.spinner size="sm" />
+              <.spinner size="sm" class="mb-4" />
             <% end %>
           </div>
         </div>
