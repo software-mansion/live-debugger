@@ -1,4 +1,11 @@
 defmodule LiveDebuggerWeb.WindowDashboardLive do
+  @moduledoc """
+  This view is a variant of the LiveViews dashboard, but it is used to display LiveViews in the given window.
+  It cannot be accessed from the browser directly, but:
+  - it is used when there are many LiveViews in the same window, and we cannot find a single successor.
+  - in case of extension this replaces the LiveViews dashboard, since extension works in a single window.
+  """
+
   use LiveDebuggerWeb, :live_view
 
   alias LiveDebugger.Utils.Parsers
@@ -68,7 +75,6 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
               <% else %>
                 <TabGroup.group
                   :for={{transport_pid, grouped_lv_processes} <- grouped_lv_processes}
-                  window_link?={false}
                   transport_pid={transport_pid}
                   grouped_lv_processes={grouped_lv_processes}
                 />
