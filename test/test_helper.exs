@@ -5,6 +5,9 @@ if Application.get_env(:live_debugger, :e2e?, false) do
 
   Application.put_env(:wallaby, :base_url, LiveDebuggerWeb.Endpoint.url())
   Application.put_env(:live_debugger, :dev_app_url, LiveDebuggerDev.Endpoint.url())
+
+  Mox.defmock(LiveDebugger.MockIframeCheck, for: LiveDebuggerWeb.Hooks.IframeCheck)
+  Application.put_env(:live_debugger, :iframe_check, LiveDebugger.MockIframeCheck)
 else
   Mox.defmock(LiveDebugger.MockModuleService, for: LiveDebugger.Services.System.ModuleService)
   Application.put_env(:live_debugger, :module_service, LiveDebugger.MockModuleService)
