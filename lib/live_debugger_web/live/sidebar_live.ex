@@ -278,7 +278,15 @@ defmodule LiveDebuggerWeb.SidebarLive do
         </div>
         <div class="w-full flex flex-col">
           <span class="font-medium">Module:</span>
-          <span :if={@module.ok?}><%= Parsers.module_to_string(@module.result) %></span>
+
+          <.tooltip
+            :if={@module.ok?}
+            id="current-node-module"
+            content={Parsers.module_to_string(@module.result)}
+            class="truncate max-w-[272px]"
+          >
+            <%= Parsers.module_to_string(@module.result) %>
+          </.tooltip>
         </div>
         <div :if={parent_lv_process} class="w-full flex flex-col">
           <span class="font-medium">Parent LiveView Process</span>
