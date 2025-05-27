@@ -84,7 +84,7 @@ defmodule LiveDebuggerWeb.TracesLive do
   def render(assigns) do
     ~H"""
     <div class="max-w-full @container/traces flex flex-1">
-      <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
+      <.section title="Callback traces" id="traces" inner_class="mx-0 mt-4 px-4" class="flex-1">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <Traces.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
