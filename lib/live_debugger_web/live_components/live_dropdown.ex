@@ -5,6 +5,20 @@ defmodule LiveDebuggerWeb.LiveComponents.LiveDropdown do
 
   use LiveDebuggerWeb, :live_component
 
+  attr(:icon, :string, required: true)
+  attr(:label, :string, required: true)
+  attr(:link, :string, default: nil)
+  attr(:selected?, :boolean, default: false)
+
+  def dropdown_item(assigns) do
+    ~H"""
+    <div class="flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer">
+      <.icon name={@icon} class="h-4 w-4" />
+      <span class={if @selected?, do: "font-semibold"}>{@label}</span>
+    </div>
+    """
+  end
+
   @doc """
   Closes the dropdown. You can use it when you want to close the dropdown from other component.
   """
@@ -19,6 +33,8 @@ defmodule LiveDebuggerWeb.LiveComponents.LiveDropdown do
   def update(assigns, %{assigns: %{mounted?: true}} = socket) do
     socket
     |> assign(:id, assigns.id)
+    |> assign(:class, assigns[:class] || "")
+    |> assign(:direction, assigns[:direction] || "left")
     |> assign(:button, assigns.button)
     |> assign(:inner_block, assigns.inner_block)
     |> ok()
@@ -27,6 +43,8 @@ defmodule LiveDebuggerWeb.LiveComponents.LiveDropdown do
   def update(assigns, socket) do
     socket
     |> assign(:id, assigns.id)
+    |> assign(:class, assigns[:class] || "")
+    |> assign(:direction, assigns[:direction] || "left")
     |> assign(:button, assigns.button)
     |> assign(:inner_block, assigns.inner_block)
     |> assign(:open, assigns[:open] || false)
@@ -36,42 +54,34 @@ defmodule LiveDebuggerWeb.LiveComponents.LiveDropdown do
 
   attr(:id, :string, required: true)
   attr(:open, :boolean, required: true)
+  attr(:class, :string, default: "")
+  attr(:direction, :string, default: "left")
 
-  slot :button, required: true do
-    attr(:class, :any, doc: "Additional classes to add to the button.")
-
-    attr(:size, :string,
-      values: ["sm", "md"],
-      doc: "Size of the button."
-    )
-
-    attr(:variant, :string,
-      values: ["primary", "secondary"],
-      doc: "Variant of the button."
-    )
-  end
-
+  slot(:button, required: true)
   slot(:inner_block, required: true)
 
   def render(assigns) do
     ~H"""
-    <div id={@id <> "-live-dropdown-container"} class="relative" phx-hook="LiveDropdown">
-      <.button
-        :for={button_slot <- @button}
-        class={Map.get(button_slot, :class)}
-        variant={Map.get(button_slot, :variant, "secondary")}
-        size={Map.get(button_slot, :size, "sm")}
-        id={@id <> "-button"}
-        phx-click={if !@open, do: "open"}
-        phx-target={@myself}
-      >
-        <%= render_slot(button_slot) %>
-      </.button>
+    <div
+      id={@id <> "-live-dropdown-container"}
+      class={[
+        "relative",
+        @class
+      ]}
+      phx-hook="LiveDropdown"
+    >
+      <div id={@id <> "-button"} phx-click={if !@open, do: "open"} phx-target={@myself}>
+        <%= render_slot(@button) %>
+      </div>
 
       <div
         :if={@open}
         id={@id <> "-content"}
-        class="absolute right-0 bg-surface-0-bg rounded border border-default-border mt-1 z-50"
+        class={[
+          "absolute bg-surface-0-bg rounded border border-default-border mt-1 z-50",
+          @direction == "left" && "right-0",
+          @direction == "right" && "left-0"
+        ]}
       >
         <%= render_slot(@inner_block) %>
       </div>

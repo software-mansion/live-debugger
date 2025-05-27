@@ -95,9 +95,11 @@ defmodule LiveDebuggerWeb.TracesLive do
               module={LiveDebuggerWeb.LiveComponents.LiveDropdown}
               id="filters-dropdown"
             >
-              <:button class="flex gap-2">
-                <.icon name="icon-filters" class="w-4 h-4" />
-                <div class="hidden @[29rem]/traces:block">Filters</div>
+              <:button>
+                <.button class="flex gap-2" variant="secondary" size="sm">
+                  <.icon name="icon-filters" class="w-4 h-4" />
+                  <div class="hidden @[29rem]/traces:block">Filters</div>
+                </.button>
               </:button>
               <.live_component
                 module={LiveDebuggerWeb.LiveComponents.FiltersForm}
@@ -109,7 +111,7 @@ defmodule LiveDebuggerWeb.TracesLive do
             </.live_component>
           </div>
         </:right_panel>
-        <div class="w-full h-full xl:min-h-[10.25rem]">
+        <div class="w-full h-full">
           <div id={"#{assigns.id}-stream"} phx-update="stream" class="flex flex-col gap-2">
             <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-secondary-text">
               <div :if={@existing_traces_status == :ok}>

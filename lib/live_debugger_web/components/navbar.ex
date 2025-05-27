@@ -56,11 +56,13 @@ defmodule LiveDebuggerWeb.Components.Navbar do
   @doc """
   Renders a link to return to the previous page.
   """
-  attr(:link, :any, required: true, doc: "Link to navigate to.")
+
+  attr(:return_link, :any, required: true, doc: "Link to navigate to.")
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the link.")
 
   def return_link(assigns) do
     ~H"""
-    <.link patch={@link}>
+    <.link patch={@return_link} class={@class}>
       <.nav_icon icon="icon-arrow-left" />
     </.link>
     """
@@ -73,29 +75,6 @@ defmodule LiveDebuggerWeb.Components.Navbar do
     <.link navigate={RoutesHelper.settings()} class={@class}>
       <.nav_icon icon="icon-settings" />
     </.link>
-    """
-  end
-
-  @doc """
-  Renders an icon with navbar styles.
-  """
-  attr(:icon, :string, required: true, doc: "Icon to be displayed.")
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
-
-  attr(:rest, :global, include: ~w(id))
-
-  def nav_icon(assigns) do
-    ~H"""
-    <button
-      aria-label={Parsers.kebab_to_text(@icon)}
-      class={[
-        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
-        | List.wrap(@class)
-      ]}
-      {@rest}
-    >
-      <.icon name={@icon} class="h-6 w-6" />
-    </button>
     """
   end
 
@@ -120,7 +99,7 @@ defmodule LiveDebuggerWeb.Components.Navbar do
         )
       }
     >
-      <div id={@id} class="flex items-center gap-1 text-xs text-primary">
+      <div id={@id} class="flex items-center gap-1 text-xs text-primary ml-1">
         <.status_icon connected?={@connected?} />
         <%= if @connected? do %>
           <span class="font-medium">Monitored PID </span>
