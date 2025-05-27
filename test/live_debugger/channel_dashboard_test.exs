@@ -109,6 +109,21 @@ defmodule LiveDebugger.ChannelDashboardTest do
   end
 
   @sessions 2
+  feature "settings button exists and redirects to settings page", %{
+    sessions: [dev_app, debugger]
+  } do
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(css("navbar a[href=\"/settings\"]"))
+    |> click(css("navbar a[href=\"/settings\"]"))
+    |> assert_has(css("h1", text: "Settings"))
+  end
+
+  @sessions 2
   feature "user can change nodes using node tree and see their assigns and callback traces", %{
     sessions: [dev_app, debugger]
   } do
