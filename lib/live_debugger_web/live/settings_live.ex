@@ -9,11 +9,18 @@ defmodule LiveDebuggerWeb.SettingsLive do
   alias LiveDebuggerWeb.Helpers.RoutesHelper
 
   @impl true
+  def handle_params(params, _url, socket) do
+    socket
+    |> assign(:return_to, params["return_to"])
+    |> noreply()
+  end
+
+  @impl true
   def render(assigns) do
     ~H"""
     <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
       <Navbar.navbar class="flex">
-        <Navbar.return_link return_link={RoutesHelper.live_views_dashboard()} />
+        <Navbar.return_link return_link={@return_to || RoutesHelper.live_views_dashboard()} />
         <Navbar.live_debugger_logo />
       </Navbar.navbar>
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
