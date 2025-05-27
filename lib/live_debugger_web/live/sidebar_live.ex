@@ -281,7 +281,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
 
           <.tooltip
             :if={@module.ok?}
-            id="current-node-module"
+            id={@id <> "-current-node-module"}
             content={Parsers.module_to_string(@module.result)}
             class="truncate max-w-[272px]"
           >
