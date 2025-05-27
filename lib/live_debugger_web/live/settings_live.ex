@@ -32,7 +32,12 @@ defmodule LiveDebuggerWeb.SettingsLive do
             </div>
             <div class="p-6 border-t border-default-border flex flex-col gap-3">
               <div class="flex items-center">
-                <.toggle_switch checked={false} wrapper_class="pr-3 py-0" />
+                <.toggle_switch
+                  checked={false}
+                  wrapper_class="pr-3 py-0"
+                  phx-click="update"
+                  phx-value-setting="deadview_mode"
+                />
                 <div class="flex flex-col gap-0.5">
                   <p class="font-semibold">Enable DeadView mode</p>
                   <p class="text-secondary-text">
@@ -41,7 +46,12 @@ defmodule LiveDebuggerWeb.SettingsLive do
                 </div>
               </div>
               <div class="flex items-center">
-                <.toggle_switch checked={false} wrapper_class="pr-3 py-0" />
+                <.toggle_switch
+                  checked={false}
+                  wrapper_class="pr-3 py-0"
+                  phx-click="update"
+                  phx-value-setting="global_tracing"
+                />
                 <div class="flex flex-col gap-0.5">
                   <p class="font-semibold">Enable global tracing</p>
                   <p class="text-secondary-text">
@@ -50,7 +60,12 @@ defmodule LiveDebuggerWeb.SettingsLive do
                 </div>
               </div>
               <div class="flex items-center">
-                <.toggle_switch checked={false} wrapper_class="pr-3 py-0" />
+                <.toggle_switch
+                  checked={false}
+                  wrapper_class="pr-3 py-0"
+                  phx-click="update"
+                  phx-value-setting="refresh_tracing_on_reload"
+                />
                 <div class="flex flex-col gap-0.5">
                   <p class="font-semibold">Refresh tracing on reload</p>
                   <p class="text-secondary-text">
@@ -71,7 +86,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
                     Use this option if LiveDebugger appears to stop responding or not working properly.
                   </p>
                 </div>
-                <.button variant="secondary">Restart&nbsp;LiveDebugger</.button>
+                <.button variant="secondary" phx-click="restart">Restart&nbsp;LiveDebugger</.button>
               </div>
             </div>
           </div>
@@ -79,6 +94,16 @@ defmodule LiveDebuggerWeb.SettingsLive do
       </div>
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("update", %{"setting" => _setting}, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("restart", _, socket) do
+    {:noreply, socket}
   end
 
   defp dark_mode_button(assigns) do
