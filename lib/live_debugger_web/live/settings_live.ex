@@ -95,13 +95,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
   defp settings_switch(assigns) do
     ~H"""
     <div class="flex items-center">
-      <.toggle_switch
-        checked={@checked}
-        wrapper_class="pr-3 py-0"
-        phx-click="update"
-        phx-value-setting="deadview_mode"
-        {@rest}
-      />
+      <.toggle_switch checked={@checked} wrapper_class="pr-3 py-0" {@rest} />
       <div class="flex flex-col gap-0.5">
         <p class="font-semibold"><%= @label %></p>
         <p class="text-secondary-text"><%= @description %></p>
