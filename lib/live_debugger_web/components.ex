@@ -613,6 +613,29 @@ defmodule LiveDebuggerWeb.Components do
     """
   end
 
+  @doc """
+  Renders an icon with navbar styles.
+  """
+  attr(:icon, :string, required: true, doc: "Icon to be displayed.")
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
+
+  attr(:rest, :global, include: ~w(id))
+
+  def nav_icon(assigns) do
+    ~H"""
+    <button
+      aria-label={Parsers.kebab_to_text(@icon)}
+      class={[
+        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
+        | List.wrap(@class)
+      ]}
+      {@rest}
+    >
+      <.icon name={@icon} class="h-6 w-6" />
+    </button>
+    """
+  end
+
   attr(:variant, :string, required: true, values: ["danger"])
 
   defp alert_icon(assigns) do

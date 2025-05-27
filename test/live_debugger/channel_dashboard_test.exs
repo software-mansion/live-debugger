@@ -121,7 +121,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> visit("/")
     |> click(first_link())
     |> click(conditional_component_5_node_button())
-    |> find(css("#info"), fn info ->
+    |> find(css("#sidebar-content-basic-info"), fn info ->
       info
       |> assert_text("LiveComponent")
       |> assert_text("LiveDebuggerDev.LiveComponents.Conditional")
@@ -297,7 +297,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     debugger
     |> visit("/")
     |> click(first_link())
-    |> find(css("#info"))
+    |> find(css("#sidebar-content-basic-info"))
     |> assert_text("LiveDebuggerDev.LiveViews.Main")
 
     dev_app
@@ -315,7 +315,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     Process.sleep(1000)
 
     debugger
-    |> find(css("#info"))
+    |> find(css("#sidebar-content-basic-info"))
     |> assert_text("LiveDebuggerDev.LiveViews.Side")
   end
 
@@ -341,7 +341,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
   defp clear_traces_button(), do: css("button[phx-click=\"clear-traces\"]")
 
-  defp filters_button(), do: css("button[phx-click=\"open\"]")
+  defp filters_button(), do: css("#filters-dropdown-button")
 
   defp reset_filters_button(), do: css("button[phx-click=\"reset\"]")
 
