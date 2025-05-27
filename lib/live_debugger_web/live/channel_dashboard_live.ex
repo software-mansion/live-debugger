@@ -9,7 +9,6 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias LiveDebuggerWeb.Helpers.RoutesHelper
   alias LiveDebuggerWeb.Components.Navbar
   alias Phoenix.LiveView.JS
-  alias LiveDebugger.Utils.URL
 
   alias LiveDebugger.Structs.TreeNode
 
@@ -21,10 +20,9 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias LiveDebuggerWeb.Components.NavigationMenu
 
   @impl true
-  def handle_params(params, url, socket) do
+  def handle_params(params, _url, socket) do
     socket
     |> assign_node_id(params)
-    |> assign(:url, URL.to_relative(url))
     |> noreply()
   end
 
@@ -55,7 +53,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           pid={Parsers.pid_to_string(@lv_process.result.pid)}
         />
         <div class="flex items-center gap-2">
-          <Navbar.settings_button />
+          <Navbar.settings_button return_to={@url} />
           <span :if={@lv_process.ok?} class="h-5 border-r border-default-border lg:hidden"></span>
           <.nav_icon
             :if={@lv_process.ok?}
