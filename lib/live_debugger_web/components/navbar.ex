@@ -61,17 +61,18 @@ defmodule LiveDebuggerWeb.Components.Navbar do
 
   def return_link(assigns) do
     ~H"""
-    <.link patch={@return_link} class={@class}>
+    <.link patch={@return_link} class={@class} id="return-button">
       <.nav_icon icon="icon-arrow-left" />
     </.link>
     """
   end
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the link.")
+  attr(:return_to, :any, default: nil, doc: "Return to URL.")
 
   def settings_button(assigns) do
     ~H"""
-    <.link navigate={RoutesHelper.settings()} class={@class}>
+    <.link navigate={RoutesHelper.settings(@return_to)} class={@class} id="settings-button">
       <.nav_icon icon="icon-settings" />
     </.link>
     """

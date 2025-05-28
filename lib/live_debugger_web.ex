@@ -8,6 +8,7 @@ defmodule LiveDebuggerWeb do
 
       on_mount({LiveDebuggerWeb.Hooks.Flash, :add_hook})
       on_mount({LiveDebuggerWeb.Hooks.IframeCheck, :add_hook})
+      on_mount({LiveDebuggerWeb.Hooks.URL, :add_hook})
 
       import Phoenix.HTML
       import LiveDebuggerWeb.Helpers

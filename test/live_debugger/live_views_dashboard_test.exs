@@ -23,7 +23,7 @@ defmodule LiveDebugger.LiveViewsDashboardTest do
   end
 
   @sessions 2
-  feature "settings button exists and redirects to settings page", %{
+  feature "settings button exists and redirects works as expected", %{
     sessions: [dev_app, debugger]
   } do
     dev_app
@@ -31,9 +31,12 @@ defmodule LiveDebugger.LiveViewsDashboardTest do
 
     debugger
     |> visit("/")
-    |> assert_has(css("navbar a[href=\"/settings\"]"))
-    |> click(css("navbar a[href=\"/settings\"]"))
+    |> assert_has(settings_button())
+    |> click(settings_button())
     |> assert_has(css("h1", text: "Settings"))
+    |> assert_has(return_button())
+    |> click(return_button())
+    |> assert_has(title(text: "Active LiveViews"))
   end
 
   defp title(text: text), do: css("h1", text: text)
@@ -41,4 +44,8 @@ defmodule LiveDebugger.LiveViewsDashboardTest do
   defp live_sessions(count: count), do: css("#live-sessions > div", count: count)
 
   defp refresh_button(), do: css("button[phx-click=\"refresh\"]")
+
+  defp settings_button(), do: css("navbar a#settings-button")
+
+  defp return_button(), do: css("navbar a#return-button")
 end

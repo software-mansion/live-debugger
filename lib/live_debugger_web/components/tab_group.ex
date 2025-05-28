@@ -9,20 +9,13 @@ defmodule LiveDebuggerWeb.Components.TabGroup do
 
   attr(:transport_pid, :any, required: true)
   attr(:grouped_lv_processes, :list, required: true)
-  attr(:window_link?, :boolean, default: true)
 
   def group(assigns) do
     ~H"""
     <div class="w-full h-max flex flex-col shadow-custom rounded-sm bg-surface-2-bg border border-default-border">
       <div class="pl-4 p-3 flex items-center h-10 border-b border-default-border">
-        <p class="text-primary-text text-xs font-medium">
-          <%= if @window_link? do %>
-            <.link navigate={RoutesHelper.window_dashboard(@transport_pid)} class="window-link">
-              <%= Parsers.pid_to_string(@transport_pid) %>
-            </.link>
-          <% else %>
-            <%= Parsers.pid_to_string(@transport_pid) %>
-          <% end %>
+        <p class="text-primary-text text-xs font-medium transport-pid">
+          <%= Parsers.pid_to_string(@transport_pid) %>
         </p>
       </div>
       <div class="w-full flex bg-surface-0-bg">
