@@ -36,7 +36,12 @@ defmodule LiveDebuggerWeb.Components.Tree do
       <div class="flex items-center justify-between">
         <div class="shrink-0 font-medium text-secondary-text px-6 py-3"><%= @title %></div>
         <%= if LiveDebugger.Feature.enabled?(:highlighting) do %>
-          <.toggle_switch label="Highlight" checked={@highlight?} phx-click="toggle-highlight" />
+          <.toggle_switch
+            id="highlight-switch"
+            label="Highlight"
+            checked={@highlight?}
+            phx-click="toggle-highlight"
+          />
         <% end %>
       </div>
       <div class="flex-1">
