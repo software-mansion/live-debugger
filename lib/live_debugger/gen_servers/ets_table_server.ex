@@ -28,6 +28,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
   alias __MODULE__.TableInfo
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebugger.Utils.Memory
 
   @type state() :: %{pid() => TableInfo.t()}
 
@@ -108,7 +109,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   def handle_info(:garbage_collect, state) do
     state
     |> Enum.map(fn {_, %TableInfo{table: table} = table_info} ->
-      {table_info, table_size(table)}
+      {table_info, Memory.table_size(table)}
     end)
     |> Enum.each(fn {%TableInfo{table: table, watchers: watchers}, size} ->
       cond do
@@ -232,8 +233,8 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   defp trim_ets_table(table, max_size) when is_integer(max_size) do
     :ets.safe_fixtable(table, true)
 
-    fold_fn = fn {key, _} = record, acc ->
-      size = :erlang.external_size(record)
+    foldr_fn = fn {key, _} = record, acc ->
+      size = Memory.term_size(record)
 
       if acc + size > max_size do
         throw({:key, key})
@@ -242,8 +243,9 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
       end
     end
 
+    # Try catch is used for early return from `foldr` since it doesn't support `:halt` | `:continue`.
     try do
-      :ets.foldr(fold_fn, 0, table)
+      :ets.foldr(foldr_fn, 0, table)
     catch
       {:key, key} ->
         :ets.select_delete(table, [{{:"$1", :_}, [{:>, :"$1", key}], [true]}])
@@ -251,9 +253,5 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
     :ets.safe_fixtable(table, false)
     :ok
-  end
-
-  defp table_size(table) do
-    :ets.info(table, :memory) * :erlang.system_info(:wordsize)
   end
 end

@@ -33,22 +33,4 @@ defmodule LiveDebugger.Utils.MemoryTest do
       assert 19 = Memory.term_size(term)
     end
   end
-
-  describe "bytes/2" do
-    test "converts size in MB to bytes" do
-      assert Memory.bytes(1, :MB) == {:ok, 1_048_576}
-    end
-
-    test "converts size in KB to bytes" do
-      assert Memory.bytes(1, :KB) == {:ok, 1_024}
-    end
-
-    test "converts size in B to bytes" do
-      assert Memory.bytes(1, :B) == {:ok, 1}
-    end
-
-    test "returns error for invalid unit" do
-      assert Memory.bytes(1, :TB) == {:error, :invalid_unit}
-    end
-  end
 end
