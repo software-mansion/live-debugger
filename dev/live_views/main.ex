@@ -96,7 +96,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   end
 
   def handle_event("very-slow-increment", _, socket) do
-    Process.sleep(2500)
+    Process.sleep(1100)
     {:noreply, update(socket, :counter_very_slow, &(&1 + 1))}
   end
 
