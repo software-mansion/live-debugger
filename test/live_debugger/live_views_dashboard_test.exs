@@ -23,7 +23,7 @@ defmodule LiveDebugger.LiveViewsDashboardTest do
   end
 
   @sessions 2
-  feature "settings button exits and redirects works as expected", %{
+  feature "settings button exists and redirects works as expected", %{
     sessions: [dev_app, debugger]
   } do
     dev_app
