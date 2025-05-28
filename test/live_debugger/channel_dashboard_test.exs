@@ -70,12 +70,12 @@ defmodule LiveDebugger.ChannelDashboardTest do
     dev_app
     |> click(button("very-slow-increment-button"))
 
-    Process.sleep(2505)
+    Process.sleep(1105)
 
     debugger
     |> find(traces(count: 4))
     |> Enum.at(1)
-    |> assert_has(css("span.text-error-text", text: "2.50 s"))
+    |> assert_has(css("span.text-error-text", text: "1.10 s"))
   end
 
   @sessions 2
@@ -226,7 +226,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     dev_app
     |> click(button("very-slow-increment-button"))
 
-    Process.sleep(2505)
+    Process.sleep(1105)
 
     debugger
     |> visit("/")
@@ -243,7 +243,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> set_value(select("min_unit"), "ms")
     |> fill_in(text_field("exec_time_min"), with: 100)
     |> set_value(select("max_unit"), "s")
-    |> fill_in(text_field("exec_time_max"), with: 2)
+    |> fill_in(text_field("exec_time_max"), with: 1)
     |> send_keys([:enter])
     |> find(traces(count: 1))
     |> find(css("span.text-warning-text"))

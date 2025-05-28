@@ -171,7 +171,8 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   end
 
   defp apply_unit_factor(value, unit) do
-    String.to_integer(value)
+    value
+    |> String.to_integer()
     |> Parsers.time_to_microseconds(unit)
   end
 
