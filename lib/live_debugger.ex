@@ -81,15 +81,16 @@ defmodule LiveDebugger do
   defp put_live_debugger_tags(config) do
     ip_string = config |> Keyword.get(:ip, @default_ip) |> :inet.ntoa() |> List.to_string()
     port = Keyword.get(config, :port, @default_port)
+    live_debugger_url = "http://#{ip_string}:#{port}"
 
     browser_features? = Keyword.get(config, :browser_features?, true)
     debug_button? = Keyword.get(config, :debug_button?, true)
     highlighting? = Keyword.get(config, :highlighting?, true)
     version = Application.spec(:live_debugger)[:vsn] |> to_string()
     devtools_allow_redirects = Keyword.get(config, :devtools_allow_redirects, false)
+    external_url = Keyword.get(config, :external_url, live_debugger_url)
 
-    live_debugger_url = "http://#{ip_string}:#{port}"
-    live_debugger_assets_url = "http://#{ip_string}:#{port}/#{@assets_path}"
+    live_debugger_assets_url = "#{external_url}/#{@assets_path}"
 
     assigns = %{
       url: live_debugger_url,
