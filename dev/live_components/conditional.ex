@@ -5,15 +5,16 @@ defmodule LiveDebuggerDev.LiveComponents.Conditional do
     {:ok, assign(socket, :show_child?, false)}
   end
 
+  attr(:id, :string, default: nil)
   slot(:inner_block)
 
   def render(assigns) do
     ~H"""
     <div>
-      <.box title="Conditional [LiveComponent]" color="orange">
+      <.box id={@id} title="Conditional [LiveComponent]" color="orange">
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-1">
-            <.button phx-click="show_child" phx-target={@myself} color="orange">
+            <.button id={@id <> "-button"} phx-click="show_child" phx-target={@myself} color="orange">
               Show
             </.button>
 
