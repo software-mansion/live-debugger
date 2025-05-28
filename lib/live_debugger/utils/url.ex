@@ -11,7 +11,7 @@ defmodule LiveDebugger.Utils.URL do
       iex> URL.to_relative("http://example.com/foo?bar=baz")
       "/foo?bar=baz"
   """
-  @spec to_relative(utl :: String.t()) :: String.t()
+  @spec to_relative(url :: String.t()) :: String.t()
   def to_relative(url) when is_binary(url) do
     %{path: path, query: query} = URI.parse(url)
 
