@@ -248,7 +248,6 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
       :ets.foldl(foldl_fn, 0, table)
     catch
       {:key, key} ->
-        IO.inspect(key, label: "Trimming ETS table #{inspect(table)} from key #{inspect(key)}")
         :ets.select_delete(table, [{{:"$1", :_}, [{:>, :"$1", key}], [true]}])
     end
 
