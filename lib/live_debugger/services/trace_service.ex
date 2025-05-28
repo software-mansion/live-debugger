@@ -132,7 +132,7 @@ defmodule LiveDebugger.Services.TraceService do
     [{{:_, %{function: :"$1"}}, to_spec(functions), [:"$_"]}]
   end
 
-  def to_spec([]), do: []
+  def to_spec([]), do: [false]
 
   def to_spec([single]), do: [{:"=:=", :"$1", single}]
 

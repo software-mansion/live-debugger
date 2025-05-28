@@ -26,6 +26,7 @@ defmodule LiveDebuggerDev.Components do
     """
   end
 
+  attr(:id, :string, default: nil)
   attr(:title, :string, required: true)
   attr(:color, :string, default: "blue")
   attr(:class, :string, default: "")
@@ -34,7 +35,7 @@ defmodule LiveDebuggerDev.Components do
 
   def box(assigns) do
     ~H"""
-    <div>
+    <div id={@id}>
       <span class={"text-sm #{text_color(@color)}"}><%= @title %></span>
       <div class={"border-2 #{border_color(@color)} rounded-md p-8 #{@class}"}>
         <%= render_slot(@inner_block) %>
