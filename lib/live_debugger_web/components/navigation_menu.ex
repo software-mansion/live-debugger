@@ -8,9 +8,12 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
   alias LiveDebuggerWeb.Helpers.RoutesHelper
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
-  attr(:pid, :any, required: true)
+  attr(:current_url, :any, required: true)
 
   def sidebar(assigns) do
+    pid = assigns.current_url |> String.split("/") |> Enum.at(2)
+    assigns = assign(assigns, pid: pid)
+
     ~H"""
     <div class={[
       "flex flex-col gap-3 bg-sidebar-bg shadow-custom h-full p-2 border-r border-default-border"
@@ -28,9 +31,12 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
   attr(:return_link, :any, required: true, doc: "Link to navigate to.")
-  attr(:lv_process, :any, required: true)
+  attr(:current_url, :any, required: true)
 
   def dropdown(assigns) do
+    pid = assigns.current_url |> String.split("/") |> Enum.at(2)
+    assigns = assign(assigns, pid: pid)
+
     ~H"""
     <.live_component
       module={LiveDropdown}
@@ -46,10 +52,10 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
           <LiveDropdown.dropdown_item icon="icon-arrow-left" label="Back to Home" />
         </.link>
         <span class="w-full border-b border-default-border my-1"></span>
-        <.link :if={@lv_process.ok?} navigate={RoutesHelper.channel_dashboard(@lv_process.result.pid)}>
+        <.link navigate={RoutesHelper.channel_dashboard(@pid)}>
           <LiveDropdown.dropdown_item icon="icon-info" label="Node Inspector" />
         </.link>
-        <.link :if={@lv_process.ok?} navigate={RoutesHelper.global_traces(@lv_process.result.pid)}>
+        <.link navigate={RoutesHelper.global_traces(@pid)}>
           <LiveDropdown.dropdown_item icon="icon-globe" label="Global Callbacks" />
         </.link>
       </div>
