@@ -37,6 +37,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
         />
         <NavigationMenu.dropdown
           return_link={get_return_link(@lv_process, @in_iframe?)}
+          lv_process={@lv_process}
           class="sm:hidden"
         />
         <Navbar.live_debugger_logo_icon />
@@ -70,7 +71,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           </div>
         </:loading>
         <div class="flex overflow-hidden">
-          <NavigationMenu.sidebar class="hidden sm:flex" />
+          <NavigationMenu.sidebar class="hidden sm:flex" pid={lv_process.pid} />
           <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
             <StateLive.live_render
               id="node-state-lv"

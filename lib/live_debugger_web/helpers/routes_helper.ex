@@ -37,4 +37,9 @@ defmodule LiveDebuggerWeb.Helpers.RoutesHelper do
   def settings(return_to) do
     ~p"/settings?return_to=#{return_to}"
   end
+
+  @spec global_traces(pid :: pid()) :: String.t()
+  def global_traces(pid) when is_pid(pid) do
+    ~p"/pid/#{Parsers.pid_to_string(pid)}/global_traces"
+  end
 end
