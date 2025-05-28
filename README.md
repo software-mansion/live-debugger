@@ -84,7 +84,7 @@ config :live_debugger, :debug_button?, false
 # Disables only components highlighting
 config :live_debugger, :highlighting?, false
 
-# Use when your LiveDebugger address is exposed on other address (e.g. when run inside Docker)
+# Used when LiveDebugger's assets are exposed on other address (e.g. when run inside Docker)
 config :live_debugger, :external_url, "http://localhost:9007"
 ```
 
