@@ -34,10 +34,10 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
   @ets_table_name :lvdbg_traces
   @garbage_collect_interval 2000
-  # 10 KB
-  @non_watched_table_max_size 10240
   # 1 MB
-  @watched_table_max_size 1_048_576
+  @non_watched_table_max_size 1_048_576
+  # 100 MB
+  @watched_table_max_size 10_048_576
 
   ## API
 
@@ -233,7 +233,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   defp trim_ets_table(table, max_size) when is_integer(max_size) do
     :ets.safe_fixtable(table, true)
 
-    foldr_fn = fn {key, _} = record, acc ->
+    foldl_fn = fn {key, _} = record, acc ->
       size = Memory.term_size(record)
 
       if acc + size > max_size do
@@ -245,9 +245,10 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
     # Try catch is used for early return from `foldr` since it doesn't support `:halt` | `:continue`.
     try do
-      :ets.foldr(foldr_fn, 0, table)
+      :ets.foldl(foldl_fn, 0, table)
     catch
       {:key, key} ->
+        IO.inspect(key, label: "Trimming ETS table #{inspect(table)} from key #{inspect(key)}")
         :ets.select_delete(table, [{{:"$1", :_}, [{:>, :"$1", key}], [true]}])
     end
 

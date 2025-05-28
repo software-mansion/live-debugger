@@ -1,6 +1,7 @@
 defmodule LiveDebugger.Utils.Memory do
   @moduledoc """
   Utility functions for measuring memory usage and size of data structures.
+  These functions might not work correctly in all cases but they provide a good approximation.
   """
 
   @doc """
