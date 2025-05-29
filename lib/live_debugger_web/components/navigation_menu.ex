@@ -93,16 +93,10 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
   end
 
   defp get_current_view(url) do
-    url
-    |> URL.remove_query_params()
-    |> String.split("/")
-    |> Enum.at(3, "node_inspector")
+    URL.take_nth_segment(url, 3)
   end
 
   defp get_pid(url) do
-    url
-    |> URL.remove_query_params()
-    |> String.split("/")
-    |> Enum.at(2)
+    URL.take_nth_segment(url, 2)
   end
 end
