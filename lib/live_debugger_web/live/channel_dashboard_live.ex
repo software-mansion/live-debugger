@@ -16,7 +16,6 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias LiveDebuggerWeb.TracesLive
   alias LiveDebuggerWeb.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
-  alias LiveDebugger.Utils.Parsers
   alias LiveDebuggerWeb.Components.NavigationMenu
 
   @impl true
@@ -41,18 +40,7 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           class="sm:hidden"
         />
         <Navbar.live_debugger_logo_icon />
-        <div
-          :if={not @lv_process.ok?}
-          class="animate-pulse w-36 bg-surface-1-bg rounded text-surface-1-bg"
-        >
-          Loading...
-        </div>
-        <Navbar.connected
-          :if={@lv_process.ok?}
-          id="navbar-connected"
-          connected?={@lv_process.result.alive?}
-          pid={Parsers.pid_to_string(@lv_process.result.pid)}
-        />
+        <Navbar.connected id="navbar-connected" lv_process={@lv_process} />
         <div class="flex items-center gap-2">
           <Navbar.settings_button return_to={@url} />
           <span class="h-5 border-r border-default-border lg:hidden"></span>
