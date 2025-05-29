@@ -9,7 +9,6 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
   - `:traces_continuation` - the continuation token for the existing traces, possible values: `nil`, `:end_of_table`, `ets_continuation()`
   - `:traces_empty?` - whether the existing traces are empty, possible values: `true`, `false`
   - `:existing_traces_status` - the status of the existing traces, possible values: `:loading`, `:ok`, `:error`
-  - `:page_size` - the page size for the existing traces
 
   Streams introduced by this hook:
   - `:existing_traces` - the stream of existing traces.
@@ -28,14 +27,14 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
     socket
     |> assign(:traces_continuation, nil)
     |> assign(:traces_empty?, true)
-    |> assign(:page_size, page_size)
+    |> put_private(:page_size, page_size)
     |> attach_hook(:existing_traces, :handle_async, &handle_async/3)
   end
 
   def assign_async_existing_traces(socket) do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
-    page_size = socket.assigns.page_size
+    page_size = socket.private.page_size
     active_functions = get_active_functions(socket)
     execution_times = get_execution_times(socket)
 
@@ -56,7 +55,7 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
     cont = socket.assigns.traces_continuation
-    page_size = socket.assigns.page_size
+    page_size = socket.private.page_size
     active_functions = get_active_functions(socket)
     execution_times = get_execution_times(socket)
 
@@ -143,6 +142,4 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
       "LiveDebugger encountered unexpected error while #{operation}: #{inspect(reason)}"
     )
   end
-
-  Phoenix.Live
 end
