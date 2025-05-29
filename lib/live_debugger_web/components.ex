@@ -548,7 +548,8 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:id, :string, required: true, doc: "ID of the tooltip. Prefix is added automatically.")
   attr(:content, :string, default: nil)
-  attr(:position, :string, default: "top", values: ["top", "bottom"])
+  attr(:position, :string, default: "top", values: ["top", "bottom", "left", "right"])
+  attr(:variant, :string, default: "secondary", values: ["primary", "secondary"])
   attr(:rest, :global)
   slot(:inner_block, required: true)
 
@@ -559,6 +560,7 @@ defmodule LiveDebuggerWeb.Components do
       phx-hook="Tooltip"
       data-tooltip={@content}
       data-position={@position}
+      data-variant={@variant}
       {@rest}
     >
       <%= render_slot(@inner_block) %>
