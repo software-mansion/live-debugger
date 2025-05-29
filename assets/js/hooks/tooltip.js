@@ -1,33 +1,68 @@
+export function setTooltipPosition(tooltipEl, referencedElement) {
+  const tooltipRect = tooltipEl.getBoundingClientRect();
+  const rect = referencedElement.getBoundingClientRect();
+
+  // Reset any previous positioning
+  tooltipEl.style.top = '';
+  tooltipEl.style.left = '';
+  tooltipEl.style.right = '';
+  tooltipEl.style.bottom = '';
+
+  switch (referencedElement.dataset.position) {
+    case 'top':
+      tooltipEl.style.top = `${rect.top - tooltipRect.height}px`;
+      tooltipEl.style.left = `${rect.left}px`;
+      break;
+    case 'bottom':
+      tooltipEl.style.top = `${rect.bottom}px`;
+      tooltipEl.style.left = `${rect.left}px`;
+      break;
+    case 'left':
+      tooltipEl.style.left = `${rect.left - tooltipRect.width}px`;
+      tooltipEl.style.top = `${rect.top + (rect.height - tooltipRect.height) / 2}px`;
+      break;
+    case 'right':
+      tooltipEl.style.left = `${rect.right}px`;
+      tooltipEl.style.top = `${rect.top + (rect.height - tooltipRect.height) / 2}px`;
+      break;
+    case 'top-center':
+      tooltipEl.style.top = `${rect.top - tooltipRect.height - 5}px`;
+      tooltipEl.style.left = `${rect.left + rect.width / 2 - tooltipRect.width / 2}px`;
+      break;
+  }
+
+  // Handle horizontal overflow for top/bottom positions
+  if (['top', 'bottom'].includes(referencedElement.dataset.position)) {
+    if (rect.left + tooltipRect.width > window.innerWidth) {
+      tooltipEl.style.right = `${window.innerWidth - rect.right}px`;
+      tooltipEl.style.left = 'auto';
+    }
+  }
+
+  // Handle vertical overflow for left/right positions
+  if (['left', 'right'].includes(referencedElement.dataset.position)) {
+    if (rect.top + tooltipRect.height > window.innerHeight) {
+      tooltipEl.style.top = `${window.innerHeight - tooltipRect.height}px`;
+    }
+  }
+
+  tooltipEl.style.zIndex = 100;
+}
+
 const Tooltip = {
   mounted() {
+    const tooltipEl = document.querySelector('#tooltip');
+    tooltipEl.style.pointerEvents = 'none';
+
     this.handleMouseEnter = () => {
       tooltipEl.style.display = 'block';
       tooltipEl.innerHTML = this.el.dataset.tooltip;
-
-      const tooltipRect = tooltipEl.getBoundingClientRect();
-      const rect = this.el.getBoundingClientRect();
-
-      const topOffset =
-        this.el.dataset.position == 'top'
-          ? rect.top - tooltipRect.height
-          : rect.bottom;
-
-      if (rect.left + tooltipRect.width > window.innerWidth) {
-        tooltipEl.style.right = `${window.innerWidth - rect.right}px`;
-        tooltipEl.style.left = 'auto';
-      } else {
-        tooltipEl.style.left = `${rect.left}px`;
-        tooltipEl.style.right = 'auto';
-      }
-
-      tooltipEl.style.top = `${topOffset}px`;
-      tooltipEl.style.zIndex = 100;
+      setTooltipPosition(tooltipEl, this.el);
     };
     this.handleMouseLeave = () => {
       tooltipEl.style.display = 'none';
     };
-    let tooltipEl = document.querySelector('#tooltip');
-    tooltipEl.style.pointerEvents = 'none';
+
     this.el.addEventListener('mouseenter', this.handleMouseEnter);
     this.el.addEventListener('mouseleave', this.handleMouseLeave);
   },
