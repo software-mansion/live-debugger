@@ -78,7 +78,12 @@ defmodule LiveDebuggerWeb.StateLive do
           </.alert>
         </:failed>
 
-        <.info_section node={node} node_type={@node_type.result} nested?={@lv_process.nested?} />
+        <.info_section
+          node={node}
+          node_type={@node_type.result}
+          nested?={@lv_process.nested?}
+          in_iframe?={@in_iframe?}
+        />
         <.assigns_section assigns={node.assigns} />
         <.fullscreen id="assigns-display-fullscreen" title="Assigns">
           <ElixirDisplay.term
@@ -121,6 +126,7 @@ defmodule LiveDebuggerWeb.StateLive do
   attr(:node, :any, required: true)
   attr(:node_type, :atom, required: true)
   attr(:nested?, :boolean, default: false)
+  attr(:in_iframe?, :boolean, default: false)
 
   defp info_section(assigns) do
     ~H"""
@@ -131,7 +137,11 @@ defmodule LiveDebuggerWeb.StateLive do
       <div class="p-4 flex flex-col gap-1">
         <div class="flex gap-3">
           <.info_row name="Module" value={Parsers.module_to_string(@node.module)} />
-          <.copy_button id="module-name" value={Parsers.module_to_string(@node.module)} />
+          <.copy_button
+            id="module-name"
+            in-iframe={@in_iframe?}
+            value={Parsers.module_to_string(@node.module)}
+          />
         </div>
         <.info_row name={id_type(@node_type)} value={TreeNode.display_id(@node)} />
       </div>

@@ -678,6 +678,7 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:id, :string, required: true)
   attr(:value, :string, required: true)
+  attr(:rest, :global)
 
   def copy_button(assigns) do
     ~H"""
@@ -688,6 +689,7 @@ defmodule LiveDebuggerWeb.Components do
         phx-hook="CopyButton"
         data-info="<span class='icon-check m-[0.1rem] w-3 h-3'></span>Copied"
         data-value={@value}
+        {@rest}
       >
         <.icon name="icon-copy" class="w-4 h-4" />
       </button>
