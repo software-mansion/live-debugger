@@ -63,7 +63,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     default_filters = default_filters(node_id)
 
     socket
-    |> ExistingTraces.init()
+    |> ExistingTraces.init(@page_size)
     |> assign(:displayed_trace, nil)
     |> assign(current_filters: default_filters)
     |> assign(default_filters: default_filters)
@@ -163,29 +163,6 @@ defmodule LiveDebuggerWeb.TracesLive do
   end
 
   @impl true
-  def handle_async(:load_more_existing_traces, {:ok, {trace_list, cont}}, socket) do
-    trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
-
-    socket
-    |> assign(:traces_continuation, cont)
-    |> stream(:existing_traces, trace_list)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_async(:load_more_existing_traces, {:ok, :end_of_table}, socket) do
-    socket
-    |> assign(:traces_continuation, :end_of_table)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
-    log_async_error("loading more existing traces", reason)
-    socket
-  end
-
-  @impl true
   def handle_info({:new_trace, trace}, socket) do
     socket
     |> TracingHelper.check_fuse()
@@ -282,7 +259,7 @@ defmodule LiveDebuggerWeb.TracesLive do
   @impl true
   def handle_event("load-more", _, socket) do
     socket
-    |> load_more_existing_traces()
+    |> ExistingTraces.assign_async_more_existing_traces()
     |> noreply()
   end
 
@@ -345,26 +322,6 @@ defmodule LiveDebuggerWeb.TracesLive do
     |> noreply()
   end
 
-  defp load_more_existing_traces(socket) do
-    pid = socket.assigns.lv_process.pid
-    node_id = socket.assigns.node_id
-    cont = socket.assigns.traces_continuation
-    active_functions = get_active_functions(socket)
-    execution_times = get_execution_times(socket)
-
-    socket
-    |> assign(:traces_continuation, :loading)
-    |> start_async(:load_more_existing_traces, fn ->
-      TraceService.existing_traces(pid,
-        node_id: node_id,
-        limit: @page_size,
-        cont: cont,
-        functions: active_functions,
-        execution_times: execution_times
-      )
-    end)
-  end
-
   defp default_filters(node_id) do
     functions =
       node_id
@@ -384,21 +341,9 @@ defmodule LiveDebuggerWeb.TracesLive do
     }
   end
 
-  defp get_active_functions(socket) do
-    socket.assigns.current_filters.functions
-    |> Enum.filter(fn {_, active?} -> active? end)
-    |> Enum.map(fn {function, _} -> function end)
-  end
-
   defp get_execution_times(socket) do
     socket.assigns.current_filters.execution_time
     |> Enum.filter(fn {_, value} -> value != "" end)
     |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
-  end
-
-  defp log_async_error(operation, reason) do
-    Logger.error(
-      "LiveDebugger encountered unexpected error while #{operation}: #{inspect(reason)}"
-    )
   end
 end

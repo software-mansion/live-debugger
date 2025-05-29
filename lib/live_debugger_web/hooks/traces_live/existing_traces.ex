@@ -1,9 +1,15 @@
 defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
   @moduledoc """
+  Required assigns:
+  - `:lv_process` - the LiveView process
+  - `:current_filters` - the current filters
+  - `:node_id` - the node ID
+
   Assigns introduced by this hook:
   - `:traces_continuation` - the continuation token for the existing traces, possible values: `nil`, `:end_of_table`, `ets_continuation()`
   - `:traces_empty?` - whether the existing traces are empty, possible values: `true`, `false`
   - `:existing_traces_status` - the status of the existing traces, possible values: `:loading`, `:ok`, `:error`
+  - `:page_size` - the page size for the existing traces
 
   Streams introduced by this hook:
   - `:existing_traces` - the stream of existing traces.
@@ -18,18 +24,18 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
 
-  @page_size 25
-
-  def init(socket) do
+  def init(socket, page_size) do
     socket
     |> assign(:traces_continuation, nil)
     |> assign(:traces_empty?, true)
-    |> attach_hook(:fetch_existing_traces, :handle_async, &handle_async/3)
+    |> assign(:page_size, page_size)
+    |> attach_hook(:existing_traces, :handle_async, &handle_async/3)
   end
 
   def assign_async_existing_traces(socket) do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
+    page_size = socket.assigns.page_size
     active_functions = get_active_functions(socket)
     execution_times = get_execution_times(socket)
 
@@ -39,7 +45,28 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
     |> start_async(:fetch_existing_traces, fn ->
       TraceService.existing_traces(pid,
         node_id: node_id,
-        limit: @page_size,
+        limit: page_size,
+        functions: active_functions,
+        execution_times: execution_times
+      )
+    end)
+  end
+
+  def assign_async_more_existing_traces(socket) do
+    pid = socket.assigns.lv_process.pid
+    node_id = socket.assigns.node_id
+    cont = socket.assigns.traces_continuation
+    page_size = socket.assigns.page_size
+    active_functions = get_active_functions(socket)
+    execution_times = get_execution_times(socket)
+
+    socket
+    |> assign(:traces_continuation, :loading)
+    |> start_async(:load_more_existing_traces, fn ->
+      TraceService.existing_traces(pid,
+        node_id: node_id,
+        limit: page_size,
+        cont: cont,
         functions: active_functions,
         execution_times: execution_times
       )
@@ -69,6 +96,29 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
 
     socket
     |> assign(:existing_traces_status, :error)
+    |> halt()
+  end
+
+  def handle_async(:load_more_existing_traces, {:ok, {trace_list, cont}}, socket) do
+    trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
+
+    socket
+    |> assign(:traces_continuation, cont)
+    |> stream(:existing_traces, trace_list)
+    |> halt()
+  end
+
+  def handle_async(:load_more_existing_traces, {:ok, :end_of_table}, socket) do
+    socket
+    |> assign(:traces_continuation, :end_of_table)
+    |> halt()
+  end
+
+  # TODO: handle this case in a proper way
+  def handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
+    log_async_error("loading more existing traces", reason)
+
+    socket
     |> halt()
   end
 
