@@ -2,23 +2,50 @@ export function setTooltipPosition(tooltipEl, referencedElement) {
   const tooltipRect = tooltipEl.getBoundingClientRect();
   const rect = referencedElement.getBoundingClientRect();
 
-  const topOffset =
-    referencedElement.dataset.position == 'top'
-      ? rect.top - tooltipRect.height
-      : rect.bottom;
+  // Reset any previous positioning
+  tooltipEl.style.top = '';
+  tooltipEl.style.left = '';
+  tooltipEl.style.right = '';
+  tooltipEl.style.bottom = '';
 
-  if (rect.left + tooltipRect.width > window.innerWidth) {
-    tooltipEl.style.right = `${window.innerWidth - rect.right}px`;
-    tooltipEl.style.left = 'auto';
-  } else if (rect.right < tooltipRect.width) {
-    tooltipEl.style.left = `${rect.left}px`;
-    tooltipEl.style.right = 'auto';
-  } else {
-    tooltipEl.style.left = `${rect.left + rect.width / 2 - tooltipRect.width / 2}px`;
-    tooltipEl.style.right = 'auto';
+  switch (referencedElement.dataset.position) {
+    case 'top':
+      tooltipEl.style.top = `${rect.top - tooltipRect.height}px`;
+      tooltipEl.style.left = `${rect.left}px`;
+      break;
+    case 'bottom':
+      tooltipEl.style.top = `${rect.bottom}px`;
+      tooltipEl.style.left = `${rect.left}px`;
+      break;
+    case 'left':
+      tooltipEl.style.left = `${rect.left - tooltipRect.width}px`;
+      tooltipEl.style.top = `${rect.top + (rect.height - tooltipRect.height) / 2}px`;
+      break;
+    case 'right':
+      tooltipEl.style.left = `${rect.right}px`;
+      tooltipEl.style.top = `${rect.top + (rect.height - tooltipRect.height) / 2}px`;
+      break;
+    case 'top-center':
+      tooltipEl.style.top = `${rect.top - tooltipRect.height}px`;
+      tooltipEl.style.left = `${rect.left + rect.width / 2 - tooltipRect.width / 2}px`;
+      break;
   }
 
-  tooltipEl.style.top = `${topOffset}px`;
+  // Handle horizontal overflow for top/bottom positions
+  if (['top', 'bottom'].includes(referencedElement.dataset.position)) {
+    if (rect.left + tooltipRect.width > window.innerWidth) {
+      tooltipEl.style.right = `${window.innerWidth - rect.right}px`;
+      tooltipEl.style.left = 'auto';
+    }
+  }
+
+  // Handle vertical overflow for left/right positions
+  if (['left', 'right'].includes(referencedElement.dataset.position)) {
+    if (rect.top + tooltipRect.height > window.innerHeight) {
+      tooltipEl.style.top = `${window.innerHeight - tooltipRect.height}px`;
+    }
+  }
+
   tooltipEl.style.zIndex = 100;
 }
 

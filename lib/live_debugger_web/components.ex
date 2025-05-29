@@ -539,7 +539,12 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:id, :string, required: true, doc: "ID of the tooltip. Prefix is added automatically.")
   attr(:content, :string, default: nil)
-  attr(:position, :string, default: "top", values: ["top", "bottom"])
+
+  attr(:position, :string,
+    default: "top",
+    values: ["top", "bottom", "left", "right", "top-center"]
+  )
+
   attr(:rest, :global)
   slot(:inner_block, required: true)
 
@@ -618,7 +623,7 @@ defmodule LiveDebuggerWeb.Components do
 
   def copy_button(assigns) do
     ~H"""
-    <.tooltip id={@id} content="Copy">
+    <.tooltip id={@id} content="Copy" position="top-center">
       <button
         id={"copy-button_" <>@id}
         class="hover:text-secondary-text"
