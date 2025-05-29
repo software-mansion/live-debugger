@@ -7,9 +7,6 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces do
   - `:traces_empty?` - whether the existing traces are empty, possible values: `true`, `false`
   - `:trace_callback_running?` - whether the trace callback is running
 
-  Assigns introduced by this hook:
-
-
   Required stream:
   - `:existing_traces` - the stream of existing traces.
   """
