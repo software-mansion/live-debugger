@@ -12,13 +12,12 @@ defmodule LiveDebuggerWeb.TracesLive do
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
-  alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebuggerWeb.Components.Traces
 
   alias LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces
+  alias LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces
 
-  @live_stream_limit 128
   @page_size 25
   @separator %{id: "separator"}
 
@@ -63,15 +62,18 @@ defmodule LiveDebuggerWeb.TracesLive do
     default_filters = default_filters(node_id)
 
     socket
-    |> ExistingTraces.init(@page_size)
-    |> assign(:displayed_trace, nil)
     |> assign(current_filters: default_filters)
+    |> assign(lv_process: lv_process)
+    |> assign(node_id: node_id)
+    |> assign(traces_empty?: true)
+    |> ExistingTraces.init_hook(@page_size)
+    |> IncomingTraces.init_hook()
+    |> assign(:displayed_trace, nil)
     |> assign(default_filters: default_filters)
     |> assign(trace_callback_running?: false)
     |> assign(node_id: node_id)
     |> assign(id: session["id"])
     |> assign(root_pid: session["root_pid"])
-    |> assign(lv_process: lv_process)
     |> TracingHelper.init()
     |> ExistingTraces.assign_async_existing_traces()
     |> ok()
@@ -160,62 +162,6 @@ defmodule LiveDebuggerWeb.TracesLive do
       <Traces.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
     </div>
     """
-  end
-
-  @impl true
-  def handle_info({:new_trace, trace}, socket) do
-    socket
-    |> TracingHelper.check_fuse()
-    |> case do
-      {:ok, socket} ->
-        trace_display = TraceDisplay.from_trace(trace, true)
-
-        socket
-        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
-        |> assign(traces_empty?: false)
-        |> assign(trace_callback_running?: true)
-
-      {:stopped, socket} ->
-        limit = TracingHelper.trace_limit_per_period()
-        period = TracingHelper.time_period() |> Parsers.parse_elapsed_time()
-
-        socket.assigns.root_pid
-        |> push_flash(
-          socket,
-          "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}."
-        )
-
-      {_, socket} ->
-        socket
-    end
-    |> noreply()
-  end
-
-  @impl true
-  def handle_info({:updated_trace, trace}, socket) when socket.assigns.trace_callback_running? do
-    trace_display = TraceDisplay.from_trace(trace, true)
-
-    execution_time = get_execution_times(socket)
-    min_time = Keyword.get(execution_time, :exec_time_min, 0)
-    max_time = Keyword.get(execution_time, :exec_time_max, :infinity)
-
-    if trace.execution_time >= min_time and trace.execution_time <= max_time do
-      socket
-      |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
-    else
-      socket
-      |> stream_delete(:existing_traces, trace_display)
-    end
-    |> assign(trace_callback_running?: false)
-    |> TracingHelper.maybe_disable_tracing_after_update()
-    |> push_event("stop-timer", %{})
-    |> noreply()
-  end
-
-  @impl true
-  def handle_info({:updated_trace, _trace}, socket) do
-    socket
-    |> noreply()
   end
 
   @impl true
@@ -339,11 +285,5 @@ defmodule LiveDebuggerWeb.TracesLive do
         {:exec_time_min, ""}
       ]
     }
-  end
-
-  defp get_execution_times(socket) do
-    socket.assigns.current_filters.execution_time
-    |> Enum.filter(fn {_, value} -> value != "" end)
-    |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
   end
 end

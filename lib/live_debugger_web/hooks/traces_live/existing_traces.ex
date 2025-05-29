@@ -1,16 +1,18 @@
 defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
   @moduledoc """
-  Required assigns:
+  Required read-only assigns:
   - `:lv_process` - the LiveView process
   - `:current_filters` - the current filters
   - `:node_id` - the node ID
 
+  Required write-only assigns:
+  - `:traces_empty?` - whether the existing traces are empty, possible values: `true`, `false`
+
   Assigns introduced by this hook:
   - `:traces_continuation` - the continuation token for the existing traces, possible values: `nil`, `:end_of_table`, `ets_continuation()`
-  - `:traces_empty?` - whether the existing traces are empty, possible values: `true`, `false`
   - `:existing_traces_status` - the status of the existing traces, possible values: `:loading`, `:ok`, `:error`
 
-  Streams introduced by this hook:
+  Streams used by this hook:
   - `:existing_traces` - the stream of existing traces.
   """
 
@@ -23,10 +25,13 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
 
-  def init(socket, page_size) do
+  def init_hook(socket, page_size) do
     socket
+    |> check_assign(:lv_process)
+    |> check_assign(:node_id)
+    |> check_assign(:current_filters)
+    |> check_assign(:traces_empty?)
     |> assign(:traces_continuation, nil)
-    |> assign(:traces_empty?, true)
     |> put_private(:page_size, page_size)
     |> attach_hook(:existing_traces, :handle_async, &handle_async/3)
   end
@@ -141,5 +146,13 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
     Logger.error(
       "LiveDebugger encountered unexpected error while #{operation}: #{inspect(reason)}"
     )
+  end
+
+  defp check_assign(socket, assign_name) do
+    if Map.has_key?(socket.assigns, assign_name) do
+      socket
+    else
+      raise "Assign #{assign_name} is required by this hook: #{__MODULE__}"
+    end
   end
 end
