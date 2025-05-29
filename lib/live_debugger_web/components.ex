@@ -463,14 +463,13 @@ defmodule LiveDebuggerWeb.Components do
       end
   """
   attr(:id, :string, required: true, doc: "Same as `id` of the fullscreen.")
-  attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
   attr(:icon, :string,
     default: "icon-expand",
     doc: "Icon to be displayed as a button"
   )
 
-  attr(:rest, :global)
+  attr(:rest, :global, include: ~w(class))
 
   def fullscreen_button(assigns) do
     ~H"""
@@ -480,7 +479,6 @@ defmodule LiveDebuggerWeb.Components do
       icon={@icon}
       size="sm"
       data-fullscreen-id={@id}
-      class={@class}
       variant="secondary"
       {@rest}
     />
