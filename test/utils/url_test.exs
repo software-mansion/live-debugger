@@ -97,6 +97,13 @@ defmodule LiveDebugger.Utils.URLTest do
     end
   end
 
+  describe "remove_query_params/1" do
+    test "removes all query parameters from a URL" do
+      assert URL.remove_query_params("http://example.com/foo?key1=value1&key2=value2") ==
+               "http://example.com/foo"
+    end
+  end
+
   describe "modify_query_params/2" do
     test "modifies query parameters in a URL using a function" do
       assert URL.modify_query_params("http://example.com/foo?key=value", fn params ->
