@@ -1,19 +1,17 @@
 defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
   @moduledoc """
-  Required read-only assigns:
+  Required assigns:
   - `:lv_process` - the LiveView process
   - `:current_filters` - the current filters
   - `:node_id` - the node ID
-
-  Required write-only assigns:
   - `:traces_empty?` - whether the existing traces are empty, possible values: `true`, `false`
+
+  Required stream:
+  - `:existing_traces` - the stream of existing traces.
 
   Assigns introduced by this hook:
   - `:traces_continuation` - the continuation token for the existing traces, possible values: `nil`, `:end_of_table`, `ets_continuation()`
   - `:existing_traces_status` - the status of the existing traces, possible values: `:loading`, `:ok`, `:error`
-
-  Streams used by this hook:
-  - `:existing_traces` - the stream of existing traces.
   """
 
   require Logger
@@ -31,6 +29,7 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
     |> check_assign(:node_id)
     |> check_assign(:current_filters)
     |> check_assign(:traces_empty?)
+    |> check_stream(:existing_traces)
     |> assign(:traces_continuation, nil)
     |> put_private(:page_size, page_size)
     |> attach_hook(:existing_traces, :handle_async, &handle_async/3)
@@ -153,6 +152,14 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
       socket
     else
       raise "Assign #{assign_name} is required by this hook: #{__MODULE__}"
+    end
+  end
+
+  defp check_stream(socket, stream_name) do
+    if Map.has_key?(socket.assigns.streams, stream_name) do
+      socket
+    else
+      raise "Stream #{stream_name} is required by this hook: #{__MODULE__}"
     end
   end
 end

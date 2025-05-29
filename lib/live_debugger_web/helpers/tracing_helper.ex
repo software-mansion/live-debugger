@@ -4,6 +4,12 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
   It is responsible for determining if the tracing should be stopped.
   It introduces a fuse mechanism to prevent LiveView from being overloaded with traces.
 
+  Required assigns:
+  - `:lv_process` - the LiveView process
+  - `:node_id` - the node ID
+  - `:current_filters` - the current filters
+  - `:trace_callback_running?` - whether the trace callback is running
+
   """
 
   import Phoenix.Component, only: [assign: 3]
@@ -20,7 +26,12 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
 
   @spec init(Socket.t()) :: Socket.t()
   def init(socket) do
-    clear_tracing(socket)
+    socket
+    |> check_assign(:lv_process)
+    |> check_assign(:node_id)
+    |> check_assign(:current_filters)
+    |> check_assign(:trace_callback_running?)
+    |> clear_tracing()
   end
 
   @spec switch_tracing(Socket.t()) :: Socket.t()
@@ -171,5 +182,13 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
         type
       )
     end)
+  end
+
+  defp check_assign(socket, assign_name) do
+    if Map.has_key?(socket.assigns, assign_name) do
+      socket
+    else
+      raise "Assign #{assign_name} is required by this hook: #{__MODULE__}"
+    end
   end
 end

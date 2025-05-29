@@ -1,6 +1,11 @@
 defmodule LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces do
   @moduledoc """
   Required assigns:
+  - `:tracing_helper` - the tracing helper
+  - `:current_filters` - the current filters
+  - `:trace_callback_running?` - whether the trace callback is running
+
+
 
   Assigns introduced by this hook:
 
@@ -19,6 +24,8 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces do
 
   def init_hook(socket) do
     socket
+    |> check_assign(:tracing_helper)
+    |> check_stream(:existing_traces)
     |> attach_hook(:incoming_traces, :handle_info, &handle_info/2)
   end
 
@@ -82,5 +89,21 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces do
     socket.assigns.current_filters.execution_time
     |> Enum.filter(fn {_, value} -> value != "" end)
     |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
+  end
+
+  defp check_assign(socket, assign_name) do
+    if Map.has_key?(socket.assigns, assign_name) do
+      socket
+    else
+      raise "Assign #{assign_name} is required by this hook: #{__MODULE__}"
+    end
+  end
+
+  defp check_stream(socket, stream_name) do
+    if Map.has_key?(socket.assigns.streams, stream_name) do
+      socket
+    else
+      raise "Stream #{stream_name} is required by this hook: #{__MODULE__}"
+    end
   end
 end
