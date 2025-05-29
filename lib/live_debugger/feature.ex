@@ -9,6 +9,10 @@ defmodule LiveDebugger.Feature do
       Application.get_env(:live_debugger, :highlighting?, true)
   end
 
+  def enabled?(:dead_view_mode) do
+    Application.get_env(:live_debugger, :dead_view_mode?, true)
+  end
+
   def enabled?(feature_name) do
     raise "Feature #{feature_name} is not allowed"
   end

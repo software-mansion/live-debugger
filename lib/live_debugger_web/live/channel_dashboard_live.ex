@@ -6,8 +6,9 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
 
   require Logger
 
+  alias LiveDebuggerWeb.Helpers.RoutesHelper
+  alias LiveDebuggerWeb.Components.Navbar
   alias Phoenix.LiveView.JS
-  alias LiveDebugger.Utils.URL
 
   alias LiveDebugger.Structs.TreeNode
 
@@ -15,13 +16,13 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias LiveDebuggerWeb.TracesLive
   alias LiveDebuggerWeb.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
-  alias LiveDebuggerWeb.Helpers.RoutesHelper
+  alias LiveDebugger.Utils.Parsers
+  alias LiveDebuggerWeb.Components.NavigationMenu
 
   @impl true
-  def handle_params(params, url, socket) do
+  def handle_params(params, _url, socket) do
     socket
     |> assign_node_id(params)
-    |> assign(:url, URL.to_relative(url))
     |> noreply()
   end
 
@@ -29,16 +30,39 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   def render(assigns) do
     ~H"""
     <div id="channel-dashboard" class="w-screen h-screen grid grid-rows-[auto_1fr]">
-      <.navbar return_link={get_return_link(@lv_process, @in_iframe?)}>
-        <div class="grow flex items-center justify-end">
+      <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto] pl-2 lg:pr-4">
+        <Navbar.return_link
+          return_link={get_return_link(@lv_process, @in_iframe?)}
+          class="hidden sm:block"
+        />
+        <NavigationMenu.dropdown
+          return_link={get_return_link(@lv_process, @in_iframe?)}
+          class="sm:hidden"
+        />
+        <Navbar.live_debugger_logo_icon />
+        <div
+          :if={not @lv_process.ok?}
+          class="animate-pulse w-36 bg-surface-1-bg rounded text-surface-1-bg"
+        >
+          Loading...
+        </div>
+        <Navbar.connected
+          :if={@lv_process.ok?}
+          id="navbar-connected"
+          connected?={@lv_process.result.alive?}
+          pid={Parsers.pid_to_string(@lv_process.result.pid)}
+        />
+        <div class="flex items-center gap-2">
+          <Navbar.settings_button return_to={@url} />
+          <span :if={@lv_process.ok?} class="h-5 border-r border-default-border lg:hidden"></span>
           <.nav_icon
             :if={@lv_process.ok?}
             phx-click={JS.push("open-sidebar", target: "#sidebar")}
             class="flex lg:hidden"
-            icon="icon-menu-hamburger"
+            icon="icon-panel-right"
           />
         </div>
-      </.navbar>
+      </Navbar.navbar>
       <.async_result :let={lv_process} assign={@lv_process}>
         <:loading>
           <div class="m-auto flex items-center justify-center">
@@ -46,6 +70,24 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
           </div>
         </:loading>
         <div class="flex overflow-hidden">
+          <NavigationMenu.sidebar class="hidden sm:flex" />
+          <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
+            <StateLive.live_render
+              id="node-state-lv"
+              class="flex"
+              socket={@socket}
+              lv_process={lv_process}
+              node_id={@node_id || lv_process.pid}
+            />
+            <TracesLive.live_render
+              id="traces-list"
+              class="flex"
+              socket={@socket}
+              lv_process={lv_process}
+              node_id={@node_id || lv_process.pid}
+              root_pid={self()}
+            />
+          </div>
           <SidebarLive.live_render
             id="sidebar"
             class="h-full"
@@ -54,28 +96,17 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
             url={@url}
             node_id={@node_id || lv_process.pid}
           />
-
-          <div class="flex grow flex-col xl:flex-row gap-4 xl:gap-8 p-8 overflow-y-auto xl:overflow-y-hidden max-w-screen-2xl mx-auto scrollbar-main">
-            <StateLive.live_render
-              id="node-state-lv"
-              class="flex xl:w-1/2"
-              socket={@socket}
-              lv_process={lv_process}
-              node_id={@node_id || lv_process.pid}
-            />
-            <TracesLive.live_render
-              id="traces-list"
-              class="flex max-xl:grow xl:w-1/2"
-              socket={@socket}
-              lv_process={lv_process}
-              node_id={@node_id || lv_process.pid}
-              root_pid={self()}
-            />
-          </div>
         </div>
       </.async_result>
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("find-successor", _, socket) do
+    send(self(), :find_successor)
+
+    {:noreply, socket}
   end
 
   defp assign_node_id(socket, %{"node_id" => node_id}) do

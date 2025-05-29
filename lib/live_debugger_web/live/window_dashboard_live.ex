@@ -1,10 +1,18 @@
 defmodule LiveDebuggerWeb.WindowDashboardLive do
+  @moduledoc """
+  This view is a variant of the LiveViews dashboard, but it is used to display LiveViews in the given window.
+  It cannot be accessed from the browser directly, but:
+  - it is used when there are many LiveViews in the same window, and we cannot find a single successor.
+  - in case of extension this replaces the LiveViews dashboard, since extension works in a single window.
+  """
+
   use LiveDebuggerWeb, :live_view
 
   alias LiveDebugger.Utils.Parsers
   alias LiveDebuggerWeb.Helpers.RoutesHelper
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebuggerWeb.Components.TabGroup
+  alias LiveDebuggerWeb.Components.Navbar
   alias Phoenix.LiveView.AsyncResult
 
   @impl true
@@ -27,7 +35,15 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
   def render(assigns) do
     ~H"""
     <div id="window-dashboard" class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
-      <.navbar return_link={get_return_link(@in_iframe?)} />
+      <Navbar.navbar class={"grid  #{if @in_iframe?, do: "grid-cols-[auto_1fr_auto] ", else: "grid-cols-[auto_auto_1fr_auto] pl-2"} "}>
+        <Navbar.return_link
+          class={if @in_iframe?, do: "hidden", else: ""}
+          return_link={RoutesHelper.live_views_dashboard()}
+        />
+        <Navbar.live_debugger_logo />
+        <Navbar.fill />
+        <Navbar.settings_button return_to={@url} />
+      </Navbar.navbar>
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
         <div class="flex items-center justify-between">
           <.h1>Active LiveViews in a single window</.h1>
@@ -59,7 +75,6 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
               <% else %>
                 <TabGroup.group
                   :for={{transport_pid, grouped_lv_processes} <- grouped_lv_processes}
-                  window_link?={false}
                   transport_pid={transport_pid}
                   grouped_lv_processes={grouped_lv_processes}
                 />
@@ -97,7 +112,4 @@ defmodule LiveDebuggerWeb.WindowDashboardLive do
 
     LiveViewDiscoveryService.debugged_lv_processes(transport_pid)
   end
-
-  defp get_return_link(true), do: nil
-  defp get_return_link(false), do: RoutesHelper.live_views_dashboard()
 end

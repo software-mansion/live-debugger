@@ -11,21 +11,24 @@ browser.devtools.panels.create(
         panelWindow = window;
         isShown = true;
         try {
-          window.set_iframe_url(await getLiveDebuggerSessionURL(browser));
+          window.setIframeUrl(await getLiveDebuggerSessionURL(browser));
         } catch (error) {
-          window.set_iframe_url(null);
+          window.setIframeUrl(null);
         }
       }
     });
 
     browser.webNavigation.onCompleted.addListener(async (details) => {
-      if (details.tabId === chrome.devtools.inspectedWindow.tabId) {
+      if (
+        details.tabId === chrome.devtools.inspectedWindow.tabId &&
+        allowRedirects(browser)
+      ) {
         try {
-          panelWindow.set_iframe_url(await getLiveDebuggerSessionURL(browser));
+          panelWindow.setIframeUrl(await getLiveDebuggerSessionURL(browser));
         } catch (error) {
-          panelWindow.set_iframe_url(null);
+          panelWindow.setIframeUrl(null);
         }
       }
     });
-  },
+  }
 );

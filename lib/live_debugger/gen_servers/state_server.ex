@@ -19,7 +19,8 @@ defmodule LiveDebugger.GenServers.StateServer do
 
   @doc """
   Returns previously stored state of the LiveView channel process identified by `pid`.
-  If the state is not found, it returns `{:error, :not_found}`.
+  If the state is not found, it fetches it from the process.
+  If the process is dead, it returns an error.
   """
   @spec get(pid :: pid()) :: {:ok, CommonTypes.channel_state()} | {:error, term()}
   def get(pid) when is_pid(pid) do
@@ -73,6 +74,8 @@ defmodule LiveDebugger.GenServers.StateServer do
     {:noreply, state}
   end
 
+  def handle_info({:process_status, _}, state), do: {:noreply, state}
+
   defp save_state(%Trace{pid: pid} = trace) do
     with {:ok, channel_state} <- ProcessService.state(pid) do
       record_id = record_id(pid)
@@ -107,8 +110,11 @@ defmodule LiveDebugger.GenServers.StateServer do
 
     def get(pid) do
       case :ets.lookup(@server_module.ets_table_name(), @server_module.record_id(pid)) do
-        [{_, channel_state}] -> {:ok, channel_state}
-        [] -> {:error, :not_found}
+        [{_, channel_state}] ->
+          {:ok, channel_state}
+
+        [] ->
+          ProcessService.state(pid)
       end
     end
   end

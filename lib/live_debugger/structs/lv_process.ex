@@ -16,7 +16,8 @@ defmodule LiveDebugger.Structs.LvProcess do
     :module,
     :nested?,
     :debugger?,
-    :embedded?
+    :embedded?,
+    alive?: true
   ]
 
   @type t() :: %__MODULE__{
@@ -28,7 +29,8 @@ defmodule LiveDebugger.Structs.LvProcess do
           module: module(),
           nested?: boolean(),
           embedded?: boolean(),
-          debugger?: boolean()
+          debugger?: boolean(),
+          alive?: boolean()
         }
 
   @spec new(pid :: pid(), socket :: Phoenix.LiveView.Socket.t()) :: t()

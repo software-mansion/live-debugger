@@ -5,8 +5,7 @@ defmodule LiveDebuggerWeb.Components do
 
   use Phoenix.Component
 
-  import Phoenix.HTML
-
+  alias LiveDebugger.Utils.Parsers
   alias Phoenix.LiveView.JS
 
   @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
@@ -73,46 +72,39 @@ defmodule LiveDebuggerWeb.Components do
     """
   end
 
-  @doc """
-  Renders an input with label.
-  """
-  attr(:field, Phoenix.HTML.FormField, required: true)
-  attr(:label_text, :string, default: nil)
-  attr(:label_raw, :boolean, default: false)
-  attr(:type, :string, default: "text")
+  attr(:value_field, Phoenix.HTML.FormField, required: true)
+  attr(:unit_field, Phoenix.HTML.FormField, required: true)
+  attr(:units, :list, required: true)
+  attr(:rest, :global, include: ~w(min max placeholder))
 
-  attr(:wrapper_class, :any, default: nil)
-  attr(:input_class, :any, default: nil)
-  attr(:label_class, :any, default: nil)
-  attr(:rest, :global, include: ~w(min max))
-
-  def input(assigns) do
+  def input_with_units(assigns) do
     assigns =
       assigns
-      |> assign(:errors, assigns.field.errors)
+      |> assign(:errors, assigns.value_field.errors)
 
     ~H"""
-    <div phx-feedback-for={@field.name} class={["" | List.wrap(@wrapper_class)]}>
-      <label for={@field.id} class={["block font-medium text-xs" | List.wrap(@label_class)]}>
-        <%= if @label_raw, do: raw(@label_text), else: @label_text %>
-      </label>
+    <div class={[
+      "shadow-sm flex items-center rounded-[4px] outline outline-1 -outline-offset-1 has-[input:focus-within]:outline has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2",
+      @errors == [] && "outline-default-border has-[input:focus-within]:outline-ui-accent",
+      @errors != [] && "outline-error-text has-[input:focus-within]:outline-error-text"
+    ]}>
       <input
-        type={@type}
-        name={@field.name}
-        id={@field.id}
-        value={Phoenix.HTML.Form.normalize_value(@type, @field.value)}
-        class={[
-          "mt-2 block w-full rounded-lg bg-surface-1-bg  focus:ring-0 text-xs",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
-          @errors == [] && "border-default-border focus:border-secondary-text",
-          @errors != [] && "border-error-text focus:border-error-text"
-          | List.wrap(@input_class)
-        ]}
+        id={@value_field.id}
+        name={@value_field.name}
+        type="number"
+        class="block remove-arrow max-w-20 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0"
+        value={Phoenix.HTML.Form.normalize_value("number", @value_field.value)}
         {@rest}
       />
-      <p :for={msg <- @errors} class="mt-2 block text-error-text">
-        <%= msg %>
-      </p>
+      <div class="grid shrink-0 grid-cols-1 focus-within:relative">
+        <select
+          id={@unit_field.id}
+          name={@unit_field.name}
+          class="border-none bg-surface-0-bg col-start-1 row-start-1 w-full appearance-none rounded-md py-1.5 pl-3 pr-7 text-xs text-secondary-text placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-ui-accent"
+        >
+          <%= Phoenix.HTML.Form.options_for_select(@units, @unit_field.value) %>
+        </select>
+      </div>
     </div>
     """
   end
@@ -361,7 +353,7 @@ defmodule LiveDebuggerWeb.Components do
       assigns
       |> assign(:button_class, button_class)
       |> assign(:icon_class, icon_class)
-      |> assign(:aria_label, assigns[:"aria-label"] || icon_label(assigns.icon))
+      |> assign(:aria_label, assigns[:"aria-label"] || Parsers.kebab_to_text(assigns.icon))
 
     ~H"""
     <.button
@@ -372,26 +364,6 @@ defmodule LiveDebuggerWeb.Components do
     >
       <.icon name={@icon} class={@icon_class} />
     </.button>
-    """
-  end
-
-  attr(:icon, :string, required: true, doc: "Icon to be displayed.")
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
-
-  attr(:rest, :global, include: ~w(id))
-
-  def nav_icon(assigns) do
-    ~H"""
-    <button
-      aria-label={icon_label(@icon)}
-      class={[
-        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
-        | List.wrap(@class)
-      ]}
-      {@rest}
-    >
-      <.icon name={@icon} class="h-6 w-6" />
-    </button>
     """
   end
 
@@ -585,47 +557,6 @@ defmodule LiveDebuggerWeb.Components do
     """
   end
 
-  @doc """
-  Renders navbar with possible link to return to the main page.
-  """
-  attr(:return_link, :string,
-    default: nil,
-    doc: "Link to return to the main page."
-  )
-
-  slot(:inner_block)
-
-  def navbar(assigns) do
-    ~H"""
-    <navbar class="w-full h-12 shrink-0 py-auto px-4 flex items-center gap-2 bg-navbar-bg text-navbar-logo border-b border-navbar-border">
-      <.link :if={@return_link} patch={@return_link}>
-        <.nav_icon icon="icon-arrow-left" />
-      </.link>
-
-      <div class="grow flex items-center justify-between">
-        <div>
-          <.icon name="icon-logo-text" class="h-6 w-32" />
-        </div>
-        <div class="flex items-center">
-          <.nav_icon
-            id="light-mode-switch"
-            class="dark:hidden"
-            icon="icon-moon"
-            phx-hook="ToggleTheme"
-          />
-          <.nav_icon
-            id="dark-mode-switch"
-            class="hidden dark:block"
-            icon="icon-sun"
-            phx-hook="ToggleTheme"
-          />
-          <%= @inner_block && render_slot(@inner_block) %>
-        </div>
-      </div>
-    </navbar>
-    """
-  end
-
   attr(:class, :any, default: nil)
   attr(:text, :string, default: "See any issues?")
 
@@ -658,15 +589,20 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:checked, :boolean, default: false, doc: "Whether the switch is checked.")
   attr(:label, :string, default: "", doc: "Label for the switch.")
+  attr(:wrapper_class, :any, default: nil, doc: "Additional classes to add to the switch.")
+  attr(:id, :string, default: nil, doc: "ID of the switch.")
   attr(:rest, :global)
 
   def toggle_switch(assigns) do
     ~H"""
-    <label class="inline-flex items-center cursor-pointer pr-6 py-3">
+    <label class={[
+      "inline-flex items-center cursor-pointer pr-6 py-3"
+      | List.wrap(@wrapper_class)
+    ]}>
       <span class="text-xs font-normal text-primary-text mx-2">
         <%= @label %>
       </span>
-      <input id="highlight-switch" type="checkbox" class="sr-only peer" checked={@checked} {@rest} />
+      <input id={@id} type="checkbox" class="sr-only peer" checked={@checked} {@rest} />
       <div class="relative w-9 h-5 bg-ui-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ui-accent rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-ui-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ui-accent ">
       </div>
     </label>
@@ -697,6 +633,29 @@ defmodule LiveDebuggerWeb.Components do
     """
   end
 
+  @doc """
+  Renders an icon with navbar styles.
+  """
+  attr(:icon, :string, required: true, doc: "Icon to be displayed.")
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
+
+  attr(:rest, :global, include: ~w(id))
+
+  def nav_icon(assigns) do
+    ~H"""
+    <button
+      aria-label={Parsers.kebab_to_text(@icon)}
+      class={[
+        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
+        | List.wrap(@class)
+      ]}
+      {@rest}
+    >
+      <.icon name={@icon} class="h-6 w-6" />
+    </button>
+    """
+  end
+
   attr(:variant, :string, required: true, values: ["danger"])
 
   defp alert_icon(assigns) do
@@ -724,10 +683,4 @@ defmodule LiveDebuggerWeb.Components do
 
   defp button_size_classes("md"), do: "py-2 px-3"
   defp button_size_classes("sm"), do: "py-1.5 px-2"
-
-  defp icon_label("icon-" <> icon_name) do
-    icon_name
-    |> String.capitalize()
-    |> String.replace("-", " ")
-  end
 end
