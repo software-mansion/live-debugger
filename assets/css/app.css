@@ -38,11 +38,3 @@ body::-webkit-scrollbar {
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
-
-.tooltip-primary {
-  font-weight: 600;
-}
-
-.tooltip-secondary {
-  font-weight: 400;
-}
