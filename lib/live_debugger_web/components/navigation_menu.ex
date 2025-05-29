@@ -11,8 +11,11 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
   attr(:current_url, :any, required: true)
 
   def sidebar(assigns) do
-    pid = assigns.current_url |> String.split("/") |> Enum.at(2)
-    assigns = assign(assigns, pid: pid)
+    assigns =
+      assign(assigns,
+        pid: get_pid(assigns.current_url),
+        current_view: get_current_view(assigns.current_url)
+      )
 
     ~H"""
     <div class={[
@@ -20,10 +23,10 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
       | List.wrap(@class)
     ]}>
       <.link navigate={RoutesHelper.channel_dashboard(@pid)}>
-        <.nav_icon icon="icon-info" />
+        <.nav_icon icon="icon-info" selected?={@current_view == "node_inspector"} />
       </.link>
       <.link navigate={RoutesHelper.global_traces(@pid)}>
-        <.nav_icon icon="icon-globe" />
+        <.nav_icon icon="icon-globe" selected?={@current_view == "global_traces"} />
       </.link>
     </div>
     """
@@ -34,8 +37,11 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
   attr(:current_url, :any, required: true)
 
   def dropdown(assigns) do
-    pid = assigns.current_url |> String.split("/") |> Enum.at(2)
-    assigns = assign(assigns, pid: pid)
+    assigns =
+      assign(assigns,
+        pid: get_pid(assigns.current_url),
+        current_view: get_current_view(assigns.current_url)
+      )
 
     ~H"""
     <.live_component
@@ -53,13 +59,33 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
         </.link>
         <span class="w-full border-b border-default-border my-1"></span>
         <.link navigate={RoutesHelper.channel_dashboard(@pid)}>
-          <LiveDropdown.dropdown_item icon="icon-info" label="Node Inspector" />
+          <LiveDropdown.dropdown_item
+            icon="icon-info"
+            label="Node Inspector"
+            selected?={@current_view == "node_inspector"}
+          />
         </.link>
         <.link navigate={RoutesHelper.global_traces(@pid)}>
-          <LiveDropdown.dropdown_item icon="icon-globe" label="Global Callbacks" />
+          <LiveDropdown.dropdown_item
+            icon="icon-globe"
+            label="Global Callbacks"
+            selected?={@current_view == "global_traces"}
+          />
         </.link>
       </div>
     </.live_component>
     """
+  end
+
+  defp get_current_view(url) do
+    url
+    |> String.split("/")
+    |> Enum.at(3, "node_inspector")
+  end
+
+  defp get_pid(url) do
+    url
+    |> String.split("/")
+    |> Enum.at(2)
   end
 end
