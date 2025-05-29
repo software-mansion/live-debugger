@@ -66,7 +66,9 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
   @impl true
   def init(_args) do
-    init_garbage_collection_loop()
+    if LiveDebugger.Feature.enabled?(:garbage_collection) do
+      init_garbage_collection_loop()
+    end
 
     {:ok, %{}}
   end

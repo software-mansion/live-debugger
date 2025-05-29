@@ -10,11 +10,13 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
   setup :verify_on_exit!
 
   test "start_link/1" do
+    Application.put_env(:live_debugger, :garbage_collection?, false)
     assert {:ok, _pid} = EtsTableServer.start_link()
     GenServer.stop(EtsTableServer)
   end
 
   test "init/1" do
+    Application.put_env(:live_debugger, :garbage_collection?, false)
     assert {:ok, %{}} = EtsTableServer.init([])
   end
 
@@ -103,7 +105,45 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
     end
   end
 
-  describe "handle_info/2 with `garbage_collect`" do
+  describe "handle_call/3" do
+    test "creates table on event `{:get_or_create_table, pid}`" do
+      pid = :c.pid(0, 0, 1)
+      table_refs = %{}
+
+      assert {:reply, ref, new_table_refs} =
+               EtsTableServer.handle_call({:get_or_create_table, pid}, self(), table_refs)
+
+      assert [{:id, ^ref} | _] = :ets.info(ref)
+      assert ref == Map.get(new_table_refs, pid).table
+    end
+
+    test "returns existing table on event `{:get_or_create_table, pid}`" do
+      pid = :c.pid(0, 0, 1)
+      ref = :ets.new(:test_table, [])
+      table_refs = %{pid => %EtsTableServer.TableInfo{table: ref}}
+
+      assert {:reply, ^ref, new_table_refs} =
+               EtsTableServer.handle_call({:get_or_create_table, pid}, self(), table_refs)
+
+      assert ref == Map.get(new_table_refs, pid).table
+    end
+
+    test "adds watcher on event `{:watch, pid}`" do
+      pid = :c.pid(0, 0, 1)
+      watcher_pid = :c.pid(0, 0, 2)
+
+      table_refs = %{
+        pid => %EtsTableServer.TableInfo{table: :ets.new(:test_table, [])}
+      }
+
+      assert {:reply, :ok, new_table_refs} =
+               EtsTableServer.handle_call({:watch, pid}, {watcher_pid, nil}, table_refs)
+
+      assert MapSet.new([watcher_pid]) == Map.get(new_table_refs, pid).watchers
+    end
+  end
+
+  describe "`:garbage_collect` call" do
     test "deletes records if it has too many" do
       pid = :c.pid(0, 0, 1)
       ref = :ets.new(:test_table, [:ordered_set, :public])
@@ -114,7 +154,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
 
       table_refs = %{pid => %EtsTableServer.TableInfo{table: ref}}
 
-      assert {:noreply, _} = EtsTableServer.handle_info(:garbage_collect, table_refs)
+      assert {:reply, :ok, _} = EtsTableServer.handle_call(:garbage_collect, self(), table_refs)
 
       Process.sleep(100)
 
@@ -132,47 +172,9 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
 
       count = :ets.select_count(ref, [{{:"$1", :"$2"}, [], [true]}])
 
-      assert {:noreply, _} = EtsTableServer.handle_info(:garbage_collect, table_refs)
+      assert {:reply, :ok, _} = EtsTableServer.handle_call(:garbage_collect, self(), table_refs)
 
       assert count == :ets.select_count(ref, [{{:"$1", :"$2"}, [], [true]}])
-    end
-  end
-
-  describe "handle_call/3" do
-    test "creates table on event {:get_or_create_table, pid}" do
-      pid = :c.pid(0, 0, 1)
-      table_refs = %{}
-
-      assert {:reply, ref, new_table_refs} =
-               EtsTableServer.handle_call({:get_or_create_table, pid}, self(), table_refs)
-
-      assert [{:id, ^ref} | _] = :ets.info(ref)
-      assert ref == Map.get(new_table_refs, pid).table
-    end
-
-    test "returns existing table on event {:get_or_create_table, pid}" do
-      pid = :c.pid(0, 0, 1)
-      ref = :ets.new(:test_table, [])
-      table_refs = %{pid => %EtsTableServer.TableInfo{table: ref}}
-
-      assert {:reply, ^ref, new_table_refs} =
-               EtsTableServer.handle_call({:get_or_create_table, pid}, self(), table_refs)
-
-      assert ref == Map.get(new_table_refs, pid).table
-    end
-
-    test "adds watcher on event {:watch, pid}" do
-      pid = :c.pid(0, 0, 1)
-      watcher_pid = :c.pid(0, 0, 2)
-
-      table_refs = %{
-        pid => %EtsTableServer.TableInfo{table: :ets.new(:test_table, [])}
-      }
-
-      assert {:reply, :ok, new_table_refs} =
-               EtsTableServer.handle_call({:watch, pid}, {watcher_pid, nil}, table_refs)
-
-      assert MapSet.new([watcher_pid]) == Map.get(new_table_refs, pid).watchers
     end
   end
 end
