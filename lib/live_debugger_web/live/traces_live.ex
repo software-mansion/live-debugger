@@ -73,9 +73,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     |> IncomingTraces.init_hook()
     |> assign(:displayed_trace, nil)
     |> assign(default_filters: default_filters)
-    |> assign(node_id: node_id)
     |> assign(id: session["id"])
-    |> assign(root_pid: session["root_pid"])
     |> ExistingTraces.assign_async_existing_traces()
     |> ok()
   end
