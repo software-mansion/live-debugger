@@ -6,6 +6,7 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
 
   alias LiveDebuggerWeb.LiveComponents.LiveDropdown
   alias LiveDebuggerWeb.Helpers.RoutesHelper
+  alias LiveDebugger.Utils.URL
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
   attr(:current_url, :any, required: true)
@@ -93,12 +94,14 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
 
   defp get_current_view(url) do
     url
+    |> URL.remove_query_params()
     |> String.split("/")
     |> Enum.at(3, "node_inspector")
   end
 
   defp get_pid(url) do
     url
+    |> URL.remove_query_params()
     |> String.split("/")
     |> Enum.at(2)
   end
