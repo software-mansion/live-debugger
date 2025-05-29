@@ -1,14 +1,17 @@
 defmodule LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces do
   @moduledoc """
+  Has to be declared before TracingHelper hook.
+
   Required assigns:
-  - `:tracing_helper` - the tracing helper
   - `:current_filters` - the current filters
+  - `:traces_empty?` - whether the existing traces are empty, possible values: `true`, `false`
   - `:trace_callback_running?` - whether the trace callback is running
-
-
 
   Assigns introduced by this hook:
 
+
+  Required stream:
+  - `:existing_traces` - the stream of existing traces.
   """
 
   import Phoenix.LiveView
@@ -16,44 +19,26 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces do
   import LiveDebuggerWeb.Helpers
 
   alias LiveDebugger.Structs.TraceDisplay
-  alias LiveDebuggerWeb.Hooks.Flash
   alias LiveDebuggerWeb.Helpers.TracingHelper
-  alias LiveDebugger.Utils.Parsers
 
   @live_stream_limit 128
 
   def init_hook(socket) do
     socket
-    |> check_assign(:tracing_helper)
+    |> check_assign(:current_filters)
+    |> check_assign(:traces_empty?)
     |> check_stream(:existing_traces)
+    |> check_assign(:trace_callback_running?)
     |> attach_hook(:incoming_traces, :handle_info, &handle_info/2)
   end
 
   def handle_info({:new_trace, trace}, socket) do
+    trace_display = TraceDisplay.from_trace(trace, true)
+
     socket
-    |> TracingHelper.check_fuse()
-    |> case do
-      {:ok, socket} ->
-        trace_display = TraceDisplay.from_trace(trace, true)
-
-        socket
-        |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
-        |> assign(traces_empty?: false)
-        |> assign(trace_callback_running?: true)
-
-      {:stopped, socket} ->
-        limit = TracingHelper.trace_limit_per_period()
-        period = TracingHelper.time_period() |> Parsers.parse_elapsed_time()
-
-        socket.assigns.root_pid
-        |> Flash.push_flash(
-          socket,
-          "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}."
-        )
-
-      {_, socket} ->
-        socket
-    end
+    |> stream_insert(:existing_traces, trace_display, at: 0, limit: @live_stream_limit)
+    |> assign(traces_empty?: false)
+    |> assign(trace_callback_running?: true)
     |> halt()
   end
 

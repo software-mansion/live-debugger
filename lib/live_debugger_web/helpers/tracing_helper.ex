@@ -13,9 +13,13 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
   """
 
   import Phoenix.Component, only: [assign: 3]
+  import LiveDebuggerWeb.Helpers
+  import Phoenix.LiveView
 
   alias Phoenix.LiveView.Socket
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebuggerWeb.Hooks.Flash
+  alias LiveDebugger.Utils.Parsers
 
   @assign_name :tracing_helper
   @time_period 1_000_000
@@ -24,13 +28,14 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
   def trace_limit_per_period(), do: @trace_limit_per_period
   def time_period(), do: @time_period
 
-  @spec init(Socket.t()) :: Socket.t()
-  def init(socket) do
+  @spec init_hook(Socket.t()) :: Socket.t()
+  def init_hook(socket) do
     socket
     |> check_assign(:lv_process)
     |> check_assign(:node_id)
     |> check_assign(:current_filters)
     |> check_assign(:trace_callback_running?)
+    |> attach_hook(:tracing_helper, :handle_info, &handle_info/2)
     |> clear_tracing()
   end
 
@@ -75,6 +80,33 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
       count_exceeded?(fuse) -> {:stopped, clear_tracing(socket)}
       true -> {:ok, increment_fuse(socket)}
     end
+  end
+
+  defp handle_info({:new_trace, _}, socket) do
+    socket
+    |> check_fuse()
+    |> case do
+      {:ok, socket} ->
+        {:cont, socket}
+
+      {:stopped, socket} ->
+        limit = trace_limit_per_period()
+        period = time_period() |> Parsers.parse_elapsed_time()
+
+        socket.assigns.root_pid
+        |> Flash.push_flash(
+          socket,
+          "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}."
+        )
+        |> halt()
+
+      {_, socket} ->
+        {:halt, socket}
+    end
+  end
+
+  defp handle_info(_, socket) do
+    {:cont, socket}
   end
 
   defp period_exceeded?(fuse) do

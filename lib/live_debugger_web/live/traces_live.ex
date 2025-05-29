@@ -68,7 +68,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     |> assign(traces_empty?: true)
     |> assign(trace_callback_running?: false)
     |> stream(:existing_traces, [])
-    |> TracingHelper.init()
+    |> TracingHelper.init_hook()
     |> ExistingTraces.init_hook(@page_size)
     |> IncomingTraces.init_hook()
     |> assign(:displayed_trace, nil)
