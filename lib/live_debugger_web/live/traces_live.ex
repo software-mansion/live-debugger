@@ -68,6 +68,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     |> assign(traces_empty?: true)
     |> assign(trace_callback_running?: false)
     |> stream(:existing_traces, [])
+    |> assign(root_pid: session["root_pid"])
     |> TracingFuse.init_hook()
     |> ExistingTraces.init_hook(@page_size)
     |> IncomingTraces.init_hook()

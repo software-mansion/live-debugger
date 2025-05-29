@@ -1,15 +1,18 @@
 defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse do
   @moduledoc """
-  This module provides a helper to manage tracing.
+  This hook is responsible for managing the tracing fuse.
   It is responsible for determining if the tracing should be stopped.
   It introduces a fuse mechanism to prevent LiveView from being overloaded with traces.
+  It also handles the case when the trace callback is running.
 
-  Required assigns:
+  This hook has to be added before IncomingTraces hook.
+
+  Required assigns (that are used somehow in the hook):
   - `:lv_process` - the LiveView process
   - `:node_id` - the node ID
   - `:current_filters` - the current filters
+  - `:root_pid` - the root PID
   - `:trace_callback_running?` - whether the trace callback is running
-
   """
 
   import Phoenix.Component, only: [assign: 3]
@@ -26,9 +29,6 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse do
   @time_period 1_000_000
   @trace_limit_per_period 100
 
-  def trace_limit_per_period(), do: @trace_limit_per_period
-  def time_period(), do: @time_period
-
   @spec init_hook(Socket.t()) :: Socket.t()
   def init_hook(socket) do
     socket
@@ -36,6 +36,7 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse do
     |> check_assign(:node_id)
     |> check_assign(:current_filters)
     |> check_assign(:trace_callback_running?)
+    |> check_assign(:root_pid)
     |> attach_hook(:tracing_helper, :handle_info, &handle_info/2)
     |> clear_tracing()
   end
@@ -54,35 +55,6 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse do
     clear_tracing(socket)
   end
 
-  @spec maybe_disable_tracing_after_update(Socket.t()) :: Socket.t()
-  def maybe_disable_tracing_after_update(socket) do
-    if socket.assigns[@assign_name].tracing_started? do
-      socket
-    else
-      clear_tracing(socket)
-    end
-  end
-
-  @doc """
-  Checks if the fuse is blown and stops tracing if it is.
-  It uses the `#{@assign_name}` assign to store information.
-  When tracing is not started returns `{:noop, socket}`.
-  """
-  @spec check_fuse(Socket.t()) :: {:ok | :stopped | :noop, Socket.t()}
-  def check_fuse(%{assigns: %{@assign_name => %{tracing_started?: false}}} = socket) do
-    {:noop, socket}
-  end
-
-  def check_fuse(%{assigns: %{@assign_name => %{tracing_started?: true}}} = socket) do
-    fuse = socket.assigns[@assign_name].fuse
-
-    cond do
-      period_exceeded?(fuse) -> {:ok, reset_fuse(socket)}
-      count_exceeded?(fuse) -> {:stopped, clear_tracing(socket)}
-      true -> {:ok, increment_fuse(socket)}
-    end
-  end
-
   defp handle_info({:new_trace, _}, socket) do
     socket
     |> check_fuse()
@@ -91,8 +63,8 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse do
         {:cont, socket}
 
       {:stopped, socket} ->
-        limit = trace_limit_per_period()
-        period = time_period() |> Parsers.parse_elapsed_time()
+        limit = @trace_limit_per_period
+        period = @time_period |> Parsers.parse_elapsed_time()
 
         socket.assigns.root_pid
         |> Flash.push_flash(
@@ -114,6 +86,28 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse do
 
   defp handle_info(_, socket) do
     {:cont, socket}
+  end
+
+  defp maybe_disable_tracing_after_update(socket) do
+    if socket.assigns[@assign_name].tracing_started? do
+      socket
+    else
+      clear_tracing(socket)
+    end
+  end
+
+  def check_fuse(%{assigns: %{@assign_name => %{tracing_started?: false}}} = socket) do
+    {:noop, socket}
+  end
+
+  def check_fuse(%{assigns: %{@assign_name => %{tracing_started?: true}}} = socket) do
+    fuse = socket.assigns[@assign_name].fuse
+
+    cond do
+      period_exceeded?(fuse) -> {:ok, reset_fuse(socket)}
+      count_exceeded?(fuse) -> {:stopped, clear_tracing(socket)}
+      true -> {:ok, increment_fuse(socket)}
+    end
   end
 
   defp period_exceeded?(fuse) do

@@ -1,8 +1,13 @@
 defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.IncomingTraces do
   @moduledoc """
-  Has to be declared before TracingFuse hook.
+  This hook is responsible for handling incoming traces
+  It is responsible for inserting new traces into the `:existing_traces` stream.
+  It also handles the case when the trace callback is running
 
-  Required assigns:
+  This hook has to be added after TracingFuse hook - they're both handling `:new_trace` and `:updated_trace` messages.
+  TracingFuse has to be added first because it's responsible for stopping the trace callback.
+
+  Required assigns (that are used somehow in the hook):
   - `:current_filters` - the current filters
   - `:traces_empty?` - whether the existing traces are empty, possible values: `true`, `false`
   - `:trace_callback_running?` - whether the trace callback is running
@@ -29,7 +34,7 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.IncomingTraces do
     |> attach_hook(:incoming_traces, :handle_info, &handle_info/2)
   end
 
-  def handle_info({:new_trace, trace}, socket) do
+  defp handle_info({:new_trace, trace}, socket) do
     trace_display = TraceDisplay.from_trace(trace, true)
 
     socket
@@ -39,7 +44,7 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.IncomingTraces do
     |> halt()
   end
 
-  def handle_info({:updated_trace, trace}, socket) when socket.assigns.trace_callback_running? do
+  defp handle_info({:updated_trace, trace}, socket) when socket.assigns.trace_callback_running? do
     trace_display = TraceDisplay.from_trace(trace, true)
 
     execution_time = get_execution_times(socket)
@@ -58,11 +63,11 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.IncomingTraces do
     |> halt()
   end
 
-  def handle_info({:updated_trace, _trace}, socket) do
+  defp handle_info({:updated_trace, _trace}, socket) do
     {:halt, socket}
   end
 
-  def handle_info(_, socket) do
+  defp handle_info(_, socket) do
     {:cont, socket}
   end
 

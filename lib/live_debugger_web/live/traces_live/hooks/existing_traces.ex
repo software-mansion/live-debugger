@@ -1,6 +1,10 @@
 defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces do
   @moduledoc """
-  Required assigns:
+  This hook is responsible for fetching the existing traces and displaying them in the LiveView.
+  It encapsulates logic for async fetching of traces.
+  It attaches a hook to the `:existing_traces` stream to handle the async fetching.
+
+  Required assigns (that are used somehow in the hook):
   - `:lv_process` - the LiveView process
   - `:current_filters` - the current filters
   - `:node_id` - the node ID
@@ -9,7 +13,7 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces do
   Required stream:
   - `:existing_traces` - the stream of existing traces.
 
-  Assigns introduced by this hook:
+  Assigns introduced by this hook (they can be used outside of the hook):
   - `:traces_continuation` - the continuation token for the existing traces, possible values: `nil`, `:end_of_table`, `ets_continuation()`
   - `:existing_traces_status` - the status of the existing traces, possible values: `:loading`, `:ok`, `:error`
   """
@@ -36,6 +40,10 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces do
     |> attach_hook(:existing_traces, :handle_async, &handle_async/3)
   end
 
+  @doc """
+  It loads asynchronously the existing traces and assigns them to the `:existing_traces` stream.
+  """
+  @spec assign_async_existing_traces(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def assign_async_existing_traces(socket) do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
@@ -56,6 +64,11 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces do
     end)
   end
 
+  @doc """
+  It loads asynchronously more existing traces and assigns them to the `:existing_traces` stream.
+  """
+  @spec assign_async_more_existing_traces(Phoenix.LiveView.Socket.t()) ::
+          Phoenix.LiveView.Socket.t()
   def assign_async_more_existing_traces(socket) do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
@@ -77,7 +90,7 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces do
     end)
   end
 
-  def handle_async(:fetch_existing_traces, {:ok, {trace_list, cont}}, socket) do
+  defp handle_async(:fetch_existing_traces, {:ok, {trace_list, cont}}, socket) do
     trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
 
     socket
@@ -88,14 +101,14 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces do
     |> halt()
   end
 
-  def handle_async(:fetch_existing_traces, {:ok, :end_of_table}, socket) do
+  defp handle_async(:fetch_existing_traces, {:ok, :end_of_table}, socket) do
     socket
     |> assign(:existing_traces_status, :ok)
     |> assign(:traces_continuation, :end_of_table)
     |> halt()
   end
 
-  def handle_async(:fetch_existing_traces, {:exit, reason}, socket) do
+  defp handle_async(:fetch_existing_traces, {:exit, reason}, socket) do
     log_async_error("fetching existing traces", reason)
 
     socket
@@ -103,7 +116,7 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces do
     |> halt()
   end
 
-  def handle_async(:load_more_existing_traces, {:ok, {trace_list, cont}}, socket) do
+  defp handle_async(:load_more_existing_traces, {:ok, {trace_list, cont}}, socket) do
     trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
 
     socket
@@ -112,21 +125,21 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces do
     |> halt()
   end
 
-  def handle_async(:load_more_existing_traces, {:ok, :end_of_table}, socket) do
+  defp handle_async(:load_more_existing_traces, {:ok, :end_of_table}, socket) do
     socket
     |> assign(:traces_continuation, :end_of_table)
     |> halt()
   end
 
   # TODO: handle this case in a proper way
-  def handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
+  defp handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
     log_async_error("loading more existing traces", reason)
 
     socket
     |> halt()
   end
 
-  def handle_async(_, _, socket) do
+  defp handle_async(_, _, socket) do
     {:cont, socket}
   end
 
