@@ -94,7 +94,7 @@ defmodule LiveDebuggerWeb.Components.Navbar do
       position="bottom"
       content={
         if(@connected?,
-          do: "LiveView process is alive.",
+          do: "LiveView process is alive",
           else: "LiveView process is dead. You can still debug the last state."
         )
       }
