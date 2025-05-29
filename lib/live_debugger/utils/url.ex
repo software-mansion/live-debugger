@@ -56,6 +56,7 @@ defmodule LiveDebugger.Utils.URL do
   @spec take_nth_segment(url :: String.t(), n :: integer()) :: String.t() | nil
   def take_nth_segment(url, n) when is_binary(url) and is_integer(n) do
     url
+    |> to_relative()
     |> remove_query_params()
     |> String.split("/")
     |> Enum.at(n)

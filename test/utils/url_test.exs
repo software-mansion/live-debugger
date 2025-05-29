@@ -104,6 +104,28 @@ defmodule LiveDebugger.Utils.URLTest do
     end
   end
 
+  describe "take_nth_segment/2" do
+    test "takes the nth segment of a URL" do
+      assert URL.take_nth_segment("http://example.com/foo/bar/baz", 2) == "bar"
+    end
+
+    test "returns nil if the URL has no segments" do
+      assert URL.take_nth_segment("http://example.com", 2) == nil
+    end
+
+    test "returns nil if the nth segment is out of bounds" do
+      assert URL.take_nth_segment("http://example.com/foo/bar/baz", 4) == nil
+    end
+
+    test "returns the nth segment of a relative URL" do
+      assert URL.take_nth_segment("/foo/bar/baz", 2) == "bar"
+    end
+
+    test "returns nil if the relative URL has no segments" do
+      assert URL.take_nth_segment("/", 2) == nil
+    end
+  end
+
   describe "modify_query_params/2" do
     test "modifies query parameters in a URL using a function" do
       assert URL.modify_query_params("http://example.com/foo?key=value", fn params ->
