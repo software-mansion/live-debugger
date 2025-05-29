@@ -16,6 +16,8 @@ defmodule LiveDebuggerWeb.TracesLive do
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebuggerWeb.Components.Traces
 
+  alias LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces
+
   @live_stream_limit 128
   @page_size 25
   @separator %{id: "separator"}
@@ -61,18 +63,17 @@ defmodule LiveDebuggerWeb.TracesLive do
     default_filters = default_filters(node_id)
 
     socket
+    |> ExistingTraces.init()
     |> assign(:displayed_trace, nil)
-    |> assign(:traces_continuation, nil)
     |> assign(current_filters: default_filters)
     |> assign(default_filters: default_filters)
-    |> assign(traces_empty?: true)
     |> assign(trace_callback_running?: false)
     |> assign(node_id: node_id)
     |> assign(id: session["id"])
     |> assign(root_pid: session["root_pid"])
     |> assign(lv_process: lv_process)
     |> TracingHelper.init()
-    |> assign_async_existing_traces()
+    |> ExistingTraces.assign_async_existing_traces()
     |> ok()
   end
 
@@ -159,35 +160,6 @@ defmodule LiveDebuggerWeb.TracesLive do
       <Traces.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
     </div>
     """
-  end
-
-  @impl true
-  def handle_async(:fetch_existing_traces, {:ok, {trace_list, cont}}, socket) do
-    trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
-
-    socket
-    |> assign(existing_traces_status: :ok)
-    |> assign(:traces_empty?, false)
-    |> assign(:traces_continuation, cont)
-    |> stream(:existing_traces, trace_list)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_async(:fetch_existing_traces, {:ok, :end_of_table}, socket) do
-    socket
-    |> assign(existing_traces_status: :ok)
-    |> assign(traces_continuation: :end_of_table)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_async(:fetch_existing_traces, {:exit, reason}, socket) do
-    log_async_error("fetching existing traces", reason)
-
-    socket
-    |> assign(existing_traces_status: :error)
-    |> noreply()
   end
 
   @impl true
@@ -278,7 +250,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     |> assign(node_id: node_id)
     |> assign(current_filters: default_filters)
     |> assign(default_filters: default_filters)
-    |> assign_async_existing_traces()
+    |> ExistingTraces.assign_async_existing_traces()
     |> noreply()
   end
 
@@ -289,7 +261,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     socket
     |> assign(:current_filters, filters)
     |> assign(:traces_empty?, true)
-    |> assign_async_existing_traces()
+    |> ExistingTraces.assign_async_existing_traces()
     |> noreply()
   end
 
@@ -369,27 +341,8 @@ defmodule LiveDebuggerWeb.TracesLive do
   @impl true
   def handle_event("refresh-history", _, socket) do
     socket
-    |> assign_async_existing_traces()
+    |> ExistingTraces.assign_async_existing_traces()
     |> noreply()
-  end
-
-  defp assign_async_existing_traces(socket) do
-    pid = socket.assigns.lv_process.pid
-    node_id = socket.assigns.node_id
-    active_functions = get_active_functions(socket)
-    execution_times = get_execution_times(socket)
-
-    socket
-    |> assign(:existing_traces_status, :loading)
-    |> stream(:existing_traces, [], reset: true)
-    |> start_async(:fetch_existing_traces, fn ->
-      TraceService.existing_traces(pid,
-        node_id: node_id,
-        limit: @page_size,
-        functions: active_functions,
-        execution_times: execution_times
-      )
-    end)
   end
 
   defp load_more_existing_traces(socket) do
