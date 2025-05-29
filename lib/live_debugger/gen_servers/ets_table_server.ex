@@ -34,10 +34,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
   @ets_table_name :lvdbg_traces
   @garbage_collect_interval 2000
-  # 1 MB
-  @non_watched_table_max_size 1_048_576
-  # 100 MB
-  @watched_table_max_size 10_048_576
+  @megabyte_unit 1_048_576
 
   ## API
 
@@ -69,7 +66,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
   @impl true
   def init(_args) do
-    init_garbage_collection_loop(self())
+    init_garbage_collection_loop()
 
     {:ok, %{}}
   end
@@ -106,25 +103,25 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   end
 
   @impl true
-  def handle_info(:garbage_collect, state) do
+  def handle_call(:garbage_collect, _from, state) do
     state
     |> Enum.map(fn {_, %TableInfo{table: table} = table_info} ->
       {table_info, Memory.table_size(table)}
     end)
     |> Enum.each(fn {%TableInfo{table: table, watchers: watchers}, size} ->
       cond do
-        Enum.empty?(watchers) and size > @non_watched_table_max_size ->
-          trim_ets_table(table, @non_watched_table_max_size)
+        Enum.empty?(watchers) and size > max_table_size(:non_watched) ->
+          trim_ets_table(table, max_table_size(:non_watched))
 
-        size > @watched_table_max_size ->
-          trim_ets_table(table, @watched_table_max_size)
+        size > max_table_size(:watched) ->
+          trim_ets_table(table, max_table_size(:watched))
 
         true ->
           :ok
       end
     end)
 
-    {:noreply, state}
+    {:reply, :ok, state}
   end
 
   @impl true
@@ -181,13 +178,18 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     end
   end
 
-  @spec init_garbage_collection_loop(pid()) :: {:ok, pid()}
-  defp init_garbage_collection_loop(pid) do
+  @spec init_garbage_collection_loop() :: {:ok, pid()}
+  defp init_garbage_collection_loop() do
     Task.start(fn ->
-      Process.sleep(@garbage_collect_interval)
-      send(pid, :garbage_collect)
-      init_garbage_collection_loop(pid)
+      garbage_collection_loop()
     end)
+  end
+
+  @spec garbage_collection_loop() :: :ok
+  defp garbage_collection_loop() do
+    Process.sleep(@garbage_collect_interval)
+    :ok = GenServer.call(__MODULE__, :garbage_collect)
+    garbage_collection_loop()
   end
 
   @spec create_ets_table() :: :ets.table()
@@ -243,7 +245,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
       end
     end
 
-    # Try catch is used for early return from `foldr` since it doesn't support `:halt` | `:continue`.
+    # Try catch is used for early return from `foldl` since it doesn't support `:halt` | `:continue`.
     try do
       :ets.foldl(foldl_fn, 0, table)
     catch
@@ -253,5 +255,19 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
     :ets.safe_fixtable(table, false)
     :ok
+  end
+
+  # Ets tables might exceed the maximum size since these are approximate values (e.g. 10MB might have 20MB of data).
+  @spec max_table_size(:watched | :non_watched) :: non_neg_integer()
+  defp max_table_size(:watched) do
+    Application.get_env(:live_debugger, :watched_table_max_size, 10) * @megabyte_unit
+  end
+
+  defp max_table_size(:non_watched) do
+    Application.get_env(
+      :live_debugger,
+      :non_watched_table_max_size,
+      1
+    ) * @megabyte_unit
   end
 end
