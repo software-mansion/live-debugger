@@ -279,7 +279,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
         <div class="w-full flex flex-col">
           <span class="font-medium">Module:</span>
 
-          <div :if={@module.ok?} class="flex gap-3">
+          <div :if={@module.ok?} class="flex gap-2">
             <.tooltip
               id={@id <> "-current-node-module"}
               content={Parsers.module_to_string(@module.result)}

@@ -26,7 +26,7 @@ export function setTooltipPosition(tooltipEl, referencedElement) {
       tooltipEl.style.top = `${rect.top + (rect.height - tooltipRect.height) / 2}px`;
       break;
     case 'top-center':
-      tooltipEl.style.top = `${rect.top - tooltipRect.height}px`;
+      tooltipEl.style.top = `${rect.top - tooltipRect.height - 5}px`;
       tooltipEl.style.left = `${rect.left + rect.width / 2 - tooltipRect.width / 2}px`;
       break;
   }
