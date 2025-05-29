@@ -15,6 +15,7 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse do
   import Phoenix.Component, only: [assign: 3]
   import LiveDebuggerWeb.Helpers
   import Phoenix.LiveView
+  import LiveDebuggerWeb.Live.TracesLive.Helpers
 
   alias Phoenix.LiveView.Socket
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
@@ -220,13 +221,5 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse do
         type
       )
     end)
-  end
-
-  defp check_assign(socket, assign_name) do
-    if Map.has_key?(socket.assigns, assign_name) do
-      socket
-    else
-      raise "Assign #{assign_name} is required by this hook: #{__MODULE__}"
-    end
   end
 end

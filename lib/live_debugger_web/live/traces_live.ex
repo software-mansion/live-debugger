@@ -10,13 +10,13 @@ defmodule LiveDebuggerWeb.TracesLive do
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
-  alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
-  alias LiveDebugger.Structs.TreeNode
   alias LiveDebuggerWeb.Components.Traces
 
   alias LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces
   alias LiveDebuggerWeb.Live.TracesLive.Hooks.IncomingTraces
   alias LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse
+
+  import LiveDebuggerWeb.Live.TracesLive.Helpers
 
   @page_size 25
   @separator %{id: "separator"}
@@ -267,24 +267,5 @@ defmodule LiveDebuggerWeb.TracesLive do
     socket
     |> ExistingTraces.assign_async_existing_traces()
     |> noreply()
-  end
-
-  defp default_filters(node_id) do
-    functions =
-      node_id
-      |> TreeNode.type()
-      |> case do
-        :live_view -> UtilsCallbacks.live_view_callbacks()
-        :live_component -> UtilsCallbacks.live_component_callbacks()
-      end
-      |> Enum.map(fn {function, _} -> {function, true} end)
-
-    %{
-      functions: functions,
-      execution_time: [
-        {:exec_time_max, ""},
-        {:exec_time_min, ""}
-      ]
-    }
   end
 end

@@ -14,6 +14,7 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.IncomingTraces do
   import Phoenix.LiveView
   import Phoenix.Component
   import LiveDebuggerWeb.Helpers
+  import LiveDebuggerWeb.Live.TracesLive.Helpers
 
   alias LiveDebugger.Structs.TraceDisplay
 
@@ -69,21 +70,5 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.IncomingTraces do
     socket.assigns.current_filters.execution_time
     |> Enum.filter(fn {_, value} -> value != "" end)
     |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
-  end
-
-  defp check_assign(socket, assign_name) do
-    if Map.has_key?(socket.assigns, assign_name) do
-      socket
-    else
-      raise "Assign #{assign_name} is required by this hook: #{__MODULE__}"
-    end
-  end
-
-  defp check_stream(socket, stream_name) do
-    if Map.has_key?(socket.assigns.streams, stream_name) do
-      socket
-    else
-      raise "Stream #{stream_name} is required by this hook: #{__MODULE__}"
-    end
   end
 end
