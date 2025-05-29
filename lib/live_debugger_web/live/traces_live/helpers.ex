@@ -6,7 +6,11 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Helpers do
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
   alias LiveDebugger.Structs.TreeNode
 
-  def check_assign(socket, assign_name) do
+  @doc """
+  Checks if the assign is present in the socket.
+  If not, it raises an error.
+  """
+  def check_assign!(socket, assign_name) do
     if Map.has_key?(socket.assigns, assign_name) do
       socket
     else
@@ -14,7 +18,11 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Helpers do
     end
   end
 
-  def check_stream(socket, stream_name) do
+  @doc """
+  Checks if the stream is present in the socket.
+  If not, it raises an error.
+  """
+  def check_stream!(socket, stream_name) do
     if Map.has_key?(socket.assigns.streams, stream_name) do
       socket
     else
@@ -22,6 +30,9 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Helpers do
     end
   end
 
+  @doc """
+  Returns the default filters for the traces.
+  """
   def default_filters(node_id) do
     functions =
       node_id

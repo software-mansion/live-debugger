@@ -27,10 +27,10 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.IncomingTraces do
 
   def init_hook(socket) do
     socket
-    |> check_assign(:current_filters)
-    |> check_assign(:traces_empty?)
-    |> check_stream(:existing_traces)
-    |> check_assign(:trace_callback_running?)
+    |> check_assign!(:current_filters)
+    |> check_assign!(:traces_empty?)
+    |> check_stream!(:existing_traces)
+    |> check_assign!(:trace_callback_running?)
     |> attach_hook(:incoming_traces, :handle_info, &handle_info/2)
   end
 

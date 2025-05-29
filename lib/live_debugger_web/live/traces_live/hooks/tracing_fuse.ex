@@ -32,11 +32,11 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse do
   @spec init_hook(Socket.t()) :: Socket.t()
   def init_hook(socket) do
     socket
-    |> check_assign(:lv_process)
-    |> check_assign(:node_id)
-    |> check_assign(:current_filters)
-    |> check_assign(:trace_callback_running?)
-    |> check_assign(:root_pid)
+    |> check_assign!(:lv_process)
+    |> check_assign!(:node_id)
+    |> check_assign!(:current_filters)
+    |> check_assign!(:trace_callback_running?)
+    |> check_assign!(:root_pid)
     |> attach_hook(:tracing_helper, :handle_info, &handle_info/2)
     |> clear_tracing()
   end

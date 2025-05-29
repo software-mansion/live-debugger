@@ -30,11 +30,11 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces do
 
   def init_hook(socket, page_size) do
     socket
-    |> check_assign(:lv_process)
-    |> check_assign(:node_id)
-    |> check_assign(:current_filters)
-    |> check_assign(:traces_empty?)
-    |> check_stream(:existing_traces)
+    |> check_assign!(:lv_process)
+    |> check_assign!(:node_id)
+    |> check_assign!(:current_filters)
+    |> check_assign!(:traces_empty?)
+    |> check_stream!(:existing_traces)
     |> assign(:traces_continuation, nil)
     |> put_private(:page_size, page_size)
     |> attach_hook(:existing_traces, :handle_async, &handle_async/3)
