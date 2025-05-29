@@ -22,12 +22,26 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
       "flex flex-col gap-3 bg-sidebar-bg shadow-custom h-full p-2 border-r border-default-border"
       | List.wrap(@class)
     ]}>
-      <.link navigate={RoutesHelper.channel_dashboard(@pid)}>
-        <.nav_icon icon="icon-info" selected?={@current_view == "node_inspector"} />
-      </.link>
-      <.link navigate={RoutesHelper.global_traces(@pid)}>
-        <.nav_icon icon="icon-globe" selected?={@current_view == "global_traces"} />
-      </.link>
+      <.tooltip
+        id="node-inspector-tooltip"
+        position="right"
+        variant="primary"
+        content="Node Inspector"
+      >
+        <.link navigate={RoutesHelper.channel_dashboard(@pid)}>
+          <.nav_icon icon="icon-info" selected?={@current_view == "node_inspector"} />
+        </.link>
+      </.tooltip>
+      <.tooltip
+        id="global-traces-tooltip"
+        position="right"
+        variant="primary"
+        content="Global Callbacks"
+      >
+        <.link navigate={RoutesHelper.global_traces(@pid)}>
+          <.nav_icon icon="icon-globe" selected?={@current_view == "global_traces"} />
+        </.link>
+      </.tooltip>
     </div>
     """
   end
