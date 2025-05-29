@@ -40,17 +40,9 @@ body::-webkit-scrollbar {
 }
 
 .tooltip-primary {
-  background-color: var(--button-primary-bg);
-  color: var(--button-primary-content);
-  padding: 0.5rem;
-  border-radius: 0.25rem;
   font-weight: 600;
 }
 
 .tooltip-secondary {
-  background-color: var(--button-secondary-bg);
-  color: var(--button-secondary-content);
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  font-weight: 600;
+  font-weight: 400;
 }
