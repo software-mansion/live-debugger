@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Helpers.TracingHelper do
+defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse do
   @moduledoc """
   This module provides a helper to manage tracing.
   It is responsible for determining if the tracing should be stopped.
@@ -103,6 +103,12 @@ defmodule LiveDebuggerWeb.Helpers.TracingHelper do
       {_, socket} ->
         {:halt, socket}
     end
+  end
+
+  defp handle_info({:updated_trace, _}, socket) when socket.assigns.trace_callback_running? do
+    socket
+    |> maybe_disable_tracing_after_update()
+    |> cont()
   end
 
   defp handle_info(_, socket) do

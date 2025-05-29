@@ -7,7 +7,6 @@ defmodule LiveDebuggerWeb.TracesLive do
 
   require Logger
 
-  alias LiveDebuggerWeb.Helpers.TracingHelper
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
@@ -15,8 +14,9 @@ defmodule LiveDebuggerWeb.TracesLive do
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebuggerWeb.Components.Traces
 
-  alias LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces
-  alias LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces
+  alias LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces
+  alias LiveDebuggerWeb.Live.TracesLive.Hooks.IncomingTraces
+  alias LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse
 
   @page_size 25
   @separator %{id: "separator"}
@@ -68,7 +68,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     |> assign(traces_empty?: true)
     |> assign(trace_callback_running?: false)
     |> stream(:existing_traces, [])
-    |> TracingHelper.init_hook()
+    |> TracingFuse.init_hook()
     |> ExistingTraces.init_hook(@page_size)
     |> IncomingTraces.init_hook()
     |> assign(:displayed_trace, nil)
@@ -170,7 +170,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     default_filters = default_filters(node_id)
 
     socket
-    |> TracingHelper.disable_tracing()
+    |> TracingFuse.disable_tracing()
     |> assign(node_id: node_id)
     |> assign(current_filters: default_filters)
     |> assign(default_filters: default_filters)
@@ -191,7 +191,7 @@ defmodule LiveDebuggerWeb.TracesLive do
 
   @impl true
   def handle_event("switch-tracing", _, socket) do
-    socket = TracingHelper.switch_tracing(socket)
+    socket = TracingFuse.switch_tracing(socket)
 
     if socket.assigns.tracing_helper.tracing_started? and !socket.assigns.traces_empty? do
       socket

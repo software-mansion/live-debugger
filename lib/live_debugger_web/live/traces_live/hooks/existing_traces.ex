@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
+defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces do
   @moduledoc """
   Required assigns:
   - `:lv_process` - the LiveView process

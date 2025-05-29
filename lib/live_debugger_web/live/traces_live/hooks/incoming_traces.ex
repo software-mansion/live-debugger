@@ -1,6 +1,6 @@
-defmodule LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces do
+defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.IncomingTraces do
   @moduledoc """
-  Has to be declared before TracingHelper hook.
+  Has to be declared before TracingFuse hook.
 
   Required assigns:
   - `:current_filters` - the current filters
@@ -16,7 +16,6 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces do
   import LiveDebuggerWeb.Helpers
 
   alias LiveDebugger.Structs.TraceDisplay
-  alias LiveDebuggerWeb.Helpers.TracingHelper
 
   @live_stream_limit 128
 
@@ -54,7 +53,6 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces do
       |> stream_delete(:existing_traces, trace_display)
     end
     |> assign(trace_callback_running?: false)
-    |> TracingHelper.maybe_disable_tracing_after_update()
     |> push_event("stop-timer", %{})
     |> halt()
   end
