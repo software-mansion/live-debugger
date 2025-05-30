@@ -143,18 +143,6 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
     {:cont, socket}
   end
 
-  defp get_active_functions(socket) do
-    socket.assigns.current_filters.functions
-    |> Enum.filter(fn {_, active?} -> active? end)
-    |> Enum.map(fn {function, _} -> function end)
-  end
-
-  defp get_execution_times(socket) do
-    socket.assigns.current_filters.execution_time
-    |> Enum.filter(fn {_, value} -> value != "" end)
-    |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
-  end
-
   defp log_async_error(operation, reason) do
     Logger.error(
       "LiveDebugger encountered unexpected error while #{operation}: #{inspect(reason)}"

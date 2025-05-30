@@ -70,10 +70,4 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces do
   defp handle_info(_, socket) do
     {:cont, socket}
   end
-
-  defp get_execution_times(socket) do
-    socket.assigns.current_filters.execution_time
-    |> Enum.filter(fn {_, value} -> value != "" end)
-    |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
-  end
 end

@@ -55,4 +55,22 @@ defmodule LiveDebuggerWeb.Helpers.TracesLiveHelper do
       ]
     }
   end
+
+  @doc """
+  Returns the execution times for the traces.
+  """
+  def get_execution_times(socket) do
+    socket.assigns.current_filters.execution_time
+    |> Enum.filter(fn {_, value} -> value != "" end)
+    |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
+  end
+
+  @doc """
+  Returns the active functions for the traces.
+  """
+  def get_active_functions(socket) do
+    socket.assigns.current_filters.functions
+    |> Enum.filter(fn {_, active?} -> active? end)
+    |> Enum.map(fn {function, _} -> function end)
+  end
 end
