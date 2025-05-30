@@ -48,6 +48,20 @@ defmodule LiveDebugger.Utils.URL do
     modify_query_params(url, &Map.drop(&1, keys))
   end
 
+  @spec remove_query_params(url :: String.t()) :: String.t()
+  def remove_query_params(url) when is_binary(url) do
+    modify_query_params(url, fn _ -> %{} end)
+  end
+
+  @spec take_nth_segment(url :: String.t(), n :: integer()) :: String.t() | nil
+  def take_nth_segment(url, n) when is_binary(url) and is_integer(n) do
+    url
+    |> to_relative()
+    |> remove_query_params()
+    |> String.split("/")
+    |> Enum.at(n)
+  end
+
   @spec modify_query_params(url :: String.t(), fun :: (map() -> map())) :: String.t()
   def modify_query_params(url, fun) when is_binary(url) and is_function(fun) do
     uri = URI.parse(url)

@@ -16,7 +16,6 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
   alias LiveDebuggerWeb.TracesLive
   alias LiveDebuggerWeb.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
-  alias LiveDebugger.Utils.Parsers
   alias LiveDebuggerWeb.Components.NavigationMenu
 
   @impl true
@@ -37,40 +36,30 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
         />
         <NavigationMenu.dropdown
           return_link={get_return_link(@lv_process, @in_iframe?)}
+          current_url={@url}
           class="sm:hidden"
         />
         <Navbar.live_debugger_logo_icon />
-        <div
-          :if={not @lv_process.ok?}
-          class="animate-pulse w-36 bg-surface-1-bg rounded text-surface-1-bg"
-        >
-          Loading...
-        </div>
-        <Navbar.connected
-          :if={@lv_process.ok?}
-          id="navbar-connected"
-          connected?={@lv_process.result.alive?}
-          pid={Parsers.pid_to_string(@lv_process.result.pid)}
-        />
+        <Navbar.connected id="navbar-connected" lv_process={@lv_process} />
         <div class="flex items-center gap-2">
           <Navbar.settings_button return_to={@url} />
-          <span :if={@lv_process.ok?} class="h-5 border-r border-default-border lg:hidden"></span>
+          <span class="h-5 border-r border-default-border lg:hidden"></span>
           <.nav_icon
-            :if={@lv_process.ok?}
-            phx-click={JS.push("open-sidebar", target: "#sidebar")}
+            phx-click={if @lv_process.ok?, do: JS.push("open-sidebar", target: "#sidebar")}
             class="flex lg:hidden"
             icon="icon-panel-right"
           />
         </div>
       </Navbar.navbar>
-      <.async_result :let={lv_process} assign={@lv_process}>
-        <:loading>
-          <div class="m-auto flex items-center justify-center">
-            <.spinner size="xl" />
-          </div>
-        </:loading>
-        <div class="flex overflow-hidden">
-          <NavigationMenu.sidebar class="hidden sm:flex" />
+      <div class="flex overflow-hidden">
+        <NavigationMenu.sidebar class="hidden sm:flex" current_url={@url} />
+        <.async_result :let={lv_process} assign={@lv_process}>
+          <:loading>
+            <div class="m-auto flex items-center justify-center">
+              <.spinner size="xl" />
+            </div>
+          </:loading>
+
           <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
             <StateLive.live_render
               id="node-state-lv"
@@ -96,8 +85,8 @@ defmodule LiveDebuggerWeb.ChannelDashboardLive do
             url={@url}
             node_id={@node_id || lv_process.pid}
           />
-        </div>
-      </.async_result>
+        </.async_result>
+      </div>
     </div>
     """
   end

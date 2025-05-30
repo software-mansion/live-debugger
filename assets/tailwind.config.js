@@ -52,6 +52,8 @@ module.exports = {
         'button-secondary-content': 'var(--button-secondary-content)',
         'button-secondary-content-hover':
           'var(--button-secondary-content-hover)',
+        'tooltip-text': 'var(--tooltip-text)',
+        'tooltip-bg': 'var(--tooltip-bg)',
         'accent-icon': 'var(--accent-icon)',
         'sidebar-bg': 'var(--sidebar-bg)',
         'code-1': 'var(--code-1)',
