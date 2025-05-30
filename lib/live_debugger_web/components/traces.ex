@@ -191,6 +191,31 @@ defmodule LiveDebuggerWeb.Components.Traces do
     """
   end
 
+  attr(:traces_continuation, :any, required: true)
+  attr(:tracing_helper, :any, required: true)
+
+  def load_more_button(%{traces_continuation: nil} = assigns), do: ~H""
+  def load_more_button(%{traces_continuation: :end_of_table} = assigns), do: ~H""
+  def load_more_button(%{tracing_helper: %{tracing_started?: true}} = assigns), do: ~H""
+
+  def load_more_button(%{traces_continuation: :loading} = assigns) do
+    ~H"""
+    <div class="flex items-center justify-center mt-4">
+      <.spinner size="sm" class="mb-4" />
+    </div>
+    """
+  end
+
+  def load_more_button(assigns) do
+    ~H"""
+    <div class="flex items-center justify-center mt-4">
+      <.button phx-click="load-more" class="w-4 mb-4" variant="secondary">
+        Load more
+      </.button>
+    </div>
+    """
+  end
+
   def get_threshold_class(execution_time) do
     cond do
       execution_time == nil -> ""

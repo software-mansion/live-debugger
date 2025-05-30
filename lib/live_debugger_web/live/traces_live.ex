@@ -143,20 +143,10 @@ defmodule LiveDebuggerWeb.TracesLive do
               <% end %>
             <% end %>
           </div>
-          <div class="flex items-center justify-center mt-4">
-            <%= if @traces_continuation != :loading  do %>
-              <.button
-                :if={not @tracing_helper.tracing_started? && @traces_continuation != :end_of_table}
-                phx-click="load-more"
-                class="w-4 mb-4"
-                variant="secondary"
-              >
-                Load more
-              </.button>
-            <% else %>
-              <.spinner size="sm" class="mb-4" />
-            <% end %>
-          </div>
+          <Traces.load_more_button
+            traces_continuation={@traces_continuation}
+            tracing_helper={@tracing_helper}
+          />
         </div>
       </.section>
       <Traces.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
