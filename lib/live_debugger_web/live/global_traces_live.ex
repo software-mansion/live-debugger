@@ -1,15 +1,18 @@
-defmodule LiveDebuggerWeb.GlobalTracesLive do
+defmodule LiveDebuggerWeb.Live.GlobalTracesLive do
   use LiveDebuggerWeb, :live_view
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
   attr(:lv_process, :map, required: true)
+  attr(:params, :map, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
       "lv_process" => assigns.lv_process,
-      "id" => assigns.id
+      "id" => assigns.id,
+      "params" => assigns.params,
+      "parent_pid" => self()
     }
 
     assigns = assign(assigns, session: session)

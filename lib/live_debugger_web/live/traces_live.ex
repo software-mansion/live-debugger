@@ -56,7 +56,11 @@ defmodule LiveDebuggerWeb.TracesLive do
       |> PubSubUtils.subscribe!()
     end
 
-    {:ok, node_id} = TreeNode.id_from_string(session["params"]["node_id"] || lv_process.pid)
+    {:ok, node_id} =
+      case session["params"]["node_id"] do
+        nil -> {:ok, lv_process.pid}
+        node_id -> TreeNode.id_from_string(node_id)
+      end
 
     default_filters = default_filters(node_id)
 
@@ -272,7 +276,12 @@ defmodule LiveDebuggerWeb.TracesLive do
   @impl true
   def handle_info({:params_changed, new_params}, socket) do
     lv_process = socket.assigns.lv_process
-    {:ok, node_id} = TreeNode.id_from_string(new_params["node_id"] || lv_process.pid)
+
+    {:ok, node_id} =
+      case new_params["node_id"] do
+        nil -> {:ok, lv_process.pid}
+        node_id -> TreeNode.id_from_string(node_id)
+      end
 
     default_filters = default_filters(node_id)
 

@@ -15,6 +15,8 @@ defmodule LiveDebuggerWeb.LvProcessLive do
   alias LiveDebuggerWeb.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Components.NavigationMenu
+  alias LiveDebuggerWeb.Live.GlobalTracesLive
+  alias LiveDebugger.Utils.URL
 
   @impl true
   def handle_params(params, _url, socket) do
@@ -60,7 +62,20 @@ defmodule LiveDebuggerWeb.LvProcessLive do
         </Navbar.navbar>
         <div class="flex overflow-hidden">
           <NavigationMenu.sidebar class="hidden sm:flex" current_url={@url} />
-          <.node_inspector socket={@socket} lv_process={lv_process} url={@url} params={@params} />
+          <.node_inspector
+            :if={get_current_view(@url) == "node_inspector"}
+            socket={@socket}
+            lv_process={lv_process}
+            url={@url}
+            params={@params}
+          />
+          <.global_traces
+            :if={get_current_view(@url) == "global_traces"}
+            socket={@socket}
+            lv_process={lv_process}
+            url={@url}
+            params={@params}
+          />
         </div>
       </.async_result>
     </div>
@@ -108,6 +123,20 @@ defmodule LiveDebuggerWeb.LvProcessLive do
     """
   end
 
+  defp global_traces(assigns) do
+    ~H"""
+    <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
+      <GlobalTracesLive.live_render
+        id="global-traces"
+        class="flex"
+        socket={@socket}
+        lv_process={@lv_process}
+        params={@params}
+      />
+    </div>
+    """
+  end
+
   defp get_return_link(lv_process, in_iframe?) do
     cond do
       not in_iframe? ->
@@ -116,5 +145,13 @@ defmodule LiveDebuggerWeb.LvProcessLive do
       in_iframe? ->
         RoutesHelper.window_dashboard(lv_process.result.transport_pid)
     end
+  end
+
+  defp get_current_view(url) do
+    URL.take_nth_segment(url, 3) || "node_inspector"
+  end
+
+  defp get_pid(url) do
+    URL.take_nth_segment(url, 2)
   end
 end
