@@ -5,8 +5,6 @@ defmodule LiveDebuggerWeb.Components do
 
   use Phoenix.Component
 
-  import Phoenix.HTML
-
   alias LiveDebugger.Utils.Parsers
   alias Phoenix.LiveView.JS
 
@@ -74,46 +72,39 @@ defmodule LiveDebuggerWeb.Components do
     """
   end
 
-  @doc """
-  Renders an input with label.
-  """
-  attr(:field, Phoenix.HTML.FormField, required: true)
-  attr(:label_text, :string, default: nil)
-  attr(:label_raw, :boolean, default: false)
-  attr(:type, :string, default: "text")
+  attr(:value_field, Phoenix.HTML.FormField, required: true)
+  attr(:unit_field, Phoenix.HTML.FormField, required: true)
+  attr(:units, :list, required: true)
+  attr(:rest, :global, include: ~w(min max placeholder))
 
-  attr(:wrapper_class, :any, default: nil)
-  attr(:input_class, :any, default: nil)
-  attr(:label_class, :any, default: nil)
-  attr(:rest, :global, include: ~w(min max))
-
-  def input(assigns) do
+  def input_with_units(assigns) do
     assigns =
       assigns
-      |> assign(:errors, assigns.field.errors)
+      |> assign(:errors, assigns.value_field.errors)
 
     ~H"""
-    <div phx-feedback-for={@field.name} class={["" | List.wrap(@wrapper_class)]}>
-      <label for={@field.id} class={["block font-medium text-xs" | List.wrap(@label_class)]}>
-        <%= if @label_raw, do: raw(@label_text), else: @label_text %>
-      </label>
+    <div class={[
+      "shadow-sm flex items-center rounded-[4px] outline outline-1 -outline-offset-1 has-[input:focus-within]:outline has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2",
+      @errors == [] && "outline-default-border has-[input:focus-within]:outline-ui-accent",
+      @errors != [] && "outline-error-text has-[input:focus-within]:outline-error-text"
+    ]}>
       <input
-        type={@type}
-        name={@field.name}
-        id={@field.id}
-        value={Phoenix.HTML.Form.normalize_value(@type, @field.value)}
-        class={[
-          "mt-2 block w-full rounded-lg bg-surface-1-bg  focus:ring-0 text-xs",
-          "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
-          @errors == [] && "border-default-border focus:border-secondary-text",
-          @errors != [] && "border-error-text focus:border-error-text"
-          | List.wrap(@input_class)
-        ]}
+        id={@value_field.id}
+        name={@value_field.name}
+        type="number"
+        class="block remove-arrow max-w-20 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0"
+        value={Phoenix.HTML.Form.normalize_value("number", @value_field.value)}
         {@rest}
       />
-      <p :for={msg <- @errors} class="mt-2 block text-error-text">
-        <%= msg %>
-      </p>
+      <div class="grid shrink-0 grid-cols-1 focus-within:relative">
+        <select
+          id={@unit_field.id}
+          name={@unit_field.name}
+          class="border-none bg-surface-0-bg col-start-1 row-start-1 w-full appearance-none rounded-md py-1.5 pl-3 pr-7 text-xs text-secondary-text placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-ui-accent"
+        >
+          <%= Phoenix.HTML.Form.options_for_select(@units, @unit_field.value) %>
+        </select>
+      </div>
     </div>
     """
   end
@@ -601,6 +592,7 @@ defmodule LiveDebuggerWeb.Components do
   attr(:checked, :boolean, default: false, doc: "Whether the switch is checked.")
   attr(:label, :string, default: "", doc: "Label for the switch.")
   attr(:wrapper_class, :any, default: nil, doc: "Additional classes to add to the switch.")
+  attr(:id, :string, default: nil, doc: "ID of the switch.")
   attr(:rest, :global)
 
   def toggle_switch(assigns) do
@@ -612,7 +604,7 @@ defmodule LiveDebuggerWeb.Components do
       <span class="text-xs font-normal text-primary-text mx-2">
         <%= @label %>
       </span>
-      <input id="highlight-switch" type="checkbox" class="sr-only peer" checked={@checked} {@rest} />
+      <input id={@id} type="checkbox" class="sr-only peer" checked={@checked} {@rest} />
       <div class="relative w-9 h-5 bg-ui-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ui-accent rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-ui-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ui-accent ">
       </div>
     </label>

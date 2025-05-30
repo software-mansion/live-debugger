@@ -20,6 +20,15 @@
   background: transparent;
 }
 
+.remove-arrow::-webkit-inner-spin-button,
+.remove-arrow::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.remove-arrow {
+  -moz-appearance: textfield;
+}
+
 body::-webkit-scrollbar {
   width: 8px;
   height: 8px;

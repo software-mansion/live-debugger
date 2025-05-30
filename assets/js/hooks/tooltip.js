@@ -2,7 +2,8 @@ const Tooltip = {
   mounted() {
     this.handleMouseEnter = () => {
       tooltipEl.style.display = 'block';
-      tooltipEl.classList.add(`tooltip-${this.el.dataset.variant}`);
+      tooltipEl.style.fontWeight =
+        this.el.dataset.variant === 'primary' ? '600' : '400';
       tooltipEl.innerHTML = this.el.dataset.tooltip;
 
       const tooltipRect = tooltipEl.getBoundingClientRect();
