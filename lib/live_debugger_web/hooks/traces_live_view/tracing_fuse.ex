@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse do
+defmodule LiveDebuggerWeb.Hooks.TracesLiveView.TracingFuse do
   @moduledoc """
   This hook is responsible for managing the tracing fuse.
   It is responsible for determining if the tracing should be stopped.

@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.IncomingTraces do
+defmodule LiveDebuggerWeb.Hooks.TracesLiveView.IncomingTraces do
   @moduledoc """
   This hook is responsible for handling incoming traces
   It is responsible for inserting new traces into the `:existing_traces` stream.

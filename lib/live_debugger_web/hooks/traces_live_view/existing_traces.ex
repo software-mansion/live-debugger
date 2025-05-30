@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces do
+defmodule LiveDebuggerWeb.Hooks.TracesLiveView.ExistingTraces do
   @moduledoc """
   This hook is responsible for fetching the existing traces and displaying them in the LiveView.
   It encapsulates logic for async fetching of traces.

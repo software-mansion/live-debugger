@@ -12,9 +12,9 @@ defmodule LiveDebuggerWeb.TracesLive do
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Components.Traces
 
-  alias LiveDebuggerWeb.Live.TracesLive.Hooks.ExistingTraces
-  alias LiveDebuggerWeb.Live.TracesLive.Hooks.IncomingTraces
-  alias LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse
+  alias LiveDebuggerWeb.Hooks.TracesLiveView.ExistingTraces
+  alias LiveDebuggerWeb.Hooks.TracesLiveView.IncomingTraces
+  alias LiveDebuggerWeb.Hooks.TracesLiveView.TracingFuse
 
   import LiveDebuggerWeb.Live.TracesLive.Helpers
 
