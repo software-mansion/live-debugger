@@ -262,7 +262,9 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   # Ets tables might exceed the maximum size since these are approximate values (e.g. 10MB might have 20MB of data).
   @spec max_table_size(:watched | :non_watched) :: non_neg_integer()
   defp max_table_size(:watched) do
-    Application.get_env(:live_debugger, :watched_table_max_size, 10) * @megabyte_unit
+    Application.get_env(:live_debugger, :watched_table_max_size, 10)
+    |> Kernel.*(@megabyte_unit)
+    |> trunc()
   end
 
   defp max_table_size(:non_watched) do
@@ -270,6 +272,8 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
       :live_debugger,
       :non_watched_table_max_size,
       1
-    ) * @megabyte_unit
+    )
+    |> Kernel.*(@megabyte_unit)
+    |> trunc()
   end
 end
