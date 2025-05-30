@@ -28,10 +28,13 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
   alias __MODULE__.TableInfo
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebugger.Utils.Memory
 
   @type state() :: %{pid() => TableInfo.t()}
 
   @ets_table_name :lvdbg_traces
+  @garbage_collect_interval 2000
+  @megabyte_unit 1_048_576
 
   ## API
 
@@ -63,6 +66,10 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
   @impl true
   def init(_args) do
+    if LiveDebugger.Feature.enabled?(:garbage_collection) do
+      init_garbage_collection_loop()
+    end
+
     {:ok, %{}}
   end
 
@@ -95,6 +102,28 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
       end)
 
     {:noreply, updated_state}
+  end
+
+  @impl true
+  def handle_call(:garbage_collect, _from, state) do
+    state
+    |> Enum.map(fn {_, %TableInfo{table: table} = table_info} ->
+      {table_info, Memory.table_size(table)}
+    end)
+    |> Enum.each(fn {%TableInfo{table: table, watchers: watchers}, size} ->
+      cond do
+        Enum.empty?(watchers) and size > max_table_size(:non_watched) ->
+          trim_ets_table(table, max_table_size(:non_watched))
+
+        size > max_table_size(:watched) ->
+          trim_ets_table(table, max_table_size(:watched))
+
+        true ->
+          :ok
+      end
+    end)
+
+    {:reply, :ok, state}
   end
 
   @impl true
@@ -132,21 +161,37 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   defmodule Impl do
     @moduledoc false
     @behaviour LiveDebugger.GenServers.EtsTableServer
+
     @server_module LiveDebugger.GenServers.EtsTableServer
+    @call_timeout 1000
 
     @impl true
     def table(pid) do
-      GenServer.call(@server_module, {:get_or_create_table, pid}, 1000)
+      GenServer.call(@server_module, {:get_or_create_table, pid}, @call_timeout)
     end
 
     @impl true
     def watch(pid) do
       if LiveDebugger.Feature.enabled?(:dead_view_mode) do
-        GenServer.call(@server_module, {:watch, pid}, 1000)
+        GenServer.call(@server_module, {:watch, pid}, @call_timeout)
       else
         {:error, :not_in_dead_view_mode}
       end
     end
+  end
+
+  @spec init_garbage_collection_loop() :: {:ok, pid()}
+  defp init_garbage_collection_loop() do
+    Task.start(fn ->
+      garbage_collection_loop()
+    end)
+  end
+
+  @spec garbage_collection_loop() :: :ok
+  defp garbage_collection_loop() do
+    Process.sleep(@garbage_collect_interval)
+    :ok = GenServer.call(__MODULE__, :garbage_collect)
+    garbage_collection_loop()
   end
 
   @spec create_ets_table() :: :ets.table()
@@ -182,8 +227,53 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     end)
   end
 
+  @spec update_watchers(state(), pid(), (MapSet.t() -> MapSet.t())) :: state()
   defp update_watchers(state, pid, update_fn) when is_map_key(state, pid) do
     table_info = Map.get(state, pid)
     Map.put(state, pid, %{table_info | watchers: update_fn.(table_info.watchers)})
+  end
+
+  @spec trim_ets_table(:ets.table(), non_neg_integer()) :: :ok
+  defp trim_ets_table(table, max_size) when is_integer(max_size) do
+    :ets.safe_fixtable(table, true)
+
+    foldl_fn = fn {key, _} = record, acc ->
+      size = Memory.term_size(record)
+
+      if acc + size > max_size do
+        throw({:key, key})
+      else
+        acc + size
+      end
+    end
+
+    # Try catch is used for early return from `foldl` since it doesn't support `:halt` | `:continue`.
+    try do
+      :ets.foldl(foldl_fn, 0, table)
+    catch
+      {:key, key} ->
+        :ets.select_delete(table, [{{:"$1", :_}, [{:>, :"$1", key}], [true]}])
+    end
+
+    :ets.safe_fixtable(table, false)
+    :ok
+  end
+
+  # Ets tables might exceed the maximum size since these are approximate values (e.g. 10MB might have 20MB of data).
+  @spec max_table_size(:watched | :non_watched) :: non_neg_integer()
+  defp max_table_size(:watched) do
+    Application.get_env(:live_debugger, :watched_table_max_size, 10)
+    |> Kernel.*(@megabyte_unit)
+    |> trunc()
+  end
+
+  defp max_table_size(:non_watched) do
+    Application.get_env(
+      :live_debugger,
+      :non_watched_table_max_size,
+      1
+    )
+    |> Kernel.*(@megabyte_unit)
+    |> trunc()
   end
 end

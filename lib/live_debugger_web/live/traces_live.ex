@@ -335,6 +335,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     |> TraceService.get(trace_id)
     |> case do
       nil ->
+        Logger.error("Trace with ID #{trace_id} not found.")
         socket
 
       trace ->
@@ -353,7 +354,8 @@ defmodule LiveDebuggerWeb.TracesLive do
     |> TraceService.get(trace_id)
     |> case do
       nil ->
-        socket
+        push_flash(socket.assigns.root_pid, socket, "Trace has been removed.")
+        |> push_event("collapsible", %{id: "existing_traces-#{trace_id}", action: "close"})
 
       trace ->
         socket
