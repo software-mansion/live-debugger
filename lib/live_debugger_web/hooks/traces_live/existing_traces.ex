@@ -131,11 +131,11 @@ defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
     |> halt()
   end
 
-  # TODO: handle this case in a proper way
   defp handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
     log_async_error("loading more existing traces", reason)
 
     socket
+    |> assign(:traces_continuation, :error)
     |> halt()
   end
 
