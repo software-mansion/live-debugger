@@ -1,7 +1,7 @@
 defmodule LiveDebuggerWeb.SidebarLive do
   @moduledoc """
   This live view is responsible for displaying the sidebar of the LiveDebugger.
-  It receives events from the `ChannelDashboardLive` live to open the mobile sidebar.
+  It receives events from the `LvProcessLive` live to open the mobile sidebar.
   """
 
   use LiveDebuggerWeb, :live_view
