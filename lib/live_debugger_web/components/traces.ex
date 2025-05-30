@@ -199,4 +199,49 @@ defmodule LiveDebuggerWeb.Components.Traces do
       true -> ""
     end
   end
+
+  attr(:traces_continuation, :any, required: true)
+  attr(:tracing_helper, :any, required: true)
+
+  def load_more_button(assigns) do
+    ~H"""
+    <div class="flex items-center justify-center mt-4">
+      <.load_more_button_content
+        traces_continuation={@traces_continuation}
+        tracing_helper={@tracing_helper}
+      />
+    </div>
+    """
+  end
+
+  defp load_more_button_content(%{traces_continuation: nil} = assigns), do: ~H""
+  defp load_more_button_content(%{traces_continuation: :end_of_table} = assigns), do: ~H""
+  defp load_more_button_content(%{tracing_helper: %{tracing_started?: true}} = assigns), do: ~H""
+
+  defp load_more_button_content(%{traces_continuation: :loading} = assigns) do
+    ~H"""
+    <.spinner size="sm" class="mb-4" />
+    """
+  end
+
+  defp load_more_button_content(%{traces_continuation: :error} = assigns) do
+    ~H"""
+    <.alert
+      variant="danger"
+      with_icon={true}
+      heading="Error while loading more traces"
+      class="w-full mb-4"
+    >
+      Check logs for more details.
+    </.alert>
+    """
+  end
+
+  defp load_more_button_content(%{traces_continuation: cont} = assigns) when is_tuple(cont) do
+    ~H"""
+    <.button phx-click="load-more" class="w-4 mb-4" variant="secondary">
+      Load more
+    </.button>
+    """
+  end
 end

@@ -21,7 +21,6 @@ defmodule LiveDebuggerWeb.GlobalTracesLive do
           class="sm:hidden"
         />
         <Navbar.live_debugger_logo_icon />
-
         <Navbar.connected id="navbar-connected" lv_process={@lv_process} />
         <div class="flex items-center gap-2">
           <Navbar.settings_button return_to={@url} />
