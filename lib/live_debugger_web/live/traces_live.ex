@@ -16,7 +16,7 @@ defmodule LiveDebuggerWeb.TracesLive do
   alias LiveDebuggerWeb.Hooks.TracesLiveView.IncomingTraces
   alias LiveDebuggerWeb.Hooks.TracesLiveView.TracingFuse
 
-  import LiveDebuggerWeb.Live.TracesLive.Helpers
+  import LiveDebuggerWeb.Helpers.TracesLiveViewHelper
 
   @page_size 25
   @separator %{id: "separator"}

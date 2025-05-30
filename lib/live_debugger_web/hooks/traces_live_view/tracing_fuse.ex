@@ -18,7 +18,7 @@ defmodule LiveDebuggerWeb.Hooks.TracesLiveView.TracingFuse do
   import Phoenix.Component, only: [assign: 3]
   import LiveDebuggerWeb.Helpers
   import Phoenix.LiveView
-  import LiveDebuggerWeb.Live.TracesLive.Helpers
+  import LiveDebuggerWeb.Helpers.TracesLiveViewHelper
 
   alias Phoenix.LiveView.Socket
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils

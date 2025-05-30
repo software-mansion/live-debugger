@@ -23,7 +23,7 @@ defmodule LiveDebuggerWeb.Hooks.TracesLiveView.ExistingTraces do
   import Phoenix.LiveView
   import Phoenix.Component
   import LiveDebuggerWeb.Helpers
-  import LiveDebuggerWeb.Live.TracesLive.Helpers
+  import LiveDebuggerWeb.Helpers.TracesLiveViewHelper
 
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
