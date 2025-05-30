@@ -96,11 +96,11 @@ defmodule LiveDebuggerWeb.Live.TracesLive.Hooks.TracingFuse do
     end
   end
 
-  def check_fuse(%{assigns: %{@assign_name => %{tracing_started?: false}}} = socket) do
+  defp check_fuse(%{assigns: %{@assign_name => %{tracing_started?: false}}} = socket) do
     {:noop, socket}
   end
 
-  def check_fuse(%{assigns: %{@assign_name => %{tracing_started?: true}}} = socket) do
+  defp check_fuse(%{assigns: %{@assign_name => %{tracing_started?: true}}} = socket) do
     fuse = socket.assigns[@assign_name].fuse
 
     cond do
