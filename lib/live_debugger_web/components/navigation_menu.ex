@@ -93,7 +93,7 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
   end
 
   defp get_current_view(url) do
-    URL.take_nth_segment(url, 3)
+    URL.take_nth_segment(url, 3) || "node_inspector"
   end
 
   defp get_pid(url) do
