@@ -1,60 +1,43 @@
 defmodule LiveDebuggerWeb.GlobalTracesLive do
   use LiveDebuggerWeb, :live_view
-  use LiveDebuggerWeb.Hooks.LinkedView
 
-  alias LiveDebuggerWeb.Components.Navbar
-  alias LiveDebuggerWeb.Components.NavigationMenu
-  alias LiveDebuggerWeb.Helpers.RoutesHelper
+  attr(:socket, :map, required: true)
+  attr(:id, :string, required: true)
+  attr(:lv_process, :map, required: true)
+  attr(:class, :string, default: "", doc: "CSS class for the container")
+
+  def live_render(assigns) do
+    session = %{
+      "lv_process" => assigns.lv_process,
+      "id" => assigns.id
+    }
+
+    assigns = assign(assigns, session: session)
+
+    ~H"""
+    <%= live_render(@socket, __MODULE__,
+      id: @id,
+      session: @session,
+      container: {:div, class: @class}
+    ) %>
+    """
+  end
+
+  @impl true
+  def mount(_params, session, socket) do
+    socket
+    |> assign(lv_process: session["lv_process"])
+    |> assign(id: session["id"])
+    |> ok()
+  end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div id="channel-dashboard" class="w-screen h-screen grid grid-rows-[auto_1fr]">
-      <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto] pl-2 lg:pr-4">
-        <Navbar.return_link
-          return_link={get_return_link(@lv_process, @in_iframe?)}
-          class="hidden sm:block"
-        />
-        <NavigationMenu.dropdown
-          return_link={get_return_link(@lv_process, @in_iframe?)}
-          current_url={@url}
-          class="sm:hidden"
-        />
-        <Navbar.live_debugger_logo_icon />
-
-        <Navbar.connected id="navbar-connected" lv_process={@lv_process} />
-        <div class="flex items-center gap-2">
-          <Navbar.settings_button return_to={@url} />
-          <span class="h-5 border-r border-default-border lg:hidden"></span>
-          <.nav_icon class="flex lg:hidden" icon="icon-panel-right" />
-        </div>
-      </Navbar.navbar>
-
-      <div class="flex overflow-hidden">
-        <NavigationMenu.sidebar class="hidden sm:flex" current_url={@url} />
-
-        <.async_result :let={_lv_process} assign={@lv_process}>
-          <:loading>
-            <div class="m-auto flex items-center justify-center">
-              <.spinner size="xl" />
-            </div>
-          </:loading>
-        </.async_result>
-      </div>
+    <div class="w-full">
+      <h1>Global Traces</h1>
+      <%= @lv_process.pid |> inspect() %>
     </div>
     """
-  end
-
-  defp get_return_link(lv_process, in_iframe?) do
-    cond do
-      not in_iframe? ->
-        RoutesHelper.live_views_dashboard()
-
-      not lv_process.ok? ->
-        nil
-
-      in_iframe? ->
-        RoutesHelper.window_dashboard(lv_process.result.transport_pid)
-    end
   end
 end

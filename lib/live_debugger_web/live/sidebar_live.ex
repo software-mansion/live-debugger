@@ -24,16 +24,16 @@ defmodule LiveDebuggerWeb.SidebarLive do
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
   attr(:lv_process, :map, required: true)
-  attr(:node_id, :string, required: true)
+  attr(:params, :map, required: true)
   attr(:url, :string, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
       "lv_process" => assigns.lv_process,
-      "node_id" => assigns.node_id,
+      "params" => assigns.params,
       "url" => assigns.url,
-      "parent_socket_id" => assigns.socket.id
+      "parent_pid" => self()
     }
 
     assigns = assign(assigns, session: session)
@@ -49,12 +49,12 @@ defmodule LiveDebuggerWeb.SidebarLive do
 
   @impl true
   def mount(_params, session, socket) do
-    parent_socket_id = session["parent_socket_id"]
+    parent_pid = session["parent_pid"]
     lv_process = session["lv_process"]
 
     if connected?(socket) do
-      parent_socket_id
-      |> PubSubUtils.node_changed_topic()
+      parent_pid
+      |> PubSubUtils.params_changed_topic()
       |> PubSubUtils.subscribe!()
 
       lv_process.pid
@@ -62,9 +62,11 @@ defmodule LiveDebuggerWeb.SidebarLive do
       |> PubSubUtils.subscribe!()
     end
 
+    {:ok, node_id} = TreeNode.id_from_string(session["params"]["node_id"] || lv_process.pid)
+
     socket
     |> assign(:lv_process, lv_process)
-    |> assign(:node_id, session["node_id"])
+    |> assign(:node_id, node_id)
     |> assign(:url, session["url"])
     |> assign(:highlight?, false)
     |> assign(:hidden?, true)
@@ -140,7 +142,10 @@ defmodule LiveDebuggerWeb.SidebarLive do
   end
 
   @impl true
-  def handle_info({:node_changed, node_id}, socket) do
+  def handle_info({:params_changed, new_params}, socket) do
+    lv_process = socket.assigns.lv_process
+    {:ok, node_id} = TreeNode.id_from_string(new_params["node_id"] || lv_process.pid)
+
     socket
     |> assign(:node_id, node_id)
     |> assign_async_node_module()

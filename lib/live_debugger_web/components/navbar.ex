@@ -87,8 +87,8 @@ defmodule LiveDebuggerWeb.Components.Navbar do
   attr(:lv_process, :map, required: true, doc: "The LiveView process.")
   attr(:rest, :global)
 
-  def connected(%{lv_process: %{ok?: true}} = assigns) do
-    connected? = assigns.lv_process.result.alive?
+  def connected(assigns) do
+    connected? = assigns.lv_process.alive?
     status = if(connected?, do: :connected, else: :disconnected)
 
     assigns = assign(assigns, status: status, connected?: connected?)
@@ -99,22 +99,13 @@ defmodule LiveDebuggerWeb.Components.Navbar do
         <.status_icon status={@status} />
         <%= if @connected? do %>
           <span class="font-medium">Monitored PID </span>
-          <%= Parsers.pid_to_string(@lv_process.result.pid) %>
+          <%= Parsers.pid_to_string(@lv_process.pid) %>
         <% else %>
           <span class="font-medium">Disconnected</span>
           <.button phx-click="find-successor" variant="secondary" size="sm">Continue</.button>
         <% end %>
       </div>
     </.tooltip>
-    """
-  end
-
-  def connected(assigns) do
-    ~H"""
-    <div id={@id} class="flex items-center gap-1 text-xs text-primary ml-1">
-      <.status_icon status={:loading} />
-      <span class="font-medium">Loading LiveView process...</span>
-    </div>
     """
   end
 

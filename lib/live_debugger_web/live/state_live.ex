@@ -17,14 +17,14 @@ defmodule LiveDebuggerWeb.StateLive do
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
   attr(:lv_process, :map, required: true)
-  attr(:node_id, :string, required: true)
+  attr(:params, :map, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
       "lv_process" => assigns.lv_process,
-      "node_id" => assigns.node_id,
-      "parent_socket_id" => assigns.socket.id
+      "params" => assigns.params,
+      "parent_pid" => self()
     }
 
     assigns = assign(assigns, session: session)
@@ -41,12 +41,12 @@ defmodule LiveDebuggerWeb.StateLive do
   @impl true
   def mount(_params, session, socket) do
     lv_process = session["lv_process"]
-    parent_socket_id = session["parent_socket_id"]
-    node_id = session["node_id"]
+    parent_pid = session["parent_pid"]
+    {:ok, node_id} = TreeNode.id_from_string(session["params"]["node_id"] || lv_process.pid)
 
     if connected?(socket) do
-      parent_socket_id
-      |> PubSubUtils.node_changed_topic()
+      parent_pid
+      |> PubSubUtils.params_changed_topic()
       |> PubSubUtils.subscribe!()
 
       lv_process.pid
@@ -98,9 +98,10 @@ defmodule LiveDebuggerWeb.StateLive do
   end
 
   @impl true
-  def handle_info({:node_changed, new_node_id}, socket) do
+  def handle_info({:params_changed, new_params}, socket) do
     lv_process = socket.assigns.lv_process
     old_node_id = socket.assigns.node_id
+    {:ok, new_node_id} = TreeNode.id_from_string(new_params["node_id"] || lv_process.pid)
 
     lv_process.pid
     |> PubSubUtils.state_changed_topic(old_node_id)

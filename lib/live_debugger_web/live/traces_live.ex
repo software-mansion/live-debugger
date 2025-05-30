@@ -23,17 +23,15 @@ defmodule LiveDebuggerWeb.TracesLive do
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
   attr(:lv_process, :map, required: true)
-  attr(:node_id, :string, required: true)
-  attr(:root_pid, :any, required: true)
+  attr(:params, :map, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
       "lv_process" => assigns.lv_process,
-      "node_id" => assigns.node_id,
+      "params" => assigns.params,
       "id" => assigns.id,
-      "parent_socket_id" => assigns.socket.id,
-      "root_pid" => assigns.root_pid
+      "parent_pid" => self()
     }
 
     assigns = assign(assigns, session: session)
@@ -50,13 +48,15 @@ defmodule LiveDebuggerWeb.TracesLive do
   @impl true
   def mount(_params, session, socket) do
     lv_process = session["lv_process"]
-    node_id = session["node_id"]
+    parent_pid = session["parent_pid"]
 
     if connected?(socket) do
-      session["parent_socket_id"]
-      |> PubSubUtils.node_changed_topic()
+      parent_pid
+      |> PubSubUtils.params_changed_topic()
       |> PubSubUtils.subscribe!()
     end
+
+    {:ok, node_id} = TreeNode.id_from_string(session["params"]["node_id"] || lv_process.pid)
 
     default_filters = default_filters(node_id)
 
@@ -69,7 +69,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     |> assign(trace_callback_running?: false)
     |> assign(node_id: node_id)
     |> assign(id: session["id"])
-    |> assign(root_pid: session["root_pid"])
+    |> assign(parent_pid: session["parent_pid"])
     |> assign(lv_process: lv_process)
     |> TracingHelper.init()
     |> assign_async_existing_traces()
@@ -230,7 +230,7 @@ defmodule LiveDebuggerWeb.TracesLive do
         limit = TracingHelper.trace_limit_per_period()
         period = TracingHelper.time_period() |> Parsers.parse_elapsed_time()
 
-        socket.assigns.root_pid
+        socket.assigns.parent_pid
         |> push_flash(
           socket,
           "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}."
@@ -270,7 +270,10 @@ defmodule LiveDebuggerWeb.TracesLive do
   end
 
   @impl true
-  def handle_info({:node_changed, node_id}, socket) do
+  def handle_info({:params_changed, new_params}, socket) do
+    lv_process = socket.assigns.lv_process
+    {:ok, node_id} = TreeNode.id_from_string(new_params["node_id"] || lv_process.pid)
+
     default_filters = default_filters(node_id)
 
     socket
