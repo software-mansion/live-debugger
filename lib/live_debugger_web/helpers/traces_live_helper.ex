@@ -1,6 +1,10 @@
 defmodule LiveDebuggerWeb.Helpers.TracesLiveHelper do
   @moduledoc """
-  This module provides helpers for the TracesLive.
+  This module provides helpers for the TracesLive and especially its hooks.
+  Since these hooks get more complex and they touch different assigns and streams,
+  this module was created to check if the assigns and streams are present in the socket.
+
+  This way we can catch errors early and not have to debug them in the hooks.
   """
 
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
