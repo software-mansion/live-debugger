@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Hooks.TracesLiveView.TracingFuse do
+defmodule LiveDebuggerWeb.Hooks.TracesLive.TracingFuse do
   @moduledoc """
   This hook is responsible for managing the tracing fuse.
   It is responsible for determining if the tracing should be stopped.
@@ -18,7 +18,7 @@ defmodule LiveDebuggerWeb.Hooks.TracesLiveView.TracingFuse do
   import Phoenix.Component, only: [assign: 3]
   import LiveDebuggerWeb.Helpers
   import Phoenix.LiveView
-  import LiveDebuggerWeb.Helpers.TracesLiveViewHelper
+  import LiveDebuggerWeb.Helpers.TracesLiveHelper
 
   alias Phoenix.LiveView.Socket
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils

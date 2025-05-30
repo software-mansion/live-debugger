@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Hooks.TracesLiveView.ExistingTraces do
+defmodule LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces do
   @moduledoc """
   This hook is responsible for fetching the existing traces and displaying them in the LiveView.
   It encapsulates logic for async fetching of traces.
@@ -23,7 +23,7 @@ defmodule LiveDebuggerWeb.Hooks.TracesLiveView.ExistingTraces do
   import Phoenix.LiveView
   import Phoenix.Component
   import LiveDebuggerWeb.Helpers
-  import LiveDebuggerWeb.Helpers.TracesLiveViewHelper
+  import LiveDebuggerWeb.Helpers.TracesLiveHelper
 
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay

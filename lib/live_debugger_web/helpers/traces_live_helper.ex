@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Helpers.TracesLiveViewHelper do
+defmodule LiveDebuggerWeb.Helpers.TracesLiveHelper do
   @moduledoc """
   This module provides helpers for the TracesLive.
   """

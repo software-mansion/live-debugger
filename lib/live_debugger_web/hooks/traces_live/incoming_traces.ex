@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Hooks.TracesLiveView.IncomingTraces do
+defmodule LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces do
   @moduledoc """
   This hook is responsible for handling incoming traces
   It is responsible for inserting new traces into the `:existing_traces` stream.
@@ -19,7 +19,7 @@ defmodule LiveDebuggerWeb.Hooks.TracesLiveView.IncomingTraces do
   import Phoenix.LiveView
   import Phoenix.Component
   import LiveDebuggerWeb.Helpers
-  import LiveDebuggerWeb.Helpers.TracesLiveViewHelper
+  import LiveDebuggerWeb.Helpers.TracesLiveHelper
 
   alias LiveDebugger.Structs.TraceDisplay
 

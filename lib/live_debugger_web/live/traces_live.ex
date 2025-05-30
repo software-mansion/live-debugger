@@ -12,11 +12,11 @@ defmodule LiveDebuggerWeb.TracesLive do
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Components.Traces
 
-  alias LiveDebuggerWeb.Hooks.TracesLiveView.ExistingTraces
-  alias LiveDebuggerWeb.Hooks.TracesLiveView.IncomingTraces
-  alias LiveDebuggerWeb.Hooks.TracesLiveView.TracingFuse
+  alias LiveDebuggerWeb.Hooks.TracesLive.ExistingTraces
+  alias LiveDebuggerWeb.Hooks.TracesLive.IncomingTraces
+  alias LiveDebuggerWeb.Hooks.TracesLive.TracingFuse
 
-  import LiveDebuggerWeb.Helpers.TracesLiveViewHelper
+  import LiveDebuggerWeb.Helpers.TracesLiveHelper
 
   @page_size 25
   @separator %{id: "separator"}
