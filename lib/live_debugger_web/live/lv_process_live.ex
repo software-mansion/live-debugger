@@ -1,5 +1,11 @@
 defmodule LiveDebuggerWeb.LvProcessLive do
-  @moduledoc false
+  @moduledoc """
+  This module is responsible for rendering the main debugger page.
+  It can contain multiple nested live views, depending on the current view.
+  It also contains the logic for fetching the LiveView process and its state.
+
+  It uses the `LiveDebuggerWeb.Hooks.LinkedView` hook to fetch the LiveView process and its state.
+  """
 
   use LiveDebuggerWeb, :live_view
   use LiveDebuggerWeb.Hooks.LinkedView
