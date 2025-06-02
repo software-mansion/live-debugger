@@ -30,7 +30,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     ~H"""
     <div id={@id <> "-wrapper"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
-        <div class="w-96">
+        <div class="w-[28rem]">
           <div class="p-4">
             <p class="font-medium mb-4">Callbacks</p>
             <div class="flex flex-col gap-3">
@@ -38,8 +38,10 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
                 <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
               <% end %>
             </div>
-            <p class="font-medium mb-4 mt-6">Execution Time</p>
-            <div class="mt-3 flex gap-3 items-center">
+          </div>
+          <div class="p-4 border-t border-default-border">
+            <p class="font-medium mb-4">Execution Time</p>
+            <div class="mt-3 flex gap-3 p-1 items-center">
               <.input_with_units
                 value_field={@form[:exec_time_min]}
                 unit_field={@form[:min_unit]}
@@ -59,20 +61,21 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
               <%= msg %>
             </p>
           </div>
-          <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
-            <button
-              class="text-link-primary hover:text-link-primary-hover"
-              type="button"
-              phx-click="reset"
-              phx-target={@myself}
-            >
-              Reset filters
-            </button>
+          <div class="flex py-4 px-4 gap-3 border-t border-default-border items-center">
             <.button variant="primary" size="sm" type="submit">
               Apply
               <span :if={@selected_filters_number > 0}>
                 (<%= @selected_filters_number %>)
               </span>
+            </.button>
+            <.button
+              variant="secondary"
+              type="button"
+              size="sm"
+              phx-click="reset"
+              phx-target={@myself}
+            >
+              Reset
             </.button>
           </div>
         </div>

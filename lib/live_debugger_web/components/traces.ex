@@ -174,7 +174,7 @@ defmodule LiveDebuggerWeb.Components.Traces do
 
     ~H"""
     <.fullscreen id={@id} title={@callback_name}>
-      <div class="w-full flex flex-col gap-4 items-start justify-center">
+      <div class="w-full flex flex-col gap-4 p-4 items-start justify-center">
         <%= for {args, index} <- Enum.with_index(@trace_args) do %>
           <div :if={index > 0} class="border-t border-default-border w-full"></div>
           <p class="font-semibold shrink-0">

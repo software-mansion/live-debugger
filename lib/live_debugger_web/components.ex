@@ -412,11 +412,11 @@ defmodule LiveDebuggerWeb.Components do
       id={@id}
       phx-hook="Fullscreen"
       class={[
-        "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg p-2 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
+        "mt-16 sm:mt-auto relative h-max w-max bg-surface-0-bg overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
       ]}
     >
-      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border">
+      <div class="w-full h-14 py-auto px-3 flex justify-between items-center border-b border-default-border">
         <div class="font-semibold text-primary-text text-base"><%= @title %></div>
         <.icon_button
           id={"#{@id}-close"}
@@ -426,7 +426,7 @@ defmodule LiveDebuggerWeb.Components do
           size="sm"
         />
       </div>
-      <div class="overflow-auto flex flex-col gap-2 p-2">
+      <div class="overflow-auto text-primary-text flex flex-col gap-2">
         <%= render_slot(@inner_block) %>
       </div>
     </dialog>

@@ -90,17 +90,11 @@ defmodule LiveDebuggerWeb.TracesLive do
             <Traces.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
             <Traces.refresh_button :if={not @tracing_helper.tracing_started?} />
             <Traces.clear_button :if={not @tracing_helper.tracing_started?} />
-            <.live_component
-              :if={not @tracing_helper.tracing_started?}
-              module={LiveDebuggerWeb.LiveComponents.LiveDropdown}
-              id="filters-dropdown"
-            >
-              <:button>
-                <.button class="flex gap-2" variant="secondary" size="sm">
-                  <.icon name="icon-filters" class="w-4 h-4" />
-                  <div class="hidden @[29rem]/traces:block">Filters</div>
-                </.button>
-              </:button>
+            <.button class="flex gap-2" variant="secondary" size="sm" phx-click="open-filters">
+              <.icon name="icon-filters" class="w-4 h-4" />
+              <div class="hidden @[29rem]/traces:block">Filters</div>
+            </.button>
+            <.fullscreen id="filters-fullscreen" title="Filters">
               <.live_component
                 module={LiveDebuggerWeb.LiveComponents.FiltersForm}
                 id="filters-form"
@@ -108,7 +102,7 @@ defmodule LiveDebuggerWeb.TracesLive do
                 filters={@current_filters}
                 default_filters={@default_filters}
               />
-            </.live_component>
+            </.fullscreen>
           </div>
         </:right_panel>
         <div class="w-full h-full">
@@ -287,6 +281,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     LiveDebuggerWeb.LiveComponents.LiveDropdown.close("filters-dropdown")
 
     socket
+    |> push_event("filters-fullscreen-close", %{})
     |> assign(:current_filters, filters)
     |> assign(:traces_empty?, true)
     |> assign_async_existing_traces()
@@ -342,6 +337,13 @@ defmodule LiveDebuggerWeb.TracesLive do
         |> assign(displayed_trace: trace)
         |> push_event("trace-fullscreen-open", %{})
     end
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("open-filters", _, socket) do
+    socket
+    |> push_event("filters-fullscreen-open", %{})
     |> noreply()
   end
 
