@@ -187,10 +187,10 @@ defmodule LiveDebuggerWeb.TracesLive do
         :if={@applied_filters_number > 0}
         variant="secondary"
         size="sm"
-        class="rounded-l-none border-l-0"
+        class="rounded-l-none border-l-0 h-[30px] w-[30px] px-0"
         phx-click="reset-filters"
       >
-        X
+        <.icon name="icon-cross" class="w-4 h-4" />
       </.button>
     </div>
     """

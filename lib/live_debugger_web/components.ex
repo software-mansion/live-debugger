@@ -421,7 +421,7 @@ defmodule LiveDebuggerWeb.Components do
         <.icon_button
           id={"#{@id}-close"}
           phx-click={JS.dispatch("close", to: "##{@id}")}
-          icon="icon-cross-small"
+          icon="icon-cross"
           variant="secondary"
           size="sm"
         />
