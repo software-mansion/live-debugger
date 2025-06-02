@@ -91,6 +91,7 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
     """
   end
 
+  # We do it to make sure that the dropdown is closed when the item is clicked.
   defp dropdown_item_click(url) do
     url
     |> JS.patch()
