@@ -181,11 +181,12 @@ defmodule LiveDebuggerWeb.Components do
     ~H"""
     <details
       id={@id}
+      phx-hook="Collapsible"
+      data-open={@open}
       class={[
         "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden [&>summary_.show-on-open]:open:flex"
         | List.wrap(@class)
       ]}
-      {show_collapsible_assign(@open)}
     >
       <summary
         id={@id <> "-summary"}
@@ -289,12 +290,6 @@ defmodule LiveDebuggerWeb.Components do
     </div>
     """
   end
-
-  @doc """
-  Used to add CollapsibleOpen hook to element based on condition.
-  """
-  def show_collapsible_assign(true), do: %{:"phx-hook" => "CollapsibleOpen"}
-  def show_collapsible_assign(_), do: %{}
 
   @doc """
   Typography component to render headings.

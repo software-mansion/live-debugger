@@ -354,7 +354,7 @@ defmodule LiveDebuggerWeb.TracesLive do
       nil ->
         socket
         |> push_flash("Trace has been removed.", socket.assigns.root_pid)
-        |> push_event("collapsible", %{id: "existing_traces-#{trace_id}", action: "close"})
+        |> push_event("#{:existing_traces}-#{string_trace_id}-collapsible", %{action: "close"})
 
       trace ->
         socket
