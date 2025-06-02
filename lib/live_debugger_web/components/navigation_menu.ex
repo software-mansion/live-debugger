@@ -7,6 +7,7 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
   alias LiveDebuggerWeb.LiveComponents.LiveDropdown
   alias LiveDebuggerWeb.Helpers.RoutesHelper
   alias LiveDebugger.Utils.URL
+  alias Phoenix.LiveView.JS
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
   attr(:current_url, :any, required: true)
@@ -73,23 +74,27 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
           <LiveDropdown.dropdown_item icon="icon-arrow-left" label="Back to Home" />
         </.link>
         <span class="w-full border-b border-default-border my-1"></span>
-        <.link patch={RoutesHelper.channel_dashboard(@pid)}>
-          <LiveDropdown.dropdown_item
-            icon="icon-info"
-            label="Node Inspector"
-            selected?={@current_view == "node_inspector"}
-          />
-        </.link>
-        <.link patch={RoutesHelper.global_traces(@pid)}>
-          <LiveDropdown.dropdown_item
-            icon="icon-globe"
-            label="Global Callbacks"
-            selected?={@current_view == "global_traces"}
-          />
-        </.link>
+        <LiveDropdown.dropdown_item
+          icon="icon-info"
+          label="Node Inspector"
+          selected?={@current_view == "node_inspector"}
+          phx-click={dropdown_item_click(RoutesHelper.channel_dashboard(@pid))}
+        />
+        <LiveDropdown.dropdown_item
+          icon="icon-globe"
+          label="Global Callbacks"
+          selected?={@current_view == "global_traces"}
+          phx-click={dropdown_item_click(RoutesHelper.global_traces(@pid))}
+        />
       </div>
     </.live_component>
     """
+  end
+
+  defp dropdown_item_click(url) do
+    url
+    |> JS.patch()
+    |> JS.push("close", target: "#navigation-bar-dropdown-live-dropdown-container")
   end
 
   defp get_current_view(url) do
