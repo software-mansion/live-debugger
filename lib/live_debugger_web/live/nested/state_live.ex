@@ -54,6 +54,7 @@ defmodule LiveDebuggerWeb.Live.Nested.StateLive do
     socket
     |> assign(:lv_process, lv_process)
     |> assign_node_id(session)
+    |> subscribe_to_state_changed()
     |> assign_async_node_with_type()
     |> ok()
   end
@@ -96,25 +97,10 @@ defmodule LiveDebuggerWeb.Live.Nested.StateLive do
 
   @impl true
   def handle_info({:params_changed, new_params}, socket) do
-    lv_process = socket.assigns.lv_process
-    old_node_id = socket.assigns.node_id
-
-    {:ok, new_node_id} =
-      case new_params["node_id"] do
-        nil -> {:ok, lv_process.pid}
-        node_id -> TreeNode.id_from_string(node_id)
-      end
-
-    lv_process.pid
-    |> PubSubUtils.state_changed_topic(old_node_id)
-    |> PubSubUtils.unsubscribe()
-
-    lv_process.pid
-    |> PubSubUtils.state_changed_topic(new_node_id)
-    |> PubSubUtils.subscribe!()
-
     socket
-    |> assign(node_id: new_node_id)
+    |> unsubscribe_from_state_changed()
+    |> assign_node_id(new_params)
+    |> subscribe_to_state_changed()
     |> assign_async_node_with_type()
     |> noreply()
   end
@@ -161,5 +147,23 @@ defmodule LiveDebuggerWeb.Live.Nested.StateLive do
     socket
     |> assign(:node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
     |> assign(:node_type, AsyncResult.failed(%AsyncResult{}, :no_node_id))
+  end
+
+  defp subscribe_to_state_changed(socket) do
+    if connected?(socket) do
+      socket.assigns.lv_process.pid
+      |> PubSubUtils.state_changed_topic(socket.assigns.node_id)
+      |> PubSubUtils.subscribe!()
+    end
+
+    socket
+  end
+
+  defp unsubscribe_from_state_changed(socket) do
+    socket.assigns.lv_process.pid
+    |> PubSubUtils.state_changed_topic(socket.assigns.node_id)
+    |> PubSubUtils.unsubscribe()
+
+    socket
   end
 end

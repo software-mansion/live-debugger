@@ -22,6 +22,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
     debugger
     |> assert_has(traces(count: 2))
+    |> take_screenshot()
     |> assert_has(assigns_entry(key: "counter", value: "2"))
     |> click(toggle_tracing_button())
 
