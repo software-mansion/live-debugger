@@ -5,6 +5,8 @@ defmodule LiveDebuggerWeb.Live.Nested.StateLive do
 
   use LiveDebuggerWeb, :live_view
 
+  import LiveDebuggerWeb.Helpers.NestedLiveViewHelper
+
   alias Phoenix.LiveView.AsyncResult
 
   alias LiveDebuggerWeb.Components.ElixirDisplay
@@ -43,25 +45,15 @@ defmodule LiveDebuggerWeb.Live.Nested.StateLive do
     lv_process = session["lv_process"]
     parent_pid = session["parent_pid"]
 
-    {:ok, node_id} =
-      case session["params"]["node_id"] do
-        nil -> {:ok, lv_process.pid}
-        node_id -> TreeNode.id_from_string(node_id)
-      end
-
     if connected?(socket) do
       parent_pid
       |> PubSubUtils.params_changed_topic()
       |> PubSubUtils.subscribe!()
-
-      lv_process.pid
-      |> PubSubUtils.state_changed_topic(node_id)
-      |> PubSubUtils.subscribe!()
     end
 
     socket
-    |> assign(node_id: node_id)
-    |> assign(lv_process: lv_process)
+    |> assign(:lv_process, lv_process)
+    |> assign_node_id(session)
     |> assign_async_node_with_type()
     |> ok()
   end

@@ -7,6 +7,8 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
 
   require Logger
 
+  import LiveDebuggerWeb.Helpers.NestedLiveViewHelper
+
   alias LiveDebuggerWeb.Helpers.TracingHelper
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
@@ -56,25 +58,17 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
       |> PubSubUtils.subscribe!()
     end
 
-    {:ok, node_id} =
-      case session["params"]["node_id"] do
-        nil -> {:ok, lv_process.pid}
-        node_id -> TreeNode.id_from_string(node_id)
-      end
-
-    default_filters = default_filters(node_id)
-
     socket
+    |> assign(:id, session["id"])
+    |> assign(:parent_pid, session["parent_pid"])
+    |> assign(:lv_process, lv_process)
+    |> assign_node_id(session)
+    |> assign_default_filters()
+    |> reset_current_filters()
     |> assign(:displayed_trace, nil)
     |> assign(:traces_continuation, nil)
-    |> assign(current_filters: default_filters)
-    |> assign(default_filters: default_filters)
-    |> assign(traces_empty?: true)
-    |> assign(trace_callback_running?: false)
-    |> assign(node_id: node_id)
-    |> assign(id: session["id"])
-    |> assign(parent_pid: session["parent_pid"])
-    |> assign(lv_process: lv_process)
+    |> assign(:traces_empty?, true)
+    |> assign(:trace_callback_running?, false)
     |> TracingHelper.init()
     |> assign_async_existing_traces()
     |> ok()
@@ -275,21 +269,11 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
 
   @impl true
   def handle_info({:params_changed, new_params}, socket) do
-    lv_process = socket.assigns.lv_process
-
-    {:ok, node_id} =
-      case new_params["node_id"] do
-        nil -> {:ok, lv_process.pid}
-        node_id -> TreeNode.id_from_string(node_id)
-      end
-
-    default_filters = default_filters(node_id)
-
     socket
     |> TracingHelper.disable_tracing()
-    |> assign(node_id: node_id)
-    |> assign(current_filters: default_filters)
-    |> assign(default_filters: default_filters)
+    |> assign_node_id(new_params)
+    |> assign_default_filters()
+    |> reset_current_filters()
     |> assign_async_existing_traces()
     |> noreply()
   end
@@ -422,6 +406,14 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
         execution_times: execution_times
       )
     end)
+  end
+
+  defp assign_default_filters(socket) do
+    assign(socket, :default_filters, default_filters(socket.assigns.node_id))
+  end
+
+  defp reset_current_filters(socket) do
+    assign(socket, :current_filters, socket.assigns.default_filters)
   end
 
   defp default_filters(node_id) do

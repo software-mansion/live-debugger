@@ -8,6 +8,8 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
 
   require Logger
 
+  import LiveDebuggerWeb.Helpers.NestedLiveViewHelper
+
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Structs.Trace
@@ -62,15 +64,9 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
       |> PubSubUtils.subscribe!()
     end
 
-    {:ok, node_id} =
-      case session["params"]["node_id"] do
-        nil -> {:ok, lv_process.pid}
-        node_id -> TreeNode.id_from_string(node_id)
-      end
-
     socket
     |> assign(:lv_process, lv_process)
-    |> assign(:node_id, node_id)
+    |> assign_node_id(session)
     |> assign(:url, session["url"])
     |> assign(:highlight?, false)
     |> assign(:hidden?, true)
@@ -147,16 +143,8 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
 
   @impl true
   def handle_info({:params_changed, new_params}, socket) do
-    lv_process = socket.assigns.lv_process
-
-    {:ok, node_id} =
-      case new_params["node_id"] do
-        nil -> {:ok, lv_process.pid}
-        node_id -> TreeNode.id_from_string(node_id)
-      end
-
     socket
-    |> assign(:node_id, node_id)
+    |> assign_node_id(new_params)
     |> assign_async_node_module()
     |> noreply()
   end
