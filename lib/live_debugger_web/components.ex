@@ -178,6 +178,8 @@ defmodule LiveDebuggerWeb.Components do
   slot(:inner_block, required: true)
 
   def collapsible(assigns) do
+    assigns = assign(assigns, :open, to_string(assigns.open))
+
     ~H"""
     <details
       id={@id}
