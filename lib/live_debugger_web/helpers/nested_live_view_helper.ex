@@ -9,6 +9,14 @@ defmodule LiveDebuggerWeb.Helpers.NestedLiveViewHelper do
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebuggerWeb.Helpers.RoutesHelper
 
+  @doc """
+  Assigns node_id to the socket.
+
+  If node_id is provided via session or params, it will be parsed and assigned to the socket.
+  If node_id is not provided, the PID of the LiveView process will be assigned to the socket.
+  If node_id is invalid, the user will be redirected to the error page.
+  """
+  @spec assign_node_id(Phoenix.LiveView.Socket.t(), map()) :: Phoenix.LiveView.Socket.t()
   def assign_node_id(socket, %{"params" => %{"node_id" => node_id}} = _session) do
     do_assign_node_id(socket, node_id)
   end
@@ -28,7 +36,7 @@ defmodule LiveDebuggerWeb.Helpers.NestedLiveViewHelper do
       {:ok, node_id} ->
         assign(socket, :node_id, node_id)
 
-      {:error, _} ->
+      :error ->
         push_navigate(socket, to: RoutesHelper.error("invalid_node_id"))
     end
   end
