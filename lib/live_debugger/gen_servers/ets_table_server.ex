@@ -110,13 +110,13 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     |> Enum.map(fn {_, %TableInfo{table: table} = table_info} ->
       {table_info, Memory.table_size(table)}
     end)
-    |> Enum.each(fn {%TableInfo{table: table, watchers: watchers}, size} ->
+    |> Enum.each(fn {table_info, size} ->
       cond do
-        Enum.empty?(watchers) and size > max_table_size(:non_watched) ->
-          trim_ets_table(table, max_table_size(:non_watched))
+        trim_non_watched_table?(table_info, size) ->
+          trim_ets_table(table_info.table, max_table_size(:non_watched))
 
-        size > max_table_size(:watched) ->
-          trim_ets_table(table, max_table_size(:watched))
+        trim_watched_table?(table_info, size) ->
+          trim_ets_table(table_info.table, max_table_size(:watched))
 
         true ->
           :ok
@@ -194,6 +194,16 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
     garbage_collection_loop()
   end
 
+  @spec trim_non_watched_table?(TableInfo.t(), non_neg_integer()) :: boolean()
+  defp trim_non_watched_table?(table_info, size) do
+    Enum.empty?(table_info.watchers) and size > max_table_size(:non_watched)
+  end
+
+  @spec trim_watched_table?(TableInfo.t(), non_neg_integer()) :: boolean()
+  defp trim_watched_table?(table_info, size) do
+    not Enum.empty?(table_info.watchers) and size > max_table_size(:watched)
+  end
+
   @spec create_ets_table() :: :ets.table()
   defp create_ets_table() do
     :ets.new(@ets_table_name, [:ordered_set, :public])
@@ -237,19 +247,9 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   defp trim_ets_table(table, max_size) when is_integer(max_size) do
     :ets.safe_fixtable(table, true)
 
-    foldl_fn = fn {key, _} = record, acc ->
-      size = Memory.term_size(record)
-
-      if acc + size > max_size do
-        throw({:key, key})
-      else
-        acc + size
-      end
-    end
-
     # Try catch is used for early return from `foldl` since it doesn't support `:halt` | `:continue`.
     try do
-      :ets.foldl(foldl_fn, 0, table)
+      :ets.foldl(&foldl_record_sizes(&1, &2, max_size), 0, table)
     catch
       {:key, key} ->
         :ets.select_delete(table, [{{:"$1", :_}, [{:>, :"$1", key}], [true]}])
@@ -257,6 +257,18 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
     :ets.safe_fixtable(table, false)
     :ok
+  end
+
+  @spec foldl_record_sizes({term(), term()}, non_neg_integer(), non_neg_integer()) ::
+          non_neg_integer()
+  defp foldl_record_sizes({key, _} = record, acc, max_size) do
+    size = Memory.term_size(record)
+
+    if acc + size > max_size do
+      throw({:key, key})
+    else
+      acc + size
+    end
   end
 
   # Ets tables might exceed the maximum size since these are approximate values (e.g. 10MB might have 20MB of data).
