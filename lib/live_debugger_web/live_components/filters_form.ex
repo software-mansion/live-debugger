@@ -24,7 +24,6 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   def render(assigns) do
     assigns =
       assigns
-      |> assign(:selected_filters_number, calculate_selected_filters(assigns.form))
       |> assign(:errors, assigns.form.errors)
 
     ~H"""
@@ -174,15 +173,5 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     value
     |> String.to_integer()
     |> Parsers.time_to_microseconds(unit)
-  end
-
-  defp calculate_selected_filters(form) do
-    callbacks =
-      UtilsCallbacks.callbacks_functions()
-      |> Enum.map(&Atom.to_string/1)
-
-    form.params
-    |> Enum.filter(fn {name, value} -> Enum.member?(callbacks, name) && value end)
-    |> Enum.count(&Function.identity/1)
   end
 end

@@ -11,9 +11,7 @@ defmodule LiveDebuggerWeb.TracesLive do
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
-  alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
   alias LiveDebugger.Utils.Parsers
-  alias LiveDebugger.Structs.TreeNode
   alias LiveDebuggerWeb.Components.Traces
   alias LiveDebuggerWeb.Helpers.FiltersHelper
 
@@ -59,7 +57,7 @@ defmodule LiveDebuggerWeb.TracesLive do
       |> PubSubUtils.subscribe!()
     end
 
-    default_filters = default_filters(node_id)
+    default_filters = FiltersHelper.default_filters(node_id)
 
     socket
     |> assign(:displayed_trace, nil)
@@ -283,7 +281,7 @@ defmodule LiveDebuggerWeb.TracesLive do
   def handle_info({:updated_trace, trace}, socket) when socket.assigns.trace_callback_running? do
     trace_display = TraceDisplay.from_trace(trace, true)
 
-    execution_time = get_execution_times(socket)
+    execution_time = FiltersHelper.get_execution_times(socket.assigns.current_filters)
     min_time = Keyword.get(execution_time, :exec_time_min, 0)
     max_time = Keyword.get(execution_time, :exec_time_max, :infinity)
 
@@ -308,7 +306,7 @@ defmodule LiveDebuggerWeb.TracesLive do
 
   @impl true
   def handle_info({:node_changed, node_id}, socket) do
-    default_filters = default_filters(node_id)
+    default_filters = FiltersHelper.default_filters(node_id)
 
     socket
     |> TracingHelper.disable_tracing()
@@ -389,7 +387,7 @@ defmodule LiveDebuggerWeb.TracesLive do
   @impl true
   def handle_event("reset-filters", _, socket) do
     socket
-    |> update_filters(default_filters(socket.assigns.node_id))
+    |> update_filters(FiltersHelper.default_filters(socket.assigns.node_id))
     |> noreply()
   end
 
@@ -424,8 +422,8 @@ defmodule LiveDebuggerWeb.TracesLive do
   defp assign_async_existing_traces(socket) do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
-    active_functions = get_active_functions(socket)
-    execution_times = get_execution_times(socket)
+    active_functions = FiltersHelper.get_active_functions(socket.assigns.current_filters)
+    execution_times = FiltersHelper.get_execution_times(socket.assigns.current_filters)
 
     socket
     |> assign(:existing_traces_status, :loading)
@@ -444,8 +442,8 @@ defmodule LiveDebuggerWeb.TracesLive do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
     cont = socket.assigns.traces_continuation
-    active_functions = get_active_functions(socket)
-    execution_times = get_execution_times(socket)
+    active_functions = FiltersHelper.get_active_functions(socket.assigns.current_filters)
+    execution_times = FiltersHelper.get_execution_times(socket.assigns.current_filters)
 
     socket
     |> assign(:traces_continuation, :loading)
@@ -465,47 +463,6 @@ defmodule LiveDebuggerWeb.TracesLive do
     |> assign(:current_filters, filters)
     |> assign(:traces_empty?, true)
     |> assign_async_existing_traces()
-  end
-
-  defp default_filters(node_id) do
-    functions =
-      node_id
-      |> TreeNode.type()
-      |> case do
-        :live_view -> UtilsCallbacks.live_view_callbacks()
-        :live_component -> UtilsCallbacks.live_component_callbacks()
-      end
-      |> Enum.map(fn {function, _} -> {function, true} end)
-
-    %{
-      functions: functions,
-      execution_time: [
-        {:exec_time_max, ""},
-        {:exec_time_min, ""},
-        {:min_unit, Parsers.time_units() |> List.first()},
-        {:max_unit, Parsers.time_units() |> List.first()}
-      ]
-    }
-  end
-
-  defp get_active_functions(socket) do
-    socket.assigns.current_filters.functions
-    |> Enum.filter(fn {_, active?} -> active? end)
-    |> Enum.map(fn {function, _} -> function end)
-  end
-
-  defp get_execution_times(socket) do
-    execution_time = socket.assigns.current_filters.execution_time
-
-    execution_time
-    |> Enum.filter(fn {_, value} -> value not in ["" | Parsers.time_units()] end)
-    |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
-    |> Enum.map(fn {filter, value} ->
-      case filter do
-        :exec_time_min -> {filter, Parsers.time_to_microseconds(value, execution_time[:min_unit])}
-        :exec_time_max -> {filter, Parsers.time_to_microseconds(value, execution_time[:max_unit])}
-      end
-    end)
   end
 
   defp log_async_error(operation, reason) do
