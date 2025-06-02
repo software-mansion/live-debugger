@@ -1,7 +1,7 @@
 defmodule LiveDebugger.Utils.Memory do
   @moduledoc """
   Utility functions for measuring memory usage and size of data structures.
-  These functions might not work correctly in all cases but they provide a good approximation.
+  These functions provide only a good approximation
   """
 
   @doc """
@@ -19,7 +19,7 @@ defmodule LiveDebugger.Utils.Memory do
   end
 
   @doc """
-  Returns the size of an elixir term in bytes.
+  Returns the approximate size of an elixir term in bytes.
   """
   @spec term_size(term :: term()) :: non_neg_integer()
   def term_size(term) do

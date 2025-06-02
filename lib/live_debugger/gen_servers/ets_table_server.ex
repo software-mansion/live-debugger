@@ -7,6 +7,12 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   ## Dead View Mode
   When in dead view mode, the gen_server will send `{:process_status, {:dead, pid}}` to the process status topic when a process dies.
   It will wait for all watchers to be removed and then delete the ETS table and sends `{:process_status, {:dead, pid}}` to the process status topic.
+
+  ## Garbage Collection
+  The gen_server will periodically check the size of ETS tables and trim them if they exceed a certain size.
+  To adjust the size of the ETS tables, you can set the `:approx_table_max_size` in your config (which is in megabytes).
+
+  Important! This is an approximate value, so the actual size of the table may exceed this value.
   """
 
   defmodule TableInfo do
