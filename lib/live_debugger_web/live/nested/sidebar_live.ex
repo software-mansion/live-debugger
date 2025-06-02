@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.SidebarLive do
+defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
   @moduledoc """
   This live view is responsible for displaying the sidebar of the LiveDebugger.
   It receives events from the `LvProcessLive` live to open the mobile sidebar.

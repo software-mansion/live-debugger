@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.TracesLive do
+defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
   @moduledoc """
   This nested live view displays the traces of a LiveView.
   """

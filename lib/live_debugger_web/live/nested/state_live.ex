@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.StateLive do
+defmodule LiveDebuggerWeb.Live.Nested.StateLive do
   @moduledoc """
   This nested live view displays the state of a LiveView.
   """

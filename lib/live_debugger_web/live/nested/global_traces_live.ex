@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Live.GlobalTracesLive do
+defmodule LiveDebuggerWeb.Live.Nested.GlobalTracesLive do
   use LiveDebuggerWeb, :live_view
 
   attr(:socket, :map, required: true)

@@ -10,12 +10,12 @@ defmodule LiveDebuggerWeb.LvProcessLive do
   alias LiveDebuggerWeb.Components.Navbar
   alias Phoenix.LiveView.JS
 
-  alias LiveDebuggerWeb.StateLive
-  alias LiveDebuggerWeb.TracesLive
-  alias LiveDebuggerWeb.SidebarLive
+  alias LiveDebuggerWeb.Live.Nested.StateLive
+  alias LiveDebuggerWeb.Live.Nested.TracesLive
+  alias LiveDebuggerWeb.Live.Nested.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Components.NavigationMenu
-  alias LiveDebuggerWeb.Live.GlobalTracesLive
+  alias LiveDebuggerWeb.Live.Nested.GlobalTracesLive
   alias LiveDebugger.Utils.URL
 
   @impl true
