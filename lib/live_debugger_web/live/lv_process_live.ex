@@ -149,7 +149,7 @@ defmodule LiveDebuggerWeb.LvProcessLive do
         RoutesHelper.live_views_dashboard()
 
       in_iframe? ->
-        RoutesHelper.window_dashboard(lv_process.result.transport_pid)
+        RoutesHelper.window_dashboard(lv_process.transport_pid)
     end
   end
 
