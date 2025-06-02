@@ -13,6 +13,10 @@ defmodule LiveDebuggerWeb.Helpers.FiltersHelper do
     |> Enum.count(fn key -> current_filters[key] != default_filters[key] end)
   end
 
+  def changed_filter?(filter, current_filters, default_filters) do
+    current_filters[filter] != default_filters[filter]
+  end
+
   def default_filters(node_id) do
     functions =
       node_id

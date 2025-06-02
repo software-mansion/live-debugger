@@ -8,12 +8,14 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Utils.Parsers
+  alias LiveDebuggerWeb.Helpers.FiltersHelper
 
   @impl true
   def update(assigns, socket) do
     socket
     |> assign(:id, assigns.id)
     |> assign(:node_id, assigns.node_id)
+    |> assign(:filters, assigns.filters)
     |> assign(:active_filters, assigns.filters)
     |> assign(:default_filters, assigns.default_filters)
     |> assign_form(assigns.filters)
@@ -25,13 +27,26 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     assigns =
       assigns
       |> assign(:errors, assigns.form.errors)
+      |> assign(
+        :changed_functions_filter?,
+        FiltersHelper.changed_filter?(:functions, assigns.filters, assigns.default_filters)
+      )
+      |> assign(
+        :changed_execution_time_filter?,
+        FiltersHelper.changed_filter?(:execution_time, assigns.filters, assigns.default_filters)
+      )
 
     ~H"""
     <div id={@id <> "-wrapper"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
         <div class="w-[28rem]">
           <div class="p-4">
-            <p class="font-medium mb-4">Callbacks</p>
+            <.filter_header
+              name="Callbacks"
+              reset="functions"
+              changed?={@changed_functions_filter?}
+              myself={@myself}
+            />
             <div class="flex flex-col gap-3">
               <%= for {function, arity} <- get_callbacks(@node_id) do %>
                 <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
@@ -39,7 +54,12 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
             </div>
           </div>
           <div class="p-4 border-t border-default-border">
-            <p class="font-medium mb-4">Execution Time</p>
+            <.filter_header
+              name="Execution Time"
+              reset="execution_time"
+              changed?={@changed_execution_time_filter?}
+              myself={@myself}
+            />
             <div class="mt-3 flex gap-3 p-1 items-center">
               <.input_with_units
                 value_field={@form[:exec_time_min]}
@@ -65,6 +85,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
               Apply
             </.button>
             <.button
+              :if={@changed_functions_filter? || @changed_execution_time_filter?}
               variant="secondary"
               type="button"
               size="sm"
@@ -76,6 +97,31 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           </div>
         </div>
       </.form>
+    </div>
+    """
+  end
+
+  attr(:changed?, :boolean, default: false)
+  attr(:name, :string, required: true)
+  attr(:reset, :string, required: true)
+  attr(:myself, :any, required: true)
+
+  defp filter_header(assigns) do
+    ~H"""
+    <div class="flex justify-between">
+      <p class="font-medium mb-4">
+        <%= String.capitalize(@name) %>
+      </p>
+      <button
+        :if={@changed?}
+        type="button"
+        class="flex align-center text-link-primary hover:text-link-primary-hover"
+        phx-click={"reset-" <> @reset}
+        phx-target={@myself}
+      >
+        <.icon name="icon-arrow-left" class="w-4 h-4" />
+        <span>Reset</span>
+      </button>
     </div>
     """
   end
@@ -99,6 +145,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     case update_filters(socket.assigns.active_filters, params) do
       {:ok, filters} ->
         socket
+        |> assign(filters: filters)
         |> assign_form(filters)
         |> noreply()
 
@@ -112,7 +159,19 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   @impl true
   def handle_event("reset", _params, socket) do
     socket
+    |> assign(filters: socket.assigns.default_filters)
     |> assign_form(socket.assigns.default_filters)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("reset-" <> filter, _params, socket) do
+    filter = String.to_existing_atom(filter)
+    filters = Map.replace(socket.assigns.filters, filter, socket.assigns.default_filters[filter])
+
+    socket
+    |> assign(filters: filters)
+    |> assign_form(filters)
     |> noreply()
   end
 
