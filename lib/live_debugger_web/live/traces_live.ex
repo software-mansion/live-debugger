@@ -15,6 +15,7 @@ defmodule LiveDebuggerWeb.TracesLive do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebuggerWeb.Components.Traces
+  alias LiveDebuggerWeb.Helpers.FiltersHelper
 
   @live_stream_limit 128
   @page_size 25
@@ -82,6 +83,16 @@ defmodule LiveDebuggerWeb.TracesLive do
 
   @impl true
   def render(assigns) do
+    assigns =
+      assigns
+      |> assign(
+        applied_filters_number:
+          FiltersHelper.calculate_selected_filters(
+            assigns.current_filters,
+            assigns.default_filters
+          )
+      )
+
     ~H"""
     <div class="max-w-full @container/traces flex flex-1">
       <.section title="Callback traces" id="traces" inner_class="mx-0 mt-4 px-4" class="flex-1">
@@ -90,10 +101,10 @@ defmodule LiveDebuggerWeb.TracesLive do
             <Traces.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
             <Traces.refresh_button :if={not @tracing_helper.tracing_started?} />
             <Traces.clear_button :if={not @tracing_helper.tracing_started?} />
-            <.button class="flex gap-2" variant="secondary" size="sm" phx-click="open-filters">
-              <.icon name="icon-filters" class="w-4 h-4" />
-              <div class="hidden @[29rem]/traces:block">Filters</div>
-            </.button>
+            <.filters_button
+              :if={not @tracing_helper.tracing_started?}
+              applied_filters_number={@applied_filters_number}
+            />
             <.fullscreen id="filters-fullscreen" title="Filters">
               <.live_component
                 module={LiveDebuggerWeb.LiveComponents.FiltersForm}
@@ -151,6 +162,38 @@ defmodule LiveDebuggerWeb.TracesLive do
         </div>
       </.section>
       <Traces.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
+    </div>
+    """
+  end
+
+  attr(:applied_filters_number, :integer, default: 0)
+
+  defp filters_button(assigns) do
+    ~H"""
+    <div class="flex">
+      <.button
+        variant="secondary"
+        size="sm"
+        class={"flex gap-2 " <> if @applied_filters_number > 0, do: "rounded-r-none", else: ""}
+        phx-click="open-filters"
+      >
+        <.icon name="icon-filters" class="w-4 h-4" />
+        <div class="flex gap-1">
+          <span class="hidden @[29rem]/traces:block">Filters</span>
+          <span :if={@applied_filters_number > 0}>
+            (<%= @applied_filters_number %>)
+          </span>
+        </div>
+      </.button>
+      <.button
+        :if={@applied_filters_number > 0}
+        variant="secondary"
+        size="sm"
+        class="rounded-l-none border-l-0"
+        phx-click="reset-filters"
+      >
+        X
+      </.button>
     </div>
     """
   end
@@ -278,13 +321,9 @@ defmodule LiveDebuggerWeb.TracesLive do
 
   @impl true
   def handle_info({:filters_updated, filters}, socket) do
-    LiveDebuggerWeb.LiveComponents.LiveDropdown.close("filters-dropdown")
-
     socket
     |> push_event("filters-fullscreen-close", %{})
-    |> assign(:current_filters, filters)
-    |> assign(:traces_empty?, true)
-    |> assign_async_existing_traces()
+    |> update_filters(filters)
     |> noreply()
   end
 
@@ -344,6 +383,13 @@ defmodule LiveDebuggerWeb.TracesLive do
   def handle_event("open-filters", _, socket) do
     socket
     |> push_event("filters-fullscreen-open", %{})
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("reset-filters", _, socket) do
+    socket
+    |> update_filters(default_filters(socket.assigns.node_id))
     |> noreply()
   end
 
@@ -414,6 +460,13 @@ defmodule LiveDebuggerWeb.TracesLive do
     end)
   end
 
+  defp update_filters(socket, filters) do
+    socket
+    |> assign(:current_filters, filters)
+    |> assign(:traces_empty?, true)
+    |> assign_async_existing_traces()
+  end
+
   defp default_filters(node_id) do
     functions =
       node_id
@@ -429,8 +482,8 @@ defmodule LiveDebuggerWeb.TracesLive do
       execution_time: [
         {:exec_time_max, ""},
         {:exec_time_min, ""},
-        {:min_unit, ""},
-        {:max_unit, ""}
+        {:min_unit, Parsers.time_units() |> List.first()},
+        {:max_unit, Parsers.time_units() |> List.first()}
       ]
     }
   end

@@ -64,9 +64,6 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           <div class="flex py-4 px-4 gap-3 border-t border-default-border items-center">
             <.button variant="primary" size="sm" type="submit">
               Apply
-              <span :if={@selected_filters_number > 0}>
-                (<%= @selected_filters_number %>)
-              </span>
             </.button>
             <.button
               variant="secondary"
