@@ -14,7 +14,7 @@ function handleCollapsibleEvent(payload, el) {
   } else if (payload.action === 'close') {
     el.open = false;
   } else {
-    console.warn(
+    console.error(
       `Unknown action "${payload.action}" for collapsible with id "${el.id}"`
     );
   }
