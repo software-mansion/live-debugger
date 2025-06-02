@@ -145,7 +145,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
 
   describe "`:garbage_collect` call" do
     test "deletes records if it has too many" do
-      Application.put_env(:live_debugger, :watched_table_max_size, 0.01)
+      Application.put_env(:live_debugger, :approx_table_max_size, 0.1)
 
       pid = :c.pid(0, 0, 1)
       ref = :ets.new(:test_table, [:ordered_set, :public])
