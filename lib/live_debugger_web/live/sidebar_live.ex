@@ -248,7 +248,7 @@ defmodule LiveDebuggerWeb.SidebarLive do
         phx-click-away="close_mobile_content"
       >
         <.icon_button
-          icon="icon-cross-small"
+          icon="icon-cross"
           class="absolute top-4 right-4"
           variant="secondary"
           size="sm"
