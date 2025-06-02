@@ -33,7 +33,7 @@ defmodule LiveDebuggerWeb.LvProcessLive do
     <div id="lv-process-live" class="w-screen h-screen grid grid-rows-[auto_1fr]">
       <.async_result :let={lv_process} assign={@lv_process}>
         <:loading>
-          <div class="m-auto flex items-center justify-center">
+          <div class="flex h-screen items-center justify-center">
             <.spinner size="xl" />
           </div>
         </:loading>
