@@ -7,14 +7,12 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
 
   require Logger
 
-  import LiveDebuggerWeb.Helpers.NestedLiveViewHelper
-  import LiveDebuggerWeb.Live.Traces.Helpers
+  alias LiveDebuggerWeb.Helpers.NestedLiveViewHelper
 
-  import LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces
-
-  alias LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse
+  alias LiveDebuggerWeb.Live.Traces.Hooks
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Live.Traces.Components
+  alias LiveDebuggerWeb.Live.Traces.Helpers
 
   @live_stream_limit 128
   @page_size 25
@@ -65,15 +63,15 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
     |> assign(:displayed_trace, nil)
     |> assign(:trace_callback_running?, false)
     |> assign(:tracing_started?, false)
-    |> assign_node_id(session)
-    |> assign_default_filters()
-    |> assign_current_filters()
+    |> NestedLiveViewHelper.assign_node_id(session)
+    |> Helpers.assign_default_filters()
+    |> Helpers.assign_current_filters()
     |> Components.ClearButton.init()
     |> Components.LoadMoreButton.init(@page_size)
     |> Components.Stream.init()
-    |> TracingFuse.init()
-    |> LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces.init(@page_size)
-    |> LiveDebuggerWeb.Live.Traces.Hooks.NewTraces.init(@live_stream_limit)
+    |> Hooks.TracingFuse.init()
+    |> Hooks.ExistingTraces.init(@page_size)
+    |> Hooks.NewTraces.init(@live_stream_limit)
     |> Components.FiltersDropdown.init()
     |> Components.ToggleTracingButton.init()
     |> ok()
@@ -121,18 +119,18 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
   @impl true
   def handle_info({:params_changed, new_params}, socket) do
     socket
-    |> TracingFuse.disable_tracing()
-    |> assign_node_id(new_params)
-    |> assign_default_filters()
-    |> reset_current_filters()
-    |> assign_async_existing_traces()
+    |> Hooks.TracingFuse.disable_tracing()
+    |> NestedLiveViewHelper.assign_node_id(new_params)
+    |> Helpers.assign_default_filters()
+    |> Helpers.reset_current_filters()
+    |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> noreply()
   end
 
   @impl true
   def handle_event("refresh-history", _, socket) do
     socket
-    |> assign_async_existing_traces()
+    |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> noreply()
   end
 end
