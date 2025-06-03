@@ -46,6 +46,34 @@ end
 defmodule LiveDebuggerWeb.Helpers do
   @moduledoc false
 
+  def check_assigns!(%Phoenix.LiveView.Socket{assigns: assigns} = socket, key) do
+    check_assign!(assigns, key)
+
+    socket
+  end
+
+  def check_assign!(assigns, key) do
+    if Map.has_key?(assigns, key) do
+      assigns
+    else
+      raise "Assign #{key} not found in assigns"
+    end
+  end
+
+  def check_streams!(%Phoenix.LiveView.Socket{assigns: assigns} = socket, key) do
+    check_stream!(assigns, key)
+
+    socket
+  end
+
+  def check_stream!(assigns, key) do
+    if Map.has_key?(assigns.streams, key) do
+      assigns
+    else
+      raise "Stream #{key} not found in assigns.streams"
+    end
+  end
+
   def empty_map(_), do: %{}
 
   def ok(socket), do: {:ok, socket}
