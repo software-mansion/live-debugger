@@ -4,15 +4,14 @@ defmodule LiveDebuggerWeb.Hooks.Traces.NewTraces do
 
   import LiveDebuggerWeb.Helpers
   import LiveDebuggerWeb.Helpers.TracesLiveHelper
-  import LiveDebuggerWeb.Hooks.Flash
 
   alias LiveDebugger.Structs.TraceDisplay
-  alias LiveDebuggerWeb.Helpers.TracingHelper
-  alias LiveDebugger.Utils.Parsers
 
   def attach_hook(socket, live_stream_limit \\ 128) do
     socket
+    |> check_hook!(:tracing_fuse)
     |> put_private(:live_stream_limit, live_stream_limit)
+    |> check_assigns!(:trace_callback_running?)
     |> attach_hook(:new_traces, :handle_info, &handle_info/2)
     |> register_hook(:new_traces)
   end
@@ -20,34 +19,16 @@ defmodule LiveDebuggerWeb.Hooks.Traces.NewTraces do
   defp handle_info({:new_trace, trace}, socket) do
     live_stream_limit = socket.private.live_stream_limit
 
+    trace_display = TraceDisplay.from_trace(trace, true)
+
     socket
-    |> TracingHelper.check_fuse()
-    |> case do
-      {:ok, socket} ->
-        trace_display = TraceDisplay.from_trace(trace, true)
-
-        socket
-        |> stream_insert(:existing_traces, trace_display, at: 0, limit: live_stream_limit)
-        |> assign(traces_empty?: false)
-        |> assign(trace_callback_running?: true)
-
-      {:stopped, socket} ->
-        limit = TracingHelper.trace_limit_per_period()
-        period = TracingHelper.time_period() |> Parsers.parse_elapsed_time()
-
-        socket.assigns.parent_pid
-        |> push_flash(
-          socket,
-          "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}."
-        )
-
-      {_, socket} ->
-        socket
-    end
+    |> stream_insert(:existing_traces, trace_display, at: 0, limit: live_stream_limit)
+    |> assign(traces_empty?: false)
+    |> assign(trace_callback_running?: true)
     |> halt()
   end
 
-  defp handle_info({:updated_trace, trace}, socket) when socket.assigns.trace_callback_running? do
+  defp handle_info({:updated_trace, trace}, socket) do
     live_stream_limit = socket.private.live_stream_limit
     trace_display = TraceDisplay.from_trace(trace, true)
 
@@ -63,7 +44,6 @@ defmodule LiveDebuggerWeb.Hooks.Traces.NewTraces do
       |> stream_delete(:existing_traces, trace_display)
     end
     |> assign(trace_callback_running?: false)
-    |> TracingHelper.maybe_disable_tracing_after_update()
     |> push_event("stop-timer", %{})
     |> halt()
   end

@@ -1,7 +1,7 @@
 defmodule LiveDebuggerWeb.Components.Traces.ToggleTracingButton do
   use LiveDebuggerWeb, :component
 
-  alias LiveDebuggerWeb.Helpers.TracingHelper
+  alias LiveDebuggerWeb.Hooks.Traces.TracingFuse
 
   import Phoenix.LiveView
 
@@ -32,9 +32,9 @@ defmodule LiveDebuggerWeb.Components.Traces.ToggleTracingButton do
   end
 
   defp handle_event("switch-tracing", _, socket) do
-    socket = TracingHelper.switch_tracing(socket)
+    socket = TracingFuse.switch_tracing(socket)
 
-    if socket.assigns.tracing_helper.tracing_started? and !socket.assigns.traces_empty? do
+    if socket.assigns.tracing_started? and !socket.assigns.traces_empty? do
       socket
       |> stream_delete(:existing_traces, @separator)
       |> stream_insert(:existing_traces, @separator, at: 0)

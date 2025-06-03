@@ -58,15 +58,10 @@ end
 defmodule LiveDebuggerWeb.Helpers do
   @moduledoc false
 
+  # TODO change name to check_assign!
   def check_assigns!(%Phoenix.LiveView.Socket{assigns: assigns} = socket, key) do
-    check_assign!(assigns, key)
-
-    socket
-  end
-
-  def check_assign!(assigns, key) do
     if Map.has_key?(assigns, key) do
-      assigns
+      socket
     else
       raise "Assign #{key} not found in assigns"
     end

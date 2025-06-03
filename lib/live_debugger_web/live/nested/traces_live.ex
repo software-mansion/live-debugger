@@ -12,7 +12,7 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
 
   import LiveDebuggerWeb.Hooks.Traces.ExistingTraces
 
-  alias LiveDebuggerWeb.Helpers.TracingHelper
+  alias LiveDebuggerWeb.Hooks.Traces.TracingFuse
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Components.Traces
 
@@ -62,6 +62,9 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     |> assign(:traces_empty?, true)
     |> assign(:traces_continuation, nil)
     |> assign(:existing_traces_status, :loading)
+    |> assign(:displayed_trace, nil)
+    |> assign(:trace_callback_running?, false)
+    |> assign(:tracing_started?, false)
     |> assign_node_id(session)
     |> assign_default_filters()
     |> assign_current_filters()
@@ -69,12 +72,10 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     |> Traces.LoadMoreButton.init(@page_size)
     |> Traces.Stream.init()
     |> Traces.ToggleTracingButton.attach_hook()
+    |> TracingFuse.init()
     |> LiveDebuggerWeb.Hooks.Traces.ExistingTraces.attach_hook(@page_size)
-    |> Traces.FiltersDropdown.init()
-    |> assign(:displayed_trace, nil)
-    |> assign(:trace_callback_running?, false)
-    |> TracingHelper.init()
     |> LiveDebuggerWeb.Hooks.Traces.NewTraces.attach_hook(@live_stream_limit)
+    |> Traces.FiltersDropdown.init()
     |> ok()
   end
 
@@ -89,13 +90,11 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
       <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
         <:right_panel>
           <div class="flex gap-2 items-center">
-            <Traces.ToggleTracingButton.toggle_tracing_button tracing_started?={
-              @tracing_helper.tracing_started?
-            } />
-            <Traces.refresh_button :if={not @tracing_helper.tracing_started?} />
-            <Traces.ClearButton.clear_button :if={not @tracing_helper.tracing_started?} />
+            <Traces.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
+            <Traces.refresh_button :if={not @tracing_started?} />
+            <Traces.ClearButton.clear_button :if={not @tracing_started?} />
             <Traces.FiltersDropdown.filters_dropdown
-              :if={not @tracing_helper.tracing_started?}
+              :if={not @tracing_started?}
               node_id={@node_id}
               current_filters={@current_filters}
               default_filters={@default_filters}
@@ -109,7 +108,7 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
             existing_traces={@streams.existing_traces}
           />
           <Traces.LoadMoreButton.load_more_button
-            :if={not @tracing_helper.tracing_started?}
+            :if={not @tracing_started?}
             traces_continuation={@traces_continuation}
           />
         </div>
@@ -122,7 +121,7 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
   @impl true
   def handle_info({:params_changed, new_params}, socket) do
     socket
-    |> TracingHelper.disable_tracing()
+    |> TracingFuse.disable_tracing()
     |> assign_node_id(new_params)
     |> assign_default_filters()
     |> reset_current_filters()

@@ -11,6 +11,7 @@ defmodule LiveDebuggerWeb.Hooks.Traces.ExistingTraces do
 
   def attach_hook(socket, page_size \\ 25) do
     socket
+    |> check_hook!(:tracing_fuse)
     |> put_private(:page_size, page_size)
     |> attach_hook(:existing_traces, :handle_async, &handle_async/3)
     |> register_hook(:existing_traces)
