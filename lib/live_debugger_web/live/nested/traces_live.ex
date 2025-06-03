@@ -61,6 +61,7 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     |> Traces.ToggleTracingButton.attach_hook()
     |> Traces.LoadMoreButton.attach_hook(@page_size)
     |> Traces.ClearButton.attach_hook()
+    |> Traces.FiltersDropdown.attach_hook()
     |> assign(:id, session["id"])
     |> assign(:parent_pid, session["parent_pid"])
     |> assign(:lv_process, lv_process)
@@ -92,7 +93,7 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
             } />
             <Traces.refresh_button :if={not @tracing_helper.tracing_started?} />
             <Traces.ClearButton.clear_button :if={not @tracing_helper.tracing_started?} />
-            <Traces.filters_dropdown
+            <Traces.FiltersDropdown.filters_dropdown
               :if={not @tracing_helper.tracing_started?}
               node_id={@node_id}
               current_filters={@current_filters}
@@ -197,10 +198,7 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
   end
 
   @impl true
-  def handle_info({:updated_trace, _trace}, socket) do
-    socket
-    |> noreply()
-  end
+  def handle_info({:updated_trace, _trace}, socket), do: {:noreply, socket}
 
   @impl true
   def handle_info({:params_changed, new_params}, socket) do
@@ -215,8 +213,6 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
 
   @impl true
   def handle_info({:filters_updated, filters}, socket) do
-    LiveDebuggerWeb.LiveComponents.LiveDropdown.close("filters-dropdown")
-
     socket
     |> assign(:current_filters, filters)
     |> assign(:traces_empty?, true)
