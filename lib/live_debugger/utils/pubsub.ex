@@ -32,10 +32,10 @@ defmodule LiveDebugger.Utils.PubSub do
     "lvdbg/component_deleted"
   end
 
-  @doc "Use `{:node_changed, node_id}` for broadcasting"
-  @spec node_changed_topic(socket_id :: String.t()) :: String.t()
-  def node_changed_topic(socket_id) do
-    "lvdbg/#{socket_id}/node_changed"
+  @doc "Use `{:params_changed, params}` for broadcasting"
+  @spec params_changed_topic(pid :: pid()) :: String.t()
+  def params_changed_topic(pid) do
+    "lvdbg/#{inspect(pid)}/params_changed"
   end
 
   @doc "Use `{:process_status, {status, pid}}` for broadcasting"

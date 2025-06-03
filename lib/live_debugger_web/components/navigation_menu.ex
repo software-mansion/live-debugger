@@ -7,6 +7,7 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
   alias LiveDebuggerWeb.LiveComponents.LiveDropdown
   alias LiveDebuggerWeb.Helpers.RoutesHelper
   alias LiveDebugger.Utils.URL
+  alias Phoenix.LiveView.JS
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
   attr(:current_url, :any, required: true)
@@ -29,7 +30,7 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
         variant="primary"
         content="Node Inspector"
       >
-        <.link navigate={RoutesHelper.channel_dashboard(@pid)}>
+        <.link patch={RoutesHelper.channel_dashboard(@pid)}>
           <.nav_icon icon="icon-info" selected?={@current_view == "node_inspector"} />
         </.link>
       </.tooltip>
@@ -39,7 +40,7 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
         variant="primary"
         content="Global Callbacks"
       >
-        <.link navigate={RoutesHelper.global_traces(@pid)}>
+        <.link patch={RoutesHelper.global_traces(@pid)}>
           <.nav_icon icon="icon-globe" selected?={@current_view == "global_traces"} />
         </.link>
       </.tooltip>
@@ -69,31 +70,36 @@ defmodule LiveDebuggerWeb.Components.NavigationMenu do
         <.nav_icon icon="icon-menu-hamburger" />
       </:button>
       <div class="min-w-44 flex flex-col p-1">
-        <.link navigate={@return_link}>
+        <.link patch={@return_link}>
           <LiveDropdown.dropdown_item icon="icon-arrow-left" label="Back to Home" />
         </.link>
         <span class="w-full border-b border-default-border my-1"></span>
-        <.link navigate={RoutesHelper.channel_dashboard(@pid)}>
-          <LiveDropdown.dropdown_item
-            icon="icon-info"
-            label="Node Inspector"
-            selected?={@current_view == "node_inspector"}
-          />
-        </.link>
-        <.link navigate={RoutesHelper.global_traces(@pid)}>
-          <LiveDropdown.dropdown_item
-            icon="icon-globe"
-            label="Global Callbacks"
-            selected?={@current_view == "global_traces"}
-          />
-        </.link>
+        <LiveDropdown.dropdown_item
+          icon="icon-info"
+          label="Node Inspector"
+          selected?={@current_view == "node_inspector"}
+          phx-click={dropdown_item_click(RoutesHelper.channel_dashboard(@pid))}
+        />
+        <LiveDropdown.dropdown_item
+          icon="icon-globe"
+          label="Global Callbacks"
+          selected?={@current_view == "global_traces"}
+          phx-click={dropdown_item_click(RoutesHelper.global_traces(@pid))}
+        />
       </div>
     </.live_component>
     """
   end
 
+  # We do it to make sure that the dropdown is closed when the item is clicked.
+  defp dropdown_item_click(url) do
+    url
+    |> JS.patch()
+    |> JS.push("close", target: "#navigation-bar-dropdown-live-dropdown-container")
+  end
+
   defp get_current_view(url) do
-    URL.take_nth_segment(url, 3)
+    URL.take_nth_segment(url, 3) || "node_inspector"
   end
 
   defp get_pid(url) do
