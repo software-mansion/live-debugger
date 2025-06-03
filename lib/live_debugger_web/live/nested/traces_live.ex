@@ -46,7 +46,6 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
 
   @impl true
   def mount(_params, session, socket) do
-    lv_process = session["lv_process"]
     parent_pid = session["parent_pid"]
 
     if connected?(socket) do
@@ -56,15 +55,15 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     end
 
     socket
+    |> assign(:id, session["id"])
+    |> assign(:parent_pid, session["parent_pid"])
+    |> assign(:lv_process, session["lv_process"])
+    |> assign_node_id(session)
     |> Traces.Stream.attach_hook()
     |> Traces.ToggleTracingButton.attach_hook()
     |> Traces.LoadMoreButton.attach_hook(@page_size)
     |> Traces.ClearButton.attach_hook()
     |> Traces.FiltersDropdown.attach_hook()
-    |> assign(:id, session["id"])
-    |> assign(:parent_pid, session["parent_pid"])
-    |> assign(:lv_process, lv_process)
-    |> assign_node_id(session)
     |> assign_default_filters()
     |> reset_current_filters()
     |> assign(:displayed_trace, nil)

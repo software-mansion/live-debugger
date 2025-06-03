@@ -67,5 +67,5 @@ defmodule LiveDebuggerWeb.Hooks.Traces.NewTraces do
     |> halt()
   end
 
-  defp handle_info({:updated_trace, _trace}, socket), do: {:cont, socket}
+  defp handle_info(_, socket), do: {:cont, socket}
 end
