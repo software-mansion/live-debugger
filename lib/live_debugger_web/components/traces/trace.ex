@@ -18,6 +18,7 @@ defmodule LiveDebuggerWeb.Components.Traces.Trace do
   @doc """
   Initializes the trace component by attaching the hook to the socket and checking the required assigns.
   """
+  @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
     |> check_assigns!(:id)

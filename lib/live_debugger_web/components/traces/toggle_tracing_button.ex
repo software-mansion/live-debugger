@@ -17,6 +17,7 @@ defmodule LiveDebuggerWeb.Components.Traces.ToggleTracingButton do
   @doc """
   Initializes the toggle tracing button by attaching the hook to the socket and checking the required assigns.
   """
+  @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
     |> check_hook!(:tracing_fuse)

@@ -19,6 +19,7 @@ defmodule LiveDebuggerWeb.Components.Traces.LoadMoreButton do
   Initializes the component by checking the assigns and streams and attaching the hook to the socket.
   The hook is used to handle the `load-more` event.
   """
+  @spec init(Phoenix.LiveView.Socket.t(), integer()) :: Phoenix.LiveView.Socket.t()
   def init(socket, page_size \\ 25) do
     socket
     |> check_assigns!(:lv_process)

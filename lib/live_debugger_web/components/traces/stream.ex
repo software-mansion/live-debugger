@@ -13,6 +13,7 @@ defmodule LiveDebuggerWeb.Components.Traces.Stream do
   Initializes the component by attaching the hook to the socket.
   Since the `Trace` component is used by this component, we need to attach the hook to the socket.
   """
+  @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
     |> check_assigns!(:id)

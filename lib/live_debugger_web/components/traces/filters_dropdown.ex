@@ -12,6 +12,7 @@ defmodule LiveDebuggerWeb.Components.Traces.FiltersDropdown do
   Initializes the component by checking the assigns and streams and attaching the hook to the socket.
   The hook is used to handle the `filters_updated` event.
   """
+  @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
     |> check_hook!(:existing_traces)
