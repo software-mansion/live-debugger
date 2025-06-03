@@ -1,11 +1,32 @@
 defmodule LiveDebuggerWeb.Components.Traces.FiltersDropdown do
-  use LiveDebuggerWeb, :component
+  @moduledoc """
+  This component is used to display the filters dropdown.
+  It produces the `filters_updated` event that can be handled by the hook provided in the `init/1` function.
+  """
 
-  import Phoenix.LiveView
+  use LiveDebuggerWeb, :hook_component
 
-  def attach_hook(socket) do
-    attach_hook(socket, :filters_dropdown, :handle_info, &handle_info/2)
+  alias LiveDebuggerWeb.Hooks.Traces.ExistingTraces, as: ExistingTracesHook
+
+  @doc """
+  Initializes the component by checking the assigns and streams and attaching the hook to the socket.
+  The hook is used to handle the `filters_updated` event.
+  """
+  def init(socket) do
+    socket
+    |> check_hook!(:existing_traces)
+    |> check_assigns!(:node_id)
+    |> check_assigns!(:current_filters)
+    |> check_assigns!(:default_filters)
+    |> check_assigns!(:traces_empty?)
+    |> attach_hook(:filters_dropdown, :handle_info, &handle_info/2)
+    |> register_hook(:filters_dropdown)
   end
+
+  @doc """
+  Renders the filters dropdown.
+  It produces the `filters_updated` event that can be handled by the hook provided in the `init/1` function.
+  """
 
   attr(:node_id, :any, required: true)
   attr(:current_filters, :any, required: true)
@@ -31,10 +52,14 @@ defmodule LiveDebuggerWeb.Components.Traces.FiltersDropdown do
     """
   end
 
-  defp handle_info({:filters_updated, _filters}, socket) do
+  defp handle_info({:filters_updated, filters}, socket) do
     LiveDebuggerWeb.LiveComponents.LiveDropdown.close("filters-dropdown")
 
-    {:cont, socket}
+    socket
+    |> assign(:current_filters, filters)
+    |> assign(:traces_empty?, true)
+    |> ExistingTracesHook.assign_async_existing_traces()
+    |> halt()
   end
 
   defp handle_info(_, socket), do: {:cont, socket}
