@@ -32,7 +32,9 @@ export function setTooltipPosition(tooltipEl, referencedElement) {
   }
 
   // Handle horizontal overflow for top/bottom positions
-  if (['top', 'bottom'].includes(referencedElement.dataset.position)) {
+  if (
+    ['top', 'bottom', 'top-center'].includes(referencedElement.dataset.position)
+  ) {
     if (rect.left + tooltipRect.width > window.innerWidth) {
       tooltipEl.style.right = `${window.innerWidth - rect.right}px`;
       tooltipEl.style.left = 'auto';
@@ -59,6 +61,7 @@ const Tooltip = {
       tooltipEl.innerHTML = this.el.dataset.tooltip;
       setTooltipPosition(tooltipEl, this.el);
     };
+
     this.handleMouseLeave = () => {
       tooltipEl.style.display = 'none';
     };

@@ -6,6 +6,7 @@ defmodule LiveDebuggerWeb.Components.Navbar do
   use LiveDebuggerWeb, :component
 
   alias LiveDebuggerWeb.Helpers.RoutesHelper
+  alias LiveDebugger.Utils.Parsers
 
   @doc """
   Renders base navbar component.
@@ -83,27 +84,22 @@ defmodule LiveDebuggerWeb.Components.Navbar do
   When button is clicked, it will trigger a `find-successor` event with the PID of the LiveView.
   """
   attr(:id, :string, required: true)
-  attr(:connected?, :boolean, required: true, doc: "Whether LiveView is connected.")
-  attr(:pid, :string, required: true, doc: "The PID of the LiveView.")
+  attr(:lv_process, :map, required: true, doc: "The LiveView process.")
   attr(:rest, :global)
 
   def connected(assigns) do
+    connected? = assigns.lv_process.alive?
+    status = if(connected?, do: :connected, else: :disconnected)
+
+    assigns = assign(assigns, status: status, connected?: connected?)
+
     ~H"""
-    <.tooltip
-      id={@id}
-      position="bottom"
-      content={
-        if(@connected?,
-          do: "LiveView process is alive.",
-          else: "LiveView process is dead. You can still debug the last state."
-        )
-      }
-    >
+    <.tooltip id={@id} position="bottom" content={tooltip_content(@connected?)}>
       <div id={@id} class="flex items-center gap-1 text-xs text-primary ml-1">
-        <.status_icon connected?={@connected?} />
+        <.status_icon status={@status} />
         <%= if @connected? do %>
           <span class="font-medium">Monitored PID </span>
-          <%= @pid %>
+          <%= Parsers.pid_to_string(@lv_process.pid) %>
         <% else %>
           <span class="font-medium">Disconnected</span>
           <.button phx-click="find-successor" variant="secondary" size="sm">Continue</.button>
@@ -113,19 +109,33 @@ defmodule LiveDebuggerWeb.Components.Navbar do
     """
   end
 
-  attr(:connected?, :boolean, required: true)
+  attr(:status, :atom, required: true, values: [:connected, :disconnected, :loading])
 
   defp status_icon(assigns) do
+    assigns =
+      case(assigns.status) do
+        :connected ->
+          assign(assigns, icon: "icon-check-small", class: "bg-[--swm-green-100]")
+
+        :disconnected ->
+          assign(assigns, icon: "icon-cross-small", class: "bg-[--swm-pink-100]")
+
+        :loading ->
+          assign(assigns, icon: nil, class: "bg-[--swm-yellow-100] animate-pulse")
+      end
+
     ~H"""
-    <div class={[
-      "w-4 h-4 rounded-full flex items-center justify-center",
-      if(@connected?, do: "bg-[--swm-green-100]", else: "bg-[--swm-pink-100]")
-    ]}>
-      <.icon
-        name={if(@connected?, do: "icon-check-small", else: "icon-cross-small")}
-        class="bg-white w-4 h-4"
-      />
+    <div class={["w-4 h-4 rounded-full flex items-center justify-center", @class]}>
+      <.icon :if={@icon} name={@icon} class="bg-white w-4 h-4" />
     </div>
     """
+  end
+
+  defp tooltip_content(true) do
+    "LiveView process is alive"
+  end
+
+  defp tooltip_content(false) do
+    "LiveView process is dead - you can still debug the last state"
   end
 end

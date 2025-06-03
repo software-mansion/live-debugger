@@ -36,6 +36,10 @@ defmodule LiveDebuggerWeb.ErrorLive do
     assign(socket, heading: "Invalid PID format")
   end
 
+  defp assign_heading(%{assigns: %{error: "invalid_node_id"}} = socket) do
+    assign(socket, heading: "Invalid node id")
+  end
+
   defp assign_heading(socket) do
     assign(socket, heading: "Unexpected error")
   end
@@ -46,6 +50,10 @@ defmodule LiveDebuggerWeb.ErrorLive do
 
   defp assign_description(%{assigns: %{error: "invalid_pid"}} = socket) do
     assign(socket, description: "PID provided in the URL has invalid format")
+  end
+
+  defp assign_description(%{assigns: %{error: "invalid_node_id"}} = socket) do
+    assign(socket, description: "Node id provided in the URL has invalid format")
   end
 
   defp assign_description(socket) do

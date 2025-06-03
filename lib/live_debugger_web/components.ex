@@ -169,14 +169,17 @@ defmodule LiveDebuggerWeb.Components do
   slot(:inner_block, required: true)
 
   def collapsible(assigns) do
+    assigns = assign(assigns, :open, to_string(assigns.open))
+
     ~H"""
     <details
       id={@id}
+      phx-hook="Collapsible"
+      data-open={@open}
       class={[
         "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden [&>summary_.show-on-open]:open:flex"
         | List.wrap(@class)
       ]}
-      {show_collapsible_assign(@open)}
     >
       <summary
         id={@id <> "-summary"}
@@ -280,12 +283,6 @@ defmodule LiveDebuggerWeb.Components do
     </div>
     """
   end
-
-  @doc """
-  Used to add CollapsibleOpen hook to element based on condition.
-  """
-  def show_collapsible_assign(true), do: %{:"phx-hook" => "CollapsibleOpen"}
-  def show_collapsible_assign(_), do: %{}
 
   @doc """
   Typography component to render headings.
@@ -454,14 +451,13 @@ defmodule LiveDebuggerWeb.Components do
       end
   """
   attr(:id, :string, required: true, doc: "Same as `id` of the fullscreen.")
-  attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
   attr(:icon, :string,
     default: "icon-expand",
     doc: "Icon to be displayed as a button"
   )
 
-  attr(:rest, :global)
+  attr(:rest, :global, include: ~w(class))
 
   def fullscreen_button(assigns) do
     ~H"""
@@ -471,7 +467,6 @@ defmodule LiveDebuggerWeb.Components do
       icon={@icon}
       size="sm"
       data-fullscreen-id={@id}
-      class={@class}
       variant="secondary"
       {@rest}
     />
@@ -643,15 +638,25 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:icon, :string, required: true, doc: "Icon to be displayed.")
   attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
+  attr(:selected?, :boolean, default: false, doc: "Whether the icon is selected.")
 
   attr(:rest, :global, include: ~w(id))
 
   def nav_icon(assigns) do
+    selected_class =
+      if assigns.selected? do
+        "text-navbar-icon-hover bg-navbar-icon-bg-hover"
+      else
+        "text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
+      end
+
+    assigns = assign(assigns, :selected_class, selected_class)
+
     ~H"""
     <button
       aria-label={Parsers.kebab_to_text(@icon)}
       class={[
-        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
+        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold  #{@selected_class}"
         | List.wrap(@class)
       ]}
       {@rest}
