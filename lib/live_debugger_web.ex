@@ -38,6 +38,18 @@ defmodule LiveDebuggerWeb do
     end
   end
 
+  def hook_component do
+    quote do
+      use Phoenix.Component
+
+      import Phoenix.HTML
+      import LiveDebuggerWeb.Helpers
+      import LiveDebuggerWeb.Components
+      import Phoenix.LiveView
+      import Phoenix.Component
+    end
+  end
+
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
   end
