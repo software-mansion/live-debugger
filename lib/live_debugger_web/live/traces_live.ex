@@ -183,15 +183,14 @@ defmodule LiveDebuggerWeb.TracesLive do
           </span>
         </div>
       </.button>
-      <.button
+      <.icon_button
         :if={@applied_filters_number > 0}
+        icon="icon-cross"
         variant="secondary"
         size="sm"
-        class="rounded-l-none border-l-0 h-[30px] w-[30px] px-0"
         phx-click="reset-filters"
-      >
-        <.icon name="icon-cross" class="w-4 h-4" />
-      </.button>
+        class="rounded-l-none border-l-0 px-[0.4rem] py-[0.35rem]"
+      />
     </div>
     """
   end
