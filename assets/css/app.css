@@ -12,6 +12,7 @@
 @config "../tailwind.config.js";
 
 @layer base {
+  /* These are changes to make old styles work after migration to Tailwind 4 */
   button:not(:disabled),
   [role='button']:not(:disabled) {
     cursor: pointer;
