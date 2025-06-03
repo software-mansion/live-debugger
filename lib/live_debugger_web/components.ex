@@ -628,7 +628,7 @@ defmodule LiveDebuggerWeb.Components do
         id={"copy-button_" <>@id}
         class="hover:text-secondary-text"
         phx-hook="CopyButton"
-        data-info="<span class='icon-check m-[0.1rem] w-3 h-3'></span>Copied"
+        data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
         data-value={@value}
         {@rest}
       >
