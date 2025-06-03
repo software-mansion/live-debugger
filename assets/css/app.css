@@ -1,4 +1,8 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/container-queries';
+
+@custom-variant dark (&:where(.dark, .dark *));
 
 @import './font.css';
 @import './colors.css';
@@ -6,6 +10,17 @@
 @import './themes/light.css';
 
 @config "../tailwind.config.js";
+
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  dialog {
+    margin: auto;
+  }
+}
 
 /* You can add custom styles here */
 
