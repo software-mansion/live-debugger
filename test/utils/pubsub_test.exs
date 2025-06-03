@@ -6,9 +6,9 @@ defmodule LiveDebugger.Utils.PubSubTest do
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.MockPubSubUtils
 
-  test "node_changed_topic/1" do
-    assert "lvdbg/phx-GBsi_6M7paYhySQj/node_changed" =
-             PubSubUtils.node_changed_topic("phx-GBsi_6M7paYhySQj")
+  test "params_changed_topic/1" do
+    assert "lvdbg/#PID<0.1.0>/params_changed" =
+             PubSubUtils.params_changed_topic(:c.pid(0, 1, 0))
   end
 
   test "component_deleted_topic/0" do
