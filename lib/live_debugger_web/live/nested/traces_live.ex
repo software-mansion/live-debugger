@@ -19,7 +19,6 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
 
   @live_stream_limit 128
   @page_size 25
-  @separator %{id: "separator"}
 
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
@@ -58,6 +57,9 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     end
 
     socket
+    |> Traces.Fullscreen.attach_hook()
+    |> Traces.ToggleTracingButton.attach_hook()
+    |> Traces.LoadMoreButton.attach_hook(@page_size)
     |> assign(:id, session["id"])
     |> assign(:parent_pid, session["parent_pid"])
     |> assign(:lv_process, lv_process)
@@ -84,7 +86,9 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
       <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
         <:right_panel>
           <div class="flex gap-2 items-center">
-            <Traces.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
+            <Traces.ToggleTracingButton.toggle_tracing_button tracing_started?={
+              @tracing_helper.tracing_started?
+            } />
             <Traces.refresh_button :if={not @tracing_helper.tracing_started?} />
             <Traces.clear_button :if={not @tracing_helper.tracing_started?} />
             <Traces.filters_dropdown
@@ -101,13 +105,13 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
             existing_traces_status={@existing_traces_status}
             existing_traces={@streams.existing_traces}
           />
-          <Traces.load_more_button
+          <Traces.LoadMoreButton.load_more_button
             :if={not @tracing_helper.tracing_started?}
             traces_continuation={@traces_continuation}
           />
         </div>
       </.section>
-      <Traces.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
+      <Traces.Fullscreen.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
     </div>
     """
   end
@@ -138,32 +142,6 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
 
     socket
     |> assign(existing_traces_status: :error)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_async(:load_more_existing_traces, {:ok, {trace_list, cont}}, socket) do
-    trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
-
-    socket
-    |> assign(:traces_continuation, cont)
-    |> stream(:existing_traces, trace_list)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_async(:load_more_existing_traces, {:ok, :end_of_table}, socket) do
-    socket
-    |> assign(:traces_continuation, :end_of_table)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
-    log_async_error("loading more existing traces", reason)
-
-    socket
-    |> assign(:traces_continuation, :error)
     |> noreply()
   end
 
@@ -246,27 +224,6 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
   end
 
   @impl true
-  def handle_event("switch-tracing", _, socket) do
-    socket = TracingHelper.switch_tracing(socket)
-
-    if socket.assigns.tracing_helper.tracing_started? and !socket.assigns.traces_empty? do
-      socket
-      |> stream_delete(:existing_traces, @separator)
-      |> stream_insert(:existing_traces, @separator, at: 0)
-    else
-      socket
-    end
-    |> noreply()
-  end
-
-  @impl true
-  def handle_event("load-more", _, socket) do
-    socket
-    |> load_more_existing_traces()
-    |> noreply()
-  end
-
-  @impl true
   def handle_event("clear-traces", _, socket) do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
@@ -276,24 +233,6 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     socket
     |> stream(:existing_traces, [], reset: true)
     |> assign(:traces_empty?, true)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_event("open-trace", %{"data" => string_id}, socket) do
-    trace_id = String.to_integer(string_id)
-
-    socket.assigns.lv_process.pid
-    |> TraceService.get(trace_id)
-    |> case do
-      nil ->
-        socket
-
-      trace ->
-        socket
-        |> assign(displayed_trace: trace)
-        |> push_event("trace-fullscreen-open", %{})
-    end
     |> noreply()
   end
 
@@ -338,26 +277,6 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
       TraceService.existing_traces(pid,
         node_id: node_id,
         limit: @page_size,
-        functions: active_functions,
-        execution_times: execution_times
-      )
-    end)
-  end
-
-  defp load_more_existing_traces(socket) do
-    pid = socket.assigns.lv_process.pid
-    node_id = socket.assigns.node_id
-    cont = socket.assigns.traces_continuation
-    active_functions = get_active_functions(socket)
-    execution_times = get_execution_times(socket)
-
-    socket
-    |> assign(:traces_continuation, :loading)
-    |> start_async(:load_more_existing_traces, fn ->
-      TraceService.existing_traces(pid,
-        node_id: node_id,
-        limit: @page_size,
-        cont: cont,
         functions: active_functions,
         execution_times: execution_times
       )

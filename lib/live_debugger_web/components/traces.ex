@@ -10,24 +10,6 @@ defmodule LiveDebuggerWeb.Components.Traces do
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
 
-  attr(:tracing_started?, :boolean, required: true)
-
-  def toggle_tracing_button(assigns) do
-    ~H"""
-    <.button phx-click="switch-tracing" class="flex gap-2" size="sm">
-      <div class="flex gap-1.5 items-center w-12">
-        <%= if @tracing_started? do %>
-          <.icon name="icon-stop" class="w-4 h-4" />
-          <div>Stop</div>
-        <% else %>
-          <.icon name="icon-play" class="w-3.5 h-3.5" />
-          <div>Start</div>
-        <% end %>
-      </div>
-    </.button>
-    """
-  end
-
   def clear_button(assigns) do
     ~H"""
     <.button phx-click="clear-traces" class="flex gap-2" variant="secondary" size="sm">
@@ -177,41 +159,6 @@ defmodule LiveDebuggerWeb.Components.Traces do
     """
   end
 
-  attr(:traces_continuation, :any, required: true)
-
-  def load_more_button(assigns) do
-    ~H"""
-    <div class="flex items-center justify-center mt-4">
-      <.load_more_button_content traces_continuation={@traces_continuation} />
-    </div>
-    """
-  end
-
-  defp load_more_button_content(%{traces_continuation: nil} = assigns), do: ~H""
-  defp load_more_button_content(%{traces_continuation: :end_of_table} = assigns), do: ~H""
-
-  defp load_more_button_content(%{traces_continuation: :loading} = assigns) do
-    ~H"""
-    <.spinner size="sm" />
-    """
-  end
-
-  defp load_more_button_content(%{traces_continuation: :error} = assigns) do
-    ~H"""
-    <.alert variant="danger" with_icon={true} heading="Error while loading more traces" class="w-full">
-      Check logs for more details.
-    </.alert>
-    """
-  end
-
-  defp load_more_button_content(%{traces_continuation: cont} = assigns) when is_tuple(cont) do
-    ~H"""
-    <.button phx-click="load-more" class="w-4" variant="secondary">
-      Load more
-    </.button>
-    """
-  end
-
   attr(:trace, :map, default: nil)
 
   def short_trace_content(assigns) do
@@ -245,42 +192,6 @@ defmodule LiveDebuggerWeb.Components.Traces do
         </span>
       </.tooltip>
     </div>
-    """
-  end
-
-  attr(:id, :string, required: true)
-  attr(:trace, :map, default: nil)
-
-  def trace_fullscreen(assigns) do
-    assigns =
-      case assigns.trace do
-        nil ->
-          assigns
-          |> assign(:callback_name, "Unknown trace")
-          |> assign(:trace_args, [])
-
-        trace ->
-          assigns
-          |> assign(:callback_name, Trace.callback_name(trace))
-          |> assign(:trace_args, trace.args)
-      end
-
-    ~H"""
-    <.fullscreen id={@id} title={@callback_name}>
-      <div class="w-full flex flex-col gap-4 items-start justify-center">
-        <%= for {args, index} <- Enum.with_index(@trace_args) do %>
-          <div :if={index > 0} class="border-t border-default-border w-full"></div>
-          <p class="font-semibold shrink-0">
-            Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)
-          </p>
-          <ElixirDisplay.term
-            id={@id <> "-#{index}-fullscreen"}
-            node={TermParser.term_to_display_tree(args)}
-            level={1}
-          />
-        <% end %>
-      </div>
-    </.fullscreen>
     """
   end
 
