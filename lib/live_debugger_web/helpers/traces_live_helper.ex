@@ -11,6 +11,14 @@ defmodule LiveDebuggerWeb.Helpers.TracesLiveHelper do
     assign(socket, :default_filters, default_filters(socket.assigns.node_id))
   end
 
+  def assign_current_filters(socket, filters) do
+    assign(socket, :current_filters, filters)
+  end
+
+  def assign_current_filters(socket) do
+    reset_current_filters(socket)
+  end
+
   def reset_current_filters(socket) do
     assign(socket, :current_filters, socket.assigns.default_filters)
   end

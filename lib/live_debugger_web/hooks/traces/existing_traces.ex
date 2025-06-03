@@ -11,6 +11,7 @@ defmodule LiveDebuggerWeb.Hooks.Traces.ExistingTraces do
     socket
     |> put_private(:page_size, page_size)
     |> attach_hook(:existing_traces, :handle_async, &handle_async/3)
+    |> register_hook(:existing_traces)
     |> assign_async_existing_traces()
   end
 

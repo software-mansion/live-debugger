@@ -14,6 +14,7 @@ defmodule LiveDebuggerWeb.Hooks.Traces.NewTraces do
     socket
     |> put_private(:live_stream_limit, live_stream_limit)
     |> attach_hook(:new_traces, :handle_info, &handle_info/2)
+    |> register_hook(:new_traces)
   end
 
   defp handle_info({:new_trace, trace}, socket) do

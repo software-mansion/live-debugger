@@ -11,7 +11,9 @@ defmodule LiveDebuggerWeb.Components.Traces.Trace do
   alias LiveDebuggerWeb.Components.ElixirDisplay
 
   def attach_hook(socket) do
-    attach_hook(socket, :trace, :handle_event, &handle_event/3)
+    socket
+    |> attach_hook(:trace, :handle_event, &handle_event/3)
+    |> register_hook(:trace)
   end
 
   attr(:id, :string, required: true)

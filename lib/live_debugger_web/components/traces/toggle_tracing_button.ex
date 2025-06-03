@@ -26,7 +26,9 @@ defmodule LiveDebuggerWeb.Components.Traces.ToggleTracingButton do
   end
 
   def attach_hook(socket) do
-    attach_hook(socket, :toggle_tracing_button, :handle_event, &handle_event/3)
+    socket
+    |> attach_hook(:toggle_tracing_button, :handle_event, &handle_event/3)
+    |> register_hook(:toggle_tracing_button)
   end
 
   defp handle_event("switch-tracing", _, socket) do

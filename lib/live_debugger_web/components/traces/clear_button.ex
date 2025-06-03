@@ -18,8 +18,8 @@ defmodule LiveDebuggerWeb.Components.Traces.ClearButton do
     |> check_assigns!(:node_id)
     |> check_assigns!(:traces_empty?)
     |> check_streams!(:existing_traces)
-
-    attach_hook(socket, :clear_button, :handle_event, &handle_event/3)
+    |> attach_hook(:clear_button, :handle_event, &handle_event/3)
+    |> register_hook(:clear_button)
   end
 
   @doc """

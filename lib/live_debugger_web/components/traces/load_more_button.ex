@@ -47,6 +47,7 @@ defmodule LiveDebuggerWeb.Components.Traces.LoadMoreButton do
     |> put_private(:page_size, page_size)
     |> attach_hook(:load_more_button, :handle_event, &handle_event/3)
     |> attach_hook(:load_more_button, :handle_async, &handle_async/3)
+    |> register_hook(:load_more_button)
   end
 
   defp handle_event("load-more", _, socket) do

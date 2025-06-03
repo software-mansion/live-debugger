@@ -61,18 +61,18 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     |> stream(:existing_traces, [], reset: true)
     |> assign(:traces_empty?, true)
     |> assign_node_id(session)
+    |> assign_default_filters()
+    |> assign_current_filters()
     |> Traces.ClearButton.init()
     |> Traces.Stream.attach_hook()
     |> Traces.ToggleTracingButton.attach_hook()
     |> Traces.LoadMoreButton.attach_hook(@page_size)
-    |> Traces.FiltersDropdown.attach_hook()
-    |> assign_default_filters()
-    |> reset_current_filters()
+    |> LiveDebuggerWeb.Hooks.Traces.ExistingTraces.attach_hook(@page_size)
+    |> Traces.FiltersDropdown.init()
     |> assign(:displayed_trace, nil)
     |> assign(:traces_continuation, nil)
     |> assign(:trace_callback_running?, false)
     |> TracingHelper.init()
-    |> LiveDebuggerWeb.Hooks.Traces.ExistingTraces.attach_hook(@page_size)
     |> LiveDebuggerWeb.Hooks.Traces.NewTraces.attach_hook(@live_stream_limit)
     |> ok()
   end
@@ -125,15 +125,6 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     |> assign_node_id(new_params)
     |> assign_default_filters()
     |> reset_current_filters()
-    |> assign_async_existing_traces()
-    |> noreply()
-  end
-
-  @impl true
-  def handle_info({:filters_updated, filters}, socket) do
-    socket
-    |> assign(:current_filters, filters)
-    |> assign(:traces_empty?, true)
     |> assign_async_existing_traces()
     |> noreply()
   end

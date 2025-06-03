@@ -4,7 +4,9 @@ defmodule LiveDebuggerWeb.Components.Traces.Stream do
   import LiveDebuggerWeb.Components.Traces.Trace
 
   def attach_hook(socket) do
-    LiveDebuggerWeb.Components.Traces.Trace.attach_hook(socket)
+    socket
+    |> LiveDebuggerWeb.Components.Traces.Trace.attach_hook()
+    |> register_hook(:traces_stream)
   end
 
   attr(:id, :string, required: true)

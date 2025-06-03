@@ -86,6 +86,22 @@ defmodule LiveDebuggerWeb.Helpers do
     end
   end
 
+  def check_hook!(socket, key) do
+    if Map.has_key?(socket.private, :hooks) and key in socket.private.hooks do
+      socket
+    else
+      raise "Hook #{key} not found in socket.private.hooks"
+    end
+  end
+
+  def register_hook(socket, key) do
+    if Map.has_key?(socket.private, :hooks) do
+      Phoenix.LiveView.put_private(socket, :hooks, [key | socket.private.hooks])
+    else
+      Phoenix.LiveView.put_private(socket, :hooks, [key])
+    end
+  end
+
   def empty_map(_), do: %{}
 
   def ok(socket), do: {:ok, socket}
