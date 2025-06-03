@@ -22,16 +22,16 @@ defmodule LiveDebuggerWeb.Hooks.Flash do
         ) ::
           Phoenix.LiveView.Socket.t()
   def push_flash(socket, message) when is_binary(message) do
-    push_flash(self(), socket, message)
+    push_flash(socket, message, self())
   end
 
   @spec push_flash(
-          pid :: pid(),
           socket :: Phoenix.LiveView.Socket.t(),
-          message :: String.t()
+          message :: String.t(),
+          pid :: pid()
         ) ::
           Phoenix.LiveView.Socket.t()
-  def push_flash(pid, socket, message) when is_pid(pid) and is_binary(message) do
+  def push_flash(socket, message, pid) when is_pid(pid) and is_binary(message) do
     send(pid, {:put_flash, message})
 
     socket

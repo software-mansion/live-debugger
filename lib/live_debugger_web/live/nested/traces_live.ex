@@ -228,10 +228,10 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
         limit = TracingHelper.trace_limit_per_period()
         period = TracingHelper.time_period() |> Parsers.parse_elapsed_time()
 
-        socket.assigns.parent_pid
+        socket
         |> push_flash(
-          socket,
-          "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}."
+          "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}.",
+          socket.assigns.parent_pid
         )
 
       {_, socket} ->
@@ -331,6 +331,7 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     |> TraceService.get(trace_id)
     |> case do
       nil ->
+        Logger.error("Trace with ID #{trace_id} not found.")
         socket
 
       trace ->
@@ -350,6 +351,8 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     |> case do
       nil ->
         socket
+        |> push_flash("Trace has been removed.", socket.assigns.root_pid)
+        |> push_event("#{:existing_traces}-#{string_trace_id}-collapsible", %{action: "close"})
 
       trace ->
         socket
