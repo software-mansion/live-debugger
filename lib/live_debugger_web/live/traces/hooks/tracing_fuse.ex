@@ -62,10 +62,10 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse do
         limit = @trace_limit_per_period
         period = @time_period |> Parsers.parse_elapsed_time()
 
-        socket.assigns.parent_pid
+        socket
         |> Flash.push_flash(
-          socket,
-          "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}."
+          "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}.",
+          socket.assigns.parent_pid
         )
         |> cont()
 
