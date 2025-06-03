@@ -10,8 +10,9 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
   import LiveDebuggerWeb.Helpers.NestedLiveViewHelper
   import LiveDebuggerWeb.Helpers.TracesLiveHelper
 
+  import LiveDebuggerWeb.Hooks.Traces.ExistingTraces
+
   alias LiveDebuggerWeb.Helpers.TracingHelper
-  alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.Utils.Parsers
@@ -73,7 +74,7 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     |> assign(:traces_empty?, true)
     |> assign(:trace_callback_running?, false)
     |> TracingHelper.init()
-    |> assign_async_existing_traces()
+    |> LiveDebuggerWeb.Hooks.Traces.ExistingTraces.attach_hook(@page_size)
     |> ok()
   end
 
@@ -116,35 +117,6 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
       <Traces.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
     </div>
     """
-  end
-
-  @impl true
-  def handle_async(:fetch_existing_traces, {:ok, {trace_list, cont}}, socket) do
-    trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
-
-    socket
-    |> assign(existing_traces_status: :ok)
-    |> assign(:traces_empty?, false)
-    |> assign(:traces_continuation, cont)
-    |> stream(:existing_traces, trace_list)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_async(:fetch_existing_traces, {:ok, :end_of_table}, socket) do
-    socket
-    |> assign(existing_traces_status: :ok)
-    |> assign(traces_continuation: :end_of_table)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_async(:fetch_existing_traces, {:exit, reason}, socket) do
-    log_async_error("fetching existing traces", reason)
-
-    socket
-    |> assign(existing_traces_status: :error)
-    |> noreply()
   end
 
   @impl true
@@ -225,24 +197,5 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     socket
     |> assign_async_existing_traces()
     |> noreply()
-  end
-
-  defp assign_async_existing_traces(socket) do
-    pid = socket.assigns.lv_process.pid
-    node_id = socket.assigns.node_id
-    active_functions = get_active_functions(socket)
-    execution_times = get_execution_times(socket)
-
-    socket
-    |> assign(:existing_traces_status, :loading)
-    |> stream(:existing_traces, [], reset: true)
-    |> start_async(:fetch_existing_traces, fn ->
-      TraceService.existing_traces(pid,
-        node_id: node_id,
-        limit: @page_size,
-        functions: active_functions,
-        execution_times: execution_times
-      )
-    end)
   end
 end
