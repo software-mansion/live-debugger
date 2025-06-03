@@ -1,14 +1,33 @@
 defmodule LiveDebuggerWeb.Components.Traces.ClearButton do
+  @moduledoc """
+  This component is used to clear the traces.
+  It produces the `clear-traces` event that can be handled by the hook provided in the `init/1` function.
+  """
+
   use LiveDebuggerWeb, :component
 
   import Phoenix.LiveView
 
   alias LiveDebugger.Services.TraceService
 
-  def attach_hook(socket) do
+  @doc """
+  Initializes the component by checking the assigns and streams and attaching the hook to the socket.
+  The hook is used to handle the `clear-traces` event.
+  """
+  def init(socket) do
+    socket
+    |> check_assigns!(:lv_process)
+    |> check_assigns!(:node_id)
+    |> check_assigns!(:traces_empty?)
+    |> check_streams!(:existing_traces)
+
     attach_hook(socket, :clear_button, :handle_event, &handle_event/3)
   end
 
+  @doc """
+  Renders the clear button.
+  It produces the `clear-traces` event that can be handled by the hook provided in the `init/1` function.
+  """
   def clear_button(assigns) do
     ~H"""
     <.button phx-click="clear-traces" class="flex gap-2" variant="secondary" size="sm">
