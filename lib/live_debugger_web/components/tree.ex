@@ -171,9 +171,9 @@ defmodule LiveDebuggerWeb.Components.Tree do
         phx-value-node-id={@node.parsed_id}
         phx-value-search-attribute={get_search_attribute(@node)}
         phx-value-search-value={get_search_value(@node, @parent_dom_id)}
-        class="flex min-w-0 gap-0.5 items-center"
+        class="flex min-w-0 gap-1 items-center"
       >
-        <.icon name={@node.icon} class="text-accent-icon w-5 h-5 shrink-0" />
+        <.icon name={@node.icon} class="text-accent-icon w-4 h-4 shrink-0" />
         <.tooltip
           id={"tree-node-#{@node.parsed_id}-#{@tree_id}"}
           content={@node.tooltip}
