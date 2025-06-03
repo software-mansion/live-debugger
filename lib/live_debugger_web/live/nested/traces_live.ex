@@ -57,9 +57,10 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     end
 
     socket
-    |> Traces.Fullscreen.attach_hook()
+    |> Traces.Stream.attach_hook()
     |> Traces.ToggleTracingButton.attach_hook()
     |> Traces.LoadMoreButton.attach_hook(@page_size)
+    |> Traces.ClearButton.attach_hook()
     |> assign(:id, session["id"])
     |> assign(:parent_pid, session["parent_pid"])
     |> assign(:lv_process, lv_process)
@@ -90,7 +91,7 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
               @tracing_helper.tracing_started?
             } />
             <Traces.refresh_button :if={not @tracing_helper.tracing_started?} />
-            <Traces.clear_button :if={not @tracing_helper.tracing_started?} />
+            <Traces.ClearButton.clear_button :if={not @tracing_helper.tracing_started?} />
             <Traces.filters_dropdown
               :if={not @tracing_helper.tracing_started?}
               node_id={@node_id}
@@ -100,7 +101,7 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
           </div>
         </:right_panel>
         <div class="w-full h-full">
-          <Traces.traces_stream
+          <Traces.Stream.traces_stream
             id={@id}
             existing_traces_status={@existing_traces_status}
             existing_traces={@streams.existing_traces}
@@ -111,7 +112,7 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
           />
         </div>
       </.section>
-      <Traces.Fullscreen.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
+      <Traces.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
     </div>
     """
   end
@@ -220,40 +221,6 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     |> assign(:current_filters, filters)
     |> assign(:traces_empty?, true)
     |> assign_async_existing_traces()
-    |> noreply()
-  end
-
-  @impl true
-  def handle_event("clear-traces", _, socket) do
-    pid = socket.assigns.lv_process.pid
-    node_id = socket.assigns.node_id
-
-    TraceService.clear_traces(pid, node_id)
-
-    socket
-    |> stream(:existing_traces, [], reset: true)
-    |> assign(:traces_empty?, true)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_event("toggle-collapsible", %{"trace-id" => string_trace_id}, socket) do
-    trace_id = String.to_integer(string_trace_id)
-
-    socket.assigns.lv_process.pid
-    |> TraceService.get(trace_id)
-    |> case do
-      nil ->
-        socket
-
-      trace ->
-        socket
-        |> stream_insert(
-          :existing_traces,
-          TraceDisplay.from_trace(trace) |> TraceDisplay.render_body(),
-          at: abs(trace.id)
-        )
-    end
     |> noreply()
   end
 
