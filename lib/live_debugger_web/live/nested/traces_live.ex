@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.TracesLive do
+defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
   @moduledoc """
   This nested live view displays the traces of a LiveView.
   """
@@ -6,6 +6,8 @@ defmodule LiveDebuggerWeb.TracesLive do
   use LiveDebuggerWeb, :live_view
 
   require Logger
+
+  import LiveDebuggerWeb.Helpers.NestedLiveViewHelper
 
   alias LiveDebuggerWeb.Helpers.TracingHelper
   alias LiveDebugger.Services.TraceService
@@ -22,17 +24,15 @@ defmodule LiveDebuggerWeb.TracesLive do
   attr(:socket, :map, required: true)
   attr(:id, :string, required: true)
   attr(:lv_process, :map, required: true)
-  attr(:node_id, :string, required: true)
-  attr(:root_pid, :any, required: true)
+  attr(:params, :map, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
       "lv_process" => assigns.lv_process,
-      "node_id" => assigns.node_id,
+      "params" => assigns.params,
       "id" => assigns.id,
-      "parent_socket_id" => assigns.socket.id,
-      "root_pid" => assigns.root_pid
+      "parent_pid" => self()
     }
 
     assigns = assign(assigns, session: session)
@@ -49,27 +49,24 @@ defmodule LiveDebuggerWeb.TracesLive do
   @impl true
   def mount(_params, session, socket) do
     lv_process = session["lv_process"]
-    node_id = session["node_id"]
+    parent_pid = session["parent_pid"]
 
     if connected?(socket) do
-      session["parent_socket_id"]
-      |> PubSubUtils.node_changed_topic()
+      parent_pid
+      |> PubSubUtils.params_changed_topic()
       |> PubSubUtils.subscribe!()
     end
 
-    default_filters = FiltersHelper.default_filters(node_id)
-
     socket
+    |> assign(:id, session["id"])
+    |> assign(:parent_pid, session["parent_pid"])
+    |> assign(:lv_process, lv_process)
+    |> assign_node_id(session)
+    |> assign_default_filters()
+    |> reset_current_filters()
     |> assign(:displayed_trace, nil)
     |> assign(:traces_continuation, nil)
-    |> assign(current_filters: default_filters)
-    |> assign(default_filters: default_filters)
-    |> assign(traces_empty?: true)
-    |> assign(trace_callback_running?: false)
-    |> assign(node_id: node_id)
-    |> assign(id: session["id"])
-    |> assign(root_pid: session["root_pid"])
-    |> assign(lv_process: lv_process)
+    |> assign(:trace_callback_running?, false)
     |> TracingHelper.init()
     |> assign_async_existing_traces()
     |> ok()
@@ -264,7 +261,7 @@ defmodule LiveDebuggerWeb.TracesLive do
         limit = TracingHelper.trace_limit_per_period()
         period = TracingHelper.time_period() |> Parsers.parse_elapsed_time()
 
-        socket.assigns.root_pid
+        socket.assigns.parent_pid
         |> push_flash(
           socket,
           "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}."
@@ -304,14 +301,12 @@ defmodule LiveDebuggerWeb.TracesLive do
   end
 
   @impl true
-  def handle_info({:node_changed, node_id}, socket) do
-    default_filters = FiltersHelper.default_filters(node_id)
-
+  def handle_info({:params_changed, new_params}, socket) do
     socket
     |> TracingHelper.disable_tracing()
-    |> assign(node_id: node_id)
-    |> assign(current_filters: default_filters)
-    |> assign(default_filters: default_filters)
+    |> assign_node_id(new_params)
+    |> assign_default_filters()
+    |> reset_current_filters()
     |> assign_async_existing_traces()
     |> noreply()
   end
@@ -320,7 +315,8 @@ defmodule LiveDebuggerWeb.TracesLive do
   def handle_info({:filters_updated, filters}, socket) do
     socket
     |> push_event("filters-fullscreen-close", %{})
-    |> update_filters(filters)
+    |> assign(:current_filters, filters)
+    |> assign_async_existing_traces()
     |> noreply()
   end
 
@@ -386,7 +382,8 @@ defmodule LiveDebuggerWeb.TracesLive do
   @impl true
   def handle_event("reset-filters", _, socket) do
     socket
-    |> update_filters(FiltersHelper.default_filters(socket.assigns.node_id))
+    |> reset_current_filters()
+    |> assign_async_existing_traces()
     |> noreply()
   end
 
@@ -425,6 +422,7 @@ defmodule LiveDebuggerWeb.TracesLive do
     execution_times = FiltersHelper.get_execution_times(socket.assigns.current_filters)
 
     socket
+    |> assign(:traces_empty?, true)
     |> assign(:existing_traces_status, :loading)
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
@@ -457,11 +455,12 @@ defmodule LiveDebuggerWeb.TracesLive do
     end)
   end
 
-  defp update_filters(socket, filters) do
-    socket
-    |> assign(:current_filters, filters)
-    |> assign(:traces_empty?, true)
-    |> assign_async_existing_traces()
+  defp assign_default_filters(socket) do
+    assign(socket, :default_filters, FiltersHelper.default_filters(socket.assigns.node_id))
+  end
+
+  defp reset_current_filters(socket) do
+    assign(socket, :current_filters, socket.assigns.default_filters)
   end
 
   defp log_async_error(operation, reason) do

@@ -539,7 +539,8 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:id, :string, required: true, doc: "ID of the tooltip. Prefix is added automatically.")
   attr(:content, :string, default: nil)
-  attr(:position, :string, default: "top", values: ["top", "bottom"])
+  attr(:position, :string, default: "top", values: ["top", "bottom", "left", "right"])
+  attr(:variant, :string, default: "secondary", values: ["primary", "secondary"])
   attr(:rest, :global)
   slot(:inner_block, required: true)
 
@@ -550,6 +551,7 @@ defmodule LiveDebuggerWeb.Components do
       phx-hook="Tooltip"
       data-tooltip={@content}
       data-position={@position}
+      data-variant={@variant}
       {@rest}
     >
       <%= render_slot(@inner_block) %>
@@ -614,15 +616,25 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:icon, :string, required: true, doc: "Icon to be displayed.")
   attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
+  attr(:selected?, :boolean, default: false, doc: "Whether the icon is selected.")
 
   attr(:rest, :global, include: ~w(id))
 
   def nav_icon(assigns) do
+    selected_class =
+      if assigns.selected? do
+        "text-navbar-icon-hover bg-navbar-icon-bg-hover"
+      else
+        "text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
+      end
+
+    assigns = assign(assigns, :selected_class, selected_class)
+
     ~H"""
     <button
       aria-label={Parsers.kebab_to_text(@icon)}
       class={[
-        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
+        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold  #{@selected_class}"
         | List.wrap(@class)
       ]}
       {@rest}
