@@ -14,6 +14,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
   alias LiveDebuggerWeb.Components.ElixirDisplay
+  alias LiveDebuggerWeb.Hooks.Flash
 
   @doc """
   Initializes the trace component by attaching the hook to the socket and checking the required assigns.
@@ -63,14 +64,14 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
         </div>
       </:label>
       <div class="relative">
-        <.fullscreen_button
-          :if={@render_body?}
-          id={"trace-fullscreen-#{@id}"}
-          class="m-2 absolute right-0 top-0 z-10"
-          phx-click="open-trace"
-          phx-value-data={@trace.id}
-        />
-
+        <div class="absolute right-0 top-0 z-10">
+          <.fullscreen_button
+            id={"trace-fullscreen-#{@id}"}
+            class="m-2"
+            phx-click="open-trace"
+            phx-value-data={@trace.id}
+          />
+        </div>
         <div class="flex flex-col gap-4 overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
           <%= if @render_body? do %>
             <%= for {args, index} <- Enum.with_index(@trace.args) do %>
@@ -163,6 +164,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
     |> case do
       nil ->
         socket
+        |> Flash.push_flash("Trace has been removed.", socket.assigns.root_pid)
+        |> push_event("#{:existing_traces}-#{string_trace_id}-collapsible", %{action: "close"})
 
       trace ->
         socket
