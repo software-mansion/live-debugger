@@ -1,7 +1,11 @@
 defmodule LiveDebuggerWeb.Live.Traces.Helpers do
+  @moduledoc """
+  This module contains the helpers for the traces live view.
+  """
+
   require Logger
 
-  import Phoenix.Component
+  import Phoenix.Component, only: [assign: 3]
 
   alias LiveDebugger.Utils.Parsers
   alias LiveDebugger.Structs.TreeNode
