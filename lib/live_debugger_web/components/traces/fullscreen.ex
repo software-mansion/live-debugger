@@ -48,6 +48,7 @@ defmodule LiveDebuggerWeb.Components.Traces.Fullscreen do
     attach_hook(socket, :traces_fullscreen, :handle_event, &handle_event/3)
   end
 
+  # TODO this handler does not belong here - `phx-click` for it is not declared in the component
   defp handle_event("open-trace", %{"data" => string_id}, socket) do
     trace_id = String.to_integer(string_id)
 
