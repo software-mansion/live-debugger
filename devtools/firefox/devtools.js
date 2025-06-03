@@ -20,7 +20,7 @@ browser.devtools.panels.create(
 
     browser.webNavigation.onCompleted.addListener(async (details) => {
       if (
-        details.tabId === chrome.devtools.inspectedWindow.tabId &&
+        details.tabId === browser.devtools.inspectedWindow.tabId &&
         allowRedirects(browser)
       ) {
         try {
@@ -30,5 +30,5 @@ browser.devtools.panels.create(
         }
       }
     });
-  }
+  },
 );

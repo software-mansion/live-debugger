@@ -69,12 +69,12 @@ function getLiveDebuggerSessionURL(browserElement) {
         } else {
           resolve(result);
         }
-      }
+      },
     );
   });
 }
 
-function allowRedirects() {
+function allowRedirects(browserElement) {
   return new Promise((resolve, reject) => {
     const script = `
       (function() {
@@ -94,7 +94,7 @@ function allowRedirects() {
         } else {
           resolve(result);
         }
-      }
+      },
     );
   });
 }
