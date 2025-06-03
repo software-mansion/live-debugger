@@ -9,15 +9,6 @@ defmodule LiveDebuggerWeb.Live.Traces.Components do
   alias LiveDebuggerWeb.Components.ElixirDisplay
   alias LiveDebugger.Utils.TermParser
 
-  def refresh_button(assigns) do
-    ~H"""
-    <.button phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
-      <.icon name="icon-refresh" class="w-4 h-4" />
-      <div class="hidden @[29rem]/traces:block">Refresh</div>
-    </.button>
-    """
-  end
-
   attr(:id, :string, required: true)
   attr(:trace, :map, default: nil)
 

@@ -73,6 +73,7 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
     |> Hooks.ExistingTraces.init(@page_size)
     |> Hooks.NewTraces.init(@live_stream_limit)
     |> Components.FiltersDropdown.init()
+    |> Components.RefreshButton.init()
     |> Components.ToggleTracingButton.init()
     |> ok()
   end
@@ -89,7 +90,7 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
         <:right_panel>
           <div class="flex gap-2 items-center">
             <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
-            <Components.refresh_button :if={not @tracing_started?} />
+            <Components.RefreshButton.refresh_button :if={not @tracing_started?} />
             <Components.ClearButton.clear_button :if={not @tracing_started?} />
             <Components.FiltersDropdown.filters_dropdown
               :if={not @tracing_started?}
@@ -123,13 +124,6 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
     |> NestedLiveViewHelper.assign_node_id(new_params)
     |> Helpers.assign_default_filters()
     |> Helpers.reset_current_filters()
-    |> Hooks.ExistingTraces.assign_async_existing_traces()
-    |> noreply()
-  end
-
-  @impl true
-  def handle_event("refresh-history", _, socket) do
-    socket
     |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> noreply()
   end
