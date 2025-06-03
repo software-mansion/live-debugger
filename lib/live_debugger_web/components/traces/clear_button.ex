@@ -4,9 +4,7 @@ defmodule LiveDebuggerWeb.Components.Traces.ClearButton do
   It produces the `clear-traces` event that can be handled by the hook provided in the `init/1` function.
   """
 
-  use LiveDebuggerWeb, :component
-
-  import Phoenix.LiveView
+  use LiveDebuggerWeb, :hook_component
 
   alias LiveDebugger.Services.TraceService
 
