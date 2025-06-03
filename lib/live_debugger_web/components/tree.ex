@@ -216,7 +216,7 @@ defmodule LiveDebuggerWeb.Components.Tree do
       label: short_name(node.module),
       tooltip: Parsers.module_to_string(node.module),
       children: node.children,
-      icon: "icon-screen"
+      icon: "icon-liveview"
     }
   end
 

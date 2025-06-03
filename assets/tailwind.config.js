@@ -145,13 +145,10 @@ module.exports = {
             let content = fs
               .readFileSync(fullPath)
               .toString()
-              .replace(/\r?\n|\r/g, '');
+              .replace(/\r?\n|\r/g, '')
+              .replace(/<svg/g, '<svg stroke-width="2"');
+
             let size = theme('spacing.6');
-            if (name.endsWith('-mini')) {
-              size = theme('spacing.5');
-            } else if (name.endsWith('-micro')) {
-              size = theme('spacing.4');
-            }
             return {
               [`--icon-${name}`]: `url('data:image/svg+xml;utf8,${content}')`,
               '-webkit-mask': `var(--icon-${name})`,
