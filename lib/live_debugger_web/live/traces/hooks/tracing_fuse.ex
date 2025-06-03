@@ -1,13 +1,12 @@
 defmodule LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse do
   @moduledoc """
-
+  This hook is responsible for handling the tracing fuse.
+  It is used to handle the tracing fuse when the user starts tracing.
+  It detects if the user is tracing too many callbacks in a short time and stops the tracing.
   """
 
-  import Phoenix.Component, only: [assign: 3]
-  import LiveDebuggerWeb.Helpers
-  import Phoenix.LiveView
+  use LiveDebuggerWeb, :hook
 
-  alias Phoenix.LiveView.Socket
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Hooks.Flash
   alias LiveDebugger.Utils.Parsers
@@ -15,7 +14,10 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse do
   @time_period 1_000_000
   @trace_limit_per_period 100
 
-  @spec init(Socket.t()) :: Socket.t()
+  @doc """
+  Initializes the hook by attaching the hook to the socket and checking the required assigns.
+  """
+  @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
     |> check_assigns!(:lv_process)
@@ -29,7 +31,10 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse do
     |> register_hook(:tracing_fuse)
   end
 
-  @spec switch_tracing(Socket.t()) :: Socket.t()
+  @doc """
+  Switches the tracing state.
+  """
+  @spec switch_tracing(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def switch_tracing(socket) do
     if socket.assigns.tracing_started? do
       clear_tracing(socket)
@@ -38,7 +43,10 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse do
     end
   end
 
-  @spec disable_tracing(Socket.t()) :: Socket.t()
+  @doc """
+  Disables the tracing.
+  """
+  @spec disable_tracing(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def disable_tracing(socket) do
     clear_tracing(socket)
   end
