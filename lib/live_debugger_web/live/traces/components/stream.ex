@@ -16,9 +16,9 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Stream do
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
-    |> check_assigns!(:id)
-    |> check_assigns!(:existing_traces_status)
-    |> check_streams!(:existing_traces)
+    |> check_assign!(:id)
+    |> check_assign!(:existing_traces_status)
+    |> check_stream!(:existing_traces)
     |> Trace.init()
     |> register_hook(:traces_stream)
   end

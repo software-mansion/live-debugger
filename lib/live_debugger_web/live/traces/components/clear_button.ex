@@ -15,10 +15,10 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.ClearButton do
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
-    |> check_assigns!(:lv_process)
-    |> check_assigns!(:node_id)
-    |> check_assigns!(:traces_empty?)
-    |> check_streams!(:existing_traces)
+    |> check_assign!(:lv_process)
+    |> check_assign!(:node_id)
+    |> check_assign!(:traces_empty?)
+    |> check_stream!(:existing_traces)
     |> attach_hook(:clear_button, :handle_event, &handle_event/3)
     |> register_hook(:clear_button)
   end

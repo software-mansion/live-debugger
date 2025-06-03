@@ -22,9 +22,9 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
-    |> check_assigns!(:id)
-    |> check_assigns!(:lv_process)
-    |> check_assigns!(:displayed_trace)
+    |> check_assign!(:id)
+    |> check_assign!(:lv_process)
+    |> check_assign!(:displayed_trace)
     |> attach_hook(:trace, :handle_event, &handle_event/3)
     |> register_hook(:trace)
   end

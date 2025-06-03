@@ -67,7 +67,7 @@ defmodule LiveDebuggerWeb.Helpers do
   @moduledoc false
 
   # TODO change name to check_assign!
-  def check_assigns!(%Phoenix.LiveView.Socket{assigns: assigns} = socket, key) do
+  def check_assign!(%Phoenix.LiveView.Socket{assigns: assigns} = socket, key) do
     if Map.has_key?(assigns, key) do
       socket
     else
@@ -75,15 +75,9 @@ defmodule LiveDebuggerWeb.Helpers do
     end
   end
 
-  def check_streams!(%Phoenix.LiveView.Socket{assigns: assigns} = socket, key) do
-    check_stream!(assigns, key)
-
-    socket
-  end
-
-  def check_stream!(assigns, key) do
+  def check_stream!(%Phoenix.LiveView.Socket{assigns: assigns} = socket, key) do
     if Map.has_key?(assigns.streams, key) do
-      assigns
+      socket
     else
       raise "Stream #{key} not found in assigns.streams"
     end

@@ -22,11 +22,11 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.LoadMoreButton do
   @spec init(Phoenix.LiveView.Socket.t(), integer()) :: Phoenix.LiveView.Socket.t()
   def init(socket, page_size \\ 25) do
     socket
-    |> check_assigns!(:lv_process)
-    |> check_assigns!(:node_id)
-    |> check_assigns!(:traces_continuation)
-    |> check_assigns!(:current_filters)
-    |> check_streams!(:existing_traces)
+    |> check_assign!(:lv_process)
+    |> check_assign!(:node_id)
+    |> check_assign!(:traces_continuation)
+    |> check_assign!(:current_filters)
+    |> check_stream!(:existing_traces)
     |> put_private(:page_size, page_size)
     |> attach_hook(:load_more_button, :handle_event, &handle_event/3)
     |> attach_hook(:load_more_button, :handle_async, &handle_async/3)

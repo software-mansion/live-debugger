@@ -20,12 +20,12 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse do
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
-    |> check_assigns!(:lv_process)
-    |> check_assigns!(:node_id)
-    |> check_assigns!(:current_filters)
-    |> check_assigns!(:trace_callback_running?)
-    |> check_assigns!(:parent_pid)
-    |> check_assigns!(:tracing_started?)
+    |> check_assign!(:lv_process)
+    |> check_assign!(:node_id)
+    |> check_assign!(:current_filters)
+    |> check_assign!(:trace_callback_running?)
+    |> check_assign!(:parent_pid)
+    |> check_assign!(:tracing_started?)
     |> put_private(:fuse, nil)
     |> attach_hook(:tracing_fuse, :handle_info, &handle_info/2)
     |> register_hook(:tracing_fuse)

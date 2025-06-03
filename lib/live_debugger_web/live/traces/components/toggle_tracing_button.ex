@@ -21,8 +21,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.ToggleTracingButton do
   def init(socket) do
     socket
     |> check_hook!(:tracing_fuse)
-    |> check_assigns!(:tracing_started?)
-    |> check_assigns!(:traces_empty?)
+    |> check_assign!(:tracing_started?)
+    |> check_assign!(:traces_empty?)
     |> attach_hook(:toggle_tracing_button, :handle_event, &handle_event/3)
     |> register_hook(:toggle_tracing_button)
   end

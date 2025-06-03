@@ -16,10 +16,10 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersDropdown do
   def init(socket) do
     socket
     |> check_hook!(:existing_traces)
-    |> check_assigns!(:node_id)
-    |> check_assigns!(:current_filters)
-    |> check_assigns!(:default_filters)
-    |> check_assigns!(:traces_empty?)
+    |> check_assign!(:node_id)
+    |> check_assign!(:current_filters)
+    |> check_assign!(:default_filters)
+    |> check_assign!(:traces_empty?)
     |> attach_hook(:filters_dropdown, :handle_info, &handle_info/2)
     |> register_hook(:filters_dropdown)
   end
