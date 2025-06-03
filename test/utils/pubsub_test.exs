@@ -20,19 +20,33 @@ defmodule LiveDebugger.Utils.PubSubTest do
     assert "lvdbg/process_status" = PubSubUtils.process_status_topic()
   end
 
-  test "trace_topic/4" do
+  test "trace_topic_per_node/4" do
     pid = :c.pid(0, 1, 0)
     node_id = :c.pid(0, 2, 0)
     fun = :handle_info
 
     assert "#PID<0.1.0>/#PID<0.2.0>/:handle_info/:call" =
-             PubSubUtils.trace_topic(pid, node_id, fun)
+             PubSubUtils.trace_topic_per_node(pid, node_id, fun)
 
     assert "#PID<0.1.0>/#PID<0.2.0>/:handle_info/:call" =
-             PubSubUtils.trace_topic(pid, node_id, fun, :call)
+             PubSubUtils.trace_topic_per_node(pid, node_id, fun, :call)
 
     assert "#PID<0.1.0>/#PID<0.2.0>/:handle_info/:return" =
-             PubSubUtils.trace_topic(pid, node_id, fun, :return)
+             PubSubUtils.trace_topic_per_node(pid, node_id, fun, :return)
+  end
+
+  test "trace_topic_per_pid/3" do
+    pid = :c.pid(0, 1, 0)
+    fun = :handle_info
+
+    assert "#PID<0.1.0>/:handle_info/:call" =
+             PubSubUtils.trace_topic_per_pid(pid, fun)
+
+    assert "#PID<0.1.0>/:handle_info/:call" =
+             PubSubUtils.trace_topic_per_pid(pid, fun, :call)
+
+    assert "#PID<0.1.0>/:handle_info/:return" =
+             PubSubUtils.trace_topic_per_pid(pid, fun, :return)
   end
 
   describe "mock" do

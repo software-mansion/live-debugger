@@ -88,8 +88,8 @@ defmodule LiveDebugger do
     version = Application.spec(:live_debugger)[:vsn] |> to_string()
     devtools_allow_redirects = Keyword.get(config, :devtools_allow_redirects, false)
 
-    live_debugger_url = "http://#{ip_string}:#{port}"
-    live_debugger_assets_url = "http://#{ip_string}:#{port}/#{@assets_path}"
+    live_debugger_url = Keyword.get(config, :external_url, "http://#{ip_string}:#{port}")
+    live_debugger_assets_url = "#{live_debugger_url}/#{@assets_path}"
 
     assigns = %{
       url: live_debugger_url,

@@ -211,7 +211,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     fun = trace.function
 
     pid
-    |> PubSubUtils.trace_topic(node_id, fun, :call)
+    |> PubSubUtils.trace_topic_per_node(node_id, fun, :call)
     |> PubSubUtils.broadcast({:new_trace, trace})
   end
 
@@ -227,7 +227,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     end
 
     pid
-    |> PubSubUtils.trace_topic(node_id, fun, :return)
+    |> PubSubUtils.trace_topic_per_node(node_id, fun, :return)
     |> PubSubUtils.broadcast({:updated_trace, trace})
   end
 end

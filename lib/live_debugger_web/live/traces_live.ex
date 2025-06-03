@@ -84,7 +84,7 @@ defmodule LiveDebuggerWeb.TracesLive do
   def render(assigns) do
     ~H"""
     <div class="max-w-full @container/traces flex flex-1">
-      <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
+      <.section title="Callback traces" id="traces" inner_class="mx-0 mt-4 px-4" class="flex-1">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <Traces.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
@@ -95,9 +95,11 @@ defmodule LiveDebuggerWeb.TracesLive do
               module={LiveDebuggerWeb.LiveComponents.LiveDropdown}
               id="filters-dropdown"
             >
-              <:button class="flex gap-2">
-                <.icon name="icon-filters" class="w-4 h-4" />
-                <div class="hidden @[29rem]/traces:block">Filters</div>
+              <:button>
+                <.button class="flex gap-2" variant="secondary" size="sm">
+                  <.icon name="icon-filters" class="w-4 h-4" />
+                  <div class="hidden @[29rem]/traces:block">Filters</div>
+                </.button>
               </:button>
               <.live_component
                 module={LiveDebuggerWeb.LiveComponents.FiltersForm}
@@ -109,7 +111,7 @@ defmodule LiveDebuggerWeb.TracesLive do
             </.live_component>
           </div>
         </:right_panel>
-        <div class="w-full h-full xl:min-h-[10.25rem]">
+        <div class="w-full h-full">
           <div id={"#{assigns.id}-stream"} phx-update="stream" class="flex flex-col gap-2">
             <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-secondary-text">
               <div :if={@existing_traces_status == :ok}>
@@ -143,13 +145,13 @@ defmodule LiveDebuggerWeb.TracesLive do
               <.button
                 :if={not @tracing_helper.tracing_started? && @traces_continuation != :end_of_table}
                 phx-click="load-more"
-                class="w-40"
+                class="w-4 mb-4"
                 variant="secondary"
               >
                 Load more
               </.button>
             <% else %>
-              <.spinner size="sm" />
+              <.spinner size="sm" class="mb-4" />
             <% end %>
           </div>
         </div>
@@ -427,7 +429,9 @@ defmodule LiveDebuggerWeb.TracesLive do
       functions: functions,
       execution_time: [
         {:exec_time_max, ""},
-        {:exec_time_min, ""}
+        {:exec_time_min, ""},
+        {:min_unit, ""},
+        {:max_unit, ""}
       ]
     }
   end
@@ -439,9 +443,17 @@ defmodule LiveDebuggerWeb.TracesLive do
   end
 
   defp get_execution_times(socket) do
-    socket.assigns.current_filters.execution_time
-    |> Enum.filter(fn {_, value} -> value != "" end)
+    execution_time = socket.assigns.current_filters.execution_time
+
+    execution_time
+    |> Enum.filter(fn {_, value} -> value not in ["" | Parsers.time_units()] end)
     |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
+    |> Enum.map(fn {filter, value} ->
+      case filter do
+        :exec_time_min -> {filter, Parsers.time_to_microseconds(value, execution_time[:min_unit])}
+        :exec_time_max -> {filter, Parsers.time_to_microseconds(value, execution_time[:max_unit])}
+      end
+    end)
   end
 
   defp log_async_error(operation, reason) do

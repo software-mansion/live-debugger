@@ -16,7 +16,6 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_has(assigns_entry(key: "counter", value: "0"))
     |> assert_has(traces(count: 2))
 
-    # Callback traces appear in debugger
     dev_app
     |> click(button("increment-button"))
     |> click(button("increment-button"))
@@ -71,41 +70,66 @@ defmodule LiveDebugger.ChannelDashboardTest do
     dev_app
     |> click(button("very-slow-increment-button"))
 
-    Process.sleep(2505)
+    Process.sleep(1105)
 
     debugger
     |> find(traces(count: 4))
     |> Enum.at(1)
-    |> assert_has(css("span.text-error-text", text: "2.50 s"))
+    |> assert_has(css("span.text-error-text", text: "1.10 s"))
+  end
 
-    # Filtering callback traces by execution time works
-    debugger
-    |> click(toggle_tracing_button())
-    |> click(filters_button())
-    |> fill_in(text_field("exec_time_min"), with: 100)
-    |> fill_in(text_field("exec_time_max"), with: 2_000_000)
-    |> send_keys([:enter])
-    |> find(traces(count: 1))
-    |> find(css("span.text-warning-text"))
-    |> Element.text()
-    |> String.match?(~r"^40\d ms$")
+  @sessions 2
+  feature "settings button exists and redirects works as expected", %{
+    sessions: [dev_app, debugger]
+  } do
+    dev_app
+    |> visit(@dev_app_url)
 
     debugger
-    |> click(toggle_tracing_button())
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(css("div#traces", text: "Callback traces"))
+    |> assert_has(settings_button())
+    |> click(settings_button())
+    |> assert_has(css("h1", text: "Settings"))
+    |> assert_has(return_button())
+    |> click(return_button())
+    |> assert_has(css("div#traces", text: "Callback traces"))
+  end
+
+  @sessions 2
+  feature "return button redirects to window dashboard in case of iframe", %{
+    sessions: [dev_app, debugger]
+  } do
+    LiveDebugger.MockIframeCheck
+    |> stub(:on_mount, fn _, _, _, socket ->
+      {:cont, Phoenix.Component.assign(socket, :in_iframe?, true)}
+    end)
 
     dev_app
-    |> click(button("increment-button"))
-    |> click(button("slow-increment-button"))
-
-    Process.sleep(405)
+    |> visit(@dev_app_url)
 
     debugger
-    |> find(traces(count: 2))
-    |> Enum.each(fn trace ->
-      find(trace, css("span.text-warning-text"))
-      |> Element.text()
-      |> String.match?(~r"^40\d ms$")
-    end)
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(css("div#traces", text: "Callback traces"))
+    |> click(return_button())
+    |> assert_has(css("h1", text: "Active LiveViews in a single window"))
+  end
+
+  @sessions 2
+  feature "return button redirects to active live views dashboard not in iframe", %{
+    sessions: [dev_app, debugger]
+  } do
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(css("div#traces", text: "Callback traces"))
+    |> click(return_button())
+    |> assert_has(css("h1", text: "Active LiveViews"))
   end
 
   @sessions 2
@@ -121,7 +145,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> visit("/")
     |> click(first_link())
     |> click(conditional_component_5_node_button())
-    |> find(css("#info"), fn info ->
+    |> find(css("#sidebar-content-basic-info"), fn info ->
       info
       |> assert_text("LiveComponent")
       |> assert_text("LiveDebuggerDev.LiveComponents.Conditional")
@@ -144,7 +168,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
   end
 
   @sessions 2
-  feature "user can filter callback traces", %{sessions: [dev_app, debugger]} do
+  feature "user can filter traces by callback name", %{sessions: [dev_app, debugger]} do
     LiveDebugger.GenServers.CallbackTracingServer.ping!()
 
     dev_app
@@ -226,6 +250,73 @@ defmodule LiveDebugger.ChannelDashboardTest do
       "render/1",
       "mount/3"
     ])
+    |> click(filters_button())
+    |> click(checkbox("mount"))
+    |> click(checkbox("handle_params"))
+    |> click(checkbox("handle_info"))
+    |> click(checkbox("handle_call"))
+    |> click(checkbox("handle_cast"))
+    |> click(checkbox("terminate"))
+    |> click(checkbox("render"))
+    |> click(checkbox("handle_event"))
+    |> click(checkbox("handle_async"))
+    |> click(css("button", text: "Apply"))
+    |> assert_has(traces(count: 0))
+  end
+
+  @sessions 2
+  feature "user can filter traces by execution time", %{sessions: [dev_app, debugger]} do
+    LiveDebugger.GenServers.CallbackTracingServer.ping!()
+
+    dev_app
+    |> visit(@dev_app_url)
+    |> click(button("slow-increment-button"))
+
+    Process.sleep(405)
+
+    dev_app
+    |> click(button("very-slow-increment-button"))
+
+    Process.sleep(1105)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_traces(6, [
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "mount/3"
+    ])
+    |> click(filters_button())
+    |> set_value(select("min_unit"), "ms")
+    |> fill_in(text_field("exec_time_min"), with: 100)
+    |> set_value(select("max_unit"), "s")
+    |> fill_in(text_field("exec_time_max"), with: 1)
+    |> send_keys([:enter])
+    |> find(traces(count: 1))
+    |> find(css("span.text-warning-text"))
+    |> Element.text()
+    |> String.match?(~r"^40\d ms$")
+
+    debugger
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(button("increment-button"))
+    |> click(button("slow-increment-button"))
+
+    Process.sleep(405)
+
+    debugger
+    |> find(traces(count: 2))
+    |> Enum.each(fn trace ->
+      find(trace, css("span.text-warning-text"))
+      |> Element.text()
+      |> String.match?(~r"^40\d ms$")
+    end)
   end
 
   defp assert_traces(session, count, callback_names) do
@@ -297,7 +388,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     debugger
     |> visit("/")
     |> click(first_link())
-    |> find(css("#info"))
+    |> find(css("#sidebar-content-basic-info"))
     |> assert_text("LiveDebuggerDev.LiveViews.Main")
 
     dev_app
@@ -315,7 +406,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     Process.sleep(1000)
 
     debugger
-    |> find(css("#info"))
+    |> find(css("#sidebar-content-basic-info"))
     |> assert_text("LiveDebuggerDev.LiveViews.Side")
   end
 
@@ -341,7 +432,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
   defp clear_traces_button(), do: css("button[phx-click=\"clear-traces\"]")
 
-  defp filters_button(), do: css("button[phx-click=\"open\"]")
+  defp filters_button(), do: css("#filters-dropdown-button")
 
   defp reset_filters_button(), do: css("button[phx-click=\"reset\"]")
 
@@ -356,4 +447,8 @@ defmodule LiveDebugger.ChannelDashboardTest do
   defp many_assigns_15_node_button() do
     css("#tree-node-button-15-component-tree-sidebar-content")
   end
+
+  defp settings_button(), do: css("navbar a#settings-button")
+
+  defp return_button(), do: css("navbar a#return-button")
 end

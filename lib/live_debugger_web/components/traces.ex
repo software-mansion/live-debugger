@@ -100,6 +100,8 @@ defmodule LiveDebuggerWeb.Components.Traces do
         <div class="flex flex-col gap-4 overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
           <%= if @render_body? do %>
             <%= for {args, index} <- Enum.with_index(@trace.args) do %>
+              <div :if={index > 0} class="border-t border-default-border"></div>
+              <p class="font-semibold">Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)</p>
               <ElixirDisplay.term
                 id={@id <> "-#{index}"}
                 node={TermParser.term_to_display_tree(args)}
@@ -174,6 +176,10 @@ defmodule LiveDebuggerWeb.Components.Traces do
     <.fullscreen id={@id} title={@callback_name}>
       <div class="w-full flex flex-col gap-4 items-start justify-center">
         <%= for {args, index} <- Enum.with_index(@trace_args) do %>
+          <div :if={index > 0} class="border-t border-default-border w-full"></div>
+          <p class="font-semibold shrink-0">
+            Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)
+          </p>
           <ElixirDisplay.term
             id={@id <> "-#{index}-fullscreen"}
             node={TermParser.term_to_display_tree(args)}

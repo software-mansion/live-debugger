@@ -15,7 +15,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       |> assign(list: [%Phoenix.LiveComponent.CID{cid: 1}, %Phoenix.LiveComponent.CID{cid: 2}])
       |> assign(
         long_assign:
-          "flex items-center gap-2 flex grow flex-col xl:flex-row flex items-center gap-2 flex grow flex-col xl:flex-row gap-4 xl:gap-8 p-8 overflow-y-auto xl:overflow-y-hidden max-w-screen-2xl mx-auto"
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
       )
 
     {:ok, socket}
@@ -96,7 +96,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   end
 
   def handle_event("very-slow-increment", _, socket) do
-    Process.sleep(2500)
+    Process.sleep(1100)
     {:noreply, update(socket, :counter_very_slow, &(&1 + 1))}
   end
 

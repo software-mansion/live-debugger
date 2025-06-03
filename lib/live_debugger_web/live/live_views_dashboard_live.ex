@@ -23,7 +23,7 @@ defmodule LiveDebuggerWeb.LiveViewsDashboardLive do
     <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
       <Navbar.navbar class="flex justify-between">
         <Navbar.live_debugger_logo />
-        <Navbar.theme_toggle />
+        <Navbar.settings_button return_to={@url} />
       </Navbar.navbar>
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
         <div class="flex items-center justify-between">

@@ -7,6 +7,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
   alias LiveDebugger.Structs.TreeNode
+  alias LiveDebugger.Utils.Parsers
 
   @impl true
   def update(assigns, socket) do
@@ -22,12 +23,14 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   @impl true
   def render(assigns) do
     assigns =
-      assign(assigns, :selected_filters_number, calculate_selected_filters(assigns.form))
+      assigns
+      |> assign(:selected_filters_number, calculate_selected_filters(assigns.form))
+      |> assign(:errors, assigns.form.errors)
 
     ~H"""
     <div id={@id <> "-wrapper"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
-        <div class="w-52">
+        <div class="w-96">
           <div class="p-4">
             <p class="font-medium mb-4">Callbacks</p>
             <div class="flex flex-col gap-3">
@@ -35,23 +38,26 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
                 <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
               <% end %>
             </div>
-            <p class="font-medium mb-4 mt-6">Callback execution time</p>
-            <div class="flex flex-col gap-3">
-              <.input
-                label_text="max [&micro;s]"
-                label_raw
-                field={@form[:exec_time_max]}
-                type="number"
+            <p class="font-medium mb-4 mt-6">Execution Time</p>
+            <div class="mt-3 flex gap-3 items-center">
+              <.input_with_units
+                value_field={@form[:exec_time_min]}
+                unit_field={@form[:min_unit]}
+                units={Parsers.time_units()}
                 min="0"
-              />
-              <.input
-                label_text="min [&micro;s]"
-                label_raw
-                field={@form[:exec_time_min]}
-                type="number"
+                placeholder="min"
+              /> -
+              <.input_with_units
+                value_field={@form[:exec_time_max]}
+                unit_field={@form[:max_unit]}
                 min="0"
+                units={Parsers.time_units()}
+                placeholder="max"
               />
             </div>
+            <p :for={{_, msg} <- @errors} class="mt-2 block text-error-text">
+              <%= msg %>
+            </p>
           </div>
           <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
             <button
@@ -151,15 +157,23 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   end
 
   defp validate_execution_time(execution_time) do
-    min_time = Keyword.get(execution_time, :exec_time_min, 0)
-    max_time = Keyword.get(execution_time, :exec_time_max, :infinity)
+    min_time = execution_time[:exec_time_min]
+    max_time = execution_time[:exec_time_max]
+    min_time_unit = execution_time[:min_unit]
+    max_time_unit = execution_time[:max_unit]
 
     if min_time != "" and max_time != "" and
-         String.to_integer(min_time) > String.to_integer(max_time) do
+         apply_unit_factor(min_time, min_time_unit) > apply_unit_factor(max_time, max_time_unit) do
       {:error, [exec_time_min: "min must be less than max", exec_time_max: ""]}
     else
       :ok
     end
+  end
+
+  defp apply_unit_factor(value, unit) do
+    value
+    |> String.to_integer()
+    |> Parsers.time_to_microseconds(unit)
   end
 
   defp calculate_selected_filters(form) do

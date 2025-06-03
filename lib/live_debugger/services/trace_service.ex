@@ -140,42 +140,38 @@ defmodule LiveDebugger.Services.TraceService do
     ]
   end
 
-  def to_spec([], []), do: [{:"/=", :"$2", nil}]
-
   def to_spec(functions, []) do
-    [{:andalso, List.first(functions_to_spec(functions)), {:"/=", :"$2", nil}}]
-  end
-
-  def to_spec([], execution_times) do
-    [{:andalso, List.first(execution_times_to_spec(execution_times)), {:"/=", :"$2", nil}}]
+    [{:andalso, functions_to_spec(functions), {:"/=", :"$2", nil}}]
   end
 
   def to_spec(functions, execution_times) do
     [
       {:andalso,
-       {:andalso, List.first(functions_to_spec(functions)),
-        List.first(execution_times_to_spec(execution_times))}, {:"/=", :"$2", nil}}
+       {:andalso, functions_to_spec(functions), execution_times_to_spec(execution_times)},
+       {:"/=", :"$2", nil}}
     ]
   end
 
-  def functions_to_spec([single]), do: [{:"=:=", :"$1", single}]
+  def functions_to_spec([]), do: false
+
+  def functions_to_spec([single]), do: {:"=:=", :"$1", single}
 
   def functions_to_spec([first, second | rest]) do
     initial_orelse =
-      {:orelse, List.first(functions_to_spec([first])), List.first(functions_to_spec([second]))}
+      {:orelse, functions_to_spec([first]), functions_to_spec([second])}
 
     result =
       Enum.reduce(rest, initial_orelse, fn x, acc ->
-        {:orelse, acc, List.first(functions_to_spec([x]))}
+        {:orelse, acc, functions_to_spec([x])}
       end)
 
-    [{:andalso, result, {:"/=", :"$2", nil}}]
+    {:andalso, result, {:"/=", :"$2", nil}}
   end
 
   def execution_times_to_spec(execution_times) do
     min_time = Keyword.get(execution_times, :exec_time_min, 0)
     max_time = Keyword.get(execution_times, :exec_time_max, :infinity)
-    [{:andalso, {:>=, :"$2", min_time}, {:"=<", :"$2", max_time}}]
+    {:andalso, {:>=, :"$2", min_time}, {:"=<", :"$2", max_time}}
   end
 
   @spec ets_table(pid :: ets_table_id()) :: :ets.table()
