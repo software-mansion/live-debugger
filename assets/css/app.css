@@ -1,10 +1,11 @@
+@import 'tailwindcss';
+
 @import './font.css';
 @import './colors.css';
 @import './themes/dark.css';
 @import './themes/light.css';
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+
+@config "../tailwind.config.js";
 
 /* You can add custom styles here */
 
