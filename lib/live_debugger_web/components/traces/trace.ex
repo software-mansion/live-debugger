@@ -1,7 +1,12 @@
 defmodule LiveDebuggerWeb.Components.Traces.Trace do
-  use LiveDebuggerWeb, :component
+  @moduledoc """
+  This component is responsible for rendering a single trace.
 
-  import Phoenix.LiveView
+  It produces `open-trace` event when clicked that can be handled by hook declared via `init/1`.
+  It also produces `toggle-collapsible` event when clicked that can be handled by hook declared via `init/1`.
+  """
+
+  use LiveDebuggerWeb, :hook_component
 
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Services.TraceService
@@ -10,11 +15,23 @@ defmodule LiveDebuggerWeb.Components.Traces.Trace do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebuggerWeb.Components.ElixirDisplay
 
-  def attach_hook(socket) do
+  @doc """
+  Initializes the trace component by attaching the hook to the socket and checking the required assigns.
+  """
+  def init(socket) do
     socket
+    |> check_assigns!(:id)
+    |> check_assigns!(:lv_process)
+    |> check_assigns!(:displayed_trace)
     |> attach_hook(:trace, :handle_event, &handle_event/3)
     |> register_hook(:trace)
   end
+
+  @doc """
+  Renders the trace component.
+  It produces `open-trace` event when clicked that can be handled by hook declared via `init/1`.
+  It also produces `toggle-collapsible` event when clicked that can be handled by hook declared via `init/1`.
+  """
 
   attr(:id, :string, required: true)
   attr(:wrapped_trace, :map, required: true, doc: "The Trace to render")

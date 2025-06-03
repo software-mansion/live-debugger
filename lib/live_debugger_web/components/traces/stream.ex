@@ -18,7 +18,7 @@ defmodule LiveDebuggerWeb.Components.Traces.Stream do
     |> check_assigns!(:id)
     |> check_assigns!(:existing_traces_status)
     |> check_streams!(:existing_traces)
-    |> Trace.attach_hook()
+    |> Trace.init()
     |> register_hook(:traces_stream)
   end
 
