@@ -9,10 +9,14 @@ defmodule LiveDebuggerWeb.LiveComponents.LiveDropdown do
   attr(:label, :string, required: true)
   attr(:link, :string, default: nil)
   attr(:selected?, :boolean, default: false)
+  attr(:rest, :global, include: [:phx_click])
 
   def dropdown_item(assigns) do
     ~H"""
-    <div class="flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer">
+    <div
+      class="flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer"
+      {@rest}
+    >
       <.icon name={@icon} class="h-4 w-4" />
       <span class={if @selected?, do: "font-semibold"}>{@label}</span>
     </div>
