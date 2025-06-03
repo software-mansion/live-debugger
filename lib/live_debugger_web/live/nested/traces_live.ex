@@ -82,76 +82,30 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
   def render(assigns) do
     ~H"""
     <div class="max-w-full @container/traces flex flex-1">
-      <.section title="Callback traces" id="traces" inner_class="mx-0 mt-4 px-4" class="flex-1">
+      <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
         <:right_panel>
           <div class="flex gap-2 items-center">
             <Traces.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
             <Traces.refresh_button :if={not @tracing_helper.tracing_started?} />
             <Traces.clear_button :if={not @tracing_helper.tracing_started?} />
-            <.live_component
+            <Traces.filters_dropdown
               :if={not @tracing_helper.tracing_started?}
-              module={LiveDebuggerWeb.LiveComponents.LiveDropdown}
-              id="filters-dropdown"
-            >
-              <:button>
-                <.button class="flex gap-2" variant="secondary" size="sm">
-                  <.icon name="icon-filters" class="w-4 h-4" />
-                  <div class="hidden @[29rem]/traces:block">Filters</div>
-                </.button>
-              </:button>
-              <.live_component
-                module={LiveDebuggerWeb.LiveComponents.FiltersForm}
-                id="filters-form"
-                node_id={@node_id}
-                filters={@current_filters}
-                default_filters={@default_filters}
-              />
-            </.live_component>
+              node_id={@node_id}
+              current_filters={@current_filters}
+              default_filters={@default_filters}
+            />
           </div>
         </:right_panel>
         <div class="w-full h-full">
-          <div id={"#{assigns.id}-stream"} phx-update="stream" class="flex flex-col gap-2">
-            <div id={"#{assigns.id}-stream-empty"} class="only:block hidden text-secondary-text">
-              <div :if={@existing_traces_status == :ok}>
-                No traces have been recorded yet.
-              </div>
-              <div
-                :if={@existing_traces_status == :loading}
-                class="w-full flex items-center justify-center"
-              >
-                <.spinner size="sm" />
-              </div>
-              <.alert
-                :if={@existing_traces_status == :error}
-                variant="danger"
-                with_icon
-                heading="Error fetching historical callback traces"
-              >
-                New events will still be displayed as they come. Check logs for more information
-              </.alert>
-            </div>
-            <%= for {dom_id, wrapped_trace} <- @streams.existing_traces do %>
-              <%= if wrapped_trace.id == "separator" do %>
-                <Traces.separator id={dom_id} />
-              <% else %>
-                <Traces.trace id={dom_id} wrapped_trace={wrapped_trace} />
-              <% end %>
-            <% end %>
-          </div>
-          <div class="flex items-center justify-center mt-4">
-            <%= if @traces_continuation != :loading  do %>
-              <.button
-                :if={not @tracing_helper.tracing_started? && @traces_continuation != :end_of_table}
-                phx-click="load-more"
-                class="w-4 mb-4"
-                variant="secondary"
-              >
-                Load more
-              </.button>
-            <% else %>
-              <.spinner size="sm" class="mb-4" />
-            <% end %>
-          </div>
+          <Traces.traces_stream
+            id={@id}
+            existing_traces_status={@existing_traces_status}
+            existing_traces={@streams.existing_traces}
+          />
+          <Traces.load_more_button
+            :if={not @tracing_helper.tracing_started?}
+            traces_continuation={@traces_continuation}
+          />
         </div>
       </.section>
       <Traces.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
@@ -208,7 +162,10 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
   @impl true
   def handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
     log_async_error("loading more existing traces", reason)
+
     socket
+    |> assign(:traces_continuation, :error)
+    |> noreply()
   end
 
   @impl true

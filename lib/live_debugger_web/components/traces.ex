@@ -119,6 +119,99 @@ defmodule LiveDebuggerWeb.Components.Traces do
     """
   end
 
+  attr(:node_id, :any, required: true)
+  attr(:current_filters, :any, required: true)
+  attr(:default_filters, :any, required: true)
+
+  def filters_dropdown(assigns) do
+    ~H"""
+    <.live_component module={LiveDebuggerWeb.LiveComponents.LiveDropdown} id="filters-dropdown">
+      <:button>
+        <.button class="flex gap-2" variant="secondary" size="sm">
+          <.icon name="icon-filters" class="w-4 h-4" />
+          <div class="hidden @[29rem]/traces:block">Filters</div>
+        </.button>
+      </:button>
+      <.live_component
+        module={LiveDebuggerWeb.LiveComponents.FiltersForm}
+        id="filters-form"
+        node_id={@node_id}
+        filters={@current_filters}
+        default_filters={@default_filters}
+      />
+    </.live_component>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:existing_traces_status, :atom, required: true)
+  attr(:existing_traces, :any, required: true)
+
+  def traces_stream(assigns) do
+    ~H"""
+    <div id={"#{@id}-stream"} phx-update="stream" class="flex flex-col gap-2">
+      <div id={"#{@id}-stream-empty"} class="only:block hidden text-secondary-text">
+        <div :if={@existing_traces_status == :ok}>
+          No traces have been recorded yet.
+        </div>
+        <div :if={@existing_traces_status == :loading} class="w-full flex items-center justify-center">
+          <.spinner size="sm" />
+        </div>
+        <.alert
+          :if={@existing_traces_status == :error}
+          variant="danger"
+          with_icon
+          heading="Error fetching historical callback traces"
+        >
+          New events will still be displayed as they come. Check logs for more information
+        </.alert>
+      </div>
+      <%= for {dom_id, wrapped_trace} <- @existing_traces do %>
+        <%= if wrapped_trace.id == "separator" do %>
+          <.separator id={dom_id} />
+        <% else %>
+          <.trace id={dom_id} wrapped_trace={wrapped_trace} />
+        <% end %>
+      <% end %>
+    </div>
+    """
+  end
+
+  attr(:traces_continuation, :any, required: true)
+
+  def load_more_button(assigns) do
+    ~H"""
+    <div class="flex items-center justify-center mt-4">
+      <.load_more_button_content traces_continuation={@traces_continuation} />
+    </div>
+    """
+  end
+
+  defp load_more_button_content(%{traces_continuation: nil} = assigns), do: ~H""
+  defp load_more_button_content(%{traces_continuation: :end_of_table} = assigns), do: ~H""
+
+  defp load_more_button_content(%{traces_continuation: :loading} = assigns) do
+    ~H"""
+    <.spinner size="sm" />
+    """
+  end
+
+  defp load_more_button_content(%{traces_continuation: :error} = assigns) do
+    ~H"""
+    <.alert variant="danger" with_icon={true} heading="Error while loading more traces" class="w-full">
+      Check logs for more details.
+    </.alert>
+    """
+  end
+
+  defp load_more_button_content(%{traces_continuation: cont} = assigns) when is_tuple(cont) do
+    ~H"""
+    <.button phx-click="load-more" class="w-4" variant="secondary">
+      Load more
+    </.button>
+    """
+  end
+
   attr(:trace, :map, default: nil)
 
   def short_trace_content(assigns) do
