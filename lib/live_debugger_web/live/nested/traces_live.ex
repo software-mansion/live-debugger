@@ -16,6 +16,7 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebuggerWeb.Components.Traces
   alias LiveDebuggerWeb.Helpers.FiltersHelper
+  alias LiveDebuggerWeb.LiveComponents.FiltersForm
 
   @live_stream_limit 128
   @page_size 25
@@ -96,13 +97,13 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
             <Traces.toggle_tracing_button tracing_started?={@tracing_helper.tracing_started?} />
             <Traces.refresh_button :if={not @tracing_helper.tracing_started?} />
             <Traces.clear_button :if={not @tracing_helper.tracing_started?} />
-            <.filters_button
+            <FiltersForm.filters_button
               :if={not @tracing_helper.tracing_started?}
               applied_filters_number={@applied_filters_number}
             />
             <.fullscreen id="filters-fullscreen" title="Filters">
               <.live_component
-                module={LiveDebuggerWeb.LiveComponents.FiltersForm}
+                module={FiltersForm}
                 id="filters-form"
                 node_id={@node_id}
                 filters={@current_filters}
@@ -157,37 +158,6 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
         </div>
       </.section>
       <Traces.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
-    </div>
-    """
-  end
-
-  attr(:applied_filters_number, :integer, default: 0)
-
-  defp filters_button(assigns) do
-    ~H"""
-    <div class="flex">
-      <.button
-        variant="secondary"
-        size="sm"
-        class={"flex gap-2 " <> if @applied_filters_number > 0, do: "rounded-r-none", else: ""}
-        phx-click="open-filters"
-      >
-        <.icon name="icon-filters" class="w-4 h-4" />
-        <div class="flex gap-1">
-          <span class="hidden @[29rem]/traces:block">Filters</span>
-          <span :if={@applied_filters_number > 0}>
-            (<%= @applied_filters_number %>)
-          </span>
-        </div>
-      </.button>
-      <.icon_button
-        :if={@applied_filters_number > 0}
-        icon="icon-cross"
-        variant="secondary"
-        size="sm"
-        phx-click="reset-filters"
-        class="rounded-l-none border-l-0 px-[0.4rem] py-[0.35rem]"
-      />
     </div>
     """
   end

@@ -10,6 +10,37 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebuggerWeb.Helpers.FiltersHelper
 
+  attr(:applied_filters_number, :integer, default: 0)
+
+  def filters_button(assigns) do
+    ~H"""
+    <div class="flex">
+      <.button
+        variant="secondary"
+        size="sm"
+        class={"flex gap-2 " <> if @applied_filters_number > 0, do: "rounded-r-none", else: ""}
+        phx-click="open-filters"
+      >
+        <.icon name="icon-filters" class="w-4 h-4" />
+        <div class="flex gap-1">
+          <span class="hidden @[29rem]/traces:block">Filters</span>
+          <span :if={@applied_filters_number > 0}>
+            (<%= @applied_filters_number %>)
+          </span>
+        </div>
+      </.button>
+      <.icon_button
+        :if={@applied_filters_number > 0}
+        icon="icon-cross"
+        variant="secondary"
+        size="sm"
+        phx-click="reset-filters"
+        class="rounded-l-none border-l-0"
+      />
+    </div>
+    """
+  end
+
   @impl true
   def update(assigns, socket) do
     socket
@@ -60,7 +91,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
               changed?={@changed_execution_time_filter?}
               myself={@myself}
             />
-            <div class="mt-3 flex gap-3 p-1 items-center">
+            <div class="flex gap-3 p-1 items-center">
               <.input_with_units
                 value_field={@form[:exec_time_min]}
                 unit_field={@form[:min_unit]}

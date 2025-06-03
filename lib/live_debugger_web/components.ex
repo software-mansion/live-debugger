@@ -346,7 +346,7 @@ defmodule LiveDebuggerWeb.Components do
     {button_class, icon_class} =
       case assigns.size do
         "md" -> {"w-8! h-8! px-[0.25rem] py-[0.25rem]", "h-6 w-6"}
-        "sm" -> {"w-7! h-7! px-[0.375rem] py-[0.375rem]", "h-4 w-4"}
+        "sm" -> {"w-7! h-7! px-[0.375rem] py-[0.35rem]", "h-4 w-4"}
       end
 
     assigns =
