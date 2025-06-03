@@ -1,28 +1,48 @@
 defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
-  require Logger
+  @moduledoc """
+  This hook is responsible for fetching the existing traces.
+  It is used to fetch the existing traces when the user clicks the "Load more" button
+  """
 
-  import Phoenix.LiveView
-  import Phoenix.Component
-  import LiveDebuggerWeb.Helpers
-  import LiveDebuggerWeb.Live.Traces.Helpers
+  use LiveDebuggerWeb, :hook
+
+  require Logger
 
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Services.TraceService
 
-  def attach_hook(socket, page_size \\ 25) do
+  # These functions are using the `current_filters` assigns
+  alias LiveDebuggerWeb.Live.Traces.Helpers
+
+  @doc """
+  Initializes the hook by attaching the hook to the socket and checking the required assigns.
+  """
+  @spec init(Phoenix.LiveView.Socket.t(), integer()) :: Phoenix.LiveView.Socket.t()
+  def init(socket, page_size \\ 25) do
     socket
     |> check_hook!(:tracing_fuse)
+    |> check_assigns!(:lv_process)
+    |> check_assigns!(:node_id)
+    |> check_assigns!(:current_filters)
+    |> check_assigns!(:traces_empty?)
+    |> check_assigns!(:traces_continuation)
+    |> check_assigns!(:existing_traces_status)
+    |> check_streams!(:existing_traces)
     |> put_private(:page_size, page_size)
     |> attach_hook(:existing_traces, :handle_async, &handle_async/3)
     |> register_hook(:existing_traces)
     |> assign_async_existing_traces()
   end
 
+  @doc """
+  Loads the existing traces asynchronously and assigns them to the socket.
+  """
+  @spec assign_async_existing_traces(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def assign_async_existing_traces(socket) do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
-    active_functions = get_active_functions(socket)
-    execution_times = get_execution_times(socket)
+    active_functions = Helpers.get_active_functions(socket)
+    execution_times = Helpers.get_execution_times(socket)
     page_size = socket.private.page_size
 
     socket

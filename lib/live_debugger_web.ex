@@ -38,6 +38,14 @@ defmodule LiveDebuggerWeb do
     end
   end
 
+  def hook do
+    quote do
+      import Phoenix.LiveView
+      import Phoenix.Component
+      import LiveDebuggerWeb.Helpers
+    end
+  end
+
   def hook_component do
     quote do
       use Phoenix.Component

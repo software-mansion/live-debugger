@@ -72,7 +72,7 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
     |> Components.LoadMoreButton.init(@page_size)
     |> Components.Stream.init()
     |> TracingFuse.init()
-    |> LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces.attach_hook(@page_size)
+    |> LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces.init(@page_size)
     |> LiveDebuggerWeb.Live.Traces.Hooks.NewTraces.attach_hook(@live_stream_limit)
     |> Components.FiltersDropdown.init()
     |> Components.ToggleTracingButton.init()
