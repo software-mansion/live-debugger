@@ -44,12 +44,20 @@ defmodule LiveDebuggerWeb.Helpers.TracesLiveHelper do
     }
   end
 
+  @doc """
+  Returns the active functions from the current filters.
+  It uses the `current_filters` assigns to determine the active functions.
+  """
   def get_active_functions(socket) do
     socket.assigns.current_filters.functions
     |> Enum.filter(fn {_, active?} -> active? end)
     |> Enum.map(fn {function, _} -> function end)
   end
 
+  @doc """
+  Returns the execution times from the current filters.
+  It uses the `current_filters` assigns to determine the execution times.
+  """
   def get_execution_times(socket) do
     execution_time = socket.assigns.current_filters.execution_time
 
@@ -62,11 +70,5 @@ defmodule LiveDebuggerWeb.Helpers.TracesLiveHelper do
         :exec_time_max -> {filter, Parsers.time_to_microseconds(value, execution_time[:max_unit])}
       end
     end)
-  end
-
-  def log_async_error(operation, reason) do
-    Logger.error(
-      "LiveDebugger encountered unexpected error while #{operation}: #{inspect(reason)}"
-    )
   end
 end

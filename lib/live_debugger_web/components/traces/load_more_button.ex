@@ -1,12 +1,42 @@
 defmodule LiveDebuggerWeb.Components.Traces.LoadMoreButton do
-  use LiveDebuggerWeb, :component
+  @moduledoc """
+  This component is used to load more traces.
+  It is used to load more traces when the user clicks the "Load more" button.
+  It produces the `load-more` event that can be handled by the hook provided in the `init/1` function.
+  """
+
+  use LiveDebuggerWeb, :hook_component
+
+  require Logger
 
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
 
-  import LiveDebuggerWeb.Helpers.TracesLiveHelper
-  import Phoenix.LiveView
+  # These functions are using the `current_filters` assigns
+  alias LiveDebuggerWeb.Helpers.TracesLiveHelper
 
+  @doc """
+  Initializes the component by checking the assigns and streams and attaching the hook to the socket.
+  The hook is used to handle the `load-more` event.
+  """
+  def init(socket, page_size \\ 25) do
+    socket
+    |> check_assigns!(:lv_process)
+    |> check_assigns!(:node_id)
+    |> check_assigns!(:traces_continuation)
+    |> check_assigns!(:current_filters)
+    |> check_streams!(:existing_traces)
+    |> put_private(:page_size, page_size)
+    |> attach_hook(:load_more_button, :handle_event, &handle_event/3)
+    |> attach_hook(:load_more_button, :handle_async, &handle_async/3)
+    |> register_hook(:load_more_button)
+  end
+
+  @doc """
+  Renders the load more button.
+  It is used to load more traces when the user clicks the "Load more" button.
+  It produces the `load-more` event that can be handled by the hook provided in the `init/1` function.
+  """
   attr(:traces_continuation, :any, required: true)
 
   def load_more_button(assigns) do
@@ -42,14 +72,6 @@ defmodule LiveDebuggerWeb.Components.Traces.LoadMoreButton do
     """
   end
 
-  def attach_hook(socket, page_size \\ 25) do
-    socket
-    |> put_private(:page_size, page_size)
-    |> attach_hook(:load_more_button, :handle_event, &handle_event/3)
-    |> attach_hook(:load_more_button, :handle_async, &handle_async/3)
-    |> register_hook(:load_more_button)
-  end
-
   defp handle_event("load-more", _, socket) do
     socket
     |> load_more_existing_traces()
@@ -62,8 +84,8 @@ defmodule LiveDebuggerWeb.Components.Traces.LoadMoreButton do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
     cont = socket.assigns.traces_continuation
-    active_functions = get_active_functions(socket)
-    execution_times = get_execution_times(socket)
+    active_functions = TracesLiveHelper.get_active_functions(socket)
+    execution_times = TracesLiveHelper.get_execution_times(socket)
     page_size = socket.private.page_size
 
     socket
@@ -95,7 +117,9 @@ defmodule LiveDebuggerWeb.Components.Traces.LoadMoreButton do
   end
 
   defp handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
-    log_async_error("loading more existing traces", reason)
+    Logger.error(
+      "LiveDebugger encountered unexpected error while loading more existing traces: #{inspect(reason)}"
+    )
 
     socket
     |> assign(:traces_continuation, :error)

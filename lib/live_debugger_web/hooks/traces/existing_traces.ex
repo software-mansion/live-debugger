@@ -1,4 +1,6 @@
 defmodule LiveDebuggerWeb.Hooks.Traces.ExistingTraces do
+  require Logger
+
   import Phoenix.LiveView
   import Phoenix.Component
   import LiveDebuggerWeb.Helpers
@@ -54,7 +56,9 @@ defmodule LiveDebuggerWeb.Hooks.Traces.ExistingTraces do
   end
 
   defp handle_async(:fetch_existing_traces, {:exit, reason}, socket) do
-    log_async_error("fetching existing traces", reason)
+    Logger.error(
+      "LiveDebugger encountered unexpected error while fetching existing traces: #{inspect(reason)}"
+    )
 
     socket
     |> assign(existing_traces_status: :error)
