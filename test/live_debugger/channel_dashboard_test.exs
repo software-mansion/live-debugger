@@ -197,7 +197,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> click(filters_button())
     |> click(checkbox("mount"))
     |> click(checkbox("render"))
-    |> click(css("button", text: "Apply (7)"))
+    |> click(css("button", text: "Apply"))
     |> assert_traces(2, [
       "handle_info/2",
       "handle_info/2"
@@ -232,8 +232,8 @@ defmodule LiveDebugger.ChannelDashboardTest do
     ])
     |> click(toggle_tracing_button())
     |> click(filters_button())
-    |> click(reset_filters_button())
-    |> click(css("button", text: "Apply (9)"))
+    |> click(form_reset_filters_button())
+    |> click(css("button", text: "Apply"))
     |> assert_traces(14, [
       "render/1",
       "handle_info/2",
@@ -319,9 +319,123 @@ defmodule LiveDebugger.ChannelDashboardTest do
     end)
   end
 
+  @sessions 2
+  feature "user can filter traces by names and execution time", %{sessions: [dev_app, debugger]} do
+    LiveDebugger.GenServers.CallbackTracingServer.ping!()
+
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(traces(count: 2))
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(button("slow-increment-button"))
+    |> click(button("increment-button"))
+    |> click(button("send-button"))
+
+    Process.sleep(405)
+
+    debugger
+    |> assert_traces(8, [
+      "render/1",
+      "handle_info/2",
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "mount/3"
+    ])
+    |> click(toggle_tracing_button())
+    |> click(filters_button())
+    |> set_value(select("min_unit"), "ms")
+    |> fill_in(text_field("exec_time_min"), with: 100)
+    |> click(checkbox("mount"))
+    |> click(checkbox("render"))
+    |> click(css("button", text: "Apply"))
+    |> assert_traces(1, [
+      "handle_event/3"
+    ])
+
+    dev_app
+    |> click(button("slow-increment-button"))
+    |> click(button("send-button"))
+
+    Process.sleep(405)
+
+    debugger
+    |> click(refresh_button())
+    |> assert_traces(2, [
+      "handle_event/3",
+      "handle_event/3"
+    ])
+    |> click(filters_button())
+    |> click(reset_execution_time_filter_button())
+    |> click(css("button", text: "Apply"))
+    |> assert_traces(5, [
+      "handle_info/2",
+      "handle_event/3",
+      "handle_info/2",
+      "handle_event/3",
+      "handle_event/3"
+    ])
+    |> click(filters_button())
+    |> fill_in(text_field("exec_time_max"), with: 100)
+    |> click(reset_functions_filter_button())
+    |> click(css("button", text: "Apply"))
+    |> assert_traces(10, [
+      "render/1",
+      "handle_info/2",
+      "render/1",
+      "render/1",
+      "handle_info/2",
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "render/1",
+      "mount/3"
+    ])
+    |> click(filters_button())
+    |> click(checkbox("handle_info"))
+    |> click(css("button", text: "Apply"))
+    |> assert_traces(8, [
+      "render/1",
+      "render/1",
+      "render/1",
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "render/1",
+      "mount/3"
+    ])
+    |> click(reset_filters_button())
+    |> assert_traces(12, [
+      "render/1",
+      "handle_info/2",
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "handle_info/2",
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "handle_event/3",
+      "render/1",
+      "mount/3"
+    ])
+  end
+
   defp assert_traces(session, count, callback_names) do
     session
     |> find(traces(count: count))
+    |> case do
+      traces when is_list(traces) -> traces
+      trace -> [trace]
+    end
     |> Enum.zip(callback_names)
     |> Enum.each(fn {trace, callback_name} ->
       trace |> assert_text(callback_name)
@@ -427,14 +541,13 @@ defmodule LiveDebugger.ChannelDashboardTest do
   defp traces(opts), do: css("#traces-list-stream details", opts)
 
   defp toggle_tracing_button(), do: css("button[phx-click=\"switch-tracing\"]")
-
   defp refresh_button(), do: css("button[phx-click=\"refresh-history\"]")
-
   defp clear_traces_button(), do: css("button[phx-click=\"clear-traces\"]")
-
-  defp filters_button(), do: css("#filters-dropdown-button")
-
-  defp reset_filters_button(), do: css("button[phx-click=\"reset\"]")
+  defp filters_button(), do: css("button[phx-click=\"open-filters\"]")
+  defp form_reset_filters_button(), do: css("button[phx-click=\"reset\"]")
+  defp reset_filters_button(), do: css("button[phx-click=\"reset-filters\"]")
+  defp reset_functions_filter_button(), do: css("button[phx-click=\"reset-functions\"]")
+  defp reset_execution_time_filter_button(), do: css("button[phx-click=\"reset-execution_time\"]")
 
   defp conditional_component_5_node_button() do
     css("#tree-node-button-5-component-tree-sidebar-content")
@@ -449,6 +562,5 @@ defmodule LiveDebugger.ChannelDashboardTest do
   end
 
   defp settings_button(), do: css("navbar a#settings-button")
-
   defp return_button(), do: css("navbar a#return-button")
 end
