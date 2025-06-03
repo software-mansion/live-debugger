@@ -316,7 +316,7 @@ defmodule LiveDebuggerWeb.Components do
 
   def icon(%{name: "icon-" <> _} = assigns) do
     ~H"""
-    <span class={[@name, List.wrap(@class)]} {@rest}></span>
+    <span class={[@name | List.wrap(@class)]} {@rest}></span>
     """
   end
 
