@@ -71,11 +71,11 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     |> Traces.ClearButton.init()
     |> Traces.LoadMoreButton.init(@page_size)
     |> Traces.Stream.init()
-    |> Traces.ToggleTracingButton.attach_hook()
     |> TracingFuse.init()
     |> LiveDebuggerWeb.Hooks.Traces.ExistingTraces.attach_hook(@page_size)
     |> LiveDebuggerWeb.Hooks.Traces.NewTraces.attach_hook(@live_stream_limit)
     |> Traces.FiltersDropdown.init()
+    |> Traces.ToggleTracingButton.init()
     |> ok()
   end
 

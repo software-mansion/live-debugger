@@ -1,11 +1,35 @@
 defmodule LiveDebuggerWeb.Components.Traces.ToggleTracingButton do
-  use LiveDebuggerWeb, :component
+  @moduledoc """
+  This component is responsible for the toggle tracing button.
+
+  It produces switch-tracing event when clicked that can be handled by hook declared via `init/1`.
+  This component is using `TracingFuse` hook to switch the tracing.
+  """
+
+  use LiveDebuggerWeb, :hook_component
 
   alias LiveDebuggerWeb.Hooks.Traces.TracingFuse
 
   import Phoenix.LiveView
 
   @separator %{id: "separator"}
+
+  @doc """
+  Initializes the toggle tracing button by attaching the hook to the socket and checking the required assigns.
+  """
+  def init(socket) do
+    socket
+    |> check_hook!(:tracing_fuse)
+    |> check_assigns!(:tracing_started?)
+    |> check_assigns!(:traces_empty?)
+    |> attach_hook(:toggle_tracing_button, :handle_event, &handle_event/3)
+    |> register_hook(:toggle_tracing_button)
+  end
+
+  @doc """
+  Renders the toggle tracing button.
+  It produces `switch-tracing` event when clicked that can be handled by hook declared via `init/1`.
+  """
 
   attr(:tracing_started?, :boolean, required: true)
 
@@ -23,12 +47,6 @@ defmodule LiveDebuggerWeb.Components.Traces.ToggleTracingButton do
       </div>
     </.button>
     """
-  end
-
-  def attach_hook(socket) do
-    socket
-    |> attach_hook(:toggle_tracing_button, :handle_event, &handle_event/3)
-    |> register_hook(:toggle_tracing_button)
   end
 
   defp handle_event("switch-tracing", _, socket) do
