@@ -1,7 +1,7 @@
 import Alpine from 'alpinejs';
 import collapse from '@alpinejs/collapse';
 
-import CollapsibleOpen from './hooks/collapsible_open';
+import Collapsible from './hooks/collapsible';
 import Fullscreen from './hooks/fullscreen';
 import ToggleTheme from './hooks/toggle_theme';
 import Tooltip from './hooks/tooltip';
@@ -22,7 +22,7 @@ window.addEventListener('phx:page-loading-stop', (_info) => topbar.hide());
 
 function createHooks() {
   return {
-    CollapsibleOpen,
+    Collapsible,
     Fullscreen,
     Tooltip,
     ToggleTheme,
