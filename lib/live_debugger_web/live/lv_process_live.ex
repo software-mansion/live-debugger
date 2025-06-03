@@ -22,7 +22,6 @@ defmodule LiveDebuggerWeb.LvProcessLive do
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Components.NavigationMenu
   alias LiveDebuggerWeb.Live.Nested.GlobalTracesLive
-  alias LiveDebugger.Utils.URL
 
   @impl true
   def handle_params(params, _url, socket) do
@@ -69,14 +68,14 @@ defmodule LiveDebuggerWeb.LvProcessLive do
         <div class="flex overflow-hidden">
           <NavigationMenu.sidebar class="hidden sm:flex" current_url={@url} />
           <.node_inspector
-            :if={get_current_view(@url) == "node_inspector"}
+            :if={@live_action == :node_inspector}
             socket={@socket}
             lv_process={lv_process}
             url={@url}
             params={@params}
           />
           <.global_traces
-            :if={get_current_view(@url) == "global_traces"}
+            :if={@live_action == :global_traces}
             socket={@socket}
             lv_process={lv_process}
             url={@url}
@@ -151,9 +150,5 @@ defmodule LiveDebuggerWeb.LvProcessLive do
       in_iframe? ->
         RoutesHelper.window_dashboard(lv_process.transport_pid)
     end
-  end
-
-  defp get_current_view(url) do
-    URL.take_nth_segment(url, 3) || "node_inspector"
   end
 end
