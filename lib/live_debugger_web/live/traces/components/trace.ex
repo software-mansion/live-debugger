@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Components.Traces.Trace do
+defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   @moduledoc """
   This component is responsible for rendering a single trace.
 

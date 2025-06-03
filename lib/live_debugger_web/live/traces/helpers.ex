@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Helpers.TracesLiveHelper do
+defmodule LiveDebuggerWeb.Live.Traces.Helpers do
   require Logger
 
   import Phoenix.Component

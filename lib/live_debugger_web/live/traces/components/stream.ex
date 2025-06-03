@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Components.Traces.Stream do
+defmodule LiveDebuggerWeb.Live.Traces.Components.Stream do
   @moduledoc """
   This component is used to display the traces stream.
   It uses under the hood the `Trace` component to display the traces.
@@ -7,7 +7,7 @@ defmodule LiveDebuggerWeb.Components.Traces.Stream do
 
   use LiveDebuggerWeb, :hook_component
 
-  alias LiveDebuggerWeb.Components.Traces.Trace
+  alias LiveDebuggerWeb.Live.Traces.Components.Trace
 
   @doc """
   Initializes the component by attaching the hook to the socket.

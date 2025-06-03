@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Components.Traces.FiltersDropdown do
+defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersDropdown do
   @moduledoc """
   This component is used to display the filters dropdown.
   It produces the `filters_updated` event that can be handled by the hook provided in the `init/1` function.
@@ -6,7 +6,7 @@ defmodule LiveDebuggerWeb.Components.Traces.FiltersDropdown do
 
   use LiveDebuggerWeb, :hook_component
 
-  alias LiveDebuggerWeb.Hooks.Traces.ExistingTraces, as: ExistingTracesHook
+  alias LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces
 
   @doc """
   Initializes the component by checking the assigns and streams and attaching the hook to the socket.
@@ -59,7 +59,7 @@ defmodule LiveDebuggerWeb.Components.Traces.FiltersDropdown do
     socket
     |> assign(:current_filters, filters)
     |> assign(:traces_empty?, true)
-    |> ExistingTracesHook.assign_async_existing_traces()
+    |> ExistingTraces.assign_async_existing_traces()
     |> halt()
   end
 

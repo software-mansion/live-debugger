@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Components.Traces.LoadMoreButton do
+defmodule LiveDebuggerWeb.Live.Traces.Components.LoadMoreButton do
   @moduledoc """
   This component is used to load more traces.
   It is used to load more traces when the user clicks the "Load more" button.
@@ -13,7 +13,7 @@ defmodule LiveDebuggerWeb.Components.Traces.LoadMoreButton do
   alias LiveDebugger.Structs.TraceDisplay
 
   # These functions are using the `current_filters` assigns
-  alias LiveDebuggerWeb.Helpers.TracesLiveHelper
+  alias LiveDebuggerWeb.Live.Traces.Helpers
 
   @doc """
   Initializes the component by checking the assigns and streams and attaching the hook to the socket.
@@ -85,8 +85,8 @@ defmodule LiveDebuggerWeb.Components.Traces.LoadMoreButton do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
     cont = socket.assigns.traces_continuation
-    active_functions = TracesLiveHelper.get_active_functions(socket)
-    execution_times = TracesLiveHelper.get_execution_times(socket)
+    active_functions = Helpers.get_active_functions(socket)
+    execution_times = Helpers.get_execution_times(socket)
     page_size = socket.private.page_size
 
     socket

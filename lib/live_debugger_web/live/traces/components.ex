@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Components.Traces do
+defmodule LiveDebuggerWeb.Live.Traces.Components do
   @moduledoc """
   UI components for the TracesLive module.
   """

@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Components.Traces.ToggleTracingButton do
+defmodule LiveDebuggerWeb.Live.Traces.Components.ToggleTracingButton do
   @moduledoc """
   This component is responsible for the toggle tracing button.
 
@@ -8,7 +8,7 @@ defmodule LiveDebuggerWeb.Components.Traces.ToggleTracingButton do
 
   use LiveDebuggerWeb, :hook_component
 
-  alias LiveDebuggerWeb.Hooks.Traces.TracingFuse
+  alias LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse
 
   import Phoenix.LiveView
 

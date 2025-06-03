@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
+defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
   @moduledoc """
   This nested live view displays the traces of a LiveView.
   """
@@ -8,13 +8,13 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
   require Logger
 
   import LiveDebuggerWeb.Helpers.NestedLiveViewHelper
-  import LiveDebuggerWeb.Helpers.TracesLiveHelper
+  import LiveDebuggerWeb.Live.Traces.Helpers
 
-  import LiveDebuggerWeb.Hooks.Traces.ExistingTraces
+  import LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces
 
-  alias LiveDebuggerWeb.Hooks.Traces.TracingFuse
+  alias LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
-  alias LiveDebuggerWeb.Components.Traces
+  alias LiveDebuggerWeb.Live.Traces.Components
 
   @live_stream_limit 128
   @page_size 25
@@ -68,14 +68,14 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
     |> assign_node_id(session)
     |> assign_default_filters()
     |> assign_current_filters()
-    |> Traces.ClearButton.init()
-    |> Traces.LoadMoreButton.init(@page_size)
-    |> Traces.Stream.init()
+    |> Components.ClearButton.init()
+    |> Components.LoadMoreButton.init(@page_size)
+    |> Components.Stream.init()
     |> TracingFuse.init()
-    |> LiveDebuggerWeb.Hooks.Traces.ExistingTraces.attach_hook(@page_size)
-    |> LiveDebuggerWeb.Hooks.Traces.NewTraces.attach_hook(@live_stream_limit)
-    |> Traces.FiltersDropdown.init()
-    |> Traces.ToggleTracingButton.init()
+    |> LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces.attach_hook(@page_size)
+    |> LiveDebuggerWeb.Live.Traces.Hooks.NewTraces.attach_hook(@live_stream_limit)
+    |> Components.FiltersDropdown.init()
+    |> Components.ToggleTracingButton.init()
     |> ok()
   end
 
@@ -90,10 +90,10 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
       <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
         <:right_panel>
           <div class="flex gap-2 items-center">
-            <Traces.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
-            <Traces.refresh_button :if={not @tracing_started?} />
-            <Traces.ClearButton.clear_button :if={not @tracing_started?} />
-            <Traces.FiltersDropdown.filters_dropdown
+            <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
+            <Components.refresh_button :if={not @tracing_started?} />
+            <Components.ClearButton.clear_button :if={not @tracing_started?} />
+            <Components.FiltersDropdown.filters_dropdown
               :if={not @tracing_started?}
               node_id={@node_id}
               current_filters={@current_filters}
@@ -102,18 +102,18 @@ defmodule LiveDebuggerWeb.Live.Nested.TracesLive do
           </div>
         </:right_panel>
         <div class="w-full h-full">
-          <Traces.Stream.traces_stream
+          <Components.Stream.traces_stream
             id={@id}
             existing_traces_status={@existing_traces_status}
             existing_traces={@streams.existing_traces}
           />
-          <Traces.LoadMoreButton.load_more_button
+          <Components.LoadMoreButton.load_more_button
             :if={not @tracing_started?}
             traces_continuation={@traces_continuation}
           />
         </div>
       </.section>
-      <Traces.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
+      <Components.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
     </div>
     """
   end

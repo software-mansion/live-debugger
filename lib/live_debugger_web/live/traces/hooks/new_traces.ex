@@ -1,9 +1,9 @@
-defmodule LiveDebuggerWeb.Hooks.Traces.NewTraces do
+defmodule LiveDebuggerWeb.Live.Traces.Hooks.NewTraces do
   import Phoenix.LiveView
   import Phoenix.Component
 
   import LiveDebuggerWeb.Helpers
-  import LiveDebuggerWeb.Helpers.TracesLiveHelper
+  import LiveDebuggerWeb.Live.Traces.Helpers
 
   alias LiveDebugger.Structs.TraceDisplay
 

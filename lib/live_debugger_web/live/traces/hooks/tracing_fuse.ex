@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Hooks.Traces.TracingFuse do
+defmodule LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse do
   @moduledoc """
 
   """

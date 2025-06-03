@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Components.Traces.ClearButton do
+defmodule LiveDebuggerWeb.Live.Traces.Components.ClearButton do
   @moduledoc """
   This component is used to clear the traces.
   It produces the `clear-traces` event that can be handled by the hook provided in the `init/1` function.

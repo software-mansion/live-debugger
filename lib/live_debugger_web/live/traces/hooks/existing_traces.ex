@@ -1,10 +1,10 @@
-defmodule LiveDebuggerWeb.Hooks.Traces.ExistingTraces do
+defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
   require Logger
 
   import Phoenix.LiveView
   import Phoenix.Component
   import LiveDebuggerWeb.Helpers
-  import LiveDebuggerWeb.Helpers.TracesLiveHelper
+  import LiveDebuggerWeb.Live.Traces.Helpers
 
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Services.TraceService
