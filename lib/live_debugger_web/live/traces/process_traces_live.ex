@@ -71,27 +71,35 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full min-w-[20rem] flex flex-col gap-4 p-4 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
-      <div class="w-full flex justify-end items-center">
-        <div class="flex gap-2 items-center">
-          <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
-          <Components.RefreshButton.refresh_button :if={not @tracing_started?} />
-          <Components.ClearButton.clear_button :if={not @tracing_started?} />
-        </div>
+    <div class="w-full">
+      <div class="flex flex-col gap-1.5 pb-4">
+        <.h1>Global Callback Traces</.h1>
+        <span class="text-secondary-text">
+          This view lists all callbacks inside debugged LiveView and its LiveComponents
+        </span>
       </div>
-      <div class="flex flex-1 overflow-auto rounded-sm bg-surface-0-bg">
-        <div class="w-full h-full flex flex-col gap-4">
-          <Components.Stream.traces_stream
-            id={@id}
-            existing_traces_status={@existing_traces_status}
-            existing_traces={@streams.existing_traces}
-          />
-          <Components.LoadMoreButton.load_more_button
-            :if={not @tracing_started?}
-            traces_continuation={@traces_continuation}
-          />
+      <div class="w-full min-w-[20rem] flex flex-col gap-4 p-4 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
+        <div class="w-full flex justify-end items-center">
+          <div class="flex gap-2 items-center">
+            <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
+            <Components.RefreshButton.refresh_button :if={not @tracing_started?} />
+            <Components.ClearButton.clear_button :if={not @tracing_started?} />
+          </div>
         </div>
-        <Components.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
+        <div class="flex flex-1 overflow-auto rounded-sm bg-surface-0-bg">
+          <div class="w-full h-full flex flex-col gap-4">
+            <Components.Stream.traces_stream
+              id={@id}
+              existing_traces_status={@existing_traces_status}
+              existing_traces={@streams.existing_traces}
+            />
+            <Components.LoadMoreButton.load_more_button
+              :if={not @tracing_started?}
+              traces_continuation={@traces_continuation}
+            />
+          </div>
+          <Components.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
+        </div>
       </div>
     </div>
     """
