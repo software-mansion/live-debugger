@@ -77,11 +77,13 @@ defmodule LiveDebuggerWeb.Live.Nested.StateLive do
 
         <.assigns_section assigns={node.assigns} />
         <.fullscreen id="assigns-display-fullscreen" title="Assigns">
-          <ElixirDisplay.term
-            id="assigns-display-fullscreen-term"
-            node={TermParser.term_to_display_tree(node.assigns)}
-            level={1}
-          />
+          <div class="p-4">
+            <ElixirDisplay.term
+              id="assigns-display-fullscreen-term"
+              node={TermParser.term_to_display_tree(node.assigns)}
+              level={1}
+            />
+          </div>
         </.fullscreen>
       </.async_result>
     </div>
