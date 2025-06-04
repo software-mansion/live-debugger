@@ -17,7 +17,6 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
 
   @required_assigns [
     :lv_process,
-    :node_id,
     :current_filters,
     :traces_empty?,
     :traces_continuation,
@@ -45,21 +44,24 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
   @spec assign_async_existing_traces(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def assign_async_existing_traces(socket) do
     pid = socket.assigns.lv_process.pid
-    node_id = socket.assigns.node_id
+    node_id = Map.get(socket.assigns, :node_id)
     active_functions = get_active_functions(socket)
     execution_times = get_execution_times(socket)
     page_size = socket.private.page_size
+
+    opts =
+      [
+        limit: page_size,
+        functions: active_functions,
+        execution_times: execution_times
+      ]
+      |> put_conditionally(:node_id, node_id)
 
     socket
     |> assign(:existing_traces_status, :loading)
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
-      TraceService.existing_traces(pid,
-        node_id: node_id,
-        limit: page_size,
-        functions: active_functions,
-        execution_times: execution_times
-      )
+      TraceService.existing_traces(pid, opts)
     end)
   end
 
