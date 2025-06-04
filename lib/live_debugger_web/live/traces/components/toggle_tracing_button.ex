@@ -14,6 +14,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.ToggleTracingButton do
 
   @separator %{id: "separator"}
 
+  @required_assigns [:tracing_started?, :traces_empty?]
+
   @doc """
   Initializes the toggle tracing button by attaching the hook to the socket and checking the required assigns.
   """
@@ -21,8 +23,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.ToggleTracingButton do
   def init(socket) do
     socket
     |> check_hook!(:tracing_fuse)
-    |> check_assign!(:tracing_started?)
-    |> check_assign!(:traces_empty?)
+    |> check_assigns!(@required_assigns)
     |> attach_hook(:toggle_tracing_button, :handle_event, &handle_event/3)
     |> register_hook(:toggle_tracing_button)
   end

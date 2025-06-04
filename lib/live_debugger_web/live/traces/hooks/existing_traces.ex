@@ -15,6 +15,15 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
   import LiveDebuggerWeb.Live.Traces.Helpers,
     only: [get_active_functions: 1, get_execution_times: 1]
 
+  @required_assigns [
+    :lv_process,
+    :node_id,
+    :current_filters,
+    :traces_empty?,
+    :traces_continuation,
+    :existing_traces_status
+  ]
+
   @doc """
   Initializes the hook by attaching the hook to the socket and checking the required assigns.
   """
@@ -22,12 +31,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
   def init(socket, page_size \\ 25) do
     socket
     |> check_hook!(:tracing_fuse)
-    |> check_assign!(:lv_process)
-    |> check_assign!(:node_id)
-    |> check_assign!(:current_filters)
-    |> check_assign!(:traces_empty?)
-    |> check_assign!(:traces_continuation)
-    |> check_assign!(:existing_traces_status)
+    |> check_assigns!(@required_assigns)
     |> check_stream!(:existing_traces)
     |> put_private(:page_size, page_size)
     |> attach_hook(:existing_traces, :handle_async, &handle_async/3)

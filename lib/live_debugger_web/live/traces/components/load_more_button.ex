@@ -16,6 +16,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.LoadMoreButton do
   import LiveDebuggerWeb.Live.Traces.Helpers,
     only: [get_active_functions: 1, get_execution_times: 1]
 
+  @required_assigns [:lv_process, :node_id, :traces_continuation, :current_filters]
+
   @doc """
   Initializes the component by checking the assigns and streams and attaching the hook to the socket.
   The hook is used to handle the `load-more` event.
@@ -23,10 +25,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.LoadMoreButton do
   @spec init(Phoenix.LiveView.Socket.t(), integer()) :: Phoenix.LiveView.Socket.t()
   def init(socket, page_size \\ 25) do
     socket
-    |> check_assign!(:lv_process)
-    |> check_assign!(:node_id)
-    |> check_assign!(:traces_continuation)
-    |> check_assign!(:current_filters)
+    |> check_assigns!(@required_assigns)
     |> check_stream!(:existing_traces)
     |> put_private(:page_size, page_size)
     |> attach_hook(:load_more_button, :handle_event, &handle_event/3)

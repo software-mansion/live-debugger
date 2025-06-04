@@ -16,15 +16,15 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   alias LiveDebuggerWeb.Components.ElixirDisplay
   alias LiveDebuggerWeb.Hooks.Flash
 
+  @required_assigns [:id, :lv_process, :displayed_trace]
+
   @doc """
   Initializes the trace component by attaching the hook to the socket and checking the required assigns.
   """
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
-    |> check_assign!(:id)
-    |> check_assign!(:lv_process)
-    |> check_assign!(:displayed_trace)
+    |> check_assigns!(@required_assigns)
     |> attach_hook(:trace, :handle_event, &handle_event/3)
     |> register_hook(:trace)
   end

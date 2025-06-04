@@ -11,6 +11,15 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse do
   alias LiveDebuggerWeb.Hooks.Flash
   alias LiveDebugger.Utils.Parsers
 
+  @required_assigns [
+    :lv_process,
+    :node_id,
+    :current_filters,
+    :trace_callback_running?,
+    :parent_pid,
+    :tracing_started?
+  ]
+
   @time_period 1_000_000
   @trace_limit_per_period 100
 
@@ -20,12 +29,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse do
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
-    |> check_assign!(:lv_process)
-    |> check_assign!(:node_id)
-    |> check_assign!(:current_filters)
-    |> check_assign!(:trace_callback_running?)
-    |> check_assign!(:parent_pid)
-    |> check_assign!(:tracing_started?)
+    |> check_assigns!(@required_assigns)
     |> put_private(:fuse, nil)
     |> attach_hook(:tracing_fuse, :handle_info, &handle_info/2)
     |> register_hook(:tracing_fuse)

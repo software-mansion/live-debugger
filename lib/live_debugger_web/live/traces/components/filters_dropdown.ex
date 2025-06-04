@@ -8,6 +8,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersDropdown do
 
   alias LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces
 
+  @required_assigns [:node_id, :current_filters, :default_filters, :traces_empty?]
+
   @doc """
   Initializes the component by checking the assigns and streams and attaching the hook to the socket.
   The hook is used to handle the `filters_updated` event.
@@ -16,10 +18,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersDropdown do
   def init(socket) do
     socket
     |> check_hook!(:existing_traces)
-    |> check_assign!(:node_id)
-    |> check_assign!(:current_filters)
-    |> check_assign!(:default_filters)
-    |> check_assign!(:traces_empty?)
+    |> check_assigns!(@required_assigns)
     |> attach_hook(:filters_dropdown, :handle_info, &handle_info/2)
     |> register_hook(:filters_dropdown)
   end

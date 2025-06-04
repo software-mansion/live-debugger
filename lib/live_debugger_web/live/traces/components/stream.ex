@@ -9,6 +9,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Stream do
 
   alias LiveDebuggerWeb.Live.Traces.Components.Trace
 
+  @required_assigns [:id, :existing_traces_status]
+
   @doc """
   Initializes the component by attaching the hook to the socket.
   Since the `Trace` component is used by this component, we need to attach the hook to the socket.
@@ -16,8 +18,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Stream do
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
-    |> check_assign!(:id)
-    |> check_assign!(:existing_traces_status)
+    |> check_assigns!(@required_assigns)
     |> check_stream!(:existing_traces)
     |> Trace.init()
     |> register_hook(:traces_stream)

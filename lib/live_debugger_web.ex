@@ -66,12 +66,19 @@ end
 defmodule LiveDebuggerWeb.Helpers do
   @moduledoc false
 
-  def check_assign!(%Phoenix.LiveView.Socket{assigns: assigns} = socket, key) do
+  def check_assigns!(%Phoenix.LiveView.Socket{assigns: assigns} = socket, key)
+      when is_atom(key) do
     if Map.has_key?(assigns, key) do
       socket
     else
       raise "Assign #{key} not found in assigns"
     end
+  end
+
+  def check_assigns!(socket, keys) when is_list(keys) do
+    Enum.each(keys, &check_assigns!(socket, &1))
+
+    socket
   end
 
   def check_stream!(%Phoenix.LiveView.Socket{assigns: assigns} = socket, key) do

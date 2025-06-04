@@ -8,6 +8,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.ClearButton do
 
   alias LiveDebugger.Services.TraceService
 
+  @required_assigns [:lv_process, :node_id, :traces_empty?]
+
   @doc """
   Initializes the component by checking the assigns and streams and attaching the hook to the socket.
   The hook is used to handle the `clear-traces` event.
@@ -15,9 +17,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.ClearButton do
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
-    |> check_assign!(:lv_process)
-    |> check_assign!(:node_id)
-    |> check_assign!(:traces_empty?)
+    |> check_assigns!(@required_assigns)
     |> check_stream!(:existing_traces)
     |> attach_hook(:clear_button, :handle_event, &handle_event/3)
     |> register_hook(:clear_button)
