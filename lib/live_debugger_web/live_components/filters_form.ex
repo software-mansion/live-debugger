@@ -145,6 +145,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
       </p>
       <button
         :if={@changed?}
+        id={to_string(@reset) <> "-reset-button"}
         type="button"
         class="flex align-center text-link-primary hover:text-link-primary-hover"
         phx-click="reset"

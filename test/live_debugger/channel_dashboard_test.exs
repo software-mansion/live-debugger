@@ -546,8 +546,8 @@ defmodule LiveDebugger.ChannelDashboardTest do
   defp filters_button(), do: css("button[phx-click=\"open-filters\"]")
   defp form_reset_filters_button(), do: css("button[phx-click=\"reset\"]")
   defp reset_filters_button(), do: css("button[phx-click=\"reset-filters\"]")
-  defp reset_functions_filter_button(), do: css("button[phx-click=\"reset-functions\"]")
-  defp reset_execution_time_filter_button(), do: css("button[phx-click=\"reset-execution_time\"]")
+  defp reset_functions_filter_button(), do: css("button#functions-reset-button")
+  defp reset_execution_time_filter_button(), do: css("button#execution_time-reset-button")
 
   defp conditional_component_5_node_button() do
     css("#tree-node-button-5-component-tree-sidebar-content")
