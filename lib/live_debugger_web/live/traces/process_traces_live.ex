@@ -72,7 +72,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
   def render(assigns) do
     ~H"""
     <div class="w-full">
-      <div class="flex flex-col gap-1.5 pb-4">
+      <div class="flex flex-col gap-1.5 pb-6 px-0.5">
         <.h1>Global Callback Traces</.h1>
         <span class="text-secondary-text">
           This view lists all callbacks inside debugged LiveView and its LiveComponents
