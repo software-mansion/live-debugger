@@ -7,16 +7,24 @@ defmodule LiveDebuggerWeb.Helpers.FiltersHelper do
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
   alias LiveDebugger.Structs.TreeNode
 
+  @type filters :: %{
+          functions: keyword(boolean()),
+          execution_time: keyword(String.t())
+        }
+
+  @spec calculate_selected_filters(filters(), filters()) :: integer()
   def calculate_selected_filters(current_filters, default_filters) do
     current_filters
     |> Map.keys()
     |> Enum.count(fn key -> current_filters[key] != default_filters[key] end)
   end
 
+  @spec changed_filter?(atom(), filters(), filters()) :: boolean()
   def changed_filter?(filter, current_filters, default_filters) do
     current_filters[filter] != default_filters[filter]
   end
 
+  @spec default_filters(TreeNode.id()) :: filters()
   def default_filters(node_id) do
     functions =
       node_id
@@ -38,12 +46,14 @@ defmodule LiveDebuggerWeb.Helpers.FiltersHelper do
     }
   end
 
+  @spec get_active_functions(filters()) :: list(atom())
   def get_active_functions(current_filters) do
     current_filters.functions
     |> Enum.filter(fn {_, active?} -> active? end)
     |> Enum.map(fn {function, _} -> function end)
   end
 
+  @spec get_execution_times(filters()) :: list(keyword())
   def get_execution_times(current_filters) do
     execution_time = current_filters.execution_time
 
