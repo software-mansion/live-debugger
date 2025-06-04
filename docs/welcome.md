@@ -72,4 +72,4 @@ Copyright 2025, [Software Mansion](https://swmansion.com/?utm_source=git&utm_med
 
 [![Software Mansion](https://logo.swmansion.com/logo?color=white&variant=desktop&width=200&tag=livedebugger-github)](https://swmansion.com/?utm_source=git&utm_medium=readme&utm_campaign=livedebugger)
 
-Licensed under the [Apache License, Version 2.0](LICENSE)
+Licensed under the [Apache License, Version 2.0](https://github.com/software-mansion/live-debugger/blob/main/LICENSE)
