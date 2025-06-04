@@ -29,19 +29,29 @@ defmodule LiveDebuggerWeb.Live.Traces.Components do
     ~H"""
     <.fullscreen id={@id} title={@callback_name}>
       <div class="w-full flex flex-col gap-4 items-start justify-center">
-        <%= for {args, index} <- Enum.with_index(@trace_args) do %>
-          <div :if={index > 0} class="border-t border-default-border w-full"></div>
-          <p class="font-semibold shrink-0">
-            Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)
-          </p>
-          <ElixirDisplay.term
-            id={@id <> "-#{index}-fullscreen"}
-            node={TermParser.term_to_display_tree(args)}
-            level={1}
-          />
-        <% end %>
+        <.trace_body id={@id <> "-fullscreen"} trace_args={@trace_args} trace={@trace} />
       </div>
     </.fullscreen>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:trace_args, :list, required: true)
+  attr(:trace, :map, required: true)
+
+  def trace_body(assigns) do
+    ~H"""
+    <%= for {args, index} <- Enum.with_index(@trace_args) do %>
+      <div :if={index > 0} class="border-t border-default-border w-full"></div>
+      <p class="font-semibold shrink-0">
+        Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)
+      </p>
+      <ElixirDisplay.term
+        id={@id <> "-#{index}"}
+        node={TermParser.term_to_display_tree(args)}
+        level={1}
+      />
+    <% end %>
     """
   end
 end

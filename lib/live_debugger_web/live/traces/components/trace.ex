@@ -11,10 +11,9 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
-  alias LiveDebugger.Utils.TermParser
   alias LiveDebugger.Utils.Parsers
-  alias LiveDebuggerWeb.Components.ElixirDisplay
   alias LiveDebuggerWeb.Hooks.Flash
+  alias LiveDebuggerWeb.Live.Traces.Components
 
   @required_assigns [:lv_process, :displayed_trace]
 
@@ -74,15 +73,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
         </div>
         <div class="flex flex-col gap-4 overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
           <%= if @render_body? do %>
-            <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-              <div :if={index > 0} class="border-t border-default-border"></div>
-              <p class="font-semibold">Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)</p>
-              <ElixirDisplay.term
-                id={@id <> "-#{index}"}
-                node={TermParser.term_to_display_tree(args)}
-                level={1}
-              />
-            <% end %>
+            <Components.trace_body id={@id} trace_args={@trace.args} trace={@trace} />
           <% else %>
             <div class="w-full flex items-center justify-center">
               <.spinner size="sm" />
