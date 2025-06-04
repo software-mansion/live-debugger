@@ -92,6 +92,12 @@ defmodule LiveDebugger.Services.TraceService do
     |> :ets.match_delete({:_, %{pid: node_id, cid: nil}})
   end
 
+  def clear_traces(pid, nil) when is_pid(pid) do
+    pid
+    |> ets_table()
+    |> :ets.delete_all_objects()
+  end
+
   @spec existing_traces_start(ets_table_id(), Keyword.t()) ::
           {[ets_elem()], ets_continuation()} | :"$end_of_table"
   defp existing_traces_start(table_id, opts) do

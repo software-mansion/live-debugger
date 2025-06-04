@@ -61,6 +61,8 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
     |> Hooks.TracingFuse.init()
     |> Hooks.ExistingTraces.init(@page_size)
     |> Hooks.NewTraces.init(@live_stream_limit)
+    |> Components.RefreshButton.init()
+    |> Components.ClearButton.init()
     |> Components.ToggleTracingButton.init()
     |> Components.Stream.init()
     |> ok()
@@ -69,12 +71,12 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full min-w-[20rem] flex flex-col gap-4 p-4 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
+    <div class="w-full @container/traces min-w-[20rem] flex flex-col gap-4 p-4 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
       <div class="w-full flex justify-end items-center">
         <div class="flex gap-2 items-center">
           <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
-          <%!-- <Components.RefreshButton.refresh_button :if={not @tracing_started?} /> --%>
-          <%!-- <Components.ClearButton.clear_button :if={not @tracing_started?} /> --%>
+          <Components.RefreshButton.refresh_button :if={not @tracing_started?} />
+          <Components.ClearButton.clear_button :if={not @tracing_started?} />
         </div>
       </div>
       <div class="flex flex-1 overflow-auto rounded-sm bg-surface-0-bg">
