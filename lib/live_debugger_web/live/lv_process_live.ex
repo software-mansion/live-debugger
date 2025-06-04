@@ -17,11 +17,11 @@ defmodule LiveDebuggerWeb.LvProcessLive do
   alias Phoenix.LiveView.JS
 
   alias LiveDebuggerWeb.Live.Nested.StateLive
-  alias LiveDebuggerWeb.Live.Nested.TracesLive
   alias LiveDebuggerWeb.Live.Nested.SidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Components.NavigationMenu
-  alias LiveDebuggerWeb.Live.Nested.GlobalTracesLive
+  alias LiveDebuggerWeb.Live.Traces.NodeTracesLive
+  alias LiveDebuggerWeb.Live.Traces.ProcessTracesLive
 
   @impl true
   def handle_params(params, _url, socket) do
@@ -109,7 +109,7 @@ defmodule LiveDebuggerWeb.LvProcessLive do
         lv_process={@lv_process}
         params={@params}
       />
-      <TracesLive.live_render
+      <NodeTracesLive.live_render
         id="traces-list"
         class="flex"
         socket={@socket}
@@ -131,7 +131,7 @@ defmodule LiveDebuggerWeb.LvProcessLive do
   defp global_traces(assigns) do
     ~H"""
     <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
-      <GlobalTracesLive.live_render
+      <ProcessTracesLive.live_render
         id="global-traces"
         class="flex"
         socket={@socket}
