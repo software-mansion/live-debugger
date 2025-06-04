@@ -80,7 +80,7 @@ function allowRedirects(browserElement) {
       (function() {
         const metaTag = document.querySelector('meta[name="live-debugger-config"]');
         if (metaTag) {
-          return metaTag.getAttribute('devtools-allow-redirects') === 'true';
+          return metaTag.hasAttribute('devtools-allow-redirects');
         } 
         return false;
       })();

@@ -17,18 +17,5 @@ browser.devtools.panels.create(
         }
       }
     });
-
-    browser.webNavigation.onCompleted.addListener(async (details) => {
-      if (
-        details.tabId === browser.devtools.inspectedWindow.tabId &&
-        allowRedirects(browser)
-      ) {
-        try {
-          panelWindow.setIframeUrl(await getLiveDebuggerSessionURL(browser));
-        } catch (error) {
-          panelWindow.setIframeUrl(null);
-        }
-      }
-    });
   },
 );
