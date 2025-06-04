@@ -78,15 +78,15 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
           This view lists all callbacks inside debugged LiveView and its LiveComponents
         </span>
       </div>
-      <div class="w-full min-w-[20rem] flex flex-col gap-4 p-4 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
-        <div class="w-full flex justify-end items-center">
-          <div class="flex gap-2 items-center">
+      <div class="w-full min-w-[20rem] flex flex-col pt-2 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
+        <div class="w-full flex justify-end items-center border-b border-default-border pb-2">
+          <div class="flex gap-2 items-center h-8 px-2">
             <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
             <Components.RefreshButton.refresh_button :if={not @tracing_started?} />
             <Components.ClearButton.clear_button :if={not @tracing_started?} />
           </div>
         </div>
-        <div class="flex flex-1 overflow-auto rounded-sm bg-surface-0-bg">
+        <div class="flex flex-1 overflow-auto rounded-sm bg-surface-0-bg p-4">
           <div class="w-full h-full flex flex-col gap-4">
             <Components.Stream.traces_stream
               id={@id}
