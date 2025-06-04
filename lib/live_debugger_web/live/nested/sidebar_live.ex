@@ -297,7 +297,7 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
             <.copy_button
               id="module-name"
               value={Parsers.module_to_string(@module.result)}
-              in-iframe={@in_iframe?}
+              in_iframe?={@in_iframe?}
             />
           </div>
         </div>

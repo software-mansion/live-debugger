@@ -614,6 +614,7 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:id, :string, required: true)
   attr(:value, :string, required: true)
+  attr(:in_iframe?, :boolean, default: false)
   attr(:rest, :global)
 
   def copy_button(assigns) do
@@ -625,6 +626,7 @@ defmodule LiveDebuggerWeb.Components do
         phx-hook="CopyButton"
         data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
         data-value={@value}
+        in-iframe={@in_iframe?}
         {@rest}
       >
         <.icon name="icon-copy" class="w-4 h-4" />
