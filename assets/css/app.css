@@ -1,10 +1,27 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/container-queries';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 @import './font.css';
 @import './colors.css';
 @import './themes/dark.css';
 @import './themes/light.css';
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+
+@config "../tailwind.config.js";
+
+@layer base {
+  /* These are changes to make old styles work after migration to Tailwind 4 */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  dialog {
+    margin: auto;
+  }
+}
 
 /* You can add custom styles here */
 

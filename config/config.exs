@@ -20,23 +20,21 @@ if config_env() == :dev do
     ]
 
   config :tailwind,
-    version: "3.4.17",
+    version: "4.1.8",
     deploy_build: [
       args: ~w(
-      --config=tailwind.config.js
-      --input=css/app.css
-      --output=../priv/static/app.css
+      --input=assets/css/app.css
+      --output=priv/static/app.css
       --minify
     ),
-      cd: Path.expand("../assets", __DIR__)
+      cd: Path.expand("..", __DIR__)
     ],
     dev_build: [
       args: ~w(
-      --config=tailwind.config.js
-      --input=css/app.css
-      --output=../priv/static/dev/app.css
+      --input=assets/css/app.css
+      --output=priv/static/dev/app.css
     ),
-      cd: Path.expand("../assets", __DIR__)
+      cd: Path.expand("..", __DIR__)
     ]
 
   config :live_debugger,
