@@ -177,7 +177,7 @@ defmodule LiveDebuggerWeb.Components do
       phx-hook="Collapsible"
       data-open={@open}
       class={[
-        "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden [&>summary_.show-on-open]:open:flex"
+        "block"
         | List.wrap(@class)
       ]}
     >
