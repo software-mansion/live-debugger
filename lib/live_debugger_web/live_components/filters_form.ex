@@ -18,7 +18,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
       <.button
         variant="secondary"
         size="sm"
-        class={"flex gap-2 " <> if @applied_filters_number > 0, do: "rounded-r-none", else: ""}
+        class={["flex gap-2", if(@applied_filters_number > 0, do: "rounded-r-none")]}
         phx-click="open-filters"
       >
         <.icon name="icon-filters" class="w-4 h-4" />
