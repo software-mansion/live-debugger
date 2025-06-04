@@ -100,7 +100,7 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
             />
           </div>
         </:right_panel>
-        <div class="w-full h-full">
+        <div class="w-full h-full flex flex-col gap-4">
           <Components.Stream.traces_stream
             id={@id}
             existing_traces_status={@existing_traces_status}

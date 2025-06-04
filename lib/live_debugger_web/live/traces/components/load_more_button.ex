@@ -40,16 +40,16 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.LoadMoreButton do
   """
   attr(:traces_continuation, :any, required: true)
 
+  def load_more_button(%{traces_continuation: nil} = assigns), do: ~H""
+  def load_more_button(%{traces_continuation: :end_of_table} = assigns), do: ~H""
+
   def load_more_button(assigns) do
     ~H"""
-    <div class="flex items-center justify-center mt-4">
+    <div class="flex items-center justify-center">
       <.load_more_button_content traces_continuation={@traces_continuation} />
     </div>
     """
   end
-
-  defp load_more_button_content(%{traces_continuation: nil} = assigns), do: ~H""
-  defp load_more_button_content(%{traces_continuation: :end_of_table} = assigns), do: ~H""
 
   defp load_more_button_content(%{traces_continuation: :loading} = assigns) do
     ~H"""
