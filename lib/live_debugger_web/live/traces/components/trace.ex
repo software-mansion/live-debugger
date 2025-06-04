@@ -16,7 +16,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   alias LiveDebuggerWeb.Components.ElixirDisplay
   alias LiveDebuggerWeb.Hooks.Flash
 
-  @required_assigns [:id, :lv_process, :displayed_trace]
+  @required_assigns [:lv_process, :displayed_trace]
 
   @doc """
   Initializes the trace component by attaching the hook to the socket and checking the required assigns.
