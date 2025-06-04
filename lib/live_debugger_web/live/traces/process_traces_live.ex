@@ -69,16 +69,16 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="max-w-full @container/traces flex flex-1">
-      <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
-        <:right_panel>
-          <div class="flex gap-2 items-center">
-            <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
-            <%!-- <Components.RefreshButton.refresh_button :if={not @tracing_started?} /> --%>
-            <%!-- <Components.ClearButton.clear_button :if={not @tracing_started?} /> --%>
-          </div>
-        </:right_panel>
-        <div class="w-full h-full">
+    <div class="w-full min-w-[20rem] flex flex-col gap-4 p-4 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
+      <div class="w-full flex justify-end items-center">
+        <div class="flex gap-2 items-center">
+          <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
+          <%!-- <Components.RefreshButton.refresh_button :if={not @tracing_started?} /> --%>
+          <%!-- <Components.ClearButton.clear_button :if={not @tracing_started?} /> --%>
+        </div>
+      </div>
+      <div class="flex flex-1 overflow-auto rounded-sm bg-surface-0-bg">
+        <div class="w-full h-full flex flex-col gap-4">
           <Components.Stream.traces_stream
             id={@id}
             existing_traces_status={@existing_traces_status}
@@ -89,8 +89,8 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
             traces_continuation={@traces_continuation}
           />
         </div>
-      </.section>
-      <Components.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
+        <Components.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />
+      </div>
     </div>
     """
   end
