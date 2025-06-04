@@ -8,8 +8,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.NewTraces do
 
   alias LiveDebugger.Structs.TraceDisplay
 
-  # These functions are using the `current_filters` assigns
-  alias LiveDebuggerWeb.Live.Traces.Helpers
+  # This function is using the `current_filters` assigns
+  import LiveDebuggerWeb.Live.Traces.Helpers, only: [get_execution_times: 1]
 
   @doc """
   Initializes the hook by attaching the hook to the socket and checking the required assigns.
@@ -47,7 +47,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.NewTraces do
     live_stream_limit = socket.private.live_stream_limit
     trace_display = TraceDisplay.from_trace(trace, true)
 
-    execution_time = Helpers.get_execution_times(socket)
+    execution_time = get_execution_times(socket)
     min_time = Keyword.get(execution_time, :exec_time_min, 0)
     max_time = Keyword.get(execution_time, :exec_time_max, :infinity)
 

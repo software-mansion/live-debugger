@@ -13,7 +13,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.LoadMoreButton do
   alias LiveDebugger.Structs.TraceDisplay
 
   # These functions are using the `current_filters` assigns
-  alias LiveDebuggerWeb.Live.Traces.Helpers
+  import LiveDebuggerWeb.Live.Traces.Helpers,
+    only: [get_active_functions: 1, get_execution_times: 1]
 
   @doc """
   Initializes the component by checking the assigns and streams and attaching the hook to the socket.
@@ -85,8 +86,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.LoadMoreButton do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
     cont = socket.assigns.traces_continuation
-    active_functions = Helpers.get_active_functions(socket)
-    execution_times = Helpers.get_execution_times(socket)
+    active_functions = get_active_functions(socket)
+    execution_times = get_execution_times(socket)
     page_size = socket.private.page_size
 
     socket

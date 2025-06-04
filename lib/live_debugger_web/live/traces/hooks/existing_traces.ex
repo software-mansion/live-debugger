@@ -12,7 +12,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
   alias LiveDebugger.Services.TraceService
 
   # These functions are using the `current_filters` assigns
-  alias LiveDebuggerWeb.Live.Traces.Helpers
+  import LiveDebuggerWeb.Live.Traces.Helpers,
+    only: [get_active_functions: 1, get_execution_times: 1]
 
   @doc """
   Initializes the hook by attaching the hook to the socket and checking the required assigns.
@@ -41,8 +42,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
   def assign_async_existing_traces(socket) do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
-    active_functions = Helpers.get_active_functions(socket)
-    execution_times = Helpers.get_execution_times(socket)
+    active_functions = get_active_functions(socket)
+    execution_times = get_execution_times(socket)
     page_size = socket.private.page_size
 
     socket
