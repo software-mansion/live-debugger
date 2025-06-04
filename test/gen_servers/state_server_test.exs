@@ -1,5 +1,5 @@
 defmodule LiveDebugger.GenServers.StateServerTest do
-  use ExUnit.Case, async: false
+  use ExUnit.Case, async: true
 
   import Mox
 
@@ -61,6 +61,8 @@ defmodule LiveDebugger.GenServers.StateServerTest do
       StateServer.handle_info({:component_deleted, trace}, [])
 
       assert [{_, ^state}] = :ets.lookup(StateServer.ets_table_name(), inspect(pid))
+
+      :ets.delete(StateServer.ets_table_name())
     end
 
     test "handles render trace and updates state" do
@@ -92,6 +94,8 @@ defmodule LiveDebugger.GenServers.StateServerTest do
       StateServer.handle_info({:render_trace, trace}, [])
 
       assert [{_, ^state}] = :ets.lookup(StateServer.ets_table_name(), inspect(pid))
+
+      :ets.delete(StateServer.ets_table_name())
     end
 
     test "handles dead process status and deletes table record" do
@@ -102,6 +106,8 @@ defmodule LiveDebugger.GenServers.StateServerTest do
       StateServer.handle_info({:process_status, {:dead, pid}}, [])
 
       assert [] = :ets.lookup(StateServer.ets_table_name(), inspect(pid))
+
+      :ets.delete(StateServer.ets_table_name())
     end
   end
 end
