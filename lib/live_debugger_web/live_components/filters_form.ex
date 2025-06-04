@@ -74,7 +74,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           <div class="p-4">
             <.filter_header
               name="Callbacks"
-              reset="functions"
+              reset={:functions}
               changed?={@changed_functions_filter?}
               myself={@myself}
             />
@@ -87,7 +87,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           <div class="p-4 border-t border-default-border">
             <.filter_header
               name="Execution Time"
-              reset="execution_time"
+              reset={:execution_time}
               changed?={@changed_execution_time_filter?}
               myself={@myself}
             />
@@ -134,7 +134,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
   attr(:changed?, :boolean, default: false)
   attr(:name, :string, required: true)
-  attr(:reset, :string, required: true)
+  attr(:reset, :atom, required: true)
   attr(:myself, :any, required: true)
 
   defp filter_header(assigns) do
@@ -147,7 +147,8 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
         :if={@changed?}
         type="button"
         class="flex align-center text-link-primary hover:text-link-primary-hover"
-        phx-click={"reset-" <> @reset}
+        phx-click="reset"
+        phx-value-filter={@reset}
         phx-target={@myself}
       >
         <.icon name="icon-arrow-left" class="w-4 h-4" />
@@ -188,21 +189,21 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   end
 
   @impl true
-  def handle_event("reset", _params, socket) do
-    socket
-    |> assign(filters: socket.assigns.default_filters)
-    |> assign_form(socket.assigns.default_filters)
-    |> noreply()
-  end
-
-  @impl true
-  def handle_event("reset-" <> filter, _params, socket) do
+  def handle_event("reset", %{"filter" => filter}, socket) do
     filter = String.to_existing_atom(filter)
     filters = Map.replace(socket.assigns.filters, filter, socket.assigns.default_filters[filter])
 
     socket
     |> assign(filters: filters)
     |> assign_form(filters)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("reset", _params, socket) do
+    socket
+    |> assign(filters: socket.assigns.default_filters)
+    |> assign_form(socket.assigns.default_filters)
     |> noreply()
   end
 
