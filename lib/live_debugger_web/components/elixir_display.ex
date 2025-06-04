@@ -37,10 +37,10 @@ defmodule LiveDebuggerWeb.Components.ElixirDisplay do
       >
         <:label>
           <div class="flex items-center">
-            <div class="hidden show-on-open">
+            <div class="show-on-open">
               <.text_items items={@node.expanded_before} />
             </div>
-            <div class="flex hide-on-open">
+            <div class="hide-on-open">
               <.text_items items={@node.content} />
             </div>
           </div>

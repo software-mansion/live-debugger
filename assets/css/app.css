@@ -21,6 +21,27 @@
   dialog {
     margin: auto;
   }
+
+  /* Collapsible */
+  details:open > summary > .rotate-icon {
+    transform: rotate(90deg);
+  }
+
+  details > summary .hide-on-open {
+    display: flex;
+  }
+
+  details:open > summary .hide-on-open {
+    display: none;
+  }
+
+  details > summary .show-on-open {
+    display: none;
+  }
+
+  details:open > summary .show-on-open {
+    display: flex;
+  }
 }
 
 /* You can add custom styles here */
