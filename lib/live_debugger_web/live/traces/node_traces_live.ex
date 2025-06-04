@@ -90,8 +90,14 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
         <:right_panel>
           <div class="flex gap-2 items-center">
             <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
-            <Components.RefreshButton.refresh_button :if={not @tracing_started?} />
-            <Components.ClearButton.clear_button :if={not @tracing_started?} />
+            <Components.RefreshButton.refresh_button
+              :if={not @tracing_started?}
+              hide_text_on_small_screens?={true}
+            />
+            <Components.ClearButton.clear_button
+              :if={not @tracing_started?}
+              hide_text_on_small_screens?={true}
+            />
             <Components.FiltersDropdown.filters_dropdown
               :if={not @tracing_started?}
               node_id={@node_id}
