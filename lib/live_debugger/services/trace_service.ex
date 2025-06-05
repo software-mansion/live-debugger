@@ -75,11 +75,11 @@ defmodule LiveDebugger.Services.TraceService do
   end
 
   @doc """
-  Deletes traces for LiveView or LiveComponent for given pid.
+  Deletes traces for given node_id. If node_id is nil, it deletes all traces for given table.
 
-  * `node_id` - PID or CID which identifies node
+  * `node_id` - PID or CID which identifies node. If nil, it deletes all traces for given table.
   """
-  @spec clear_traces(pid :: ets_table_id(), node_id :: pid() | CommonTypes.cid()) :: true
+  @spec clear_traces(pid :: ets_table_id(), node_id :: pid() | CommonTypes.cid() | nil) :: true
   def clear_traces(pid, %CID{} = node_id) when is_pid(pid) do
     pid
     |> ets_table()
@@ -92,7 +92,13 @@ defmodule LiveDebugger.Services.TraceService do
     |> :ets.match_delete({:_, %{pid: node_id, cid: nil}})
   end
 
-  def clear_traces(pid, nil) when is_pid(pid) do
+  def clear_traces(pid, nil) when is_pid(pid), do: clear_traces(pid)
+
+  @doc """
+  Deletes all traces for given table.
+  """
+  @spec clear_traces(pid :: ets_table_id()) :: true
+  def clear_traces(pid) when is_pid(pid) do
     pid
     |> ets_table()
     |> :ets.delete_all_objects()
