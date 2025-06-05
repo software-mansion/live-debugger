@@ -36,14 +36,6 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
 
   @impl true
   def mount(_params, session, socket) do
-    parent_pid = session["parent_pid"]
-
-    if connected?(socket) do
-      parent_pid
-      |> PubSubUtils.params_changed_topic()
-      |> PubSubUtils.subscribe!()
-    end
-
     socket
     |> assign(:id, session["id"])
     |> assign(:parent_pid, session["parent_pid"])
