@@ -23,7 +23,7 @@ const CopyButton = {
     const tooltipEl = document.getElementById('tooltip');
 
     this.el.addEventListener('click', () => {
-      if (this.el.hasAttribute('in-iframe')) {
+      if (window.location !== window.parent.location) {
         // Due to permission issues inside devtools and lacking support of Clipboard API inside service workers
         // currently falling back to old api is the only way for copying to clipboard to work inside devtools
         fallbackCopyTextToClipboard(this.el.dataset.value);

@@ -95,7 +95,6 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
           highlight?={@highlight?}
           parent_lv_process={@parent_lv_process}
           node_module={@node_module}
-          in_iframe?={@in_iframe?}
         />
       </div>
       <.sidebar_slide_over :if={not @hidden?}>
@@ -108,7 +107,6 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
           highlight?={@highlight?}
           parent_lv_process={@parent_lv_process}
           node_module={@node_module}
-          in_iframe?={@in_iframe?}
         />
       </.sidebar_slide_over>
     </div>
@@ -215,7 +213,6 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
   attr(:highlight?, :boolean, required: true)
   attr(:parent_lv_process, :any, required: true)
   attr(:node_module, :any, required: true)
-  attr(:in_iframe?, :boolean, default: false)
 
   defp sidebar_content(assigns) do
     ~H"""
@@ -225,7 +222,6 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
         module={@node_module}
         parent_lv_process={@parent_lv_process}
         node_type={TreeNode.type(@node_id)}
-        in_iframe?={@in_iframe?}
       />
       <.live_component
         id={@id <> "-nested-live-views"}
@@ -270,7 +266,6 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
   attr(:module, :atom, required: true)
   attr(:node_type, :atom, required: true)
   attr(:parent_lv_process, :map, required: true)
-  attr(:in_iframe?, :boolean, default: false)
 
   defp basic_info(assigns) do
     ~H"""
@@ -294,11 +289,7 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
             >
               <%= Parsers.module_to_string(@module.result) %>
             </.tooltip>
-            <.copy_button
-              id="module-name"
-              value={Parsers.module_to_string(@module.result)}
-              in_iframe?={@in_iframe?}
-            />
+            <.copy_button id="module-name" value={Parsers.module_to_string(@module.result)} />
           </div>
         </div>
         <div :if={parent_lv_process} class="w-full flex flex-col">
