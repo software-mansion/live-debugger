@@ -113,7 +113,7 @@ defmodule LiveDebuggerWeb.Live.Nested.StateLive do
       <:right_panel>
         <div class="flex gap-2">
           <.copy_button
-            id="assigns-copy"
+            id="assigns"
             size="sm"
             value={inspect(@assigns, limit: :infinity, pretty: true, structs: false)}
           />

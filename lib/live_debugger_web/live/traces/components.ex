@@ -48,9 +48,13 @@ defmodule LiveDebuggerWeb.Live.Traces.Components do
           Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)
         </p>
         <.copy_button
-          id={"#{@id}-arg-#{index}-copy"}
+          id={"#{@id}-arg-#{index}"}
           size="sm"
-          value={inspect(args, limit: :infinity, pretty: true, structs: false)}
+          variant="secondary"
+          value={
+            inspect(args, limit: :infinity, pretty: true, structs: false)
+            |> String.replace(~r"#PID<\d+\.\d+\.\d+>", fn pid_string -> "pid(\"#{pid_string}\")" end)
+          }
         />
       </div>
       <ElixirDisplay.term

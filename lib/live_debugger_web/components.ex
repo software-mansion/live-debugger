@@ -608,10 +608,9 @@ defmodule LiveDebuggerWeb.Components do
     <.tooltip id={@id} content="Copy" position="top-center">
       <%= if @variant == "primary" do %>
         <.icon_button
-          id={"copy-button_" <>@id}
+          id={"copy-button_" <> @id}
           icon="icon-copy"
           variant="secondary"
-          size={@size}
           class="hover:text-secondary-text"
           phx-hook="CopyButton"
           data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
