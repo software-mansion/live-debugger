@@ -280,14 +280,16 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
         <div class="w-full flex flex-col">
           <span class="font-medium">Module:</span>
 
-          <.tooltip
-            :if={@module.ok?}
-            id={@id <> "-current-node-module"}
-            content={Parsers.module_to_string(@module.result)}
-            class="truncate max-w-[272px]"
-          >
-            <%= Parsers.module_to_string(@module.result) %>
-          </.tooltip>
+          <div :if={@module.ok?} class="flex gap-2">
+            <.tooltip
+              id={@id <> "-current-node-module"}
+              content={Parsers.module_to_string(@module.result)}
+              class="truncate max-w-[232px]"
+            >
+              <%= Parsers.module_to_string(@module.result) %>
+            </.tooltip>
+            <.copy_button id="module-name" value={Parsers.module_to_string(@module.result)} />
+          </div>
         </div>
         <div :if={parent_lv_process} class="w-full flex flex-col">
           <span class="font-medium">Parent LiveView Process</span>
