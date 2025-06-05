@@ -405,7 +405,6 @@ defmodule LiveDebuggerWeb.Components do
           phx-click={JS.dispatch("close", to: "##{@id}")}
           icon="icon-cross"
           variant="secondary"
-          size="sm"
         />
       </div>
       <div class="overflow-auto flex flex-col gap-2 p-2">
@@ -450,7 +449,6 @@ defmodule LiveDebuggerWeb.Components do
       id={"#{@id}-button"}
       phx-click={@rest[:"phx-click"] || JS.dispatch("open", to: "##{@id}")}
       icon={@icon}
-      size="sm"
       data-fullscreen-id={@id}
       variant="secondary"
       {@rest}

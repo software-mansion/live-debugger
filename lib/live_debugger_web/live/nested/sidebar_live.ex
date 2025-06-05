@@ -253,7 +253,6 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
           icon="icon-cross"
           class="absolute top-4 right-4"
           variant="secondary"
-          size="sm"
           phx-click="close_mobile_content"
         />
         <%= render_slot(@inner_block) %>
