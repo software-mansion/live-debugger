@@ -13,6 +13,8 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Live.Traces.Components
   alias LiveDebuggerWeb.Live.Traces.Helpers
+  alias LiveDebuggerWeb.Helpers.FiltersHelper
+  alias LiveDebuggerWeb.LiveComponents.FiltersForm
 
   @live_stream_limit 128
   @page_size 25
@@ -72,7 +74,6 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
     |> Hooks.TracingFuse.init()
     |> Hooks.ExistingTraces.init(@page_size)
     |> Hooks.NewTraces.init(@live_stream_limit)
-    |> Components.FiltersDropdown.init()
     |> Components.RefreshButton.init()
     |> Components.ToggleTracingButton.init()
     |> ok()
@@ -84,6 +85,16 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
 
   @impl true
   def render(assigns) do
+    assigns =
+      assigns
+      |> assign(
+        applied_filters_number:
+          FiltersHelper.calculate_selected_filters(
+            assigns.current_filters,
+            assigns.default_filters
+          )
+      )
+
     ~H"""
     <div class="max-w-full @container/traces flex flex-1">
       <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
@@ -92,12 +103,19 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
             <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
             <Components.RefreshButton.refresh_button :if={not @tracing_started?} />
             <Components.ClearButton.clear_button :if={not @tracing_started?} />
-            <Components.FiltersDropdown.filters_dropdown
+            <FiltersForm.filters_button
               :if={not @tracing_started?}
-              node_id={@node_id}
-              current_filters={@current_filters}
-              default_filters={@default_filters}
+              applied_filters_number={@applied_filters_number}
             />
+            <.fullscreen id="filters-fullscreen" title="Filters">
+              <.live_component
+                module={FiltersForm}
+                id="filters-form"
+                node_id={@node_id}
+                filters={@current_filters}
+                default_filters={@default_filters}
+              />
+            </.fullscreen>
           </div>
         </:right_panel>
         <div class="w-full h-full">
@@ -123,6 +141,30 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
     |> Hooks.TracingFuse.disable_tracing()
     |> NestedLiveViewHelper.assign_node_id(new_params)
     |> Helpers.assign_default_filters()
+    |> Helpers.reset_current_filters()
+    |> Hooks.ExistingTraces.assign_async_existing_traces()
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info({:filters_updated, filters}, socket) do
+    socket
+    |> push_event("filters-fullscreen-close", %{})
+    |> assign(:current_filters, filters)
+    |> Hooks.ExistingTraces.assign_async_existing_traces()
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("open-filters", _, socket) do
+    socket
+    |> push_event("filters-fullscreen-open", %{})
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("reset-filters", _, socket) do
+    socket
     |> Helpers.reset_current_filters()
     |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> noreply()
