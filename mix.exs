@@ -99,7 +99,11 @@ defmodule LiveDebugger.MixProject do
       source_url: "https://github.com/software-mansion/live-debugger",
       source_ref: @version,
       api_reference: false,
-      assets: %{Path.expand("./docs/images") => "images"},
+      assets: %{
+        Path.expand("./docs/images") => "images",
+        Path.expand("./docs/images/components_tree_conditionals.png") =>
+          "images/components_tree_conditionals.png"
+      },
       filter_modules: fn module, _meta ->
         module == Mix.Tasks.LiveDebugger.Install
       end
