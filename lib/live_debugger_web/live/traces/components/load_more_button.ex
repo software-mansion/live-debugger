@@ -16,7 +16,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.LoadMoreButton do
   import LiveDebuggerWeb.Live.Traces.Helpers,
     only: [get_active_functions: 1, get_execution_times: 1]
 
-  @required_assigns [:lv_process, :node_id, :traces_continuation, :current_filters]
+  @required_assigns [:lv_process, :traces_continuation, :current_filters]
 
   @doc """
   Initializes the component by checking the assigns and streams and attaching the hook to the socket.
@@ -40,16 +40,16 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.LoadMoreButton do
   """
   attr(:traces_continuation, :any, required: true)
 
+  def load_more_button(%{traces_continuation: nil} = assigns), do: ~H""
+  def load_more_button(%{traces_continuation: :end_of_table} = assigns), do: ~H""
+
   def load_more_button(assigns) do
     ~H"""
-    <div class="flex items-center justify-center mt-4">
+    <div class="flex items-center justify-center">
       <.load_more_button_content traces_continuation={@traces_continuation} />
     </div>
     """
   end
-
-  defp load_more_button_content(%{traces_continuation: nil} = assigns), do: ~H""
-  defp load_more_button_content(%{traces_continuation: :end_of_table} = assigns), do: ~H""
 
   defp load_more_button_content(%{traces_continuation: :loading} = assigns) do
     ~H"""
@@ -83,22 +83,25 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.LoadMoreButton do
 
   defp load_more_existing_traces(socket) do
     pid = socket.assigns.lv_process.pid
-    node_id = socket.assigns.node_id
+    node_id = Map.get(socket.assigns, :node_id)
     cont = socket.assigns.traces_continuation
     active_functions = get_active_functions(socket)
     execution_times = get_execution_times(socket)
     page_size = socket.private.page_size
 
-    socket
-    |> assign(:traces_continuation, :loading)
-    |> start_async(:load_more_existing_traces, fn ->
-      TraceService.existing_traces(pid,
-        node_id: node_id,
+    opts =
+      [
         limit: page_size,
         cont: cont,
         functions: active_functions,
-        execution_times: execution_times
-      )
+        execution_times: execution_times,
+        node_id: node_id
+      ]
+
+    socket
+    |> assign(:traces_continuation, :loading)
+    |> start_async(:load_more_existing_traces, fn ->
+      TraceService.existing_traces(pid, opts)
     end)
   end
 

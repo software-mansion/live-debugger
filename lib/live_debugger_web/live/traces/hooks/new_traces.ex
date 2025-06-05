@@ -13,7 +13,6 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.NewTraces do
 
   @required_assigns [
     :lv_process,
-    :node_id,
     :current_filters,
     :traces_empty?,
     :traces_continuation,

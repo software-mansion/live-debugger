@@ -8,7 +8,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.ClearButton do
 
   alias LiveDebugger.Services.TraceService
 
-  @required_assigns [:lv_process, :node_id, :traces_empty?]
+  @required_assigns [:lv_process, :traces_empty?]
 
   @doc """
   Initializes the component by checking the assigns and streams and attaching the hook to the socket.
@@ -27,18 +27,22 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.ClearButton do
   Renders the clear button.
   It produces the `clear-traces` event that can be handled by the hook provided in the `init/1` function.
   """
+  attr(:label_class, :string, default: "")
+
   def clear_button(assigns) do
     ~H"""
     <.button phx-click="clear-traces" class="flex gap-2" variant="secondary" size="sm">
       <.icon name="icon-trash" class="w-4 h-4" />
-      <div class="hidden @[29rem]/traces:block">Clear</div>
+      <div class={@label_class}>
+        Clear
+      </div>
     </.button>
     """
   end
 
   defp handle_event("clear-traces", _, socket) do
     pid = socket.assigns.lv_process.pid
-    node_id = socket.assigns.node_id
+    node_id = Map.get(socket.assigns, :node_id, nil)
 
     TraceService.clear_traces(pid, node_id)
 

@@ -38,7 +38,7 @@ defmodule LiveDebugger.Utils.Callbacks do
   end
 
   @doc """
-  Generates a list of all function name callbacks for LiveViews.
+  Generates a list of all function callbacks for LiveViews.
   """
   @spec live_view_callbacks() :: [{atom(), non_neg_integer()}]
   def live_view_callbacks(), do: @live_view_callbacks
@@ -57,17 +57,26 @@ defmodule LiveDebugger.Utils.Callbacks do
   end
 
   @doc """
-  Generates a list of all function name callbacks for LiveComponents.
+  Generates a list of all function callbacks for LiveComponents.
   """
   @spec live_component_callbacks() :: [{atom(), non_neg_integer()}]
   def live_component_callbacks(), do: @live_component_callbacks
+
+  @doc """
+  Generates a list of all function callbacks for LiveViews and LiveComponents.
+  """
+  @spec all_callbacks() :: [{atom(), non_neg_integer()}]
+  def all_callbacks() do
+    (@common_callbacks ++ @live_view_callbacks ++ @live_component_callbacks)
+    |> Enum.uniq()
+  end
 
   @doc """
   Generates a list of all function name callbacks for LiveViews and LiveComponents.
   """
   @spec callbacks_functions() :: [atom()]
   def callbacks_functions() do
-    (@common_callbacks ++ @live_view_callbacks ++ @live_component_callbacks)
+    all_callbacks()
     |> Enum.map(fn {function_name, _} -> function_name end)
     |> Enum.uniq()
   end

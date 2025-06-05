@@ -9,6 +9,7 @@ defmodule LiveDebugger.E2ECase do
       use Wallaby.Feature
 
       import Wallaby.Query
+      import LiveDebugger.Support.CssQueries
       import Mox
 
       @moduletag :e2e
