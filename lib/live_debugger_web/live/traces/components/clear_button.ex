@@ -27,13 +27,13 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.ClearButton do
   Renders the clear button.
   It produces the `clear-traces` event that can be handled by the hook provided in the `init/1` function.
   """
-  attr(:hide_text_on_small_screens?, :boolean, default: false)
+  attr(:label_class, :string, default: "")
 
   def clear_button(assigns) do
     ~H"""
     <.button phx-click="clear-traces" class="flex gap-2" variant="secondary" size="sm">
       <.icon name="icon-trash" class="w-4 h-4" />
-      <div class={if @hide_text_on_small_screens?, do: "hidden @[29rem]/traces:block"}>
+      <div class={@label_class}>
         Clear
       </div>
     </.button>

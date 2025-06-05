@@ -25,14 +25,14 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.RefreshButton do
   Renders the refresh button.
   It produces the `refresh-history` event that can be handled by the hook provided in the `init/1` function.
   """
-  attr(:hide_text_on_small_screens?, :boolean, default: false)
+  attr(:label_class, :string, default: "")
 
   @spec refresh_button(map()) :: Phoenix.LiveView.Rendered.t()
   def refresh_button(assigns) do
     ~H"""
     <.button phx-click="refresh-history" class="flex gap-2" variant="secondary" size="sm">
       <.icon name="icon-refresh" class="w-4 h-4" />
-      <div class={if @hide_text_on_small_screens?, do: "hidden @[29rem]/traces:block"}>
+      <div class={@label_class}>
         Refresh
       </div>
     </.button>

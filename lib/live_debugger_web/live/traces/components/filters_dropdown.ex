@@ -31,6 +31,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersDropdown do
   attr(:node_id, :any, required: true)
   attr(:current_filters, :any, required: true)
   attr(:default_filters, :any, required: true)
+  attr(:label_class, :string, default: "")
 
   def filters_dropdown(assigns) do
     ~H"""
@@ -38,7 +39,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersDropdown do
       <:button>
         <.button class="flex gap-2" variant="secondary" size="sm">
           <.icon name="icon-filters" class="w-4 h-4" />
-          <div class="hidden @[29rem]/traces:block">Filters</div>
+          <div class={@label_class}>Filters</div>
         </.button>
       </:button>
       <.live_component
