@@ -38,14 +38,4 @@ defmodule LiveDebugger.LiveViewsDashboardTest do
     |> click(return_button())
     |> assert_has(title(text: "Active LiveViews"))
   end
-
-  defp title(text: text), do: css("h1", text: text)
-
-  defp live_sessions(count: count), do: css("#live-sessions > div", count: count)
-
-  defp refresh_button(), do: css("button[phx-click=\"refresh\"]")
-
-  defp settings_button(), do: css("navbar a#settings-button")
-
-  defp return_button(), do: css("navbar a#return-button")
 end

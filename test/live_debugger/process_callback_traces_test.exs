@@ -44,7 +44,7 @@ defmodule LiveDebugger.ProcessCallbackTracesTest do
     Process.sleep(200)
 
     debugger
-    |> click(refresh_button())
+    |> click(refresh_history_button())
     |> assert_has(traces(count: 2))
     |> assert_has(trace_name(text: "handle_event/3", count: 1))
     |> assert_has(trace_name(text: "render/1", count: 1))
@@ -54,19 +54,5 @@ defmodule LiveDebugger.ProcessCallbackTracesTest do
 
   defp trace_name(opts), do: css("#global-traces-stream details p.font-medium", opts)
 
-  defp first_link(), do: css("#live-sessions a.live-view-link", count: 1)
-
   defp global_callback_traces_button(), do: css("button[aria-label=\"Icon globe\"]")
-
-  defp title(text: text), do: css("h1", text: text)
-
-  defp refresh_button(), do: css("button[phx-click=\"refresh-history\"]")
-
-  defp clear_traces_button(), do: css("button[phx-click=\"clear-traces\"]")
-
-  defp toggle_tracing_button(), do: css("button[phx-click=\"switch-tracing\"]")
-
-  defp no_traces_info() do
-    css("#global-traces-stream-empty", text: "No traces have been recorded yet.")
-  end
 end
