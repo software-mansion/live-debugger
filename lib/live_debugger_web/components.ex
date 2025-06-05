@@ -409,7 +409,7 @@ defmodule LiveDebuggerWeb.Components do
           variant="secondary"
         />
       </div>
-      <div class="overflow-auto flex flex-col gap-2 p-2">
+      <div class="overflow-auto flex flex-col gap-2 p-2 text-primary-text">
         <%= render_slot(@inner_block) %>
       </div>
     </dialog>
