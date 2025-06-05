@@ -1,5 +1,5 @@
-@layer utilities {
-  .theme-dark {
+@layer theme {
+  .dark {
     /* General */
     --main-bg: var(--gray-900);
     --primary-text: var(--gray-100);

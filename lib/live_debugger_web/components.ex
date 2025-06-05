@@ -169,14 +169,17 @@ defmodule LiveDebuggerWeb.Components do
   slot(:inner_block, required: true)
 
   def collapsible(assigns) do
+    assigns = assign(assigns, :open, to_string(assigns.open))
+
     ~H"""
     <details
       id={@id}
+      phx-hook="Collapsible"
+      data-open={@open}
       class={[
-        "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden [&>summary_.show-on-open]:open:flex"
+        "block"
         | List.wrap(@class)
       ]}
-      {show_collapsible_assign(@open)}
     >
       <summary
         id={@id <> "-summary"}
@@ -280,12 +283,6 @@ defmodule LiveDebuggerWeb.Components do
     </div>
     """
   end
-
-  @doc """
-  Used to add CollapsibleOpen hook to element based on condition.
-  """
-  def show_collapsible_assign(true), do: %{:"phx-hook" => "CollapsibleOpen"}
-  def show_collapsible_assign(_), do: %{}
 
   @doc """
   Typography component to render headings.
@@ -454,14 +451,13 @@ defmodule LiveDebuggerWeb.Components do
       end
   """
   attr(:id, :string, required: true, doc: "Same as `id` of the fullscreen.")
-  attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
   attr(:icon, :string,
     default: "icon-expand",
     doc: "Icon to be displayed as a button"
   )
 
-  attr(:rest, :global)
+  attr(:rest, :global, include: ~w(class))
 
   def fullscreen_button(assigns) do
     ~H"""
@@ -471,7 +467,6 @@ defmodule LiveDebuggerWeb.Components do
       icon={@icon}
       size="sm"
       data-fullscreen-id={@id}
-      class={@class}
       variant="secondary"
       {@rest}
     />
@@ -539,8 +534,12 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:id, :string, required: true, doc: "ID of the tooltip. Prefix is added automatically.")
   attr(:content, :string, default: nil)
-  attr(:position, :string, default: "top", values: ["top", "bottom", "left", "right"])
-  attr(:variant, :string, default: "secondary", values: ["primary", "secondary"])
+
+  attr(:position, :string,
+    default: "top",
+    values: ["top", "bottom", "left", "right", "top-center"]
+  )
+
   attr(:rest, :global)
   slot(:inner_block, required: true)
 
@@ -551,7 +550,6 @@ defmodule LiveDebuggerWeb.Components do
       phx-hook="Tooltip"
       data-tooltip={@content}
       data-position={@position}
-      data-variant={@variant}
       {@rest}
     >
       <%= render_slot(@inner_block) %>
@@ -608,6 +606,30 @@ defmodule LiveDebuggerWeb.Components do
       <div class="relative w-9 h-5 bg-ui-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ui-accent rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-ui-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ui-accent ">
       </div>
     </label>
+    """
+  end
+
+  @doc """
+  Renders a button which copies specified value to clipboard.
+  """
+  attr(:id, :string, required: true)
+  attr(:value, :string, required: true)
+  attr(:rest, :global)
+
+  def copy_button(assigns) do
+    ~H"""
+    <.tooltip id={@id} content="Copy" position="top-center">
+      <button
+        id={"copy-button_" <>@id}
+        class="hover:text-secondary-text"
+        phx-hook="CopyButton"
+        data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
+        data-value={@value}
+        {@rest}
+      >
+        <.icon name="icon-copy" class="w-4 h-4" />
+      </button>
+    </.tooltip>
     """
   end
 

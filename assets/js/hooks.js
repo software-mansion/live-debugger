@@ -1,7 +1,7 @@
 import Alpine from 'alpinejs';
 import collapse from '@alpinejs/collapse';
 
-import CollapsibleOpen from './hooks/collapsible_open';
+import Collapsible from './hooks/collapsible';
 import Fullscreen from './hooks/fullscreen';
 import ToggleTheme from './hooks/toggle_theme';
 import Tooltip from './hooks/tooltip';
@@ -9,6 +9,7 @@ import Highlight from './hooks/highlight';
 import LiveDropdown from './hooks/live_dropdown';
 import AutoClearFlash from './hooks/auto_clear_flash';
 import TraceExecutionTime from './hooks/trace_execution_time';
+import CopyButton from './hooks/copy_button';
 
 import topbar from '../vendor/topbar';
 
@@ -22,7 +23,7 @@ window.addEventListener('phx:page-loading-stop', (_info) => topbar.hide());
 
 function createHooks() {
   return {
-    CollapsibleOpen,
+    Collapsible,
     Fullscreen,
     Tooltip,
     ToggleTheme,
@@ -30,6 +31,7 @@ function createHooks() {
     LiveDropdown,
     AutoClearFlash,
     TraceExecutionTime,
+    CopyButton,
   };
 }
 
