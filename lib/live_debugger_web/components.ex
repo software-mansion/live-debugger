@@ -323,12 +323,6 @@ defmodule LiveDebuggerWeb.Components do
 
   attr(:icon, :string, required: true, doc: "Icon to be displayed as a button.")
 
-  attr(:size, :string,
-    default: "md",
-    values: ["md", "sm"],
-    doc: "Size of the button."
-  )
-
   attr(:variant, :string,
     default: "primary",
     values: ["primary", "secondary"],
@@ -340,26 +334,17 @@ defmodule LiveDebuggerWeb.Components do
   attr(:rest, :global, include: ~w(id))
 
   def icon_button(assigns) do
-    {button_class, icon_class} =
-      case assigns.size do
-        "md" -> {"w-8! h-8! px-[0.25rem] py-[0.25rem]", "h-6 w-6"}
-        "sm" -> {"w-7! h-7! px-[0.375rem] py-[0.375rem]", "h-4 w-4"}
-      end
-
     assigns =
-      assigns
-      |> assign(:button_class, button_class)
-      |> assign(:icon_class, icon_class)
-      |> assign(:aria_label, assigns[:"aria-label"] || Parsers.kebab_to_text(assigns.icon))
+      assign(assigns, :aria_label, assigns[:"aria-label"] || Parsers.kebab_to_text(assigns.icon))
 
     ~H"""
     <.button
       aria-label={@aria_label}
-      class={[@button_class | List.wrap(@class)]}
+      class={["w-7! h-7! px-[0.2rem] py-[0.2rem]" | List.wrap(@class)]}
       variant={@variant}
       {@rest}
     >
-      <.icon name={@icon} class={@icon_class} />
+      <.icon name={@icon} class="h-4 w-4" />
     </.button>
     """
   end
