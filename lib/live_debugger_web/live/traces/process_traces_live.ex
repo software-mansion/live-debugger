@@ -1,7 +1,6 @@
 defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
   use LiveDebuggerWeb, :live_view
 
-  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Live.Traces.Components
   alias LiveDebuggerWeb.Live.Traces.Helpers
   alias LiveDebuggerWeb.Live.Traces.Hooks
