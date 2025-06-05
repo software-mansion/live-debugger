@@ -226,8 +226,10 @@ defmodule LiveDebuggerWeb.Components do
       ]}
       {@rest}
     >
-      <div class="flex gap-3 items-center">
-        <.icon name="icon-x-circle" class="text-red-500" />
+      <div class="flex gap-3 items-start">
+        <div>
+          <.icon name="icon-x-circle" class="text-error-icon w-3 h-3" />
+        </div>
         <p>
           <%= @message %>
         </p>
@@ -244,7 +246,7 @@ defmodule LiveDebuggerWeb.Components do
         }
         aria-label="close"
       >
-        <.icon name="icon-cross" />
+        <.icon name="icon-cross w-4 h-4" />
       </button>
     </div>
     """
