@@ -11,7 +11,6 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.LoadMoreButton do
 
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
-  alias LiveDebugger.Helpers.KeywordHelper
 
   # These functions are using the `current_filters` assigns
   import LiveDebuggerWeb.Live.Traces.Helpers,
@@ -95,9 +94,9 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.LoadMoreButton do
         limit: page_size,
         cont: cont,
         functions: active_functions,
-        execution_times: execution_times
+        execution_times: execution_times,
+        node_id: node_id
       ]
-      |> KeywordHelper.append_if_not_nil(:node_id, node_id)
 
     socket
     |> assign(:traces_continuation, :loading)
