@@ -136,8 +136,7 @@ module.exports = {
             let content = fs
               .readFileSync(fullPath)
               .toString()
-              .replace(/\r?\n|\r/g, '')
-              .replace(/<svg/g, '<svg stroke-width="2"');
+              .replace(/\r?\n|\r/g, '');
 
             let size = theme('spacing.6');
             return {

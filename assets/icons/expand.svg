@@ -1,5 +1,5 @@
 <!-- lucide: expand -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"  >
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
 <path d="m15 15 6 6"/>
 <path d="m15 9 6-6"/>
 <path d="M21 16v5h-5"/>
