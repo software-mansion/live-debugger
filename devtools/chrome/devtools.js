@@ -21,7 +21,7 @@ chrome.devtools.panels.create(
     chrome.webNavigation.onCompleted.addListener(async (details) => {
       if (
         details.tabId === chrome.devtools.inspectedWindow.tabId &&
-        allowRedirects(chrome)
+        (await allowRedirects(chrome))
       ) {
         try {
           panelWindow.setIframeUrl(await getLiveDebuggerSessionURL(chrome));
@@ -30,5 +30,5 @@ chrome.devtools.panels.create(
         }
       }
     });
-  }
+  },
 );
