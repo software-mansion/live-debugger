@@ -289,7 +289,11 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
             >
               <%= Parsers.module_to_string(@module.result) %>
             </.tooltip>
-            <.copy_button id="module-name" value={Parsers.module_to_string(@module.result)} />
+            <.copy_button
+              id="module-name"
+              variant="secondary"
+              value={Parsers.module_to_string(@module.result)}
+            />
           </div>
         </div>
         <div :if={parent_lv_process} class="w-full flex flex-col">

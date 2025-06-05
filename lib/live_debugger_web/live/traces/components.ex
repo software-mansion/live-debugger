@@ -43,9 +43,16 @@ defmodule LiveDebuggerWeb.Live.Traces.Components do
     ~H"""
     <%= for {args, index} <- Enum.with_index(@trace_args) do %>
       <div :if={index > 0} class="border-t border-default-border w-full"></div>
-      <p class="font-semibold shrink-0">
-        Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)
-      </p>
+      <div class="shrink-0 flex gap-2 items-center">
+        <p class="font-semibold">
+          Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)
+        </p>
+        <.copy_button
+          id={"#{@id}-arg-#{index}-copy"}
+          size="sm"
+          value={inspect(args, limit: :infinity, pretty: true, structs: false)}
+        />
+      </div>
       <ElixirDisplay.term
         id={@id <> "-#{index}"}
         node={TermParser.term_to_display_tree(args)}

@@ -111,7 +111,14 @@ defmodule LiveDebuggerWeb.Live.Nested.StateLive do
     ~H"""
     <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
       <:right_panel>
-        <.fullscreen_button id="assigns-display-fullscreen" />
+        <div class="flex gap-2">
+          <.copy_button
+            id="assigns-copy"
+            size="sm"
+            value={inspect(@assigns, limit: :infinity, pretty: true, structs: false)}
+          />
+          <.fullscreen_button id="assigns-display-fullscreen" />
+        </div>
       </:right_panel>
       <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
         <ElixirDisplay.term
