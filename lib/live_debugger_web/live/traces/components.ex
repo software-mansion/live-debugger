@@ -28,7 +28,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components do
 
     ~H"""
     <.fullscreen id={@id} title={@callback_name}>
-      <div class="w-full flex flex-col gap-4 items-start justify-center">
+      <div class="w-full flex flex-col gap-4 p-4 items-start justify-center">
         <.trace_body id={@id <> "-fullscreen"} trace_args={@trace_args} trace={@trace} />
       </div>
     </.fullscreen>
