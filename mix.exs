@@ -69,7 +69,7 @@ defmodule LiveDebugger.MixProject do
       {:bandit, "~> 1.6", only: [:dev, :test]},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
       {:esbuild, "~> 0.7", only: :dev},
-      {:tailwind, "~> 0.2", only: :dev},
+      {:tailwind, "~> 0.3", only: :dev},
       {:mox, "~> 1.2", only: :test},
       {:phx_new, "~> 1.7", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},

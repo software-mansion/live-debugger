@@ -169,14 +169,17 @@ defmodule LiveDebuggerWeb.Components do
   slot(:inner_block, required: true)
 
   def collapsible(assigns) do
+    assigns = assign(assigns, :open, to_string(assigns.open))
+
     ~H"""
     <details
       id={@id}
+      phx-hook="Collapsible"
+      data-open={@open}
       class={[
-        "block [&>summary>.rotate-icon]:open:rotate-90 [&>summary_.hide-on-open]:open:hidden [&>summary_.show-on-open]:open:flex"
+        "block"
         | List.wrap(@class)
       ]}
-      {show_collapsible_assign(@open)}
     >
       <summary
         id={@id <> "-summary"}
@@ -280,12 +283,6 @@ defmodule LiveDebuggerWeb.Components do
     </div>
     """
   end
-
-  @doc """
-  Used to add CollapsibleOpen hook to element based on condition.
-  """
-  def show_collapsible_assign(true), do: %{:"phx-hook" => "CollapsibleOpen"}
-  def show_collapsible_assign(_), do: %{}
 
   @doc """
   Typography component to render headings.
@@ -454,14 +451,13 @@ defmodule LiveDebuggerWeb.Components do
       end
   """
   attr(:id, :string, required: true, doc: "Same as `id` of the fullscreen.")
-  attr(:class, :any, default: nil, doc: "Additional classes to be added to the button.")
 
   attr(:icon, :string,
     default: "icon-expand",
     doc: "Icon to be displayed as a button"
   )
 
-  attr(:rest, :global)
+  attr(:rest, :global, include: ~w(class))
 
   def fullscreen_button(assigns) do
     ~H"""
@@ -471,7 +467,6 @@ defmodule LiveDebuggerWeb.Components do
       icon={@icon}
       size="sm"
       data-fullscreen-id={@id}
-      class={@class}
       variant="secondary"
       {@rest}
     />

@@ -123,6 +123,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
     <.mode_button
       icon="icon-moon"
       text="Dark"
+      disabled
       class="hidden dark:flex text-button-primary-content bg-button-primary-bg"
     />
     """
@@ -140,6 +141,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
     <.mode_button
       icon="icon-sun"
       text="Light"
+      disabled
       class="dark:hidden text-button-primary-content bg-button-primary-bg"
     />
     """
@@ -148,7 +150,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
   attr(:icon, :string, required: true)
   attr(:text, :string, required: true)
   attr(:class, :string, default: "")
-  attr(:rest, :global)
+  attr(:rest, :global, include: ~w(disabled))
 
   defp mode_button(assigns) do
     ~H"""

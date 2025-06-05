@@ -115,13 +115,13 @@ defmodule LiveDebuggerWeb.Components.Navbar do
     assigns =
       case(assigns.status) do
         :connected ->
-          assign(assigns, icon: "icon-check-circle", class: "text-[--swm-green-100]")
+          assign(assigns, icon: "icon-check-circle", class: "text-(--swm-green-100)")
 
         :disconnected ->
-          assign(assigns, icon: "icon-cross-circle", class: "text-[--swm-pink-100]")
+          assign(assigns, icon: "icon-cross-circle", class: "text-(--swm-pink-100)")
 
         :loading ->
-          assign(assigns, icon: nil, class: "bg-[--swm-yellow-100] animate-pulse")
+          assign(assigns, icon: nil, class: "bg-(--swm-yellow-100) animate-pulse")
       end
 
     ~H"""

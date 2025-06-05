@@ -3,17 +3,20 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
 
   import Mox
 
+  alias LiveDebugger.Fakes
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.GenServers.EtsTableServer
 
   setup :verify_on_exit!
 
   test "start_link/1" do
+    Application.put_env(:live_debugger, :garbage_collection?, false)
     assert {:ok, _pid} = EtsTableServer.start_link()
     GenServer.stop(EtsTableServer)
   end
 
   test "init/1" do
+    Application.put_env(:live_debugger, :garbage_collection?, false)
     assert {:ok, %{}} = EtsTableServer.init([])
   end
 
@@ -37,8 +40,8 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
     end
   end
 
-  describe "handle_info/2" do
-    test "deletes table ref after process down and no watchers left" do
+  describe "handle_info/2 with `{:DOWN, _, :process, _, _}`" do
+    test "`down`deletes table ref after process down and no watchers left" do
       pid = :c.pid(0, 0, 1)
       ref = :ets.new(:test_table, [])
 
@@ -103,7 +106,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
   end
 
   describe "handle_call/3" do
-    test "creates table on event {:get_or_create_table, pid}" do
+    test "creates table on event `{:get_or_create_table, pid}`" do
       pid = :c.pid(0, 0, 1)
       table_refs = %{}
 
@@ -114,7 +117,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
       assert ref == Map.get(new_table_refs, pid).table
     end
 
-    test "returns existing table on event {:get_or_create_table, pid}" do
+    test "returns existing table on event `{:get_or_create_table, pid}`" do
       pid = :c.pid(0, 0, 1)
       ref = :ets.new(:test_table, [])
       table_refs = %{pid => %EtsTableServer.TableInfo{table: ref}}
@@ -125,7 +128,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
       assert ref == Map.get(new_table_refs, pid).table
     end
 
-    test "adds watcher on event {:watch, pid}" do
+    test "adds watcher on event `{:watch, pid}`" do
       pid = :c.pid(0, 0, 1)
       watcher_pid = :c.pid(0, 0, 2)
 
@@ -137,6 +140,43 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
                EtsTableServer.handle_call({:watch, pid}, {watcher_pid, nil}, table_refs)
 
       assert MapSet.new([watcher_pid]) == Map.get(new_table_refs, pid).watchers
+    end
+  end
+
+  describe "`:garbage_collect` call" do
+    test "deletes records if it has too many" do
+      Application.put_env(:live_debugger, :approx_table_max_size, 0.1)
+
+      pid = :c.pid(0, 0, 1)
+      ref = :ets.new(:test_table, [:ordered_set, :public])
+
+      Enum.each(-1..-301//-3, fn id ->
+        :ets.insert(ref, {id, Fakes.trace(id: id, pid: pid)})
+      end)
+
+      table_refs = %{pid => %EtsTableServer.TableInfo{table: ref}}
+
+      assert {:reply, :ok, _} = EtsTableServer.handle_call(:garbage_collect, self(), table_refs)
+
+      Process.sleep(100)
+
+      assert 34 == :ets.select_count(ref, [{{:"$1", :"$2"}, [], [true]}])
+    end
+
+    test "does not trigger when not enough records are in table" do
+      pid = :c.pid(0, 0, 1)
+      ref = :ets.new(:test_table, [:ordered_set, :public])
+      table_refs = %{pid => %EtsTableServer.TableInfo{table: ref}}
+
+      Enum.each(-1..-100//-5, fn id ->
+        :ets.insert(ref, {id, Fakes.trace(id: id, pid: pid)})
+      end)
+
+      count = :ets.select_count(ref, [{{:"$1", :"$2"}, [], [true]}])
+
+      assert {:reply, :ok, _} = EtsTableServer.handle_call(:garbage_collect, self(), table_refs)
+
+      assert count == :ets.select_count(ref, [{{:"$1", :"$2"}, [], [true]}])
     end
   end
 end

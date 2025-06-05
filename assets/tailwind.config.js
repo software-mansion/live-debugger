@@ -6,15 +6,8 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = {
-  darkMode: 'selector',
+  darkMode: 'class',
   content: ['./js/**/*.js', '../lib/**/*.ex'],
-  safelist: [
-    {
-      pattern:
-        /(text|bg|border)-(primary|secondary|success|danger|warning|info|gray)-(50|100|200|300|400|500|600|700|800|900|950)/,
-      variants: ['hover', 'focus', 'active', 'md', 'lg', 'sm'],
-    },
-  ],
   theme: {
     extend: {
       boxShadow: { custom: '0px 2px 4px 0px rgba(0, 26, 114, 0.05)' },
@@ -102,8 +95,6 @@ module.exports = {
     },
   },
   plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/container-queries'),
     plugin(({ addVariant }) =>
       addVariant('phx-click-loading', [
         '&.phx-click-loading',
