@@ -1,4 +1,8 @@
 defmodule LiveDebugger.Support.CssQueries do
+  @moduledoc """
+  This module defines the CSS queries for the LiveDebugger e2e tests.
+  """
+
   import Wallaby.Query
 
   def toggle_tracing_button(), do: css("button[phx-click=\"switch-tracing\"]")
