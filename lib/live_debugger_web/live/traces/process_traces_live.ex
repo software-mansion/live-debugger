@@ -85,7 +85,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
               existing_traces={@streams.existing_traces}
             />
             <Components.LoadMoreButton.load_more_button
-              :if={not @tracing_started?}
+              :if={not @tracing_started? and not @traces_empty?}
               traces_continuation={@traces_continuation}
             />
           </div>
