@@ -226,8 +226,10 @@ defmodule LiveDebuggerWeb.Components do
       ]}
       {@rest}
     >
-      <div class="flex gap-3 items-center">
-        <.icon name="icon-x-circle" class="text-red-500" />
+      <div class="flex gap-3 items-start">
+        <div>
+          <.icon name="icon-x-circle" class="text-error-icon w-3 h-3" />
+        </div>
         <p>
           <%= @message %>
         </p>
@@ -244,7 +246,7 @@ defmodule LiveDebuggerWeb.Components do
         }
         aria-label="close"
       >
-        <.icon name="icon-cross-small" />
+        <.icon name="icon-cross w-4 h-4" />
       </button>
     </div>
     """
@@ -313,7 +315,7 @@ defmodule LiveDebuggerWeb.Components do
 
   def icon(%{name: "icon-" <> _} = assigns) do
     ~H"""
-    <span class={[@name, List.wrap(@class)]} {@rest}></span>
+    <span class={[@name | List.wrap(@class)]} {@rest}></span>
     """
   end
 
@@ -322,12 +324,6 @@ defmodule LiveDebuggerWeb.Components do
   """
 
   attr(:icon, :string, required: true, doc: "Icon to be displayed as a button.")
-
-  attr(:size, :string,
-    default: "md",
-    values: ["md", "sm"],
-    doc: "Size of the button."
-  )
 
   attr(:variant, :string,
     default: "primary",
@@ -340,26 +336,17 @@ defmodule LiveDebuggerWeb.Components do
   attr(:rest, :global, include: ~w(id))
 
   def icon_button(assigns) do
-    {button_class, icon_class} =
-      case assigns.size do
-        "md" -> {"w-8! h-8! px-[0.25rem] py-[0.25rem]", "h-6 w-6"}
-        "sm" -> {"w-7! h-7! px-[0.375rem] py-[0.375rem]", "h-4 w-4"}
-      end
-
     assigns =
-      assigns
-      |> assign(:button_class, button_class)
-      |> assign(:icon_class, icon_class)
-      |> assign(:aria_label, assigns[:"aria-label"] || Parsers.kebab_to_text(assigns.icon))
+      assign(assigns, :aria_label, assigns[:"aria-label"] || Parsers.kebab_to_text(assigns.icon))
 
     ~H"""
     <.button
       aria-label={@aria_label}
-      class={[@button_class | List.wrap(@class)]}
+      class={["w-7! h-7! px-[0.2rem] py-[0.2rem]" | List.wrap(@class)]}
       variant={@variant}
       {@rest}
     >
-      <.icon name={@icon} class={@icon_class} />
+      <.icon name={@icon} class="h-4 w-4" />
     </.button>
     """
   end
@@ -418,12 +405,11 @@ defmodule LiveDebuggerWeb.Components do
         <.icon_button
           id={"#{@id}-close"}
           phx-click={JS.dispatch("close", to: "##{@id}")}
-          icon="icon-cross-small"
+          icon="icon-cross"
           variant="secondary"
-          size="sm"
         />
       </div>
-      <div class="overflow-auto flex flex-col gap-2 p-2">
+      <div class="overflow-auto flex flex-col gap-2 p-2 text-primary-text">
         <%= render_slot(@inner_block) %>
       </div>
     </dialog>
@@ -465,7 +451,6 @@ defmodule LiveDebuggerWeb.Components do
       id={"#{@id}-button"}
       phx-click={@rest[:"phx-click"] || JS.dispatch("open", to: "##{@id}")}
       icon={@icon}
-      size="sm"
       data-fullscreen-id={@id}
       variant="secondary"
       {@rest}

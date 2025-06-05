@@ -90,24 +90,31 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
         <:right_panel>
           <div class="flex gap-2 items-center">
             <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
-            <Components.RefreshButton.refresh_button :if={not @tracing_started?} />
-            <Components.ClearButton.clear_button :if={not @tracing_started?} />
+            <Components.RefreshButton.refresh_button
+              :if={not @tracing_started?}
+              label_class="hidden @[29rem]/traces:block"
+            />
+            <Components.ClearButton.clear_button
+              :if={not @tracing_started?}
+              label_class="hidden @[29rem]/traces:block"
+            />
             <Components.FiltersDropdown.filters_dropdown
               :if={not @tracing_started?}
               node_id={@node_id}
+              label_class="hidden @[29rem]/traces:block"
               current_filters={@current_filters}
               default_filters={@default_filters}
             />
           </div>
         </:right_panel>
-        <div class="w-full h-full">
+        <div class="w-full h-full flex flex-col gap-4">
           <Components.Stream.traces_stream
             id={@id}
             existing_traces_status={@existing_traces_status}
             existing_traces={@streams.existing_traces}
           />
           <Components.LoadMoreButton.load_more_button
-            :if={not @tracing_started?}
+            :if={not @tracing_started? and not @traces_empty?}
             traces_continuation={@traces_continuation}
           />
         </div>

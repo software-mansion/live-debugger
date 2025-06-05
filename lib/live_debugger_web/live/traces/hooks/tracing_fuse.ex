@@ -13,7 +13,6 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse do
 
   @required_assigns [
     :lv_process,
-    :node_id,
     :current_filters,
     :trace_callback_running?,
     :parent_pid,
@@ -168,40 +167,33 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.TracingFuse do
 
   defp get_active_topics(socket) do
     lv_process = socket.assigns.lv_process
-    node_id = socket.assigns.node_id
+    node_id = Map.get(socket.assigns, :node_id)
 
     socket.assigns.current_filters.functions
     |> Enum.filter(fn {_, active?} -> active? end)
     |> Enum.flat_map(fn {function, _} ->
       [
-        PubSubUtils.trace_topic_per_node(
-          lv_process.pid,
-          node_id,
-          function,
-          :call
-        ),
-        PubSubUtils.trace_topic_per_node(
-          lv_process.pid,
-          node_id,
-          function,
-          :return
-        )
+        get_trace_topic(lv_process.pid, node_id, function, :call),
+        get_trace_topic(lv_process.pid, node_id, function, :return)
       ]
     end)
   end
 
   defp get_topics(socket, type) do
     lv_process = socket.assigns.lv_process
-    node_id = socket.assigns.node_id
+    node_id = Map.get(socket.assigns, :node_id)
 
     socket.assigns.current_filters.functions
     |> Enum.map(fn {function, _} ->
-      PubSubUtils.trace_topic_per_node(
-        lv_process.pid,
-        node_id,
-        function,
-        type
-      )
+      get_trace_topic(lv_process.pid, node_id, function, type)
     end)
+  end
+
+  defp get_trace_topic(pid, nil, function, type) do
+    PubSubUtils.trace_topic_per_pid(pid, function, type)
+  end
+
+  defp get_trace_topic(pid, node_id, function, type) do
+    PubSubUtils.trace_topic_per_node(pid, node_id, function, type)
   end
 end

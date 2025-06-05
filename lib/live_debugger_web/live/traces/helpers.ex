@@ -12,7 +12,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Helpers do
   alias LiveDebugger.Utils.Callbacks, as: UtilsCallbacks
 
   def assign_default_filters(socket) do
-    assign(socket, :default_filters, default_filters(socket.assigns.node_id))
+    node_id = Map.get(socket.assigns, :node_id)
+    assign(socket, :default_filters, default_filters(node_id))
   end
 
   def assign_current_filters(socket, filters) do
@@ -28,12 +29,14 @@ defmodule LiveDebuggerWeb.Live.Traces.Helpers do
   end
 
   def default_filters(node_id) do
+    type = if node_id, do: TreeNode.type(node_id), else: :global
+
     functions =
-      node_id
-      |> TreeNode.type()
+      type
       |> case do
         :live_view -> UtilsCallbacks.live_view_callbacks()
         :live_component -> UtilsCallbacks.live_component_callbacks()
+        :global -> UtilsCallbacks.all_callbacks()
       end
       |> Enum.map(fn {function, _} -> {function, true} end)
 

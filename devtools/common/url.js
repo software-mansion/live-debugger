@@ -69,18 +69,18 @@ function getLiveDebuggerSessionURL(browserElement) {
         } else {
           resolve(result);
         }
-      }
+      },
     );
   });
 }
 
-function allowRedirects() {
+function allowRedirects(browserElement) {
   return new Promise((resolve, reject) => {
     const script = `
       (function() {
         const metaTag = document.querySelector('meta[name="live-debugger-config"]');
         if (metaTag) {
-          return metaTag.getAttribute('devtools-allow-redirects') === 'true';
+          return metaTag.hasAttribute('devtools-allow-redirects');
         } 
         return false;
       })();
@@ -94,7 +94,7 @@ function allowRedirects() {
         } else {
           resolve(result);
         }
-      }
+      },
     );
   });
 }

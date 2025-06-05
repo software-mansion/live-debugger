@@ -42,7 +42,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
     debugger
     |> assert_has(traces(count: 0))
-    |> click(refresh_button())
+    |> click(refresh_history_button())
     |> assert_has(traces(count: 4))
     |> click(clear_traces_button())
 
@@ -51,13 +51,13 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> click(button("slow-increment-button"))
 
     debugger
-    |> click(refresh_button())
+    |> click(refresh_history_button())
     |> assert_has(traces(count: 0))
 
     Process.sleep(405)
 
     assert debugger
-           |> click(refresh_button())
+           |> click(refresh_history_button())
            |> find(traces(count: 2))
            |> List.last()
            |> find(css("span.text-warning-text"))
@@ -208,7 +208,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> click(button("increment-button"))
 
     debugger
-    |> click(refresh_button())
+    |> click(refresh_history_button())
     |> assert_traces(4, [
       "handle_event/3",
       "handle_event/3",
@@ -410,8 +410,6 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_text("LiveDebuggerDev.LiveViews.Side")
   end
 
-  defp first_link(), do: css("#live-sessions a.live-view-link", count: 1)
-
   defp assigns_entry(key: key, value: value) do
     xpath(
       ".//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"#{key}:\")]/../*[contains(normalize-space(text()), \"#{value}\")]"
@@ -425,12 +423,6 @@ defmodule LiveDebugger.ChannelDashboardTest do
   end
 
   defp traces(opts), do: css("#traces-list-stream details", opts)
-
-  defp toggle_tracing_button(), do: css("button[phx-click=\"switch-tracing\"]")
-
-  defp refresh_button(), do: css("button[phx-click=\"refresh-history\"]")
-
-  defp clear_traces_button(), do: css("button[phx-click=\"clear-traces\"]")
 
   defp filters_button(), do: css("#filters-dropdown-button")
 
@@ -447,8 +439,4 @@ defmodule LiveDebugger.ChannelDashboardTest do
   defp many_assigns_15_node_button() do
     css("#tree-node-button-15-component-tree-sidebar-content")
   end
-
-  defp settings_button(), do: css("navbar a#settings-button")
-
-  defp return_button(), do: css("navbar a#return-button")
 end

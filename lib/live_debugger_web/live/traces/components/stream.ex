@@ -36,7 +36,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Stream do
   def traces_stream(assigns) do
     ~H"""
     <div id={"#{@id}-stream"} phx-update="stream" class="flex flex-col gap-2">
-      <div id={"#{@id}-stream-empty"} class="only:block hidden text-secondary-text">
+      <div id={"#{@id}-stream-empty"} class="only:block hidden text-secondary-text text-center">
         <div :if={@existing_traces_status == :ok}>
           No traces have been recorded yet.
         </div>
