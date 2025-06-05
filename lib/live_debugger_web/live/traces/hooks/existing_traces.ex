@@ -10,6 +10,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
 
   alias LiveDebugger.Structs.TraceDisplay
   alias LiveDebugger.Services.TraceService
+  alias LiveDebugger.Helpers.KeywordHelper
 
   # These functions are using the `current_filters` assigns
   import LiveDebuggerWeb.Live.Traces.Helpers,
@@ -55,7 +56,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
         functions: active_functions,
         execution_times: execution_times
       ]
-      |> put_conditionally(:node_id, node_id)
+      |> KeywordHelper.append_if_not_nil(:node_id, node_id)
 
     socket
     |> assign(:existing_traces_status, :loading)

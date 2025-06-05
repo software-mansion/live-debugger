@@ -66,14 +66,6 @@ end
 defmodule LiveDebuggerWeb.Helpers do
   @moduledoc false
 
-  def put_conditionally(opts, key, value) do
-    if value do
-      Keyword.put(opts, key, value)
-    else
-      opts
-    end
-  end
-
   def check_assigns!(%Phoenix.LiveView.Socket{assigns: assigns} = socket, key)
       when is_atom(key) do
     if Map.has_key?(assigns, key) do
