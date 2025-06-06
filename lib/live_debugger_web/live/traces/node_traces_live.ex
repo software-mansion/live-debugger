@@ -72,7 +72,7 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
     |> Hooks.TracingFuse.init()
     |> Hooks.ExistingTraces.init(@page_size)
     |> Hooks.NewTraces.init(@live_stream_limit)
-    |> Components.Filters.init()
+    |> Components.FiltersFullscreen.init()
     |> Components.RefreshButton.init()
     |> Components.ToggleTracingButton.init()
     |> ok()
@@ -98,7 +98,11 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
               :if={not @tracing_started?}
               label_class="hidden @[29rem]/traces:block"
             />
-            <Components.Filters.filters_button :if={not @tracing_started?} />
+            <Components.FiltersFullscreen.filters_button
+              :if={not @tracing_started?}
+              current_filters={@current_filters}
+              default_filters={@default_filters}
+            />
           </div>
         </:right_panel>
         <div class="w-full h-full flex flex-col gap-4">
@@ -114,7 +118,7 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
         </div>
       </.section>
 
-      <Components.Filters.filters_fullscreen
+      <Components.FiltersFullscreen.filters_fullscreen
         node_id={@node_id}
         current_filters={@current_filters}
         default_filters={@default_filters}

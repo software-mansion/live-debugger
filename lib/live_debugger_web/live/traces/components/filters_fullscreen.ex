@@ -1,6 +1,6 @@
-defmodule LiveDebuggerWeb.Live.Traces.Components.Filters do
+defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersFullscreen do
   @moduledoc """
-  Set of components that are used to display the filters.
+  Set of components that are used to display the filters in a fullscreen.
   """
 
   use LiveDebuggerWeb, :hook_component
@@ -51,9 +51,13 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Filters do
   """
 
   # TODO: It should be calculated
-  attr(:applied_filters_number, :integer, default: 5)
+  attr(:current_filters, :map, required: true)
+  attr(:default_filters, :map, required: true)
 
   def filters_button(assigns) do
+    filters_number = calculate_selected_filters(assigns.current_filters, assigns.default_filters)
+    assigns = assign(assigns, :applied_filters_number, filters_number)
+
     ~H"""
     <div class="flex">
       <.button
@@ -106,4 +110,18 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Filters do
   end
 
   defp handle_event(_, _, socket), do: {:cont, socket}
+
+  defp calculate_selected_filters(current_filters, default_filters) do
+    flat_current_filters =
+      current_filters
+      |> Enum.flat_map(fn {_key, value} -> value end)
+      |> Enum.reject(fn {key, _val} -> key in [:min_unit, :max_unit] end)
+
+    flat_default_filters =
+      default_filters
+      |> Enum.flat_map(fn {_key, value} -> value end)
+      |> Enum.reject(fn {key, _val} -> key in [:min_unit, :max_unit] end)
+
+    Enum.count(flat_current_filters, fn {key, value} -> value != flat_default_filters[key] end)
+  end
 end
