@@ -13,6 +13,19 @@ defmodule LiveDebugger.Utils.TermParser do
           expanded_after: [display_element()] | nil
         }
 
+  @spec term_to_copy_string(term()) :: String.t()
+  def term_to_copy_string(term) do
+    term
+    |> inspect(limit: :infinity, pretty: true, structs: false)
+    |> String.replace(~r/#PID<\d+\.\d+\.\d+>/, fn pid_string ->
+      Regex.run(~r/\d+\.\d+\.\d+/, pid_string)
+      |> case do
+        [pid] -> ":erlang.list_to_pid(~c\"<#{pid}>\")"
+        _ -> pid_string
+      end
+    end)
+  end
+
   @spec term_to_display_tree(term()) :: tree_element()
   def term_to_display_tree(term) do
     to_node(term, [])
