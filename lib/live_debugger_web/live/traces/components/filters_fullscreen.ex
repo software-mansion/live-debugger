@@ -52,6 +52,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersFullscreen do
 
   attr(:current_filters, :map, required: true)
   attr(:default_filters, :map, required: true)
+  attr(:label_class, :string, default: "")
 
   def filters_button(assigns) do
     filters_number = calculate_selected_filters(assigns.current_filters, assigns.default_filters)
@@ -62,16 +63,14 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersFullscreen do
       <.button
         variant="secondary"
         size="sm"
-        class={["flex gap-2", if(@applied_filters_number > 0, do: "rounded-r-none")]}
+        class={["flex gap-1", if(@applied_filters_number > 0, do: "rounded-r-none")]}
         phx-click="open-filters"
       >
         <.icon name="icon-filters" class="w-4 h-4" />
-        <div class="flex gap-1">
-          <span class="hidden @[29rem]/traces:block">Filters</span>
-          <span :if={@applied_filters_number > 0}>
-            (<%= @applied_filters_number %>)
-          </span>
-        </div>
+        <span class={["ml-1", @label_class]}>Filters</span>
+        <span :if={@applied_filters_number > 0}>
+          (<%= @applied_filters_number %>)
+        </span>
       </.button>
       <.icon_button
         :if={@applied_filters_number > 0}

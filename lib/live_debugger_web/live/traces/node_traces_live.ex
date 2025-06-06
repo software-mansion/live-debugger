@@ -92,14 +92,15 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
             <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={@tracing_started?} />
             <Components.RefreshButton.refresh_button
               :if={not @tracing_started?}
-              label_class="hidden @[29rem]/traces:block"
+              label_class="hidden @[30rem]/traces:block"
             />
             <Components.ClearButton.clear_button
               :if={not @tracing_started?}
-              label_class="hidden @[29rem]/traces:block"
+              label_class="hidden @[30rem]/traces:block"
             />
             <Components.FiltersFullscreen.filters_button
               :if={not @tracing_started?}
+              label_class="hidden @[30rem]/traces:block"
               current_filters={@current_filters}
               default_filters={@default_filters}
             />
