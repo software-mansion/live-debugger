@@ -410,6 +410,40 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> assert_text("LiveDebuggerDev.LiveViews.Side")
   end
 
+  @sessions 2
+  feature "user can copy values", %{sessions: [dev_app, debugger]} do
+    LiveDebugger.GenServers.CallbackTracingServer.ping!()
+
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_text("LiveDebuggerDev.LiveViews.Main")
+    |> execute_script("""
+      window._copiedText = null;
+
+      navigator.clipboard.writeText = function(text) {
+        window._copiedText = text;
+        return Promise.resolve();
+      };
+
+      document.execCommand = function(cmd) {
+        if (cmd === 'copy') {
+          const selectedText = window.getSelection().toString();
+          window._copiedText = selectedText;
+          return true;
+        }
+        return false;
+      };
+    """)
+    |> click(css("button#copy-button_module-name"))
+    |> execute_script("return window._copiedText;", fn copied_text ->
+      assert copied_text == "LiveDebuggerDev.LiveViews.Main"
+    end)
+  end
+
   defp assigns_entry(key: key, value: value) do
     xpath(
       ".//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"#{key}:\")]/../*[contains(normalize-space(text()), \"#{value}\")]"
