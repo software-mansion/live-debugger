@@ -396,7 +396,7 @@ defmodule LiveDebuggerWeb.Components do
       id={@id}
       phx-hook="Fullscreen"
       class={[
-        "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg p-2 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
+        "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
       ]}
     >
@@ -409,7 +409,7 @@ defmodule LiveDebuggerWeb.Components do
           variant="secondary"
         />
       </div>
-      <div class="overflow-auto flex flex-col gap-2 p-2 text-primary-text">
+      <div class="overflow-auto flex flex-col gap-2 p-4 text-primary-text">
         <%= render_slot(@inner_block) %>
       </div>
     </dialog>
