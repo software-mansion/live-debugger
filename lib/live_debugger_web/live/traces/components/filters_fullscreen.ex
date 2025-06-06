@@ -50,7 +50,6 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersFullscreen do
   It produces the `open-filters` and `reset-filters` events that can be handled by the hook provided in the `init/1` function.
   """
 
-  # TODO: It should be calculated
   attr(:current_filters, :map, required: true)
   attr(:default_filters, :map, required: true)
 
@@ -79,7 +78,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersFullscreen do
         icon="icon-cross"
         variant="secondary"
         phx-click="reset-filters"
-        class="rounded-l-none border-l-0"
+        class="rounded-l-none border-l-0 h-[30px]! w-[30px]!"
       />
     </div>
     """
