@@ -168,14 +168,4 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     |> String.to_integer()
     |> Parsers.time_to_microseconds(unit)
   end
-
-  defp calculate_selected_filters(form) do
-    callbacks =
-      UtilsCallbacks.callbacks_functions()
-      |> Enum.map(&Atom.to_string/1)
-
-    form.params
-    |> Enum.filter(fn {name, value} -> Enum.member?(callbacks, name) && value end)
-    |> Enum.count(&Function.identity/1)
-  end
 end
