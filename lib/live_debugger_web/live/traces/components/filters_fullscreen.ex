@@ -33,7 +33,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersFullscreen do
   """
   def filters_fullscreen(assigns) do
     ~H"""
-    <.fullscreen id="filters-fullscreen" title="Filters">
+    <.fullscreen id="filters-fullscreen" title="Filters" class="max-w-112 min-w-[20rem]">
       <.live_component
         module={LiveDebuggerWeb.LiveComponents.FiltersForm}
         id="filters-fullscreen-form"

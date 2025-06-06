@@ -24,55 +24,48 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   def render(assigns) do
     assigns =
       assigns
-      |> assign(:selected_filters_number, calculate_selected_filters(assigns.form))
       |> assign(:errors, assigns.form.errors)
 
     ~H"""
     <div id={@id <> "-wrapper"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
-        <div class="w-96">
-          <div class="p-4">
-            <p class="font-medium mb-4">Callbacks</p>
-            <div class="flex flex-col gap-3">
-              <%= for {function, arity} <- get_callbacks(@node_id) do %>
-                <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
-              <% end %>
-            </div>
-            <p class="font-medium mb-4 mt-6">Execution Time</p>
-            <div class="mt-3 flex gap-3 items-center">
-              <.input_with_units
-                value_field={@form[:exec_time_min]}
-                unit_field={@form[:min_unit]}
-                units={Parsers.time_units()}
-                min="0"
-                placeholder="min"
-              /> -
-              <.input_with_units
-                value_field={@form[:exec_time_max]}
-                unit_field={@form[:max_unit]}
-                min="0"
-                units={Parsers.time_units()}
-                placeholder="max"
-              />
-            </div>
+        <div class="w-full px-1">
+          <div class="pb-2 h-10 flex items-center">
+            <p class="font-medium">Callbacks</p>
+          </div>
+          <div class="flex flex-col gap-3 pl-0.5 pb-4 border-b border-default-border">
+            <%= for {function, arity} <- get_callbacks(@node_id) do %>
+              <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
+            <% end %>
+          </div>
+          <div class="py-2 h-10 flex items-center">
+            <p class="font-medium">Execution Time</p>
+          </div>
+          <div class="flex gap-3 items-center pb-5">
+            <.input_with_units
+              value_field={@form[:exec_time_min]}
+              unit_field={@form[:min_unit]}
+              units={Parsers.time_units()}
+              min="0"
+              placeholder="min"
+            /> -
+            <.input_with_units
+              value_field={@form[:exec_time_max]}
+              unit_field={@form[:max_unit]}
+              min="0"
+              units={Parsers.time_units()}
+              placeholder="max"
+            />
             <p :for={{_, msg} <- @errors} class="mt-2 block text-error-text">
               <%= msg %>
             </p>
           </div>
-          <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
-            <button
-              class="text-link-primary hover:text-link-primary-hover"
-              type="button"
-              phx-click="reset"
-              phx-target={@myself}
-            >
-              Reset filters
-            </button>
-            <.button variant="primary" size="sm" type="submit">
+          <div class="flex pt-4 pb-2 border-t border-default-border items-center justify-start gap-2">
+            <.button variant="primary" type="submit">
               Apply
-              <span :if={@selected_filters_number > 0}>
-                (<%= @selected_filters_number %>)
-              </span>
+            </.button>
+            <.button variant="secondary" type="button" phx-click="reset" phx-target={@myself}>
+              Reset
             </.button>
           </div>
         </div>
