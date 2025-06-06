@@ -232,7 +232,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     ])
     |> click(toggle_tracing_button())
     |> click(filters_button())
-    |> click(reset_filters_button())
+    |> click(reset_button())
     |> click(css("button", text: "Apply"))
     |> assert_traces(14, [
       "render/1",
@@ -383,13 +383,13 @@ defmodule LiveDebugger.ChannelDashboardTest do
     Process.sleep(405)
 
     debugger
-    |> click(refresh_button())
+    |> click(refresh_history_button())
     |> assert_traces(2, [
       "handle_event/3",
       "handle_event/3"
     ])
     |> click(filters_button())
-    |> click(reset_group_button())
+    |> click(reset_group_button("execution_time"))
     |> click(css("button", text: "Apply"))
     |> assert_traces(5, [
       "handle_info/2",
@@ -400,7 +400,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     ])
     |> click(filters_button())
     |> fill_in(text_field("exec_time_max"), with: 100)
-    |> click(reset_group_button())
+    |> click(reset_group_button("functions"))
     |> click(css("button", text: "Apply"))
     |> assert_traces(10, [
       "render/1",
@@ -427,7 +427,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
       "render/1",
       "mount/3"
     ])
-    |> click(reset_group_button())
+    |> click(reset_filters_button())
     |> assert_traces(12, [
       "render/1",
       "handle_info/2",
@@ -540,7 +540,9 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
   defp filters_button(), do: css("button[phx-click=\"open-filters\"]")
 
-  defp reset_filters_button(), do: css("button[phx-click=\"reset\"]")
+  defp reset_button(), do: css("button[phx-click=\"reset\"]")
+
+  defp reset_filters_button(), do: css("button[phx-click=\"reset-filters\"]")
 
   defp conditional_component_5_node_button() do
     css("#tree-node-button-5-component-tree-sidebar-content")
@@ -554,5 +556,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     css("#tree-node-button-15-component-tree-sidebar-content")
   end
 
-  defp reset_group_button(), do: css("button[phx-click=\"reset-group\"]")
+  defp reset_group_button(group) do
+    css("button[phx-click=\"reset-group\"][phx-value-group=\"#{group}\"]")
+  end
 end
