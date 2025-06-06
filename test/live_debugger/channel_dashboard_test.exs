@@ -197,7 +197,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> click(filters_button())
     |> click(checkbox("mount"))
     |> click(checkbox("render"))
-    |> click(css("button", text: "Apply (7)"))
+    |> click(css("button", text: "Apply"))
     |> assert_traces(2, [
       "handle_info/2",
       "handle_info/2"
@@ -233,7 +233,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> click(toggle_tracing_button())
     |> click(filters_button())
     |> click(reset_filters_button())
-    |> click(css("button", text: "Apply (9)"))
+    |> click(css("button", text: "Apply"))
     |> assert_traces(14, [
       "render/1",
       "handle_info/2",
@@ -424,7 +424,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
 
   defp traces(opts), do: css("#traces-list-stream details", opts)
 
-  defp filters_button(), do: css("#filters-dropdown-button")
+  defp filters_button(), do: css("button[phx-click=\"open-filters\"]")
 
   defp reset_filters_button(), do: css("button[phx-click=\"reset\"]")
 
