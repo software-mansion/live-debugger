@@ -18,11 +18,8 @@ defmodule LiveDebugger.Utils.TermParser do
     term
     |> inspect(limit: :infinity, pretty: true, structs: false)
     |> String.replace(~r/#PID<\d+\.\d+\.\d+>/, fn pid_string ->
-      Regex.run(~r/\d+\.\d+\.\d+/, pid_string)
-      |> case do
-        [pid] -> ":erlang.list_to_pid(~c\"<#{pid}>\")"
-        _ -> pid_string
-      end
+      [pid] = Regex.run(~r/\d+\.\d+\.\d+/, pid_string)
+      ":erlang.list_to_pid(~c\"<#{pid}>\")"
     end)
   end
 
