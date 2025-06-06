@@ -47,7 +47,11 @@ defmodule LiveDebuggerWeb.Live.Traces.Components do
         <p class="font-semibold">
           Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)
         </p>
-        <.copy_button id={"#{@id}-arg-#{index}"} value={TermParser.term_to_copy_string(args)} />
+        <.copy_button
+          id={"#{@id}-arg-#{index}"}
+          variant="secondary"
+          value={TermParser.term_to_copy_string(args)}
+        />
       </div>
       <ElixirDisplay.term
         id={@id <> "-#{index}"}
