@@ -41,25 +41,28 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           <div class="py-2 h-10 flex items-center">
             <p class="font-medium">Execution Time</p>
           </div>
-          <div class="flex gap-3 items-center pb-5">
-            <.input_with_units
-              value_field={@form[:exec_time_min]}
-              unit_field={@form[:min_unit]}
-              units={Parsers.time_units()}
-              min="0"
-              placeholder="min"
-            /> -
-            <.input_with_units
-              value_field={@form[:exec_time_max]}
-              unit_field={@form[:max_unit]}
-              min="0"
-              units={Parsers.time_units()}
-              placeholder="max"
-            />
+          <div class="pb-5">
+            <div class="flex gap-3 items-center">
+              <.input_with_units
+                value_field={@form[:exec_time_min]}
+                unit_field={@form[:min_unit]}
+                units={Parsers.time_units()}
+                min="0"
+                placeholder="min"
+              /> -
+              <.input_with_units
+                value_field={@form[:exec_time_max]}
+                unit_field={@form[:max_unit]}
+                min="0"
+                units={Parsers.time_units()}
+                placeholder="max"
+              />
+            </div>
             <p :for={{_, msg} <- @errors} class="mt-2 block text-error-text">
               <%= msg %>
             </p>
           </div>
+
           <div class="flex pt-4 pb-2 border-t border-default-border items-center justify-start gap-2">
             <.button variant="primary" type="submit">
               Apply
