@@ -28,13 +28,26 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     <div id={@id <> "-wrapper"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
         <div class="w-full px-1">
-          <.filters_section_header title="Callbacks" />
+          <.filters_group_header
+            title="Callbacks"
+            group_name={:functions}
+            form={@form}
+            default_filters={@default_filters}
+            target={@myself}
+          />
           <div class="flex flex-col gap-3 pl-0.5 pb-4 border-b border-default-border">
             <%= for {function, arity} <- get_callbacks(@node_id) do %>
               <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
             <% end %>
           </div>
-          <.filters_section_header title="Execution Time" class="pt-2" />
+          <.filters_group_header
+            title="Execution Time"
+            class="pt-2"
+            group_name={:execution_time}
+            form={@form}
+            default_filters={@default_filters}
+            target={@myself}
+          />
           <div class="pb-5">
             <div class="flex gap-3 items-center">
               <.input_with_units
@@ -107,12 +120,36 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     |> noreply()
   end
 
+  @impl true
+  def handle_event("reset-group", params, socket) do
+    group_name = params["group"] |> String.to_existing_atom()
+
+    socket
+    |> assign_form(Map.get(socket.assigns.default_filters, group_name), socket.assigns.form)
+    |> noreply()
+  end
+
   def assign_form(socket, %{functions: functions, execution_time: execution_time}) do
     form =
       (functions ++ execution_time)
       |> Enum.reduce(%{}, fn {filter, value}, acc ->
         Map.put(acc, Atom.to_string(filter), value)
       end)
+      |> to_form()
+
+    assign(socket, :form, form)
+  end
+
+  def assign_form(socket, filters_list, form) when is_list(filters_list) do
+    updated_params =
+      filters_list
+      |> Enum.reduce(%{}, fn {filter, value}, acc ->
+        Map.put(acc, Atom.to_string(filter), value)
+      end)
+
+    form =
+      form.params
+      |> Map.merge(updated_params)
       |> to_form()
 
     assign(socket, :form, form)
@@ -129,21 +166,36 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
   attr(:title, :string, required: true)
   attr(:class, :string, default: "")
+  attr(:group_name, :atom, required: true)
+  attr(:form, :map, required: true)
+  attr(:default_filters, :map, required: true)
+  attr(:target, :any, required: true)
 
-  defp filters_section_header(assigns) do
+  defp filters_group_header(assigns) do
     ~H"""
     <div class={["pb-2 pr-3 h-10 flex items-center justify-between", @class]}>
       <p class="font-medium"><%= @title %></p>
       <button
+        :if={group_changed?(@form, @default_filters, @group_name)}
         type="button"
         class="flex align-center text-link-primary hover:text-link-primary-hover"
-        phx-click="reset"
+        phx-click="reset-group"
+        phx-value-group={@group_name}
+        phx-target={@target}
       >
         <.icon name="icon-arrow-left" class="w-4 h-4" />
         <span>Reset</span>
       </button>
     </div>
     """
+  end
+
+  defp group_changed?(form, default_filters, group_name) do
+    default_filters = Map.get(default_filters, group_name)
+
+    Enum.any?(default_filters, fn {key, value} ->
+      value != form.params[Atom.to_string(key)]
+    end)
   end
 
   defp update_filters(active_filters, params) do
