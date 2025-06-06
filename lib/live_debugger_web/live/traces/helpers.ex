@@ -45,8 +45,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Helpers do
       execution_time: [
         {:exec_time_max, ""},
         {:exec_time_min, ""},
-        {:min_unit, ""},
-        {:max_unit, ""}
+        {:min_unit, Parsers.time_units() |> List.first()},
+        {:max_unit, Parsers.time_units() |> List.first()}
       ]
     }
   end

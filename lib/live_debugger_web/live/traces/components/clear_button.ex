@@ -31,9 +31,14 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.ClearButton do
 
   def clear_button(assigns) do
     ~H"""
-    <.button phx-click="clear-traces" class="flex gap-2" variant="secondary" size="sm">
+    <.button
+      phx-click="clear-traces"
+      class="flex gap-2 [&>*:nth-child(2)]:ml-1"
+      variant="secondary"
+      size="sm"
+    >
       <.icon name="icon-trash" class="w-4 h-4" />
-      <div class={@label_class}>
+      <div class={[@label_class, "ml-1"]}>
         Clear
       </div>
     </.button>
