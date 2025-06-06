@@ -194,7 +194,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     :ok
   rescue
     err ->
-      Logger.error("Error while publishing trace: #{inspect(err)}")
+      Logger.error("Error while publishing update trace: #{inspect(err)}")
       {:error, err}
   end
 

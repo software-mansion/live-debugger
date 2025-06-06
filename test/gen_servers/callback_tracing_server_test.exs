@@ -127,18 +127,19 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       table = :ets.new(:test_table, [:ordered_set, :public])
 
-      expected_trace_call_topic =
-        PubSubUtils.trace_topic_per_node(pid, pid, fun, :call)
-
-      expected_trace_return_topic =
-        PubSubUtils.trace_topic_per_node(pid, pid, fun, :return)
+      expected_call_topic_per_node = PubSubUtils.trace_topic_per_node(pid, pid, fun, :call)
+      expected_call_topic_per_pid = PubSubUtils.trace_topic_per_pid(pid, fun, :call)
+      expected_return_topic_per_node = PubSubUtils.trace_topic_per_node(pid, pid, fun, :return)
+      expected_return_topic_per_pid = PubSubUtils.trace_topic_per_pid(pid, fun, :return)
 
       MockEtsTableServer
       |> expect(:table, 2, fn ^pid -> table end)
 
       MockPubSubUtils
-      |> expect(:broadcast, fn ^expected_trace_call_topic, {:new_trace, _trace} -> :ok end)
-      |> expect(:broadcast, fn ^expected_trace_return_topic, {:updated_trace, _trace} -> :ok end)
+      |> expect(:broadcast, fn ^expected_call_topic_per_node, {:new_trace, _} -> :ok end)
+      |> expect(:broadcast, fn ^expected_call_topic_per_pid, {:new_trace, _} -> :ok end)
+      |> expect(:broadcast, fn ^expected_return_topic_per_node, {:updated_trace, _} -> :ok end)
+      |> expect(:broadcast, fn ^expected_return_topic_per_pid, {:updated_trace, _} -> :ok end)
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
       assert_receive handle_trace
@@ -154,6 +155,77 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
                module: ^module,
                function: ^fun,
                arity: 2,
+               args: ^args,
+               socket_id: ^socket_id,
+               transport_pid: ^transport_pid,
+               pid: ^pid,
+               cid: nil,
+               timestamp: ^expected_timestamp,
+               execution_time: nil
+             } = trace
+
+      return_timestamp = :erlang.timestamp()
+
+      assert -1 =
+               handle_trace.(
+                 {:trace, pid, :return_from, {module, fun, length(args)}, {:noreply, %{}},
+                  return_timestamp},
+                 -1
+               )
+
+      assert [{0, updated_trace}] = :ets.tab2list(table)
+
+      expected_execution_time = :timer.now_diff(return_timestamp, call_timestamp)
+
+      assert %{trace | execution_time: expected_execution_time} == updated_trace
+    end
+
+    test "handle :render live view trace" do
+      transport_pid = :c.pid(0, 0, 1)
+      pid = :c.pid(0, 0, 2)
+      socket_id = "phx-GDrDzLLr4USWzwBC"
+      module = CoolApp.LiveViews.UserDashboard
+      fun = :render
+
+      args = [
+        %{
+          counter: 1,
+          socket: %Phoenix.LiveView.Socket{id: socket_id, transport_pid: transport_pid}
+        }
+      ]
+
+      table = :ets.new(:test_table, [:ordered_set, :public])
+
+      expected_call_topic_per_node = PubSubUtils.trace_topic_per_node(pid, pid, fun, :call)
+      expected_call_topic_per_pid = PubSubUtils.trace_topic_per_pid(pid, fun, :call)
+      expected_node_rendered_topic = PubSubUtils.node_rendered_topic()
+      expected_return_topic_per_node = PubSubUtils.trace_topic_per_node(pid, pid, fun, :return)
+      expected_return_topic_per_pid = PubSubUtils.trace_topic_per_pid(pid, fun, :return)
+
+      MockEtsTableServer
+      |> expect(:table, 2, fn ^pid -> table end)
+
+      MockPubSubUtils
+      |> expect(:broadcast, fn ^expected_call_topic_per_node, {:new_trace, _} -> :ok end)
+      |> expect(:broadcast, fn ^expected_call_topic_per_pid, {:new_trace, _} -> :ok end)
+      |> expect(:broadcast, fn ^expected_node_rendered_topic, {:render_trace, _} -> :ok end)
+      |> expect(:broadcast, fn ^expected_return_topic_per_node, {:updated_trace, _} -> :ok end)
+      |> expect(:broadcast, fn ^expected_return_topic_per_pid, {:updated_trace, _} -> :ok end)
+
+      assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
+      assert_receive handle_trace
+
+      call_timestamp = :erlang.timestamp()
+      assert -1 = handle_trace.({:trace, pid, :call, {module, fun, args}, call_timestamp}, 0)
+      assert [{0, trace}] = :ets.tab2list(table)
+
+      expected_timestamp = :timer.now_diff(call_timestamp, {0, 0, 0})
+
+      assert %Trace{
+               id: 0,
+               module: ^module,
+               function: ^fun,
+               arity: 1,
                args: ^args,
                socket_id: ^socket_id,
                transport_pid: ^transport_pid,
