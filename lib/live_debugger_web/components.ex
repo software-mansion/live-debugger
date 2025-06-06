@@ -396,7 +396,7 @@ defmodule LiveDebuggerWeb.Components do
       id={@id}
       phx-hook="Fullscreen"
       class={[
-        "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg p-2 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
+        "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
       ]}
     >
@@ -409,7 +409,7 @@ defmodule LiveDebuggerWeb.Components do
           variant="secondary"
         />
       </div>
-      <div class="overflow-auto flex flex-col gap-2 p-2 text-primary-text">
+      <div class="overflow-auto flex flex-col gap-2 p-4 text-primary-text">
         <%= render_slot(@inner_block) %>
       </div>
     </dialog>
@@ -599,21 +599,35 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:id, :string, required: true)
   attr(:value, :string, required: true)
+  attr(:variant, :string, default: "primary", values: ["primary", "secondary"])
   attr(:rest, :global)
 
   def copy_button(assigns) do
     ~H"""
     <.tooltip id={@id} content="Copy" position="top-center">
-      <button
-        id={"copy-button_" <>@id}
-        class="hover:text-secondary-text"
-        phx-hook="CopyButton"
-        data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
-        data-value={@value}
-        {@rest}
-      >
-        <.icon name="icon-copy" class="w-4 h-4" />
-      </button>
+      <%= if @variant == "primary" do %>
+        <.icon_button
+          id={"copy-button_" <> @id}
+          icon="icon-copy"
+          variant="secondary"
+          class="hover:text-secondary-text"
+          phx-hook="CopyButton"
+          data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
+          data-value={@value}
+          {@rest}
+        />
+      <% else %>
+        <button
+          id={"copy-button_" <>@id}
+          class="hover:text-secondary-text"
+          phx-hook="CopyButton"
+          data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
+          data-value={@value}
+          {@rest}
+        >
+          <.icon name="icon-copy" class="w-4 h-4" />
+        </button>
+      <% end %>
     </.tooltip>
     """
   end
