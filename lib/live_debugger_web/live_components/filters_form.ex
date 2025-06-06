@@ -22,25 +22,19 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
   @impl true
   def render(assigns) do
-    assigns =
-      assigns
-      |> assign(:errors, assigns.form.errors)
+    assigns = assign(assigns, :errors, assigns.form.errors)
 
     ~H"""
     <div id={@id <> "-wrapper"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
         <div class="w-full px-1">
-          <div class="pb-2 h-10 flex items-center">
-            <p class="font-medium">Callbacks</p>
-          </div>
+          <.filters_section_header title="Callbacks" />
           <div class="flex flex-col gap-3 pl-0.5 pb-4 border-b border-default-border">
             <%= for {function, arity} <- get_callbacks(@node_id) do %>
               <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
             <% end %>
           </div>
-          <div class="py-2 h-10 flex items-center">
-            <p class="font-medium">Execution Time</p>
-          </div>
+          <.filters_section_header title="Execution Time" class="pt-2" />
           <div class="pb-5">
             <div class="flex gap-3 items-center">
               <.input_with_units
@@ -131,6 +125,25 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
       :live_view -> UtilsCallbacks.live_view_callbacks()
       :live_component -> UtilsCallbacks.live_component_callbacks()
     end
+  end
+
+  attr(:title, :string, required: true)
+  attr(:class, :string, default: "")
+
+  defp filters_section_header(assigns) do
+    ~H"""
+    <div class={["pb-2 pr-3 h-10 flex items-center justify-between", @class]}>
+      <p class="font-medium"><%= @title %></p>
+      <button
+        type="button"
+        class="flex align-center text-link-primary hover:text-link-primary-hover"
+        phx-click="reset"
+      >
+        <.icon name="icon-arrow-left" class="w-4 h-4" />
+        <span>Reset</span>
+      </button>
+    </div>
+    """
   end
 
   defp update_filters(active_filters, params) do
