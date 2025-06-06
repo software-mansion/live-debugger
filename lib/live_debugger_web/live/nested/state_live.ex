@@ -114,7 +114,6 @@ defmodule LiveDebuggerWeb.Live.Nested.StateLive do
         <div class="flex gap-2">
           <.copy_button
             id="assigns"
-            size="sm"
             value={inspect(@assigns, limit: :infinity, pretty: true, structs: false)}
           />
           <.fullscreen_button id="assigns-display-fullscreen" />

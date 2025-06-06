@@ -600,7 +600,6 @@ defmodule LiveDebuggerWeb.Components do
   attr(:id, :string, required: true)
   attr(:value, :string, required: true)
   attr(:variant, :string, default: "primary", values: ["primary", "secondary"])
-  attr(:size, :string, default: "md", values: ["md", "sm"])
   attr(:rest, :global)
 
   def copy_button(assigns) do

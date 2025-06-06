@@ -47,15 +47,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components do
         <p class="font-semibold">
           Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)
         </p>
-        <.copy_button
-          id={"#{@id}-arg-#{index}"}
-          size="sm"
-          variant="secondary"
-          value={
-            inspect(args, limit: :infinity, pretty: true, structs: false)
-            |> String.replace(~r"#PID<\d+\.\d+\.\d+>", fn pid_string -> "pid(\"#{pid_string}\")" end)
-          }
-        />
+        <.copy_button id={"#{@id}-arg-#{index}"} value={term_to_copy_string(args)} />
       </div>
       <ElixirDisplay.term
         id={@id <> "-#{index}"}
@@ -64,5 +56,17 @@ defmodule LiveDebuggerWeb.Live.Traces.Components do
       />
     <% end %>
     """
+  end
+
+  defp term_to_copy_string(term) do
+    term
+    |> inspect(limit: :infinity, pretty: true, structs: false)
+    |> String.replace(~r/#PID<\d+\.\d+\.\d+>/, fn pid_string ->
+      Regex.run(~r/\d+\.\d+\.\d+/, pid_string)
+      |> case do
+        [pid] -> ":erlang.list_to_pid(~c\"<#{pid}>\")"
+        _ -> pid_string
+      end
+    end)
   end
 end
