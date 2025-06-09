@@ -125,7 +125,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     group_name = params["group"] |> String.to_existing_atom()
 
     socket
-    |> assign_form(Map.get(socket.assigns.default_filters, group_name), socket.assigns.form)
+    |> assign_form(Map.get(socket.assigns.default_filters, group_name))
     |> noreply()
   end
 
@@ -140,7 +140,9 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     assign(socket, :form, form)
   end
 
-  defp assign_form(socket, filters_list, form) when is_list(filters_list) do
+  defp assign_form(socket, filters_list) when is_list(filters_list) do
+    form = socket.assigns.form
+
     updated_params =
       filters_list
       |> Enum.reduce(%{}, fn {filter, value}, acc ->
