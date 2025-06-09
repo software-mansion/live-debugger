@@ -21,6 +21,7 @@ defmodule LiveDebugger.Utils.TermParser do
       [pid] = Regex.run(~r/\d+\.\d+\.\d+/, pid_string)
       ":erlang.list_to_pid(~c\"<#{pid}>\")"
     end)
+    |> String.replace(~r/#.+?<.*?>/, &"\"#{&1}\"")
   end
 
   @spec term_to_display_tree(term()) :: tree_element()
