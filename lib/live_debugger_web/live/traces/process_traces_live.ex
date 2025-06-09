@@ -46,6 +46,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
     |> assign(:traces_empty?, true)
     |> assign(:displayed_trace, nil)
     |> assign(:traces_continuation, nil)
+    |> assign(:sidebar_hidden?, true)
     |> Helpers.assign_default_filters()
     |> Helpers.assign_current_filters()
     |> Components.LoadMoreButton.init()
@@ -97,6 +98,22 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
         </div>
       </div>
     </div>
+    <.sidebar :if={not @sidebar_hidden?} />
+    """
+  end
+
+  @impl true
+  def handle_event("open-sidebar", _, socket) do
+    {:noreply, assign(socket, :sidebar_hidden?, false)}
+  end
+
+  @impl true
+  def handle_event("close_mobile_content", _params, socket) do
+    {:noreply, assign(socket, :sidebar_hidden?, true)}
+  end
+
+  defp sidebar(assigns) do
+    ~H"""
     <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
       <div class="hidden lg:flex max-h-full flex-col w-72 border-x border-default-border lg:w-80 gap-1 justify-between">
         <div>Content</div>

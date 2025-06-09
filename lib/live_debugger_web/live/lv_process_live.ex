@@ -59,7 +59,7 @@ defmodule LiveDebuggerWeb.LvProcessLive do
             <Navbar.settings_button return_to={@url} />
             <span class="h-5 border-r border-default-border lg:hidden"></span>
             <.nav_icon
-              phx-click={if @lv_process.ok?, do: JS.push("open-sidebar", target: "#sidebar")}
+              phx-click={if @lv_process.ok?, do: get_open_sidebar_js(@live_action)}
               class="flex lg:hidden"
               icon="icon-panel-right"
             />
@@ -147,6 +147,13 @@ defmodule LiveDebuggerWeb.LvProcessLive do
 
       in_iframe? ->
         RoutesHelper.window_dashboard(lv_process.transport_pid)
+    end
+  end
+
+  defp get_open_sidebar_js(live_action) do
+    case live_action do
+      :node_inspector -> JS.push("open-sidebar", target: "#sidebar")
+      :global_traces -> JS.push("open-sidebar", target: "#global-traces")
     end
   end
 end
