@@ -57,6 +57,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
     |> Components.ClearButton.init()
     |> Components.ToggleTracingButton.init()
     |> Components.Stream.init()
+    |> Components.FiltersFullscreen.init()
     |> ok()
   end
 
@@ -98,7 +99,11 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
         </div>
       </div>
     </div>
-    <.sidebar :if={not @sidebar_hidden?} />
+    <.sidebar
+      :if={not @sidebar_hidden?}
+      current_filters={@current_filters}
+      default_filters={@default_filters}
+    />
     """
   end
 
@@ -112,14 +117,27 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
     {:noreply, assign(socket, :sidebar_hidden?, true)}
   end
 
+  attr(:current_filters, :map, required: true)
+  attr(:default_filters, :map, required: true)
+
   defp sidebar(assigns) do
     ~H"""
     <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
       <div class="hidden lg:flex max-h-full flex-col w-72 border-x border-default-border lg:w-80 gap-1 justify-between">
-        <div>Content</div>
+        <.live_component
+          module={LiveDebuggerWeb.LiveComponents.FiltersForm}
+          id="filters-sidebar-form"
+          filters={@current_filters}
+          default_filters={@default_filters}
+        />
       </div>
       <.sidebar_slide_over>
-        <div>Content</div>
+        <.live_component
+          module={LiveDebuggerWeb.LiveComponents.FiltersForm}
+          id="mobile-filters-sidebar-form"
+          filters={@current_filters}
+          default_filters={@default_filters}
+        />
       </.sidebar_slide_over>
     </div>
     """

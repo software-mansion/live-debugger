@@ -13,7 +13,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   def update(assigns, socket) do
     socket
     |> assign(:id, assigns.id)
-    |> assign(:node_id, assigns.node_id)
+    |> assign(:node_id, Map.get(assigns, :node_id, nil))
     |> assign(:active_filters, assigns.filters)
     |> assign(:default_filters, assigns.default_filters)
     |> assign_form(assigns.filters)
@@ -154,6 +154,8 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
     assign(socket, :form, form)
   end
+
+  def get_callbacks(nil), do: UtilsCallbacks.all_callbacks()
 
   def get_callbacks(node_id) do
     node_id

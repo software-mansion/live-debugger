@@ -7,7 +7,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersFullscreen do
 
   alias LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces
 
-  @required_assigns [:node_id, :current_filters, :default_filters]
+  @required_assigns [:current_filters, :default_filters]
 
   @doc """
   Initializes the component by checking the assigns and streams and attaching the hook to the socket.
@@ -23,7 +23,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersFullscreen do
     |> register_hook(:filters)
   end
 
-  attr(:node_id, :map, required: true)
+  attr(:node_id, :map, default: nil)
   attr(:current_filters, :map, required: true)
   attr(:default_filters, :map, required: true)
 
