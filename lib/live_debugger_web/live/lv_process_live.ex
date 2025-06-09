@@ -17,7 +17,7 @@ defmodule LiveDebuggerWeb.LvProcessLive do
   alias Phoenix.LiveView.JS
 
   alias LiveDebuggerWeb.Live.Nested.StateLive
-  alias LiveDebuggerWeb.Live.Nested.SidebarLive
+  alias LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Components.NavigationMenu
   alias LiveDebuggerWeb.Live.Traces.NodeTracesLive
@@ -117,7 +117,7 @@ defmodule LiveDebuggerWeb.LvProcessLive do
         params={@params}
       />
     </div>
-    <SidebarLive.live_render
+    <NodeInspectorSidebarLive.live_render
       id="sidebar"
       class="h-full"
       socket={@socket}
