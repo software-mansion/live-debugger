@@ -65,7 +65,7 @@ defmodule LiveDebuggerWeb.LvProcessLive do
             />
           </div>
         </Navbar.navbar>
-        <div class="flex overflow-hidden">
+        <div class="flex overflow-hidden w-full">
           <NavigationMenu.sidebar class="hidden sm:flex" current_url={@url} />
           <.node_inspector
             :if={@live_action == :node_inspector}
@@ -130,15 +130,13 @@ defmodule LiveDebuggerWeb.LvProcessLive do
 
   defp global_traces(assigns) do
     ~H"""
-    <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
-      <ProcessTracesLive.live_render
-        id="global-traces"
-        class="flex"
-        socket={@socket}
-        lv_process={@lv_process}
-        params={@params}
-      />
-    </div>
+    <ProcessTracesLive.live_render
+      id="global-traces"
+      class="flex overflow-hidden w-full"
+      socket={@socket}
+      lv_process={@lv_process}
+      params={@params}
+    />
     """
   end
 

@@ -373,6 +373,27 @@ defmodule LiveDebuggerWeb.Components do
     """
   end
 
+  slot(:inner_block)
+
+  def sidebar_slide_over(assigns) do
+    ~H"""
+    <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex lg:hidden justify-end">
+      <div
+        class="w-80 h-full flex flex-col bg-sidebar-bg justify-between"
+        phx-click-away="close_mobile_content"
+      >
+        <.icon_button
+          icon="icon-cross"
+          class="absolute top-4 right-4"
+          variant="secondary"
+          phx-click="close_mobile_content"
+        />
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
+    """
+  end
+
   @doc """
   Renders a fullscreen using Fullscreen hook.
   It can be opened and via browser "open" event (by default) with JS.dispatch or via server event (check example in fullscreen button).
