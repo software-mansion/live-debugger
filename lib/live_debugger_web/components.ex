@@ -599,7 +599,7 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:id, :string, required: true)
   attr(:value, :string, required: true)
-  attr(:variant, :string, default: "primary", values: ["primary", "secondary"])
+  attr(:variant, :string, default: "icon", values: ["icon", "icon-button"])
   attr(:rest, :global)
 
   def copy_button(assigns) do
@@ -610,7 +610,7 @@ defmodule LiveDebuggerWeb.Components do
         icon="icon-copy"
         variant="secondary"
         class={
-          if(@variant == "secondary",
+          if(@variant == "icon",
             do: "w-max! h-max! p-0! bg-inherit border-none hover:text-secondary-text"
           )
         }

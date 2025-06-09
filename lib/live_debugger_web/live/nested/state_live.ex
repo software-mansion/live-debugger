@@ -112,7 +112,11 @@ defmodule LiveDebuggerWeb.Live.Nested.StateLive do
     <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
       <:right_panel>
         <div class="flex gap-2">
-          <.copy_button id="assigns" value={TermParser.term_to_copy_string(@assigns)} />
+          <.copy_button
+            id="assigns"
+            variant="icon-button"
+            value={TermParser.term_to_copy_string(@assigns)}
+          />
           <.fullscreen_button id="assigns-display-fullscreen" />
         </div>
       </:right_panel>
