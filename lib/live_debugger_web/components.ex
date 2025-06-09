@@ -605,29 +605,20 @@ defmodule LiveDebuggerWeb.Components do
   def copy_button(assigns) do
     ~H"""
     <.tooltip id={@id} content="Copy" position="top-center">
-      <%= if @variant == "primary" do %>
-        <.icon_button
-          id={"copy-button_" <> @id}
-          icon="icon-copy"
-          variant="secondary"
-          class="hover:text-secondary-text"
-          phx-hook="CopyButton"
-          data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
-          data-value={@value}
-          {@rest}
-        />
-      <% else %>
-        <button
-          id={"copy-button_" <>@id}
-          class="hover:text-secondary-text"
-          phx-hook="CopyButton"
-          data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
-          data-value={@value}
-          {@rest}
-        >
-          <.icon name="icon-copy" class="w-4 h-4" />
-        </button>
-      <% end %>
+      <.icon_button
+        id={"copy-button_" <> @id}
+        icon="icon-copy"
+        variant="secondary"
+        class={
+          if(@variant == "secondary",
+            do: "w-max! h-max! p-0! bg-inherit border-none hover:text-secondary-text"
+          )
+        }
+        phx-hook="CopyButton"
+        data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
+        data-value={@value}
+        {@rest}
+      />
     </.tooltip>
     """
   end
