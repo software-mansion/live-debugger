@@ -129,7 +129,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     |> noreply()
   end
 
-  def assign_form(socket, %{functions: functions, execution_time: execution_time}) do
+  defp assign_form(socket, %{functions: functions, execution_time: execution_time}) do
     form =
       (functions ++ execution_time)
       |> Enum.reduce(%{}, fn {filter, value}, acc ->
@@ -140,7 +140,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     assign(socket, :form, form)
   end
 
-  def assign_form(socket, filters_list, form) when is_list(filters_list) do
+  defp assign_form(socket, filters_list, form) when is_list(filters_list) do
     updated_params =
       filters_list
       |> Enum.reduce(%{}, fn {filter, value}, acc ->
@@ -155,7 +155,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     assign(socket, :form, form)
   end
 
-  def get_callbacks(node_id) do
+  defp get_callbacks(node_id) do
     node_id
     |> TreeNode.type()
     |> case do
