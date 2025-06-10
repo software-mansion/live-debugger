@@ -100,7 +100,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
       </div>
     </div>
     <.sidebar
-      :if={not @sidebar_hidden?}
+      sidebar_hidden?={@sidebar_hidden?}
       current_filters={@current_filters}
       default_filters={@default_filters}
     />
@@ -131,7 +131,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
           default_filters={@default_filters}
         />
       </div>
-      <.sidebar_slide_over>
+      <.sidebar_slide_over :if={not @sidebar_hidden?}>
         <.live_component
           module={LiveDebuggerWeb.LiveComponents.FiltersForm}
           id="mobile-filters-sidebar-form"
