@@ -111,7 +111,14 @@ defmodule LiveDebuggerWeb.Live.Nested.StateLive do
     ~H"""
     <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
       <:right_panel>
-        <.fullscreen_button id="assigns-display-fullscreen" />
+        <div class="flex gap-2">
+          <.copy_button
+            id="assigns"
+            variant="icon-button"
+            value={TermParser.term_to_copy_string(@assigns)}
+          />
+          <.fullscreen_button id="assigns-display-fullscreen" />
+        </div>
       </:right_panel>
       <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
         <ElixirDisplay.term

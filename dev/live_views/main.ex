@@ -11,6 +11,9 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       |> assign(counter_very_slow: 0)
       |> assign(datetime: nil)
       |> assign(name: random_name())
+      |> assign(pid: self())
+      |> assign(ref: :ets.new(:dev_main_table, []))
+      |> assign(func: fn a -> {:ok, a} end)
       |> assign(single_element_list: [%Phoenix.LiveComponent.CID{cid: 1}])
       |> assign(list: [%Phoenix.LiveComponent.CID{cid: 1}, %Phoenix.LiveComponent.CID{cid: 2}])
       |> assign(
