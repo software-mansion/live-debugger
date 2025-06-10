@@ -124,21 +124,39 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
     ~H"""
     <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
       <div class="hidden lg:flex max-h-full flex-col w-72 border-x border-default-border lg:w-80 gap-1 justify-between">
-        <.live_component
-          module={LiveDebuggerWeb.LiveComponents.FiltersForm}
+        <.sidebar_content
           id="filters-sidebar-form"
-          filters={@current_filters}
+          current_filters={@current_filters}
           default_filters={@default_filters}
         />
       </div>
       <.sidebar_slide_over :if={not @sidebar_hidden?}>
-        <.live_component
-          module={LiveDebuggerWeb.LiveComponents.FiltersForm}
+        <.sidebar_content
           id="mobile-filters-sidebar-form"
-          filters={@current_filters}
+          current_filters={@current_filters}
           default_filters={@default_filters}
         />
       </.sidebar_slide_over>
+    </div>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:current_filters, :map, required: true)
+  attr(:default_filters, :map, required: true)
+
+  defp sidebar_content(assigns) do
+    ~H"""
+    <div>
+      <div class="text-secondary-text font-semibold pt-6 pb-2 px-4">Filters</div>
+      <div class="px-3">
+        <.live_component
+          module={LiveDebuggerWeb.LiveComponents.FiltersForm}
+          id={@id}
+          filters={@current_filters}
+          default_filters={@default_filters}
+        />
+      </div>
     </div>
     """
   end
