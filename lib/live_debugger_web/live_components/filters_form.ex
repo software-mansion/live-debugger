@@ -9,6 +9,17 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Utils.Parsers
 
+  @doc """
+  This handler is used to reset from to current active filters.
+  """
+
+  @impl true
+  def update(%{reset_form?: true}, socket) do
+    socket
+    |> assign_form(socket.assigns.active_filters)
+    |> ok()
+  end
+
   @impl true
   def update(assigns, socket) do
     socket
@@ -22,24 +33,34 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
   @impl true
   def render(assigns) do
-    assigns =
-      assigns
-      |> assign(:selected_filters_number, calculate_selected_filters(assigns.form))
-      |> assign(:errors, assigns.form.errors)
+    assigns = assign(assigns, :errors, assigns.form.errors)
 
     ~H"""
     <div id={@id <> "-wrapper"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
-        <div class="w-96">
-          <div class="p-4">
-            <p class="font-medium mb-4">Callbacks</p>
-            <div class="flex flex-col gap-3">
-              <%= for {function, arity} <- get_callbacks(@node_id) do %>
-                <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
-              <% end %>
-            </div>
-            <p class="font-medium mb-4 mt-6">Execution Time</p>
-            <div class="mt-3 flex gap-3 items-center">
+        <div class="w-full px-1">
+          <.filters_group_header
+            title="Callbacks"
+            group_name={:functions}
+            form={@form}
+            default_filters={@default_filters}
+            target={@myself}
+          />
+          <div class="flex flex-col gap-3 pl-0.5 pb-4 border-b border-default-border">
+            <%= for {function, arity} <- get_callbacks(@node_id) do %>
+              <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
+            <% end %>
+          </div>
+          <.filters_group_header
+            title="Execution Time"
+            class="pt-2"
+            group_name={:execution_time}
+            form={@form}
+            default_filters={@default_filters}
+            target={@myself}
+          />
+          <div class="pb-5">
+            <div class="flex gap-3 items-center">
               <.input_with_units
                 value_field={@form[:exec_time_min]}
                 unit_field={@form[:min_unit]}
@@ -59,20 +80,13 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
               <%= msg %>
             </p>
           </div>
-          <div class="flex py-3 px-4 border-t border-default-border items-center justify-between">
-            <button
-              class="text-link-primary hover:text-link-primary-hover"
-              type="button"
-              phx-click="reset"
-              phx-target={@myself}
-            >
-              Reset filters
-            </button>
-            <.button variant="primary" size="sm" type="submit">
+
+          <div class="flex pt-4 pb-2 border-t border-default-border items-center justify-start gap-2">
+            <.button variant="primary" type="submit">
               Apply
-              <span :if={@selected_filters_number > 0}>
-                (<%= @selected_filters_number %>)
-              </span>
+            </.button>
+            <.button variant="secondary" type="button" phx-click="reset" phx-target={@myself}>
+              Reset
             </.button>
           </div>
         </div>
@@ -117,7 +131,16 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     |> noreply()
   end
 
-  def assign_form(socket, %{functions: functions, execution_time: execution_time}) do
+  @impl true
+  def handle_event("reset-group", params, socket) do
+    group_name = params["group"] |> String.to_existing_atom()
+
+    socket
+    |> assign_form(Map.get(socket.assigns.default_filters, group_name))
+    |> noreply()
+  end
+
+  defp assign_form(socket, %{functions: functions, execution_time: execution_time}) do
     form =
       (functions ++ execution_time)
       |> Enum.reduce(%{}, fn {filter, value}, acc ->
@@ -128,13 +151,64 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     assign(socket, :form, form)
   end
 
-  def get_callbacks(node_id) do
+  defp assign_form(socket, filters_list) when is_list(filters_list) do
+    form = socket.assigns.form
+
+    updated_params =
+      filters_list
+      |> Enum.reduce(%{}, fn {filter, value}, acc ->
+        Map.put(acc, Atom.to_string(filter), value)
+      end)
+
+    form =
+      form.params
+      |> Map.merge(updated_params)
+      |> to_form()
+
+    assign(socket, :form, form)
+  end
+
+  defp get_callbacks(node_id) do
     node_id
     |> TreeNode.type()
     |> case do
       :live_view -> UtilsCallbacks.live_view_callbacks()
       :live_component -> UtilsCallbacks.live_component_callbacks()
     end
+  end
+
+  attr(:title, :string, required: true)
+  attr(:class, :string, default: "")
+  attr(:group_name, :atom, required: true)
+  attr(:form, :map, required: true)
+  attr(:default_filters, :map, required: true)
+  attr(:target, :any, required: true)
+
+  defp filters_group_header(assigns) do
+    ~H"""
+    <div class={["pb-2 pr-3 h-10 flex items-center justify-between", @class]}>
+      <p class="font-medium"><%= @title %></p>
+      <button
+        :if={group_changed?(@form, @default_filters, @group_name)}
+        type="button"
+        class="flex align-center text-link-primary hover:text-link-primary-hover"
+        phx-click="reset-group"
+        phx-value-group={@group_name}
+        phx-target={@target}
+      >
+        <.icon name="icon-arrow-left" class="w-4 h-4" />
+        <span>Reset</span>
+      </button>
+    </div>
+    """
+  end
+
+  defp group_changed?(form, default_filters, group_name) do
+    default_filters = Map.get(default_filters, group_name)
+
+    Enum.any?(default_filters, fn {key, value} ->
+      value != form.params[Atom.to_string(key)]
+    end)
   end
 
   defp update_filters(active_filters, params) do
@@ -174,15 +248,5 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     value
     |> String.to_integer()
     |> Parsers.time_to_microseconds(unit)
-  end
-
-  defp calculate_selected_filters(form) do
-    callbacks =
-      UtilsCallbacks.callbacks_functions()
-      |> Enum.map(&Atom.to_string/1)
-
-    form.params
-    |> Enum.filter(fn {name, value} -> Enum.member?(callbacks, name) && value end)
-    |> Enum.count(&Function.identity/1)
   end
 end
