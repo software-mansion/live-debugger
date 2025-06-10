@@ -87,12 +87,20 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           </div>
 
           <div class="flex pt-4 pb-2 border-t border-default-border items-center justify-start gap-2">
-            <.button variant="primary" type="submit">
-              Apply
-            </.button>
-            <.button variant="secondary" type="button" phx-click="reset" phx-target={@myself}>
-              Reset
-            </.button>
+            <%= if form_changed?(@form, @active_filters) do %>
+              <.button variant="primary" type="submit">
+                Apply
+              </.button>
+            <% else %>
+              <.button variant="primary" type="submit" class="opacity-50 pointer-events-none">
+                Applied
+              </.button>
+            <% end %>
+            <%= if filters_changed?(@form, @default_filters) do %>
+              <.button variant="secondary" type="button" phx-click="reset" phx-target={@myself}>
+                Reset
+              </.button>
+            <% end %>
           </div>
         </div>
       </.form>
@@ -221,6 +229,14 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     end)
   end
 
+  defp filters_changed?(form, default_filters) do
+    default_filters
+    |> Enum.flat_map(fn {_, value} -> value end)
+    |> Enum.any?(fn {key, value} ->
+      value != form.params[Atom.to_string(key)]
+    end)
+  end
+
   defp update_filters(active_filters, params) do
     functions =
       active_filters.functions
@@ -258,5 +274,13 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     value
     |> String.to_integer()
     |> Parsers.time_to_microseconds(unit)
+  end
+
+  defp form_changed?(form, active_filters) do
+    active_filters
+    |> Enum.flat_map(fn {_, value} -> value end)
+    |> Enum.any?(fn {key, value} ->
+      value != form.params[Atom.to_string(key)]
+    end)
   end
 end
