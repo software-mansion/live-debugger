@@ -119,6 +119,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
 
   attr(:current_filters, :map, required: true)
   attr(:default_filters, :map, required: true)
+  attr(:sidebar_hidden?, :boolean, required: true)
 
   defp sidebar(assigns) do
     ~H"""
