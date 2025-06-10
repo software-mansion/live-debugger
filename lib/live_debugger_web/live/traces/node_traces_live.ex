@@ -7,7 +7,6 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
 
   require Logger
 
-  alias LiveDebuggerWeb.Live.Traces.Components.Trace
   alias LiveDebuggerWeb.Helpers.NestedLiveViewHelper
 
   alias LiveDebuggerWeb.Live.Traces.Hooks
@@ -69,6 +68,7 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
     |> Helpers.assign_current_filters()
     |> Components.ClearButton.init()
     |> Components.LoadMoreButton.init(@page_size)
+    |> Components.Trace.init()
     |> Components.Stream.init()
     |> Hooks.TracingFuse.init()
     |> Hooks.ExistingTraces.init(@page_size)
@@ -114,7 +114,17 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
             existing_traces={@streams.existing_traces}
           >
             <:trace :let={{id, wrapped_trace}}>
-              <Trace.trace id={id} wrapped_trace={wrapped_trace} />
+              <Components.Trace.trace id={id} wrapped_trace={wrapped_trace}>
+                <:label :let={trace_assigns} class="grid-cols-[auto_1fr_auto]">
+                  <Components.Trace.callback_name content={trace_assigns.callback_name} />
+                  <Components.Trace.short_trace_content trace={trace_assigns.trace} />
+                  <Components.Trace.trace_time_info
+                    id={trace_assigns.id}
+                    trace={trace_assigns.trace}
+                    from_tracing?={trace_assigns.from_tracing?}
+                  />
+                </:label>
+              </Components.Trace.trace>
             </:trace>
           </Components.Stream.traces_stream>
           <Components.LoadMoreButton.load_more_button
