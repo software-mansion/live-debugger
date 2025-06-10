@@ -7,7 +7,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersSidebar do
 
   alias LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces
 
-  @required_assigns [:current_filters, :default_filters, :sidebar_hidden?]
+  @required_assigns [:current_filters, :default_filters, :sidebar_hidden?, :tracing_started?]
 
   @doc """
   Initializes the component by checking the assigns and streams and attaching the hook to the socket.
@@ -26,6 +26,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersSidebar do
   attr(:current_filters, :map, required: true)
   attr(:default_filters, :map, required: true)
   attr(:sidebar_hidden?, :boolean, required: true)
+  attr(:tracing_started?, :boolean, required: true)
 
   def sidebar(assigns) do
     ~H"""
@@ -35,6 +36,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersSidebar do
           id="filters-sidebar-form"
           current_filters={@current_filters}
           default_filters={@default_filters}
+          tracing_started?={@tracing_started?}
         />
       </div>
       <.sidebar_slide_over :if={not @sidebar_hidden?}>
@@ -42,6 +44,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersSidebar do
           id="mobile-filters-sidebar-form"
           current_filters={@current_filters}
           default_filters={@default_filters}
+          tracing_started?={@tracing_started?}
         />
       </.sidebar_slide_over>
     </div>
@@ -51,6 +54,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersSidebar do
   attr(:id, :string, required: true)
   attr(:current_filters, :map, required: true)
   attr(:default_filters, :map, required: true)
+  attr(:tracing_started?, :boolean, required: true)
 
   defp sidebar_content(assigns) do
     ~H"""
@@ -62,6 +66,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersSidebar do
           id={@id}
           filters={@current_filters}
           default_filters={@default_filters}
+          enabled?={not @tracing_started?}
         />
       </div>
     </div>

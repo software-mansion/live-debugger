@@ -103,6 +103,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
       sidebar_hidden?={@sidebar_hidden?}
       current_filters={@current_filters}
       default_filters={@default_filters}
+      tracing_started?={@tracing_started?}
     />
     """
   end

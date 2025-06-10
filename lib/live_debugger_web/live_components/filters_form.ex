@@ -27,6 +27,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     |> assign(:node_id, Map.get(assigns, :node_id, nil))
     |> assign(:active_filters, assigns.filters)
     |> assign(:default_filters, assigns.default_filters)
+    |> assign(:enabled?, Map.get(assigns, :enabled?, true))
     |> assign_form(assigns.filters)
     |> ok()
   end
@@ -36,7 +37,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     assigns = assign(assigns, :errors, assigns.form.errors)
 
     ~H"""
-    <div id={@id <> "-wrapper"}>
+    <div id={@id <> "-wrapper"} class={if not @enabled?, do: "opacity-50 pointer-events-none"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
         <div class="w-full px-1">
           <.filters_group_header
