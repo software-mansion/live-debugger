@@ -9,6 +9,17 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Utils.Parsers
 
+  @doc """
+  This handler is used to reset from to current active filters.
+  """
+
+  @impl true
+  def update(%{reset_form?: true}, socket) do
+    socket
+    |> assign_form(socket.assigns.active_filters)
+    |> ok()
+  end
+
   @impl true
   def update(assigns, socket) do
     socket
@@ -125,11 +136,11 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     group_name = params["group"] |> String.to_existing_atom()
 
     socket
-    |> assign_form(Map.get(socket.assigns.default_filters, group_name), socket.assigns.form)
+    |> assign_form(Map.get(socket.assigns.default_filters, group_name))
     |> noreply()
   end
 
-  def assign_form(socket, %{functions: functions, execution_time: execution_time}) do
+  defp assign_form(socket, %{functions: functions, execution_time: execution_time}) do
     form =
       (functions ++ execution_time)
       |> Enum.reduce(%{}, fn {filter, value}, acc ->
@@ -140,7 +151,9 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     assign(socket, :form, form)
   end
 
-  def assign_form(socket, filters_list, form) when is_list(filters_list) do
+  defp assign_form(socket, filters_list) when is_list(filters_list) do
+    form = socket.assigns.form
+
     updated_params =
       filters_list
       |> Enum.reduce(%{}, fn {filter, value}, acc ->
