@@ -9,6 +9,17 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Utils.Parsers
 
+  @doc """
+  This handler is used to reset from to current active filters.
+  """
+
+  @impl true
+  def update(%{reset_form?: true}, socket) do
+    socket
+    |> assign_form(socket.assigns.active_filters)
+    |> ok()
+  end
+
   @impl true
   def update(assigns, socket) do
     socket

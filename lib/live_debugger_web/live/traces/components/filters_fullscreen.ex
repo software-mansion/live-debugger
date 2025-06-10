@@ -95,6 +95,11 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersFullscreen do
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp handle_event("open-filters", _, socket) do
+    send_update(LiveDebuggerWeb.LiveComponents.FiltersForm,
+      id: "filters-fullscreen-form",
+      reset_form?: true
+    )
+
     socket
     |> push_event("filters-fullscreen-open", %{})
     |> halt()
