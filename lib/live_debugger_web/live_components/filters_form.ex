@@ -48,7 +48,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           />
           <div class="flex flex-col gap-3 pl-0.5 pb-4 border-b border-default-border">
             <%= for {function, arity} <- get_callbacks(@node_id) do %>
-              <%= if function == :mount do %>
+              <%= if function == :mount and is_nil(@node_id) do %>
                 <.checkbox field={@form[function]} label="mount/1, mount/3" />
               <% else %>
                 <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
@@ -123,7 +123,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
       {:error, errors} ->
         socket
-        |> assign(form: to_form(params, errors: errors))
+        |> assign(form: to_form(params, errors: errors, id: socket.assigns.id))
         |> noreply()
     end
   end
@@ -150,7 +150,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
       |> Enum.reduce(%{}, fn {filter, value}, acc ->
         Map.put(acc, Atom.to_string(filter), value)
       end)
-      |> to_form()
+      |> to_form(id: socket.assigns.id)
 
     assign(socket, :form, form)
   end
@@ -167,7 +167,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     form =
       form.params
       |> Map.merge(updated_params)
-      |> to_form()
+      |> to_form(id: socket.assigns.id)
 
     assign(socket, :form, form)
   end
