@@ -39,6 +39,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Helpers do
         :global -> UtilsCallbacks.all_callbacks()
       end
       |> Enum.map(fn {function, _} -> {function, true} end)
+      |> Enum.uniq()
 
     %{
       functions: functions,

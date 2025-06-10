@@ -48,7 +48,11 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           />
           <div class="flex flex-col gap-3 pl-0.5 pb-4 border-b border-default-border">
             <%= for {function, arity} <- get_callbacks(@node_id) do %>
-              <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
+              <%= if function == :mount do %>
+                <.checkbox field={@form[function]} label="mount/1, mount/3" />
+              <% else %>
+                <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
+              <% end %>
             <% end %>
           </div>
           <.filters_group_header
@@ -168,7 +172,10 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     assign(socket, :form, form)
   end
 
-  def get_callbacks(nil), do: UtilsCallbacks.all_callbacks()
+  def get_callbacks(nil) do
+    UtilsCallbacks.all_callbacks()
+    |> Enum.reject(fn {function, arity} -> function == :mount and arity == 1 end)
+  end
 
   def get_callbacks(node_id) do
     node_id
