@@ -38,13 +38,17 @@ defmodule LiveDebugger.Services.LiveViewService do
     @behaviour LiveDebugger.Services.LiveViewService
 
     if Code.ensure_compiled(Phoenix.LiveView.Debug) == {:module, Phoenix.LiveView.Debug} do
+      @impl true
       defdelegate list_liveviews(), to: Phoenix.LiveView.Debug
+      @impl true
       defdelegate socket(pid), to: Phoenix.LiveView.Debug
+      @impl true
       defdelegate live_components(pid), to: Phoenix.LiveView.Debug
     else
       alias ExUnit.DocTest.Error
       alias LiveDebugger.Services.System.ProcessService
 
+      @impl true
       def list_liveviews() do
         ProcessService.list()
         |> Enum.filter(fn pid -> ProcessService.initial_call(pid) |> liveview?() end)
@@ -65,14 +69,16 @@ defmodule LiveDebugger.Services.LiveViewService do
         |> Enum.reject(&is_nil/1)
       end
 
-      def socket(lv_pid) do
+      @impl true
+      def socket(pid) do
         case LiveDebugger.Services.System.ProcessService.state(pid) do
           {:ok, %{socket: socket}} -> {:ok, socket}
           {:error, _} -> {:error, :not_alive_or_not_a_liveview}
         end
       end
 
-      def live_components(lv_pid) do
+      @impl true
+      def live_components(pid) do
         case LiveDebugger.Services.System.ProcessService.state(pid) do
           {:ok, %{components: components}} -> components
           {:error, _} -> raise Error
