@@ -33,6 +33,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Stream do
   attr(:existing_traces_status, :atom, required: true)
   attr(:existing_traces, :any, required: true)
 
+  slot(:trace, required: true, doc: "Used for styling trace element. Remember to add `id`")
+
   def traces_stream(assigns) do
     ~H"""
     <div id={"#{@id}-stream"} phx-update="stream" class="flex flex-col gap-2">
@@ -56,7 +58,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Stream do
         <%= if wrapped_trace.id == "separator" do %>
           <.separator id={dom_id} />
         <% else %>
-          <Trace.trace id={dom_id} wrapped_trace={wrapped_trace} />
+          <%= render_slot(@trace, {dom_id, wrapped_trace}) %>
         <% end %>
       <% end %>
     </div>

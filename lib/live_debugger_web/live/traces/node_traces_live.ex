@@ -7,6 +7,7 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
 
   require Logger
 
+  alias LiveDebuggerWeb.Live.Traces.Components.Trace
   alias LiveDebuggerWeb.Helpers.NestedLiveViewHelper
 
   alias LiveDebuggerWeb.Live.Traces.Hooks
@@ -111,7 +112,11 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
             id={@id}
             existing_traces_status={@existing_traces_status}
             existing_traces={@streams.existing_traces}
-          />
+          >
+            <:trace :let={{id, wrapped_trace}}>
+              <Trace.trace id={id} wrapped_trace={wrapped_trace} />
+            </:trace>
+          </Components.Stream.traces_stream>
           <Components.LoadMoreButton.load_more_button
             :if={not @tracing_started? and not @traces_empty?}
             traces_continuation={@traces_continuation}
