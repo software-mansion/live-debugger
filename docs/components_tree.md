@@ -6,7 +6,7 @@ The root of the tree is LiveView and children are LiveComponents with their CIDs
 <img src="images/components_tree.png" alt="Components Tree" height="400px">
 </div>
 
-It can be used for:
+It can be also used for:
 
 - Navigation inside Node Inspector
 - Components Highlighting
