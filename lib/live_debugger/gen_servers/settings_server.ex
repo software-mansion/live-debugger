@@ -17,6 +17,11 @@ defmodule LiveDebugger.GenServers.SettingsServer do
     GenServer.call(__MODULE__, {:get, setting})
   end
 
+  @spec get_all() :: map()
+  def get_all() do
+    GenServer.call(__MODULE__, :get_all)
+  end
+
   @spec save(setting :: atom(), value :: term()) :: :ok | {:error, term()}
   def save(setting, value) when setting in @settings do
     GenServer.cast(__MODULE__, {:save, setting, value})
@@ -48,6 +53,11 @@ defmodule LiveDebugger.GenServers.SettingsServer do
   @impl true
   def handle_call({:get, setting}, _from, state) do
     {:reply, Map.get(state, setting), state}
+  end
+
+  @impl true
+  def handle_call(:get_all, _from, state) do
+    {:reply, state, state}
   end
 
   @impl true
