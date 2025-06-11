@@ -37,6 +37,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersSidebar do
           current_filters={@current_filters}
           default_filters={@default_filters}
           tracing_started?={@tracing_started?}
+          revert_button_visible?={true}
         />
       </div>
       <.sidebar_slide_over :if={not @sidebar_hidden?}>
@@ -55,6 +56,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersSidebar do
   attr(:current_filters, :map, required: true)
   attr(:default_filters, :map, required: true)
   attr(:tracing_started?, :boolean, required: true)
+  attr(:revert_button_visible?, :boolean, default: false)
 
   defp sidebar_content(assigns) do
     ~H"""
@@ -67,6 +69,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersSidebar do
           filters={@current_filters}
           default_filters={@default_filters}
           enabled?={not @tracing_started?}
+          revert_button_visible?={@revert_button_visible?}
         />
       </div>
     </div>

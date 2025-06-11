@@ -28,6 +28,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     |> assign(:active_filters, assigns.filters)
     |> assign(:default_filters, assigns.default_filters)
     |> assign(:enabled?, Map.get(assigns, :enabled?, true))
+    |> assign(:revert_button_visible?, Map.get(assigns, :revert_button_visible?, false))
     |> assign_form(assigns.filters)
     |> ok()
   end
@@ -86,21 +87,36 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
             </p>
           </div>
 
-          <div class="flex pt-4 pb-2 border-t border-default-border items-center justify-start gap-2">
-            <%= if form_changed?(@form, @active_filters) do %>
-              <.button variant="primary" type="submit">
-                Apply
-              </.button>
-            <% else %>
-              <.button variant="primary" type="submit" class="opacity-50 pointer-events-none">
-                Applied
-              </.button>
-            <% end %>
-            <%= if filters_changed?(@form, @default_filters) do %>
-              <.button variant="secondary" type="button" phx-click="reset" phx-target={@myself}>
-                Reset
-              </.button>
-            <% end %>
+          <div class="flex pt-4 pb-2 border-t border-default-border items-center justify-between pr-3">
+            <div class="flex gap-2 items-center">
+              <%= if form_changed?(@form, @active_filters) do %>
+                <.button variant="primary" type="submit">
+                  Apply
+                </.button>
+                <.button
+                  :if={@revert_button_visible?}
+                  variant="secondary"
+                  type="button"
+                  phx-click="revert"
+                  phx-target={@myself}
+                >
+                  Revert changes
+                </.button>
+              <% else %>
+                <.button variant="primary" type="submit" class="opacity-50 pointer-events-none">
+                  Apply
+                </.button>
+              <% end %>
+            </div>
+            <button
+              :if={filters_changed?(@form, @default_filters)}
+              type="button"
+              class="flex align-center text-link-primary hover:text-link-primary-hover"
+              phx-click="reset"
+              phx-target={@myself}
+            >
+              Reset all
+            </button>
           </div>
         </div>
       </.form>
@@ -141,6 +157,13 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   def handle_event("reset", _params, socket) do
     socket
     |> assign_form(socket.assigns.default_filters)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("revert", _params, socket) do
+    socket
+    |> assign_form(socket.assigns.active_filters)
     |> noreply()
   end
 
@@ -214,7 +237,6 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
         phx-value-group={@group_name}
         phx-target={@target}
       >
-        <.icon name="icon-arrow-left" class="w-4 h-4" />
         <span>Reset</span>
       </button>
     </div>
