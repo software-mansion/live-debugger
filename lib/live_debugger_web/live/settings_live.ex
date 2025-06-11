@@ -6,6 +6,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
   use LiveDebuggerWeb, :live_view
 
   alias LiveDebugger.GenServers.CallbackTracingServer
+  alias LiveDebugger.GenServers.SettingsServer
   alias LiveDebuggerWeb.Components.Navbar
   alias LiveDebuggerWeb.Helpers.RoutesHelper
 
@@ -13,6 +14,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
   def handle_params(params, _url, socket) do
     socket
     |> assign(:return_to, params["return_to"])
+    |> assign_settings()
     |> noreply()
   end
 
@@ -44,17 +46,17 @@ defmodule LiveDebuggerWeb.SettingsLive do
             <.settings_switch
               label="Enable DeadView mode"
               description="When enabled, LiveDebugger won't redirect to new LiveView after page redirect or reload, allowing you to browse assigns and traces of dead LiveViews."
-              checked={false}
+              checked={@settings[:dead_view_mode]}
               phx-click="update"
-              phx-value-setting="deadview_mode"
+              phx-value-setting="dead_view_mode"
             />
 
             <.settings_switch
               label="Refresh tracing on reload"
               description="Enabling this feature may have a negative impact on application performance."
-              checked={false}
+              checked={@settings[:tracing_update_on_code_reload]}
               phx-click="update"
-              phx-value-setting="refresh_tracing_on_reload"
+              phx-value-setting="tracing_update_on_code_reload"
             />
           </div>
         </div>
@@ -78,8 +80,18 @@ defmodule LiveDebuggerWeb.SettingsLive do
   end
 
   @impl true
-  def handle_event("update", %{"setting" => _setting}, socket) do
-    {:noreply, socket}
+  def handle_event("update", %{"setting" => setting}, socket) do
+    setting = String.to_existing_atom(setting)
+
+    new_setting_value = not socket.assigns.settings[setting]
+
+    SettingsServer.save(setting, new_setting_value)
+
+    settings = Map.put(socket.assigns.settings, setting, new_setting_value)
+
+    socket
+    |> assign(:settings, settings)
+    |> noreply()
   end
 
   @impl true
@@ -159,5 +171,9 @@ defmodule LiveDebuggerWeb.SettingsLive do
       <p><%= @text %></p>
     </button>
     """
+  end
+
+  defp assign_settings(socket) do
+    assign(socket, :settings, SettingsServer.get_all() |> IO.inspect(label: "CURR SETTINGS"))
   end
 end
