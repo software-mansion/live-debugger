@@ -97,7 +97,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   def module(assigns) do
     ~H"""
     <div class={["text-primary text-2xs font-normal truncate", @class]}>
-      <%= @trace.module %>
+      <%= Parsers.module_to_string(@trace.module) %>
       <%= if(@trace.cid, do: "(#{@trace.cid})") %>
     </div>
     """
