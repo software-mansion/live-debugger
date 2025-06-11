@@ -55,6 +55,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
     |> Components.RefreshButton.init()
     |> Components.ClearButton.init()
     |> Components.ToggleTracingButton.init()
+    |> Components.Trace.init()
     |> Components.Stream.init()
     |> ok()
   end
@@ -83,7 +84,22 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
               id={@id}
               existing_traces_status={@existing_traces_status}
               existing_traces={@streams.existing_traces}
-            />
+            >
+              <:trace :let={{id, wrapped_trace}}>
+                <Components.Trace.trace id={id} wrapped_trace={wrapped_trace}>
+                  <:label :let={trace_assigns} class="grid-cols-[auto_1fr_auto]">
+                    <Components.Trace.module trace={trace_assigns.trace} class="col-span-3" />
+                    <Components.Trace.callback_name content={trace_assigns.callback_name} />
+                    <Components.Trace.short_trace_content trace={trace_assigns.trace} />
+                    <Components.Trace.trace_time_info
+                      id={trace_assigns.id}
+                      trace={trace_assigns.trace}
+                      from_tracing?={trace_assigns.from_tracing?}
+                    />
+                  </:label>
+                </Components.Trace.trace>
+              </:trace>
+            </Components.Stream.traces_stream>
             <Components.LoadMoreButton.load_more_button
               :if={not @tracing_started? and not @traces_empty?}
               traces_continuation={@traces_continuation}

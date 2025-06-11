@@ -37,6 +37,10 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   attr(:id, :string, required: true)
   attr(:wrapped_trace, :map, required: true, doc: "The Trace to render")
 
+  slot :label, required: true do
+    attr(:class, :string, doc: "Additional class for label")
+  end
+
   def trace(assigns) do
     assigns =
       assigns
@@ -51,15 +55,17 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
       icon="icon-chevron-right"
       chevron_class="w-5 h-5 text-accent-icon"
       class="max-w-full border border-default-border rounded last:mb-4"
-      label_class="font-semibold bg-surface-1-bg h-10 p-2"
+      label_class="font-semibold bg-surface-1-bg p-2 py-3"
       phx-click={if(@render_body?, do: nil, else: "toggle-collapsible")}
       phx-value-trace-id={@trace.id}
     >
       <:label>
-        <div id={@id <> "-label"} class="w-[90%] grow flex items-center ml-2 gap-3">
-          <p class="font-medium text-sm"><%= @callback_name %></p>
-          <.short_trace_content trace={@trace} />
-          <.trace_time_info id={@id} trace={@trace} from_tracing?={@from_tracing?} />
+        <div
+          :for={label <- @label}
+          id={@id <> "-label"}
+          class={["w-[90%] grow grid items-center gap-x-3 ml-2" | List.wrap(label[:class])]}
+        >
+          <%= render_slot(@label, assigns) %>
         </div>
       </:label>
       <div class="relative">
@@ -85,9 +91,29 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
     """
   end
 
+  attr(:trace, Trace, required: true)
+  attr(:class, :string, default: "")
+
+  def module(assigns) do
+    ~H"""
+    <div class={["text-primary text-2xs font-normal truncate", @class]}>
+      <%= Parsers.module_to_string(@trace.module) %>
+      <%= if(@trace.cid, do: "(#{@trace.cid})") %>
+    </div>
+    """
+  end
+
+  attr(:content, :string, required: true)
+
+  def callback_name(assigns) do
+    ~H"""
+    <p class="font-medium text-sm"><%= @content %></p>
+    """
+  end
+
   attr(:trace, :map, default: nil)
 
-  defp short_trace_content(assigns) do
+  def short_trace_content(assigns) do
     assigns = assign(assigns, :content, Enum.map_join(assigns.trace.args, " ", &inspect/1))
 
     ~H"""
@@ -101,7 +127,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   attr(:trace, :map, default: nil)
   attr(:from_tracing?, :boolean, default: false)
 
-  defp trace_time_info(assigns) do
+  def trace_time_info(assigns) do
     ~H"""
     <div class="flex text-xs font-normal text-secondary-text align-center">
       <.tooltip id={@id <> "-timestamp"} content="timestamp" class="min-w-24">
