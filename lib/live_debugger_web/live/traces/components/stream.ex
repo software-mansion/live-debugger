@@ -1,26 +1,21 @@
 defmodule LiveDebuggerWeb.Live.Traces.Components.Stream do
   @moduledoc """
   This component is used to display the traces stream.
-  It uses under the hood the `Trace` component to display the traces.
-  The `Trace` component produces the `toggle-collapsible` and `trace-fullscreen` which are handled in the `Trace` component hook.
+  It allows to compose style for the trace using `LiveDebuggerWeb.Live.Traces.Components.Trace` components.
   """
 
   use LiveDebuggerWeb, :hook_component
-
-  alias LiveDebuggerWeb.Live.Traces.Components.Trace
 
   @required_assigns [:id, :existing_traces_status]
 
   @doc """
   Initializes the component by attaching the hook to the socket.
-  Since the `Trace` component is used by this component, we need to attach the hook to the socket.
   """
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
     |> check_assigns!(@required_assigns)
     |> check_stream!(:existing_traces)
-    |> Trace.init()
     |> register_hook(:traces_stream)
   end
 
@@ -32,6 +27,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Stream do
   attr(:id, :string, required: true)
   attr(:existing_traces_status, :atom, required: true)
   attr(:existing_traces, :any, required: true)
+
+  slot(:trace, required: true, doc: "Used for styling trace element. Remember to add `id`")
 
   def traces_stream(assigns) do
     ~H"""
@@ -56,7 +53,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Stream do
         <%= if wrapped_trace.id == "separator" do %>
           <.separator id={dom_id} />
         <% else %>
-          <Trace.trace id={dom_id} wrapped_trace={wrapped_trace} />
+          <%= render_slot(@trace, {dom_id, wrapped_trace}) %>
         <% end %>
       <% end %>
     </div>

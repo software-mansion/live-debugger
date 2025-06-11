@@ -355,4 +355,38 @@ defmodule LiveDebugger.Utils.TermParserTest do
       assert TermParser.term_to_display_tree(term) == expected
     end
   end
+
+  describe "term_to_copy_string/1" do
+    test "converts sample assigns to copyable string" do
+      assigns = %{
+        list: [
+          %Phoenix.LiveComponent.CID{cid: 1},
+          %Phoenix.LiveComponent.CID{cid: 2}
+        ],
+        name: "Charlie",
+        counter: 0,
+        __changed__: %{},
+        flash: %{},
+        counter_very_slow: 0,
+        counter_slow: 0,
+        datetime: ~U[2025-06-06 12:33:27.641576Z],
+        single_element_list: [%Phoenix.LiveComponent.CID{cid: 1}],
+        long_assign:
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        live_action: nil
+      }
+
+      assert TermParser.term_to_copy_string(assigns) ==
+               inspect(assigns, limit: :infinity, pretty: true, structs: false)
+    end
+
+    test "converts a term with a PID to copyable string" do
+      term = %{
+        pid: :c.pid(0, 123, 0)
+      }
+
+      assert TermParser.term_to_copy_string(term) ==
+               "%{pid: :erlang.list_to_pid(~c\"<0.123.0>\")}"
+    end
+  end
 end

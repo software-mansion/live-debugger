@@ -17,7 +17,8 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "strict_min_version": "50.0"
+      "id": "@live-debugger-addon-swm",
+      "strict_min_version": "58.0"
     }
   }
 }

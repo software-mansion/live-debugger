@@ -430,7 +430,7 @@ defmodule LiveDebuggerWeb.Components do
           variant="secondary"
         />
       </div>
-      <div class="overflow-auto flex flex-col gap-2 p-2 text-primary-text">
+      <div class="overflow-auto flex flex-col gap-2 p-4 text-primary-text">
         <%= render_slot(@inner_block) %>
       </div>
     </dialog>
@@ -620,21 +620,26 @@ defmodule LiveDebuggerWeb.Components do
   """
   attr(:id, :string, required: true)
   attr(:value, :string, required: true)
+  attr(:variant, :string, default: "icon", values: ["icon", "icon-button"])
   attr(:rest, :global)
 
   def copy_button(assigns) do
     ~H"""
     <.tooltip id={@id} content="Copy" position="top-center">
-      <button
-        id={"copy-button_" <>@id}
-        class="hover:text-secondary-text"
+      <.icon_button
+        id={"copy-button_" <> @id}
+        icon="icon-copy"
+        variant="secondary"
+        class={
+          if(@variant == "icon",
+            do: "w-max! h-max! p-0! bg-inherit border-none hover:text-secondary-text"
+          )
+        }
         phx-hook="CopyButton"
         data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
         data-value={@value}
         {@rest}
-      >
-        <.icon name="icon-copy" class="w-4 h-4" />
-      </button>
+      />
     </.tooltip>
     """
   end
