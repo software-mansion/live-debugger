@@ -64,8 +64,8 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
-      <div class="w-full min-w-[25rem]">
+    <div class="grow p-8 overflow-y-auto scrollbar-main">
+      <div class="w-full min-w-[25rem] max-w-screen-2xl mx-auto">
         <div class="flex flex-col gap-1.5 pb-6 px-0.5">
           <.h1>Global Callback Traces</.h1>
           <span class="text-secondary-text">
