@@ -5,6 +5,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
 
   use LiveDebuggerWeb, :live_view
 
+  alias LiveDebugger.GenServers.CallbackTracingServer
   alias LiveDebuggerWeb.Components.Navbar
   alias LiveDebuggerWeb.Helpers.RoutesHelper
 
@@ -49,14 +50,6 @@ defmodule LiveDebuggerWeb.SettingsLive do
             />
 
             <.settings_switch
-              label="Enable global tracing"
-              description="Enabling this feature may have a negative impact on application performance."
-              checked={false}
-              phx-click="update"
-              phx-value-setting="global_tracing"
-            />
-
-            <.settings_switch
               label="Refresh tracing on reload"
               description="Enabling this feature may have a negative impact on application performance."
               checked={false}
@@ -91,6 +84,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
 
   @impl true
   def handle_event("restart", _, socket) do
+    CallbackTracingServer.update_traced_modules()
     {:noreply, socket}
   end
 

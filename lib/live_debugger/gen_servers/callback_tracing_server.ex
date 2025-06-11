@@ -27,6 +27,31 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     GenServer.call(__MODULE__, :ping)
   end
 
+  @doc """
+  Refreshes list of traced LiveView modules' callbacks.
+  It is necessary when hot reloading of code is being used.
+  """
+  @spec update_traced_modules() :: :ok
+  def update_traced_modules() do
+    all_modules = ModuleDiscoveryService.all_modules()
+
+    callbacks =
+      all_modules
+      |> ModuleDiscoveryService.live_view_modules()
+      |> CallbackUtils.live_view_callbacks()
+
+    all_modules
+    |> ModuleDiscoveryService.live_component_modules()
+    |> CallbackUtils.live_component_callbacks()
+    |> Enum.concat(callbacks)
+    |> Enum.each(fn mfa ->
+      Dbg.tp(mfa, [{:_, [], [{:return_trace}]}])
+      Dbg.tp(mfa, [{:_, [], [{:exception_trace}]}])
+    end)
+
+    :ok
+  end
+
   ## GenServer
 
   @doc false
@@ -47,7 +72,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     Dbg.tracer(:process, {&handle_trace/2, 0})
     Dbg.p(:all, [:c, :timestamp])
 
-    add_live_modules_to_tracer()
+    update_traced_modules()
 
     # This is not a callback created by user
     # We trace it to refresh the components tree
@@ -69,7 +94,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   @spec handle_trace(term(), n :: integer()) :: integer()
   defp handle_trace({_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, n) do
     Process.sleep(100)
-    add_live_modules_to_tracer()
+    update_traced_modules()
     n
   end
 
@@ -142,24 +167,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   defp handle_trace(trace, n) do
     Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
     n
-  end
-
-  defp add_live_modules_to_tracer() do
-    all_modules = ModuleDiscoveryService.all_modules()
-
-    callbacks =
-      all_modules
-      |> ModuleDiscoveryService.live_view_modules()
-      |> CallbackUtils.live_view_callbacks()
-
-    all_modules
-    |> ModuleDiscoveryService.live_component_modules()
-    |> CallbackUtils.live_component_callbacks()
-    |> Enum.concat(callbacks)
-    |> Enum.each(fn mfa ->
-      Dbg.tp(mfa, [{:_, [], [{:return_trace}]}])
-      Dbg.tp(mfa, [{:_, [], [{:exception_trace}]}])
-    end)
   end
 
   @spec persist_trace(Trace.t()) :: :ok | {:error, term()}
