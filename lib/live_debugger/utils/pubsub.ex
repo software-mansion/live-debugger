@@ -26,6 +26,11 @@ defmodule LiveDebugger.Utils.PubSub do
   @spec unsubscribe(topic :: String.t()) :: :ok
   def unsubscribe(topic), do: impl().unsubscribe(topic)
 
+  @spec setting_changed() :: String.t()
+  def setting_changed() do
+    "lvdbg/setting_changed"
+  end
+
   @doc "Use `{:component_deleted, delete_trace}` for broadcasting"
   @spec component_deleted_topic() :: String.t()
   def component_deleted_topic() do
