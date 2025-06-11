@@ -10,6 +10,8 @@ defmodule LiveDebugger.GenServers.SettingsServer do
 
   @settings [:dead_view_mode, :tracing_update_on_code_reload]
 
+  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+
   ## API
 
   @spec get(setting :: atom()) :: term()
@@ -63,6 +65,9 @@ defmodule LiveDebugger.GenServers.SettingsServer do
   @impl true
   def handle_cast({:save, setting, value}, state) do
     save_in_dets(setting, value)
+
+    PubSubUtils.setting_changed()
+    |> PubSubUtils.broadcast({:setting_changed, setting, value})
 
     {:noreply, Map.put(state, setting, value)}
   end

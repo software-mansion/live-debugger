@@ -22,6 +22,8 @@ defmodule LiveDebugger.Services.System.DbgService do
 
   @callback tp(module() | mfa(), match_spec :: term()) :: {:ok, match_desc()} | {:error, term()}
 
+  @callback ctp(module() | mfa(), match_spec :: term()) :: {:ok, match_desc()} | {:error, term()}
+
   @doc """
   Wrapper for `:dbg.tracer/2` that starts a tracer for the given type and handler specification.
   """
@@ -45,6 +47,12 @@ defmodule LiveDebugger.Services.System.DbgService do
   """
   @spec tp(module() | mfa(), match_spec :: term()) :: {:ok, match_desc()} | {:error, term()}
   def tp(module, match_spec), do: impl().tp(module, match_spec)
+
+  @doc """
+  Wrapper for `:dbg.ctp/2` that ends tracing for given pattern
+  """
+  @spec ctp(module() | mfa(), match_spec :: term()) :: {:ok, match_desc()} | {:error, term()}
+  def ctp(module, match_spec), do: impl().ctp(module, match_spec)
 
   defp impl() do
     Application.get_env(
@@ -71,6 +79,11 @@ defmodule LiveDebugger.Services.System.DbgService do
     @impl true
     def tp(module, match_spec) do
       :dbg.tp(module, match_spec)
+    end
+
+    @impl true
+    def ctp(module, match_spec) do
+      :dbg.ctp(module, match_spec)
     end
   end
 end
