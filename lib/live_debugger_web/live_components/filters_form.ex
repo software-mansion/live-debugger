@@ -88,8 +88,8 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           </div>
 
           <div class="flex pt-4 pb-2 border-t border-default-border items-center justify-between pr-3">
-            <div class="flex gap-2 items-center">
-              <%= if form_changed?(@form, @active_filters) do %>
+            <div class="flex gap-2 items-center h-10">
+              <%= if filters_changed?(@form, @active_filters) do %>
                 <.button variant="primary" type="submit">
                   Apply
                 </.button>
@@ -251,8 +251,8 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     end)
   end
 
-  defp filters_changed?(form, default_filters) do
-    default_filters
+  defp filters_changed?(form, filters) do
+    filters
     |> Enum.flat_map(fn {_, value} -> value end)
     |> Enum.any?(fn {key, value} ->
       value != form.params[Atom.to_string(key)]
@@ -296,13 +296,5 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     value
     |> String.to_integer()
     |> Parsers.time_to_microseconds(unit)
-  end
-
-  defp form_changed?(form, active_filters) do
-    active_filters
-    |> Enum.flat_map(fn {_, value} -> value end)
-    |> Enum.any?(fn {key, value} ->
-      value != form.params[Atom.to_string(key)]
-    end)
   end
 end
