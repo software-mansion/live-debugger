@@ -17,7 +17,7 @@ defmodule LiveDebuggerWeb.LvProcessLive do
   alias Phoenix.LiveView.JS
 
   alias LiveDebuggerWeb.Live.Nested.StateLive
-  alias LiveDebuggerWeb.Live.Nested.SidebarLive
+  alias LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebuggerWeb.Components.NavigationMenu
   alias LiveDebuggerWeb.Live.Traces.NodeTracesLive
@@ -59,13 +59,13 @@ defmodule LiveDebuggerWeb.LvProcessLive do
             <Navbar.settings_button return_to={@url} />
             <span class="h-5 border-r border-default-border lg:hidden"></span>
             <.nav_icon
-              phx-click={if @lv_process.ok?, do: JS.push("open-sidebar", target: "#sidebar")}
+              phx-click={if @lv_process.ok?, do: get_open_sidebar_js(@live_action)}
               class="flex lg:hidden"
               icon="icon-panel-right"
             />
           </div>
         </Navbar.navbar>
-        <div class="flex overflow-hidden">
+        <div class="flex overflow-hidden w-full">
           <NavigationMenu.sidebar class="hidden sm:flex" current_url={@url} />
           <.node_inspector
             :if={@live_action == :node_inspector}
@@ -117,7 +117,7 @@ defmodule LiveDebuggerWeb.LvProcessLive do
         params={@params}
       />
     </div>
-    <SidebarLive.live_render
+    <NodeInspectorSidebarLive.live_render
       id="sidebar"
       class="h-full"
       socket={@socket}
@@ -130,15 +130,13 @@ defmodule LiveDebuggerWeb.LvProcessLive do
 
   defp global_traces(assigns) do
     ~H"""
-    <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
-      <ProcessTracesLive.live_render
-        id="global-traces"
-        class="flex"
-        socket={@socket}
-        lv_process={@lv_process}
-        params={@params}
-      />
-    </div>
+    <ProcessTracesLive.live_render
+      id="global-traces"
+      class="flex overflow-hidden w-full"
+      socket={@socket}
+      lv_process={@lv_process}
+      params={@params}
+    />
     """
   end
 
@@ -149,6 +147,13 @@ defmodule LiveDebuggerWeb.LvProcessLive do
 
       in_iframe? ->
         RoutesHelper.window_dashboard(lv_process.transport_pid)
+    end
+  end
+
+  defp get_open_sidebar_js(live_action) do
+    case live_action do
+      :node_inspector -> JS.push("open-sidebar", target: "#sidebar")
+      :global_traces -> JS.push("open-sidebar", target: "#global-traces")
     end
   end
 end

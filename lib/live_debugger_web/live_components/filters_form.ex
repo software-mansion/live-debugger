@@ -24,9 +24,11 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   def update(assigns, socket) do
     socket
     |> assign(:id, assigns.id)
-    |> assign(:node_id, assigns.node_id)
+    |> assign(:node_id, Map.get(assigns, :node_id, nil))
     |> assign(:active_filters, assigns.filters)
     |> assign(:default_filters, assigns.default_filters)
+    |> assign(:enabled?, Map.get(assigns, :enabled?, true))
+    |> assign(:revert_button_visible?, Map.get(assigns, :revert_button_visible?, false))
     |> assign_form(assigns.filters)
     |> ok()
   end
@@ -36,7 +38,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     assigns = assign(assigns, :errors, assigns.form.errors)
 
     ~H"""
-    <div id={@id <> "-wrapper"}>
+    <div id={@id <> "-wrapper"} class={if not @enabled?, do: "opacity-50 pointer-events-none"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
         <div class="w-full px-1">
           <.filters_group_header
@@ -48,7 +50,11 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           />
           <div class="flex flex-col gap-3 pl-0.5 pb-4 border-b border-default-border">
             <%= for {function, arity} <- get_callbacks(@node_id) do %>
-              <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
+              <%= if function == :mount and is_nil(@node_id) do %>
+                <.checkbox field={@form[function]} label="mount/1, mount/3" />
+              <% else %>
+                <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
+              <% end %>
             <% end %>
           </div>
           <.filters_group_header
@@ -81,13 +87,36 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
             </p>
           </div>
 
-          <div class="flex pt-4 pb-2 border-t border-default-border items-center justify-start gap-2">
-            <.button variant="primary" type="submit">
-              Apply
-            </.button>
-            <.button variant="secondary" type="button" phx-click="reset" phx-target={@myself}>
-              Reset
-            </.button>
+          <div class="flex pt-4 pb-2 border-t border-default-border items-center justify-between pr-3">
+            <div class="flex gap-2 items-center h-10">
+              <%= if filters_changed?(@form, @active_filters) do %>
+                <.button variant="primary" type="submit">
+                  Apply
+                </.button>
+                <.button
+                  :if={@revert_button_visible?}
+                  variant="secondary"
+                  type="button"
+                  phx-click="revert"
+                  phx-target={@myself}
+                >
+                  Revert changes
+                </.button>
+              <% else %>
+                <.button variant="primary" type="submit" class="opacity-50 pointer-events-none">
+                  Apply
+                </.button>
+              <% end %>
+            </div>
+            <button
+              :if={filters_changed?(@form, @default_filters)}
+              type="button"
+              class="flex align-center text-link-primary hover:text-link-primary-hover"
+              phx-click="reset"
+              phx-target={@myself}
+            >
+              Reset all
+            </button>
           </div>
         </div>
       </.form>
@@ -119,7 +148,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
       {:error, errors} ->
         socket
-        |> assign(form: to_form(params, errors: errors))
+        |> assign(form: to_form(params, errors: errors, id: socket.assigns.id))
         |> noreply()
     end
   end
@@ -128,6 +157,13 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   def handle_event("reset", _params, socket) do
     socket
     |> assign_form(socket.assigns.default_filters)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_event("revert", _params, socket) do
+    socket
+    |> assign_form(socket.assigns.active_filters)
     |> noreply()
   end
 
@@ -146,7 +182,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
       |> Enum.reduce(%{}, fn {filter, value}, acc ->
         Map.put(acc, Atom.to_string(filter), value)
       end)
-      |> to_form()
+      |> to_form(id: socket.assigns.id)
 
     assign(socket, :form, form)
   end
@@ -163,12 +199,17 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     form =
       form.params
       |> Map.merge(updated_params)
-      |> to_form()
+      |> to_form(id: socket.assigns.id)
 
     assign(socket, :form, form)
   end
 
-  defp get_callbacks(node_id) do
+  def get_callbacks(nil) do
+    UtilsCallbacks.all_callbacks()
+    |> Enum.reject(fn {function, arity} -> function == :mount and arity == 1 end)
+  end
+
+  def get_callbacks(node_id) do
     node_id
     |> TreeNode.type()
     |> case do
@@ -196,7 +237,6 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
         phx-value-group={@group_name}
         phx-target={@target}
       >
-        <.icon name="icon-arrow-left" class="w-4 h-4" />
         <span>Reset</span>
       </button>
     </div>
@@ -207,6 +247,14 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     default_filters = Map.get(default_filters, group_name)
 
     Enum.any?(default_filters, fn {key, value} ->
+      value != form.params[Atom.to_string(key)]
+    end)
+  end
+
+  defp filters_changed?(form, filters) do
+    filters
+    |> Enum.flat_map(fn {_, value} -> value end)
+    |> Enum.any?(fn {key, value} ->
       value != form.params[Atom.to_string(key)]
     end)
   end
