@@ -4,7 +4,7 @@ LiveDebugger is a browser-based tool for debugging applications written in [Phoe
 
 Designed to enhance your development experience LiveDebugger gives you:
 
-- A detailed view of your LiveComponents tree
+- A detailed view of your LiveComponents tree ([Components Tree](./components_tree.md))
 - The ability to inspect assigns for LiveViews and LiveComponents
 - Tracing of their callback executions
 - Components highlighting
@@ -72,4 +72,4 @@ Copyright 2025, [Software Mansion](https://swmansion.com/?utm_source=git&utm_med
 
 [![Software Mansion](https://logo.swmansion.com/logo?color=white&variant=desktop&width=200&tag=livedebugger-github)](https://swmansion.com/?utm_source=git&utm_medium=readme&utm_campaign=livedebugger)
 
-Licensed under the [Apache License, Version 2.0](LICENSE)
+Licensed under the [Apache License, Version 2.0](https://github.com/software-mansion/live-debugger/blob/main/LICENSE)
