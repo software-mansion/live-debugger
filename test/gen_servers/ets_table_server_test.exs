@@ -160,7 +160,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
 
       Process.sleep(100)
 
-      assert 34 == :ets.select_count(ref, [{{:"$1", :"$2"}, [], [true]}])
+      assert 32 == :ets.select_count(ref, [{{:"$1", :"$2"}, [], [true]}])
     end
 
     test "does not trigger when not enough records are in table" do

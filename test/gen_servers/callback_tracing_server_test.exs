@@ -91,7 +91,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
         transport_pid: transport_pid,
         pid: pid,
         cid: %Phoenix.LiveComponent.CID{cid: cid},
-        timestamp: :timer.now_diff(timestamp, {0, 0, 0})
+        timestamp: :timer.now_diff(timestamp, {0, 0, 0}),
+        exception: false
       }
 
       component_deleted_topic =

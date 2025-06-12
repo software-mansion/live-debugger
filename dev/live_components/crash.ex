@@ -10,4 +10,9 @@ defmodule LiveDebuggerDev.LiveComponents.Crash do
     </div>
     """
   end
+
+  def handle_event("crash", _, socket) do
+    raise "Exception in handle_event"
+    {:noreply, socket}
+  end
 end

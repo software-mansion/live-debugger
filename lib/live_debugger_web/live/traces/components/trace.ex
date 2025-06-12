@@ -55,7 +55,10 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
       icon="icon-chevron-right"
       chevron_class="w-5 h-5 text-accent-icon"
       class="max-w-full border border-default-border rounded last:mb-4"
-      label_class="font-semibold bg-surface-1-bg p-2 py-3"
+      label_class={[
+        "font-semibold bg-surface-1-bg p-2 py-3",
+        @trace.exception && "border border-error-icon"
+      ]}
       phx-click={if(@render_body?, do: nil, else: "toggle-collapsible")}
       phx-value-trace-id={@trace.id}
     >

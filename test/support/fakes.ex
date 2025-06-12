@@ -13,7 +13,8 @@ defmodule LiveDebugger.Fakes do
       socket_id: "socket_id",
       pid: :c.pid(0, 1, 0),
       timestamp: :erlang.timestamp(),
-      execution_time: 1
+      execution_time: 1,
+      exception: false
     ]
 
     fields = Keyword.merge(default, opts)
