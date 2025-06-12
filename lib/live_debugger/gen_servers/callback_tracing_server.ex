@@ -7,6 +7,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   require Logger
 
+  alias LiveDebugger.GenServers.SettingsServer
   alias LiveDebugger.Services.System.DbgService, as: Dbg
   alias LiveDebugger.Services.ModuleDiscoveryService
   alias LiveDebugger.Services.ChannelService
@@ -27,6 +28,35 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     GenServer.call(__MODULE__, :ping)
   end
 
+  @doc """
+  Refreshes list of traced LiveView modules' callbacks.
+  It is necessary when hot reloading of code is being used.
+  """
+  @spec update_traced_modules() :: :ok
+  def update_traced_modules() do
+    all_modules = ModuleDiscoveryService.all_modules()
+
+    callbacks =
+      all_modules
+      |> ModuleDiscoveryService.live_view_modules()
+      |> CallbackUtils.live_view_callbacks()
+
+    all_modules
+    |> ModuleDiscoveryService.live_component_modules()
+    |> CallbackUtils.live_component_callbacks()
+    |> Enum.concat(callbacks)
+    |> Enum.each(fn mfa ->
+      Dbg.tp(mfa, [{:_, [], [{:return_trace}]}])
+      Dbg.tp(mfa, [{:_, [], [{:exception_trace}]}])
+    end)
+
+    if SettingsServer.get(:tracing_update_on_code_reload) do
+      add_code_reload_tracing()
+    end
+
+    :ok
+  end
+
   ## GenServer
 
   @doc false
@@ -43,33 +73,44 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   end
 
   @impl true
+  def handle_call(:ping, _from, state) do
+    {:reply, :ok, state}
+  end
+
+  @impl true
   def handle_info(:setup_tracing, state) do
     Dbg.tracer(:process, {&handle_trace/2, 0})
     Dbg.p(:all, [:c, :timestamp])
 
-    add_live_modules_to_tracer()
+    update_traced_modules()
 
     # This is not a callback created by user
     # We trace it to refresh the components tree
     Dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
 
-    if Application.get_env(:live_debugger, :tracing_update_on_code_reload?, false) do
-      # We need to get information when code reloads to properly trace modules
-      Dbg.tp({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
+    PubSubUtils.setting_changed()
+    |> PubSubUtils.subscribe!()
+
+    {:noreply, state}
+  end
+
+  def handle_info({:setting_changed, :tracing_update_on_code_reload, reload?}, state)
+      when is_boolean(reload?) do
+    if reload? do
+      add_code_reload_tracing()
+    else
+      remove_code_reload_tracing()
     end
 
     {:noreply, state}
   end
 
-  @impl true
-  def handle_call(:ping, _from, state) do
-    {:reply, :ok, state}
-  end
+  def handle_info(_, state), do: {:noreply, state}
 
   @spec handle_trace(term(), n :: integer()) :: integer()
   defp handle_trace({_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, n) do
     Process.sleep(100)
-    add_live_modules_to_tracer()
+    update_traced_modules()
     n
   end
 
@@ -149,24 +190,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     n
   end
 
-  defp add_live_modules_to_tracer() do
-    all_modules = ModuleDiscoveryService.all_modules()
-
-    callbacks =
-      all_modules
-      |> ModuleDiscoveryService.live_view_modules()
-      |> CallbackUtils.live_view_callbacks()
-
-    all_modules
-    |> ModuleDiscoveryService.live_component_modules()
-    |> CallbackUtils.live_component_callbacks()
-    |> Enum.concat(callbacks)
-    |> Enum.each(fn mfa ->
-      Dbg.tp(mfa, [{:_, [], [{:return_trace}]}])
-      Dbg.tp(mfa, [{:_, [], [{:exception_trace}]}])
-    end)
-  end
-
   @spec persist_trace(Trace.t()) :: :ok | {:error, term()}
   defp persist_trace(%Trace{} = trace) do
     TraceService.insert(trace)
@@ -237,5 +260,13 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     pid
     |> PubSubUtils.trace_topic_per_pid(fun, :return)
     |> PubSubUtils.broadcast({:updated_trace, trace})
+  end
+
+  defp add_code_reload_tracing() do
+    Dbg.tp({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
+  end
+
+  defp remove_code_reload_tracing() do
+    Dbg.ctp({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
   end
 end

@@ -9,10 +9,6 @@ defmodule LiveDebugger.Feature do
       Application.get_env(:live_debugger, :highlighting?, true)
   end
 
-  def enabled?(:dead_view_mode) do
-    Application.get_env(:live_debugger, :dead_view_mode?, true)
-  end
-
   def enabled?(:garbage_collection) do
     Application.get_env(:live_debugger, :garbage_collection?, true)
   end
