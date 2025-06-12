@@ -40,10 +40,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersSidebar do
       >
         <div
           phx-click-away="close_mobile_content"
-          class={[
-            "h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between",
-            "border-x border-default-border lg:border-l"
-          ]}
+          class="h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border lg:border-l"
         >
           <.icon_button
             :if={!@sidebar_hidden?}
