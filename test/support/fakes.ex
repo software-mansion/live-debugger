@@ -184,3 +184,57 @@ defmodule LiveDebugger.Fakes do
     }
   end
 end
+
+defmodule LiveDebuggerDev.Fakes.TestLV do
+  use Phoenix.LiveView
+
+  defmodule Component do
+    use Phoenix.LiveComponent
+
+    def render(assigns) do
+      ~H"""
+      <p>Hello</p>
+      """
+    end
+  end
+
+  def mount(_params, _session, socket) do
+    {:ok, assign(socket, :hello, :world)}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <div>
+      <p>Hello</p>
+      <.live_component id="component-1" module={Component} />
+    </div>
+    """
+  end
+end
+
+defmodule LiveDebuggerWeb.Fakes.TestLV do
+  use Phoenix.LiveView
+
+  defmodule Component do
+    use Phoenix.LiveComponent
+
+    def render(assigns) do
+      ~H"""
+      <p>Hello</p>
+      """
+    end
+  end
+
+  def mount(_params, _session, socket) do
+    {:ok, assign(socket, :hello, :world)}
+  end
+
+  def render(assigns) do
+    ~H"""
+    <div>
+      <p>Hello</p>
+      <.live_component id="component-1" module={Component} />
+    </div>
+    """
+  end
+end
