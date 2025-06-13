@@ -2,30 +2,21 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
   use ExUnit.Case, async: true
 
   import Mox
+  import Phoenix.LiveViewTest
 
   alias LiveDebugger.Services.LiveViewDiscoveryService
   alias LiveDebugger.MockProcessService
+  alias LiveDebugger.MockLiveViewService
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Fakes
 
+  @endpoint LiveDebuggerWeb.Endpoint
+
   describe "debugged_lv_processes/0" do
     test "returns list of LvProcesses" do
-      live_view_pid_1 = :c.pid(0, 0, 1)
-      live_view_pid_2 = :c.pid(0, 0, 2)
-
-      module = :"Elixir.SomeLiveView"
-
-      MockProcessService
-      |> expect(:list, fn -> [live_view_pid_1, live_view_pid_2] end)
-      |> expect(:initial_call, 2, fn _ -> {module, :mount} end)
-
-      MockProcessService
-      |> expect(:state, fn ^live_view_pid_1 ->
-        {:ok, Fakes.state(root_pid: live_view_pid_1, module: module)}
-      end)
-      |> expect(:state, fn ^live_view_pid_2 ->
-        {:ok, Fakes.state(root_pid: live_view_pid_2, module: module)}
-      end)
+      conn = Plug.Test.conn(:get, "/")
+      {:ok, %{pid: live_view_pid_1}, _} = live_isolated(conn, LiveDebuggerDev.Fakes.TestLV)
+      {:ok, %{pid: live_view_pid_2}, _} = live_isolated(conn, LiveDebuggerDev.Fakes.TestLV)
 
       assert [
                %LvProcess{pid: ^live_view_pid_1},
@@ -34,53 +25,88 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
     end
 
     test "doesn't return LiveDebugger LvProcesses" do
-      live_view_pid = :c.pid(0, 0, 1)
-      debugger_pid = :c.pid(0, 0, 2)
+      conn = Plug.Test.conn(:get, "/")
 
-      module = :"Elixir.SomeLiveView"
-      live_debugger_module = :"Elixir.LiveDebuggerWeb.Debugger"
+      {:ok, %{pid: pid, id: socket_id, module: module}, _} =
+        live_isolated(conn, LiveDebuggerDev.Fakes.TestLV)
 
-      MockProcessService
-      |> expect(:list, fn -> [live_view_pid, debugger_pid] end)
-      |> expect(:initial_call, fn _ -> {module, :mount} end)
-      |> expect(:initial_call, fn _ -> {live_debugger_module, :mount} end)
-
-      MockProcessService
-      |> expect(:state, fn ^live_view_pid ->
-        {:ok, Fakes.state(root_pid: live_view_pid, module: module)}
-      end)
-      |> expect(:state, fn ^debugger_pid ->
-        {:ok, Fakes.state(root_pid: debugger_pid, module: live_debugger_module)}
-      end)
+      {:ok, _debugger_view, _} = live_isolated(conn, LiveDebuggerWeb.Fakes.TestLV)
 
       assert [
-               %LvProcess{pid: ^live_view_pid}
+               %LvProcess{
+                 pid: ^pid,
+                 socket_id: ^socket_id,
+                 module: ^module,
+                 debugger?: false,
+                 alive?: true
+               }
              ] = LiveViewDiscoveryService.debugged_lv_processes()
     end
   end
 
+  @tag :current
   test "debugger_lv_processes/0 returns only LiveDebugger LvProcesses" do
     live_debugger_pid = :c.pid(0, 0, 2)
     live_view_pid = :c.pid(0, 0, 1)
 
-    live_debugger_module = :"Elixir.LiveDebuggerWeb.SomLiveView"
-    live_view_module = :"Elixir.SomeLiveView"
+    live_debugger_module = Elixir.LiveDebuggerWeb.SomLiveView
+    live_view_module = Elixir.SomeLiveView
 
-    MockProcessService
-    |> expect(:list, fn -> [live_debugger_pid, live_view_pid] end)
-    |> expect(:initial_call, fn _ -> {live_debugger_module, :mount} end)
-    |> expect(:initial_call, fn _ -> {live_view_module, :mount} end)
+    MockLiveViewService
+    |> expect(:list_liveviews, fn ->
+      [
+        %{
+          pid: live_debugger_pid,
+          view: live_debugger_module,
+          topic: "lv:mock",
+          transport_pid: nil
+        },
+        %{
+          pid: live_view_pid,
+          view: live_view_module,
+          topic: "lv:mock",
+          transport_pid: nil
+        }
+      ]
+    end)
+    |> expect(:socket, fn ^live_debugger_pid ->
+      {:ok,
+       %{
+         root_pid: live_debugger_pid,
+         view: live_debugger_module,
+         host_uri: %URI{},
+         id: "phx-ELO",
+         parent_pid: nil,
+         transport_pid: :c.pid(0, 0, 3)
+       }}
+    end)
+    |> expect(:socket, fn ^live_view_pid ->
+      {:ok,
+       %{
+         root_pid: live_view_pid,
+         view: live_view_module,
+         host_uri: %URI{},
+         id: "phx-ELO2",
+         parent_pid: nil,
+         transport_pid: :c.pid(0, 0, 3)
+       }}
+    end)
 
-    MockProcessService
-    |> expect(:state, fn ^live_debugger_pid ->
-      {:ok, Fakes.state(root_pid: live_debugger_pid, module: live_debugger_module)}
-    end)
-    |> expect(:state, fn ^live_view_pid ->
-      {:ok, Fakes.state(root_pid: live_view_pid, module: live_view_module)}
-    end)
+    # MockProcessService
+    # |> stub_with(LiveDebugger.Services.System.ProcessService.Impl)
+
+    # conn = Plug.Test.conn(:get, "/")
+    #
+    # {:ok, _debugged_view, _} = live_isolated(conn, LiveDebuggerDev.Fakes.TestLV)
+    #
+    # {:ok, %{pid: live_debugger_pid, id: socket_id, module: module}, _} =
+    #   live_isolated(conn, LiveDebuggerWeb.Fakes.TestLV)
 
     assert [
-             %LvProcess{pid: ^live_debugger_pid}
+             %LvProcess{
+               pid: ^live_debugger_pid,
+               module: ^live_debugger_module
+             }
            ] = LiveViewDiscoveryService.debugger_lv_processes()
   end
 

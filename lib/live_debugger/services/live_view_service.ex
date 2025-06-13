@@ -1,4 +1,7 @@
 defmodule LiveDebugger.Services.LiveViewService do
+  @moduledoc """
+  This module provides wrappers for Phoenix LiveView functions that are used for debugging a LiveView processes.
+  """
   @type lv() :: %{
           pid: pid(),
           view: module(),
