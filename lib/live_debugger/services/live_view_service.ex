@@ -40,7 +40,7 @@ defmodule LiveDebugger.Services.LiveViewService do
     @moduledoc false
     @behaviour LiveDebugger.Services.LiveViewService
 
-    if Code.ensure_compiled(Phoenix.LiveView.Debug) == {:module, Phoenix.LiveView.Debug} do
+    if LiveDebugger.Services.System.ModuleService.loaded?(Phoenix.LiveView.Debug) do
       @impl true
       defdelegate list_liveviews(), to: Phoenix.LiveView.Debug
       @impl true

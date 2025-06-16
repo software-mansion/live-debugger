@@ -75,9 +75,7 @@ defmodule LiveDebugger.Services.ChannelService do
     end)
   end
 
-  defp children_cids_mapping(channel_state) do
-    components = get_state_components(channel_state)
-
+  defp children_cids_mapping(%{components: components}) do
     components
     |> get_base_parent_cids_mapping()
     |> fill_parent_cids_mapping(components)
