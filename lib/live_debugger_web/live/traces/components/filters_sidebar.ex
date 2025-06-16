@@ -30,36 +30,15 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersSidebar do
 
   def sidebar(assigns) do
     ~H"""
-    <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
-      <div
+    <.sidebar_slide_over sidebar_hidden?={@sidebar_hidden?}>
+      <.sidebar_content
         id="filters-sidebar-form"
-        class={[
-          (@sidebar_hidden? && "hidden") || "flex",
-          "fixed inset-0 bg-black/25 justify-end items-start lg:flex lg:static lg:inset-auto lg:bg-transparent"
-        ]}
-      >
-        <div
-          phx-click-away="close_mobile_content"
-          class="h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border lg:border-l"
-        >
-          <.icon_button
-            :if={!@sidebar_hidden?}
-            icon="icon-cross"
-            class="absolute top-4 right-4 lg:hidden"
-            variant="secondary"
-            phx-click="close_mobile_content"
-          />
-
-          <.sidebar_content
-            id="filters-sidebar-form"
-            current_filters={@current_filters}
-            default_filters={@default_filters}
-            tracing_started?={@tracing_started?}
-            revert_button_visible?={true}
-          />
-        </div>
-      </div>
-    </div>
+        current_filters={@current_filters}
+        default_filters={@default_filters}
+        tracing_started?={@tracing_started?}
+        revert_button_visible?={true}
+      />
+    </.sidebar_slide_over>
     """
   end
 
