@@ -83,8 +83,22 @@ defmodule LiveDebugger.Services.LiveViewService do
       @impl true
       def live_components(pid) do
         case LiveDebugger.Services.System.ProcessService.state(pid) do
-          {:ok, %{components: components}} -> components
-          {:error, _} -> raise Error
+          {:ok, %{components: {components, _, _}}} ->
+            component_info =
+              Enum.map(components, fn {cid, {mod, id, assigns, private, _prints}} ->
+                %{
+                  id: id,
+                  cid: cid,
+                  module: mod,
+                  assigns: assigns,
+                  children_cids: private.children_cids
+                }
+              end)
+
+            {:ok, component_info}
+
+          {:error, _} ->
+            raise Error
         end
       end
 

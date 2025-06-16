@@ -55,9 +55,9 @@ defmodule LiveDebugger.Services.ChannelService do
   """
   @spec node_ids(channel_state :: CommonTypes.channel_state()) ::
           {:ok, [TreeNode.id()]} | {:error, term()}
-  def node_ids(channel_state) do
-    component_cids = channel_state |> get_state_components() |> Map.keys()
-    pid = channel_state.socket.root_pid
+  def node_ids(%{socket: socket, components: components}) do
+    component_cids = components |> Enum.map(& &1.cid)
+    pid = socket.root_pid
 
     {:ok, Enum.map(component_cids, fn cid -> %Phoenix.LiveComponent.CID{cid: cid} end) ++ [pid]}
   end
@@ -84,21 +84,16 @@ defmodule LiveDebugger.Services.ChannelService do
     |> reverse_mapping()
   end
 
-  defp get_state_components(%{components: {components, _, _}}), do: components
-
   defp get_base_parent_cids_mapping(components) do
     components
-    |> Enum.map(fn {cid, _} -> {cid, nil} end)
+    |> Enum.map(fn %{cid: cid} -> {cid, nil} end)
     |> Enum.into(%{})
   end
 
   defp fill_parent_cids_mapping(base_parent_cids_mapping, components) do
-    Enum.reduce(components, base_parent_cids_mapping, fn {cid, element}, parent_cids_mapping ->
-      {_, _, _, info, _} = element
-      children_cids = info.children_cids
-
-      Enum.reduce(children_cids, parent_cids_mapping, fn child_cid, parent_cids ->
-        %{parent_cids | child_cid => cid}
+    Enum.reduce(components, base_parent_cids_mapping, fn element, parent_cids_mapping ->
+      Enum.reduce(element.children_cids, parent_cids_mapping, fn child_cid, parent_cids ->
+        %{parent_cids | child_cid => element.cid}
       end)
     end)
   end
