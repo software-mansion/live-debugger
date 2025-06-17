@@ -34,6 +34,8 @@ defmodule LiveDebugger.ProcessCallbackTracesTest do
     |> assert_has(trace_name(text: "handle_event/3", count: 1))
     |> assert_has(trace_name(text: "handle_info/2", count: 1))
     |> assert_has(trace_name(text: "render/1", count: 1))
+    |> assert_has(trace_module(text: "LiveDebuggerDev.LiveViews.Main", count: 2))
+    |> assert_has(trace_module(text: "LiveDebuggerDev.LiveComponents.Send (4)", count: 1))
     |> click(clear_traces_button())
     |> assert_has(traces(count: 0))
     |> assert_has(no_traces_info())
@@ -53,6 +55,8 @@ defmodule LiveDebugger.ProcessCallbackTracesTest do
   defp traces(opts), do: css("#global-traces-stream details", opts)
 
   defp trace_name(opts), do: css("#global-traces-stream details p.font-medium", opts)
+
+  defp trace_module(opts), do: css("#global-traces-stream details div.col-span-3", opts)
 
   defp global_callback_traces_button(), do: css("button[aria-label=\"Icon globe\"]")
 end

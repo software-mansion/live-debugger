@@ -1,4 +1,4 @@
-defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
+defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
   @moduledoc """
   This live view is responsible for displaying the sidebar of the LiveDebugger.
   It receives events from the `LvProcessLive` live to open the mobile sidebar.
@@ -237,27 +237,6 @@ defmodule LiveDebuggerWeb.Live.Nested.SidebarLive do
         highlight?={@highlight?}
       />
       <.report_issue class="border-t border-default-border" />
-    </div>
-    """
-  end
-
-  slot(:inner_block)
-
-  defp sidebar_slide_over(assigns) do
-    ~H"""
-    <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex lg:hidden justify-end">
-      <div
-        class="w-80 h-full flex flex-col bg-sidebar-bg justify-between"
-        phx-click-away="close_mobile_content"
-      >
-        <.icon_button
-          icon="icon-cross"
-          class="absolute top-4 right-4"
-          variant="secondary"
-          phx-click="close_mobile_content"
-        />
-        <%= render_slot(@inner_block) %>
-      </div>
     </div>
     """
   end
