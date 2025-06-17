@@ -16,15 +16,32 @@ defmodule LiveDebugger.Fakes do
   end
 
   def socket(opts \\ []) do
+    host_uri =
+      if Keyword.get(opts, :embedded?, false) do
+        :not_mounted_at_router
+      else
+        Keyword.get(opts, :host_uri, "https://localhost:4000")
+      end
+
+    root_pid =
+      case Keyword.get(opts, :nested?, nil) do
+        false ->
+          if not Keyword.has_key?(opts, :pid), do: raise("pid is required for nested processes")
+          Keyword.get(opts, :pid)
+
+        _ ->
+          Keyword.get(opts, :root_pid, :c.pid(0, 0, 0))
+      end
+
     default = [
       id: "phx-" <> (:crypto.strong_rand_bytes(4) |> Base.encode16()),
       endpoint: LiveDebuggerDev.Endpoint,
       view: LiveDebuggerWeb.Main,
       parent_pid: nil,
-      root_pid: :c.pid(0, 0, 2),
+      root_pid: root_pid,
       router: LiveDebuggerDev.Router,
       transport_pid: :c.pid(0, 0, 1),
-      host_uri: "https://localhost:4000",
+      host_uri: host_uri,
       assigns: %{
         assign: :value,
         counter: 0,
@@ -35,7 +52,9 @@ defmodule LiveDebugger.Fakes do
       }
     ]
 
-    fields = Keyword.merge(default, opts)
+    fields =
+      default
+      |> Keyword.merge(Keyword.drop(opts, [:pid, :embedded?, :nested?]))
 
     Kernel.struct!(Phoenix.LiveView.Socket, fields)
   end
