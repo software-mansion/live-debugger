@@ -26,6 +26,16 @@ defmodule LiveDebugger.Utils.PubSub do
   @spec unsubscribe(topic :: String.t()) :: :ok
   def unsubscribe(topic), do: impl().unsubscribe(topic)
 
+  @spec to_client_topic(socket_id :: String.t()) :: String.t()
+  def to_client_topic(socket_id) do
+    "client:" <> socket_id
+  end
+
+  @spec from_client_topic(socket_id :: String.t()) :: String.t()
+  def from_client_topic(socket_id) do
+    "from-client:" <> socket_id
+  end
+
   @doc "Use `{:component_deleted, delete_trace}` for broadcasting"
   @spec component_deleted_topic() :: String.t()
   def component_deleted_topic() do

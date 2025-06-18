@@ -32,7 +32,7 @@ function createHighlightElement(activeElement, detail, id) {
   return highlight;
 }
 
-function handleHighlight({ detail }) {
+function handleHighlight(detail) {
   let highlightElement = document.getElementById(highlightElementID);
 
   if (highlightElement) {
@@ -75,7 +75,7 @@ function handleHighlightResize() {
   }
 }
 
-function handlePulse({ detail }) {
+function handlePulse(detail) {
   const activeElement = document.querySelector(
     `[${detail.attr}="${detail.val}"]`
   );
@@ -124,10 +124,10 @@ function handlePulse({ detail }) {
   }
 }
 
-function initHighlight() {
-  window.addEventListener('phx:highlight', handleHighlight);
+function initHighlight(liveDebuggerChannel) {
+  liveDebuggerChannel.on('lvdbg:highlight', handleHighlight);
+  liveDebuggerChannel.on('lvdbg:pulse', handlePulse);
   window.addEventListener('resize', handleHighlightResize);
-  window.addEventListener('phx:pulse', handlePulse);
 }
 
 export { initHighlight };

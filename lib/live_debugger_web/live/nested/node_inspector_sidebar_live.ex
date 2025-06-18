@@ -62,6 +62,10 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
       lv_process.pid
       |> PubSubUtils.state_changed_topic()
       |> PubSubUtils.subscribe!()
+
+      lv_process.socket_id
+      |> PubSubUtils.from_client_topic()
+      |> PubSubUtils.subscribe!()
     end
 
     socket
@@ -150,6 +154,14 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
   end
 
   @impl true
+  def handle_info({:client_msg, payload}, socket) do
+    dbg(payload)
+
+    socket
+    |> noreply()
+  end
+
+  @impl true
   def handle_event("open-sidebar", _, socket) do
     socket
     |> assign(:hidden?, false)
@@ -164,10 +176,10 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
       ) do
     if LiveDebugger.Feature.enabled?(:highlighting) do
       if !socket.assigns.hidden? && socket.assigns.highlight? do
-        send_event(socket.assigns.lv_process.pid, "highlight", %{attr: attr, val: val})
+        send_event(socket.assigns.lv_process.socket_id, :highlight, %{attr: attr, val: val})
       end
 
-      send_event(socket.assigns.lv_process.pid, "pulse", %{attr: attr, val: val})
+      send_event(socket.assigns.lv_process.socket_id, :pulse, %{attr: attr, val: val})
     end
 
     socket
@@ -181,7 +193,7 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
     if socket.assigns.highlight? do
       %{"search-attribute" => attr, "search-value" => val} = params
 
-      send_event(socket.assigns.lv_process.pid, "highlight", %{attr: attr, val: val})
+      send_event(socket.assigns.lv_process.socket_id, :highlight, %{attr: attr, val: val})
     end
 
     noreply(socket)
@@ -190,7 +202,7 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
   @impl true
   def handle_event("toggle-highlight", _, socket) do
     if socket.assigns.highlight? do
-      send_event(socket.assigns.lv_process.pid, "highlight")
+      send_event(socket.assigns.lv_process.socket_id, :highlight)
     end
 
     socket
@@ -382,17 +394,20 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
     error
   end
 
-  defp send_event(pid, event, payload \\ %{}) do
-    {:ok, state} = ChannelService.state(pid)
+  defp send_event(socket_id, event, payload \\ %{}) do
+    # {:ok, state} = ChannelService.state(pid)
+    #
+    # message = %Message{
+    #   topic: state.topic,
+    #   event: "diff",
+    #   payload: %{e: [[event, payload]]},
+    #   join_ref: state.join_ref
+    # }
+    #
+    # send(state.socket.transport_pid, state.serializer.encode!(message))
 
-    message = %Message{
-      topic: state.topic,
-      event: "diff",
-      payload: %{e: [[event, payload]]},
-      join_ref: state.join_ref
-    }
-
-    send(state.socket.transport_pid, state.serializer.encode!(message))
+    PubSubUtils.to_client_topic(socket_id)
+    |> PubSubUtils.broadcast({event, payload})
   end
 
   defp node_type(:live_component), do: "LiveComponent"
