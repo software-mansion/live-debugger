@@ -1,4 +1,7 @@
 defmodule LiveDebuggerWeb.ClientChannel do
+  @moduledoc """
+  This is channel for communication between LiveDebugger processes and debugged LiveView browser client.
+  """
   use Phoenix.Channel
 
   import LiveDebuggerWeb.Helpers
@@ -6,17 +9,12 @@ defmodule LiveDebuggerWeb.ClientChannel do
 
   @impl true
   def join("client:" <> _session_id, _, socket) do
-    dbg(socket)
-
     socket
     |> ok()
   end
 
   @impl true
   def handle_in("client-message", payload, socket) do
-    IO.inspect(payload, label: "Client message received")
-    dbg(socket)
-
     PubSubUtils.from_client_topic(socket.assigns.client_session_id)
     |> PubSubUtils.broadcast({:client_msg, payload})
 

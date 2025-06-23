@@ -17,7 +17,6 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
   alias LiveDebuggerWeb.Components.Tree
   alias LiveDebuggerWeb.Components.Links
   alias LiveDebugger.Services.ChannelService
-  alias Phoenix.Socket.Message
   alias LiveDebugger.Utils.URL
   alias LiveDebuggerWeb.LiveComponents.NestedLiveViewsLinks
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
@@ -154,9 +153,7 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
   end
 
   @impl true
-  def handle_info({:client_msg, payload}, socket) do
-    dbg(payload)
-
+  def handle_info({:client_msg, _payload}, socket) do
     socket
     |> noreply()
   end
@@ -176,10 +173,10 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
       ) do
     if LiveDebugger.Feature.enabled?(:highlighting) do
       if !socket.assigns.hidden? && socket.assigns.highlight? do
-        send_event(socket.assigns.lv_process.socket_id, :highlight, %{attr: attr, val: val})
+        send_to_client(socket.assigns.lv_process.socket_id, :highlight, %{attr: attr, val: val})
       end
 
-      send_event(socket.assigns.lv_process.socket_id, :pulse, %{attr: attr, val: val})
+      send_to_client(socket.assigns.lv_process.socket_id, :pulse, %{attr: attr, val: val})
     end
 
     socket
@@ -193,7 +190,7 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
     if socket.assigns.highlight? do
       %{"search-attribute" => attr, "search-value" => val} = params
 
-      send_event(socket.assigns.lv_process.socket_id, :highlight, %{attr: attr, val: val})
+      send_to_client(socket.assigns.lv_process.socket_id, :highlight, %{attr: attr, val: val})
     end
 
     noreply(socket)
@@ -202,7 +199,7 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
   @impl true
   def handle_event("toggle-highlight", _, socket) do
     if socket.assigns.highlight? do
-      send_event(socket.assigns.lv_process.socket_id, :highlight)
+      send_to_client(socket.assigns.lv_process.socket_id, :highlight)
     end
 
     socket
@@ -394,7 +391,7 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
     error
   end
 
-  defp send_event(socket_id, event, payload \\ %{}) do
+  defp send_to_client(socket_id, event, payload \\ %{}) do
     # {:ok, state} = ChannelService.state(pid)
     #
     # message = %Message{
