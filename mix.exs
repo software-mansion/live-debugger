@@ -82,9 +82,19 @@ defmodule LiveDebugger.MixProject do
     [
       main: "welcome",
       logo: "./docs/images/logo.png",
+      extra_section: "GUIDES",
       extras: [
         "docs/welcome.md": [title: "Welcome to LiveDebugger"],
-        "docs/config.md": [title: "Configuration"]
+        "docs/config.md": [title: "Configuration"],
+        "docs/assigns_inspection.md": [title: "Assigns Inspection"]
+      ],
+      groups_for_extras: [
+        Configuration: [
+          "docs/config.md"
+        ],
+        Features: [
+          "docs/assigns_inspection.md"
+        ]
       ],
       source_url: "https://github.com/software-mansion/live-debugger",
       source_ref: @version,
