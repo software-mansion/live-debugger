@@ -1,10 +1,12 @@
+# 🔦 Components Highlighting
+
 This feature helps you visually identify and locate components rendered in the current debugged LiveView. This makes it easier to understand the structure of the page and debug rendering issues effectively.
 
 > #### Important {: .info}
 >
 > Components Highlighting works only when browser features are enabled.
 
-### 🔦 Usage
+### Usage
 
 You turn highlighting mode on by clicking switch button on top of LiveComponents tree.
 
