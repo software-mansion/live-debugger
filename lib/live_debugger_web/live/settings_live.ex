@@ -44,6 +44,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
           <%!-- Checkboxes --%>
           <div class="p-6 border-t border-default-border flex flex-col gap-3">
             <.settings_switch
+              id="dead-view-mode-switch"
               label="Enable DeadView mode"
               description="When enabled, LiveDebugger won't redirect to new LiveView after page redirect or reload, allowing you to browse assigns and traces of dead LiveViews."
               checked={@settings[:dead_view_mode]}
@@ -52,6 +53,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
             />
 
             <.settings_switch
+              id="tracing-update-on-reload-switch"
               label="Refresh tracing on reload"
               description="Enabling this feature may have a negative impact on application performance."
               checked={@settings[:tracing_update_on_code_reload]}
@@ -100,6 +102,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
     {:noreply, socket}
   end
 
+  attr(:id, :string, required: true)
   attr(:label, :string, required: true)
   attr(:description, :string, required: true)
   attr(:checked, :boolean, default: false)
@@ -108,7 +111,7 @@ defmodule LiveDebuggerWeb.SettingsLive do
   defp settings_switch(assigns) do
     ~H"""
     <div class="flex items-center">
-      <.toggle_switch checked={@checked} wrapper_class="pr-3 py-0" {@rest} />
+      <.toggle_switch id={@id} checked={@checked} wrapper_class="pr-3 py-0" {@rest} />
       <div class="flex flex-col gap-0.5">
         <p class="font-semibold"><%= @label %></p>
         <p class="text-secondary-text"><%= @description %></p>

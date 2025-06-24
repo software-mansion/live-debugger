@@ -606,7 +606,7 @@ defmodule LiveDebuggerWeb.Components do
   attr(:checked, :boolean, default: false, doc: "Whether the switch is checked.")
   attr(:label, :string, default: "", doc: "Label for the switch.")
   attr(:wrapper_class, :any, default: nil, doc: "Additional classes to add to the switch.")
-  attr(:id, :string, default: nil, doc: "ID of the switch.")
+  attr(:id, :string, required: true, doc: "ID of the switch.")
   attr(:rest, :global)
 
   def toggle_switch(assigns) do
