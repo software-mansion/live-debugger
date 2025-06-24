@@ -57,6 +57,14 @@ defmodule LiveDebugger.SettingsTest do
 
     debugger
     |> assert_has(dead_view_disconnected())
+
+    # Check tracing update on reload toggle
+
+    debugger
+    |> visit("/settings")
+    |> assert_has(enable_tracing_update_on_reload_checkbox(selected: false))
+    |> click(enable_tracing_update_on_reload_toggle())
+    |> assert_has(enable_tracing_update_on_reload_checkbox(selected: true))
   end
 
   defp dark_mode_switch() do
@@ -73,6 +81,14 @@ defmodule LiveDebugger.SettingsTest do
 
   defp enable_dead_view_mode_checkbox(opts) do
     css("input[phx-value-setting=dead_view_mode]", opts)
+  end
+
+  defp enable_tracing_update_on_reload_toggle() do
+    css("label:has(input[phx-value-setting=tracing_update_on_code_reload])")
+  end
+
+  defp enable_tracing_update_on_reload_checkbox(opts) do
+    css("input[phx-value-setting=tracing_update_on_code_reload]", opts)
   end
 
   defp dead_view_monitored_pid() do
