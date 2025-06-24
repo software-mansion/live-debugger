@@ -11,6 +11,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
   alias LiveDebugger.MockEtsTableServer
   alias LiveDebugger.MockPubSubUtils
   alias LiveDebugger.MockStateServer
+  alias LiveDebugger.MockSettingsServer
 
   @modules [
     CoolApp.LiveViews.UserDashboard,
@@ -19,6 +20,19 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
   ]
 
   setup :verify_on_exit!
+
+  setup _context do
+    MockSettingsServer
+    |> stub(:get, fn
+      :tracing_update_on_code_reload -> false
+      :dead_view_mode -> false
+    end)
+
+    MockPubSubUtils
+    |> stub(:subscribe!, fn "lvdbg/setting_changed" -> :ok end)
+
+    :ok
+  end
 
   test "init/1" do
     assert {:ok, %{}} = CallbackTracingServer.init([])

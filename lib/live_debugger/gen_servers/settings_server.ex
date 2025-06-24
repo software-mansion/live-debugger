@@ -85,7 +85,7 @@ defmodule LiveDebugger.GenServers.SettingsServer do
   end
 
   defp impl() do
-    Application.get_env(:live_debugger, :settings_server_impl, __MODULE__.Impl)
+    Application.get_env(:live_debugger, :settings_server, __MODULE__.Impl)
   end
 
   defmodule Impl do
