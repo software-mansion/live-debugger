@@ -151,7 +151,9 @@ defmodule LiveDebugger.Structs.TreeNodeTest do
   describe "live_component_node/2" do
     test "returns TreeNode.LiveComponent for a valid channel_state" do
       channel_state = %{
-        components: {%{1 => {:module, "component-id", %{}, nil, nil}}, nil, nil}
+        components: [
+          %{cid: 1, module: :module, id: "component-id", assigns: %{}, children_cids: []}
+        ]
       }
 
       cid = @cid_1
@@ -162,7 +164,9 @@ defmodule LiveDebugger.Structs.TreeNodeTest do
 
     test "returns nil for non-existing live_component" do
       channel_state = %{
-        components: {%{1 => {:module, "component-id", %{}, nil, nil}}, nil, nil}
+        components: [
+          %{cid: 1, module: :module, id: "component-id", assigns: %{}, children_cids: []}
+        ]
       }
 
       assert {:ok, nil} =
@@ -179,12 +183,13 @@ defmodule LiveDebugger.Structs.TreeNodeTest do
 
   describe "live_component_nodes/1" do
     test "returns list of live components" do
+      %{cid: 1, module: :module, id: "component-id-1", assigns: %{}, children_cids: []}
+
       channel_state = %{
-        components:
-          {%{
-             1 => {:module, "component-id-1", %{}, nil, nil},
-             2 => {:module, "component-id-2", %{}, nil, nil}
-           }, nil, nil}
+        components: [
+          %{cid: 1, module: :module, id: "component-id-1", assigns: %{}, children_cids: []},
+          %{cid: 2, module: :module, id: "component-id-1", assigns: %{}, children_cids: []}
+        ]
       }
 
       assert {:ok, [%TreeNode.LiveComponent{}, %TreeNode.LiveComponent{}]} =
@@ -193,7 +198,7 @@ defmodule LiveDebugger.Structs.TreeNodeTest do
 
     test "returns empty list for empty channel_state" do
       channel_state = %{
-        components: {%{}, nil, nil}
+        components: []
       }
 
       assert {:ok, []} = TreeNode.live_component_nodes(channel_state)

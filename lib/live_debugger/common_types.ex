@@ -7,8 +7,8 @@ defmodule LiveDebugger.CommonTypes do
   Type for state of a channel that hosts a LiveView.
   """
   @type channel_state() :: %{
-          socket: %Phoenix.LiveView.Socket{},
-          components: {map(), any(), any()}
+          socket: Phoenix.LiveView.Socket.t(),
+          components: list(map())
         }
 
   @type cid() :: %Phoenix.LiveComponent.CID{cid: integer()}

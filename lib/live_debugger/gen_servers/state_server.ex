@@ -8,7 +8,6 @@ defmodule LiveDebugger.GenServers.StateServer do
 
   use GenServer
 
-  alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.CommonTypes
   alias LiveDebugger.Structs.Trace
@@ -77,8 +76,15 @@ defmodule LiveDebugger.GenServers.StateServer do
   def handle_info({:process_status, _}, state), do: {:noreply, state}
 
   defp save_state(%Trace{pid: pid} = trace) do
-    with {:ok, channel_state} <- ProcessService.state(pid) do
+    with {:ok, socket} <- LiveDebugger.Services.LiveViewService.socket(pid),
+         {:ok, components} <- LiveDebugger.Services.LiveViewService.live_components(pid) do
       record_id = record_id(pid)
+
+      channel_state = %{
+        socket: socket,
+        components: components
+      }
+
       :ets.insert(@ets_table_name, {record_id, channel_state})
 
       publish_state_changed(trace, channel_state)
@@ -114,7 +120,15 @@ defmodule LiveDebugger.GenServers.StateServer do
           {:ok, channel_state}
 
         [] ->
-          ProcessService.state(pid)
+          with {:ok, socket} <- LiveDebugger.Services.LiveViewService.socket(pid),
+               {:ok, components} <- LiveDebugger.Services.LiveViewService.live_components(pid) do
+            channel_state = %{
+              socket: socket,
+              components: components
+            }
+
+            {:ok, channel_state}
+          end
       end
     end
   end

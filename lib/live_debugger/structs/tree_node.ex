@@ -120,9 +120,9 @@ defmodule LiveDebugger.Structs.TreeNode do
           {:ok, t() | nil} | {:error, term()}
   def live_component_node(channel_state, cid)
 
-  def live_component_node(%{components: {components_map, _, _}}, cid) do
-    components_map
-    |> Enum.find(fn {integer_cid, _} -> integer_cid == cid.cid end)
+  def live_component_node(%{components: components}, cid) do
+    components
+    |> Enum.find(fn %{cid: integer_cid} -> integer_cid == cid.cid end)
     |> case do
       nil ->
         {:ok, nil}
@@ -148,8 +148,8 @@ defmodule LiveDebugger.Structs.TreeNode do
           {:ok, [t()]} | {:error, term()}
   def live_component_nodes(channel_state)
 
-  def live_component_nodes(%{components: {components_map, _, _}}) do
-    Enum.reduce_while(components_map, {:ok, []}, fn channel_component, acc ->
+  def live_component_nodes(%{components: components}) do
+    Enum.reduce_while(components, {:ok, []}, fn channel_component, acc ->
       case parse_channel_live_component(channel_component) do
         {:ok, component} ->
           {:ok, acc_components} = acc
@@ -163,7 +163,7 @@ defmodule LiveDebugger.Structs.TreeNode do
 
   def live_component_nodes(_), do: {:error, :invalid_channel_state}
 
-  defp parse_channel_live_component({integer_cid, {module, id, assigns, _, _}}) do
+  defp parse_channel_live_component(%{cid: integer_cid, module: module, id: id, assigns: assigns}) do
     {:ok,
      %LiveComponentNode{
        id: id,
