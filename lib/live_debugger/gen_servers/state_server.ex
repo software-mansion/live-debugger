@@ -8,7 +8,6 @@ defmodule LiveDebugger.GenServers.StateServer do
 
   use GenServer
 
-  alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.CommonTypes
   alias LiveDebugger.Structs.Trace
@@ -121,7 +120,15 @@ defmodule LiveDebugger.GenServers.StateServer do
           {:ok, channel_state}
 
         [] ->
-          ProcessService.state(pid)
+          with {:ok, socket} <- LiveDebugger.Services.LiveViewService.socket(pid),
+               {:ok, components} <- LiveDebugger.Services.LiveViewService.live_components(pid) do
+            channel_state = %{
+              socket: socket,
+              components: components
+            }
+
+            {:ok, channel_state}
+          end
       end
     end
   end
