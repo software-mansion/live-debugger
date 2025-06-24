@@ -50,10 +50,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
       Dbg.tp(mfa, [{:_, [], [{:exception_trace}]}])
     end)
 
-    if SettingsServer.get(:tracing_update_on_code_reload) do
-      add_code_reload_tracing()
-    end
-
     :ok
   end
 
@@ -83,6 +79,10 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     Dbg.p(:all, [:c, :timestamp])
 
     update_traced_modules()
+
+    if SettingsServer.get(:tracing_update_on_code_reload) do
+      add_code_reload_tracing()
+    end
 
     # This is not a callback created by user
     # We trace it to refresh the components tree
@@ -262,6 +262,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   end
 
   defp remove_code_reload_tracing() do
-    Dbg.ctp({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
+    Dbg.ctp({Mix.Tasks.Compile.Elixir, :run, 1})
   end
 end
