@@ -1,32 +1,44 @@
 defmodule LiveDebugger.GenServers.SettingsServer do
+  @settings [:dead_view_mode, :tracing_update_on_code_reload]
+
   @moduledoc """
   This agent is used for storing application settings.
-  It saves changes in file to remember between runs.
+  It saves changes in file to remember between runs by using DETS (Disk Erlang Term Storage).
+  Settings will be saved in `_build` directory of the application.
+
+  The settings are: `#{Enum.join(@settings, ", ")}`.
   """
 
   @table_name :live_debugger_settings
 
   use GenServer
 
-  @settings [:dead_view_mode, :tracing_update_on_code_reload]
-
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
 
   ## API
 
+  @callback get(setting :: atom()) :: term()
+  @callback get_all() :: map()
+  @callback save(setting :: atom(), value :: term()) :: :ok | {:error, term()}
+
+  @doc """
+  Retrieves the value of a specific setting.
+  """
   @spec get(setting :: atom()) :: term()
-  def get(setting) when setting in @settings do
-    GenServer.call(__MODULE__, {:get, setting})
-  end
+  def get(setting) when setting in @settings, do: impl().get(setting)
 
+  @doc """
+  Retrieves all settings as a map.
+  """
   @spec get_all() :: map()
-  def get_all() do
-    GenServer.call(__MODULE__, :get_all)
-  end
+  def get_all(), do: impl().get_all()
 
+  @doc """
+  Saves a setting with the given value.
+  """
   @spec save(setting :: atom(), value :: term()) :: :ok | {:error, term()}
   def save(setting, value) when setting in @settings do
-    GenServer.cast(__MODULE__, {:save, setting, value})
+    impl().save(setting, value)
   end
 
   ## GenServer
@@ -70,6 +82,32 @@ defmodule LiveDebugger.GenServers.SettingsServer do
     |> PubSubUtils.broadcast({:setting_changed, setting, value})
 
     {:noreply, Map.put(state, setting, value)}
+  end
+
+  defp impl() do
+    Application.get_env(:live_debugger, :settings_server_impl, __MODULE__.Impl)
+  end
+
+  defmodule Impl do
+    @moduledoc false
+
+    @behaviour LiveDebugger.GenServers.SettingsServer
+    @server_module LiveDebugger.GenServers.SettingsServer
+
+    @impl true
+    def get(setting) do
+      GenServer.call(@server_module, {:get, setting})
+    end
+
+    @impl true
+    def get_all() do
+      GenServer.call(@server_module, :get_all)
+    end
+
+    @impl true
+    def save(setting, value) do
+      GenServer.cast(@server_module, {:save, setting, value})
+    end
   end
 
   defp fetch_setting(setting) when setting in @settings do
