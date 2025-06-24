@@ -174,6 +174,6 @@ defmodule LiveDebuggerWeb.SettingsLive do
   end
 
   defp assign_settings(socket) do
-    assign(socket, :settings, SettingsServer.get_all() |> IO.inspect(label: "CURR SETTINGS"))
+    assign(socket, :settings, SettingsServer.get_all())
   end
 end
