@@ -40,7 +40,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
   end
 
   test "handle_call/3" do
-    assert {:reply, :ok, %{}} == CallbackTracingServer.handle_call(:ping, self(), %{})
+    assert {:reply, :pong, %{}} == CallbackTracingServer.handle_call(:ping, self(), %{})
   end
 
   test "proper tracing setup" do
