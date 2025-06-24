@@ -61,18 +61,18 @@ defmodule LiveDebugger.SettingsTest do
   end
 
   defp enable_dead_view_mode_toggle() do
-    css("label:has(input[phx-value-setting=dead_view_mode])")
+    css("label:has(input[phx-value-setting=\"dead_view_mode\"])")
   end
 
   defp enable_dead_view_mode_checkbox(opts) do
-    css("input[phx-value-setting=dead_view_mode]", opts)
+    css("input[phx-value-setting=\"dead_view_mode\"]", opts)
   end
 
   defp enable_tracing_update_on_reload_toggle() do
-    css("label:has(input[phx-value-setting=tracing_update_on_code_reload])")
+    css("label:has(input[phx-value-setting=\"tracing_update_on_code_reload\"])")
   end
 
   defp enable_tracing_update_on_reload_checkbox(opts) do
-    css("input[phx-value-setting=tracing_update_on_code_reload]", opts)
+    css("input[phx-value-setting=\"tracing_update_on_code_reload\"]", opts)
   end
 end
