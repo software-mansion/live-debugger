@@ -145,7 +145,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     |> visit("/")
     |> click(first_link())
     |> click(conditional_component_5_node_button())
-    |> find(css("#sidebar-content-basic-info"), fn info ->
+    |> find(sidebar_basic_info(), fn info ->
       info
       |> assert_text("LiveComponent")
       |> assert_text("LiveDebuggerDev.LiveComponents.Conditional")
@@ -502,7 +502,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     debugger
     |> visit("/")
     |> click(first_link())
-    |> find(css("#sidebar-content-basic-info"))
+    |> find(sidebar_basic_info())
     |> assert_text("LiveDebuggerDev.LiveViews.Main")
 
     dev_app
@@ -520,7 +520,7 @@ defmodule LiveDebugger.ChannelDashboardTest do
     Process.sleep(1000)
 
     debugger
-    |> find(css("#sidebar-content-basic-info"))
+    |> find(sidebar_basic_info())
     |> assert_text("LiveDebuggerDev.LiveViews.Side")
   end
 
@@ -579,15 +579,19 @@ defmodule LiveDebugger.ChannelDashboardTest do
   defp reset_filters_button(), do: css("button[phx-click=\"reset-filters\"]")
 
   defp conditional_component_5_node_button() do
-    css("#tree-node-button-5-component-tree-sidebar-content")
+    css("#tree-node-button-5-component-tree-sidebar-content-slide-over")
   end
 
   defp conditional_component_6_node_button() do
-    css("#tree-node-button-6-component-tree-sidebar-content")
+    css("#tree-node-button-6-component-tree-sidebar-content-slide-over")
   end
 
   defp many_assigns_15_node_button() do
-    css("#tree-node-button-15-component-tree-sidebar-content")
+    css("#tree-node-button-15-component-tree-sidebar-content-slide-over")
+  end
+
+  defp sidebar_basic_info() do
+    css("#sidebar-content-slide-over-basic-info")
   end
 
   defp reset_group_button(group) do
