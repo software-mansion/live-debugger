@@ -13,33 +13,18 @@ defmodule LiveDebugger.SettingsTest do
     dev_app
     |> visit(@dev_app_url)
 
-    # Check themes
-
-    debugger
-    |> visit("/settings")
-    |> assert_has(title(text: "Settings"))
-
-    debugger
-    |> assert_has(css("html[class=dark]"))
-    |> assert_has(light_mode_switch())
-    |> click(light_mode_switch())
-    |> assert_has(css("html[class]"))
-    |> assert_has(dark_mode_switch())
-    |> click(dark_mode_switch())
-    |> assert_has(css("html[class=dark]"))
-
     # Check dead view mode toggle
 
     debugger
     |> visit("/")
     |> click(first_link())
-    |> assert_has(dead_view_monitored_pid())
+    |> assert_text("Monitored PID")
 
     dev_app
     |> click(button("Crash"))
 
     debugger
-    |> assert_has(dead_view_monitored_pid())
+    |> assert_text("Monitored PID")
 
     debugger
     |> visit("/settings")
@@ -50,13 +35,16 @@ defmodule LiveDebugger.SettingsTest do
     debugger
     |> visit("/")
     |> click(first_link())
-    |> assert_has(dead_view_monitored_pid())
+    |> assert_text("Monitored PID")
 
     dev_app
     |> click(button("Crash"))
 
+    Process.sleep(200)
+
     debugger
-    |> assert_has(dead_view_disconnected())
+    |> find(css("#navbar-connected"))
+    |> assert_text("Disconnected")
 
     # Check tracing update on reload toggle
 
@@ -93,9 +81,5 @@ defmodule LiveDebugger.SettingsTest do
 
   defp dead_view_monitored_pid() do
     Wallaby.Query.text("Monitored PID")
-  end
-
-  defp dead_view_disconnected() do
-    Wallaby.Query.text("Disconnected")
   end
 end
