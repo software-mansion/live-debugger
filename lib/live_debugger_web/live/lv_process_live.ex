@@ -10,8 +10,6 @@ defmodule LiveDebuggerWeb.LvProcessLive do
   use LiveDebuggerWeb, :live_view
   use LiveDebuggerWeb.Hooks.LinkedView
 
-  require Logger
-
   alias LiveDebuggerWeb.Helpers.RoutesHelper
   alias LiveDebuggerWeb.Components.Navbar
   alias Phoenix.LiveView.JS
