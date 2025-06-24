@@ -103,8 +103,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     {:noreply, state}
   end
 
-  def handle_info(_, state), do: {:noreply, state}
-
   @spec handle_trace(term(), n :: integer()) :: integer()
   defp handle_trace({_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, n) do
     Process.sleep(100)
