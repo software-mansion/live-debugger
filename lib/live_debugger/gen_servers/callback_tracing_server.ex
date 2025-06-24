@@ -23,7 +23,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
   @doc """
   Checks if GenServer has been loaded
   """
-  @spec ping!() :: :ok
+  @spec ping!() :: :pong
   def ping!() do
     GenServer.call(__MODULE__, :ping)
   end
@@ -70,7 +70,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
 
   @impl true
   def handle_call(:ping, _from, state) do
-    {:reply, :ok, state}
+    {:reply, :pong, state}
   end
 
   @impl true

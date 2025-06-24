@@ -135,7 +135,8 @@ defmodule LiveDebugger.GenServers.SettingsServer do
   defp default_setting(:tracing_update_on_code_reload), do: false
 
   defp file_path() do
-    Application.app_dir(:live_debugger)
+    :live_debugger
+    |> Application.app_dir()
     |> Path.join("live_debugger_settings")
     |> String.to_charlist()
   end
