@@ -21,10 +21,15 @@ defmodule LiveDebugger.SettingsTest do
     |> assert_text("Monitored PID")
 
     dev_app
-    |> click(button("Crash"))
+    |> click(link("Side"))
+
+    Process.sleep(200)
 
     debugger
     |> assert_text("Monitored PID")
+
+    dev_app
+    |> visit(@dev_app_url)
 
     debugger
     |> visit("/settings")
@@ -38,7 +43,7 @@ defmodule LiveDebugger.SettingsTest do
     |> assert_text("Monitored PID")
 
     dev_app
-    |> click(button("Crash"))
+    |> click(link("Side"))
 
     Process.sleep(200)
 
@@ -55,14 +60,6 @@ defmodule LiveDebugger.SettingsTest do
     |> assert_has(enable_tracing_update_on_reload_checkbox(selected: true))
   end
 
-  defp dark_mode_switch() do
-    css("#dark-mode-switch")
-  end
-
-  defp light_mode_switch() do
-    css("#light-mode-switch")
-  end
-
   defp enable_dead_view_mode_toggle() do
     css("label:has(input[phx-value-setting=dead_view_mode])")
   end
@@ -77,9 +74,5 @@ defmodule LiveDebugger.SettingsTest do
 
   defp enable_tracing_update_on_reload_checkbox(opts) do
     css("input[phx-value-setting=tracing_update_on_code_reload]", opts)
-  end
-
-  defp dead_view_monitored_pid() do
-    Wallaby.Query.text("Monitored PID")
   end
 end
