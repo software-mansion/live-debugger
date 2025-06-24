@@ -48,7 +48,6 @@ defmodule LiveDebugger.Services.LiveViewService do
       @impl true
       defdelegate live_components(pid), to: Phoenix.LiveView.Debug
     else
-      alias ExUnit.DocTest.Error
       alias LiveDebugger.Services.System.ProcessService
 
       @impl true
@@ -98,7 +97,7 @@ defmodule LiveDebugger.Services.LiveViewService do
             {:ok, component_info}
 
           {:error, _} ->
-            raise Error
+            {:error, :not_alive_or_not_a_liveview}
         end
       end
 
