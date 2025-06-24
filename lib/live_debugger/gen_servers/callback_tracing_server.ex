@@ -28,6 +28,18 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     GenServer.call(__MODULE__, :ping)
   end
 
+  @spec add_code_reload_tracing() :: :ok
+  def add_code_reload_tracing() do
+    Dbg.tp({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
+    :ok
+  end
+
+  @spec remove_code_reload_tracing() :: :ok
+  def remove_code_reload_tracing() do
+    Dbg.ctp({Mix.Tasks.Compile.Elixir, :run, 1})
+    :ok
+  end
+
   @doc """
   Refreshes list of traced LiveView modules' callbacks.
   It is necessary when hot reloading of code is being used.
@@ -87,20 +99,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     # This is not a callback created by user
     # We trace it to refresh the components tree
     Dbg.tp({Phoenix.LiveView.Diff, :delete_component, 2}, [])
-
-    PubSubUtils.setting_changed()
-    |> PubSubUtils.subscribe!()
-
-    {:noreply, state}
-  end
-
-  def handle_info({:setting_changed, :tracing_update_on_code_reload, reload?}, state)
-      when is_boolean(reload?) do
-    if reload? do
-      add_code_reload_tracing()
-    else
-      remove_code_reload_tracing()
-    end
 
     {:noreply, state}
   end
@@ -255,13 +253,5 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     pid
     |> PubSubUtils.trace_topic_per_pid(fun, :return)
     |> PubSubUtils.broadcast({:updated_trace, trace})
-  end
-
-  defp add_code_reload_tracing() do
-    Dbg.tp({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
-  end
-
-  defp remove_code_reload_tracing() do
-    Dbg.ctp({Mix.Tasks.Compile.Elixir, :run, 1})
   end
 end

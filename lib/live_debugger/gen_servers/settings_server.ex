@@ -13,7 +13,7 @@ defmodule LiveDebugger.GenServers.SettingsServer do
 
   use GenServer
 
-  alias LiveDebugger.Utils.PubSub, as: PubSubUtils
+  alias LiveDebugger.GenServers.CallbackTracingServer
 
   ## API
 
@@ -78,8 +78,16 @@ defmodule LiveDebugger.GenServers.SettingsServer do
   def handle_cast({:save, setting, value}, state) do
     save_in_dets(setting, value)
 
-    PubSubUtils.setting_changed()
-    |> PubSubUtils.broadcast({:setting_changed, setting, value})
+    case {setting, value} do
+      {:tracing_update_on_code_reload, true} ->
+        CallbackTracingServer.add_code_reload_tracing()
+
+      {:tracing_update_on_code_reload, false} ->
+        CallbackTracingServer.remove_code_reload_tracing()
+
+      _ ->
+        nil
+    end
 
     {:noreply, Map.put(state, setting, value)}
   end
