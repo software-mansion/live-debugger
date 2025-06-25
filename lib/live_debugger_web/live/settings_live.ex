@@ -54,8 +54,8 @@ defmodule LiveDebuggerWeb.SettingsLive do
 
             <.settings_switch
               id="tracing-update-on-reload-switch"
-              label="Refresh tracing on reload"
-              description="Enabling this feature may have a negative impact on application performance."
+              label="Refresh tracing after recompilation"
+              description="Tracing in LiveDebugger may be interrupted when modules are recompiled. With this option enabled, LiveDebugger will refresh tracing after project recompilation. It may have a negative impact on application performance."
               checked={@settings[:tracing_update_on_code_reload]}
               phx-click="update"
               phx-value-setting="tracing_update_on_code_reload"
@@ -65,15 +65,15 @@ defmodule LiveDebuggerWeb.SettingsLive do
 
         <%!-- Lower section --%>
         <div class="mt-6 bg-surface-0-bg rounded shadow-custom border border-default-border">
-          <%!-- Restart button --%>
+          <%!-- Refresh tracing button --%>
           <div class="p-6 flex flex-col md:flex-row justify-between md:items-center gap-4">
             <div class="flex flex-col gap-1">
-              <p class="font-semibold">Restart LiveDebugger</p>
+              <p class="font-semibold">Refresh LiveDebugger Tracing</p>
               <p class="text-secondary-text">
-                Use this option if LiveDebugger appears to stop responding or not working properly.
+                Manually refresh traced modules and callbacks. Use this when you don't see traces from your application.
               </p>
             </div>
-            <.button variant="secondary" phx-click="restart">Restart&nbsp;LiveDebugger</.button>
+            <.button variant="secondary" phx-click="restart">Refresh&nbsp;Tracing</.button>
           </div>
         </div>
       </div>
