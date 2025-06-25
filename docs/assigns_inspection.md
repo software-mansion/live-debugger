@@ -5,7 +5,15 @@ This feature helps you inspect current state of assigns of any `LiveView` or `Li
 Assigns section is available in **Node Inspector**. It is updated whenever assigns of currently inspected node (`LiveView` or `LiveComponent`) change.
 
 <div style="display: flex; justify-content: center;">
-  <img src="images/assigns.png" alt="Component highlighting switch off" width="70%" />
+  <img src="images/assigns.png" alt="Component highlighting switch off" width="80%" />
+</div>
+
+### Live example
+
+After triggering events callbacks in debugged LiveView, changes in its assigns are immidiately shown. This is useful to see how user actions affect a component's state and confirm that assigns are updating as expected.
+
+<div style="display: flex; justify-content: center;">
+  <img src="images/assigns_inspection.gif" alt="Component highlighting switch off" width="80%" />
 </div>
 
 If examined assigns are too big they are collapsed at certain level for ease of use. You can expand them according to your needs.
@@ -18,7 +26,7 @@ If examined assigns are too big they are collapsed at certain level for ease of 
 If you want to dive deeper and for example perform some operations on particular assigns you can copy them from LiveDebugger and paste it inside your IEx session.
 
 <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-  <img src="images/assigns_copied.png" alt="Assigns copied" width="60%" />
+  <img src="images/assigns_copied.png" alt="Assigns copied" width="70%" />
   <img src="images/assigns_paste_iex.png" alt="Assigns pasting into iex" width="70%" />
   <img src="images/assigns_in_iex.png" alt="Assigns available in iex" width="70%" />
 </div>
