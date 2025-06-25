@@ -606,7 +606,7 @@ defmodule LiveDebuggerWeb.Components do
   attr(:checked, :boolean, default: false, doc: "Whether the switch is checked.")
   attr(:label, :string, default: "", doc: "Label for the switch.")
   attr(:wrapper_class, :any, default: nil, doc: "Additional classes to add to the switch.")
-  attr(:id, :string, default: nil, doc: "ID of the switch.")
+  attr(:id, :string, required: true, doc: "ID of the switch.")
   attr(:rest, :global)
 
   def toggle_switch(assigns) do
@@ -618,9 +618,11 @@ defmodule LiveDebuggerWeb.Components do
       <span class="text-xs font-normal text-primary-text mx-2">
         <%= @label %>
       </span>
-      <input id={@id} type="checkbox" class="sr-only peer" checked={@checked} {@rest} />
-      <div class="relative w-9 h-5 bg-ui-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ui-accent rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-ui-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ui-accent ">
-      </div>
+      <form>
+        <input id={@id} type="checkbox" class="sr-only peer" checked={@checked} {@rest} />
+        <div class="relative w-9 h-5 bg-ui-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ui-accent rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-ui-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ui-accent ">
+        </div>
+      </form>
     </label>
     """
   end
