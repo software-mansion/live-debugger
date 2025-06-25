@@ -28,9 +28,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       :dead_view_mode -> false
     end)
 
-    MockPubSubUtils
-    |> stub(:subscribe!, fn "lvdbg/setting_changed" -> :ok end)
-
     :ok
   end
 
