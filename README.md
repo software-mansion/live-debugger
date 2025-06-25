@@ -31,7 +31,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:live_debugger, "~> 0.2.0", only: :dev}
+      {:live_debugger, "~> 0.3.0", only: :dev}
     ]
   end
 ```
@@ -60,8 +60,8 @@ mix igniter.install live_debugger
 
 Since version v0.2.0 you can install official LiveDebugger DevTools extension, giving you the ability to interact with its features alongside your application's runtime.
 
-- [Chrome extension](https://chromewebstore.google.com/detail/gmdfnfcigbfkmghbjeelmbkbiglbmbpe?utm_source=item-share-cb)
-- Firefox extension - coming soon!
+- [Chrome extension](https://chromewebstore.google.com/detail/gmdfnfcigbfkmghbjeelmbkbiglbmbpe)
+- [Firefox extension](https://addons.mozilla.org/en-US/firefox/addon/livedebugger-devtools/)
 
 > [!NOTE]  
 > Ensure the main LiveDebugger dependency is added to your mix project, as the browser plugin alone is not enough.
