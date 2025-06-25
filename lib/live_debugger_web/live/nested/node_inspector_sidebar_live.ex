@@ -149,7 +149,8 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
         socket
       ) do
     if LiveDebugger.Feature.enabled?(:highlighting) do
-      if !socket.assigns.hidden? && socket.assigns.highlight? do
+      # Resets the highlight when the user selects node
+      if socket.assigns.highlight? do
         send_event(socket.assigns.lv_process.pid, "highlight", %{attr: attr, val: val})
       end
 
