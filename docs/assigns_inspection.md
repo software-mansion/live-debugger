@@ -4,17 +4,14 @@ This feature helps you inspect current state of assigns of any `LiveView` or `Li
 
 Assigns section is available in **Node Inspector**. It is updated whenever assigns of currently inspected node (`LiveView` or `LiveComponent`) change.
 
-<div style="display: flex; justify-content: center;">
-  <img src="images/assigns.png" alt="Component highlighting switch off" width="80%" />
-</div>
 
-### Live example
+![Assigns placement](images/assigns.png)
+
+### 🟢 Live example
 
 After triggering events callbacks in debugged LiveView, changes in its assigns are immidiately shown. This is useful to see how user actions affect a component's state and confirm that assigns are updating as expected.
 
-<div style="display: flex; justify-content: center;">
-  <img src="images/assigns_inspection.gif" alt="Component highlighting switch off" width="80%" />
-</div>
+![Assigns inspection](images/assigns_inspection.gif)
 
 If examined assigns are too big they are collapsed at certain level for ease of use. You can expand them according to your needs.
 
