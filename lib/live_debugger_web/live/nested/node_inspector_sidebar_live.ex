@@ -159,6 +159,7 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
     socket
     |> push_patch(to: URL.upsert_query_param(socket.assigns.url, "node_id", node_id))
     |> assign(:hidden?, true)
+    |> assign(:highlight?, false)
     |> noreply()
   end
 
