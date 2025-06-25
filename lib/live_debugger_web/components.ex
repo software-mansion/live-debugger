@@ -378,12 +378,12 @@ defmodule LiveDebuggerWeb.Components do
 
   def sidebar_slide_over(assigns) do
     ~H"""
-    <div class="w-max flex bg-sidebar-bg shadow-custom h-full z-20">
+    <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
       <div
         id="filters-sidebar-form"
         class={[
           (@sidebar_hidden? && "hidden") || "flex",
-          "fixed inset-0 bg-black/25 justify-end items-start lg:flex lg:static lg:inset-auto lg:bg-transparent"
+          "fixed inset-0 bg-black/25 justify-end items-start lg:flex lg:static lg:inset-auto lg:bg-transparent z-20"
         ]}
       >
         <div
