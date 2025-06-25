@@ -54,8 +54,8 @@ defmodule LiveDebuggerWeb.SettingsLive do
 
             <.settings_switch
               id="tracing-update-on-reload-switch"
-              label="Refresh tracing on reload"
-              description="Enabling this feature may have a negative impact on application performance."
+              label="Refresh tracing after recompilation"
+              description="Tracing in LiveDebugger may be interrupted when modules are recompiled. With this option enabled, LiveDebugger will refresh tracing after project recompilation. It may have a negative impact on application performance."
               checked={@settings[:tracing_update_on_code_reload]}
               phx-click="update"
               phx-value-setting="tracing_update_on_code_reload"
