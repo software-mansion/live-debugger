@@ -1,0 +1,36 @@
+This feature allows you to debug the state of your application after redirecting or encountering a crash.
+
+> #### Limitations {: .info}
+>
+> Inspecting "dead" Live View process is temporary. If you refresh your debugger or navigate to `Active Live Views` or `Settings` then the information will be lost.
+
+Dead View Mode allows you to freely use both `Node Inspector` and `Global Traces`. The state, and callbacks are stored until you will continue to the next Live View.
+
+### Status indicator
+
+On your navbar you can see the status of monitored Live View.
+
+When Live View is _alive_ you can see it's `PID`.
+
+![Dead View Mode navbar status: Alive](images/dead_view_status_alive.png)
+
+When Live View is _dead_ you can click `Continue` to find a successor (page which you've navigated to or the reconnected page after crash).
+
+![Dead View Mode navbar status: Dead](images/dead_view_status_dead.png)
+
+### How it helps with Debugging
+
+When dealing with either crash or redirection you can:
+
+- Inspect last state of Live View or Live Components
+- See callbacks order and which one was the last
+
+### Configuration
+
+You can enable or disable Dead View Mode either in config file or in settings. By default it will be enabled.
+
+```elixir
+config :live_debugger, :dead_view_mode, true
+```
+
+![Dead View Mode option in settings](images/dead_view_settings.png)
