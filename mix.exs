@@ -82,14 +82,26 @@ defmodule LiveDebugger.MixProject do
     [
       main: "welcome",
       logo: "./docs/images/logo.png",
+      extra_section: "GUIDES",
       extras: [
         "docs/welcome.md": [title: "Welcome to LiveDebugger"],
-        "docs/config.md": [title: "Configuration"]
+        "docs/config.md": [title: "Configuration"],
+        "docs/components_tree.md": [title: "Components Tree"]
+      ],
+      groups_for_extras: [
+        Configuration: [
+          "docs/config.md"
+        ],
+        Features: [
+          "docs/components_tree.md"
+        ]
       ],
       source_url: "https://github.com/software-mansion/live-debugger",
       source_ref: @version,
       api_reference: false,
-      assets: %{Path.expand("./docs/images") => "images"},
+      assets: %{
+        Path.expand("./docs/images") => "images"
+      },
       filter_modules: fn module, _meta ->
         module == Mix.Tasks.LiveDebugger.Install
       end
