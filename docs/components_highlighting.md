@@ -39,7 +39,11 @@ When highlighting mode is enabled you can hover over the name of given LiveCompo
 
 ### How It Helps with Debugging
 
-- Identify layout problems: Visually confirm that a component is rendering in the right place.
-- Spot rendering issues: See whether a component is missing or rendered multiple times unexpectedly.
-- Connect logic to UI: Understand how stateful LiveComponents are used and re-rendered on the page.
 - Accelerate navigation: Save time locating components in complex LiveView UIs.
+- Distinguish LiveComponents that are rendered multiple times.
+
+<div style="display: flex; gap: 1rem;">
+  <img src="images/highlight_example_3.png" alt="Highlight example 3" width="50%" />
+  <img src="images/highlight_example_4.png" alt="Highlight example 4" width="50%" />
+</div>
+
