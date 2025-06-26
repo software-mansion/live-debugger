@@ -1,5 +1,3 @@
-# 🔦 Components Highlighting
-
 This feature helps you visually identify and locate components rendered in the current debugged LiveView. This makes it easier to understand the structure of the page and debug rendering issues effectively.
 
 > #### Important {: .info}
@@ -22,7 +20,7 @@ When highlighting mode is enabled you can hover over the name of given LiveCompo
   <img src="images/highlight_example_2.png" alt="Highlight example 2" />
 </div>
 
-### 🧠 How It Helps with Debugging
+### How It Helps with Debugging
 
 - Identify layout problems: Visually confirm that a component is rendering in the right place.
 - Spot rendering issues: See whether a component is missing or rendered multiple times unexpectedly.
