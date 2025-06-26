@@ -2,7 +2,24 @@ This feature helps you visually identify and locate components rendered in the c
 
 > #### Important {: .info}
 >
-> Components Highlighting works only when browser features are enabled.
+> Components Highlighting works only when browser features are enabled. 
+>
+> They are enabled by default but you can enable them explicitly.
+>
+> ```elixir
+> # config/dev.exs
+>
+> # Enables all browser features and inject LiveDebugger JS
+> config :live_debugger, :browser_features?, true
+> ```
+>
+> You can also disable components highlighting keeping other browser features enabled.
+>
+> ```elixir
+> # config/dev.exs
+>
+> config :live_debugger, :highlighting?, false
+> ```
 
 ### Usage
 
