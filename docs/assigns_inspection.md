@@ -1,13 +1,10 @@
-# 🔍 Assigns Inspection
-
 This feature helps you inspect current state of assigns of any `LiveView` or `LiveComponent` inside your debugged application.
 
 Assigns section is available in **Node Inspector**. It is updated whenever assigns of currently inspected node (`LiveView` or `LiveComponent`) change.
 
-
 ![Assigns placement](images/assigns.png)
 
-### 🟢 Live example
+### Live example
 
 After triggering events callbacks in debugged LiveView, changes in its assigns are immidiately shown. This is useful to see how user actions affect a component's state and confirm that assigns are updating as expected.
 
@@ -28,7 +25,7 @@ If you want to dive deeper and for example perform some operations on particular
   <img src="images/assigns_in_iex.png" alt="Assigns available in iex" width="70%" />
 </div>
 
-### 🧠 How It Helps with Debugging
+### How It Helps with Debugging
 
 - Track state changes: Immediately see how user actions affect a component's state.
 - Debug reactivity issues: Confirm that assigns are updating as expected.
