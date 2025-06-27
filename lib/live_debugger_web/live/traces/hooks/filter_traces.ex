@@ -35,7 +35,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.FilterTraces do
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp matches_function_filter?(trace, current_filters) do
-    trace_fa = String.to_atom("#{trace.function}/#{trace.arity}") |> dbg()
+    trace_fa = String.to_atom("#{trace.function}/#{trace.arity}")
     current_filters.functions[trace_fa]
   end
 end
