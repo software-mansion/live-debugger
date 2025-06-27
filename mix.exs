@@ -86,14 +86,16 @@ defmodule LiveDebugger.MixProject do
       extras: [
         "docs/welcome.md": [title: "Welcome to LiveDebugger"],
         "docs/config.md": [title: "Configuration"],
-        "docs/components_tree.md": [title: "Components Tree"]
+        "docs/components_tree.md": [title: "Components Tree"],
+        "docs/components_highlighting.md": [title: "Components Highlighting"]
       ],
       groups_for_extras: [
         Configuration: [
           "docs/config.md"
         ],
         Features: [
-          "docs/components_tree.md"
+          "docs/components_tree.md",
+          "docs/components_highlighting.md"
         ]
       ],
       source_url: "https://github.com/software-mansion/live-debugger",
