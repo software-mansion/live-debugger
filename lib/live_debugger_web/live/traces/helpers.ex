@@ -36,17 +36,18 @@ defmodule LiveDebuggerWeb.Live.Traces.Helpers do
         :live_component -> UtilsCallbacks.live_component_callbacks()
         :global -> UtilsCallbacks.all_callbacks()
       end
-      # TODO: Remove String.to_atom
-      |> Enum.map(fn {function, arity} -> {String.to_atom("#{function}/#{arity}"), true} end)
+      |> Enum.reduce(%{}, fn {function, arity}, acc ->
+        Map.put(acc, "#{function}/#{arity}", true)
+      end)
 
     %{
       functions: functions,
-      execution_time: [
-        {:exec_time_max, ""},
-        {:exec_time_min, ""},
-        {:min_unit, Parsers.time_units() |> List.first()},
-        {:max_unit, Parsers.time_units() |> List.first()}
-      ]
+      execution_time: %{
+        "exec_time_max" => "",
+        "exec_time_min" => "",
+        "min_unit" => Parsers.time_units() |> List.first(),
+        "max_unit" => Parsers.time_units() |> List.first()
+      }
     }
   end
 
@@ -72,9 +73,13 @@ defmodule LiveDebuggerWeb.Live.Traces.Helpers do
     |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
     |> Enum.map(fn {filter, value} ->
       case filter do
-        :exec_time_min -> {filter, Parsers.time_to_microseconds(value, execution_time[:min_unit])}
-        :exec_time_max -> {filter, Parsers.time_to_microseconds(value, execution_time[:max_unit])}
+        "exec_time_min" ->
+          {filter, Parsers.time_to_microseconds(value, execution_time["min_unit"])}
+
+        "exec_time_max" ->
+          {filter, Parsers.time_to_microseconds(value, execution_time["max_unit"])}
       end
     end)
+    |> Map.new()
   end
 end

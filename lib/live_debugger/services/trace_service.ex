@@ -50,7 +50,7 @@ defmodule LiveDebugger.Services.TraceService do
     * `:node_id` - PID or CID to filter traces by
     * `:limit` - Maximum number of traces to return (default: 100)
     * `:cont` - Used to get next page of items in the following queries
-    * `:functions` - List of function names to filter traces by
+    * `:functions` - List of function names to filter traces by e.g ["handle_info/2", "render/1"]
   """
   @spec existing_traces(pid :: ets_table_id(), opts :: keyword()) ::
           {[Trace.t()], ets_continuation()} | :end_of_table
@@ -109,17 +109,14 @@ defmodule LiveDebugger.Services.TraceService do
   defp existing_traces_start(table_id, opts) do
     limit = Keyword.get(opts, :limit, @default_limit)
 
-    # TODO: Better way to handle this
     functions =
       Keyword.get(opts, :functions, [])
-      |> Enum.map(&Atom.to_string/1)
       |> Enum.map(&String.split(&1, "/"))
       |> Enum.map(fn [function, arity] ->
-        # TODO: Remove String.to_atom
-        {String.to_atom(function), String.to_integer(arity)}
+        {String.to_existing_atom(function), String.to_integer(arity)}
       end)
 
-    execution_times = Keyword.get(opts, :execution_times, [])
+    execution_times = Keyword.get(opts, :execution_times, %{})
     node_id = Keyword.get(opts, :node_id)
 
     if limit < 1 do
@@ -193,8 +190,8 @@ defmodule LiveDebugger.Services.TraceService do
   end
 
   defp execution_times_to_spec(execution_times) do
-    min_time = Keyword.get(execution_times, :exec_time_min, 0)
-    max_time = Keyword.get(execution_times, :exec_time_max, :infinity)
+    min_time = Map.get(execution_times, "exec_time_min", 0)
+    max_time = Map.get(execution_times, "exec_time_max", :infinity)
     {:andalso, {:>=, :"$2", min_time}, {:"=<", :"$2", max_time}}
   end
 
