@@ -8,7 +8,7 @@ defmodule Services.TraceServiceTest do
   alias LiveDebugger.MockEtsTableServer
 
   @all_functions LiveDebugger.Utils.Callbacks.all_callbacks()
-                 |> Enum.map(fn {function, arity} -> String.to_atom("#{function}/#{arity}") end)
+                 |> Enum.map(fn {function, arity} -> "#{function}/#{arity}" end)
 
   setup :verify_on_exit!
 
@@ -101,11 +101,11 @@ defmodule Services.TraceServiceTest do
       MockEtsTableServer
       |> expect(:table, 2, fn ^pid -> table end)
 
-      assert {[^trace1], _} = TraceService.existing_traces(pid, functions: [:"handle_info/2"])
+      assert {[^trace1], _} = TraceService.existing_traces(pid, functions: ["handle_info/2"])
 
       assert {[^trace1, ^trace2], _} =
                TraceService.existing_traces(pid,
-                 functions: [:"handle_info/2", :"render/1", :"mount/1"]
+                 functions: ["handle_info/2", "render/1", "mount/1"]
                )
     end
 
@@ -149,13 +149,13 @@ defmodule Services.TraceServiceTest do
 
       assert {[^trace2], _} =
                TraceService.existing_traces(pid,
-                 execution_times: [exec_time_min: 15, exec_time_max: 50],
+                 execution_times: %{"exec_time_min" => 15, "exec_time_max" => 50},
                  functions: @all_functions
                )
 
       assert {[^trace2, ^trace3], _} =
                TraceService.existing_traces(pid,
-                 execution_times: [exec_time_min: 15, exec_time_max: :infinity],
+                 execution_times: %{"exec_time_min" => 15, "exec_time_max" => :infinity},
                  functions: @all_functions
                )
     end
@@ -204,8 +204,8 @@ defmodule Services.TraceServiceTest do
 
       assert {[^trace2], _} =
                TraceService.existing_traces(pid,
-                 functions: [:"handle_info/2", :"render/1", :"mount/1"],
-                 execution_times: [exec_time_min: 15, exec_time_max: 150]
+                 functions: ["handle_info/2", "render/1", "mount/1"],
+                 execution_times: %{"exec_time_min" => 15, "exec_time_max" => 150}
                )
     end
 
@@ -241,7 +241,7 @@ defmodule Services.TraceServiceTest do
       |> expect(:table, fn ^pid -> table end)
 
       assert :end_of_table =
-               TraceService.existing_traces(pid, functions: [:"non_existent/2"])
+               TraceService.existing_traces(pid, functions: ["info/2"])
     end
 
     test "returns only finished traces", %{module: module, pid: pid, table: table} do
