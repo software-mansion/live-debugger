@@ -62,6 +62,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersFullscreen do
     <div class="flex">
       <.button
         variant="secondary"
+        aria-label="Open filters"
         size="sm"
         class={["flex gap-1", if(@applied_filters_number > 0, do: "rounded-r-none")]}
         phx-click="open-filters"

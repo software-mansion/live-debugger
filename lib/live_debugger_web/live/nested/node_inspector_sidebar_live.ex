@@ -84,32 +84,18 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
-      <div class="hidden lg:flex max-h-full flex-col w-72 border-x border-default-border lg:w-80 gap-1 justify-between">
-        <.sidebar_content
-          id="sidebar-content"
-          lv_process={@lv_process}
-          tree={@tree}
-          max_opened_node_level={@max_opened_node_level}
-          node_id={@node_id}
-          highlight?={@highlight?}
-          parent_lv_process={@parent_lv_process}
-          node_module={@node_module}
-        />
-      </div>
-      <.sidebar_slide_over :if={not @hidden?}>
-        <.sidebar_content
-          id="sidebar-content-slide-over"
-          lv_process={@lv_process}
-          tree={@tree}
-          max_opened_node_level={@max_opened_node_level}
-          node_id={@node_id}
-          highlight?={@highlight?}
-          parent_lv_process={@parent_lv_process}
-          node_module={@node_module}
-        />
-      </.sidebar_slide_over>
-    </div>
+    <.sidebar_slide_over sidebar_hidden?={@hidden?}>
+      <.sidebar_content
+        id="sidebar-content-slide-over"
+        lv_process={@lv_process}
+        tree={@tree}
+        max_opened_node_level={@max_opened_node_level}
+        node_id={@node_id}
+        highlight?={@highlight?}
+        parent_lv_process={@parent_lv_process}
+        node_module={@node_module}
+      />
+    </.sidebar_slide_over>
     """
   end
 
@@ -163,7 +149,8 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
         socket
       ) do
     if LiveDebugger.Feature.enabled?(:highlighting) do
-      if !socket.assigns.hidden? && socket.assigns.highlight? do
+      # Resets the highlight when the user selects node
+      if socket.assigns.highlight? do
         send_event(socket.assigns.lv_process.pid, "highlight", %{attr: attr, val: val})
       end
 
@@ -173,6 +160,7 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
     socket
     |> push_patch(to: URL.upsert_query_param(socket.assigns.url, "node_id", node_id))
     |> assign(:hidden?, true)
+    |> assign(:highlight?, false)
     |> noreply()
   end
 

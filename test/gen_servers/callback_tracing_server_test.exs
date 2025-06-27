@@ -11,6 +11,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
   alias LiveDebugger.MockEtsTableServer
   alias LiveDebugger.MockPubSubUtils
   alias LiveDebugger.MockStateServer
+  alias LiveDebugger.MockSettingsServer
 
   @modules [
     CoolApp.LiveViews.UserDashboard,
@@ -20,13 +21,23 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
   setup :verify_on_exit!
 
+  setup _context do
+    MockSettingsServer
+    |> stub(:get, fn
+      :tracing_update_on_code_reload -> false
+      :dead_view_mode -> false
+    end)
+
+    :ok
+  end
+
   test "init/1" do
     assert {:ok, %{}} = CallbackTracingServer.init([])
     assert_receive :setup_tracing
   end
 
   test "handle_call/3" do
-    assert {:reply, :ok, %{}} == CallbackTracingServer.handle_call(:ping, self(), %{})
+    assert {:reply, :pong, %{}} == CallbackTracingServer.handle_call(:ping, self(), %{})
   end
 
   test "proper tracing setup" do
@@ -91,7 +102,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
         transport_pid: transport_pid,
         pid: pid,
         cid: %Phoenix.LiveComponent.CID{cid: cid},
-        timestamp: :timer.now_diff(timestamp, {0, 0, 0})
+        timestamp: :timer.now_diff(timestamp, {0, 0, 0}),
+        exception: false
       }
 
       component_deleted_topic =

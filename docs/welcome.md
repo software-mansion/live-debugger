@@ -4,7 +4,7 @@ LiveDebugger is a browser-based tool for debugging applications written in [Phoe
 
 Designed to enhance your development experience LiveDebugger gives you:
 
-- A detailed view of your LiveComponents tree
+- A detailed view of your LiveComponents tree ([Components Tree](./components_tree.md))
 - The ability to inspect assigns for LiveViews and LiveComponents
 - Tracing of their callback executions
 - Components highlighting
@@ -24,7 +24,7 @@ Add `live_debugger` to your list of dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:live_debugger, "~> 0.2.0", only: :dev}
+      {:live_debugger, "~> 0.3.0", only: :dev}
     ]
   end
 ```
@@ -55,8 +55,8 @@ mix igniter.install live_debugger
 
 Since version v0.2.0 you can install official LiveDebugger DevTools extension, giving you the ability to interact with its features alongside your application's runtime.
 
-- [Chrome extension](https://chromewebstore.google.com/detail/gmdfnfcigbfkmghbjeelmbkbiglbmbpe?utm_source=item-share-cb)
-- Firefox extension - coming soon!
+- [Chrome extension](https://chromewebstore.google.com/detail/gmdfnfcigbfkmghbjeelmbkbiglbmbpe)
+- [Firefox extension](https://addons.mozilla.org/en-US/firefox/addon/livedebugger-devtools/)
 
 > #### Note {: .info}
 >
@@ -72,4 +72,4 @@ Copyright 2025, [Software Mansion](https://swmansion.com/?utm_source=git&utm_med
 
 [![Software Mansion](https://logo.swmansion.com/logo?color=white&variant=desktop&width=200&tag=livedebugger-github)](https://swmansion.com/?utm_source=git&utm_medium=readme&utm_campaign=livedebugger)
 
-Licensed under the [Apache License, Version 2.0](LICENSE)
+Licensed under the [Apache License, Version 2.0](https://github.com/software-mansion/live-debugger/blob/main/LICENSE)
