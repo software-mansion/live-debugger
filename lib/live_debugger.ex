@@ -39,9 +39,10 @@ defmodule LiveDebugger do
     else
       children ++
         [
+          {LiveDebugger.GenServers.SettingsServer, []},
+          {LiveDebugger.GenServers.EtsTableServer, []},
           {LiveDebugger.GenServers.StateServer, []},
-          {LiveDebugger.GenServers.CallbackTracingServer, []},
-          {LiveDebugger.GenServers.EtsTableServer, []}
+          {LiveDebugger.GenServers.CallbackTracingServer, []}
         ]
     end
   end
@@ -86,9 +87,9 @@ defmodule LiveDebugger do
     debug_button? = Keyword.get(config, :debug_button?, true)
     highlighting? = Keyword.get(config, :highlighting?, true)
     version = Application.spec(:live_debugger)[:vsn] |> to_string()
-    dead_view_mode? = Keyword.get(config, :dead_view_mode?, true)
-    devtools_allow_redirects = Keyword.get(config, :devtools_allow_redirects, not dead_view_mode?)
+    dead_view_mode = Keyword.get(config, :dead_view_mode, true)
 
+    devtools_allow_redirects = Keyword.get(config, :devtools_allow_redirects, not dead_view_mode)
     live_debugger_url = Keyword.get(config, :external_url, "http://#{ip_string}:#{port}")
     live_debugger_assets_url = "#{live_debugger_url}/#{@assets_path}"
 

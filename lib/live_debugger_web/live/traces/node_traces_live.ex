@@ -5,8 +5,6 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
 
   use LiveDebuggerWeb, :live_view
 
-  require Logger
-
   alias LiveDebuggerWeb.Helpers.NestedLiveViewHelper
 
   alias LiveDebuggerWeb.Live.Traces.Hooks

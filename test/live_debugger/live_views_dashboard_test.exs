@@ -33,7 +33,7 @@ defmodule LiveDebugger.LiveViewsDashboardTest do
     |> visit("/")
     |> assert_has(settings_button())
     |> click(settings_button())
-    |> assert_has(css("h1", text: "Settings"))
+    |> assert_has(title(text: "Settings"))
     |> assert_has(return_button())
     |> click(return_button())
     |> assert_has(title(text: "Active LiveViews"))

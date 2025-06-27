@@ -29,6 +29,7 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
   import LiveDebuggerWeb.Helpers
   import Phoenix.Component
 
+  alias LiveDebugger.Feature
   alias LiveDebugger.Structs.LvProcess
   alias Phoenix.LiveView.AsyncResult
 
@@ -63,7 +64,7 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
     PubSubUtils.process_status_topic()
     |> PubSubUtils.subscribe!()
 
-    if LiveDebugger.Feature.enabled?(:dead_view_mode) do
+    if Feature.enabled?(:dead_view_mode) do
       LiveDebugger.GenServers.EtsTableServer.watch(fetched_lv_process.pid)
     end
 
@@ -83,11 +84,23 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
     |> halt()
   end
 
+  def handle_async(:find_successor, {:ok, %{pid: successor_pid}}, socket) do
+    socket
+    |> push_navigate(to: RoutesHelper.channel_dashboard(successor_pid))
+    |> halt()
+  end
+
+  def handle_async(:find_successor, _, socket) do
+    socket
+    |> push_navigate(to: RoutesHelper.error("unexpected_error"))
+    |> halt()
+  end
+
   def handle_async(_, _, socket), do: {:cont, socket}
 
   def handle_info(:find_successor, socket) do
     socket
-    |> find_successor_lv_process()
+    |> async_find_successor_lv_process()
     |> halt()
   end
 
@@ -105,7 +118,7 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
         {:process_status, {:dead, pid}},
         %{assigns: %{lv_process: %{result: %LvProcess{pid: pid}}}} = socket
       ) do
-    if LiveDebugger.Feature.enabled?(:dead_view_mode) do
+    if Feature.enabled?(:dead_view_mode) do
       socket
     else
       find_successor_lv_process(socket)
@@ -114,6 +127,20 @@ defmodule LiveDebuggerWeb.Hooks.LinkedView do
   end
 
   def handle_info(_, socket), do: {:cont, socket}
+
+  defp async_find_successor_lv_process(
+         %{assigns: %{lv_process: %{result: %LvProcess{} = lv_process}}} = socket
+       ) do
+    socket
+    |> assign(:lv_process, AsyncResult.loading())
+    |> start_async(:find_successor, fn ->
+      fetch_with_retries(fn -> LiveViewDiscoveryService.successor_lv_process(lv_process) end)
+    end)
+  end
+
+  defp async_find_successor_lv_process(socket) do
+    push_navigate(socket, to: RoutesHelper.error("not_found"))
+  end
 
   defp find_successor_lv_process(socket) do
     with %{lv_process: %{result: %LvProcess{} = lv_process}} <- socket.assigns,
