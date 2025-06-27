@@ -36,8 +36,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Helpers do
         :live_component -> UtilsCallbacks.live_component_callbacks()
         :global -> UtilsCallbacks.all_callbacks()
       end
-      |> Enum.map(fn {function, _} -> {function, true} end)
-      |> Enum.uniq()
+      # TODO: Remove String.to_atom
+      |> Enum.map(fn {function, arity} -> {String.to_atom("#{function}/#{arity}"), true} end)
 
     %{
       functions: functions,

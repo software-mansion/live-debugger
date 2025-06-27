@@ -68,6 +68,7 @@ defmodule LiveDebuggerWeb.Live.Traces.NodeTracesLive do
     |> Components.LoadMoreButton.init(@page_size)
     |> Components.Trace.init()
     |> Components.Stream.init()
+    |> Hooks.FilterTraces.init()
     |> Hooks.TracingFuse.init()
     |> Hooks.ExistingTraces.init(@page_size)
     |> Hooks.NewTraces.init(@live_stream_limit)

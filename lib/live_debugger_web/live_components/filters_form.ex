@@ -49,12 +49,12 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
             target={@myself}
           />
           <div class="flex flex-col gap-3 pl-0.5 pb-4 border-b border-default-border">
+            <%!-- TODO: Remove String.to_atom --%>
             <%= for {function, arity} <- get_callbacks(@node_id) do %>
-              <%= if function == :mount and is_nil(@node_id) do %>
-                <.checkbox field={@form[function]} label="mount/1, mount/3" />
-              <% else %>
-                <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
-              <% end %>
+              <.checkbox
+                field={@form[String.to_atom("#{function}/#{arity}")]}
+                label={"#{function}/#{arity}"}
+              />
             <% end %>
           </div>
           <.filters_group_header
@@ -206,7 +206,6 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
   def get_callbacks(nil) do
     UtilsCallbacks.all_callbacks()
-    |> Enum.reject(fn {function, arity} -> function == :mount and arity == 1 end)
   end
 
   def get_callbacks(node_id) do
