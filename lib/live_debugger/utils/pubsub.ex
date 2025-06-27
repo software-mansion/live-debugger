@@ -71,23 +71,9 @@ defmodule LiveDebugger.Utils.PubSub do
 
   Use `{:new_trace, trace}` or `{:updated_trace, trace}` for broadcasting.
   """
-  @spec trace_topic_per_node(
-          pid :: pid(),
-          node_id :: TreeNode.id(),
-          fun :: atom(),
-          type :: :call | :return
-        ) :: String.t()
-  def trace_topic_per_node(pid, node_id, fun, type \\ :call) do
-    "#{inspect(pid)}/#{inspect(node_id)}/#{inspect(fun)}/#{inspect(type)}"
-  end
-
-  @spec trace_topic_per_pid(
-          pid :: pid(),
-          fun :: atom(),
-          type :: :call | :return
-        ) :: String.t()
-  def trace_topic_per_pid(pid, fun, type \\ :call) do
-    "#{inspect(pid)}/#{inspect(fun)}/#{inspect(type)}"
+  @spec trace_topic(pid :: pid(), node_id :: TreeNode.id() | nil) :: String.t()
+  def trace_topic(pid, node_id \\ nil) do
+    "#{inspect(pid)}/#{inspect(node_id)}"
   end
 
   @spec impl() :: module()

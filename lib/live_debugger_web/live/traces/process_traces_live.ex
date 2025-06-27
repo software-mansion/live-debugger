@@ -50,6 +50,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
     |> Helpers.assign_default_filters()
     |> Helpers.assign_current_filters()
     |> Components.LoadMoreButton.init()
+    |> Hooks.FilterTraces.init()
     |> Hooks.TracingFuse.init()
     |> Hooks.ExistingTraces.init(@page_size)
     |> Hooks.NewTraces.init(@live_stream_limit)

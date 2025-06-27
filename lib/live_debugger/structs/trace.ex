@@ -25,7 +25,7 @@ defmodule LiveDebugger.Structs.Trace do
     :cid,
     :timestamp,
     :execution_time,
-    :exception
+    :type
   ]
 
   @type timestamp() :: {non_neg_integer(), non_neg_integer(), non_neg_integer()}
@@ -42,7 +42,7 @@ defmodule LiveDebugger.Structs.Trace do
           cid: struct() | nil,
           timestamp: integer(),
           execution_time: non_neg_integer() | nil,
-          exception: boolean()
+          type: :call | :return_from | :exception_from
         }
 
   @doc """
@@ -53,7 +53,7 @@ defmodule LiveDebugger.Structs.Trace do
     socket_id = Keyword.get(opts, :socket_id, get_socket_id_from_args(args))
     transport_pid = Keyword.get(opts, :transport_pid, get_transport_pid_from_args(args))
     cid = Keyword.get(opts, :cid, get_cid_from_args(args))
-    exception = Keyword.get(opts, :exception, false)
+    type = Keyword.get(opts, :type, :call)
 
     %__MODULE__{
       id: id,
@@ -67,7 +67,7 @@ defmodule LiveDebugger.Structs.Trace do
       cid: cid,
       timestamp: :timer.now_diff(timestamp, {0, 0, 0}),
       execution_time: nil,
-      exception: exception
+      type: type
     }
   end
 

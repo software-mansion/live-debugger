@@ -51,8 +51,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.NewTraces do
     trace_display = TraceDisplay.from_trace(trace, true)
 
     execution_time = get_execution_times(socket)
-    min_time = Keyword.get(execution_time, :exec_time_min, 0)
-    max_time = Keyword.get(execution_time, :exec_time_max, :infinity)
+    min_time = Map.get(execution_time, "exec_time_min", 0)
+    max_time = Map.get(execution_time, "exec_time_max", :infinity)
 
     if trace.execution_time >= min_time and trace.execution_time <= max_time do
       socket

@@ -126,6 +126,12 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.FiltersFullscreen do
       |> Enum.flat_map(fn {_key, value} -> value end)
       |> Enum.reject(fn {key, _val} -> key in [:min_unit, :max_unit] end)
 
-    Enum.count(flat_current_filters, fn {key, value} -> value != flat_default_filters[key] end)
+    Enum.count(flat_current_filters, fn {key, value} ->
+      value != get_flat_filter(flat_default_filters, key)
+    end)
+  end
+
+  defp get_flat_filter(filters, key) do
+    Enum.find(filters, fn {filter, _value} -> filter == key end) |> elem(1)
   end
 end

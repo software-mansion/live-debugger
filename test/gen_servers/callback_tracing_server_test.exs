@@ -103,7 +103,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
         pid: pid,
         cid: %Phoenix.LiveComponent.CID{cid: cid},
         timestamp: :timer.now_diff(timestamp, {0, 0, 0}),
-        exception: false
+        type: :call
       }
 
       component_deleted_topic =
@@ -139,10 +139,10 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       table = :ets.new(:test_table, [:ordered_set, :public])
 
-      expected_call_topic_per_node = PubSubUtils.trace_topic_per_node(pid, pid, fun, :call)
-      expected_call_topic_per_pid = PubSubUtils.trace_topic_per_pid(pid, fun, :call)
-      expected_return_topic_per_node = PubSubUtils.trace_topic_per_node(pid, pid, fun, :return)
-      expected_return_topic_per_pid = PubSubUtils.trace_topic_per_pid(pid, fun, :return)
+      expected_call_topic_per_node = PubSubUtils.trace_topic(pid, pid)
+      expected_call_topic_per_pid = PubSubUtils.trace_topic(pid)
+      expected_return_topic_per_node = PubSubUtils.trace_topic(pid, pid)
+      expected_return_topic_per_pid = PubSubUtils.trace_topic(pid)
 
       MockEtsTableServer
       |> expect(:table, 2, fn ^pid -> table end)
@@ -189,7 +189,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       expected_execution_time = :timer.now_diff(return_timestamp, call_timestamp)
 
-      assert %{trace | execution_time: expected_execution_time} == updated_trace
+      assert %{trace | execution_time: expected_execution_time, type: :return_from} ==
+               updated_trace
     end
 
     test "handle :render live view trace" do
@@ -208,11 +209,11 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       table = :ets.new(:test_table, [:ordered_set, :public])
 
-      expected_call_topic_per_node = PubSubUtils.trace_topic_per_node(pid, pid, fun, :call)
-      expected_call_topic_per_pid = PubSubUtils.trace_topic_per_pid(pid, fun, :call)
+      expected_call_topic_per_node = PubSubUtils.trace_topic(pid, pid)
+      expected_call_topic_per_pid = PubSubUtils.trace_topic(pid)
       expected_node_rendered_topic = PubSubUtils.node_rendered_topic()
-      expected_return_topic_per_node = PubSubUtils.trace_topic_per_node(pid, pid, fun, :return)
-      expected_return_topic_per_pid = PubSubUtils.trace_topic_per_pid(pid, fun, :return)
+      expected_return_topic_per_node = PubSubUtils.trace_topic(pid, pid)
+      expected_return_topic_per_pid = PubSubUtils.trace_topic(pid)
 
       MockEtsTableServer
       |> expect(:table, 2, fn ^pid -> table end)
@@ -244,7 +245,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
                pid: ^pid,
                cid: nil,
                timestamp: ^expected_timestamp,
-               execution_time: nil
+               execution_time: nil,
+               type: :call
              } = trace
 
       return_timestamp = :erlang.timestamp()
@@ -260,7 +262,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       expected_execution_time = :timer.now_diff(return_timestamp, call_timestamp)
 
-      assert %{trace | execution_time: expected_execution_time} == updated_trace
+      assert %{trace | execution_time: expected_execution_time, type: :return_from} ==
+               updated_trace
     end
 
     test "handle unexpected trace" do
