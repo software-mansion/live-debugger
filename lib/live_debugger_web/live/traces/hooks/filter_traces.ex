@@ -17,7 +17,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.FilterTraces do
   end
 
   defp handle_info({:new_trace, trace}, socket) do
-    if matches_function_filter?(trace, socket.assigns.current_filters) |> dbg() do
+    if matches_function_filter?(trace, socket.assigns.current_filters) do
       {:cont, socket}
     else
       {:halt, socket}
