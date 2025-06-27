@@ -19,25 +19,24 @@ defmodule LiveDebuggerWeb.Helpers.RoutesHelper do
     channel_dashboard(pid)
   end
 
-  def channel_dashboard(pid, %Phoenix.LiveComponent.CID{} = cid) when is_pid(pid) do
-    pid = Parsers.pid_to_string(pid)
-    cid = Parsers.cid_to_string(cid)
-
-    channel_dashboard(pid, cid)
-  end
-
-  def channel_dashboard(pid, %Phoenix.LiveComponent.CID{} = cid) when is_binary(pid) do
-    cid = Parsers.cid_to_string(cid)
-    channel_dashboard(pid, cid)
-  end
-
-  def channel_dashboard(pid, cid) when is_pid(pid) and is_binary(cid) do
-    pid = Parsers.pid_to_string(pid)
-    channel_dashboard(pid, cid)
-  end
-
   def channel_dashboard(pid, cid) when is_binary(pid) and is_binary(cid) do
     ~p"/pid/#{pid}?node_id=#{cid}"
+  end
+
+  def channel_dashboard(pid, cid) do
+    pid =
+      cond do
+        is_pid(pid) -> Parsers.pid_to_string(pid)
+        is_binary(pid) -> pid
+      end
+
+    cid =
+      case cid do
+        %Phoenix.LiveComponent.CID{} -> Parsers.cid_to_string(cid)
+        cid when is_binary(cid) -> cid
+      end
+
+    channel_dashboard(pid, cid)
   end
 
   @spec channel_dashboard(pid :: pid() | String.t()) :: String.t()
