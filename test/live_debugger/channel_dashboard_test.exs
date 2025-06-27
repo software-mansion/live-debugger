@@ -590,10 +590,6 @@ defmodule LiveDebugger.ChannelDashboardTest do
     css("#tree-node-button-15-component-tree-sidebar-content-slide-over")
   end
 
-  defp sidebar_basic_info() do
-    css("#sidebar-content-slide-over-basic-info")
-  end
-
   defp reset_group_button(group) do
     css("button[phx-click=\"reset-group\"][phx-value-group=\"#{group}\"]")
   end

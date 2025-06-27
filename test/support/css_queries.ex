@@ -26,4 +26,8 @@ defmodule LiveDebugger.Support.CssQueries do
   def no_traces_info() do
     css("#global-traces-stream-empty", text: "No traces have been recorded yet.")
   end
+
+  def sidebar_basic_info() do
+    css("#sidebar-content-slide-over-basic-info")
+  end
 end

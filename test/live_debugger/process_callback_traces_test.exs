@@ -52,6 +52,47 @@ defmodule LiveDebugger.ProcessCallbackTracesTest do
     |> assert_has(trace_name(text: "render/1", count: 1))
   end
 
+  @sessions 2
+  feature "user can go to specific node from global callbacks", %{
+    sessions: [dev_app, debugger]
+  } do
+    LiveDebugger.GenServers.CallbackTracingServer.ping!()
+
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> click(global_callback_traces_button())
+    |> assert_has(title(text: "Global Callback Traces"))
+    |> click(clear_traces_button())
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(css("button#send-button"))
+
+    debugger
+    |> find(trace_module(text: "LiveDebuggerDev.LiveViews.Main", count: 2))
+    |> List.first()
+    |> click(link("LiveDebuggerDev.LiveViews.Main"))
+
+    debugger
+    |> find(sidebar_basic_info())
+    |> assert_text("LiveView")
+    |> assert_text("LiveDebuggerDev.LiveViews.Main")
+
+    debugger
+    |> click(global_callback_traces_button())
+    |> find(trace_module(text: "LiveDebuggerDev.LiveComponents.Send (4)"))
+    |> click(link("LiveDebuggerDev.LiveComponents.Send (4)"))
+
+    debugger
+    |> find(sidebar_basic_info())
+    |> assert_text("LiveComponent")
+    |> assert_text("LiveDebuggerDev.LiveComponents.Send")
+  end
+
   defp traces(opts), do: css("#global-traces-stream details", opts)
 
   defp trace_name(opts), do: css("#global-traces-stream details p.font-medium", opts)
