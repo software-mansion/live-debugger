@@ -17,21 +17,25 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.FilterTraces do
   end
 
   defp handle_info({:new_trace, trace}, socket) do
-    dbg(socket.assigns.current_filters)
-
-    dbg(trace)
-
-    socket
-    |> halt()
+    if matches_function_filter?(trace, socket.assigns.current_filters) |> dbg() do
+      {:cont, socket}
+    else
+      {:halt, socket}
+    end
   end
 
-  # defp handle_info({:updated_trace, trace}, socket) do
-  #   socket
-  #   |> stream_insert(:existing_traces, trace_display, at: 0, limit: live_stream_limit)
-  #   |> assign(traces_empty?: false)
-  #   |> assign(trace_callback_running?: true)
-  #   |> halt()
-  # end
+  defp handle_info({:updated_trace, trace}, socket) do
+    if matches_function_filter?(trace, socket.assigns.current_filters) do
+      {:cont, socket}
+    else
+      {:halt, socket}
+    end
+  end
 
   defp handle_info(_, socket), do: {:cont, socket}
+
+  defp matches_function_filter?(trace, current_filters) do
+    trace_fa = String.to_atom("#{trace.function}/#{trace.arity}") |> dbg()
+    current_filters.functions[trace_fa]
+  end
 end
