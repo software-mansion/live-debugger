@@ -14,7 +14,7 @@ defmodule LiveDebugger.Fakes do
       pid: :c.pid(0, 1, 0),
       timestamp: :erlang.timestamp(),
       execution_time: 1,
-      exception: false
+      type: :call
     ]
 
     fields = Keyword.merge(default, opts)

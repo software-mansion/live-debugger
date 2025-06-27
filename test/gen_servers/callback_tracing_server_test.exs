@@ -103,7 +103,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
         pid: pid,
         cid: %Phoenix.LiveComponent.CID{cid: cid},
         timestamp: :timer.now_diff(timestamp, {0, 0, 0}),
-        exception: false
+        type: :call
       }
 
       component_deleted_topic =
@@ -189,7 +189,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       expected_execution_time = :timer.now_diff(return_timestamp, call_timestamp)
 
-      assert %{trace | execution_time: expected_execution_time} == updated_trace
+      assert %{trace | execution_time: expected_execution_time, type: :return_from} ==
+               updated_trace
     end
 
     test "handle :render live view trace" do
@@ -244,7 +245,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
                pid: ^pid,
                cid: nil,
                timestamp: ^expected_timestamp,
-               execution_time: nil
+               execution_time: nil,
+               type: :call
              } = trace
 
       return_timestamp = :erlang.timestamp()
@@ -260,7 +262,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       expected_execution_time = :timer.now_diff(return_timestamp, call_timestamp)
 
-      assert %{trace | execution_time: expected_execution_time} == updated_trace
+      assert %{trace | execution_time: expected_execution_time, type: :return_from} ==
+               updated_trace
     end
 
     test "handle unexpected trace" do
