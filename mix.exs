@@ -87,7 +87,8 @@ defmodule LiveDebugger.MixProject do
         "docs/welcome.md": [title: "Welcome to LiveDebugger"],
         "docs/config.md": [title: "Configuration"],
         "docs/components_tree.md": [title: "Components Tree"],
-        "docs/assigns_inspection.md": [title: "Assigns Inspection"]
+        "docs/assigns_inspection.md": [title: "Assigns Inspection"],
+        "docs/components_highlighting.md": [title: "Components Highlighting"]
       ],
       groups_for_extras: [
         Configuration: [
@@ -95,7 +96,8 @@ defmodule LiveDebugger.MixProject do
         ],
         Features: [
           "docs/components_tree.md",
-          "docs/assigns_inspection.md"
+          "docs/assigns_inspection.md",
+          "docs/components_highlighting.md"
         ]
       ],
       source_url: "https://github.com/software-mansion/live-debugger",
