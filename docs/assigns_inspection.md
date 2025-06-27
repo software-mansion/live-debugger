@@ -1,12 +1,10 @@
-This feature helps you inspect current state of assigns of any `LiveView` or `LiveComponent` inside your debugged application.
-
-Assigns section is available in **Node Inspector**. It is updated whenever assigns of currently inspected node (`LiveView` or `LiveComponent`) change.
+This feature helps you inspect current state of assigns of any `LiveView` or `LiveComponent` inside your debugged application. It is updated whenever assigns of currently inspected node (`LiveView` or `LiveComponent`) change.
 
 ![Assigns placement](images/assigns.png)
 
-### Live example
+### Example
 
-After triggering events callbacks in debugged LiveView, changes in its assigns are immidiately shown. This is useful to see how user actions affect a component's state and confirm that assigns are updating as expected.
+After triggering events callbacks in debugged `LiveView`, changes in its assigns are immidiately shown. This is useful to see how user actions affect a component's state and confirm that assigns are updating as expected.
 
 ![Assigns inspection](images/assigns_inspection.gif)
 
@@ -30,7 +28,7 @@ If you want to dive deeper and for example perform some operations on particular
 - Track state changes: Immediately see how user actions affect a component's state.
 - Debug reactivity issues: Confirm that assigns are updating as expected.
 - Spot bugs faster: Catch incorrect or missing updates to assigns without guesswork.
-- Understand LiveView flow: Get deeper insight into the lifecycle and behavior of your components.
+- Understand `LiveView` flow: Get deeper insight into the lifecycle and behavior of your components.
 
 This feature is especially useful when debugging tricky UI state issues, like counters not updating, buttons staying disabled, or incorrect data appearing in forms.
 
