@@ -167,7 +167,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
        when fun in @callback_functions and type in [:return_from, :exception_from] do
     with {call_ts, trace} <- :erlang.get({pid, module, fun}),
          execution_time <- :timer.now_diff(return_ts, call_ts),
-         trace <- %{trace | execution_time: execution_time, exception: type == :exception_from},
+         trace <- %{trace | execution_time: execution_time, type: type},
          :ok <- persist_trace(trace) do
       :erlang.erase({pid, module, fun})
       publish_update_trace(trace)
