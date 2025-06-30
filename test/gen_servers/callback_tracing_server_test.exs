@@ -141,8 +141,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
 
       expected_call_topic_per_node = PubSubUtils.trace_topic(pid, pid)
       expected_call_topic_per_pid = PubSubUtils.trace_topic(pid)
-      expected_return_topic_per_node = PubSubUtils.trace_topic(pid, pid)
-      expected_return_topic_per_pid = PubSubUtils.trace_topic(pid)
 
       MockEtsTableServer
       |> expect(:table, 2, fn ^pid -> table end)
@@ -150,8 +148,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       MockPubSubUtils
       |> expect(:broadcast, fn ^expected_call_topic_per_node, {:new_trace, _} -> :ok end)
       |> expect(:broadcast, fn ^expected_call_topic_per_pid, {:new_trace, _} -> :ok end)
-      |> expect(:broadcast, fn ^expected_return_topic_per_node, {:updated_trace, _} -> :ok end)
-      |> expect(:broadcast, fn ^expected_return_topic_per_pid, {:updated_trace, _} -> :ok end)
+      |> expect(:broadcast, fn ^expected_call_topic_per_node, {:updated_trace, _} -> :ok end)
+      |> expect(:broadcast, fn ^expected_call_topic_per_pid, {:updated_trace, _} -> :ok end)
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
       assert_receive handle_trace
@@ -212,8 +210,6 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       expected_call_topic_per_node = PubSubUtils.trace_topic(pid, pid)
       expected_call_topic_per_pid = PubSubUtils.trace_topic(pid)
       expected_node_rendered_topic = PubSubUtils.node_rendered_topic()
-      expected_return_topic_per_node = PubSubUtils.trace_topic(pid, pid)
-      expected_return_topic_per_pid = PubSubUtils.trace_topic(pid)
 
       MockEtsTableServer
       |> expect(:table, 2, fn ^pid -> table end)
@@ -222,8 +218,8 @@ defmodule LiveDebugger.GenServers.CallbackTracingServerTest do
       |> expect(:broadcast, fn ^expected_call_topic_per_node, {:new_trace, _} -> :ok end)
       |> expect(:broadcast, fn ^expected_call_topic_per_pid, {:new_trace, _} -> :ok end)
       |> expect(:broadcast, fn ^expected_node_rendered_topic, {:render_trace, _} -> :ok end)
-      |> expect(:broadcast, fn ^expected_return_topic_per_node, {:updated_trace, _} -> :ok end)
-      |> expect(:broadcast, fn ^expected_return_topic_per_pid, {:updated_trace, _} -> :ok end)
+      |> expect(:broadcast, fn ^expected_call_topic_per_node, {:updated_trace, _} -> :ok end)
+      |> expect(:broadcast, fn ^expected_call_topic_per_pid, {:updated_trace, _} -> :ok end)
 
       assert {:noreply, %{}} = CallbackTracingServer.handle_info(:setup_tracing, %{})
       assert_receive handle_trace
