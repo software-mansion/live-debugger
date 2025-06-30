@@ -87,7 +87,8 @@ defmodule LiveDebugger.MixProject do
         "docs/welcome.md": [title: "Welcome to LiveDebugger"],
         "docs/config.md": [title: "Configuration"],
         "docs/components_tree.md": [title: "Components Tree"],
-        "docs/components_highlighting.md": [title: "Components Highlighting"]
+        "docs/components_highlighting.md": [title: "Components Highlighting"],
+        "docs/dead_view_mode.md": [title: "Dead View Mode"]
       ],
       groups_for_extras: [
         Configuration: [
@@ -95,7 +96,8 @@ defmodule LiveDebugger.MixProject do
         ],
         Features: [
           "docs/components_tree.md",
-          "docs/components_highlighting.md"
+          "docs/components_highlighting.md",
+          "docs/dead_view_mode.md"
         ]
       ],
       source_url: "https://github.com/software-mansion/live-debugger",
