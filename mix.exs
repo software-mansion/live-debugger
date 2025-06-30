@@ -88,6 +88,7 @@ defmodule LiveDebugger.MixProject do
         "docs/config.md": [title: "Configuration"],
         "docs/components_tree.md": [title: "Components Tree"],
         "docs/assigns_inspection.md": [title: "Assigns Inspection"],
+        "docs/components_highlighting.md": [title: "Components Highlighting"],
         "docs/dead_view_mode.md": [title: "Dead View Mode"]
       ],
       groups_for_extras: [
@@ -96,6 +97,7 @@ defmodule LiveDebugger.MixProject do
         ],
         Features: [
           "docs/assigns_inspection.md",
+          "docs/components_tree.md",
           "docs/components_highlighting.md",
           "docs/dead_view_mode.md"
         ]
