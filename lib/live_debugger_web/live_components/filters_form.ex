@@ -176,7 +176,6 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     form =
       functions
       |> Map.merge(execution_time)
-      |> Map.new()
       |> to_form(id: socket.assigns.id)
 
     assign(socket, :form, form)
@@ -185,15 +184,9 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   defp assign_form(socket, filters_map) do
     form = socket.assigns.form
 
-    updated_params =
-      filters_map
-      |> Enum.reduce(%{}, fn {filter, value}, acc ->
-        Map.put(acc, filter, value)
-      end)
-
     form =
       form.params
-      |> Map.merge(updated_params)
+      |> Map.merge(filters_map)
       |> to_form(id: socket.assigns.id)
 
     assign(socket, :form, form)
