@@ -7,7 +7,7 @@ defmodule LiveDebugger.GenServers.StateServerTest do
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.GenServers.StateServer
   alias LiveDebugger.MockPubSubUtils
-  alias LiveDebugger.MockLiveViewService
+  alias LiveDebugger.MockLiveViewDebugService
 
   setup :verify_on_exit!
 
@@ -49,7 +49,7 @@ defmodule LiveDebugger.GenServers.StateServerTest do
 
       state = Fakes.state()
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:socket, fn ^pid -> {:ok, state.socket} end)
       |> expect(:live_components, fn ^pid -> {:ok, state.components} end)
 
@@ -81,7 +81,7 @@ defmodule LiveDebugger.GenServers.StateServerTest do
 
       state = Fakes.state()
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:socket, fn ^pid -> {:ok, state.socket} end)
       |> expect(:live_components, fn ^pid -> {:ok, state.components} end)
 

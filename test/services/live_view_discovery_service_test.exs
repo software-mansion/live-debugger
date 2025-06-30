@@ -4,7 +4,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
   import Mox
 
   alias LiveDebugger.Services.LiveViewDiscoveryService
-  alias LiveDebugger.MockLiveViewService
+  alias LiveDebugger.MockLiveViewDebugService
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Fakes
 
@@ -17,7 +17,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
 
       module = :"Elixir.SomeLiveView"
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:list_liveviews, fn ->
         [Fakes.liveview(pid: live_view_pid_1), Fakes.liveview(pid: live_view_pid_2)]
       end)
@@ -41,7 +41,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       live_view_module = :"Elixir.SomeLiveView"
       live_debugger_module = :"Elixir.LiveDebuggerWeb.Debugger"
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: live_view_pid, view: live_view_module),
@@ -73,7 +73,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
     live_debugger_module = :"Elixir.LiveDebuggerWeb.SomLiveView"
     live_view_module = :"Elixir.SomeLiveView"
 
-    MockLiveViewService
+    MockLiveViewDebugService
     |> expect(:list_liveviews, fn ->
       [
         Fakes.liveview(pid: live_debugger_pid, view: live_debugger_module),
@@ -107,7 +107,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       other_module = :"Elixir.SomeLiveView"
       other_socket_id = "phx-other-socket"
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: searched_live_view_pid, view: searched_module),
@@ -116,7 +116,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         ]
       end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:socket, fn ^searched_live_view_pid ->
         {:ok,
          Fakes.socket(root_pid: searched_live_view_pid, view: searched_module, id: socket_id)}
@@ -134,7 +134,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
     test "returns nil if no LiveView process of given socket_id" do
       bad_socket_id = "phx-no-such-socket"
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:list_liveviews, fn -> [Fakes.liveview()] end)
       |> expect(:socket, fn _pid -> {:ok, Fakes.socket()} end)
 
@@ -145,7 +145,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       socket = Fakes.socket()
       socket_id = socket.id
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:list_liveviews, fn ->
         [Fakes.liveview(pid: :c.pid(0, 0, 1)), Fakes.liveview(pid: :c.pid(0, 0, 2))]
       end)
@@ -168,7 +168,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       live_view_1 = Fakes.liveview(pid: live_view_pid_1, view: other_module)
       live_view_2 = Fakes.liveview(pid: live_view_pid_2, view: other_module)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:list_liveviews, fn -> [searched_live_view, live_view_1, live_view_2] end)
       |> expect(:socket, fn ^searched_live_view_pid ->
         {:ok, Fakes.socket(view: searched_module)}
@@ -191,7 +191,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       other_module = :"Elixir.SomeLiveView"
       other_socket_id = "phx-other-socket"
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: searched_live_view_pid, view: searched_module),
@@ -200,7 +200,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         ]
       end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:socket, fn ^searched_live_view_pid ->
         {:ok,
          Fakes.socket(
@@ -233,7 +233,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       live_view_pid_1 = :c.pid(0, 0, 1)
       live_view_pid_2 = :c.pid(0, 0, 2)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: live_view_pid_1),
@@ -241,7 +241,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         ]
       end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:socket, 2, fn _ -> {:ok, Fakes.socket()} end)
 
       assert nil ==
@@ -255,7 +255,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       live_view_pid_2 = :c.pid(0, 0, 2)
       other_socket_id = "phx-other-socket"
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: live_view_pid_1),
@@ -263,7 +263,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         ]
       end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> expect(:socket, 2, fn _ -> {:ok, Fakes.socket(id: other_socket_id)} end)
 
       assert nil ==
@@ -287,7 +287,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         module: module
       }
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: successor_pid, view: module),
@@ -295,7 +295,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         ]
       end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:socket, fn pid ->
         case pid do
           ^successor_pid ->
@@ -339,7 +339,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         module: module
       }
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: successor_pid, view: module),
@@ -347,7 +347,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         ]
       end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:socket, fn pid ->
         case pid do
           ^successor_pid ->
@@ -393,7 +393,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         module: module
       }
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: successor_pid, view: module),
@@ -401,7 +401,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         ]
       end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:socket, fn pid ->
         case pid do
           ^successor_pid ->
@@ -446,7 +446,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         module: module
       }
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: successor_pid, view: module),
@@ -454,7 +454,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         ]
       end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:socket, fn pid ->
         case pid do
           ^successor_pid ->
@@ -499,7 +499,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         module: module
       }
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: successor_pid, view: module),
@@ -507,7 +507,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         ]
       end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:socket, fn pid ->
         case pid do
           ^successor_pid ->
@@ -551,10 +551,10 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         module: module
       }
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:list_liveviews, fn -> [Fakes.liveview(pid: successor_pid, view: module)] end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:socket, fn ^successor_pid ->
         {:ok,
          Fakes.socket(
@@ -587,7 +587,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         module: module
       }
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: other_pid_1, view: module),
@@ -595,7 +595,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         ]
       end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:socket, fn pid ->
         case pid do
           ^other_pid_1 ->
@@ -689,7 +689,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
 
     module = :"Elixir.SomeLiveView"
 
-    MockLiveViewService
+    MockLiveViewDebugService
     |> stub(:list_liveviews, fn ->
       [
         Fakes.liveview(pid: live_view_pid_1, view: module),
@@ -697,7 +697,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
       ]
     end)
 
-    MockLiveViewService
+    MockLiveViewDebugService
     |> expect(:socket, fn ^live_view_pid_1 ->
       {:ok, Fakes.socket(root_pid: live_view_pid_1, view: module)}
     end)
@@ -719,7 +719,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
 
       module = :"Elixir.SomeLiveView"
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: parent_pid, view: module),
@@ -728,7 +728,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         ]
       end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:socket, fn pid ->
         if pid == parent_pid do
           {:ok, Fakes.socket(root_pid: parent_pid, view: module, parent_pid: nil)}
@@ -751,7 +751,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
 
       module = :"Elixir.SomeLiveView"
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:list_liveviews, fn ->
         [
           Fakes.liveview(pid: parent_pid, view: module),
@@ -761,7 +761,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryServiceTest do
         ]
       end)
 
-      MockLiveViewService
+      MockLiveViewDebugService
       |> stub(:socket, fn pid ->
         case pid do
           ^parent_pid ->

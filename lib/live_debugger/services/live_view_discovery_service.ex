@@ -163,7 +163,7 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   """
   @spec lv_processes() :: [LvProcess.t()]
   def lv_processes() do
-    LiveDebugger.Services.LiveViewService.list_liveviews()
+    LiveDebugger.Services.LiveViewDebugService.list_liveviews()
     |> Enum.reject(&(&1.pid == self()))
     |> Enum.map(&LvProcess.new(&1.pid))
     |> Enum.reject(&is_nil/1)

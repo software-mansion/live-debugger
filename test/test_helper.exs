@@ -27,8 +27,11 @@ else
   Mox.defmock(LiveDebugger.MockStateServer, for: LiveDebugger.GenServers.StateServer)
   Application.put_env(:live_debugger, :state_server, LiveDebugger.MockStateServer)
 
-  Mox.defmock(LiveDebugger.MockLiveViewService, for: LiveDebugger.Services.LiveViewService)
-  Application.put_env(:live_debugger, :liveview_service, LiveDebugger.MockLiveViewService)
+  Mox.defmock(LiveDebugger.MockLiveViewDebugService,
+    for: LiveDebugger.Services.LiveViewDebugService
+  )
+
+  Application.put_env(:live_debugger, :liveview_service, LiveDebugger.MockLiveViewDebugService)
 end
 
 ExUnit.start()

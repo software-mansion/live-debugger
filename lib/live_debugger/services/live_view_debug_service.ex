@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Services.LiveViewService do
+defmodule LiveDebugger.Services.LiveViewDebugService do
   @moduledoc """
   This module provides wrappers for Phoenix LiveView functions that are used for debugging a LiveView processes.
   """
@@ -38,7 +38,7 @@ defmodule LiveDebugger.Services.LiveViewService do
 
   defmodule Impl do
     @moduledoc false
-    @behaviour LiveDebugger.Services.LiveViewService
+    @behaviour LiveDebugger.Services.LiveViewDebugService
 
     if LiveDebugger.Services.System.ModuleService.loaded?(Phoenix.LiveView.Debug) do
       @impl true

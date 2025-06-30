@@ -76,8 +76,8 @@ defmodule LiveDebugger.GenServers.StateServer do
   def handle_info({:process_status, _}, state), do: {:noreply, state}
 
   defp save_state(%Trace{pid: pid} = trace) do
-    with {:ok, socket} <- LiveDebugger.Services.LiveViewService.socket(pid),
-         {:ok, components} <- LiveDebugger.Services.LiveViewService.live_components(pid) do
+    with {:ok, socket} <- LiveDebugger.Services.LiveViewDebugService.socket(pid),
+         {:ok, components} <- LiveDebugger.Services.LiveViewDebugService.live_components(pid) do
       record_id = record_id(pid)
 
       channel_state = %{
@@ -120,8 +120,9 @@ defmodule LiveDebugger.GenServers.StateServer do
           {:ok, channel_state}
 
         [] ->
-          with {:ok, socket} <- LiveDebugger.Services.LiveViewService.socket(pid),
-               {:ok, components} <- LiveDebugger.Services.LiveViewService.live_components(pid) do
+          with {:ok, socket} <- LiveDebugger.Services.LiveViewDebugService.socket(pid),
+               {:ok, components} <-
+                 LiveDebugger.Services.LiveViewDebugService.live_components(pid) do
             channel_state = %{
               socket: socket,
               components: components
