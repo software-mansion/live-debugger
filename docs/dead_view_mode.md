@@ -2,19 +2,19 @@ This feature allows you to debug the state of your application after redirecting
 
 > #### Limitations {: .info}
 >
-> Inspecting "dead" Live View process is temporary. If you refresh your debugger or navigate to `Active Live Views` or `Settings` then the information will be lost.
+> Inspecting "dead" LiveView process is temporary. If you refresh your debugger or navigate to `Active LiveViews` or `Settings` then the information will be lost.
 
-Dead View Mode allows you to freely use both `Node Inspector` and `Global Traces`. The state, and callbacks are stored until you will continue to the next Live View.
+Dead View Mode allows you to freely use both `Node Inspector` and `Global Traces`. The state, and callbacks are stored until you will continue to the next LiveView.
 
 ### Status indicator
 
-On your navbar you can see the status of monitored Live View.
+On your navbar you can see the status of monitored LiveView.
 
-When Live View is _alive_ you can see it's `PID`.
+When LiveView is _alive_ you can see it's `PID`.
 
 ![Dead View Mode navbar status: Alive](images/dead_view_status_alive.png)
 
-When Live View is _dead_ you can click `Continue` to find a successor (page which you've navigated to or the reconnected page after crash).
+When LiveView is _dead_ you can click `Continue` to find a successor (page which you've navigated to or the reconnected page after crash).
 
 ![Dead View Mode navbar status: Dead](images/dead_view_status_dead.png)
 
@@ -22,7 +22,7 @@ When Live View is _dead_ you can click `Continue` to find a successor (page whic
 
 When dealing with either crash or redirection you can:
 
-- Inspect last state of Live View or Live Components
+- Inspect last state of LiveView or Live Components
 - See callbacks order and which one was the last
 
 ### Configuration
