@@ -19,10 +19,6 @@ defmodule LiveDebuggerWeb.Helpers.RoutesHelper do
     channel_dashboard(pid)
   end
 
-  def channel_dashboard(pid, cid) when is_binary(pid) and is_binary(cid) do
-    ~p"/pid/#{pid}?node_id=#{cid}"
-  end
-
   def channel_dashboard(pid, cid) do
     pid =
       cond do
@@ -36,7 +32,7 @@ defmodule LiveDebuggerWeb.Helpers.RoutesHelper do
         cid when is_binary(cid) -> cid
       end
 
-    channel_dashboard(pid, cid)
+    ~p"/pid/#{pid}?node_id=#{cid}"
   end
 
   @spec channel_dashboard(pid :: pid() | String.t()) :: String.t()
