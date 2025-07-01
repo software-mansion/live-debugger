@@ -63,7 +63,6 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
       TraceService.existing_traces(pid, opts)
-      |> IO.inspect(label: "Fetching existing traces with opts")
     end)
   end
 
