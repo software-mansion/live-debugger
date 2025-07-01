@@ -54,25 +54,58 @@ defmodule LiveDebugger.Services.TraceService do
   """
   @spec existing_traces(pid :: ets_table_id(), opts :: keyword()) ::
           {[Trace.t()], ets_continuation()} | :end_of_table
-  def existing_traces(pid, opts \\ []) when is_pid(pid) do
-    opts
-    |> Keyword.get(:cont, nil)
-    |> case do
-      :end_of_table -> :end_of_table
-      nil -> existing_traces_start(pid, opts)
-      _cont -> existing_traces_continuation(opts)
-    end
-    |> case do
-      {entries, :"$end_of_table"} ->
-        {Enum.map(entries, &elem(&1, 1)), :end_of_table}
+def existing_traces(pid, opts \\ []) when is_pid(pid) do
+    search_query = Keyword.get(opts, :search_query, nil)
+    cont = Keyword.get(opts, :cont, nil)
 
-      {entries, new_cont} ->
-        {Enum.map(entries, &elem(&1, 1)), new_cont}
+    raw_result =
+      case cont do
+        :end_of_table -> :end_of_table
+        nil -> existing_traces_start(pid, opts)
+        _ -> existing_traces_continuation(opts)
+      end
 
-      _ ->
-        :end_of_table
-    end
+    raw_result
+    |> normalize_entries()
+    |> filter_by_search(search_phrase)
+    |> format_response()
   end
+
+  # Converts ETS entries of {key, Trace} to list of Trace structs
+  @spec normalize_entries(
+          {[ets_elem()], ets_continuation()} | :end_of_table
+        ) :: {[Trace.t()], ets_continuation()} | :end_of_table
+  defp normalize_entries(:end_of_table), do: :end_of_table
+  defp normalize_entries({entries, cont}) do
+    traces = Enum.map(entries, &elem(&1, 1))
+    {traces, cont}
+  end
+
+  # Applies simple case-sensitive substring search on entire struct
+  @spec filter_by_search(
+          {[Trace.t()], ets_continuation()} | :end_of_table,
+          String.t() | nil
+        ) :: {[Trace.t()], ets_continuation()} | :end_of_table
+  defp filter_by_search(:end_of_table, _), do: :end_of_table
+  defp filter_by_search({traces, cont}, nil), do: {traces, cont}
+  defp filter_by_search({traces, cont}, phrase) do
+    filtered =
+      traces
+      |> Enum.filter(fn trace ->
+        inspect(trace)
+        |> String.contains?(phrase)
+      end)
+
+    {filtered, cont}
+  end
+
+  # Formats the continuation token and handles end-of-table marker. 
+  @spec format_response(
+          {[Trace.t()], ets_continuation()} | :end_of_table
+        ) :: {[Trace.t()], ets_continuation()} | :end_of_table
+  defp format_response(:end_of_table), do: :end_of_table
+  defp format_response({traces, :"$end_of_table"}), do: {traces, :end_of_table}
+  defp format_response({traces, cont}), do: {traces, cont}
 
   @doc """
   Deletes traces for given node_id. If node_id is nil, it deletes all traces for given table.

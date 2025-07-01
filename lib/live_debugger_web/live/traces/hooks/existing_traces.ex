@@ -54,7 +54,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
         limit: page_size,
         functions: active_functions,
         execution_times: execution_times,
-        node_id: node_id
+        node_id: node_id, 
+        search_query: "foo"
       ]
 
     socket
@@ -62,6 +63,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
     |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
       TraceService.existing_traces(pid, opts)
+      |> IO.inspect(label: "Fetching existing traces with opts")
     end)
   end
 
