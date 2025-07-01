@@ -10,6 +10,7 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
 
   import LiveDebuggerWeb.Helpers.NestedLiveViewHelper
 
+  alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.Structs.TreeNode
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Structs.Trace
@@ -371,7 +372,7 @@ defmodule LiveDebuggerWeb.Live.Nested.NodeInspectorSidebarLive do
   end
 
   defp send_event(pid, event, payload \\ %{}) do
-    {:ok, state} = ChannelService.state(pid)
+    {:ok, state} = ProcessService.state(pid)
 
     message = %Message{
       topic: state.topic,

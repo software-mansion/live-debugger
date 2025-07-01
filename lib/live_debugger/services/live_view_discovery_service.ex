@@ -2,7 +2,6 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   @moduledoc """
   This module provides functions that discovers LiveView processes in the debugged application.
   """
-  alias LiveDebugger.Services.System.ProcessService
   alias LiveDebugger.Structs.LvProcess
 
   @doc """
@@ -164,11 +163,9 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
   """
   @spec lv_processes() :: [LvProcess.t()]
   def lv_processes() do
-    ProcessService.list()
-    |> Enum.reject(&(&1 == self()))
-    |> Enum.map(&{&1, ProcessService.initial_call(&1)})
-    |> Enum.filter(fn {_, initial_call} -> liveview?(initial_call) end)
-    |> Enum.map(fn {pid, _} -> LvProcess.new(pid) end)
+    LiveDebugger.Services.LiveViewDebugService.list_liveviews()
+    |> Enum.reject(&(&1.pid == self()))
+    |> Enum.map(&LvProcess.new(&1.pid))
     |> Enum.reject(&is_nil/1)
   end
 
@@ -195,11 +192,4 @@ defmodule LiveDebugger.Services.LiveViewDiscoveryService do
     end)
     |> List.flatten()
   end
-
-  @spec liveview?(initial_call :: mfa() | nil | {}) :: boolean()
-  defp liveview?(initial_call) when initial_call not in [nil, {}] do
-    elem(initial_call, 1) == :mount
-  end
-
-  defp liveview?(_), do: false
 end

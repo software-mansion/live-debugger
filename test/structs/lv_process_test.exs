@@ -36,9 +36,9 @@ defmodule LiveDebugger.Structs.LvProcessTest do
 
   describe "new/1" do
     test "returns nil if the process is not found" do
-      LiveDebugger.MockProcessService
-      |> expect(:state, fn _pid ->
-        {:error, :not_found}
+      LiveDebugger.MockLiveViewDebugService
+      |> expect(:socket, fn _pid ->
+        {:error, :not_alive_or_not_a_liveview}
       end)
 
       assert LvProcess.new(self()) == nil
@@ -52,15 +52,15 @@ defmodule LiveDebugger.Structs.LvProcessTest do
       transport_pid = nil
       module = LiveDebuggerTest.TestView
 
-      LiveDebugger.MockProcessService
-      |> expect(:state, fn _pid ->
+      LiveDebugger.MockLiveViewDebugService
+      |> expect(:socket, fn _pid ->
         {:ok,
-         LiveDebugger.Fakes.state(
-           socket_id: socket_id,
+         LiveDebugger.Fakes.socket(
+           id: socket_id,
            root_pid: root_pid,
            parent_pid: parent_pid,
            transport_pid: transport_pid,
-           module: module
+           view: module
          )}
       end)
 
@@ -85,15 +85,15 @@ defmodule LiveDebugger.Structs.LvProcessTest do
       transport_pid = :c.pid(0, 7, 0)
       module = LiveDebuggerTest.TestView
 
-      LiveDebugger.MockProcessService
-      |> expect(:state, fn _pid ->
+      LiveDebugger.MockLiveViewDebugService
+      |> expect(:socket, fn _pid ->
         {:ok,
-         LiveDebugger.Fakes.state(
-           socket_id: socket_id,
+         LiveDebugger.Fakes.socket(
+           id: socket_id,
            root_pid: root_pid,
            parent_pid: parent_pid,
            transport_pid: transport_pid,
-           module: module,
+           view: module,
            host_uri: :not_mounted_at_router
          )}
       end)
@@ -119,15 +119,15 @@ defmodule LiveDebugger.Structs.LvProcessTest do
       transport_pid = nil
       module = LiveDebugger.TestView
 
-      LiveDebugger.MockProcessService
-      |> expect(:state, fn _pid ->
+      LiveDebugger.MockLiveViewDebugService
+      |> expect(:socket, fn _pid ->
         {:ok,
-         LiveDebugger.Fakes.state(
-           socket_id: socket_id,
+         LiveDebugger.Fakes.socket(
+           id: socket_id,
            root_pid: root_pid,
            parent_pid: parent_pid,
            transport_pid: transport_pid,
-           module: module
+           view: module
          )}
       end)
 
@@ -152,15 +152,15 @@ defmodule LiveDebugger.Structs.LvProcessTest do
       transport_pid = nil
       module = LiveDebuggerTest.TestView
 
-      LiveDebugger.MockProcessService
-      |> expect(:state, fn _pid ->
+      LiveDebugger.MockLiveViewDebugService
+      |> expect(:socket, fn _pid ->
         {:ok,
-         LiveDebugger.Fakes.state(
-           socket_id: socket_id,
+         LiveDebugger.Fakes.socket(
+           id: socket_id,
            root_pid: root_pid,
            parent_pid: parent_pid,
            transport_pid: transport_pid,
-           module: module
+           view: module
          )}
       end)
 
@@ -187,15 +187,15 @@ defmodule LiveDebugger.Structs.LvProcessTest do
       transport_pid = nil
       module = LiveDebuggerTest.TestView
 
-      LiveDebugger.MockProcessService
-      |> expect(:state, fn ^parent_pid ->
+      LiveDebugger.MockLiveViewDebugService
+      |> expect(:socket, fn ^parent_pid ->
         {:ok,
-         LiveDebugger.Fakes.state(
-           socket_id: socket_id,
+         LiveDebugger.Fakes.socket(
+           id: socket_id,
            root_pid: root_pid,
            parent_pid: nil,
            transport_pid: transport_pid,
-           module: module
+           view: module
          )}
       end)
 
