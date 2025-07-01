@@ -47,6 +47,8 @@ defmodule LiveDebugger.Services.LiveViewDebugService do
       defdelegate socket(pid), to: Phoenix.LiveView.Debug
       @impl true
       defdelegate live_components(pid), to: Phoenix.LiveView.Debug
+      @impl true
+      defdelegate liveview?(pid), do: Phoenix.LiveView.Debug
     else
       alias LiveDebugger.Services.System.ProcessService
 
