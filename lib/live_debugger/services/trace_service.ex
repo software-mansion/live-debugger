@@ -54,7 +54,7 @@ defmodule LiveDebugger.Services.TraceService do
   """
   @spec existing_traces(pid :: ets_table_id(), opts :: keyword()) ::
           {[Trace.t()], ets_continuation()} | :end_of_table
-def existing_traces(pid, opts \\ []) when is_pid(pid) do
+  def existing_traces(pid, opts \\ []) when is_pid(pid) do
     search_query = Keyword.get(opts, :search_query, nil)
     cont = Keyword.get(opts, :cont, nil)
 
@@ -72,10 +72,10 @@ def existing_traces(pid, opts \\ []) when is_pid(pid) do
   end
 
   # Converts ETS entries of {key, Trace} to list of Trace structs
-  @spec normalize_entries(
-          {[ets_elem()], ets_continuation()} | :end_of_table
-        ) :: {[Trace.t()], ets_continuation()} | :end_of_table
+  @spec normalize_entries({[ets_elem()], ets_continuation()} | :end_of_table) ::
+          {[Trace.t()], ets_continuation()} | :end_of_table
   defp normalize_entries(:end_of_table), do: :end_of_table
+
   defp normalize_entries({entries, cont}) do
     traces = Enum.map(entries, &elem(&1, 1))
     {traces, cont}
@@ -88,6 +88,7 @@ def existing_traces(pid, opts \\ []) when is_pid(pid) do
         ) :: {[Trace.t()], ets_continuation()} | :end_of_table
   defp filter_by_search(:end_of_table, _), do: :end_of_table
   defp filter_by_search({traces, cont}, nil), do: {traces, cont}
+
   defp filter_by_search({traces, cont}, phrase) do
     filtered =
       traces
@@ -100,9 +101,8 @@ def existing_traces(pid, opts \\ []) when is_pid(pid) do
   end
 
   # Formats the continuation token and handles end-of-table marker. 
-  @spec format_response(
+  @spec format_response({[Trace.t()], ets_continuation()} | :end_of_table) ::
           {[Trace.t()], ets_continuation()} | :end_of_table
-        ) :: {[Trace.t()], ets_continuation()} | :end_of_table
   defp format_response(:end_of_table), do: :end_of_table
   defp format_response({traces, :"$end_of_table"}), do: {traces, :end_of_table}
   defp format_response({traces, cont}), do: {traces, cont}

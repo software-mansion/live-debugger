@@ -54,7 +54,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
         limit: page_size,
         functions: active_functions,
         execution_times: execution_times,
-        node_id: node_id, 
+        node_id: node_id,
         search_query: "foo"
       ]
 
