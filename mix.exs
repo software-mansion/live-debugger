@@ -1,7 +1,7 @@
 defmodule LiveDebugger.MixProject do
   use Mix.Project
 
-  @version "0.3.0-dev"
+  @version "0.4.0-dev"
 
   def project do
     [
@@ -82,14 +82,30 @@ defmodule LiveDebugger.MixProject do
     [
       main: "welcome",
       logo: "./docs/images/logo.png",
+      extra_section: "GUIDES",
       extras: [
         "docs/welcome.md": [title: "Welcome to LiveDebugger"],
-        "docs/config.md": [title: "Configuration"]
+        "docs/config.md": [title: "Configuration"],
+        "docs/components_tree.md": [title: "Components Tree"],
+        "docs/assigns_inspection.md": [title: "Assigns Inspection"],
+        "docs/components_highlighting.md": [title: "Components Highlighting"]
+      ],
+      groups_for_extras: [
+        Configuration: [
+          "docs/config.md"
+        ],
+        Features: [
+          "docs/components_tree.md",
+          "docs/assigns_inspection.md",
+          "docs/components_highlighting.md"
+        ]
       ],
       source_url: "https://github.com/software-mansion/live-debugger",
       source_ref: @version,
       api_reference: false,
-      assets: %{Path.expand("./docs/images") => "images"},
+      assets: %{
+        Path.expand("./docs/images") => "images"
+      },
       filter_modules: fn module, _meta ->
         module == Mix.Tasks.LiveDebugger.Install
       end

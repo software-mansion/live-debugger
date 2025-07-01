@@ -35,6 +35,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   alias __MODULE__.TableInfo
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.Utils.Memory
+  alias LiveDebugger.Feature
 
   @type state() :: %{pid() => TableInfo.t()}
 
@@ -83,7 +84,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
   @impl true
   def handle_info({:DOWN, _, :process, closed_pid, _}, state)
       when is_map_key(state, closed_pid) do
-    if LiveDebugger.Feature.enabled?(:dead_view_mode) do
+    if Feature.enabled?(:dead_view_mode) do
       PubSubUtils.process_status_topic()
       |> PubSubUtils.broadcast({:process_status, {:died, closed_pid}})
     end
@@ -178,7 +179,7 @@ defmodule LiveDebugger.GenServers.EtsTableServer do
 
     @impl true
     def watch(pid) do
-      if LiveDebugger.Feature.enabled?(:dead_view_mode) do
+      if Feature.enabled?(:dead_view_mode) do
         GenServer.call(@server_module, {:watch, pid}, @call_timeout)
       else
         {:error, :not_in_dead_view_mode}

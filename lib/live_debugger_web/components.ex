@@ -373,22 +373,32 @@ defmodule LiveDebuggerWeb.Components do
     """
   end
 
+  attr(:sidebar_hidden?, :boolean, default: true, doc: "The default state of the sidebar")
   slot(:inner_block)
 
   def sidebar_slide_over(assigns) do
     ~H"""
-    <div class="absolute z-20 top-0 left-0 bg-black/25 w-full h-full flex lg:hidden justify-end">
+    <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
       <div
-        class="w-80 h-full flex flex-col bg-sidebar-bg justify-between"
-        phx-click-away="close_mobile_content"
+        id="filters-sidebar-form"
+        class={[
+          (@sidebar_hidden? && "hidden") || "flex",
+          "fixed inset-0 bg-black/25 justify-end items-start lg:flex lg:static lg:inset-auto lg:bg-transparent z-20"
+        ]}
       >
-        <.icon_button
-          icon="icon-cross"
-          class="absolute top-4 right-4"
-          variant="secondary"
-          phx-click="close_mobile_content"
-        />
-        <%= render_slot(@inner_block) %>
+        <div
+          phx-click-away="close_mobile_content"
+          class="h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border lg:border-l"
+        >
+          <.icon_button
+            :if={!@sidebar_hidden?}
+            icon="icon-cross"
+            class="absolute top-4 right-4 lg:hidden"
+            variant="secondary"
+            phx-click="close_mobile_content"
+          />
+          <%= render_slot(@inner_block) %>
+        </div>
       </div>
     </div>
     """
@@ -596,7 +606,7 @@ defmodule LiveDebuggerWeb.Components do
   attr(:checked, :boolean, default: false, doc: "Whether the switch is checked.")
   attr(:label, :string, default: "", doc: "Label for the switch.")
   attr(:wrapper_class, :any, default: nil, doc: "Additional classes to add to the switch.")
-  attr(:id, :string, default: nil, doc: "ID of the switch.")
+  attr(:id, :string, required: true, doc: "ID of the switch.")
   attr(:rest, :global)
 
   def toggle_switch(assigns) do
@@ -608,9 +618,11 @@ defmodule LiveDebuggerWeb.Components do
       <span class="text-xs font-normal text-primary-text mx-2">
         <%= @label %>
       </span>
-      <input id={@id} type="checkbox" class="sr-only peer" checked={@checked} {@rest} />
-      <div class="relative w-9 h-5 bg-ui-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ui-accent rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-ui-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ui-accent ">
-      </div>
+      <form>
+        <input id={@id} type="checkbox" class="sr-only peer" checked={@checked} {@rest} />
+        <div class="relative w-9 h-5 bg-ui-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ui-accent rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-ui-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ui-accent ">
+        </div>
+      </form>
     </label>
     """
   end

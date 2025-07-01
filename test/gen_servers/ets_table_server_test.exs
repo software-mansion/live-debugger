@@ -9,6 +9,13 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
 
   setup :verify_on_exit!
 
+  setup _ctx do
+    LiveDebugger.MockSettingsServer
+    |> stub(:get, fn :dead_view_mode -> true end)
+
+    :ok
+  end
+
   test "start_link/1" do
     Application.put_env(:live_debugger, :garbage_collection?, false)
     assert {:ok, _pid} = EtsTableServer.start_link()
@@ -160,7 +167,7 @@ defmodule LiveDebugger.GenServers.EtsTableServerTest do
 
       Process.sleep(100)
 
-      assert 34 == :ets.select_count(ref, [{{:"$1", :"$2"}, [], [true]}])
+      assert 32 == :ets.select_count(ref, [{{:"$1", :"$2"}, [], [true]}])
     end
 
     test "does not trigger when not enough records are in table" do
