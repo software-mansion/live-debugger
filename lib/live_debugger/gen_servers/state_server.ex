@@ -11,6 +11,7 @@ defmodule LiveDebugger.GenServers.StateServer do
   alias LiveDebugger.Utils.PubSub, as: PubSubUtils
   alias LiveDebugger.CommonTypes
   alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Services.LiveViewDebugService
 
   @ets_table_name :lvdbg_states
 
@@ -76,8 +77,8 @@ defmodule LiveDebugger.GenServers.StateServer do
   def handle_info({:process_status, _}, state), do: {:noreply, state}
 
   defp save_state(%Trace{pid: pid} = trace) do
-    with {:ok, socket} <- LiveDebugger.Services.LiveViewDebugService.socket(pid),
-         {:ok, components} <- LiveDebugger.Services.LiveViewDebugService.live_components(pid) do
+    with {:ok, socket} <- LiveViewDebugService.socket(pid),
+         {:ok, components} <- LiveViewDebugService.live_components(pid) do
       record_id = record_id(pid)
 
       channel_state = %{
