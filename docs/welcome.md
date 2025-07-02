@@ -4,10 +4,10 @@ LiveDebugger is a browser-based tool for debugging applications written in [Phoe
 
 Designed to enhance your development experience LiveDebugger gives you:
 
-- A detailed view of your LiveComponents tree ([Components Tree](./components_tree.md))
-- The ability to inspect assigns for LiveViews and LiveComponents
+- A detailed view of your [LiveComponents tree](./components_tree.md)
+- The ability to [inspect assigns](./assigns_inspection.md) for LiveViews and LiveComponents
 - Tracing of their callback executions
-- Components highlighting
+- [Components highlighting](./components_highlighting.md)
 
 ## Installation
 
