@@ -23,7 +23,7 @@ By default it will be stopped when you change nodes or navigate to other Live Vi
 ### Buttons
 
 - _Start_ - starts active tracing
-- _Refresh_ - loads traces
+- _Refresh_ - loads newest traces
 - _Clear_ - removes traces (also the ones stored in memory)
 - _Filters_ - opens filters modal (only in `Node Inspector`)
 
@@ -39,7 +39,7 @@ When using `Global Traces` filters will be shown on the right (or in sidebar on 
 
 To better improve locating specific information you can filter by:
 
-- **Callbacks** - When working in `Node Inspector` you will see either `LiveView` or `LiveComponent` callback names. In `Global Traces` there will be all available callbacks to filter. It is useful when some you want to check specific part of your application (typically `handle_event`).
+- **Callbacks** - When working in `Node Inspector` you will see **either** `LiveView` or `LiveComponent` callback names. In `Global Traces` there will be all available callbacks to filter. It is useful when some you want to check specific part of your application (typically `handle_event`).
 - **Execution Time** - It is useful for checking bottlenecks in your app. You can set both minimal and maximal value (with unit).
 
 ### Trace information
@@ -67,13 +67,13 @@ You are also able to see them in fullscreen mode.
 
 ### Configuration
 
-When your application works in multiple nodes Callback Tracing might not work properly. Please add delay to setup for proper working
+When your application works in multiple nodes Callback Tracing might not work properly. Please add delay to setup for proper working:
 
 ```elixir
 config :live_debugger, :tracing_setup_delay, 200 # in ms
 ```
 
-Live Debugger is using garbage collection of traces in order to not take too much space in memory. If you want to change the size of data which is kept in memory please change ETS table max size. Currently each table is for each debugged LiveView process so keep it in mind.
+Live Debugger is using garbage collection of traces in order to not take too much space in memory. Each debugged LiveView has separate table and default maximum size is 10MB. You can change it in config:
 
 ```elixir
  config :live_debugger, :approx_table_max_size, 20 # in MB
