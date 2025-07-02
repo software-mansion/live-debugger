@@ -20,6 +20,8 @@ Callback tracer can be in 2 states:
 
 By default it will be stopped when you change nodes or navigate to other Live View.
 
+## How to use
+
 ### Buttons
 
 - _Start_ - starts active tracing
@@ -65,7 +67,32 @@ You are also able to see them in fullscreen mode.
 
 ![Fullscreen view of a trace args](images/callback_tracing_fullscreen.png)
 
-### Configuration
+### Traced callbacks
+
+`LiveDebugger` traces callbacks of `Phoenix.LiveView` and `Phoenix.LiveComponent` behaviours in your application.
+
+#### LiveView
+
+- `handle_async/3`
+- `handle_call/3`
+- `handle_cast/2`
+- `handle_event/3`
+- `handle_info/2`
+- `handle_params/3`
+- `mount/3`
+- `render/1`
+- `terminate/2`
+
+#### LiveComponent
+
+- `handle_async/3`
+- `handle_event/3`
+- `mount/1`
+- `render/1`
+- `update/2`
+- `update_many/1`
+
+## Configuration
 
 When your application works in multiple nodes Callback Tracing might not work properly. Please add delay to setup for proper working:
 
@@ -80,3 +107,19 @@ Live Debugger is using garbage collection of traces in order to not take too muc
 ```
 
 We are approximating size of elixir terms in garbage collection so the actual maximum value can be higher.
+
+## How Callback Tracing works
+
+To properly check each callback we are leveraging erlang's [`:dbg`](https://www.erlang.org/doc/apps/runtime_tools/dbg.html) module. When the application starts `:dbg.tracer/0` is initiated and calls for all LiveView or LiveComponent modules are added. It traces start of the callback, end of it and exceptions if some occur which allows to measure time of execution and which callback ended with error.
+
+If you are using code reloading tracing may stop working due to modules being recompiled. To fix this issue see `Settings` and either select automatic tracing refresh
+
+![Setting for refreshing tracing after recompilation](./images/callback_tracing_refresh_after_recompilation.png)
+
+> ### Warning {: .warning}
+>
+> It may have negative impact on your app performance
+
+or do it manually.
+
+![Refresh Tracing button](./images/callback_tracing_refresh_tracing.png)
