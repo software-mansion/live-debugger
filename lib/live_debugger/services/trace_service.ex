@@ -50,7 +50,7 @@ defmodule LiveDebugger.Services.TraceService do
     * `:node_id` - PID or CID to filter traces by
     * `:limit` - Maximum number of traces to return (default: 100)
     * `:cont` - Used to get next page of items in the following queries
-    * `:functions` - List of function names to filter traces by
+    * `:functions` - List of function names to filter traces by e.g ["handle_info/2", "render/1"]
   """
   @spec existing_traces(pid :: ets_table_id(), opts :: keyword()) ::
           {[Trace.t()], ets_continuation()} | :end_of_table
@@ -108,8 +108,15 @@ defmodule LiveDebugger.Services.TraceService do
           {[ets_elem()], ets_continuation()} | :"$end_of_table"
   defp existing_traces_start(table_id, opts) do
     limit = Keyword.get(opts, :limit, @default_limit)
-    functions = Keyword.get(opts, :functions, [])
-    execution_times = Keyword.get(opts, :execution_times, [])
+
+    functions =
+      Keyword.get(opts, :functions, [])
+      |> Enum.map(&String.split(&1, "/"))
+      |> Enum.map(fn [function, arity] ->
+        {String.to_existing_atom(function), String.to_integer(arity)}
+      end)
+
+    execution_times = Keyword.get(opts, :execution_times, %{})
     node_id = Keyword.get(opts, :node_id)
 
     if limit < 1 do
@@ -133,30 +140,30 @@ defmodule LiveDebugger.Services.TraceService do
 
   defp match_spec(node_id, functions, execution_times) when is_pid(node_id) do
     [
-      {{:_, %{function: :"$1", execution_time: :"$2", pid: node_id, cid: nil}},
+      {{:_, %{function: :"$1", execution_time: :"$2", arity: :"$3", pid: node_id, cid: nil}},
        to_spec(functions, execution_times), [:"$_"]}
     ]
   end
 
   defp match_spec(%CID{} = node_id, functions, execution_times) do
     [
-      {{:_, %{function: :"$1", execution_time: :"$2", cid: node_id}},
+      {{:_, %{function: :"$1", execution_time: :"$2", arity: :"$3", cid: node_id}},
        to_spec(functions, execution_times), [:"$_"]}
     ]
   end
 
   defp match_spec(nil, functions, execution_times) do
     [
-      {{:_, %{function: :"$1", execution_time: :"$2"}}, to_spec(functions, execution_times),
-       [:"$_"]}
+      {{:_, %{function: :"$1", execution_time: :"$2", arity: :"$3"}},
+       to_spec(functions, execution_times), [:"$_"]}
     ]
   end
 
-  def to_spec(functions, []) do
+  defp to_spec(functions, []) do
     [{:andalso, functions_to_spec(functions), {:"/=", :"$2", nil}}]
   end
 
-  def to_spec(functions, execution_times) do
+  defp to_spec(functions, execution_times) do
     [
       {:andalso,
        {:andalso, functions_to_spec(functions), execution_times_to_spec(execution_times)},
@@ -164,11 +171,13 @@ defmodule LiveDebugger.Services.TraceService do
     ]
   end
 
-  def functions_to_spec([]), do: false
+  defp functions_to_spec([]), do: false
 
-  def functions_to_spec([single]), do: {:"=:=", :"$1", single}
+  defp functions_to_spec([{single_function, arity}]) do
+    {:andalso, {:"=:=", :"$1", single_function}, {:"=:=", :"$3", arity}}
+  end
 
-  def functions_to_spec([first, second | rest]) do
+  defp functions_to_spec([first, second | rest]) do
     initial_orelse =
       {:orelse, functions_to_spec([first]), functions_to_spec([second])}
 
@@ -180,9 +189,9 @@ defmodule LiveDebugger.Services.TraceService do
     {:andalso, result, {:"/=", :"$2", nil}}
   end
 
-  def execution_times_to_spec(execution_times) do
-    min_time = Keyword.get(execution_times, :exec_time_min, 0)
-    max_time = Keyword.get(execution_times, :exec_time_max, :infinity)
+  defp execution_times_to_spec(execution_times) do
+    min_time = Map.get(execution_times, "exec_time_min", 0)
+    max_time = Map.get(execution_times, "exec_time_max", :infinity)
     {:andalso, {:>=, :"$2", min_time}, {:"=<", :"$2", max_time}}
   end
 

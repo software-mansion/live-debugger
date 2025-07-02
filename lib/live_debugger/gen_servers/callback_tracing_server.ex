@@ -167,7 +167,7 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
        when fun in @callback_functions and type in [:return_from, :exception_from] do
     with {call_ts, trace} <- :erlang.get({pid, module, fun}),
          execution_time <- :timer.now_diff(return_ts, call_ts),
-         trace <- %{trace | execution_time: execution_time, exception: type == :exception_from},
+         trace <- %{trace | execution_time: execution_time, type: type},
          :ok <- persist_trace(trace) do
       :erlang.erase({pid, module, fun})
       publish_update_trace(trace)
@@ -222,14 +222,12 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     pid = trace.pid
     node_id = Trace.node_id(trace)
 
-    fun = trace.function
-
     pid
-    |> PubSubUtils.trace_topic_per_node(node_id, fun, :call)
+    |> PubSubUtils.trace_topic(node_id)
     |> PubSubUtils.broadcast({:new_trace, trace})
 
     pid
-    |> PubSubUtils.trace_topic_per_pid(fun, :call)
+    |> PubSubUtils.trace_topic()
     |> PubSubUtils.broadcast({:new_trace, trace})
   end
 
@@ -245,11 +243,11 @@ defmodule LiveDebugger.GenServers.CallbackTracingServer do
     end
 
     pid
-    |> PubSubUtils.trace_topic_per_node(node_id, fun, :return)
+    |> PubSubUtils.trace_topic(node_id)
     |> PubSubUtils.broadcast({:updated_trace, trace})
 
     pid
-    |> PubSubUtils.trace_topic_per_pid(fun, :return)
+    |> PubSubUtils.trace_topic()
     |> PubSubUtils.broadcast({:updated_trace, trace})
   end
 end
