@@ -10,15 +10,13 @@ or you can inspect all nodes inside `Global Traces`
 
 Callback tracer can be in 2 states:
 
-<!-- TODO: USE figs here -->
-
 - **Started** - You see all traces live as you use your debugged application, you cannot use filters.
 
-![Callback Tracing started](images/callback_tracing_started.png)
+![Callback Tracing started](images/callback_tracing_started.gif)
 
 - **Stopped** - you need to refresh to see newest callbacks, you can use filters
 
-![Callback Tracing stopped](images/callback_tracing_stopped.png)
+![Callback Tracing stopped](images/callback_tracing_stopped.gif)
 
 By default it will be stopped when you change nodes or navigate to other Live View.
 
