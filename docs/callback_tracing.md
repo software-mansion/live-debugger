@@ -1,4 +1,4 @@
-This is a complex feature which allows to see how functions in your Live View application are being called. It is main feature which helps with identifying many problems.
+This is a complex feature which allows to see how functions in your LiveView application are being called. It is main feature which helps with identifying many problems.
 
 Callback tracing is done inside `Node Inspector` where you can see callbacks of selected node
 
@@ -18,7 +18,7 @@ Callback tracer can be in 2 states:
 
 ![Callback Tracing stopped](images/callback_tracing_stopped.gif)
 
-By default it will be stopped when you change nodes or navigate to other Live View.
+By default it will be stopped when you change nodes or navigate to other LiveView.
 
 ## How to use
 
@@ -94,13 +94,13 @@ You are also able to see them in fullscreen mode.
 
 ## Configuration
 
-When your application works in multiple nodes Callback Tracing might not work properly. Please add delay to setup for proper working:
+When you have complex application and Callback Tracing doesn't work after starting up then add delay of LiveDebugger setup:
 
 ```elixir
 config :live_debugger, :tracing_setup_delay, 200 # in ms
 ```
 
-Live Debugger is using garbage collection of traces in order to not take too much space in memory. Each debugged LiveView has separate table and default maximum size is 10MB. You can change it in config:
+LiveDebugger is using garbage collection of traces in order to not take too much space in memory. Each debugged LiveView has separate table and default maximum size is 10MB. You can change it in config:
 
 ```elixir
  config :live_debugger, :approx_table_max_size, 20 # in MB
