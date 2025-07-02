@@ -5,11 +5,34 @@ defmodule LiveDebuggerWeb.Helpers.RoutesHelper do
 
   use Phoenix.VerifiedRoutes, endpoint: LiveDebuggerWeb.Endpoint, router: LiveDebuggerWeb.Router
 
+  alias LiveDebugger.CommonTypes
   alias LiveDebugger.Utils.Parsers
 
   @spec live_views_dashboard() :: String.t()
   def live_views_dashboard() do
     ~p"/"
+  end
+
+  @spec channel_dashboard(pid :: pid() | String.t(), cid :: CommonTypes.cid() | String.t() | nil) ::
+          String.t()
+  def channel_dashboard(pid, nil) do
+    channel_dashboard(pid)
+  end
+
+  def channel_dashboard(pid, cid) do
+    pid =
+      cond do
+        is_pid(pid) -> Parsers.pid_to_string(pid)
+        is_binary(pid) -> pid
+      end
+
+    cid =
+      case cid do
+        %Phoenix.LiveComponent.CID{} -> Parsers.cid_to_string(cid)
+        cid when is_binary(cid) -> cid
+      end
+
+    ~p"/pid/#{pid}?node_id=#{cid}"
   end
 
   @spec channel_dashboard(pid :: pid() | String.t()) :: String.t()

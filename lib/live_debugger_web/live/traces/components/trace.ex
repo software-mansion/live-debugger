@@ -14,6 +14,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   alias LiveDebugger.Utils.Parsers
   alias LiveDebuggerWeb.Hooks.Flash
   alias LiveDebuggerWeb.Live.Traces.Components
+  alias LiveDebuggerWeb.Helpers.RoutesHelper
 
   @required_assigns [:lv_process, :displayed_trace]
 
@@ -100,8 +101,15 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   def module(assigns) do
     ~H"""
     <div class={["text-primary text-2xs font-normal truncate", @class]}>
-      <%= Parsers.module_to_string(@trace.module) %>
-      <%= if(@trace.cid, do: "(#{@trace.cid})") %>
+      <.tooltip id={"#{@trace.id}-trace-module"} content="See in Node Inspector" class="w-max">
+        <.link
+          class="block hover:underline"
+          patch={RoutesHelper.channel_dashboard(@trace.pid, @trace.cid)}
+        >
+          <%= Parsers.module_to_string(@trace.module) %>
+          <%= if(@trace.cid, do: "(#{@trace.cid})") %>
+        </.link>
+      </.tooltip>
     </div>
     """
   end
