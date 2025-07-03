@@ -62,19 +62,18 @@ defmodule LiveDebugger.Services.TraceService do
       case cont do
         :end_of_table -> :end_of_table
         nil -> existing_traces_start(pid, opts)
-        _ -> existing_traces_continuation(opts)
+        _cont -> existing_traces_continuation(opts)
       end
 
     raw_result
     |> normalize_entries()
-    |> filter_by_search(search_phrase)
+    |> filter_by_search(search_query)
     |> format_response()
   end
 
   # Converts ETS entries of {key, Trace} to list of Trace structs
-  @spec normalize_entries({[ets_elem()], ets_continuation()} | :end_of_table) ::
-          {[Trace.t()], ets_continuation()} | :end_of_table
   defp normalize_entries(:end_of_table), do: :end_of_table
+  defp normalize_entries(:"$end_of_table"), do: :end_of_table
 
   defp normalize_entries({entries, cont}) do
     traces = Enum.map(entries, &elem(&1, 1))
@@ -86,21 +85,25 @@ defmodule LiveDebugger.Services.TraceService do
           {[Trace.t()], ets_continuation()} | :end_of_table,
           String.t() | nil
         ) :: {[Trace.t()], ets_continuation()} | :end_of_table
-  defp filter_by_search(:end_of_table, _), do: :end_of_table
+  defp filter_by_search(:end_of_table, _phrase), do: :end_of_table
   defp filter_by_search({traces, cont}, nil), do: {traces, cont}
 
   defp filter_by_search({traces, cont}, phrase) do
+    down = String.downcase(phrase)
+
     filtered =
       traces
       |> Enum.filter(fn trace ->
-        inspect(trace)
-        |> String.contains?(phrase)
+        trace
+        |> inspect()
+        |> String.downcase()
+        |> String.contains?(down)
       end)
 
     {filtered, cont}
   end
 
-  # Formats the continuation token and handles end-of-table marker. 
+  # Formats the continuation token and handles end-of-table marker.
   @spec format_response({[Trace.t()], ets_continuation()} | :end_of_table) ::
           {[Trace.t()], ets_continuation()} | :end_of_table
   defp format_response(:end_of_table), do: :end_of_table

@@ -55,7 +55,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
         functions: active_functions,
         execution_times: execution_times,
         node_id: node_id,
-        search_query: "foo"
+        search_query: nil
       ]
 
     socket

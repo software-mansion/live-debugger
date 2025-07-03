@@ -212,6 +212,60 @@ defmodule Services.TraceServiceTest do
 
       assert {[^trace1], _} = TraceService.existing_traces(pid, functions: @all_functions)
     end
+
+    test "filters traces by search_phrase in args maps", %{module: module, pid: pid, table: table} do
+      trace1 =
+        Fakes.trace(
+          id: 1,
+          module: module,
+          function: :render,
+          pid: pid,
+          args: [%{note: "hello world"}]
+        )
+
+      trace2 =
+        Fakes.trace(
+          id: 2,
+          module: module,
+          function: :render,
+          pid: pid,
+          args: [%{note: "test phrase here"}]
+        )
+
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+
+      MockEtsTableServer
+      |> expect(:table, fn ^pid -> table end)
+
+      assert {[^trace2], _} =
+               TraceService.existing_traces(pid,
+                 functions: @all_functions,
+                 search_query: "phrase"
+               )
+    end
+
+    test "search is case-insensitive", %{module: module, pid: pid, table: table} do
+      trace1 =
+        Fakes.trace(
+          id: 1,
+          module: module,
+          function: :render,
+          pid: pid,
+          args: [%{note: "CaseSensitive"}]
+        )
+
+      :ets.insert(table, {trace1.id, trace1})
+
+      MockEtsTableServer
+      |> expect(:table, fn ^pid -> table end)
+
+      assert {[^trace1], _} =
+               TraceService.existing_traces(pid,
+                 functions: @all_functions,
+                 search_query: "casesensitive"
+               )
+    end
   end
 
   describe "clear_traces/2" do
