@@ -25,12 +25,14 @@ defmodule LiveDebugger do
     put_endpoint_config(config)
     put_live_debugger_tags(config)
 
+    pubsub_name = Keyword.get(config, :pubsub_name, LiveDebugger.PubSub)
+
     children = [
-      {Phoenix.PubSub, name: LiveDebugger.PubSub},
+      {Phoenix.PubSub, name: pubsub_name},
       {LiveDebuggerWeb.Endpoint,
        [
          check_origin: false,
-         pubsub_server: LiveDebugger.PubSub
+         pubsub_server: pubsub_name
        ]}
     ]
 
