@@ -48,6 +48,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
     active_functions = get_active_functions(socket)
     execution_times = get_execution_times(socket)
     page_size = socket.private.page_size
+    search_query = socket.assigns.trace_search_query
 
     opts =
       [
@@ -55,7 +56,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
         functions: active_functions,
         execution_times: execution_times,
         node_id: node_id,
-        search_query: nil
+        search_query: search_query
       ]
 
     socket

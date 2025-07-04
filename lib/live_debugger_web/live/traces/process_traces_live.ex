@@ -47,6 +47,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
     |> assign(:displayed_trace, nil)
     |> assign(:traces_continuation, nil)
     |> assign(:sidebar_hidden?, true)
+    |> assign(trace_search_query: "")
     |> Helpers.assign_default_filters()
     |> Helpers.assign_current_filters()
     |> Components.LoadMoreButton.init()
@@ -60,6 +61,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
     |> Components.Trace.init()
     |> Components.Stream.init()
     |> Components.FiltersSidebar.init()
+    |> Components.SearchInput.init()
     |> ok()
   end
 
@@ -77,6 +79,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
         <div class="w-full min-w-[20rem] flex flex-col pt-2 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
           <div class="w-full flex justify-end items-center border-b border-default-border pb-2">
             <div class="flex gap-2 items-center h-8 px-2">
+              <Components.SearchInput.search_input />
               <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={
                 @tracing_started?
               } />
