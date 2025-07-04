@@ -51,6 +51,7 @@ defmodule LiveDebugger.Services.TraceService do
     * `:limit` - Maximum number of traces to return (default: 100)
     * `:cont` - Used to get next page of items in the following queries
     * `:functions` - List of function names to filter traces by
+    * `:search_query` - String to filter traces by, performs a case-sensitive substring search on the entire Trace struct
   """
   @spec existing_traces(pid :: ets_table_id(), opts :: keyword()) ::
           {[Trace.t()], ets_continuation()} | :end_of_table
