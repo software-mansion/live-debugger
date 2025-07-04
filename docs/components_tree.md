@@ -8,7 +8,7 @@ The root of the tree is LiveView and children are LiveComponents with their CIDs
 
 It can be also used for:
 
-- Navigation inside Node Inspector
+- Navigation inside `Node Inspector`
 - [`Components Highlighting`](components_highlighting.md)
 
 ### Conditional LiveComponents
