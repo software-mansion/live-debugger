@@ -10,20 +10,20 @@ defmodule LiveDebugger.Services.LiveViewDebugService do
         }
 
   @callback list_liveviews() :: [lv()]
-  @callback socket(pid()) :: Phoenix.LiveView.Socket.t()
-  @callback live_components(pid()) :: [map()]
+  @callback socket(pid()) :: {:ok, Phoenix.LiveView.Socket.t()} | {:error, term()}
+  @callback live_components(pid()) :: {:ok, [map()]} | {:error, term()}
 
   @spec list_liveviews() :: [lv()]
   def list_liveviews() do
     impl().list_liveviews()
   end
 
-  @spec socket(pid()) :: Phoenix.LiveView.Socket.t()
+  @spec socket(pid()) :: {:ok, Phoenix.LiveView.Socket.t()} | {:error, term()}
   def socket(lv_pid) do
     impl().socket(lv_pid)
   end
 
-  @spec live_components(pid()) :: [map()]
+  @spec live_components(pid()) :: {:ok, [map()]} | {:error, term()}
   def live_components(lv_pid) do
     impl().live_components(lv_pid)
   end
@@ -47,8 +47,6 @@ defmodule LiveDebugger.Services.LiveViewDebugService do
       defdelegate socket(pid), to: Phoenix.LiveView.Debug
       @impl true
       defdelegate live_components(pid), to: Phoenix.LiveView.Debug
-      @impl true
-      defdelegate liveview?(pid), do: Phoenix.LiveView.Debug
     else
       alias LiveDebugger.Services.System.ProcessService
 

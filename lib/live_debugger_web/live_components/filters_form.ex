@@ -50,11 +50,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
           />
           <div class="flex flex-col gap-3 pl-0.5 pb-4 border-b border-default-border">
             <%= for {function, arity} <- get_callbacks(@node_id) do %>
-              <%= if function == :mount and is_nil(@node_id) do %>
-                <.checkbox field={@form[function]} label="mount/1, mount/3" />
-              <% else %>
-                <.checkbox field={@form[function]} label={"#{function}/#{arity}"} />
-              <% end %>
+              <.checkbox field={@form["#{function}/#{arity}"]} label={"#{function}/#{arity}"} />
             <% end %>
           </div>
           <.filters_group_header
@@ -178,27 +174,19 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
   defp assign_form(socket, %{functions: functions, execution_time: execution_time}) do
     form =
-      (functions ++ execution_time)
-      |> Enum.reduce(%{}, fn {filter, value}, acc ->
-        Map.put(acc, Atom.to_string(filter), value)
-      end)
+      functions
+      |> Map.merge(execution_time)
       |> to_form(id: socket.assigns.id)
 
     assign(socket, :form, form)
   end
 
-  defp assign_form(socket, filters_list) when is_list(filters_list) do
+  defp assign_form(socket, filters_map) do
     form = socket.assigns.form
-
-    updated_params =
-      filters_list
-      |> Enum.reduce(%{}, fn {filter, value}, acc ->
-        Map.put(acc, Atom.to_string(filter), value)
-      end)
 
     form =
       form.params
-      |> Map.merge(updated_params)
+      |> Map.merge(filters_map)
       |> to_form(id: socket.assigns.id)
 
     assign(socket, :form, form)
@@ -206,7 +194,6 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
 
   def get_callbacks(nil) do
     UtilsCallbacks.all_callbacks()
-    |> Enum.reject(fn {function, arity} -> function == :mount and arity == 1 end)
   end
 
   def get_callbacks(node_id) do
@@ -247,7 +234,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     default_filters = Map.get(default_filters, group_name)
 
     Enum.any?(default_filters, fn {key, value} ->
-      value != form.params[Atom.to_string(key)]
+      value != form.params[key]
     end)
   end
 
@@ -255,21 +242,21 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
     filters
     |> Enum.flat_map(fn {_, value} -> value end)
     |> Enum.any?(fn {key, value} ->
-      value != form.params[Atom.to_string(key)]
+      value != form.params[key]
     end)
   end
 
   defp update_filters(active_filters, params) do
     functions =
       active_filters.functions
-      |> Enum.map(fn {function, _} ->
-        {function, Map.has_key?(params, Atom.to_string(function))}
+      |> Enum.reduce(%{}, fn {function, _}, acc ->
+        Map.put(acc, function, Map.has_key?(params, function))
       end)
 
     execution_time =
       active_filters.execution_time
-      |> Enum.map(fn {filter, value} ->
-        {filter, Map.get(params, Atom.to_string(filter), value)}
+      |> Enum.reduce(%{}, fn {filter, value}, acc ->
+        Map.put(acc, filter, Map.get(params, filter, value))
       end)
 
     case validate_execution_time(execution_time) do
@@ -279,10 +266,10 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
   end
 
   defp validate_execution_time(execution_time) do
-    min_time = execution_time[:exec_time_min]
-    max_time = execution_time[:exec_time_max]
-    min_time_unit = execution_time[:min_unit]
-    max_time_unit = execution_time[:max_unit]
+    min_time = execution_time["exec_time_min"]
+    max_time = execution_time["exec_time_max"]
+    min_time_unit = execution_time["min_unit"]
+    max_time_unit = execution_time["max_unit"]
 
     if min_time != "" and max_time != "" and
          apply_unit_factor(min_time, min_time_unit) > apply_unit_factor(max_time, max_time_unit) do
