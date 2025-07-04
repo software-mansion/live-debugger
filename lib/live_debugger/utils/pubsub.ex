@@ -91,7 +91,7 @@ defmodule LiveDebugger.Utils.PubSub do
 
     @impl true
     def broadcast(topic, payload) do
-      Phoenix.PubSub.broadcast(LiveDebugger.PubSub, topic, payload)
+      Phoenix.PubSub.broadcast(pubsub_name(), topic, payload)
     end
 
     @impl true
@@ -104,7 +104,7 @@ defmodule LiveDebugger.Utils.PubSub do
 
     @impl true
     def subscribe!(topic) do
-      case Phoenix.PubSub.subscribe(LiveDebugger.PubSub, topic) do
+      case Phoenix.PubSub.subscribe(pubsub_name(), topic) do
         :ok -> :ok
         {:error, reason} -> raise reason
       end
@@ -120,7 +120,11 @@ defmodule LiveDebugger.Utils.PubSub do
 
     @impl true
     def unsubscribe(topic) do
-      Phoenix.PubSub.unsubscribe(LiveDebugger.PubSub, topic)
+      Phoenix.PubSub.unsubscribe(pubsub_name(), topic)
+    end
+
+    defp pubsub_name() do
+      Application.get_env(:live_debugger, :pubsub_name, LiveDebugger.PubSub)
     end
   end
 end
