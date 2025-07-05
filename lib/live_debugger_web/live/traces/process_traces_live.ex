@@ -110,7 +110,7 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
                 </:trace>
               </Components.Stream.traces_stream>
               <Components.LoadMoreButton.load_more_button
-                :if={not @tracing_started? and not @traces_empty?}
+                :if={not @tracing_started? and not @traces_empty? and @trace_search_query == ""}
                 traces_continuation={@traces_continuation}
               />
               <Components.trace_fullscreen id="trace-fullscreen" trace={@displayed_trace} />

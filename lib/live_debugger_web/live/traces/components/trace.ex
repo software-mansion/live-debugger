@@ -73,7 +73,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
         </div>
       </:label>
       <div class="relative">
-        <div class="absolute right-0 top-0 z-10">
+        <div :if={@render_body?} class="absolute right-0 top-0 z-10">
           <.fullscreen_button
             id={"trace-fullscreen-#{@id}"}
             class="m-2"
