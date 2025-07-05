@@ -25,13 +25,13 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.SearchInput do
   def search_input(assigns) do
     ~H"""
     <div class={[
-      "shadow-sm flex items-center rounded-[4px] outline outline-1 -outline-offset-1 has-[input:focus-within]:outline has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2
+      "flex items-center rounded-[7px] outline outline-1 -outline-offset-1 has-[input:focus-within]:outline has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2
       outline-default-border has-[input:focus-within]:outline-ui-accent"
     ]}>
-      <form phx-change="search" class="flex items-center w-full h-full">
+      <form phx-change="search" phx-submit="submit" class="flex items-center w-full h-full">
         <input
           id="trace-search-input"
-          phx-debounce="200"
+          placeholder={@placeholder}
           type="text"
           name="search_query"
           class="block remove-arrow max-w-80 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0"
@@ -45,8 +45,10 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.SearchInput do
     socket
     |> assign(trace_search_query: params["search_query"])
     |> Hooks.ExistingTraces.assign_async_existing_traces()
+    |> push_event("collapse-all-traces", %{})
     |> halt()
   end
 
+  defp handle_event("submit", _params, socket), do: socket |> halt()
   defp handle_event(_, _, socket), do: {:cont, socket}
 end

@@ -27,6 +27,11 @@ const Collapsible = {
     this.handleEvent(`${this.el.id}-collapsible`, (payload) => {
       handleCollapsibleEvent(payload, this.el);
     });
+
+this.handleEvent(
+      'collapse-all-traces',
+      () => handleCollapsibleEvent({ action: 'close' }, this.el)
+    );
   },
 };
 
