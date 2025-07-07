@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Api.System.Dbg do
+defmodule LiveDebugger.API.System.Dbg do
   @moduledoc """
   API for interacting with the Erlang's `:dbg` tracing functionalities.
 
@@ -73,7 +73,7 @@ defmodule LiveDebugger.Api.System.Dbg do
 
   defmodule Impl do
     @moduledoc false
-    @behaviour LiveDebugger.Api.System.Dbg
+    @behaviour LiveDebugger.API.System.Dbg
 
     @impl true
     def tracer(handler) do
