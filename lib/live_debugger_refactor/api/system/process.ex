@@ -27,7 +27,7 @@ defmodule LiveDebugger.API.System.Process do
   defp impl() do
     Application.get_env(
       :live_debugger,
-      :process_service,
+      :api_process,
       __MODULE__.Impl
     )
   end
