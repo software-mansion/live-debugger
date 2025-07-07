@@ -1,37 +1,68 @@
 defmodule LiveDebuggerRefactor.Event do
   @moduledoc """
-  This module is used to defined LiveDebugger events.
-  LiveDebugger event is defined as a struct that contains fields specified by developer and the context.
-  Each field is a key-value pair where the key is the field name and the value is the type of the field.
-  Each field is enforced and has to be present when creating the event.
+  Provides a simple way to define structured events in LiveDebugger.
 
-  Context is a map that may contain context of the event. It is not enforced and can be nil.
+  This module offers a `defevent` macro that generates event structs with enforced fields
+  and optional context. Events are useful for tracking and debugging application state
+  changes, user interactions, or system events within LiveDebugger.
 
-  Event are defined by `defevent` macro that accepts module name and a keyword list of fields.
-  Each field is a key-value pair where the key is the field name and the value is the type of the field.
+  ## Usage
 
-  ## Example
+  First, use this module in your events module:
 
   ```elixir
   defmodule LiveDebugger.Events do
-    use LiveDebugger.Event
+    use LiveDebuggerRefactor.Event
 
     defevent(UserCreated, name: String.t(), email: String.t(), age: integer())
+    defevent(ProcessStarted, pid: pid(), module: atom(), timestamp: DateTime.t())
   end
   ```
 
-  After defining the event, it can be used in the LiveDebugger in the following way:
+  Then create event instances:
 
-  ## Example
   ```elixir
-  %LiveDebugger.Events.UserCreated{
+  # Create an event with required fields
+  event = %LiveDebugger.Events.UserCreated{
     name: "John Doe",
     email: "john.doe@example.com",
     age: 30,
     context: %{
-      debugger_pid: self()
+      debugger_pid: self(),
+      session_id: "abc123"
     }
   }
+
+  # Context is optional and defaults to an empty map
+  simple_event = %LiveDebugger.Events.ProcessStarted{
+    pid: self(),
+    module: MyModule,
+    timestamp: DateTime.utc_now()
+  }
+  ```
+
+  ## Generated Struct
+
+  The `defevent` macro generates a struct with:
+  - All specified fields as enforced keys
+  - A `context` field (defaults to `%{}`)
+  - Proper type specifications
+
+  ## Examples
+
+  ### Basic Event Definition
+  ```elixir
+  defevent(ButtonClicked, button_id: String.t(), user_id: integer())
+  ```
+
+  ### Event with Complex Types
+  ```elixir
+  defevent(StateChanged,
+    old_state: map(),
+    new_state: map(),
+    changed_keys: [atom()],
+    timestamp: DateTime.t()
+  )
   ```
   """
 
