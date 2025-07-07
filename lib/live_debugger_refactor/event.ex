@@ -66,6 +66,20 @@ defmodule LiveDebuggerRefactor.Event do
   ```
   """
 
+  @typedoc """
+  General type for all events.
+
+  It is a map with the following keys:
+  - `:__struct__` - the name of the event module
+  - `:context` - the context of the event
+  - `optional(atom())` - the fields of the event
+  """
+  @type t :: %{
+          :__struct__ => atom(),
+          :context => map(),
+          optional(atom()) => any()
+        }
+
   @doc """
   Brings the event definition functionality into scope.
 
