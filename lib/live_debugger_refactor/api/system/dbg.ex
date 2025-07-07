@@ -55,21 +55,12 @@ defmodule LiveDebugger.Api.System.Dbg do
   end
 
   @doc """
-  Converts flags to `match_spec` format used by `tp/2` function.
+  Converts flag to `match_spec` format used by `tp/2` function.
+  Available flags are: #{Enum.map_join(@tracing_flags, ", ", &"`:#{&1}`")}
   """
-  @spec flags_to_match_spec(flags :: list() | atom()) :: term()
-  def flags_to_match_spec(flags \\ [])
-
-  def flags_to_match_spec(flag) when flag in @tracing_flags do
-    [flag_to_match_spec(flag)]
-  end
-
-  def flags_to_match_spec(flags) when is_list(flags) do
-    Enum.map(flags, &flag_to_match_spec/1)
-  end
-
-  defp flag_to_match_spec(flag) when flag in @tracing_flags do
-    {:_, [], [{flag}]}
+  @spec flag_to_match_spec(flag :: atom()) :: term()
+  def flag_to_match_spec(flag) when flag in @tracing_flags do
+    [{:_, [], [{flag}]}]
   end
 
   defp impl() do
