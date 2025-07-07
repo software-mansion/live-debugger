@@ -80,6 +80,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
     socket
     |> assign(existing_traces_status: :ok)
     |> assign(traces_continuation: :end_of_table)
+    |> stream(:existing_traces, [], reset: true)
     |> halt()
   end
 
