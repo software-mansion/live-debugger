@@ -66,6 +66,21 @@ defmodule LiveDebuggerRefactor.Event do
   ```
   """
 
+  @doc """
+  Brings the event definition functionality into scope.
+
+  This macro should be used at the top of your events module to import
+  the `defevent` macro and make it available for defining events.
+
+  ## Example
+
+  ```elixir
+  defmodule LiveDebugger.Events do
+    use LiveDebuggerRefactor.Event
+    # Now you can use defevent/2
+  end
+  ```
+  """
   defmacro __using__(_) do
     quote do
       require LiveDebuggerRefactor.Event
@@ -73,6 +88,14 @@ defmodule LiveDebuggerRefactor.Event do
     end
   end
 
+  @doc """
+  Defines a new event struct with enforced fields and optional context.
+
+  This macro generates a complete event module with:
+  - A struct definition with all specified fields as enforced keys
+  - A `context` field that defaults to an empty map
+  - Type specifications
+  """
   defmacro defevent(module_name, fields) do
     quote do
       defmodule unquote(module_name) do
