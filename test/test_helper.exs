@@ -35,6 +35,9 @@ else
 
   Mox.defmock(LiveDebugger.MockSettingsServer, for: LiveDebugger.GenServers.SettingsServer)
   Application.put_env(:live_debugger, :settings_server, LiveDebugger.MockSettingsServer)
+
+  Mox.defmock(LiveDebugger.MockAPIModule, for: LiveDebugger.API.System.Module)
+  Application.put_env(:live_debugger, :api_module, LiveDebugger.MockAPIModule)
 end
 
 ExUnit.start()

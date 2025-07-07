@@ -8,7 +8,8 @@ defmodule LiveDebugger.API.System.Module do
   @callback behaviours(module :: module()) :: [module()]
 
   @doc """
-  Wrapper for `:code.all_loaded/0` that returns a list of loaded modules.
+  Wrapper for `:code.all_available/0`.
+  Returns a list of tuples {Module, Filename, Loaded} for all available modules.
   """
   @spec all() :: [{charlist(), charlist(), boolean()}]
   def all(), do: impl().all()
@@ -28,7 +29,7 @@ defmodule LiveDebugger.API.System.Module do
   defp impl() do
     Application.get_env(
       :live_debugger,
-      :module_api,
+      :api_module,
       __MODULE__.Impl
     )
   end
