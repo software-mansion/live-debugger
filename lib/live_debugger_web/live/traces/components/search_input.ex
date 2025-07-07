@@ -1,4 +1,8 @@
 defmodule LiveDebuggerWeb.Live.Traces.Components.SearchInput do
+  @moduledoc """
+  A search input component for filtering traces in global callback traces view. 
+  """
+
   use LiveDebuggerWeb, :hook_component
 
   alias LiveDebuggerWeb.Live.Traces.Hooks
