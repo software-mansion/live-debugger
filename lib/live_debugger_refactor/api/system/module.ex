@@ -1,4 +1,4 @@
-defmodule LiveDebugger.API.System.Module do
+defmodule LiveDebuggerRefactor.API.System.Module do
   @moduledoc """
   This module provides wrappers for system functions that queries modules in the current application.
   """
@@ -36,7 +36,7 @@ defmodule LiveDebugger.API.System.Module do
 
   defmodule Impl do
     @moduledoc false
-    @behaviour LiveDebugger.API.System.Module
+    @behaviour LiveDebuggerRefactor.API.System.Module
 
     @impl true
     def all() do
