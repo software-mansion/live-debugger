@@ -19,7 +19,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       |> assign(
         cid_map: %{
           %Phoenix.LiveComponent.CID{cid: 1} => "1",
-          %Phoenix.LiveComponent.CID{cid: 2} => "2",
+          %Phoenix.LiveComponent.CID{cid: 2} => DateTime.utc_now(),
           DateTime.utc_now() => "DateTime"
         }
       )
