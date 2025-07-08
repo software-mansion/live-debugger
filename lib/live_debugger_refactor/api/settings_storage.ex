@@ -1,19 +1,20 @@
 defmodule LiveDebuggerRefactor.API.SettingsStorage do
-  @moduledoc """
-  API for managing settings storage. It uses Erlang's DETS (Disk Erlang Term Storage) and `config` files.
-  If there are settings saved in `:dets` (which will be stored in `_build` directory),
-  they will be used. Otherwise, values from `config` files will be used. If no option is set then default settings will be used.
-  """
-  alias Hex.Solver.Constraints.Impl
-
   @available_settings [
     :dead_view_mode,
     :tracing_update_on_code_reload
   ]
 
+  @moduledoc """
+  API for managing settings storage. It uses Erlang's DETS (Disk Erlang Term Storage) and `config` files.
+  If there are settings saved in `:dets` (which will be stored in `_build` directory),
+  they will be used. Otherwise, values from `config` files will be used. If no option is set then default settings will be used.
+
+  The settings are: `#{Enum.join(@available_settings, ", ")}`.
+  """
+
   @callback init() :: :ok
   @callback save(atom(), any()) :: :ok | {:error, term()}
-  @callback get(atom()) :: any() | nil
+  @callback get(atom()) :: any()
   @callback get_all() :: map()
 
   @doc """
@@ -48,6 +49,12 @@ defmodule LiveDebuggerRefactor.API.SettingsStorage do
     impl().get_all()
   end
 
+  @doc """
+  List of available settings
+  """
+  @spec available_settings() :: list()
+  def available_settings(), do: @available_settings
+
   defp impl() do
     Application.get_env(
       :live_debugger,
@@ -58,26 +65,77 @@ defmodule LiveDebuggerRefactor.API.SettingsStorage do
 
   defmodule Impl do
     @moduledoc false
-    @behaviour LiveDebuggerRefactor.API.SettingsStorage
+    alias LiveDebuggerRefactor.API.SettingsStorage
+
+    @behaviour SettingsStorage
+
+    @default_settings %{
+      dead_view_mode: true,
+      tracing_update_on_code_reload: false
+    }
+
+    @table_name :lvdbg_settings
+    @filename "live_debugger_saved_settings"
 
     @impl true
     def init() do
-      raise :not_implemented
+      {:ok, _} =
+        :dets.open_file(@table_name,
+          auto_save: :timer.seconds(1),
+          file: file_path()
+        )
+
+      # Populate `:dets` with startup values
+      get_all() |> Enum.map(fn {setting, value} -> save(setting, value) end)
+
+      :ok
     end
 
     @impl true
     def save(setting, value) do
-      raise :not_implemented
+      :dets.insert(@table_name, {setting, value})
     end
 
     @impl true
     def get(setting) do
-      raise :not_implemented
+      fetch_setting(setting)
     end
 
     @impl true
     def get_all() do
-      raise :not_implemented
+      SettingsStorage.available_settings()
+      |> Enum.map(fn setting ->
+        {setting, fetch_setting(setting)}
+      end)
+      |> Enum.into(%{})
+    end
+
+    defp fetch_setting(setting) do
+      with {:error, :not_saved} <- get_from_dets(setting),
+           {:error, :not_saved} <- get_from_config(setting) do
+        @default_settings[setting]
+      end
+    end
+
+    defp get_from_dets(setting) do
+      case :dets.lookup(@table_name, setting) do
+        [{^setting, value}] ->
+          value
+
+        _ ->
+          {:error, :not_saved}
+      end
+    end
+
+    defp get_from_config(setting) do
+      Application.get_env(:live_debugger, setting, {:error, :not_saved})
+    end
+
+    defp file_path() do
+      :live_debugger
+      |> Application.app_dir()
+      |> Path.join(@filename)
+      |> String.to_charlist()
     end
   end
 end
