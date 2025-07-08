@@ -36,8 +36,13 @@ else
   Mox.defmock(LiveDebugger.MockSettingsServer, for: LiveDebugger.GenServers.SettingsServer)
   Application.put_env(:live_debugger, :settings_server, LiveDebugger.MockSettingsServer)
 
+<<<<<<< HEAD
   Mox.defmock(LiveDebuggerRefactor.MockBus, for: LiveDebuggerRefactor.BusBehaviour)
   Application.put_env(:live_debugger, :bus, LiveDebuggerRefactor.MockBus)
+=======
+  Mox.defmock(LiveDebuggerRefactor.MockAPIModule, for: LiveDebuggerRefactor.API.System.Module)
+  Application.put_env(:live_debugger, :api_module, LiveDebuggerRefactor.MockAPIModule)
+>>>>>>> 544-create-event-behavior
 end
 
 ExUnit.start()
