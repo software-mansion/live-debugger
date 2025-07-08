@@ -1,6 +1,13 @@
 defmodule LiveDebuggerRefactor.Bus do
   @moduledoc """
   This module is responsible for broadcasting events inside LiveDebugger.
+
+  Bus is built on top of Phoenix.PubSub. It uses 3 types of topics:
+  - `lvdbg/*` - general topic used to broadcast general events to all processes.
+  - `lvdbg/traces/*` - traces topic used to broadcast traces to all processes.
+  - `lvdbg/states/*` - states topic used to broadcast states to all processes.
+
+  The `*` in the topic is a wildcard. It can be replaced with pid of debugged process or debugger LiveView depending on the event type.
   """
 
   alias LiveDebuggerRefactor.Event
@@ -13,6 +20,13 @@ defmodule LiveDebuggerRefactor.Bus do
   @callback broadcast_trace!(Event.t(), pid()) :: :ok
   @callback broadcast_state!(Event.t()) :: :ok
   @callback broadcast_state!(Event.t(), pid()) :: :ok
+
+  @callback receive_events() :: :ok | {:error, term()}
+  @callback receive_events(pid()) :: :ok | {:error, term()}
+  @callback receive_traces() :: :ok | {:error, term()}
+  @callback receive_traces(pid()) :: :ok | {:error, term()}
+  @callback receive_states() :: :ok | {:error, term()}
+  @callback receive_states(pid()) :: :ok | {:error, term()}
 
   @doc """
   Appends the bus children to the supervision tree.
@@ -70,6 +84,54 @@ defmodule LiveDebuggerRefactor.Bus do
     impl().broadcast_state!(event, pid)
   end
 
+  @doc """
+  Receive events from general topic: `lvdbg/*`.
+  """
+  @spec receive_events() :: :ok | {:error, term()}
+  def receive_events() do
+    impl().receive_events()
+  end
+
+  @doc """
+  Receive events from general topic with specific pid: `lvdbg/{pid}`.
+  """
+  @spec receive_events(pid()) :: :ok | {:error, term()}
+  def receive_events(pid) do
+    impl().receive_events(pid)
+  end
+
+  @doc """
+  Receive traces from traces topic: `lvdbg/traces/*`.
+  """
+  @spec receive_traces() :: :ok | {:error, term()}
+  def receive_traces() do
+    impl().receive_traces()
+  end
+
+  @doc """
+  Receive traces from traces topic with specific pid: `lvdbg/traces/{pid}`.
+  """
+  @spec receive_traces(pid()) :: :ok | {:error, term()}
+  def receive_traces(pid) do
+    impl().receive_traces(pid)
+  end
+
+  @doc """
+  Receive states from states topic: `lvdbg/states/*`.
+  """
+  @spec receive_states() :: :ok | {:error, term()}
+  def receive_states() do
+    impl().receive_states()
+  end
+
+  @doc """
+  Receive states from states topic with specific pid: `lvdbg/states/{pid}`.
+  """
+  @spec receive_states(pid()) :: :ok | {:error, term()}
+  def receive_states(pid) do
+    impl().receive_states(pid)
+  end
+
   defp impl() do
     Application.get_env(:live_debugger, :bus, __MODULE__.Impl)
   end
@@ -91,7 +153,7 @@ defmodule LiveDebuggerRefactor.Bus do
 
     def broadcast_event!(event, pid) do
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/*", event)
-      Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/#{pid}", event)
+      Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/#{inspect(pid)}", event)
     end
 
     def broadcast_trace!(event) do
@@ -100,7 +162,7 @@ defmodule LiveDebuggerRefactor.Bus do
 
     def broadcast_trace!(event, pid) do
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/traces/*", event)
-      Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/traces/#{pid}", event)
+      Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/traces/#{inspect(pid)}", event)
     end
 
     def broadcast_state!(event) do
@@ -109,7 +171,31 @@ defmodule LiveDebuggerRefactor.Bus do
 
     def broadcast_state!(event, pid) do
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/states/*", event)
-      Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/states/#{pid}", event)
+      Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/states/#{inspect(pid)}", event)
+    end
+
+    def receive_events() do
+      Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/*")
+    end
+
+    def receive_events(pid) do
+      Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/#{inspect(pid)}")
+    end
+
+    def receive_traces() do
+      Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/traces/*")
+    end
+
+    def receive_traces(pid) do
+      Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/traces/#{inspect(pid)}")
+    end
+
+    def receive_states() do
+      Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/states/*")
+    end
+
+    def receive_states(pid) do
+      Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/states/#{inspect(pid)}")
     end
   end
 end
