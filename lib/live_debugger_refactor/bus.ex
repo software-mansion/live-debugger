@@ -8,6 +8,8 @@ defmodule LiveDebuggerRefactor.Bus do
   - `lvdbg/states/*` - states topic used to broadcast states to all processes.
 
   The `*` in the topic is a wildcard. It can be replaced with pid of debugged process or debugger LiveView depending on the event type.
+
+  It needs to be added to the supervision tree of the application using `setup_bus_tree/1` function.
   """
 
   alias LiveDebuggerRefactor.Event
