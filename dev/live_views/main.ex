@@ -20,7 +20,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
         cid_map: %{
           %Phoenix.LiveComponent.CID{cid: 1} => "1",
           %Phoenix.LiveComponent.CID{cid: 2} => "2"
-        s}
+        }
       )
       |> assign(
         long_assign:
