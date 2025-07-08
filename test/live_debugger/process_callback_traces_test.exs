@@ -93,6 +93,35 @@ defmodule LiveDebugger.ProcessCallbackTracesTest do
     |> assert_text("LiveDebuggerDev.LiveComponents.Send")
   end
 
+  @sessions 2
+  feature "user can search for callbacks using the searchbar", %{
+    sessions: [dev_app, debugger]
+  } do
+    LiveDebugger.GenServers.CallbackTracingServer.ping!()
+
+    dev_app
+    |> visit(@dev_app_url)
+
+    Process.sleep(200)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> click(global_callback_traces_button())
+    |> assert_has(title(text: "Global Callback Traces"))
+    |> assert_has(traces(count: 25))
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(css("button#send-button"))
+
+    Process.sleep(200)
+
+    debugger
+    |> fill_in(search_bar(), with: ":new_datetime")
+    |> assert_has(traces(count: 1))
+  end
+
   defp traces(opts), do: css("#global-traces-stream details", opts)
 
   defp trace_name(opts), do: css("#global-traces-stream details p.font-medium", opts)
