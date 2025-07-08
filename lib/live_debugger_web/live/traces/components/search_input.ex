@@ -23,22 +23,24 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.SearchInput do
   Renders the trace search input.
   It produces the `search` event that can be handled by the hook provided in the `init/1` function.
   """
-  attr(:placeholder, :string, default: "Search traces")
+  attr(:placeholder, :string, default: "Search...")
 
   @spec search_input(map()) :: Phoenix.LiveView.Rendered.t()
   def search_input(assigns) do
     ~H"""
     <div class={[
-      "flex items-center rounded-[7px] outline outline-1 -outline-offset-1 has-[input:focus-within]:outline has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2
-      outline-default-border has-[input:focus-within]:outline-ui-accent"
+      "flex shrink items-center rounded-[7px] outline outline-1 -outline-offset-1",
+      "has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2",
+      "outline-default-border has-[input:focus-within]:outline-ui-accent"
     ]}>
       <form phx-change="search" phx-submit="submit" class="flex items-center w-full h-full">
+        <.icon name="icon-code" class="h-4 w-4 ml-3 bg-gray-400" />
         <input
           id="trace-search-input"
           placeholder={@placeholder}
           type="text"
           name="search_query"
-          class="block remove-arrow max-w-80 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0"
+          class="block remove-arrow w-16 sm:w-64  min-w-32 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0"
         />
       </form>
     </div>
