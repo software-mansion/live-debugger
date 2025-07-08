@@ -16,9 +16,9 @@ defmodule LiveDebuggerRefactor.BusTest do
     :ok
   end
 
-  describe "setup_bus_tree/1" do
+  describe "append_bus_tree/1" do
     test "appends bus to the children" do
-      assert BusImpl.setup_bus_tree([]) == [{Phoenix.PubSub, name: LiveDebuggerRefactor.PubSub}]
+      assert BusImpl.append_bus_tree([]) == [{Phoenix.PubSub, name: LiveDebuggerRefactor.PubSub}]
     end
   end
 

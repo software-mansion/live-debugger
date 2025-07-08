@@ -9,12 +9,12 @@ defmodule LiveDebuggerRefactor.Bus do
 
   The `*` in the topic is a wildcard. It can be replaced with pid of debugged process or debugger LiveView depending on the event type.
 
-  It needs to be added to the supervision tree of the application using `setup_bus_tree/1` function.
+  It needs to be added to the supervision tree of the application using `append_bus_tree/1` function.
   """
 
   alias LiveDebuggerRefactor.Event
 
-  @callback setup_bus_tree(children :: list()) :: list()
+  @callback append_bus_tree(children :: list()) :: list()
 
   @callback broadcast_event!(Event.t()) :: :ok
   @callback broadcast_event!(Event.t(), pid()) :: :ok
@@ -33,9 +33,9 @@ defmodule LiveDebuggerRefactor.Bus do
   @doc """
   Appends the bus children to the supervision tree.
   """
-  @spec setup_bus_tree(children :: list()) :: list()
-  def setup_bus_tree(children) do
-    impl().setup_bus_tree(children)
+  @spec append_bus_tree(children :: list()) :: list()
+  def append_bus_tree(children) do
+    impl().append_bus_tree(children)
   end
 
   @doc """
@@ -150,7 +150,7 @@ defmodule LiveDebuggerRefactor.Bus do
                  )
 
     @impl true
-    def setup_bus_tree(children) do
+    def append_bus_tree(children) do
       [{Phoenix.PubSub, name: @pubsub_name} | children]
     end
 
