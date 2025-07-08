@@ -122,6 +122,9 @@ defmodule LiveDebugger.Utils.TermParser do
 
         %{content: [span]} ->
           {%{span | text: inspect(key, width: :infinity)}, black(" => ")}
+
+        %{content: _content} ->
+          {%{text: inspect(key, width: :infinity), color: "text-code-1"}, black(" => ")}
       end
 
     case to_node(value, suffix) do

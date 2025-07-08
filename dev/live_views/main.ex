@@ -17,6 +17,13 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       |> assign(single_element_list: [%Phoenix.LiveComponent.CID{cid: 1}])
       |> assign(list: [%Phoenix.LiveComponent.CID{cid: 1}, %Phoenix.LiveComponent.CID{cid: 2}])
       |> assign(
+        cid_map: %{
+          %Phoenix.LiveComponent.CID{cid: 1} => "1",
+          %Phoenix.LiveComponent.CID{cid: 2} => DateTime.utc_now(),
+          DateTime.utc_now() => "DateTime"
+        }
+      )
+      |> assign(
         long_assign:
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
       )

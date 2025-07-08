@@ -354,6 +354,47 @@ defmodule LiveDebugger.Utils.TermParserTest do
 
       assert TermParser.term_to_display_tree(term) == expected
     end
+
+    test "parses map with struct keys correctly" do
+      term = %{
+        %Phoenix.LiveComponent.CID{cid: 1} => "CID",
+        Date.new(2025, 7, 8) => "Date"
+      }
+
+      expected = %{
+        kind: "map",
+        children: [
+          %{
+            kind: "binary",
+            children: nil,
+            content: [
+              %{text: "{:ok, ~D[2025-07-08]}", color: "text-code-2"},
+              %{text: " => ", color: "text-code-2"},
+              %{text: "\"Date\"", color: "text-code-4"},
+              %{text: ",", color: "text-code-2"}
+            ],
+            expanded_before: nil,
+            expanded_after: nil
+          },
+          %{
+            kind: "binary",
+            children: nil,
+            content: [
+              %{text: "%Phoenix.LiveComponent.CID{cid: 1}", color: "text-code-1"},
+              %{text: " => ", color: "text-code-2"},
+              %{text: "\"CID\"", color: "text-code-4"}
+            ],
+            expanded_before: nil,
+            expanded_after: nil
+          }
+        ],
+        content: [%{text: "%{...}", color: "text-code-2"}],
+        expanded_before: [%{text: "%{", color: "text-code-2"}],
+        expanded_after: [%{text: "}", color: "text-code-2"}]
+      }
+
+      assert TermParser.term_to_display_tree(term) == expected
+    end
   end
 
   describe "term_to_copy_string/1" do
