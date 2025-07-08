@@ -50,7 +50,7 @@ defmodule LiveDebuggerRefactor.Bus do
   Broadcast event to general topic with specific pid: `lvdbg/*` and `lvdbg/{pid}`.
   """
   @spec broadcast_event!(Event.t(), pid()) :: :ok
-  def broadcast_event!(event, pid) do
+  def broadcast_event!(event, pid) when is_pid(pid) do
     impl().broadcast_event!(event, pid)
   end
 
@@ -66,7 +66,7 @@ defmodule LiveDebuggerRefactor.Bus do
   Broadcast event to traces topic with specific pid: `lvdbg/traces/*` and `lvdbg/traces/{pid}`.
   """
   @spec broadcast_trace!(Event.t(), pid()) :: :ok
-  def broadcast_trace!(event, pid) do
+  def broadcast_trace!(event, pid) when is_pid(pid) do
     impl().broadcast_trace!(event, pid)
   end
 
@@ -82,7 +82,7 @@ defmodule LiveDebuggerRefactor.Bus do
   Broadcast event to states topic with specific pid: `lvdbg/states/*` and `lvdbg/states/{pid}`.
   """
   @spec broadcast_state!(Event.t(), pid()) :: :ok
-  def broadcast_state!(event, pid) do
+  def broadcast_state!(event, pid) when is_pid(pid) do
     impl().broadcast_state!(event, pid)
   end
 
@@ -98,7 +98,7 @@ defmodule LiveDebuggerRefactor.Bus do
   Receive events from general topic with specific pid: `lvdbg/{pid}`.
   """
   @spec receive_events(pid()) :: :ok | {:error, term()}
-  def receive_events(pid) do
+  def receive_events(pid) when is_pid(pid) do
     impl().receive_events(pid)
   end
 
@@ -114,7 +114,7 @@ defmodule LiveDebuggerRefactor.Bus do
   Receive traces from traces topic with specific pid: `lvdbg/traces/{pid}`.
   """
   @spec receive_traces(pid()) :: :ok | {:error, term()}
-  def receive_traces(pid) do
+  def receive_traces(pid) when is_pid(pid) do
     impl().receive_traces(pid)
   end
 
@@ -130,7 +130,7 @@ defmodule LiveDebuggerRefactor.Bus do
   Receive states from states topic with specific pid: `lvdbg/states/{pid}`.
   """
   @spec receive_states(pid()) :: :ok | {:error, term()}
-  def receive_states(pid) do
+  def receive_states(pid) when is_pid(pid) do
     impl().receive_states(pid)
   end
 
