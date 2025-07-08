@@ -30,7 +30,7 @@ defmodule LiveDebuggerRefactor.API.LiveViewDebug do
     impl().live_components(lv_pid)
   end
 
-  @spec liveview_state(lv_pid :: pid()) :: {:ok, %LvState{}} | {:error, term()}
+  @spec liveview_state(lv_pid :: pid()) :: {:ok, LvState.t()} | {:error, term()}
   def liveview_state(lv_pid) do
     with {:ok, socket} <- socket(lv_pid),
          {:ok, components} <- live_components(lv_pid) do
@@ -79,14 +79,13 @@ defmodule LiveDebuggerRefactor.API.LiveViewDebug do
           end
         end)
         |> Enum.reject(&is_nil/1)
-        |> dbg()
       end
 
       @impl true
       def socket(pid) do
         case ProcessAPI.state(pid) do
           {:ok, %{socket: socket}} -> {:ok, socket}
-          {:error, _} -> {:error, :not_alive_or_not_a_liveview}
+          _ -> {:error, :not_alive_or_not_a_liveview}
         end
       end
 
@@ -107,7 +106,7 @@ defmodule LiveDebuggerRefactor.API.LiveViewDebug do
 
             {:ok, component_info}
 
-          {:error, _} ->
+          _ ->
             {:error, :not_alive_or_not_a_liveview}
         end
       end
