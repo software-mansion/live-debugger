@@ -7,8 +7,8 @@ defmodule LiveDebuggerRefactor.Bus do
 
   @callback setup_bus_tree(children :: list()) :: list()
 
-  @callback broadcast!(Event.t()) :: :ok
-  @callback broadcast!(Event.t(), pid()) :: :ok
+  @callback broadcast_event!(Event.t()) :: :ok
+  @callback broadcast_event!(Event.t(), pid()) :: :ok
   @callback broadcast_trace!(Event.t()) :: :ok
   @callback broadcast_trace!(Event.t(), pid()) :: :ok
   @callback broadcast_state!(Event.t()) :: :ok
@@ -25,17 +25,17 @@ defmodule LiveDebuggerRefactor.Bus do
   @doc """
   Broadcast event to general topic: `lvdbg/*`.
   """
-  @spec broadcast!(Event.t()) :: :ok
-  def broadcast!(event) do
-    impl().broadcast!(event)
+  @spec broadcast_event!(Event.t()) :: :ok
+  def broadcast_event!(event) do
+    impl().broadcast_event!(event)
   end
 
   @doc """
   Broadcast event to general topic with specific pid: `lvdbg/*` and `lvdbg/{pid}`.
   """
-  @spec broadcast!(Event.t(), pid()) :: :ok
-  def broadcast!(event, pid) do
-    impl().broadcast!(event, pid)
+  @spec broadcast_event!(Event.t(), pid()) :: :ok
+  def broadcast_event!(event, pid) do
+    impl().broadcast_event!(event, pid)
   end
 
   @doc """
@@ -85,11 +85,11 @@ defmodule LiveDebuggerRefactor.Bus do
       [{Phoenix.PubSub, name: @pubsub_name} | children]
     end
 
-    def broadcast!(event) do
+    def broadcast_event!(event) do
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/*", event)
     end
 
-    def broadcast!(event, pid) do
+    def broadcast_event!(event, pid) do
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/*", event)
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/#{pid}", event)
     end
