@@ -393,7 +393,7 @@ defmodule LiveDebugger.Utils.TermParserTest do
         expanded_after: [%{text: "}", color: "text-code-2"}]
       }
 
-      assert TermParser.term_to_display_tree(term) |> dbg() == expected
+      assert TermParser.term_to_display_tree(term) == expected
     end
   end
 
