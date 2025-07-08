@@ -5,11 +5,14 @@ defmodule LiveDebuggerRefactor.API.SettingsStorage do
   ]
 
   @moduledoc """
-  API for managing settings storage. It uses Erlang's DETS (Disk Erlang Term Storage) and `config` files.
-  If there are settings saved in `:dets` (which will be stored in `_build` directory),
-  they will be used. Otherwise, values from `config` files will be used. If no option is set then default settings will be used.
+  API for managing settings storage. In order to properly use invoke `init/0` at the start of application.
+  It uses Erlang's DETS (Disk Erlang Term Storage) and `config` files.
+  Settings are retrieved in this order:
+  1. locally saved file (inside `_build/*/live_debugger/` director)
+  2. `config` files
+  3. default values
 
-  The settings are: `#{Enum.join(@available_settings, ", ")}`.
+  Available settings are: `#{Enum.join(@available_settings, ", ")}`.
   """
 
   @callback init() :: :ok
