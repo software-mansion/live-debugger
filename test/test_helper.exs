@@ -36,7 +36,7 @@ else
   Mox.defmock(LiveDebugger.MockSettingsServer, for: LiveDebugger.GenServers.SettingsServer)
   Application.put_env(:live_debugger, :settings_server, LiveDebugger.MockSettingsServer)
 
-  Mox.defmock(LiveDebuggerRefactor.MockBus, for: LiveDebuggerRefactor.BusBehaviour)
+  Mox.defmock(LiveDebuggerRefactor.MockBus, for: LiveDebuggerRefactor.Bus)
   Application.put_env(:live_debugger, :bus, LiveDebuggerRefactor.MockBus)
 
   Mox.defmock(LiveDebuggerRefactor.MockAPIModule, for: LiveDebuggerRefactor.API.System.Module)

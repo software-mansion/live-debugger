@@ -143,7 +143,11 @@ defmodule LiveDebuggerRefactor.Bus do
 
     @behaviour LiveDebuggerRefactor.Bus
 
-    @pubsub_name Application.compile_env(:live_debugger, :pubsub_name, LiveDebugger.PubSub)
+    @pubsub_name Application.compile_env(
+                   :live_debugger,
+                   :pubsub_name,
+                   LiveDebuggerRefactor.PubSub
+                 )
 
     def setup_bus_tree(children) do
       [{Phoenix.PubSub, name: @pubsub_name} | children]
