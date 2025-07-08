@@ -1,15 +1,15 @@
-defmodule LiveDebugger.API.System.Process do
+defmodule LiveDebuggerRefactor.API.System.Process do
   @moduledoc """
   This module provides wrappers for system functions that queries processes in the current application.
   """
-  @callback initial_call(pid :: pid()) :: mfa() | nil
+  @callback initial_call(pid :: pid()) :: {:ok, mfa()} | {:error, term()}
   @callback state(pid :: pid()) :: {:ok, term()} | {:error, term()}
   @callback list() :: [pid()]
 
   @doc """
   Wrapper for `Process.info/2` with some additional logic that returns the initial call of the process.
   """
-  @spec initial_call(pid :: pid()) :: mfa() | nil
+  @spec initial_call(pid :: pid()) :: {:ok, mfa()} | {:error, term()}
   def initial_call(pid), do: impl().initial_call(pid)
 
   @doc """
@@ -34,15 +34,21 @@ defmodule LiveDebugger.API.System.Process do
 
   defmodule Impl do
     @moduledoc false
-    @behaviour LiveDebugger.API.System.Process
+    @behaviour LiveDebuggerRefactor.API.System.Process
 
     @impl true
     def initial_call(pid) do
       pid
       |> Process.info([:dictionary])
       |> case do
-        nil -> nil
-        result -> get_in(result, [:dictionary, :"$initial_call"])
+        nil ->
+          {:error, :not_alive}
+
+        result ->
+          case get_in(result, [:dictionary, :"$initial_call"]) do
+            nil -> {:error, :no_initial_call}
+            initial_call -> {:ok, initial_call}
+          end
       end
     end
 
