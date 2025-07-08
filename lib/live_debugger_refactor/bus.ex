@@ -5,7 +5,7 @@ defmodule LiveDebuggerRefactor.Bus do
 
   alias LiveDebuggerRefactor.Event
 
-  @callback append_pubsub_children(children :: list()) :: list()
+  @callback setup_bus_tree(children :: list()) :: list()
 
   @callback general_broadcast!(Event.t()) :: :ok
   @callback general_broadcast!(Event.t(), pid()) :: :ok
@@ -15,11 +15,11 @@ defmodule LiveDebuggerRefactor.Bus do
   @callback states_broadcast!(Event.t(), pid()) :: :ok
 
   @doc """
-  Appends the pubsub child to the list of children.
+  Appends the bus children to the supervision tree.
   """
-  @spec append_pubsub_children(children :: list()) :: list()
-  def append_pubsub_children(children) do
-    impl().append_pubsub_children(children)
+  @spec setup_bus_tree(children :: list()) :: list()
+  def setup_bus_tree(children) do
+    impl().setup_bus_tree(children)
   end
 
   @doc """
@@ -81,7 +81,7 @@ defmodule LiveDebuggerRefactor.Bus do
 
     @pubsub_name Application.compile_env(:live_debugger, :pubsub_name, LiveDebugger.PubSub)
 
-    def append_pubsub_children(children) do
+    def setup_bus_tree(children) do
       [{Phoenix.PubSub, name: @pubsub_name} | children]
     end
 
