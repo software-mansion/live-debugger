@@ -26,13 +26,15 @@ defmodule LiveDebuggerRefactor.API.System.Dbg do
   When tracer is already started, it returns error.
   It uses `:dbg.tracer/2` under the hood.
   """
+  @spec tracer(handler_spec()) :: {:ok, pid()} | {:error, term()}
   def tracer(handler_spec), do: impl().tracer(handler_spec)
 
   @doc """
   Enables tracing for all processes in the system.
 
-  For list of supported options, see `:dbg.p/2`.
+  For list of supported flags, see `:dbg.p/2`.
   """
+  @spec process(flags :: list()) :: {:ok, term()} | {:error, term()}
   def process(flags \\ []) when is_list(flags) do
     impl().process(flags)
   end
@@ -42,6 +44,8 @@ defmodule LiveDebuggerRefactor.API.System.Dbg do
   Adds a trace pattern for the specified module or MFA (Module, Function, Arity).
   You can create proper `match_spec` by using `flags_to_match_spec/1` function.
   """
+  @spec trace_pattern(module() | mfa(), match_spec :: term()) ::
+          {:ok, term()} | {:error, term()}
   def trace_pattern(module_or_mfa, match_spec \\ []) when is_list(match_spec) do
     impl().trace_pattern(module_or_mfa, match_spec)
   end
@@ -50,6 +54,7 @@ defmodule LiveDebuggerRefactor.API.System.Dbg do
   Removes a trace pattern for the specified module or MFA (Module, Function, Arity).
   This is a wrapper for `:dbg.ctp/1`.
   """
+  @spec clear_trace_pattern(module() | mfa()) :: {:ok, term()} | {:error, term()}
   def clear_trace_pattern(module_or_mfa) do
     impl().clear_trace_pattern(module_or_mfa)
   end
