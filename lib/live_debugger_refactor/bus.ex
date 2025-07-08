@@ -149,57 +149,70 @@ defmodule LiveDebuggerRefactor.Bus do
                    LiveDebuggerRefactor.PubSub
                  )
 
+    @impl true
     def setup_bus_tree(children) do
       [{Phoenix.PubSub, name: @pubsub_name} | children]
     end
 
+    @impl true
     def broadcast_event!(event) do
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/*", event)
     end
 
+    @impl true
     def broadcast_event!(event, pid) do
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/*", event)
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/#{inspect(pid)}", event)
     end
 
+    @impl true
     def broadcast_trace!(event) do
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/traces/*", event)
     end
 
+    @impl true
     def broadcast_trace!(event, pid) do
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/traces/*", event)
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/traces/#{inspect(pid)}", event)
     end
 
+    @impl true
     def broadcast_state!(event) do
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/states/*", event)
     end
 
+    @impl true
     def broadcast_state!(event, pid) do
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/states/*", event)
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/states/#{inspect(pid)}", event)
     end
 
+    @impl true
     def receive_events() do
       Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/*")
     end
 
+    @impl true
     def receive_events(pid) do
       Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/#{inspect(pid)}")
     end
 
+    @impl true
     def receive_traces() do
       Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/traces/*")
     end
 
+    @impl true
     def receive_traces(pid) do
       Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/traces/#{inspect(pid)}")
     end
 
+    @impl true
     def receive_states() do
       Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/states/*")
     end
 
+    @impl true
     def receive_states(pid) do
       Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/states/#{inspect(pid)}")
     end
