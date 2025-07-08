@@ -1,0 +1,123 @@
+defmodule LiveDebuggerRefactor.BusTest do
+  @moduledoc false
+
+  use ExUnit.Case, async: true
+
+  alias LiveDebuggerRefactor.Bus.Impl, as: BusImpl
+
+  defmodule TestEvents do
+    use LiveDebuggerRefactor.Event
+
+    defevent(TestEvent, name: String.t())
+  end
+
+  setup do
+    start_supervised({Phoenix.PubSub, name: LiveDebuggerRefactor.PubSub})
+    :ok
+  end
+
+  describe "setup_bus_tree/1" do
+    test "appends bus to the children" do
+      assert BusImpl.setup_bus_tree([]) == [{Phoenix.PubSub, name: LiveDebuggerRefactor.PubSub}]
+    end
+  end
+
+  describe "general topic" do
+    test "with no specific pid, broadcasts event and sends them to receivers" do
+      assert BusImpl.receive_events() == :ok
+      assert BusImpl.receive_events(self()) == :ok
+
+      assert BusImpl.broadcast_event!(%TestEvents.TestEvent{name: "test"}) == :ok
+
+      assert_receive %TestEvents.TestEvent{name: "test"}
+      refute_received %TestEvents.TestEvent{name: "test"}
+    end
+
+    test "with specific pid, broadcasts event and sends them to receivers" do
+      assert BusImpl.receive_events() == :ok
+      assert BusImpl.receive_events(self()) == :ok
+
+      assert BusImpl.broadcast_event!(%TestEvents.TestEvent{name: "test"}, self()) == :ok
+
+      assert_receive %TestEvents.TestEvent{name: "test"}
+      assert_receive %TestEvents.TestEvent{name: "test"}
+    end
+
+    test "ignores messages from other topics" do
+      assert BusImpl.receive_events() == :ok
+      assert BusImpl.receive_events(self()) == :ok
+
+      assert BusImpl.broadcast_state!(%TestEvents.TestEvent{name: "test"}) == :ok
+      assert BusImpl.broadcast_trace!(%TestEvents.TestEvent{name: "test"}) == :ok
+
+      refute_receive %TestEvents.TestEvent{name: "test"}
+      refute_receive %TestEvents.TestEvent{name: "test"}
+    end
+  end
+
+  describe "states topic" do
+    test "with no specific pid, broadcasts event and sends them to receivers" do
+      assert BusImpl.receive_states() == :ok
+      assert BusImpl.receive_states(self()) == :ok
+
+      assert BusImpl.broadcast_state!(%TestEvents.TestEvent{name: "test"}) == :ok
+
+      assert_receive %TestEvents.TestEvent{name: "test"}
+      refute_receive %TestEvents.TestEvent{name: "test"}
+    end
+
+    test "with specific pid, broadcasts event and sends them to receivers" do
+      assert BusImpl.receive_states() == :ok
+      assert BusImpl.receive_states(self()) == :ok
+
+      assert BusImpl.broadcast_state!(%TestEvents.TestEvent{name: "test"}, self()) == :ok
+
+      assert_receive %TestEvents.TestEvent{name: "test"}
+      assert_receive %TestEvents.TestEvent{name: "test"}
+    end
+
+    test "ignores messages from other topics" do
+      assert BusImpl.receive_states() == :ok
+      assert BusImpl.receive_states(self()) == :ok
+
+      assert BusImpl.broadcast_event!(%TestEvents.TestEvent{name: "test"}) == :ok
+      assert BusImpl.broadcast_trace!(%TestEvents.TestEvent{name: "test"}) == :ok
+
+      refute_receive %TestEvents.TestEvent{name: "test"}
+      refute_receive %TestEvents.TestEvent{name: "test"}
+    end
+  end
+
+  describe "traces topic" do
+    test "with no specific pid, broadcasts event and sends them to receivers" do
+      assert BusImpl.receive_traces() == :ok
+      assert BusImpl.receive_traces(self()) == :ok
+
+      assert BusImpl.broadcast_trace!(%TestEvents.TestEvent{name: "test"}) == :ok
+
+      assert_receive %TestEvents.TestEvent{name: "test"}
+      refute_receive %TestEvents.TestEvent{name: "test"}
+    end
+
+    test "with specific pid, broadcasts event and sends them to receivers" do
+      assert BusImpl.receive_traces() == :ok
+      assert BusImpl.receive_traces(self()) == :ok
+
+      assert BusImpl.broadcast_trace!(%TestEvents.TestEvent{name: "test"}, self()) == :ok
+
+      assert_receive %TestEvents.TestEvent{name: "test"}
+      assert_receive %TestEvents.TestEvent{name: "test"}
+    end
+
+    test "ignores messages from other topics" do
+      assert BusImpl.receive_traces() == :ok
+      assert BusImpl.receive_traces(self()) == :ok
+
+      assert BusImpl.broadcast_event!(%TestEvents.TestEvent{name: "test"}) == :ok
+      assert BusImpl.broadcast_state!(%TestEvents.TestEvent{name: "test"}) == :ok
+
+      refute_receive %TestEvents.TestEvent{name: "test"}
+      refute_receive %TestEvents.TestEvent{name: "test"}
+    end
+  end
+end
