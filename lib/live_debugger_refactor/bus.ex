@@ -6,6 +6,7 @@ defmodule LiveDebuggerRefactor.Bus do
   alias LiveDebuggerRefactor.Event
 
   @callback append_pubsub_children(children :: list()) :: list()
+
   @callback general_broadcast!(Event.t()) :: :ok
   @callback general_broadcast!(Event.t(), pid()) :: :ok
   @callback traces_broadcast!(Event.t()) :: :ok
@@ -89,6 +90,7 @@ defmodule LiveDebuggerRefactor.Bus do
     end
 
     def general_broadcast!(event, pid) do
+      Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/*", event)
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/#{pid}", event)
     end
 
@@ -97,6 +99,7 @@ defmodule LiveDebuggerRefactor.Bus do
     end
 
     def traces_broadcast!(event, pid) do
+      Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/traces/*", event)
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/traces/#{pid}", event)
     end
 
@@ -105,6 +108,7 @@ defmodule LiveDebuggerRefactor.Bus do
     end
 
     def states_broadcast!(event, pid) do
+      Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/states/*", event)
       Phoenix.PubSub.broadcast!(@pubsub_name, "lvdbg/states/#{pid}", event)
     end
   end
