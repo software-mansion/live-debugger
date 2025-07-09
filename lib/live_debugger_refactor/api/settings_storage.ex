@@ -8,7 +8,7 @@ defmodule LiveDebuggerRefactor.API.SettingsStorage do
   API for managing settings storage. In order to properly use invoke `init/0` at the start of application.
   It uses Erlang's DETS (Disk Erlang Term Storage) and `config` files.
   Settings are retrieved in this order:
-  1. locally saved file (inside `_build/*/live_debugger/` director)
+  1. locally saved file (inside `_build/*/live_debugger/` directory)
   2. `config` files
   3. default values
 
@@ -89,7 +89,8 @@ defmodule LiveDebuggerRefactor.API.SettingsStorage do
         )
 
       # Populate `:dets` with startup values
-      get_all() |> Enum.map(fn {setting, value} -> save(setting, value) end)
+      get_all()
+      |> Enum.map(fn {setting, value} -> save(setting, value) end)
 
       :ok
     end
@@ -136,8 +137,7 @@ defmodule LiveDebuggerRefactor.API.SettingsStorage do
 
     defp file_path() do
       :live_debugger
-      |> Application.app_dir()
-      |> Path.join(@filename)
+      |> Application.app_dir(@filename)
       |> String.to_charlist()
     end
   end
