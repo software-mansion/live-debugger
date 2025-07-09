@@ -90,7 +90,7 @@ defmodule LiveDebuggerRefactor.API.SettingsStorage do
 
       # Populate `:dets` with startup values
       get_all()
-      |> Enum.map(fn {setting, value} -> save(setting, value) end)
+      |> Enum.each(fn {setting, value} -> save(setting, value) end)
 
       :ok
     end
