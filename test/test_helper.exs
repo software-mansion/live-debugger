@@ -47,6 +47,16 @@ else
 
   Mox.defmock(LiveDebuggerRefactor.MockAPIProcess, for: LiveDebuggerRefactor.API.System.Process)
   Application.put_env(:live_debugger, :api_process, LiveDebuggerRefactor.MockAPIProcess)
+
+  Mox.defmock(LiveDebuggerRefactor.MockAPISettingsStorage,
+    for: LiveDebuggerRefactor.API.SettingsStorage
+  )
+
+  Application.put_env(
+    :live_debugger,
+    :api_settings_storage,
+    LiveDebuggerRefactor.MockAPISettingsStorage
+  )
 end
 
 ExUnit.start()
