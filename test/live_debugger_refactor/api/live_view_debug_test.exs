@@ -107,7 +107,7 @@ defmodule LiveDebuggerRefactor.API.LiveViewDebugTest do
         pid = :c.pid(0, 12, 0)
 
         MockAPIProcess
-        |> expect(:state, fn ^pid -> {:ok, %{data: []}} end)
+        |> expect(:state, fn ^pid -> {:ok, %{data: [], socket: %{c: 3}}} end)
 
         assert {:error, :not_alive_or_not_a_liveview} = LiveViewDebug.Impl.socket(pid)
       end

@@ -21,17 +21,17 @@ defmodule LiveDebuggerRefactor.API.LiveViewDebug do
   end
 
   @spec socket(lv_pid :: pid()) :: {:ok, Phoenix.LiveView.Socket.t()} | {:error, term()}
-  def socket(lv_pid) do
+  def socket(lv_pid) when is_pid(lv_pid) do
     impl().socket(lv_pid)
   end
 
   @spec live_components(lv_pid :: pid()) :: {:ok, [LvState.component()]} | {:error, term()}
-  def live_components(lv_pid) do
+  def live_components(lv_pid) when is_pid(lv_pid) do
     impl().live_components(lv_pid)
   end
 
   @spec liveview_state(lv_pid :: pid()) :: {:ok, LvState.t()} | {:error, term()}
-  def liveview_state(lv_pid) do
+  def liveview_state(lv_pid) when is_pid(lv_pid) do
     with {:ok, socket} <- socket(lv_pid),
          {:ok, components} <- live_components(lv_pid) do
       {:ok, %LvState{socket: socket, components: components}}
@@ -84,7 +84,7 @@ defmodule LiveDebuggerRefactor.API.LiveViewDebug do
       @impl true
       def socket(pid) do
         case ProcessAPI.state(pid) do
-          {:ok, %{socket: socket}} -> {:ok, socket}
+          {:ok, %{socket: %Phoenix.LiveView.Socket{} = socket}} -> {:ok, socket}
           _ -> {:error, :not_alive_or_not_a_liveview}
         end
       end
