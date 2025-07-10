@@ -36,6 +36,7 @@ defmodule LiveDebugger do
     []
     |> LiveDebuggerWeb.Endpoint.append_endpoint_children()
     |> LiveDebuggerRefactor.Bus.append_bus_tree()
+    |> LiveDebuggerRefactor.Services.append_services_children()
   end
 
   defp get_legacy_children(config) do
