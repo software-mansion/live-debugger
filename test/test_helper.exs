@@ -36,6 +36,12 @@ else
   Mox.defmock(LiveDebugger.MockSettingsServer, for: LiveDebugger.GenServers.SettingsServer)
   Application.put_env(:live_debugger, :settings_server, LiveDebugger.MockSettingsServer)
 
+  Mox.defmock(LiveDebuggerRefactor.MockBus, for: LiveDebuggerRefactor.Bus)
+  Application.put_env(:live_debugger, :bus, LiveDebuggerRefactor.MockBus)
+
+  Mox.defmock(LiveDebugger.MockAPIDbg, for: LiveDebuggerRefactor.API.System.Dbg)
+  Application.put_env(:live_debugger, :api_dbg, LiveDebugger.MockAPIDbg)
+
   Mox.defmock(LiveDebuggerRefactor.MockAPIModule, for: LiveDebuggerRefactor.API.System.Module)
   Application.put_env(:live_debugger, :api_module, LiveDebuggerRefactor.MockAPIModule)
 
@@ -50,6 +56,16 @@ else
     :live_debugger,
     :api_live_view_debug,
     LiveDebuggerRefactor.MockAPILiveViewDebug
+  )
+
+  Mox.defmock(LiveDebuggerRefactor.MockAPISettingsStorage,
+    for: LiveDebuggerRefactor.API.SettingsStorage
+  )
+
+  Application.put_env(
+    :live_debugger,
+    :api_settings_storage,
+    LiveDebuggerRefactor.MockAPISettingsStorage
   )
 end
 
