@@ -38,19 +38,29 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
 
   @doc """
   Inserts a new trace into the storage.
+  It has worse performance then `insert/2` as it has to perform lookup for reference.
+  It stores the trace in table associated with `pid` given in `Trace` struct.
   """
   @spec insert(Trace.t()) :: true
   def insert(%Trace{} = trace) do
     impl().insert(trace)
   end
 
+  @doc """
+  Inserts a new trace into the storage into an existing table indicated by a given reference.
+  It has better performance then `insert/1` as it does not perform lookup for reference. 
+  In order to use it properly you have to store the reference returned by `get_table/1`.
+  """
   @spec insert!(table_ref :: reference(), Trace.t()) :: true
   def insert!(table_ref, %Trace{} = trace) when is_reference(table_ref) do
     impl().insert!(table_ref, trace)
   end
 
   @doc """
-  Gets a trace of a process from the storage by `id`.
+  Gets a trace of a process from the storage by `trace_id`.
+
+    * `table_id` - PID or reference to an existing table. Using reference increases performance as it skips lookup step.
+    * `trace_id` - Id of a trace stored in a table.
   """
   @spec get_by_id!(table_identifier(), trace_id :: integer()) :: Trace.t() | nil
   def get_by_id!(table_id, trace_id)
@@ -60,6 +70,8 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
 
   @doc """
   Returns traces of a process with optional filters.
+
+    * `table_id` - PID or reference to an existing table. Using reference increases performance as it skips lookup step.
 
   ## Options
     * `:node_id` - PID or CID to filter traces by
@@ -75,9 +87,10 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
   end
 
   @doc """
-  Deletes traces for given node_id. If node_id is nil, it deletes all traces for a given table.
+  Deletes traces for a given node_id. If node_id is nil, it deletes all traces for a given table.
 
-  * `node_id` - PID or CID which identifies node. If nil, it deletes all traces for a given table.
+    * `table_id` - PID or reference to an existing table. Using reference increases performance as it skips lookup step.
+    * `node_id` - PID or CID which identifies node. If nil, it deletes all traces for a given table.
   """
   @spec clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
   def clear!(table_id, node_id) when is_table_identifier(table_id) do
@@ -86,6 +99,8 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
 
   @doc """
   Deletes all traces for a given table.
+
+    * `table_id` - PID or reference to an existing table. Using reference increases performance as it skips lookup step.
   """
   @spec clear!(table_identifier()) :: true
   def clear!(table_id) when is_table_identifier(table_id) do
@@ -93,7 +108,9 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
   end
 
   @doc """
-  Returns table reference for a given process
+  Returns table reference for a given process.
+  It can be used in other storage operations to increase performance.
+  In order to use it properly you have to store the reference for later usage.
   """
   @spec get_table(ets_table_id()) :: reference() | nil
   def get_table(pid) when is_pid(pid) do
@@ -102,6 +119,8 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
 
   @doc """
   Removes table for a given process from the storage
+
+    * `table_id` - PID or reference to an existing table. Using reference increases performance as it skips lookup step.
   """
   @spec delete_table!(table_identifier()) :: boolean()
   def delete_table!(table_id) when is_table_identifier(table_id) do
