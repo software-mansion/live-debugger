@@ -58,14 +58,16 @@ defmodule LiveDebuggerRefactor.API.StatesStorage do
         :undefined ->
           :ets.new(@table_name, [:ordered_set, :public, :named_table])
 
-        _ ->
+        _ref ->
           :ets.delete_all_objects(@table_name)
       end
+
+      :ok
     end
 
     @impl true
     def save(%LvState{pid: pid} = state) do
-      :ets.insert(@table_name, {inspect(pid), state})
+      :ets.insert(@table_name, {pid, state})
     end
 
     @impl true
