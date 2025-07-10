@@ -40,4 +40,21 @@ defmodule LiveDebuggerWeb.Endpoint do
 
   plug(Plug.RequestId)
   plug(LiveDebuggerWeb.Router)
+
+  def append_endpoint_children(children) do
+    pubsub_name =
+      Application.get_env(:live_debugger, :endpoint_pubsub_name, LiveDebuggerWeb.Endpoint.PubSub)
+
+    pubsub = Supervisor.child_spec({Phoenix.PubSub, name: pubsub_name}, id: pubsub_name)
+
+    children ++
+      [
+        pubsub,
+        {LiveDebuggerWeb.Endpoint,
+         [
+           check_origin: false,
+           pubsub_server: pubsub_name
+         ]}
+      ]
+  end
 end
