@@ -10,6 +10,7 @@ defmodule LiveDebuggerRefactor.API.StatesStorage do
   @callback save(LvState.t()) :: true
   @callback get(pid()) :: LvState.t() | nil
   @callback get_states_table() :: :ets.table()
+
   @doc """
   Initializes empty ets table.
   It should be called when application starts.
