@@ -22,7 +22,6 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
   @callback get!(table_identifier(), opts :: keyword()) ::
               {[Trace.t()], ets_continuation()} | :end_of_table
   @callback clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
-  @callback clear!(table_identifier()) :: true
   @callback get_table(ets_table_id()) :: reference()
   @callback delete_table!(table_identifier()) :: boolean()
   @callback get_all_tables() :: [reference()]
@@ -93,18 +92,8 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     * `node_id` - PID or CID which identifies node. If nil, it deletes all traces for a given table.
   """
   @spec clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
-  def clear!(table_id, node_id) when is_table_identifier(table_id) do
+  def clear!(table_id, node_id \\ nil) when is_table_identifier(table_id) do
     impl().clear!(table_id, node_id)
-  end
-
-  @doc """
-  Deletes all traces for a given table.
-
-    * `table_id` - PID or reference to an existing table. Using reference increases performance as it skips lookup step.
-  """
-  @spec clear!(table_identifier()) :: true
-  def clear!(table_id) when is_table_identifier(table_id) do
-    impl().clear!(table_id)
   end
 
   @doc """
@@ -209,6 +198,8 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     end
 
     @impl true
+    def clear!(table_id, node_id \\ nil)
+
     def clear!(table_id, %CID{} = node_id) do
       table_id
       |> ets_table()
@@ -221,10 +212,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       |> :ets.match_delete({:_, %{pid: node_id, cid: nil}})
     end
 
-    def clear!(table_id, nil), do: clear!(table_id)
-
-    @impl true
-    def clear!(table_id) do
+    def clear!(table_id, nil) do
       table_id
       |> ets_table()
       |> :ets.delete_all_objects()

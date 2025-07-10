@@ -39,7 +39,7 @@ defmodule LiveDebugger.Structs.Trace do
           socket_id: String.t(),
           transport_pid: pid() | nil,
           pid: pid(),
-          cid: struct() | nil,
+          cid: CommonTypes.cid() | nil,
           timestamp: integer(),
           execution_time: non_neg_integer() | nil,
           type: :call | :return_from | :exception_from
