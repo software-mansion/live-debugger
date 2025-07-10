@@ -7,24 +7,24 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.CommonTypes
 
-  @type ets_continuation() :: term()
   @typedoc """
   Pid is used to store mapping to table references.
   It identifies ETS tables managed by EtsTableServer.
   """
   @type ets_table_id() :: pid()
+  @type ets_continuation() :: term()
   @type table_identifier() :: ets_table_id() | reference()
 
   @callback init() :: :ok
   @callback insert(Trace.t()) :: true
-  @callback insert(table_ref :: reference(), Trace.t()) :: true
-  @callback get_by_id(table_identifier(), trace_id :: integer()) :: Trace.t() | nil
-  @callback get(table_identifier(), opts :: keyword()) ::
+  @callback insert!(table_ref :: reference(), Trace.t()) :: true
+  @callback get_by_id!(table_identifier(), trace_id :: integer()) :: Trace.t() | nil
+  @callback get!(table_identifier(), opts :: keyword()) ::
               {[Trace.t()], ets_continuation()} | :end_of_table
-  @callback clear(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
-  @callback clear(table_identifier()) :: true
+  @callback clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
+  @callback clear!(table_identifier()) :: true
   @callback get_table(ets_table_id()) :: reference()
-  @callback delete_table(table_identifier()) :: boolean()
+  @callback delete_table!(table_identifier()) :: boolean()
   @callback get_all_tables() :: [reference()]
 
   defguard is_table_identifier(id) when is_pid(id) or is_reference(id)
@@ -44,17 +44,18 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     impl().insert(trace)
   end
 
-  @spec insert(table_ref :: reference(), Trace.t()) :: true
-  def insert(table_ref, %Trace{} = trace) when is_reference(table_ref) do
-    impl().insert(table_ref, trace)
+  @spec insert!(table_ref :: reference(), Trace.t()) :: true
+  def insert!(table_ref, %Trace{} = trace) when is_reference(table_ref) do
+    impl().insert!(table_ref, trace)
   end
 
   @doc """
   Gets a trace of a process from the storage by `id`.
   """
-  @spec get_by_id(table_identifier(), trace_id :: integer()) :: Trace.t() | nil
-  def get_by_id(table_id, trace_id) when is_table_identifier(table_id) and is_integer(trace_id) do
-    impl().get(table_id, trace_id)
+  @spec get_by_id!(table_identifier(), trace_id :: integer()) :: Trace.t() | nil
+  def get_by_id!(table_id, trace_id)
+      when is_table_identifier(table_id) and is_integer(trace_id) do
+    impl().get_by_id!(table_id, trace_id)
   end
 
   @doc """
@@ -67,10 +68,10 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     * `:functions` - List of function names to filter traces by e.g ["handle_info/2", "render/1"]
     * `:search_query` - String to filter traces by, performs a case-sensitive substring search on the entire Trace struct
   """
-  @spec get(table_identifier(), opts :: keyword()) ::
+  @spec get!(table_identifier(), opts :: keyword()) ::
           {[Trace.t()], ets_continuation()} | :end_of_table
-  def get(table_id, opts \\ []) when is_table_identifier(table_id) and is_list(opts) do
-    impl().get(table_id, opts)
+  def get!(table_id, opts \\ []) when is_table_identifier(table_id) and is_list(opts) do
+    impl().get!(table_id, opts)
   end
 
   @doc """
@@ -78,17 +79,17 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
 
   * `node_id` - PID or CID which identifies node. If nil, it deletes all traces for a given table.
   """
-  @spec clear(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
-  def clear(table_id, node_id) when is_table_identifier(table_id) do
-    impl().clear(table_id, node_id)
+  @spec clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
+  def clear!(table_id, node_id) when is_table_identifier(table_id) do
+    impl().clear!(table_id, node_id)
   end
 
   @doc """
   Deletes all traces for a given table.
   """
-  @spec clear(table_identifier()) :: true
-  def clear(table_id) when is_table_identifier(table_id) do
-    impl().clear(table_id)
+  @spec clear!(table_identifier()) :: true
+  def clear!(table_id) when is_table_identifier(table_id) do
+    impl().clear!(table_id)
   end
 
   @doc """
@@ -102,9 +103,9 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
   @doc """
   Removes table for a given process from the storage
   """
-  @spec delete_table(table_identifier()) :: boolean()
-  def delete_table(table_id) when is_table_identifier(table_id) do
-    impl().delete_table(table_id)
+  @spec delete_table!(table_identifier()) :: boolean()
+  def delete_table!(table_id) when is_table_identifier(table_id) do
+    impl().delete_table!(table_id)
   end
 
   @doc """
@@ -154,13 +155,13 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     end
 
     @impl true
-    def insert(table_ref, %Trace{id: id} = trace) do
+    def insert!(table_ref, %Trace{id: id} = trace) do
       table_ref
       |> :ets.insert({id, trace})
     end
 
     @impl true
-    def get_by_id(table_id, trace_id) do
+    def get_by_id!(table_id, trace_id) do
       table_id
       |> ets_table()
       |> :ets.lookup(trace_id)
@@ -171,7 +172,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     end
 
     @impl true
-    def get(table_id, opts \\ []) do
+    def get!(table_id, opts \\ []) do
       search_query = Keyword.get(opts, :search_query, nil)
       cont = Keyword.get(opts, :cont, nil)
 
@@ -189,22 +190,22 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     end
 
     @impl true
-    def clear(table_id, %CID{} = node_id) do
+    def clear!(table_id, %CID{} = node_id) do
       table_id
       |> ets_table()
       |> :ets.match_delete({:_, %{cid: node_id}})
     end
 
-    def clear(table_id, node_id) when is_pid(node_id) do
+    def clear!(table_id, node_id) when is_pid(node_id) do
       table_id
       |> ets_table()
       |> :ets.match_delete({:_, %{pid: node_id, cid: nil}})
     end
 
-    def clear(table_id, nil), do: clear(table_id)
+    def clear!(table_id, nil), do: clear!(table_id)
 
     @impl true
-    def clear(table_id) do
+    def clear!(table_id) do
       table_id
       |> ets_table()
       |> :ets.delete_all_objects()
@@ -216,7 +217,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     end
 
     @impl true
-    def delete_table(ref) when is_reference(ref) do
+    def delete_table!(ref) when is_reference(ref) do
       @processes_table_name
       |> :ets.select_delete([{{:_, ref}, [], [true]}])
       |> case do
@@ -225,7 +226,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       end
     end
 
-    def delete_table(pid) when is_pid(pid) do
+    def delete_table!(pid) when is_pid(pid) do
       @processes_table_name
       |> :ets.lookup(pid)
       |> case do
