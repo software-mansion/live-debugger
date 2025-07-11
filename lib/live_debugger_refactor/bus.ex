@@ -145,13 +145,14 @@ defmodule LiveDebuggerRefactor.Bus do
 
     @pubsub_name Application.compile_env(
                    :live_debugger,
-                   :pubsub_name,
-                   LiveDebuggerRefactor.PubSub
+                   :bus_pubsub_name,
+                   LiveDebuggerRefactor.Bus.PubSub
                  )
 
     @impl true
     def append_bus_tree(children) do
-      [{Phoenix.PubSub, name: @pubsub_name} | children]
+      child = Supervisor.child_spec({Phoenix.PubSub, name: @pubsub_name}, id: @pubsub_name)
+      children ++ [child]
     end
 
     @impl true
