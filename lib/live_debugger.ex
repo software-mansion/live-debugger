@@ -33,10 +33,14 @@ defmodule LiveDebugger do
   end
 
   defp get_refactor_children() do
-    []
-    |> LiveDebuggerWeb.Endpoint.append_endpoint_children()
-    |> LiveDebuggerRefactor.Bus.append_bus_tree()
-    |> LiveDebuggerRefactor.Services.append_services_children()
+    if LiveDebugger.Env.unit_test?() do
+      []
+    else
+      []
+      |> LiveDebuggerWeb.Endpoint.append_endpoint_children()
+      |> LiveDebuggerRefactor.Bus.append_bus_tree()
+      |> LiveDebuggerRefactor.Services.append_services_children()
+    end
   end
 
   defp get_legacy_children(config) do
