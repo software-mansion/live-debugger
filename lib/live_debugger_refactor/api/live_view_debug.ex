@@ -34,7 +34,7 @@ defmodule LiveDebuggerRefactor.API.LiveViewDebug do
   def liveview_state(lv_pid) when is_pid(lv_pid) do
     with {:ok, socket} <- socket(lv_pid),
          {:ok, components} <- live_components(lv_pid) do
-      {:ok, %LvState{socket: socket, components: components}}
+      {:ok, %LvState{pid: lv_pid, socket: socket, components: components}}
     end
   end
 

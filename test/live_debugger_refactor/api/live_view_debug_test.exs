@@ -21,7 +21,7 @@ defmodule LiveDebuggerRefactor.API.LiveViewDebugTest do
       |> expect(:socket, fn ^pid -> {:ok, socket} end)
       |> expect(:live_components, fn ^pid -> {:ok, components} end)
 
-      assert {:ok, %LvState{socket: ^socket, components: ^components}} =
+      assert {:ok, %LvState{pid: ^pid, socket: ^socket, components: ^components}} =
                LiveViewDebug.liveview_state(pid)
     end
 
