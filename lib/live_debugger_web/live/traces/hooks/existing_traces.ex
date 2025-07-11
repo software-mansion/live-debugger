@@ -48,6 +48,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
     active_functions = get_active_functions(socket)
     execution_times = get_execution_times(socket)
     page_size = socket.private.page_size
+    search_query = Map.get(socket.assigns, :trace_search_query, "")
 
     opts =
       [
@@ -55,12 +56,10 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
         functions: active_functions,
         execution_times: execution_times,
         node_id: node_id,
-        search_query: nil
+        search_query: search_query
       ]
 
     socket
-    |> assign(:existing_traces_status, :loading)
-    |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn ->
       TraceService.existing_traces(pid, opts)
     end)
@@ -73,7 +72,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
     |> assign(existing_traces_status: :ok)
     |> assign(:traces_empty?, false)
     |> assign(:traces_continuation, cont)
-    |> stream(:existing_traces, trace_list)
+    |> stream(:existing_traces, trace_list, reset: true)
     |> halt()
   end
 
@@ -81,6 +80,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.ExistingTraces do
     socket
     |> assign(existing_traces_status: :ok)
     |> assign(traces_continuation: :end_of_table)
+    |> stream(:existing_traces, [], reset: true)
     |> halt()
   end
 
