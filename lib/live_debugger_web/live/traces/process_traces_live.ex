@@ -79,7 +79,10 @@ defmodule LiveDebuggerWeb.Live.Traces.ProcessTracesLive do
         <div class="w-full min-w-[20rem] flex flex-col pt-2 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
           <div class="w-full flex justify-between items-center border-b border-default-border pb-2">
             <div class="ml-2">
-              <Components.SearchInput.search_input />
+              <Components.SearchInput.search_input
+                disabled?={@tracing_started?}
+                trace_search_query={@trace_search_query}
+              />
             </div>
             <div class="flex gap-2 items-center h-8 px-2">
               <Components.ToggleTracingButton.toggle_tracing_button tracing_started?={

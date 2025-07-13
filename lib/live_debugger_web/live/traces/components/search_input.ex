@@ -15,6 +15,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.SearchInput do
   def init(socket) do
     socket
     |> check_hook!(:existing_traces)
+    |> check_assigns!(:trace_search_query)
     |> attach_hook(:search_input, :handle_event, &handle_event/3)
     |> register_hook(:search_input)
   end
@@ -24,6 +25,8 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.SearchInput do
   It produces the `search` event that can be handled by the hook provided in the `init/1` function.
   """
   attr(:placeholder, :string, default: "Search...")
+  attr(:disabled?, :boolean, default: false)
+  attr(:trace_search_query, :string, default: "", doc: "The current search query for traces")
 
   @spec search_input(map()) :: Phoenix.LiveView.Rendered.t()
   def search_input(assigns) do
@@ -34,13 +37,22 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.SearchInput do
       "outline-default-border has-[input:focus-within]:outline-ui-accent"
     ]}>
       <form phx-change="search" phx-submit="submit" class="flex items-center w-full h-full">
-        <.icon name="icon-code" class="h-4 w-4 ml-3 bg-gray-400" />
+        <.icon
+          name="icon-search"
+          class={[
+            "h-4 w-4 ml-3",
+            (@disabled? && "text-gray-400") || "text-primary-icon"
+          ]}
+        />
         <input
+          disabled={@disabled?}
           id="trace-search-input"
           placeholder={@placeholder}
+          value={@trace_search_query}
           type="text"
           name="search_query"
-          class="block remove-arrow w-16 sm:w-64  min-w-32 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0"
+          class="block remove-arrow w-16 sm:w-64  min-w-32 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0 disabled:!text-gray-500 disabled:placeholder-grey-300
+          "
         />
       </form>
     </div>
