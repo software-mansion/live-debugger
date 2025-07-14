@@ -5,6 +5,10 @@ defmodule LiveDebuggerRefactor.App.Events do
 
   use LiveDebuggerRefactor.Event
 
-  defevent(SettingsChanged, setting_key: atom(), setting_value: term())
+  defevent(SettingsChanged,
+    key: :dead_view_mode | :tracing_update_on_code_reload,
+    value: term()
+  )
+
   defevent(TracingRefreshed)
 end

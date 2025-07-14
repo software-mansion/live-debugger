@@ -8,6 +8,11 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
   alias LiveDebuggerRefactor.API.System.Dbg
   alias LiveDebuggerRefactor.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
 
+  alias LiveDebuggerRefactor.Bus
+
+  alias LiveDebuggerRefactor.App.Events.SettingsChanged
+  alias LiveDebuggerRefactor.App.Events.TracingRefreshed
+
   @tracing_setup_delay Application.compile_env(:live_debugger, :tracing_setup_delay, 0)
 
   def start_link(opts \\ []) do
@@ -16,6 +21,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
 
   @impl true
   def init(opts) do
+    Bus.receive_events!()
     Process.send_after(self(), :setup_tracing, @tracing_setup_delay)
 
     {:ok, opts}
@@ -45,12 +51,30 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
     {:noreply, state}
   end
 
-  defp tracer_function(_args, n) do
-    if n == -10 do
-      dbg(n)
-      raise "Test exception"
-    end
+  @impl true
+  def handle_info(%SettingsChanged{key: :tracing_update_on_code_reload, value: true}, state) do
+    dbg("Add code reload tracing")
+    {:noreply, state}
+  end
 
+  @impl true
+  def handle_info(%SettingsChanged{key: :tracing_update_on_code_reload, value: false}, state) do
+    dbg("Remove code reload tracing")
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info(%TracingRefreshed{}, state) do
+    dbg("Refresh tracing")
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info(_, state) do
+    {:noreply, state}
+  end
+
+  defp tracer_function(_args, n) do
     dbg("New rough trace")
     n - 1
   end
