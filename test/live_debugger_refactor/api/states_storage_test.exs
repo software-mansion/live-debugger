@@ -31,7 +31,7 @@ defmodule LiveDebuggerRefactor.Api.StatesStorageTest do
       :ok
     end
 
-    test "save!/2 saves element with pid as key" do
+    test "save!/1 saves element with pid as key" do
       pid = :c.pid(0, 1, 0)
 
       state = %LvState{
