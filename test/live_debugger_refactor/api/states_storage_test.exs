@@ -31,7 +31,7 @@ defmodule LiveDebuggerRefactor.Api.StatesStorageTest do
       :ok
     end
 
-    test "save/2 saves element with pid as key" do
+    test "save!/2 saves element with pid as key" do
       pid = :c.pid(0, 1, 0)
 
       state = %LvState{
@@ -40,12 +40,12 @@ defmodule LiveDebuggerRefactor.Api.StatesStorageTest do
         components: Fakes.live_components()
       }
 
-      assert true == StateStorageImpl.save(state)
+      assert true == StateStorageImpl.save!(state)
 
       assert [{^pid, ^state}] = :ets.lookup(@table_name, pid)
     end
 
-    test "get/1 returns saved state" do
+    test "get!/1 returns saved state" do
       pid = :c.pid(0, 2, 0)
 
       state = %LvState{
@@ -56,13 +56,13 @@ defmodule LiveDebuggerRefactor.Api.StatesStorageTest do
 
       :ets.insert(@table_name, {pid, state})
 
-      assert ^state = StateStorageImpl.get(pid)
+      assert ^state = StateStorageImpl.get!(pid)
     end
 
-    test "get/1 returns nil if state not saved" do
+    test "get!/1 returns nil if state not saved" do
       pid = :c.pid(0, 1, 0)
 
-      assert nil == StateStorageImpl.get(pid)
+      assert nil == StateStorageImpl.get!(pid)
     end
   end
 end
