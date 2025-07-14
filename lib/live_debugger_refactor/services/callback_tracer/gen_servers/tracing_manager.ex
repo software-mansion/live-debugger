@@ -53,19 +53,26 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
 
   @impl true
   def handle_info(%SettingsChanged{key: :tracing_update_on_code_reload, value: true}, state) do
-    dbg("Add code reload tracing")
+    Dbg.trace_pattern({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
+
     {:noreply, state}
   end
 
   @impl true
   def handle_info(%SettingsChanged{key: :tracing_update_on_code_reload, value: false}, state) do
-    dbg("Remove code reload tracing")
+    Dbg.clear_trace_pattern({Mix.Tasks.Compile.Elixir, :run, 1})
+
     {:noreply, state}
   end
 
   @impl true
   def handle_info(%TracingRefreshed{}, state) do
-    dbg("Refresh tracing")
+    CallbackQueries.all_callbacks()
+    |> Enum.each(fn mfa ->
+      Dbg.trace_pattern(mfa, [{:_, [], [{:return_trace}]}])
+      Dbg.trace_pattern(mfa, [{:_, [], [{:exception_trace}]}])
+    end)
+
     {:noreply, state}
   end
 
