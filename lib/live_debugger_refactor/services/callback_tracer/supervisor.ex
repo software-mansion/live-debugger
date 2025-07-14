@@ -5,7 +5,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Supervisor do
 
   use Supervisor
 
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Receivers.TracingManager
+  alias LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
 
   def start_link(opts \\ []) do
     Supervisor.start_link(__MODULE__, opts, name: __MODULE__)

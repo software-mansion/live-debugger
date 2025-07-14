@@ -1,4 +1,4 @@
-defmodule LiveDebuggerRefactor.Services.CallbackTracer.Receivers.TracingManager do
+defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager do
   @moduledoc """
   Manages the tracing of callbacks.
   """
