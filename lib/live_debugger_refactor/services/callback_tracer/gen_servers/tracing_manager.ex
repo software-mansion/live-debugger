@@ -7,9 +7,9 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
 
   alias LiveDebuggerRefactor.API.System.Dbg
   alias LiveDebuggerRefactor.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Process.Tracer
 
   alias LiveDebuggerRefactor.Bus
-
   alias LiveDebuggerRefactor.App.Events.SettingsChanged
   alias LiveDebuggerRefactor.App.Events.TracingRefreshed
 
@@ -30,7 +30,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
   @impl true
   def handle_info(:setup_tracing, state) do
     # Start tracer
-    case Dbg.tracer({&tracer_function/2, 0}) do
+    case Dbg.tracer({&Tracer.handle_trace/2, 0}) do
       {:ok, pid} ->
         Process.link(pid)
 
@@ -79,10 +79,5 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
       Dbg.trace_pattern(mfa, [{:_, [], [{:return_trace}]}])
       Dbg.trace_pattern(mfa, [{:_, [], [{:exception_trace}]}])
     end)
-  end
-
-  defp tracer_function(_args, n) do
-    dbg("New rough trace")
-    n - 1
   end
 end
