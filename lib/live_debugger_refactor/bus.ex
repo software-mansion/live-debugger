@@ -30,6 +30,13 @@ defmodule LiveDebuggerRefactor.Bus do
   @callback receive_states() :: :ok | {:error, term()}
   @callback receive_states(pid()) :: :ok | {:error, term()}
 
+  @callback receive_events!() :: :ok
+  @callback receive_events!(pid()) :: :ok
+  @callback receive_traces!() :: :ok
+  @callback receive_traces!(pid()) :: :ok
+  @callback receive_states!() :: :ok
+  @callback receive_states!(pid()) :: :ok
+
   @doc """
   Appends the bus children to the supervision tree.
   """
@@ -134,6 +141,54 @@ defmodule LiveDebuggerRefactor.Bus do
     impl().receive_states(pid)
   end
 
+  @doc """
+  Receive events from general topic: `lvdbg/*`. Raises an error if the operation fails.
+  """
+  @spec receive_events!() :: :ok
+  def receive_events!() do
+    impl().receive_events!()
+  end
+
+  @doc """
+  Receive events from general topic with specific pid: `lvdbg/{pid}`. Raises an error if the operation fails.
+  """
+  @spec receive_events!(pid()) :: :ok
+  def receive_events!(pid) when is_pid(pid) do
+    impl().receive_events!(pid)
+  end
+
+  @doc """
+  Receive traces from traces topic: `lvdbg/traces/*`. Raises an error if the operation fails.
+  """
+  @spec receive_traces!() :: :ok
+  def receive_traces!() do
+    impl().receive_traces!()
+  end
+
+  @doc """
+  Receive traces from traces topic with specific pid: `lvdbg/traces/{pid}`. Raises an error if the operation fails.
+  """
+  @spec receive_traces!(pid()) :: :ok
+  def receive_traces!(pid) when is_pid(pid) do
+    impl().receive_traces!(pid)
+  end
+
+  @doc """
+  Receive states from states topic: `lvdbg/states/*`. Raises an error if the operation fails.
+  """
+  @spec receive_states!() :: :ok
+  def receive_states!() do
+    impl().receive_states!()
+  end
+
+  @doc """
+  Receive states from states topic with specific pid: `lvdbg/states/{pid}`. Raises an error if the operation fails.
+  """
+  @spec receive_states!(pid()) :: :ok
+  def receive_states!(pid) when is_pid(pid) do
+    impl().receive_states!(pid)
+  end
+
   defp impl() do
     Application.get_env(:live_debugger, :bus, __MODULE__.Impl)
   end
@@ -216,6 +271,63 @@ defmodule LiveDebuggerRefactor.Bus do
     @impl true
     def receive_states(pid) do
       Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/states/#{inspect(pid)}")
+    end
+
+    @impl true
+    def receive_events!() do
+      case Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/*") do
+        :ok -> :ok
+        {:error, error} -> raise "Failed to receive events: #{inspect(error)}"
+      end
+    end
+
+    @impl true
+    def receive_events!(pid) do
+      case Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/#{inspect(pid)}") do
+        :ok ->
+          :ok
+
+        {:error, error} ->
+          raise "Failed to receive events for pid #{inspect(pid)}: #{inspect(error)}"
+      end
+    end
+
+    @impl true
+    def receive_traces!() do
+      case Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/traces/*") do
+        :ok -> :ok
+        {:error, error} -> raise "Failed to receive traces: #{inspect(error)}"
+      end
+    end
+
+    @impl true
+    def receive_traces!(pid) do
+      case Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/traces/#{inspect(pid)}") do
+        :ok ->
+          :ok
+
+        {:error, error} ->
+          raise "Failed to receive traces for pid #{inspect(pid)}: #{inspect(error)}"
+      end
+    end
+
+    @impl true
+    def receive_states!() do
+      case Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/states/*") do
+        :ok -> :ok
+        {:error, error} -> raise "Failed to receive states: #{inspect(error)}"
+      end
+    end
+
+    @impl true
+    def receive_states!(pid) do
+      case Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/states/#{inspect(pid)}") do
+        :ok ->
+          :ok
+
+        {:error, error} ->
+          raise "Failed to receive states for pid #{inspect(pid)}: #{inspect(error)}"
+      end
     end
   end
 end
