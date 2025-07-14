@@ -76,7 +76,6 @@ defmodule LiveDebugger.GenServers.SettingsServer do
 
   @impl true
   def handle_cast({:save, setting, value}, state) do
-    dbg({setting, value})
     save_in_dets(setting, value)
 
     case {setting, value} do
