@@ -23,14 +23,14 @@ defmodule LiveDebuggerRefactor.API.StatesStorage do
   Saves `#{LvState}` using `pid` as key.
   """
   @spec save!(LvState.t()) :: true
-  def save!(%LvState{} = state), do: impl().save(state)
+  def save!(%LvState{} = state), do: impl().save!(state)
 
   @doc """
   Retrieves saved state for `pid`.
   If nothing is stored it returns `nil`.
   """
   @spec get!(pid()) :: LvState.t() | nil
-  def get!(pid) when is_pid(pid), do: impl().get(pid)
+  def get!(pid) when is_pid(pid), do: impl().get!(pid)
 
   @doc """
   Retrieves all saved states.
