@@ -12,13 +12,21 @@ defmodule LiveDebuggerRefactor.BusTest do
   end
 
   setup do
-    start_supervised({Phoenix.PubSub, name: LiveDebuggerRefactor.PubSub})
+    start_supervised({Phoenix.PubSub, name: LiveDebuggerRefactor.Bus.PubSub})
     :ok
   end
 
   describe "append_bus_tree/1" do
     test "appends bus to the children" do
-      assert BusImpl.append_bus_tree([]) == [{Phoenix.PubSub, name: LiveDebuggerRefactor.PubSub}]
+      assert BusImpl.append_bus_tree([]) == [
+               %{
+                 id: LiveDebuggerRefactor.Bus.PubSub,
+                 start:
+                   {Phoenix.PubSub.Supervisor, :start_link,
+                    [[name: LiveDebuggerRefactor.Bus.PubSub]]},
+                 type: :supervisor
+               }
+             ]
     end
   end
 

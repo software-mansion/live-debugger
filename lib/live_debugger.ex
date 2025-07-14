@@ -25,6 +25,25 @@ defmodule LiveDebugger do
     put_endpoint_config(config)
     put_live_debugger_tags(config)
 
+    if Application.get_env(@app_name, :refactor, false) do
+      get_refactor_children()
+    else
+      get_legacy_children(config)
+    end
+  end
+
+  defp get_refactor_children() do
+    if LiveDebugger.Env.unit_test?() do
+      []
+    else
+      []
+      |> LiveDebuggerWeb.Endpoint.append_endpoint_children()
+      |> LiveDebuggerRefactor.Bus.append_bus_tree()
+      |> LiveDebuggerRefactor.Services.append_services_children()
+    end
+  end
+
+  defp get_legacy_children(config) do
     pubsub_name = Keyword.get(config, :pubsub_name, LiveDebugger.PubSub)
 
     children = [
