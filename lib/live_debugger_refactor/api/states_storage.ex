@@ -1,14 +1,15 @@
 defmodule LiveDebuggerRefactor.API.StatesStorage do
   @moduledoc """
-  API for storing LiveView's states in memory.   In oder to properly use this API, invoke `init/0` aht the start of application.
+  API for storing LiveView's states in memory.
+  In oder to properly use this API, invoke `init/0` at the start of application.
   It uses Erlang's ETS (Erlang Term Storage) under the hood.
   """
 
   alias LiveDebuggerRefactor.Structs.LvState
 
   @callback init() :: :ok
-  @callback save(LvState.t()) :: true
-  @callback get(pid()) :: LvState.t() | nil
+  @callback save!(LvState.t()) :: true
+  @callback get!(pid()) :: LvState.t() | nil
   @callback get_states_table() :: :ets.table()
 
   @doc """
@@ -21,17 +22,15 @@ defmodule LiveDebuggerRefactor.API.StatesStorage do
   @doc """
   Saves `#{LvState}` using `pid` as key.
   """
-  @spec save(pid(), LvState.t()) :: true
-  def save(pid, %LvState{} = state) when is_pid(pid) do
-    impl().save(pid, state)
-  end
+  @spec save!(LvState.t()) :: true
+  def save!(%LvState{} = state), do: impl().save(state)
 
   @doc """
   Retrieves saved state for `pid`.
   If nothing is stored it returns `nil`.
   """
-  @spec get(pid()) :: LvState.t() | nil
-  def get(pid) when is_pid(pid), do: impl().get(pid)
+  @spec get!(pid()) :: LvState.t() | nil
+  def get!(pid) when is_pid(pid), do: impl().get(pid)
 
   @doc """
   Retrieves all saved states.
@@ -67,12 +66,12 @@ defmodule LiveDebuggerRefactor.API.StatesStorage do
     end
 
     @impl true
-    def save(%LvState{pid: pid} = state) do
+    def save!(%LvState{pid: pid} = state) do
       :ets.insert(@table_name, {pid, state})
     end
 
     @impl true
-    def get(pid) do
+    def get!(pid) do
       case :ets.lookup(@table_name, pid) do
         [{^pid, state}] ->
           state
