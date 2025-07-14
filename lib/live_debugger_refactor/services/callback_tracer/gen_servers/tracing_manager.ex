@@ -42,11 +42,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
     Dbg.process([:c, :timestamp])
 
     # Apply trace patterns for all LiveView and LiveComponent callbacks
-    CallbackQueries.all_callbacks()
-    |> Enum.each(fn mfa ->
-      Dbg.trace_pattern(mfa, [{:_, [], [{:return_trace}]}])
-      Dbg.trace_pattern(mfa, [{:_, [], [{:exception_trace}]}])
-    end)
+    apply_trace_patterns()
 
     {:noreply, state}
   end
@@ -67,11 +63,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
 
   @impl true
   def handle_info(%TracingRefreshed{}, state) do
-    CallbackQueries.all_callbacks()
-    |> Enum.each(fn mfa ->
-      Dbg.trace_pattern(mfa, [{:_, [], [{:return_trace}]}])
-      Dbg.trace_pattern(mfa, [{:_, [], [{:exception_trace}]}])
-    end)
+    apply_trace_patterns()
 
     {:noreply, state}
   end
@@ -79,6 +71,14 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
   @impl true
   def handle_info(_, state) do
     {:noreply, state}
+  end
+
+  defp apply_trace_patterns() do
+    CallbackQueries.all_callbacks()
+    |> Enum.each(fn mfa ->
+      Dbg.trace_pattern(mfa, [{:_, [], [{:return_trace}]}])
+      Dbg.trace_pattern(mfa, [{:_, [], [{:exception_trace}]}])
+    end)
   end
 
   defp tracer_function(_args, n) do
