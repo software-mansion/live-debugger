@@ -29,7 +29,6 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
 
   @impl true
   def handle_info(:setup_tracing, state) do
-    # Start tracer
     case Dbg.tracer({&Tracer.handle_trace/2, 0}) do
       {:ok, pid} ->
         Process.link(pid)
@@ -38,10 +37,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
         raise "Couldn't start tracer: #{inspect(error)}"
     end
 
-    # Enable tracing for all processes
     Dbg.process([:c, :timestamp])
-
-    # Apply trace patterns for all LiveView and LiveComponent callbacks
     apply_trace_patterns()
 
     {:noreply, state}
