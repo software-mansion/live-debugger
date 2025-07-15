@@ -7,19 +7,23 @@ defmodule LiveDebuggerRefactor.App.Web.Router do
 
   import Phoenix.LiveView.Router
 
-  alias LiveDebuggerRefactor.App.Web
+  alias LiveDebuggerRefactor.App
 
   pipeline :dbg_browser do
     plug(:accepts, ["html"])
     plug(:fetch_session)
     plug(:fetch_live_flash)
-    plug(:put_root_layout, html: {Web.Layout, :root})
+    plug(:put_root_layout, html: {App.Web.Layout, :root})
     plug(:protect_from_forgery)
     plug(:put_secure_browser_headers)
-    plug(Web.Plugs.AllowIframe)
+    plug(App.Web.Plugs.AllowIframe)
   end
 
-  scope "/", Web do
+  scope "/", App do
     pipe_through([:dbg_browser])
+
+    live("/pid/:pid", Debugger.Web.DebuggerLive)
+    live("/settings", Settings.Web.SettingsLive)
+    live("/", Discovery.Web.DiscoveryLive)
   end
 end
