@@ -1,5 +1,11 @@
-defmodule LiveDebuggerWeb.Endpoint do
+defmodule LiveDebuggerRefactor.App.Web.Endpoint do
+  @moduledoc """
+  `Phoenix.Endpoint` module for LiveDebugger
+  """
+
   use Phoenix.Endpoint, otp_app: :live_debugger
+
+  alias LiveDebuggerRefactor.App.Web
 
   @session_options [
     store: :cookie,
@@ -37,7 +43,6 @@ defmodule LiveDebuggerWeb.Endpoint do
   end
 
   plug(Plug.Session, @session_options)
-
   plug(Plug.RequestId)
-  plug(LiveDebuggerWeb.Router)
+  plug(Web.Router)
 end
