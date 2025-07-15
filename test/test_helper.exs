@@ -39,8 +39,8 @@ else
   Mox.defmock(LiveDebuggerRefactor.MockBus, for: LiveDebuggerRefactor.Bus)
   Application.put_env(:live_debugger, :bus, LiveDebuggerRefactor.MockBus)
 
-  Mox.defmock(LiveDebugger.MockAPIDbg, for: LiveDebuggerRefactor.API.System.Dbg)
-  Application.put_env(:live_debugger, :api_dbg, LiveDebugger.MockAPIDbg)
+  Mox.defmock(LiveDebuggerRefactor.MockAPIDbg, for: LiveDebuggerRefactor.API.System.Dbg)
+  Application.put_env(:live_debugger, :api_dbg, LiveDebuggerRefactor.MockAPIDbg)
 
   Mox.defmock(LiveDebuggerRefactor.MockAPIModule, for: LiveDebuggerRefactor.API.System.Module)
   Application.put_env(:live_debugger, :api_module, LiveDebuggerRefactor.MockAPIModule)
