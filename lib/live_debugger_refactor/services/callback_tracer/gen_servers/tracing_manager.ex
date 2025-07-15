@@ -6,6 +6,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
   use GenServer
 
   alias LiveDebuggerRefactor.API.System.Dbg
+  alias LiveDebuggerRefactor.API.SettingsStorage
   alias LiveDebuggerRefactor.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
   alias LiveDebuggerRefactor.Services.CallbackTracer.Process.Tracer
 
@@ -39,6 +40,10 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
 
     Dbg.process([:c, :timestamp])
     apply_trace_patterns()
+
+    if SettingsStorage.get(:tracing_update_on_code_reload) do
+      Dbg.trace_pattern({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
+    end
 
     {:noreply, state}
   end

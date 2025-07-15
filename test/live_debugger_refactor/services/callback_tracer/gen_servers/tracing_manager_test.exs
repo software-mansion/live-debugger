@@ -6,6 +6,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
   alias LiveDebuggerRefactor.MockBus
   alias LiveDebuggerRefactor.MockAPIDbg
   alias LiveDebuggerRefactor.MockAPIModule
+  alias LiveDebuggerRefactor.MockAPISettingsStorage
   alias LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
 
   alias LiveDebuggerRefactor.App.Events.SettingsChanged
@@ -23,7 +24,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
   end
 
   describe "handle_info/2" do
-    test "handles :setup_tracing event" do
+    test "handles :setup_tracing event with tracing_update_on_code_reload set to false" do
       MockAPIModule
       |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)
       |> expect(:loaded?, fn _ -> true end)
@@ -33,6 +34,24 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
       |> expect(:tracer, fn _ -> {:ok, self()} end)
       |> expect(:process, fn _ -> :ok end)
       |> expect(:trace_pattern, 18, fn _, _ -> :ok end)
+
+      expect(MockAPISettingsStorage, :get, fn :tracing_update_on_code_reload -> false end)
+
+      assert {:noreply, []} = TracingManager.handle_info(:setup_tracing, [])
+    end
+
+    test "handles :setup_tracing event with tracing_update_on_code_reload set to true" do
+      MockAPIModule
+      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)
+      |> expect(:loaded?, fn _ -> true end)
+      |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
+
+      MockAPIDbg
+      |> expect(:tracer, fn _ -> {:ok, self()} end)
+      |> expect(:process, fn _ -> :ok end)
+      |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
+
+      expect(MockAPISettingsStorage, :get, fn :tracing_update_on_code_reload -> true end)
 
       assert {:noreply, []} = TracingManager.handle_info(:setup_tracing, [])
     end
