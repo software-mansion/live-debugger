@@ -130,30 +130,6 @@ defmodule LiveDebuggerRefactor.BusTest do
   end
 
   describe "bang receive functions" do
-    test "receive_events! returns :ok on success" do
-      assert BusImpl.receive_events!() == :ok
-    end
-
-    test "receive_events! with pid returns :ok on success" do
-      assert BusImpl.receive_events!(self()) == :ok
-    end
-
-    test "receive_traces! returns :ok on success" do
-      assert BusImpl.receive_traces!() == :ok
-    end
-
-    test "receive_traces! with pid returns :ok on success" do
-      assert BusImpl.receive_traces!(self()) == :ok
-    end
-
-    test "receive_states! returns :ok on success" do
-      assert BusImpl.receive_states!() == :ok
-    end
-
-    test "receive_states! with pid returns :ok on success" do
-      assert BusImpl.receive_states!(self()) == :ok
-    end
-
     test "bang functions work with broadcasting and receiving" do
       assert BusImpl.receive_events!() == :ok
       assert BusImpl.receive_events!(self()) == :ok
