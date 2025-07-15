@@ -1,6 +1,6 @@
 defmodule LiveDebuggerRefactor.Services.CallbackTracer.Process.Tracer do
   @moduledoc """
-  This module defines a function that used in the `:dbg.tracer` process.
+  This module defines a function that is used in the `:dbg.tracer` process.
   """
 
   @spec handle_trace(args :: term(), n :: integer()) :: integer()
