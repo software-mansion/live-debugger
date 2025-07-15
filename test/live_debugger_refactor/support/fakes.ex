@@ -22,6 +22,18 @@ defmodule LiveDebuggerRefactor.Fakes do
     Kernel.struct!(LiveDebugger.Structs.Trace, fields)
   end
 
+  def liveview(opts \\ []) do
+    default = [
+      pid: :c.pid(0, 0, 2),
+      view: SomeLiveView,
+      topic: "lv:some-live-view-topic",
+      transport_pid: :c.pid(0, 0, 1)
+    ]
+
+    Keyword.merge(default, opts)
+    |> Enum.into(%{})
+  end
+
   def socket(opts \\ []) do
     socket_id = Keyword.get(opts, :id, "phx-GBsi_6M7paYhySQj")
     socket_id = Keyword.get(opts, :socket_id, socket_id)
