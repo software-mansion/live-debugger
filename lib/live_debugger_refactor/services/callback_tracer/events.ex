@@ -5,6 +5,19 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
 
   use LiveDebuggerRefactor.Event
 
-  defevent(TraceCalled, id: neg_integer(), module: module(), function: atom())
-  defevent(TraceReturned, id: neg_integer(), module: module(), function: atom())
+  alias LiveDebugger.CommonTypes
+
+  defevent(TraceCalled,
+    id: neg_integer(),
+    module: module(),
+    function: atom(),
+    cid: CommonTypes.cid() | nil
+  )
+
+  defevent(TraceReturned,
+    id: neg_integer(),
+    module: module(),
+    function: atom(),
+    cid: CommonTypes.cid() | nil
+  )
 end

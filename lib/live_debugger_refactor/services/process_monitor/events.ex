@@ -6,10 +6,9 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.Events do
   use LiveDebuggerRefactor.Event
 
   alias LiveDebugger.CommonTypes
-  alias LiveDebugger.Structs.TreeNode
 
   defevent(LiveViewBorn, pid: pid())
   defevent(LiveViewDied, pid: pid())
-  defevent(ComponentCreated, node_id: TreeNode.id())
-  defevent(ComponentDeleted, node_id: TreeNode.id())
+  defevent(ComponentCreated, node_id: CommonTypes.cid())
+  defevent(ComponentDeleted, node_id: CommonTypes.cid())
 end

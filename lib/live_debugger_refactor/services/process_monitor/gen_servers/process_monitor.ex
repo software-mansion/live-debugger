@@ -5,21 +5,24 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
 
   use GenServer
 
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.ComponentDeleted
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.ComponentCreated
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.{
+    LiveViewBorn,
+    LiveViewDied,
+    ComponentCreated,
+    ComponentDeleted
+  }
+
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.{TraceCalled, TraceReturned}
   alias LiveDebugger.Structs.Trace
   alias LiveDebuggerRefactor.API.TracesStorage
   alias LiveDebuggerRefactor.API.LiveViewDebug
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewBorn
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebuggerRefactor.Bus
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
+  @impl true
   def init(_opts) do
     # TODO: change to receive_traces!/0
     :ok = Bus.receive_traces()
@@ -27,33 +30,26 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
     {:ok, %{}}
   end
 
-  def handle_info(%TraceReturned{id: id, function: :render, context: %{pid: pid}}, state)
-      when is_map_key(state, pid) do
-    case TracesStorage.get_by_id!(pid, id) do
-      nil ->
-        {:noreply, state}
+  @impl true
+  def handle_info(%TraceReturned{function: :render, cid: cid, context: %{pid: pid}}, state)
+      when is_map_key(state, pid) and not is_nil(cid) do
+    if MapSet.member?(state[pid], cid) do
+      {:noreply, state}
+    else
+      new_state = Map.update!(state, pid, &MapSet.put(&1, cid))
 
-      %Trace{cid: cid} ->
-        if MapSet.member?(state[pid], cid) do
-          {:noreply, state}
-        else
-          new_state =
-            state
-            |> Map.update!(pid, &MapSet.put(&1, cid))
+      Bus.broadcast_event!(%ComponentCreated{node_id: cid}, pid)
 
-          Bus.broadcast_event!(%ComponentCreated{node_id: cid})
-          Bus.broadcast_event!(%ComponentCreated{node_id: cid}, pid)
-
-          {:noreply, new_state}
-        end
+      {:noreply, new_state}
     end
   end
 
-  def handle_info(%TraceReturned{function: :render, context: %{pid: pid}}, state) do
+  @impl true
+  def handle_info(%TraceReturned{function: :render, cid: nil, context: %{pid: pid}}, state) do
     Process.monitor(pid)
 
     {:ok, components} = LiveViewDebug.live_components(pid)
-    node_ids = Enum.map(components, & &1.cid)
+    node_ids = Enum.map(components, &%Phoenix.LiveComponent.CID{cid: &1.cid})
     new_state = Map.put(state, pid, MapSet.new(node_ids))
 
     Bus.broadcast_event!(%LiveViewBorn{pid: pid})
@@ -61,38 +57,36 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
     {:noreply, new_state}
   end
 
+  @impl true
   def handle_info(
         %TraceCalled{
-          id: id,
           module: Phoenix.LiveView.Diff,
           function: :delete_component,
+          cid: cid,
           context: %{pid: pid}
         },
         state
       )
       when is_map_key(state, pid) do
-    case TracesStorage.get_by_id!(pid, id) do
-      nil ->
-        {:noreply, state}
+    if MapSet.member?(state[pid], cid) do
+      new_state = Map.update!(state, pid, &MapSet.delete(&1, cid))
 
-      %Trace{cid: cid} ->
-        if MapSet.member?(state[pid], cid) do
-          new_state =
-            state
-            |> Map.update!(pid, &MapSet.delete(&1, cid))
+      Bus.broadcast_event!(%ComponentDeleted{node_id: cid}, pid)
 
-          Bus.broadcast_event!(%ComponentDeleted{node_id: cid})
-          Bus.broadcast_event!(%ComponentDeleted{node_id: cid}, pid)
-
-          {:noreply, new_state}
-        else
-          {:noreply, state}
-        end
+      {:noreply, new_state}
+    else
+      {:noreply, state}
     end
   end
 
+  @impl true
   def handle_info({:DOWN, _ref, :process, pid, _reason}, state) when is_map_key(state, pid) do
     Bus.broadcast_event!(%LiveViewDied{pid: pid})
     {:noreply, Map.delete(state, pid)}
+  end
+
+  @impl true
+  def handle_info(_, state) do
+    {:noreply, state}
   end
 end
