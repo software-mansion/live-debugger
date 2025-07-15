@@ -77,8 +77,8 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
   defp apply_trace_patterns() do
     CallbackQueries.all_callbacks()
     |> Enum.each(fn mfa ->
-      Dbg.trace_pattern(mfa, [{:_, [], [{:return_trace}]}])
-      Dbg.trace_pattern(mfa, [{:_, [], [{:exception_trace}]}])
+      Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:return_trace))
+      Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:exception_trace))
     end)
   end
 end
