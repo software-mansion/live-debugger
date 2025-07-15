@@ -53,7 +53,9 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Queries.Callbacks do
       "Elixir.LiveDebugger.",
       "Elixir.LiveDebuggerWeb.",
       "LiveDebugger.",
-      "LiveDebuggerWeb."
+      "LiveDebuggerWeb.",
+      "LiveDebuggerRefactor.",
+      "Elixir.LiveDebuggerRefactor."
     ])
   end
 end

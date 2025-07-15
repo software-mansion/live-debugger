@@ -42,7 +42,10 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
     apply_trace_patterns()
 
     if SettingsStorage.get(:tracing_update_on_code_reload) do
-      Dbg.trace_pattern({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
+      Dbg.trace_pattern(
+        {Mix.Tasks.Compile.Elixir, :run, 1},
+        Dbg.flag_to_match_spec(:return_trace)
+      )
     end
 
     {:noreply, state}
