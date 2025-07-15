@@ -50,7 +50,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
 
   @impl true
   def handle_info(%SettingsChanged{key: :tracing_update_on_code_reload, value: true}, state) do
-    Dbg.trace_pattern({Mix.Tasks.Compile.Elixir, :run, 1}, [{:_, [], [{:return_trace}]}])
+    Dbg.trace_pattern({Mix.Tasks.Compile.Elixir, :run, 1}, Dbg.flag_to_match_spec(:return_trace))
 
     {:noreply, state}
   end
