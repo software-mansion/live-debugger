@@ -75,6 +75,10 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
   end
 
   defp apply_trace_patterns() do
+    # This is not a callback created by user
+    # We trace it to refresh the components tree
+    Dbg.trace_pattern({Phoenix.LiveView.Diff, :delete_component, 2}, [])
+
     CallbackQueries.all_callbacks()
     |> Enum.each(fn mfa ->
       Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:return_trace))

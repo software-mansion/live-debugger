@@ -33,7 +33,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
       MockAPIDbg
       |> expect(:tracer, fn _ -> {:ok, self()} end)
       |> expect(:process, fn _ -> :ok end)
-      |> expect(:trace_pattern, 18, fn _, _ -> :ok end)
+      |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
 
       expect(MockAPISettingsStorage, :get, fn :tracing_update_on_code_reload -> false end)
 
@@ -49,7 +49,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
       MockAPIDbg
       |> expect(:tracer, fn _ -> {:ok, self()} end)
       |> expect(:process, fn _ -> :ok end)
-      |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
+      |> expect(:trace_pattern, 20, fn _, _ -> :ok end)
 
       expect(MockAPISettingsStorage, :get, fn :tracing_update_on_code_reload -> true end)
 
@@ -78,7 +78,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
       |> expect(:loaded?, fn _ -> true end)
       |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
 
-      expect(MockAPIDbg, :trace_pattern, 18, fn _, _ -> :ok end)
+      expect(MockAPIDbg, :trace_pattern, 19, fn _, _ -> :ok end)
 
       event = %TracingRefreshed{}
 
