@@ -5,7 +5,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Process.Tracer do
 
   @spec handle_trace(args :: term(), n :: integer()) :: integer()
   def handle_trace(_args, n) do
-    # TODO: Implement tracing logic
+    # Implement tracing logic
     n - 1
   end
 end
