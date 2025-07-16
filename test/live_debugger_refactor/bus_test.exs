@@ -128,4 +128,36 @@ defmodule LiveDebuggerRefactor.BusTest do
       refute_receive %TestEvents.TestEvent{name: "test"}
     end
   end
+
+  describe "bang receive functions" do
+    test "bang functions work with broadcasting and receiving" do
+      assert BusImpl.receive_events!() == :ok
+      assert BusImpl.receive_events!(self()) == :ok
+
+      assert BusImpl.broadcast_event!(%TestEvents.TestEvent{name: "test"}, self()) == :ok
+
+      assert_receive %TestEvents.TestEvent{name: "test"}
+      assert_receive %TestEvents.TestEvent{name: "test"}
+    end
+
+    test "bang functions work with traces broadcasting and receiving" do
+      assert BusImpl.receive_traces!() == :ok
+      assert BusImpl.receive_traces!(self()) == :ok
+
+      assert BusImpl.broadcast_trace!(%TestEvents.TestEvent{name: "test"}, self()) == :ok
+
+      assert_receive %TestEvents.TestEvent{name: "test"}
+      assert_receive %TestEvents.TestEvent{name: "test"}
+    end
+
+    test "bang functions work with states broadcasting and receiving" do
+      assert BusImpl.receive_states!() == :ok
+      assert BusImpl.receive_states!(self()) == :ok
+
+      assert BusImpl.broadcast_state!(%TestEvents.TestEvent{name: "test"}, self()) == :ok
+
+      assert_receive %TestEvents.TestEvent{name: "test"}
+      assert_receive %TestEvents.TestEvent{name: "test"}
+    end
+  end
 end
