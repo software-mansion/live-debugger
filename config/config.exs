@@ -46,10 +46,6 @@ if config_env() == :dev do
       ]
     ]
 
-  if System.get_env("LVDBG") == "refactor" do
-    config :live_debugger, :refactor, true
-  end
-
   config :live_debugger, LiveDebuggerWeb.Endpoint, debug_errors: true
   config :live_debugger, LiveDebuggerRefactor.App.Web.Endpoint, debug_errors: true
 end
