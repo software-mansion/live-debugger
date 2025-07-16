@@ -9,8 +9,8 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
   alias LiveDebuggerRefactor.MockAPISettingsStorage
   alias LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
 
-  alias LiveDebuggerRefactor.App.Events.SettingsChanged
-  alias LiveDebuggerRefactor.App.Events.TracingRefreshed
+  alias LiveDebuggerRefactor.App.Events.UserChangedSettings
+  alias LiveDebuggerRefactor.App.Events.UserRefreshedTrace
 
   setup :verify_on_exit!
 
@@ -43,7 +43,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
     test "handles SettingsChanged event with tracing_update_on_code_reload set to true" do
       expect(MockAPIDbg, :trace_pattern, fn {Mix.Tasks.Compile.Elixir, :run, 1}, _ -> :ok end)
 
-      event = %SettingsChanged{key: :tracing_update_on_code_reload, value: true}
+      event = %UserChangedSettings{key: :tracing_update_on_code_reload, value: true}
 
       assert {:noreply, []} = TracingManager.handle_info(event, [])
     end
@@ -51,7 +51,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
     test "handles SettingsChanged event with tracing_update_on_code_reload set to false" do
       expect(MockAPIDbg, :clear_trace_pattern, fn {Mix.Tasks.Compile.Elixir, :run, 1} -> :ok end)
 
-      event = %SettingsChanged{key: :tracing_update_on_code_reload, value: false}
+      event = %UserChangedSettings{key: :tracing_update_on_code_reload, value: false}
 
       assert {:noreply, []} = TracingManager.handle_info(event, [])
     end
@@ -68,7 +68,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
       # Total: 1 + 18 = 19 calls
       expect(MockAPIDbg, :trace_pattern, 19, fn _, _ -> :ok end)
 
-      event = %TracingRefreshed{}
+      event = %UserRefreshedTrace{}
 
       assert {:noreply, []} = TracingManager.handle_info(event, [])
     end
