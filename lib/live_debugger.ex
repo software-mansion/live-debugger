@@ -26,6 +26,8 @@ defmodule LiveDebugger do
     put_live_debugger_tags(config)
 
     if Application.get_env(@app_name, :refactor, false) do
+      LiveDebuggerRefactor.API.SettingsStorage.init()
+
       get_refactor_children()
     else
       get_legacy_children(config)

@@ -3,7 +3,7 @@ defmodule LiveDebuggerRefactor.Structs.LvState do
   This module provides a struct to represent a LiveView state.
   """
 
-  defstruct [:socket, :components]
+  defstruct [:pid, :socket, :components]
 
   @type component() :: %{
           id: String.t(),
@@ -14,6 +14,7 @@ defmodule LiveDebuggerRefactor.Structs.LvState do
         }
 
   @type t() :: %__MODULE__{
+          pid: pid(),
           socket: Phoenix.LiveView.Socket.t(),
           components: [component()]
         }

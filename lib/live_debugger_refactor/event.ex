@@ -110,7 +110,7 @@ defmodule LiveDebuggerRefactor.Event do
   - A `context` field that defaults to an empty map
   - Type specifications
   """
-  defmacro defevent(module_name, fields) do
+  defmacro defevent(module_name, fields \\ []) do
     quote do
       defmodule unquote(module_name) do
         @default_fields [context: %{}]

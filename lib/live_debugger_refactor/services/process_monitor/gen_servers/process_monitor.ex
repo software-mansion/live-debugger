@@ -22,10 +22,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   end
 
   @impl true
-  @spec init(any()) :: {:ok, state()}
   def init(_opts) do
-    # TODO: change to receive_traces!/0
-    :ok = Bus.receive_traces()
+    Bus.receive_traces!()
 
     ok(%{})
   end

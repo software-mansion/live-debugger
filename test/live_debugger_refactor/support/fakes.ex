@@ -3,6 +3,25 @@ defmodule LiveDebuggerRefactor.Fakes do
   Fake complex structures
   """
 
+  def trace(opts \\ []) do
+    default = [
+      id: 1,
+      module: LiveDebuggerTest.LiveView,
+      function: :render,
+      arity: 1,
+      args: [%{socket_id: "socket_id"}],
+      socket_id: "socket_id",
+      pid: :c.pid(0, 1, 0),
+      timestamp: :erlang.timestamp(),
+      execution_time: 1,
+      type: :call
+    ]
+
+    fields = Keyword.merge(default, opts)
+
+    Kernel.struct!(LiveDebugger.Structs.Trace, fields)
+  end
+
   def liveview(opts \\ []) do
     default = [
       pid: :c.pid(0, 0, 2),
