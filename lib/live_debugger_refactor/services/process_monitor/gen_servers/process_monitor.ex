@@ -31,16 +31,17 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   @impl true
   def handle_info(%TraceReturned{function: :render, cid: cid, context: %{pid: pid}}, state)
       when is_map_key(state, pid) and not is_nil(cid) do
-    if not is_registered_component?(state, pid, cid) do
+    if registered_component?(state, pid, cid) do
+      {:noreply, state}
+    else
       new_state = state |> update_component_created(pid, cid)
       {:noreply, new_state}
-    else
-      {:noreply, state}
     end
   end
 
   @impl true
-  def handle_info(%TraceReturned{function: :render, cid: nil, context: %{pid: pid}}, state) do
+  def handle_info(%TraceReturned{function: :render, cid: nil, context: %{pid: pid}}, state)
+      when not is_map_key(state, pid) do
     new_state = state |> update_live_view_born(pid)
     {:noreply, new_state}
   end
@@ -56,7 +57,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         state
       )
       when is_map_key(state, pid) do
-    if is_registered_component?(state, pid, cid) do
+    if registered_component?(state, pid, cid) do
       new_state = state |> update_component_deleted(pid, cid)
       {:noreply, new_state}
     else
@@ -75,7 +76,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
     {:noreply, state}
   end
 
-  defp is_registered_component?(state, pid, cid) do
+  defp registered_component?(state, pid, cid) do
     MapSet.member?(state[pid], cid)
   end
 
