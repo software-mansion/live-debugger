@@ -5,6 +5,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Queries.Callbacks do
 
   alias LiveDebuggerRefactor.API.System.Module, as: ModuleAPI
   alias LiveDebuggerRefactor.Utils.Callbacks, as: UtilsCallbacks
+  alias LiveDebuggerRefactor.Utils.Modules, as: UtilsModules
 
   @doc """
   Returns a list of all callbacks of the traced modules.
@@ -17,7 +18,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Queries.Callbacks do
         module_charlist |> to_string |> String.to_atom()
       end)
       |> Enum.filter(&ModuleAPI.loaded?/1)
-      |> Enum.reject(&debugger?/1)
+      |> Enum.reject(&UtilsModules.debugger_module?/1)
 
     live_view_callbacks = UtilsCallbacks.live_view_callbacks()
 
@@ -44,18 +45,5 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Queries.Callbacks do
 
   defp live_behaviour?(module, behaviour) do
     module |> ModuleAPI.behaviours() |> Enum.any?(&(&1 == behaviour))
-  end
-
-  defp debugger?(module) do
-    stringified_module = Atom.to_string(module)
-
-    String.starts_with?(stringified_module, [
-      "Elixir.LiveDebugger.",
-      "Elixir.LiveDebuggerWeb.",
-      "LiveDebugger.",
-      "LiveDebuggerWeb.",
-      "LiveDebuggerRefactor.",
-      "Elixir.LiveDebuggerRefactor."
-    ])
   end
 end
