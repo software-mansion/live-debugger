@@ -1,4 +1,4 @@
-defmodule LiveDebuggerRefactor.Services.StateManager.GenServer.StateManager do
+defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManager do
   @moduledoc """
   Server managing states of LiveView applications.
   """

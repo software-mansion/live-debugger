@@ -5,7 +5,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.Supervisor do
 
   use Supervisor
 
-  alias LiveDebuggerRefactor.Services.StateManager.GenServer.StateManager
+  alias LiveDebuggerRefactor.Services.StateManager.GenServers.StateManager
 
   def start_link(opts \\ []) do
     Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
