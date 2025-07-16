@@ -5,7 +5,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.Events do
 
   use LiveDebuggerRefactor.Event
 
-  alias LiveDebugger.CommonTypes
+  alias LiveDebuggerRefactor.CommonTypes
 
   defevent(LiveViewBorn, pid: pid())
   defevent(LiveViewDied, pid: pid())

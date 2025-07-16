@@ -13,8 +13,6 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   }
 
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.{TraceCalled, TraceReturned}
-  alias LiveDebugger.Structs.Trace
-  alias LiveDebuggerRefactor.API.TracesStorage
   alias LiveDebuggerRefactor.API.LiveViewDebug
   alias LiveDebuggerRefactor.Bus
 
