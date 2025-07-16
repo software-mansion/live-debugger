@@ -7,7 +7,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Process.Tracer do
 
   @spec handle_trace(trace :: term(), n :: integer()) :: integer()
   def handle_trace(trace, n) do
-    TraceHandler.handle_trace(trace, n)
+    TraceHandler.send_trace(trace, n)
     n - 1
   end
 end

@@ -5,11 +5,16 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
 
   use GenServer
 
+  @spec start_link(opts :: list()) :: GenServer.on_start()
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
-  def handle_trace(trace, n) do
+  @doc """
+  It sends a raw trace from `:dbg.tracer` process to the GenServer.
+  """
+  @spec send_trace(trace :: term(), n :: integer()) :: :ok
+  def send_trace(trace, n) do
     GenServer.cast(__MODULE__, {:new_trace, trace, n})
   end
 
