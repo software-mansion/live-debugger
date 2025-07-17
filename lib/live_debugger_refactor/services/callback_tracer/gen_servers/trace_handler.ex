@@ -9,6 +9,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
 
   alias LiveDebuggerRefactor.Utils.Callbacks, as: CallbackUtils
   alias LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace, as: TraceActions
+  alias LiveDebuggerRefactor.Structs.Trace
 
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
 
@@ -46,27 +47,27 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
   #
   #########################################################
 
-  @impl true
-  def handle_cast(
-        {:new_trace, {_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, n},
-        state
-      ) do
-    # TODO: Update traced modules
-    dbg("Update traced modules")
-    dbg([n, state])
+  # @impl true
+  # def handle_cast(
+  #       {:new_trace, {_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, n},
+  #       state
+  #     ) do
+  #   # TODO: Update traced modules
+  #   dbg("Update traced modules")
+  #   dbg([n, state])
 
-    {:noreply, state}
-  end
+  #   {:noreply, state}
+  # end
 
-  @impl true
-  def handle_cast({:new_trace, {_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _}, _}, state) do
-    {:noreply, state}
-  end
+  # @impl true
+  # def handle_cast({:new_trace, {_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _}, _}, state) do
+  #   {:noreply, state}
+  # end
 
-  @impl true
-  def handle_cast({:new_trace, {_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _, _}, _}, state) do
-    {:noreply, state}
-  end
+  # @impl true
+  # def handle_cast({:new_trace, {_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _, _}, _}, state) do
+  #   {:noreply, state}
+  # end
 
   #########################################################
   # Handling component deletion traces
@@ -84,8 +85,9 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
          {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, ts}, n},
         state
       ) do
-    dbg("Delete component")
+    # dbg("Delete component")
     dbg([pid, cid, args, ts, n, state])
+    raise "Delete component"
 
     {:noreply, state}
   end
@@ -103,19 +105,23 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
   @impl true
   def handle_cast({:new_trace, {_, pid, :call, {module, fun, args}, ts}, n}, state)
       when fun in @allowed_callbacks do
+    dbg("Callback called")
+
     with {:ok, trace} <- TraceActions.create_trace(n, module, fun, args, pid, ts),
          {:ok, ref} <- TraceActions.persist_trace(trace),
          :ok <- TraceActions.publish_trace(trace, ref) do
       {:noreply, put_trace_record(state, trace, ref, ts)}
     else
-      {:error, err} ->
-        Logger.error("Error while handling trace: #{inspect(err)}")
+      {:error, "Transport PID is nil"} ->
         {:noreply, state}
+
+      {:error, err} ->
+        raise "Error while handling trace: #{inspect(err)}"
     end
   end
 
   @impl true
-  def handle_cast({:new_trace, {_, pid, type, {module, fun, _}, _, return_ts}, n}, state)
+  def handle_cast({:new_trace, {_, pid, type, {module, fun, _}, _, return_ts}, _n}, state)
       when fun in @allowed_callbacks and type in [:return_from, :exception_from] do
     with trace_key <- {pid, module, fun},
          {ref, trace, ts} <- get_trace_record(state, trace_key),
@@ -126,9 +132,11 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
          :ok <- TraceActions.publish_trace(updated_trace, ref) do
       {:noreply, delete_trace_record(state, trace_key)}
     else
-      {:error, err} ->
-        Logger.error("Error while handling trace: #{inspect(err)}")
+      :trace_record_not_found ->
         {:noreply, state}
+
+      {:error, err} ->
+        raise "Error while handling trace: #{inspect(err)}"
     end
   end
 
@@ -148,7 +156,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
   end
 
   defp get_trace_record(state, trace_key) do
-    Map.get(state, trace_key)
+    Map.get(state, trace_key, :trace_record_not_found)
   end
 
   defp delete_trace_record(state, trace_key) do
