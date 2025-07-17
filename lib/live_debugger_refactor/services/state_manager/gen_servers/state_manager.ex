@@ -6,9 +6,8 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManager do
   use GenServer
 
   alias LiveDebuggerRefactor.Services.StateManager.Actions
-  alias LiveDebuggerRefactor.Bus
 
-  # Events
+  alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
 
   def start_link(opts \\ []) do
