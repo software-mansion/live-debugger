@@ -119,8 +119,9 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
       when fun in @allowed_callbacks and type in [:return_from, :exception_from] do
     with trace_key <- {pid, module, fun},
          {ref, trace, ts} <- get_trace_record(state, trace_key),
-         exec_time <- calculate_execution_time(return_ts, ts),
-         {:ok, updated_trace} <- TraceActions.update_trace(trace, %{execution_time: exec_time}),
+         execution_time <- calculate_execution_time(return_ts, ts),
+         params <- %{execution_time: execution_time, type: type},
+         {:ok, updated_trace} <- TraceActions.update_trace(trace, params),
          {:ok, ref} <- TraceActions.persist_trace(updated_trace, ref),
          :ok <- TraceActions.publish_trace(updated_trace, ref) do
       {:noreply, delete_trace_record(state, trace_key)}
