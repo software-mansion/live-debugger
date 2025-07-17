@@ -33,7 +33,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV.Component,
         function: :render,
         cid: cid,
-        context: %{pid: pid}
+        pid: pid
       }
 
       MockBus
@@ -53,7 +53,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV.Component,
         function: :render,
         cid: cid2,
-        context: %{pid: pid}
+        pid: pid
       }
 
       MockBus
@@ -74,7 +74,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV.Component,
         function: :render,
         cid: cid1,
-        context: %{pid: pid2}
+        pid: pid2
       }
 
       MockBus
@@ -92,7 +92,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV,
         function: :render,
         cid: nil,
-        context: %{pid: pid}
+        pid: pid
       }
 
       MockBus
@@ -111,7 +111,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV,
         function: :render,
         cid: nil,
-        context: %{pid: pid2}
+        pid: pid2
       }
 
       MockBus
@@ -142,7 +142,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: Phoenix.LiveView.Diff,
         function: :delete_component,
         cid: cid,
-        context: %{pid: pid}
+        pid: pid
       }
 
       MockBus
@@ -163,7 +163,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: Phoenix.LiveView.Diff,
         function: :delete_component,
         cid: cid2,
-        context: %{pid: pid}
+        pid: pid
       }
 
       MockBus
@@ -183,7 +183,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: Phoenix.LiveView.Diff,
         function: :delete_component,
         cid: cid,
-        context: %{pid: pid2}
+        pid: pid2
       }
 
       MockBus
