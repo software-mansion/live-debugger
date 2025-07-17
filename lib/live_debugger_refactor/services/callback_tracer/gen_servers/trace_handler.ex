@@ -29,6 +29,18 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
     {:ok, opts}
   end
 
+  #########################################################
+  # Handling recompile events
+  #
+  # We catch this trace to know when modules were recompiled.
+  # We do not display this trace to user, so we do not have to care about order
+  # We need to catch that case because tracer disconnects from modules that were recompiled
+  # and we need to reapply tracing patterns to them.
+  # This will be replaced in the future with a more efficient way to handle this.
+  # https://github.com/software-mansion/live-debugger/issues/592
+  #
+  #########################################################
+
   @impl true
   def handle_cast(
         {:new_trace, {_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, n},
@@ -51,6 +63,16 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
     {:noreply, state}
   end
 
+  #########################################################
+  # Handling component deletion traces
+  #
+  # We catch this trace to know when components are deleted.
+  # We do not display this trace to user, so we do not have to care about order
+  # This will be replaced in the future with telemetry event added in LiveView 1.1.0
+  # https://hexdocs.pm/phoenix_live_view/1.1.0-rc.3/telemetry.html
+  #
+  #########################################################
+
   @impl true
   def handle_cast(
         {:new_trace,
@@ -62,6 +84,16 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
 
     {:noreply, state}
   end
+
+  #########################################################
+  # Handling standard callback traces
+  #
+  # To measure execution time of callbacks we save in GenServer timestamp when callback is called.
+  # Since LiveView is a single process all callbacks are called in order.
+  # This means that we can measure execution time of callbacks by subtracting timestamp when
+  # callback is called from timestamp when callback returns.
+  #
+  #########################################################
 
   @impl true
   def handle_cast({:new_trace, {_, pid, :call, {module, fun, args}, ts}, n}, state)
@@ -80,6 +112,10 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
 
     {:noreply, state}
   end
+
+  #########################################################
+  # Handling unknown traces
+  #########################################################
 
   @impl true
   def handle_cast({:new_trace, trace, _n}, state) do
