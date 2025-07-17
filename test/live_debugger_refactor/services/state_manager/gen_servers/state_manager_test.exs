@@ -10,7 +10,9 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManagerTest
 
   describe "init/1" do
     test "properly initializes StateManager" do
-      expect(MockBus, :receive_traces!, fn -> :ok end)
+      MockBus
+      |> expect(:receive_traces!, fn -> :ok end)
+      |> expect(:receive_events!, fn -> :ok end)
 
       assert {:ok, []} = StateManager.init([])
     end
