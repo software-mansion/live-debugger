@@ -1,8 +1,16 @@
 defmodule LiveDebuggerRefactor.Services.StateManager.Actions do
-  @moduledoc false
+  @moduledoc """
+  Actions responsible for saving LiveView process' state.
+  """
 
-  @spec save_state(pid()) :: boolean()
-  def save_state(pid) when is_pid(pid) do
-    raise "Not implemented"
+  alias LiveDebuggerRefactor.API.StatesStorage
+  alias LiveDebuggerRefactor.API.LiveViewDebug
+
+  @spec save_state!(pid()) :: :ok | {:error, term()}
+  def save_state!(pid) when is_pid(pid) do
+    with {:ok, lv_state} <- LiveViewDebug.liveview_state(pid) do
+      StatesStorage.save!(lv_state)
+      :ok
+    end
   end
 end
