@@ -5,7 +5,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
 
   use Phoenix.Component
 
-  alias LiveDebugger.Utils.Parsers
+  alias LiveDebuggerRefactor.App.Web.Utils.Format
   alias Phoenix.LiveView.JS
 
   @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
@@ -337,7 +337,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
 
   def icon_button(assigns) do
     assigns =
-      assign(assigns, :aria_label, assigns[:"aria-label"] || Parsers.kebab_to_text(assigns.icon))
+      assign(assigns, :aria_label, assigns[:"aria-label"] || Format.kebab_to_text(assigns.icon))
 
     ~H"""
     <.button
@@ -677,7 +677,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
 
     ~H"""
     <button
-      aria-label={Parsers.kebab_to_text(@icon)}
+      aria-label={Format.kebab_to_text(@icon)}
       class={[
         "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold  #{@selected_class}"
         | List.wrap(@class)
