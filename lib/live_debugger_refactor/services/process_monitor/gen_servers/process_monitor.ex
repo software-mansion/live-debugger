@@ -1,9 +1,27 @@
 defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor do
   @moduledoc """
   This module is monitoring the status of LiveView processes created by a debugged application.
+
+  For this server to function properly two services must be running and sending events:
+  - `LiveDebuggerRefactor.Services.CallbackTracer` sending `TraceCalled` and `TraceReturned` events
+  - `LiveDebuggerRefactor.Services.ClientCommunicator` sending `ClientConnected` (temporary name)
+
+  `LiveViewBorn` event is detected in two ways:
+  - When a `TraceReturned` event with function `:render` is received and the process is not already registered
+  - When a LiveView browser client connects via WebSocket, which sends a `ClientConnected` event
+
+  `LiveViewDied` event is detected when a monitored LiveView process sends a `:DOWN` message.
+
+  `LiveComponentCreated` event is detected when a `TraceReturned` event with function `:render`
+  is received and the process is already registered, but the component ID (cid) is not in the state.
+
+  `LiveComponentDeleted` event is detected when a `TraceCalled` event with module `Phoenix.LiveView.Diff`
+  and function `:delete_component` is received, and the component ID (cid) is in the state.
   """
 
   use GenServer
+
+  require Logger
 
   alias LiveDebuggerRefactor.CommonTypes
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Actions, as: ProcessMonitorActions
@@ -30,7 +48,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   end
 
   @impl true
-  def handle_info(%TraceReturned{function: :render, pid: pid, cid: nil}, state)
+  def handle_info(%TraceReturned{function: :render, pid: pid}, state)
       when not is_map_key(state, pid) do
     state
     |> ProcessMonitorActions.register_live_view_born!(pid)
@@ -89,6 +107,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
     if MapSet.member?(state[pid], cid) do
       state |> ProcessMonitorActions.register_component_deleted!(pid, cid)
     else
+      Logger.info("Component #{inspect(cid)} not found in state for pid #{inspect(pid)}")
       state
     end
   end

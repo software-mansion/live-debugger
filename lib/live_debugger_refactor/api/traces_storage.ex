@@ -5,7 +5,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
   """
 
   alias LiveDebugger.Structs.Trace
-  alias LiveDebugger.CommonTypes
+  alias LiveDebuggerRefactor.CommonTypes
 
   @typedoc """
   Pid is used to store mapping to table references.
