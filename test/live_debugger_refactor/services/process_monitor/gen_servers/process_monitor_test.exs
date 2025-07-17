@@ -3,14 +3,15 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
 
   import Mox
 
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.ComponentDeleted
   alias LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
-  alias LiveDebuggerRefactor.MockBus
   alias LiveDebuggerRefactor.MockAPILiveViewDebug
+
+  alias LiveDebuggerRefactor.MockBus
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewBorn
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.ComponentCreated
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentDeleted
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentCreated
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
 
   setup :verify_on_exit!
@@ -56,7 +57,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       }
 
       MockBus
-      |> expect(:broadcast_event!, fn %ComponentCreated{node_id: ^cid2}, ^pid -> :ok end)
+      |> expect(:broadcast_event!, fn %LiveComponentCreated{cid: ^cid2}, ^pid -> :ok end)
 
       assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
       assert new_state == %{pid => MapSet.new([cid1, cid2])}
@@ -145,7 +146,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       }
 
       MockBus
-      |> expect(:broadcast_event!, fn %ComponentDeleted{node_id: ^cid}, ^pid -> :ok end)
+      |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid}, ^pid -> :ok end)
 
       assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
       assert new_state == %{pid => MapSet.new()}

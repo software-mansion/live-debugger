@@ -3,21 +3,21 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.Actions do
   This module provides actions for the ProcessMonitor service
   """
 
-  alias LiveDebuggerRefactor.Bus
-  alias LiveDebuggerRefactor.API.LiveViewDebug
   alias LiveDebuggerRefactor.CommonTypes
+  alias LiveDebuggerRefactor.API.LiveViewDebug
   alias LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
 
+  alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewBorn
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.ComponentCreated
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.ComponentDeleted
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentCreated
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentDeleted
 
   @spec register_component_created(ProcessMonitor.state(), pid(), CommonTypes.cid()) ::
           ProcessMonitor.state()
   def register_component_created(state, pid, cid) do
     new_state = Map.update!(state, pid, &MapSet.put(&1, cid))
-    Bus.broadcast_event!(%ComponentCreated{node_id: cid}, pid)
+    Bus.broadcast_event!(%LiveComponentCreated{cid: cid}, pid)
 
     new_state
   end
@@ -26,7 +26,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.Actions do
           ProcessMonitor.state()
   def register_component_deleted(state, pid, cid) do
     new_state = Map.update!(state, pid, &MapSet.delete(&1, cid))
-    Bus.broadcast_event!(%ComponentDeleted{node_id: cid}, pid)
+    Bus.broadcast_event!(%LiveComponentDeleted{cid: cid}, pid)
 
     new_state
   end

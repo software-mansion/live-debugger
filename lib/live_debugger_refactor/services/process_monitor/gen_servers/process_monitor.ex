@@ -6,8 +6,9 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   use GenServer
 
   alias LiveDebuggerRefactor.CommonTypes
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Actions, as: ProcessMonitorActions
+
   alias LiveDebuggerRefactor.Bus
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Actions
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
 
@@ -29,18 +30,18 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   end
 
   @impl true
-  def handle_info(%TraceReturned{function: :render, cid: cid, context: %{pid: pid}}, state)
-      when is_map_key(state, pid) and not is_nil(cid) do
+  def handle_info(%TraceReturned{function: :render, cid: nil, context: %{pid: pid}}, state)
+      when not is_map_key(state, pid) do
     state
-    |> maybe_register_component_created(pid, cid)
+    |> ProcessMonitorActions.register_live_view_born(pid)
     |> noreply()
   end
 
   @impl true
-  def handle_info(%TraceReturned{function: :render, cid: nil, context: %{pid: pid}}, state)
-      when not is_map_key(state, pid) do
+  def handle_info(%TraceReturned{function: :render, cid: cid, context: %{pid: pid}}, state)
+      when is_map_key(state, pid) do
     state
-    |> Actions.register_live_view_born(pid)
+    |> maybe_register_component_created(pid, cid)
     |> noreply()
   end
 
@@ -63,7 +64,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   @impl true
   def handle_info({:DOWN, _ref, :process, pid, _reason}, state) when is_map_key(state, pid) do
     state
-    |> Actions.register_live_view_died(pid)
+    |> ProcessMonitorActions.register_live_view_died(pid)
     |> noreply()
   end
 
@@ -72,19 +73,21 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
     noreply(state)
   end
 
+  defp maybe_register_component_created(state, _pid, nil) do
+    state
+  end
+
   defp maybe_register_component_created(state, pid, cid) do
     if MapSet.member?(state[pid], cid) do
       state
     else
-      state
-      |> Actions.register_component_created(pid, cid)
+      state |> ProcessMonitorActions.register_component_created(pid, cid)
     end
   end
 
   defp maybe_register_component_deleted(state, pid, cid) do
     if MapSet.member?(state[pid], cid) do
-      state
-      |> Actions.register_component_deleted(pid, cid)
+      state |> ProcessMonitorActions.register_component_deleted(pid, cid)
     else
       state
     end

@@ -9,6 +9,6 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.Events do
 
   defevent(LiveViewBorn, pid: pid())
   defevent(LiveViewDied, pid: pid())
-  defevent(ComponentCreated, node_id: CommonTypes.cid())
-  defevent(ComponentDeleted, node_id: CommonTypes.cid())
+  defevent(LiveComponentCreated, cid: CommonTypes.cid())
+  defevent(LiveComponentDeleted, cid: CommonTypes.cid())
 end

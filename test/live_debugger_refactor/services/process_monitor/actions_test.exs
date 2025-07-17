@@ -3,13 +3,14 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.ActionsTest do
 
   import Mox
 
+  alias LiveDebuggerRefactor.MockAPILiveViewDebug
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Actions, as: ProcessMonitorActions
+
+  alias LiveDebuggerRefactor.MockBus
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewBorn
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.ComponentDeleted
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.ComponentCreated
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Actions, as: ProcessMonitorActions
-  alias LiveDebuggerRefactor.MockBus
-  alias LiveDebuggerRefactor.MockAPILiveViewDebug
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentDeleted
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentCreated
 
   setup :verify_on_exit!
 
@@ -19,7 +20,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.ActionsTest do
     state = %{pid => MapSet.new()}
 
     MockBus
-    |> expect(:broadcast_event!, fn %ComponentCreated{node_id: ^cid}, ^pid -> :ok end)
+    |> expect(:broadcast_event!, fn %LiveComponentCreated{cid: ^cid}, ^pid -> :ok end)
 
     new_state = ProcessMonitorActions.register_component_created(state, pid, cid)
 
@@ -32,7 +33,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.ActionsTest do
     state = %{pid => MapSet.new([cid])}
 
     MockBus
-    |> expect(:broadcast_event!, fn %ComponentDeleted{node_id: ^cid}, ^pid -> :ok end)
+    |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid}, ^pid -> :ok end)
 
     new_state = ProcessMonitorActions.register_component_deleted(state, pid, cid)
 
