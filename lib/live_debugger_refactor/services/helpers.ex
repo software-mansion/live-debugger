@@ -1,11 +1,9 @@
 defmodule LiveDebuggerRefactor.Services.Helpers do
   @moduledoc false
 
-  @type state() :: term()
-
-  @spec ok(state()) :: {:ok, state()}
+  @spec ok(term()) :: {:ok, term()}
   def ok(state), do: {:ok, state}
 
-  @spec noreply(state()) :: {:noreply, state()}
+  @spec noreply(term()) :: {:noreply, term()}
   def noreply(state), do: {:noreply, state}
 end
