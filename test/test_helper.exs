@@ -67,6 +67,16 @@ else
     :api_settings_storage,
     LiveDebuggerRefactor.MockAPISettingsStorage
   )
+
+  Mox.defmock(LiveDebuggerRefactor.MockAPIStatesStorage,
+    for: LiveDebuggerRefactor.API.StatesStorage
+  )
+
+  Application.put_env(
+    :live_debugger,
+    :api_states_storage,
+    LiveDebuggerRefactor.MockAPIStatesStorage
+  )
 end
 
 ExUnit.start()

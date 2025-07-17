@@ -5,14 +5,10 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
 
   use GenServer
 
-  alias LiveDebuggerRefactor.API.System.Dbg
-  alias LiveDebuggerRefactor.API.SettingsStorage
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Process.Tracer
-
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebuggerRefactor.Bus
-  alias LiveDebuggerRefactor.App.Events.SettingsChanged
-  alias LiveDebuggerRefactor.App.Events.TracingRefreshed
+  alias LiveDebuggerRefactor.App.Events.UserChangedSettings
+  alias LiveDebuggerRefactor.App.Events.UserRefreshedTrace
 
   @tracing_setup_delay Application.compile_env(:live_debugger, :tracing_setup_delay, 0)
 
@@ -30,44 +26,29 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
 
   @impl true
   def handle_info(:setup_tracing, state) do
-    case Dbg.tracer({&Tracer.handle_trace/2, 0}) do
-      {:ok, pid} ->
-        Process.link(pid)
-
-      {:error, error} ->
-        raise "Couldn't start tracer: #{inspect(error)}"
-    end
-
-    Dbg.process([:c, :timestamp])
-    apply_trace_patterns()
-
-    if SettingsStorage.get(:tracing_update_on_code_reload) do
-      Dbg.trace_pattern(
-        {Mix.Tasks.Compile.Elixir, :run, 1},
-        Dbg.flag_to_match_spec(:return_trace)
-      )
-    end
+    TracingActions.setup_tracing!()
 
     {:noreply, state}
   end
 
   @impl true
-  def handle_info(%SettingsChanged{key: :tracing_update_on_code_reload, value: true}, state) do
-    Dbg.trace_pattern({Mix.Tasks.Compile.Elixir, :run, 1}, Dbg.flag_to_match_spec(:return_trace))
+
+  def handle_info(%UserChangedSettings{key: :tracing_update_on_code_reload, value: true}, state) do
+    TracingActions.start_tracing_recompile_pattern()
 
     {:noreply, state}
   end
 
   @impl true
-  def handle_info(%SettingsChanged{key: :tracing_update_on_code_reload, value: false}, state) do
-    Dbg.clear_trace_pattern({Mix.Tasks.Compile.Elixir, :run, 1})
+  def handle_info(%UserChangedSettings{key: :tracing_update_on_code_reload, value: false}, state) do
+    TracingActions.stop_tracing_recompile_pattern()
 
     {:noreply, state}
   end
 
   @impl true
-  def handle_info(%TracingRefreshed{}, state) do
-    apply_trace_patterns()
+  def handle_info(%UserRefreshedTrace{}, state) do
+    TracingActions.refresh_tracing()
 
     {:noreply, state}
   end
@@ -75,17 +56,5 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
   @impl true
   def handle_info(_, state) do
     {:noreply, state}
-  end
-
-  defp apply_trace_patterns() do
-    # This is not a callback created by user
-    # We trace it to refresh the components tree
-    Dbg.trace_pattern({Phoenix.LiveView.Diff, :delete_component, 2}, [])
-
-    CallbackQueries.all_callbacks()
-    |> Enum.each(fn mfa ->
-      Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:return_trace))
-      Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:exception_trace))
-    end)
   end
 end
