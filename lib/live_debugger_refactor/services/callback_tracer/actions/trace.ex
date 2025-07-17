@@ -23,14 +23,26 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
     end
   end
 
-  def persist_trace(%Trace{pid: pid} = trace) do
-    with ref when is_reference(ref) <- TracesStorage.get_table(pid) do
-      TracesStorage.insert!(ref, trace)
+  def update_trace(%Trace{} = trace, params) do
+    {:ok, Map.merge(trace, params)}
+  end
 
+  def persist_trace(%Trace{pid: pid} = trace) do
+    with ref when is_reference(ref) <- TracesStorage.get_table(pid),
+         true <- TracesStorage.insert!(ref, trace) do
       {:ok, ref}
     else
       _ ->
-        {:error, "Table not found"}
+        {:error, "Could not persist trace"}
+    end
+  end
+
+  def persist_trace(%Trace{} = trace, ref) do
+    with true <- TracesStorage.insert!(ref, trace) do
+      {:ok, ref}
+    else
+      _ ->
+        {:error, "Could not persist trace"}
     end
   end
 
