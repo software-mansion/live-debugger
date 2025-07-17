@@ -33,7 +33,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   def handle_info(%TraceReturned{function: :render, cid: nil, context: %{pid: pid}}, state)
       when not is_map_key(state, pid) do
     state
-    |> ProcessMonitorActions.register_live_view_born(pid)
+    |> ProcessMonitorActions.register_live_view_born!(pid)
     |> noreply()
   end
 
@@ -64,7 +64,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   @impl true
   def handle_info({:DOWN, _ref, :process, pid, _reason}, state) when is_map_key(state, pid) do
     state
-    |> ProcessMonitorActions.register_live_view_died(pid)
+    |> ProcessMonitorActions.register_live_view_died!(pid)
     |> noreply()
   end
 
@@ -81,13 +81,13 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
     if MapSet.member?(state[pid], cid) do
       state
     else
-      state |> ProcessMonitorActions.register_component_created(pid, cid)
+      state |> ProcessMonitorActions.register_component_created!(pid, cid)
     end
   end
 
   defp maybe_register_component_deleted(state, pid, cid) do
     if MapSet.member?(state[pid], cid) do
-      state |> ProcessMonitorActions.register_component_deleted(pid, cid)
+      state |> ProcessMonitorActions.register_component_deleted!(pid, cid)
     else
       state
     end
