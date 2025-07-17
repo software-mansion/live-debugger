@@ -389,6 +389,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
         [] ->
           ref = :ets.new(@traces_table_name, [:ordered_set, :public])
           :ets.insert(@processes_table_name, {pid, ref})
+          :ets.give_away(ref, Process.whereis(LiveDebugger.Supervisor), nil)
           ref
 
         [{^pid, ref}] ->
