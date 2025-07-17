@@ -26,11 +26,11 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   def init(_opts) do
     Bus.receive_traces!()
 
-    ok(%{})
+    {:ok, %{}}
   end
 
   @impl true
-  def handle_info(%TraceReturned{function: :render, cid: nil, context: %{pid: pid}}, state)
+  def handle_info(%TraceReturned{function: :render, pid: pid, cid: nil}, state)
       when not is_map_key(state, pid) do
     state
     |> ProcessMonitorActions.register_live_view_born!(pid)
@@ -38,7 +38,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   end
 
   @impl true
-  def handle_info(%TraceReturned{function: :render, cid: cid, context: %{pid: pid}}, state)
+  def handle_info(%TraceReturned{function: :render, pid: pid, cid: cid}, state)
       when is_map_key(state, pid) do
     state
     |> maybe_register_component_created(pid, cid)
@@ -50,8 +50,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         %TraceCalled{
           module: Phoenix.LiveView.Diff,
           function: :delete_component,
-          cid: cid,
-          context: %{pid: pid}
+          pid: pid,
+          cid: cid
         },
         state
       )

@@ -8,16 +8,18 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
   alias LiveDebugger.CommonTypes
 
   defevent(TraceCalled,
-    id: neg_integer(),
+    trace_id: neg_integer() | 0,
     module: module(),
     function: atom(),
+    pid: pid(),
     cid: CommonTypes.cid() | nil
   )
 
   defevent(TraceReturned,
-    id: neg_integer(),
+    trace_id: neg_integer() | 0,
     module: module(),
     function: atom(),
+    pid: pid(),
     cid: CommonTypes.cid() | nil
   )
 end

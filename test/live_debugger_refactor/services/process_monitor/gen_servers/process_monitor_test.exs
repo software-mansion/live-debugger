@@ -29,7 +29,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       state = %{pid => MapSet.new([cid])}
 
       event = %TraceReturned{
-        id: -1,
+        trace_id: -1,
         module: TestLV.Component,
         function: :render,
         cid: cid,
@@ -49,7 +49,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       state = %{pid => MapSet.new([cid1])}
 
       event = %TraceReturned{
-        id: -1,
+        trace_id: -1,
         module: TestLV.Component,
         function: :render,
         cid: cid2,
@@ -70,7 +70,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       state = %{pid1 => MapSet.new([cid1])}
 
       event = %TraceReturned{
-        id: -1,
+        trace_id: -1,
         module: TestLV.Component,
         function: :render,
         cid: cid1,
@@ -88,7 +88,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       state = %{pid => MapSet.new()}
 
       event = %TraceReturned{
-        id: -1,
+        trace_id: -1,
         module: TestLV,
         function: :render,
         cid: nil,
@@ -107,7 +107,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       state = %{pid1 => MapSet.new()}
 
       event = %TraceReturned{
-        id: -1,
+        trace_id: -1,
         module: TestLV,
         function: :render,
         cid: nil,
@@ -138,7 +138,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       state = %{pid => MapSet.new([cid])}
 
       event = %TraceCalled{
-        id: -1,
+        trace_id: -1,
         module: Phoenix.LiveView.Diff,
         function: :delete_component,
         cid: cid,
@@ -159,7 +159,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       state = %{pid => MapSet.new([cid1])}
 
       event = %TraceCalled{
-        id: -1,
+        trace_id: -1,
         module: Phoenix.LiveView.Diff,
         function: :delete_component,
         cid: cid2,
@@ -179,7 +179,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       state = %{pid1 => MapSet.new([cid])}
 
       event = %TraceCalled{
-        id: -1,
+        trace_id: -1,
         module: Phoenix.LiveView.Diff,
         function: :delete_component,
         cid: cid,
