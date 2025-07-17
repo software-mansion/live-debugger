@@ -78,9 +78,21 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       }
 
       MockBus
-      |> deny(:broadcast_event!, 2)
+      |> expect(:broadcast_event!, fn %LiveViewBorn{pid: ^pid2} -> :ok end)
 
-      assert {:noreply, ^state} = ProcessMonitor.handle_info(event, state)
+      MockAPILiveViewDebug
+      |> expect(:live_components, fn ^pid2 -> {:ok, [%{cid: 1}, %{cid: 2}]} end)
+
+      assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
+
+      assert new_state == %{
+               pid1 => MapSet.new([cid1]),
+               pid2 =>
+                 MapSet.new([
+                   %Phoenix.LiveComponent.CID{cid: 1},
+                   %Phoenix.LiveComponent.CID{cid: 2}
+                 ])
+             }
     end
 
     test "with TraceReturned for render with nil cid and known pid" do
