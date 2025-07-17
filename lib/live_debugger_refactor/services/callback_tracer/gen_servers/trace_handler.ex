@@ -9,7 +9,9 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
 
   alias LiveDebuggerRefactor.Utils.Callbacks, as: CallbackUtils
 
-  @callback_functions Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0)) |> dbg()
+  @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
+
+  defguard allowed?(fun) when fun in @allowed_callbacks
 
   @spec start_link(opts :: list()) :: GenServer.on_start()
   def start_link(opts \\ []) do
@@ -45,6 +47,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
   defp handle_trace({_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, n) do
     # TODO: Update traced modules
     dbg("Update traced modules")
+    dbg(n)
 
     :ok
   end
@@ -58,41 +61,54 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
   # [:phoenix, :live_component, :destroyed]
   # https://hexdocs.pm/phoenix_live_view/1.1.0-rc.3/telemetry.html
   defp handle_trace(
-         {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, timestamp},
+         {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, ts},
          n
        ) do
     dbg("Delete component")
     dbg(pid)
     dbg(cid)
     dbg(args)
-    dbg(timestamp)
+    dbg(ts)
+    dbg(n)
 
     :ok
   end
 
   # This handles callbacks created by user that will be displayed to user
   # It cannot be async because we care about order
-  defp handle_trace({_, pid, :call, {module, fun, args}, timestamp}, n)
-       when fun in @callback_functions do
+  defp handle_trace({_, pid, :call, {module, fun, args}, ts}, n) when allowed?(fun) do
     dbg("Callback")
     dbg(pid)
     dbg(module)
     dbg(fun)
     dbg(args)
-    dbg(timestamp)
+    dbg(ts)
+    dbg(n)
 
     :ok
   end
 
   # This handles callbacks created by user that will be displayed to user
   # It cannot be async because we care about order
-  defp handle_trace({_, pid, type, {module, fun, _arity}, _, return_ts}, n)
-       when fun in @callback_functions and type in [:return_from, :exception_from] do
+  defp handle_trace({_, pid, :return_from, {module, fun, _}, _, ts}, n) when allowed?(fun) do
     dbg("Callback return")
     dbg(pid)
     dbg(module)
     dbg(fun)
-    dbg(return_ts)
+    dbg(ts)
+    dbg(n)
+    :ok
+  end
+
+  # This handles callbacks created by user that will be displayed to user
+  # It cannot be async because we care about order
+  defp handle_trace({_, pid, :exception_from, {module, fun, _}, _, ts}, n) when allowed?(fun) do
+    dbg("Callback exception")
+    dbg(pid)
+    dbg(module)
+    dbg(fun)
+    dbg(ts)
+    dbg(n)
 
     :ok
   end
