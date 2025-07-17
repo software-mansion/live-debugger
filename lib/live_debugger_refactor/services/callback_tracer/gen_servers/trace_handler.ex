@@ -8,8 +8,13 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
   require Logger
 
   alias LiveDebuggerRefactor.Utils.Callbacks, as: CallbackUtils
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace, as: TraceActions
 
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
+
+  @type trace_record :: {reference(), neg_integer(), non_neg_integer()}
+  @type trace_key :: {pid(), module(), atom()}
+  @type state :: %{trace_key => trace_record}
 
   @spec start_link(opts :: list()) :: GenServer.on_start()
   def start_link(opts \\ []) do
@@ -25,8 +30,8 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
   end
 
   @impl true
-  def init(opts) do
-    {:ok, opts}
+  def init(_opts) do
+    {:ok, %{}}
   end
 
   #########################################################
@@ -98,10 +103,15 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
   @impl true
   def handle_cast({:new_trace, {_, pid, :call, {module, fun, args}, ts}, n}, state)
       when fun in @allowed_callbacks do
-    dbg("Callback")
-    dbg([pid, module, fun, args, ts, n, state])
-
-    {:noreply, state}
+    with {:ok, trace} <- TraceActions.create_trace(n, module, fun, args, pid, ts),
+         {:ok, ref} <- TraceActions.persist_trace(trace),
+         :ok <- TraceActions.publish_trace(trace, ref) do
+      {:noreply, put_trace_record(state, trace, ref, ts)}
+    else
+      {:error, err} ->
+        Logger.error("Error while handling trace: #{inspect(err)}")
+        {:noreply, state}
+    end
   end
 
   @impl true
@@ -122,5 +132,17 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
     Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
 
     {:noreply, state}
+  end
+
+  defp put_trace_record(state, trace, ref, timestamp) do
+    Map.put(state, {trace.pid, trace.module, trace.function}, {ref, trace.id, timestamp})
+  end
+
+  defp get_trace_record(state, trace) do
+    Map.get(state, {trace.pid, trace.module, trace.function})
+  end
+
+  defp delete_trace_record(state, trace) do
+    Map.delete(state, {trace.pid, trace.module, trace.function})
   end
 end
