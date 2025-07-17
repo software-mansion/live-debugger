@@ -4,8 +4,8 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
   It uses Erlang's ETS (Erlang Term Storage).
   """
 
-  alias LiveDebugger.Structs.Trace
-  alias LiveDebugger.CommonTypes
+  alias LiveDebuggerRefactor.Structs.Trace
+  alias LiveDebuggerRefactor.CommonTypes
 
   @typedoc """
   Pid is used to store mapping to table references.
@@ -47,7 +47,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
 
   @doc """
   Inserts a new trace into the storage into an existing table indicated by a given reference.
-  It has better performance then `insert/1` as it does not perform lookup for reference. 
+  It has better performance then `insert/1` as it does not perform lookup for reference.
   In order to use it properly you have to store the reference returned by `get_table/1`.
   """
   @spec insert!(table_ref :: reference(), Trace.t()) :: true
