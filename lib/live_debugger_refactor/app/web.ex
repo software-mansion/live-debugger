@@ -7,6 +7,7 @@ defmodule LiveDebuggerRefactor.App.Web do
         layout: {unquote(__MODULE__).Layout, :app}
 
       on_mount({unquote(__MODULE__).Hooks.Flash, :add_hook})
+
       import Phoenix.HTML
       import unquote(__MODULE__).Helpers
       import unquote(__MODULE__).Components
@@ -30,7 +31,7 @@ defmodule LiveDebuggerRefactor.App.Web do
       use Phoenix.Component
 
       import Phoenix.HTML
-      import.Helpers
+      import unquote(__MODULE__).Helpers
       import unquote(__MODULE__).Components
     end
   end

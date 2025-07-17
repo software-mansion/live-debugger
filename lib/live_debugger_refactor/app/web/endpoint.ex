@@ -24,7 +24,7 @@ defmodule LiveDebuggerRefactor.App.Web.Endpoint do
   plug(Plug.Static, from: {:phoenix, "priv/static"}, at: "/assets/phoenix")
   plug(Plug.Static, from: {:phoenix_live_view, "priv/static"}, at: "/assets/phoenix_live_view")
 
-  if LiveDebugger.Env.dev?() do
+  if LiveDebuggerRefactor.Env.dev?() do
     plug(Plug.Static,
       at: "/assets/live_debugger",
       from: {:live_debugger, "priv/static/dev"},
