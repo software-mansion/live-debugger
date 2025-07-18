@@ -94,14 +94,20 @@ defmodule LiveDebugger.Services.TraceService do
 
     filtered =
       traces
-      |> Enum.filter(fn trace ->
-        trace
-        |> inspect()
-        |> String.downcase()
-        |> String.contains?(down)
-      end)
+      |> Enum.filter(&trace_contains?(&1, down))
 
     {filtered, cont}
+  end
+
+  @doc """
+  Returns a boolean indicating whether the trace contains the search phrase.
+  """
+  @spec trace_contains?(Trace.t(), String.t()) :: boolean()
+  def trace_contains?(trace, search) do
+    trace
+    |> inspect()
+    |> String.downcase()
+    |> String.contains?(search)
   end
 
   # Formats the continuation token and handles end-of-table marker.

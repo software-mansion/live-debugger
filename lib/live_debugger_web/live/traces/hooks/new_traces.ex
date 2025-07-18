@@ -6,6 +6,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.NewTraces do
 
   use LiveDebuggerWeb, :hook
 
+  alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
 
   # This function is using the `current_filters` assigns
@@ -35,20 +36,46 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.NewTraces do
   end
 
   defp handle_info({:new_trace, trace}, socket) do
-    live_stream_limit = socket.private.live_stream_limit
+    socket =
+      if TraceService.trace_contains?(trace, socket.assigns.trace_search_query) do
+        live_stream_limit = socket.private.live_stream_limit
 
-    trace_display = TraceDisplay.from_trace(trace, true)
+        trace_display = TraceDisplay.from_trace(trace, true)
+
+        socket
+        |> stream_insert(:existing_traces, trace_display, at: 0, limit: live_stream_limit)
+        |> assign(traces_empty?: false)
+      else
+        socket
+      end
 
     socket
-    |> stream_insert(:existing_traces, trace_display, at: 0, limit: live_stream_limit)
-    |> assign(traces_empty?: false)
     |> assign(trace_callback_running?: true)
     |> halt()
   end
 
   defp handle_info({:updated_trace, trace}, socket) do
-    live_stream_limit = socket.private.live_stream_limit
+    search_match? = TraceService.trace_contains?(trace, socket.assigns.trace_search_query)
+
+    socket
+    |> maybe_update_stream(trace, search_match?)
+    |> assign(trace_callback_running?: false)
+    |> push_event("stop-timer", %{})
+    |> halt()
+  end
+
+  defp handle_info(_, socket), do: {:cont, socket}
+
+  @spec maybe_update_stream(
+          Phoenix.LiveView.Socket.t(),
+          LiveDebugger.Structs.TraceDisplay.t(),
+          boolean()
+        ) :: Phoenix.LiveView.Socket.t()
+  defp maybe_update_stream(socket, _, false = _search_match?), do: socket
+
+  defp maybe_update_stream(socket, trace, true = _search_match) do
     trace_display = TraceDisplay.from_trace(trace, true)
+    live_stream_limit = socket.private.live_stream_limit
 
     execution_time = get_execution_times(socket)
     min_time = Map.get(execution_time, "exec_time_min", 0)
@@ -61,10 +88,5 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.NewTraces do
       socket
       |> stream_delete(:existing_traces, trace_display)
     end
-    |> assign(trace_callback_running?: false)
-    |> push_event("stop-timer", %{})
-    |> halt()
   end
-
-  defp handle_info(_, socket), do: {:cont, socket}
 end
