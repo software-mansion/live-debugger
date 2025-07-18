@@ -3,6 +3,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorageTest do
 
   import Mox
 
+  alias LiveDebuggerRefactor.Utils.Memory
   alias LiveDebuggerRefactor.Fakes
   alias LiveDebuggerRefactor.API.TracesStorage.Impl, as: TracesStorageImpl
 
@@ -425,6 +426,36 @@ defmodule LiveDebuggerRefactor.API.TracesStorageTest do
     assert ^table1 = TracesStorageImpl.get_table(pid1)
     assert table2 = TracesStorageImpl.get_table(pid2)
     assert [{^pid2, ^table2}, {^pid1, ^table1}] = :ets.tab2list(@processes_table_name)
+  end
+
+  describe "trim_table/2" do
+    test "using ref", %{pid: pid, table: table} do
+      approx_size =
+        Enum.reduce(-1..-100//-1, 0, fn id, acc ->
+          record = {id, Fakes.trace(id: id, pid: pid)}
+          :ets.insert(table, record)
+          acc + Memory.term_size(record)
+        end)
+
+      TracesStorageImpl.trim_table!(table, approx_size * 0.1)
+
+      assert 11 == :ets.select_count(table, [{{:"$1", :"$2"}, [], [true]}])
+    end
+
+    test "using pid", %{pid: pid, table: table} do
+      :ets.insert(@processes_table_name, {pid, table})
+
+      approx_size =
+        Enum.reduce(-1..-100//-1, 0, fn id, acc ->
+          record = {id, Fakes.trace(id: id, pid: pid)}
+          :ets.insert(table, record)
+          acc + Memory.term_size(record)
+        end)
+
+      TracesStorageImpl.trim_table!(pid, approx_size * 0.1)
+
+      assert 11 == :ets.select_count(table, [{{:"$1", :"$2"}, [], [true]}])
+    end
   end
 
   describe "delete_table!/1" do

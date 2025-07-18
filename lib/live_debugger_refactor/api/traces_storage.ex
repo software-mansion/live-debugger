@@ -23,6 +23,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
               {[Trace.t()], ets_continuation()} | :end_of_table
   @callback clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
   @callback get_table(ets_table_id()) :: reference()
+  @callback trim_table!(table_identifier(), max_size :: non_neg_integer()) :: true
   @callback delete_table!(table_identifier()) :: boolean()
   @callback get_all_tables() :: [reference()]
 
@@ -106,6 +107,11 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     impl().get_table(pid)
   end
 
+  @spec trim_table!(table_identifier(), non_neg_integer()) :: true
+  def trim_table!(table_id, max_size) when is_table_identifier(table_id) do
+    impl().trim_table!(table_id, max_size)
+  end
+
   @doc """
   Removes table for a given process from the storage
 
@@ -136,6 +142,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     @moduledoc false
     @behaviour LiveDebuggerRefactor.API.TracesStorage
 
+    alias LiveDebuggerRefactor.Utils.Memory
     alias Phoenix.LiveComponent.CID
     alias LiveDebuggerRefactor.API.TracesStorage
 
@@ -221,6 +228,28 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     @impl true
     def get_table(pid) do
       ets_table(pid)
+    end
+
+    @impl true
+    def trim_table!(pid, max_size) when is_pid(pid) do
+      pid
+      |> ets_table()
+      |> trim_table!(max_size)
+    end
+
+    def trim_table!(table, max_size) do
+      :ets.safe_fixtable(table, true)
+
+      # Try catch is used for early return from `foldl` since it doesn't support `:halt` | `:continue`.
+      try do
+        :ets.foldl(&foldl_record_sizes(&1, &2, max_size), 0, table)
+      catch
+        {:key, key} ->
+          :ets.select_delete(table, [{{:"$1", :_}, [{:>, :"$1", key}], [true]}])
+      end
+
+      :ets.safe_fixtable(table, false)
+      true
     end
 
     @impl true
@@ -379,6 +408,18 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       min_time = Map.get(execution_times, "exec_time_min", 0)
       max_time = Map.get(execution_times, "exec_time_max", :infinity)
       {:andalso, {:>=, :"$2", min_time}, {:"=<", :"$2", max_time}}
+    end
+
+    @spec foldl_record_sizes({term(), term()}, non_neg_integer(), non_neg_integer()) ::
+            non_neg_integer()
+    defp foldl_record_sizes({key, _} = record, acc, max_size) do
+      size = Memory.term_size(record)
+
+      if acc + size > max_size do
+        throw({:key, key})
+      else
+        acc + size
+      end
     end
 
     @spec ets_table(table_identifier()) :: :ets.table()
