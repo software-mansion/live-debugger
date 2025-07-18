@@ -37,7 +37,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.NewTraces do
 
   defp handle_info({:new_trace, trace}, socket) do
     socket =
-      if TraceService.trace_contains?(trace, socket.assigns.trace_search_query) do
+      if TraceService.trace_contains?(trace, socket.assigns[:trace_search_query]) do
         live_stream_limit = socket.private.live_stream_limit
 
         trace_display = TraceDisplay.from_trace(trace, true)
@@ -55,7 +55,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.NewTraces do
   end
 
   defp handle_info({:updated_trace, trace}, socket) do
-    search_match? = TraceService.trace_contains?(trace, socket.assigns.trace_search_query)
+    search_match? = TraceService.trace_contains?(trace, socket.assigns[:trace_search_query])
 
     socket
     |> maybe_update_stream(trace, search_match?)

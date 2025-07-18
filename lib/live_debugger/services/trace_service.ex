@@ -103,6 +103,9 @@ defmodule LiveDebugger.Services.TraceService do
   Returns a boolean indicating whether the trace contains the search phrase.
   """
   @spec trace_contains?(Trace.t(), String.t()) :: boolean()
+  def trace_contains?(_trace, nil), do: true
+  def trace_contains?(_trace, ""), do: true
+
   def trace_contains?(trace, search) do
     trace
     |> inspect()
