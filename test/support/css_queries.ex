@@ -30,4 +30,8 @@ defmodule LiveDebugger.Support.CssQueries do
   def sidebar_basic_info() do
     css("#sidebar-content-slide-over-basic-info")
   end
+
+  def search_bar() do
+    css("#trace-search-input")
+  end
 end

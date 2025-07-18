@@ -314,6 +314,31 @@ defmodule Services.TraceServiceTest do
     end
   end
 
+  describe "trace_contains?/2" do
+    test "returns true when the trace contains the search phrase", %{
+      module: module,
+      pid: pid
+    } do
+      trace =
+        Fakes.trace(
+          id: 1,
+          module: module,
+          function: :render,
+          arity: 1,
+          pid: pid,
+          args: [%{message: "HelloWorld"}]
+        )
+
+      assert TraceService.trace_contains?(trace, "helloworld")
+    end
+
+    test "returns false when the phrase is not present in the trace", %{module: module, pid: pid} do
+      trace = Fakes.trace(id: 5, module: module, function: :terminate, pid: pid)
+
+      refute TraceService.trace_contains?(trace, "nonexistentphrase")
+    end
+  end
+
   describe "clear_traces/2" do
     test "clears traces for LiveView or LiveComponent", %{module: module, pid: pid, table: table} do
       cid = %Phoenix.LiveComponent.CID{cid: 3}
