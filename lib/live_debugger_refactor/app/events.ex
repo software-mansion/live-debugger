@@ -11,4 +11,7 @@ defmodule LiveDebuggerRefactor.App.Events do
   )
 
   defevent(UserRefreshedTrace)
+
+  defevent(DebuggerMounted)
+  defevent(DebuggerTerminated)
 end
