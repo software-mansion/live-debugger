@@ -105,7 +105,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
 
   @impl true
   def handle_info(_, state) do
-    noreply(state)
+    {:noreply, state}
   end
 
   @spec update_live_view_died(state(), pid()) :: state()
@@ -121,8 +121,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
 
   @spec add_watcher(state(), pid(), pid()) :: state()
   defp add_watcher(state, pid, watcher) when is_map_key(state, pid) do
-    state
-    |> Map.update!(pid, fn info ->
+    Map.update!(state, pid, fn info ->
       watchers = MapSet.put(info.watchers, watcher)
       %{info | watchers: watchers}
     end)
@@ -138,8 +137,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
 
   @spec remove_watcher(state(), pid(), pid()) :: state()
   defp remove_watcher(state, pid, watcher) do
-    state
-    |> Map.update!(pid, fn info ->
+    Map.update!(state, pid, fn info ->
       watchers = MapSet.delete(info.watchers, watcher)
       %{info | watchers: watchers}
     end)
