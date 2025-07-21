@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Env do
+defmodule LiveDebuggerRefactor.Env do
   @moduledoc """
   Gives you a save option to check env in runtime
   """
