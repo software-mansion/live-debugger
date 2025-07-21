@@ -39,10 +39,12 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
     {:ok, %{}}
   end
 
+  @spec alive?(pid()) :: boolean()
   def alive?(pid) when is_pid(pid) do
     GenServer.call(__MODULE__, {:alive?, pid})
   end
 
+  @spec watched?(pid()) :: boolean()
   def watched?(pid) when is_pid(pid) do
     GenServer.call(__MODULE__, {:watched?, pid})
   end
@@ -106,6 +108,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
     noreply(state)
   end
 
+  @spec update_live_view_died(state(), pid()) :: state()
   defp update_live_view_died(state, pid) do
     with {%ProcessInfo{} = info, new_state} <- Map.pop!(state, pid),
          true <- Enum.empty?(info.watchers) do
@@ -116,6 +119,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
     end
   end
 
+  @spec add_watcher(state(), pid(), pid()) :: state()
   defp add_watcher(state, pid, watcher) when is_map_key(state, pid) do
     state
     |> Map.update!(pid, fn info ->
@@ -132,6 +136,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
     end
   end
 
+  @spec remove_watcher(state(), pid(), pid()) :: state()
   defp remove_watcher(state, pid, watcher) do
     state
     |> Map.update!(pid, fn info ->

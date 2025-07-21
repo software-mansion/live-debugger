@@ -113,7 +113,6 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
              }
     end
 
-    @tag :current
     test "for DebuggerMounted event when pid is unknown and not alive" do
       debugged_pid = spawn(fn -> :ok end)
       debugger_pid = :c.pid(0, 12, 0)
