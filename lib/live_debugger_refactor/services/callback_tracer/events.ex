@@ -6,9 +6,10 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
   use LiveDebuggerRefactor.Event
 
   alias LiveDebugger.CommonTypes
+  alias LiveDebuggerRefactor.Structs.Trace
 
   defevent(TraceCalled,
-    trace_id: neg_integer() | 0,
+    trace_id: Trace.id(),
     module: module(),
     function: atom(),
     pid: pid(),
@@ -16,7 +17,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
   )
 
   defevent(TraceReturned,
-    trace_id: neg_integer() | 0,
+    trace_id: Trace.id(),
     module: module(),
     function: atom(),
     pid: pid(),

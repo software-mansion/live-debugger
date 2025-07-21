@@ -10,6 +10,8 @@ defmodule LiveDebuggerRefactor.API.StatesStorage do
   @callback init() :: :ok
   @callback save!(LvState.t()) :: true
   @callback get!(pid()) :: LvState.t() | nil
+  @callback delete!(pid()) :: true
+  @callback get_all_states() :: [{pid(), LvState.t()}]
   @callback get_states_table() :: :ets.table()
 
   @doc """
@@ -33,7 +35,19 @@ defmodule LiveDebuggerRefactor.API.StatesStorage do
   def get!(pid) when is_pid(pid), do: impl().get!(pid)
 
   @doc """
+  Deletes saved state for `pid`.
+  """
+  @spec delete!(pid()) :: true
+  def delete!(pid) when is_pid(pid), do: impl().delete!(pid)
+
+  @doc """
   Retrieves all saved states.
+  """
+  @spec get_all_states() :: [{pid(), LvState.t()}]
+  def get_all_states(), do: impl().get_all_states()
+
+  @doc """
+  Retrieves states table reference.
   """
   @spec get_states_table() :: :ets.table()
   def get_states_table(), do: impl().get_states_table()
@@ -80,6 +94,14 @@ defmodule LiveDebuggerRefactor.API.StatesStorage do
           nil
       end
     end
+
+    @impl true
+    def delete!(pid) do
+      :ets.delete(@table_name, pid)
+    end
+
+    @impl true
+    def get_all_states(), do: :ets.tab2list(@table_name)
 
     @impl true
     def get_states_table(), do: @table_name

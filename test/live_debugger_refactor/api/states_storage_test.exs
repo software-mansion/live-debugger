@@ -64,5 +64,42 @@ defmodule LiveDebuggerRefactor.Api.StatesStorageTest do
 
       assert nil == StateStorageImpl.get!(pid)
     end
+
+    test "delete!/1 removes state by pid" do
+      pid = :c.pid(0, 3, 0)
+
+      state = %LvState{
+        pid: pid,
+        socket: Fakes.socket(),
+        components: Fakes.live_components()
+      }
+
+      :ets.insert(@table_name, {pid, state})
+
+      assert true == StateStorageImpl.delete!(pid)
+      assert [] == :ets.lookup(@table_name, pid)
+    end
+
+    test "get_all_states/0 returns all saved states" do
+      pid1 = :c.pid(0, 4, 0)
+      pid2 = :c.pid(0, 5, 0)
+
+      state1 = %LvState{
+        pid: pid1,
+        socket: Fakes.socket(),
+        components: Fakes.live_components()
+      }
+
+      state2 = %LvState{
+        pid: pid2,
+        socket: Fakes.socket(),
+        components: Fakes.live_components()
+      }
+
+      :ets.insert(@table_name, {pid1, state1})
+      :ets.insert(@table_name, {pid2, state2})
+
+      assert [{^pid1, ^state1}, {^pid2, ^state2}] = StateStorageImpl.get_all_states()
+    end
   end
 end
