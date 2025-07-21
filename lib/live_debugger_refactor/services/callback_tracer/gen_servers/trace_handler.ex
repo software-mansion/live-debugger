@@ -14,7 +14,22 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
 
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
 
+  @typedoc """
+  Trace record is a tuple of:
+  - reference to ETS table
+  - trace struct
+  - timestamp of the trace
+
+  We are storing this tuple in the state of this GenServer to calculate execution time of callbacks.
+  """
   @type trace_record :: {reference(), Trace.t(), non_neg_integer()}
+
+  @typedoc """
+  Trace key is a tuple of:
+  - pid of the process that called the callback
+  - module of the callback
+  - function of the callback
+  """
   @type trace_key :: {pid(), module(), atom()}
   @type state :: %{trace_key => trace_record}
 
