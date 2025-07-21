@@ -1,9 +1,11 @@
 defmodule LiveDebuggerRefactor.Services.StateManager.Supervisor do
   @moduledoc """
-  Supervisor for StateManager service.
+  Supervisor for `StateManager` service.
   """
 
   use Supervisor
+
+  alias LiveDebuggerRefactor.Services.StateManager.GenServers.StateManager
 
   def start_link(opts \\ []) do
     Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
@@ -11,7 +13,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.Supervisor do
 
   @impl true
   def init(_opts) do
-    children = []
+    children = [StateManager]
 
     Supervisor.init(children, strategy: :one_for_one)
   end

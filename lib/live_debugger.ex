@@ -36,11 +36,11 @@ defmodule LiveDebugger do
   end
 
   defp get_refactor_children() do
-    if LiveDebugger.Env.unit_test?() do
+    if LiveDebuggerRefactor.Env.unit_test?() do
       []
     else
       []
-      |> LiveDebuggerWeb.Endpoint.append_endpoint_children()
+      |> LiveDebuggerRefactor.App.append_app_children()
       |> LiveDebuggerRefactor.Bus.append_bus_tree()
       |> LiveDebuggerRefactor.Services.append_services_children()
     end
@@ -101,6 +101,7 @@ defmodule LiveDebugger do
       end
 
     Application.put_env(@app_name, LiveDebuggerWeb.Endpoint, endpoint_config)
+    Application.put_env(@app_name, LiveDebuggerRefactor.App.Web.Endpoint, endpoint_config)
   end
 
   defp put_live_debugger_tags(config) do
@@ -110,7 +111,7 @@ defmodule LiveDebugger do
     browser_features? = Keyword.get(config, :browser_features?, true)
     debug_button? = Keyword.get(config, :debug_button?, true)
     highlighting? = Keyword.get(config, :highlighting?, true)
-    version = Application.spec(:live_debugger)[:vsn] |> to_string()
+    version = Application.spec(@app_name)[:vsn] |> to_string()
     dead_view_mode = Keyword.get(config, :dead_view_mode, true)
 
     devtools_allow_redirects = Keyword.get(config, :devtools_allow_redirects, not dead_view_mode)

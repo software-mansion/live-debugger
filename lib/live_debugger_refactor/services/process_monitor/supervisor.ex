@@ -2,6 +2,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.Supervisor do
   @moduledoc """
   Supervisor for ProcessMonitor service.
   """
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
 
   use Supervisor
 
@@ -11,7 +12,9 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.Supervisor do
 
   @impl true
   def init(_opts) do
-    children = []
+    children = [
+      {ProcessMonitor, []}
+    ]
 
     Supervisor.init(children, strategy: :one_for_one)
   end
