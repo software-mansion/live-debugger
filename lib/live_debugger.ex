@@ -35,7 +35,7 @@ defmodule LiveDebugger do
   end
 
   defp get_refactor_children() do
-    if LiveDebugger.Env.unit_test?() do
+    if LiveDebuggerRefactor.Env.unit_test?() do
       []
     else
       []

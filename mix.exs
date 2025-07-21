@@ -45,7 +45,7 @@ defmodule LiveDebugger.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "cmd --cd assets npm install", "assets.setup", "assets.build:dev"],
-      test: [&unit_tests_setup/1, "test --exclude e2e"],
+      test: ["test --exclude e2e"],
       e2e: [&e2e_tests_setup/1, "test --only e2e"],
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
       "assets.build:deploy": ["esbuild deploy_build", "tailwind deploy_build"],
@@ -53,12 +53,7 @@ defmodule LiveDebugger.MixProject do
     ]
   end
 
-  defp unit_tests_setup(_) do
-    Application.put_env(:live_debugger, :test_mode?, true)
-  end
-
   defp e2e_tests_setup(_) do
-    Application.put_env(:live_debugger, :test_mode?, true)
     Application.put_env(:live_debugger, :e2e?, true)
   end
 
