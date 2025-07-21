@@ -68,6 +68,16 @@ else
     LiveDebuggerRefactor.MockAPISettingsStorage
   )
 
+  Mox.defmock(LiveDebuggerRefactor.MockAPITracesStorage,
+    for: LiveDebuggerRefactor.API.TracesStorage
+  )
+
+  Application.put_env(
+    :live_debugger,
+    :api_traces_storage,
+    LiveDebuggerRefactor.MockAPITracesStorage
+  )
+
   Mox.defmock(LiveDebuggerRefactor.MockAPIStatesStorage,
     for: LiveDebuggerRefactor.API.StatesStorage
   )
