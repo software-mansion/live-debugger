@@ -18,7 +18,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
           fun :: atom(),
           args :: list(),
           pid :: pid(),
-          timestamp :: non_neg_integer()
+          timestamp :: :erlang.timestamp()
         ) :: {:ok, Trace.t()} | {:error, term()}
   def create_trace(n, module, fun, args, pid, timestamp) do
     trace = Trace.new(n, module, fun, args, pid, timestamp)
@@ -37,7 +37,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
           args :: list(),
           pid :: pid(),
           cid :: String.t(),
-          timestamp :: non_neg_integer()
+          timestamp :: :erlang.timestamp()
         ) :: {:ok, Trace.t()} | {:error, term()}
   def create_delete_component_trace(n, args, pid, cid, timestamp) do
     pid
