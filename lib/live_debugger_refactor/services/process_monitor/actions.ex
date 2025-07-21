@@ -17,7 +17,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.Actions do
           ProcessMonitor.state()
   def register_component_created!(state, pid, cid) do
     new_state = Map.update!(state, pid, &MapSet.put(&1, cid))
-    Bus.broadcast_event!(%LiveComponentCreated{cid: cid}, pid)
+    Bus.broadcast_event!(%LiveComponentCreated{cid: cid, pid: pid}, pid)
 
     new_state
   end
@@ -26,7 +26,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.Actions do
           ProcessMonitor.state()
   def register_component_deleted!(state, pid, cid) do
     new_state = Map.update!(state, pid, &MapSet.delete(&1, cid))
-    Bus.broadcast_event!(%LiveComponentDeleted{cid: cid}, pid)
+    Bus.broadcast_event!(%LiveComponentDeleted{cid: cid, pid: pid}, pid)
 
     new_state
   end
