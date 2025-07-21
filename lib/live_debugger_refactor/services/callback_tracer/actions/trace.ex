@@ -4,7 +4,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
   """
 
   alias LiveDebuggerRefactor.Structs.Trace
-  alias LiveDebuggerRefactor.API.TracesStorage, as: TracesStorage
+  alias LiveDebuggerRefactor.API.TracesStorage
   alias LiveDebuggerRefactor.API.LiveViewDebug
 
   alias LiveDebuggerRefactor.Bus
