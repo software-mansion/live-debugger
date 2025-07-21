@@ -9,7 +9,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
 
   defevent(TraceCalled,
     trace_id: neg_integer() | 0,
-    ets_ref: reference(),
+    ets_ref: reference() | nil,
     module: module(),
     function: atom(),
     pid: pid(),
@@ -18,7 +18,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
 
   defevent(TraceReturned,
     trace_id: neg_integer() | 0,
-    ets_ref: reference(),
+    ets_ref: reference() | nil,
     module: module(),
     function: atom(),
     pid: pid(),
@@ -27,7 +27,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
 
   defevent(TraceErrored,
     trace_id: neg_integer() | 0,
-    ets_ref: reference(),
+    ets_ref: reference() | nil,
     module: module(),
     function: atom(),
     pid: pid(),
