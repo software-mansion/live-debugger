@@ -5,6 +5,8 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.GarbageColle
 
   use GenServer
 
+  alias LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
+
   alias LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecting,
     as: GarbageCollectingActions
 
@@ -28,8 +30,11 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.GarbageColle
 
   @impl true
   def handle_call(:garbage_collect, _from, state) do
-    traces_collected = GarbageCollectingActions.garbage_collect_traces!()
-    states_collected = GarbageCollectingActions.garbage_collect_states!()
+    watched_pids = TableWatcher.watched_pids()
+    alive_pids = TableWatcher.alive_pids()
+
+    traces_collected = GarbageCollectingActions.garbage_collect_traces!(watched_pids, alive_pids)
+    states_collected = GarbageCollectingActions.garbage_collect_states!(watched_pids)
 
     if traces_collected or states_collected do
       Bus.broadcast_event!(%GarbageCollected{})

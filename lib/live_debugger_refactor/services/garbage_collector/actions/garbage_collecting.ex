@@ -5,7 +5,6 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
 
   alias LiveDebuggerRefactor.API.StatesStorage
   alias LiveDebuggerRefactor.API.TracesStorage
-  alias LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
 
   alias LiveDebuggerRefactor.Services.GarbageCollector.Queries.GarbageCollecting,
     as: GarbageCollectingQueries
@@ -14,14 +13,14 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
   alias LiveDebuggerRefactor.Services.GarbageCollector.Events.TableTrimmed
   alias LiveDebuggerRefactor.Services.GarbageCollector.Events.TableDeleted
 
-  @spec garbage_collect_traces!() :: boolean()
-  def garbage_collect_traces!() do
+  @spec garbage_collect_traces!(MapSet.t(pid()), MapSet.t(pid())) :: boolean()
+  def garbage_collect_traces!(watched_pids, alive_pids) do
     TracesStorage.get_all_tables()
     |> Enum.reduce(false, fn {pid, table}, acc ->
       result =
         cond do
-          TableWatcher.watched?(pid) -> maybe_trim_traces_table!(table, :watched)
-          TableWatcher.alive?(pid) -> maybe_trim_traces_table!(table, :non_watched)
+          MapSet.member?(watched_pids, pid) -> maybe_trim_traces_table!(table, :watched)
+          MapSet.member?(alive_pids, pid) -> maybe_trim_traces_table!(table, :non_watched)
           true -> delete_traces_table!(table)
         end
 
@@ -29,14 +28,14 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
     end)
   end
 
-  @spec garbage_collect_states!() :: boolean()
-  def garbage_collect_states!() do
+  @spec garbage_collect_states!(MapSet.t(pid())) :: boolean()
+  def garbage_collect_states!(watched_pids) do
     StatesStorage.get_all_states()
     |> Enum.reduce(false, fn {pid, _}, acc ->
       result =
         cond do
-          TableWatcher.watched?(pid) -> false
-          true -> StatesStorage.delete!(pid)
+          MapSet.member?(watched_pids, pid) -> false
+          true -> delete_states_table!(pid)
         end
 
       acc or result
@@ -59,10 +58,12 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
   defp delete_traces_table!(table) do
     TracesStorage.delete_table!(table)
     Bus.broadcast_event!(%TableDeleted{})
+    true
   end
 
-  defp delete_states_table!(table) do
+  defp delete_states_table!(pid) do
     StatesStorage.delete!(pid)
     Bus.broadcast_event!(%TableDeleted{})
+    true
   end
 end
