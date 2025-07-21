@@ -12,6 +12,14 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceErrored
 
+  @spec create_trace(
+          n :: non_neg_integer(),
+          module :: module(),
+          fun :: atom(),
+          args :: list(),
+          pid :: pid(),
+          timestamp :: non_neg_integer()
+        ) :: {:ok, Trace.t()} | {:error, term()}
   def create_trace(n, module, fun, args, pid, timestamp) do
     trace = Trace.new(n, module, fun, args, pid, timestamp)
 
@@ -24,6 +32,13 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
     end
   end
 
+  @spec create_delete_component_trace(
+          n :: non_neg_integer(),
+          args :: list(),
+          pid :: pid(),
+          cid :: String.t(),
+          timestamp :: non_neg_integer()
+        ) :: {:ok, Trace.t()} | {:error, term()}
   def create_delete_component_trace(n, args, pid, cid, timestamp) do
     pid
     |> LiveViewDebug.socket()
@@ -49,10 +64,12 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
     end
   end
 
+  @spec update_trace(Trace.t(), map()) :: {:ok, Trace.t()}
   def update_trace(%Trace{} = trace, params) do
     {:ok, Map.merge(trace, params)}
   end
 
+  @spec persist_trace(Trace.t()) :: {:ok, reference()} | {:error, term()}
   def persist_trace(%Trace{pid: pid} = trace) do
     with ref when is_reference(ref) <- TracesStorage.get_table(pid),
          true <- TracesStorage.insert!(ref, trace) do
@@ -63,12 +80,14 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
     end
   end
 
+  @spec persist_trace(Trace.t(), reference()) :: {:ok, reference()}
   def persist_trace(%Trace{} = trace, ref) do
     TracesStorage.insert!(ref, trace)
 
     {:ok, ref}
   end
 
+  @spec publish_trace(Trace.t(), reference() | nil) :: :ok | {:error, term()}
   def publish_trace(%Trace{pid: pid} = trace, ref \\ nil) do
     trace
     |> get_event(ref)
