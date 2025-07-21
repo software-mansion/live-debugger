@@ -64,12 +64,9 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
   end
 
   def persist_trace(%Trace{} = trace, ref) do
-    with true <- TracesStorage.insert!(ref, trace) do
-      {:ok, ref}
-    else
-      _ ->
-        {:error, "Could not persist trace"}
-    end
+    TracesStorage.insert!(ref, trace)
+
+    {:ok, ref}
   end
 
   def publish_trace(%Trace{pid: pid} = trace, ref \\ nil) do
