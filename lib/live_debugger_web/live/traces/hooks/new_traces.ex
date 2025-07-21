@@ -8,6 +8,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.NewTraces do
 
   alias LiveDebugger.Services.TraceService
   alias LiveDebugger.Structs.TraceDisplay
+  alias LiveDebugger.Structs.Trace
 
   # This function is using the `current_filters` assigns
   import LiveDebuggerWeb.Live.Traces.Helpers, only: [get_execution_times: 1]
@@ -68,7 +69,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Hooks.NewTraces do
 
   @spec maybe_update_stream(
           Phoenix.LiveView.Socket.t(),
-          LiveDebugger.Structs.TraceDisplay.t(),
+          Trace.t(),
           boolean()
         ) :: Phoenix.LiveView.Socket.t()
   defp maybe_update_stream(socket, _, false = _search_match?), do: socket
