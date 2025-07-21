@@ -10,12 +10,8 @@ defmodule LiveDebuggerRefactor.Env do
   end
 
   if Mix.env() == :test do
-    def test?(), do: true
-
     def unit_test?(), do: not Application.get_env(:live_debugger, :e2e?, false)
   else
-    def test?(), do: false
-
     def unit_test?(), do: false
   end
 end
