@@ -105,8 +105,6 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
   @impl true
   def handle_cast({:new_trace, {_, pid, :call, {module, fun, args}, ts}, n}, state)
       when fun in @allowed_callbacks do
-    dbg("Callback called")
-
     with {:ok, trace} <- TraceActions.create_trace(n, module, fun, args, pid, ts),
          {:ok, ref} <- TraceActions.persist_trace(trace),
          :ok <- TraceActions.publish_trace(trace, ref) do

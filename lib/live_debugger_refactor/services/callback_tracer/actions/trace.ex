@@ -28,7 +28,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
   end
 
   def persist_trace(%Trace{pid: pid} = trace) do
-    with ref when is_reference(ref) <- TracesStorage.get_table(pid) |> dbg(),
+    with ref when is_reference(ref) <- TracesStorage.get_table(pid),
          true <- TracesStorage.insert!(ref, trace) do
       {:ok, ref}
     else
