@@ -72,6 +72,20 @@ defmodule LiveDebugger.Services.TraceService do
     |> format_response()
   end
 
+  @doc """
+  Returns a boolean indicating whether the trace contains the search phrase.
+  """
+  @spec trace_contains?(Trace.t(), String.t()) :: boolean()
+  def trace_contains?(_trace, nil), do: true
+  def trace_contains?(_trace, ""), do: true
+
+  def trace_contains?(trace, search) do
+    trace
+    |> inspect()
+    |> String.downcase()
+    |> String.contains?(search)
+  end
+
   # Converts ETS entries of {key, Trace} to list of Trace structs
   defp normalize_entries(:end_of_table), do: :end_of_table
   defp normalize_entries(:"$end_of_table"), do: :end_of_table
@@ -97,20 +111,6 @@ defmodule LiveDebugger.Services.TraceService do
       |> Enum.filter(&trace_contains?(&1, down))
 
     {filtered, cont}
-  end
-
-  @doc """
-  Returns a boolean indicating whether the trace contains the search phrase.
-  """
-  @spec trace_contains?(Trace.t(), String.t()) :: boolean()
-  def trace_contains?(_trace, nil), do: true
-  def trace_contains?(_trace, ""), do: true
-
-  def trace_contains?(trace, search) do
-    trace
-    |> inspect()
-    |> String.downcase()
-    |> String.contains?(search)
   end
 
   # Formats the continuation token and handles end-of-table marker.
