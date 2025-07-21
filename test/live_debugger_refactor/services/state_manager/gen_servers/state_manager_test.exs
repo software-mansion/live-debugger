@@ -3,10 +3,11 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManagerTest
 
   import Mox
 
-  alias LiveDebuggerRefactor.Services.StateManager.GenServers.StateManager
   alias LiveDebuggerRefactor.MockBus
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentDeleted
+
+  alias LiveDebuggerRefactor.Services.StateManager.GenServers.StateManager
   alias LiveDebuggerRefactor.MockAPILiveViewDebug
   alias LiveDebuggerRefactor.MockAPIStatesStorage
   alias LiveDebuggerRefactor.Fakes
