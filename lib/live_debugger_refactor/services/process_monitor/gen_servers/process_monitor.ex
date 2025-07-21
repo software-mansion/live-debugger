@@ -30,7 +30,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
 
-  import LiveDebuggerRefactor.Services.Helpers
+  import LiveDebuggerRefactor.Helpers
 
   @type state :: %{
           pid() => MapSet.t(CommonTypes.cid())

@@ -9,7 +9,7 @@ defmodule LiveDebuggerRefactor.App.Web do
       on_mount({unquote(__MODULE__).Hooks.Flash, :add_hook})
 
       import Phoenix.HTML
-      import unquote(__MODULE__).Helpers
+      import LiveDebuggerRefactor.Helpers
       import unquote(__MODULE__).Components
       import unquote(__MODULE__).Hooks.Flash, only: [push_flash: 2, push_flash: 3]
     end
@@ -20,7 +20,7 @@ defmodule LiveDebuggerRefactor.App.Web do
       use Phoenix.LiveComponent
 
       import Phoenix.HTML
-      import unquote(__MODULE__).Helpers
+      import LiveDebuggerRefactor.Helpers
       import unquote(__MODULE__).Components
       import unquote(__MODULE__).Hooks.Flash, only: [push_flash: 2, push_flash: 3]
     end
@@ -31,7 +31,7 @@ defmodule LiveDebuggerRefactor.App.Web do
       use Phoenix.Component
 
       import Phoenix.HTML
-      import unquote(__MODULE__).Helpers
+      import LiveDebuggerRefactor.Helpers
       import unquote(__MODULE__).Components
     end
   end
@@ -40,7 +40,7 @@ defmodule LiveDebuggerRefactor.App.Web do
     quote do
       import Phoenix.LiveView
       import Phoenix.Component
-      import unquote(__MODULE__).Helpers
+      import LiveDebuggerRefactor.Helpers
     end
   end
 
@@ -49,7 +49,7 @@ defmodule LiveDebuggerRefactor.App.Web do
       use Phoenix.Component
 
       import Phoenix.HTML
-      import unquote(__MODULE__).Helpers
+      import LiveDebuggerRefactor.Helpers
       import unquote(__MODULE__).Components
       import Phoenix.LiveView
       import Phoenix.Component
