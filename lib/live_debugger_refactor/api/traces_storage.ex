@@ -26,6 +26,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
   @callback trim_table!(table_identifier(), max_size :: non_neg_integer()) :: true
   @callback delete_table!(table_identifier()) :: boolean()
   @callback get_all_tables() :: [reference()]
+  @callback table_size(table_identifier()) :: non_neg_integer()
 
   defguard is_table_identifier(id) when is_pid(id) or is_reference(id)
 
@@ -128,6 +129,14 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
   @spec get_all_tables() :: [{ets_table_id(), reference()}]
   def get_all_tables() do
     impl().get_all_tables()
+  end
+
+  @doc """
+  Returns the memory size of an ETS table in bytes.
+  """
+  @spec table_size(table_identifier()) :: non_neg_integer()
+  def table_size(table_id) do
+    impl().table_size(table_id)
   end
 
   defp impl() do
@@ -278,6 +287,23 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     @impl true
     def get_all_tables() do
       :ets.tab2list(@processes_table_name)
+    end
+
+    @impl true
+    def table_size(pid) when is_pid(pid) do
+      pid
+      |> ets_table()
+      |> table_size()
+    end
+
+    def table_size(ref) do
+      case :ets.info(ref, :memory) do
+        size when is_integer(size) ->
+          size * :erlang.system_info(:wordsize)
+
+        _ ->
+          0
+      end
     end
 
     # Converts ETS entries of {key, Trace} to list of Trace structs

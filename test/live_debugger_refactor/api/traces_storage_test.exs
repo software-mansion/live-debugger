@@ -503,4 +503,25 @@ defmodule LiveDebuggerRefactor.API.TracesStorageTest do
 
     assert [{^pid1, ^table1}, {^pid2, ^table2}] = TracesStorageImpl.get_all_tables()
   end
+
+  describe "table_size/1" do
+    test "returns the memory size of an ETS table in bytes" do
+      table = :ets.new(:test_table, [:public])
+      # Initial size of an empty ETS table
+      initial_size = TracesStorageImpl.table_size(table)
+
+      assert initial_size >= 0
+      :ets.insert(table, {:key, "value"})
+
+      size = TracesStorageImpl.table_size(table)
+
+      assert size - initial_size == 80
+      :ets.delete(table)
+    end
+
+    test "returns 0 ig there is no ETS table" do
+      table = :non_existing_table
+      assert TracesStorageImpl.table_size(table) == 0
+    end
+  end
 end
