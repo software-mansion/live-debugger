@@ -9,6 +9,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
 
   alias LiveDebuggerRefactor.Utils.Callbacks, as: CallbackUtils
   alias LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace, as: TraceActions
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebuggerRefactor.Structs.Trace
 
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
@@ -47,27 +48,28 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
   #
   #########################################################
 
-  # @impl true
-  # def handle_cast(
-  #       {:new_trace, {_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, n},
-  #       state
-  #     ) do
-  #   # TODO: Update traced modules
-  #   dbg("Update traced modules")
-  #   dbg([n, state])
+  @impl true
+  def handle_cast(
+        {:new_trace, {_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, n},
+        state
+      ) do
+    Task.start(fn ->
+      Process.sleep(100)
+      TracingActions.refresh_tracing()
+    end)
 
-  #   {:noreply, state}
-  # end
+    {:noreply, state}
+  end
 
-  # @impl true
-  # def handle_cast({:new_trace, {_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _}, _}, state) do
-  #   {:noreply, state}
-  # end
+  @impl true
+  def handle_cast({:new_trace, {_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _}, _}, state) do
+    {:noreply, state}
+  end
 
-  # @impl true
-  # def handle_cast({:new_trace, {_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _, _}, _}, state) do
-  #   {:noreply, state}
-  # end
+  @impl true
+  def handle_cast({:new_trace, {_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _, _}, _}, state) do
+    {:noreply, state}
+  end
 
   #########################################################
   # Handling component deletion traces
