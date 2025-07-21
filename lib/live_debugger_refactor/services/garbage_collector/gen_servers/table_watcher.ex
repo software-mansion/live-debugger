@@ -11,7 +11,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewBorn
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
 
-  import LiveDebuggerRefactor.Services.Helpers
+  import LiveDebuggerRefactor.Helpers
 
   defmodule ProcessInfo do
     @moduledoc """

@@ -3,6 +3,7 @@ defmodule LiveDebuggerRefactor.Services do
   Module for managing services.
   """
 
+  @spec append_services_children(children :: list()) :: list()
   def append_services_children(children) do
     children ++
       [
