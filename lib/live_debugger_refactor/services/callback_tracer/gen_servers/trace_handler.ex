@@ -85,9 +85,15 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
          {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, ts}, n},
         state
       ) do
-    # dbg("Delete component")
-    dbg([pid, cid, args, ts, n, state])
-    raise "Delete component"
+    Task.start(fn ->
+      with {:ok, trace} <- TraceActions.create_delete_component_trace(n, args, pid, cid, ts),
+           :ok <- TraceActions.publish_trace(trace) do
+        :ok
+      else
+        {:error, err} ->
+          raise "Error while handling trace: #{inspect(err)}"
+      end
+    end)
 
     {:noreply, state}
   end

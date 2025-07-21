@@ -5,6 +5,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
 
   alias LiveDebuggerRefactor.Structs.Trace
   alias LiveDebuggerRefactor.API.TracesStorage, as: TracesStorage
+  alias LiveDebuggerRefactor.API.LiveViewDebug
 
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
@@ -20,6 +21,31 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
 
       _ ->
         {:ok, trace}
+    end
+  end
+
+  def create_delete_component_trace(n, args, pid, cid, timestamp) do
+    pid
+    |> LiveViewDebug.socket()
+    |> case do
+      {:ok, %{id: socket_id, transport_pid: t_pid}} when is_pid(t_pid) ->
+        trace =
+          Trace.new(
+            n,
+            Phoenix.LiveView.Diff,
+            :delete_component,
+            args,
+            pid,
+            timestamp,
+            socket_id: socket_id,
+            transport_pid: t_pid,
+            cid: %Phoenix.LiveComponent.CID{cid: cid}
+          )
+
+        {:ok, trace}
+
+      _ ->
+        {:error, "Could not get socket"}
     end
   end
 
@@ -46,7 +72,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
     end
   end
 
-  def publish_trace(%Trace{pid: pid} = trace, ref) do
+  def publish_trace(%Trace{pid: pid} = trace, ref \\ nil) do
     trace
     |> get_event(ref)
     |> Bus.broadcast_trace!(pid)
