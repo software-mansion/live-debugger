@@ -84,8 +84,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
   end
 
   @impl true
-  def handle_info(%DebuggerMounted{debugged_pid: debugged_pid, debugger_pid: debugger_pid}, state)
-      when is_map_key(state, debugged_pid) do
+  def handle_info(%DebuggerMounted{debugged_pid: debugged_pid, debugger_pid: debugger_pid}, state) do
     state
     |> add_watcher(debugged_pid, debugger_pid)
     |> noreply()
@@ -117,12 +116,20 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
     end
   end
 
-  defp add_watcher(state, pid, watcher) do
+  defp add_watcher(state, pid, watcher) when is_map_key(state, pid) do
     state
     |> Map.update!(pid, fn info ->
       watchers = MapSet.put(info.watchers, watcher)
       %{info | watchers: watchers}
     end)
+  end
+
+  defp add_watcher(state, pid, watcher) do
+    if Process.alive?(pid) do
+      Map.put(state, pid, %ProcessInfo{watchers: MapSet.new([watcher])})
+    else
+      state
+    end
   end
 
   defp remove_watcher(state, pid, watcher) do

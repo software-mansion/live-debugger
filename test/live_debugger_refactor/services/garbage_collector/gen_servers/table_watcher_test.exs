@@ -57,7 +57,6 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
     test "for LiveViewBorn event" do
       pid = self()
       state = %{}
-
       event = %LiveViewBorn{pid: pid}
 
       assert {:noreply, new_state} = TableWatcher.handle_info(event, state)
@@ -68,7 +67,6 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
     test "for LiveViewDied event with no watchers" do
       pid = self()
       state = %{pid => %ProcessInfo{alive?: true, watchers: MapSet.new()}}
-
       event = %LiveViewDied{pid: pid}
 
       assert {:noreply, %{}} = TableWatcher.handle_info(event, state)
@@ -77,9 +75,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
     test "for LiveViewDied event with watchers" do
       pid = self()
       watcher_pid = :c.pid(0, 12, 0)
-
       state = %{pid => %ProcessInfo{alive?: true, watchers: MapSet.new([watcher_pid])}}
-
       event = %LiveViewDied{pid: pid}
 
       assert {:noreply, new_state} = TableWatcher.handle_info(event, state)
@@ -89,10 +85,9 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
              }
     end
 
-    test "for DebuggerMounted event" do
+    test "for DebuggerMounted event when pid is known" do
       debugged_pid = self()
       debugger_pid = :c.pid(0, 12, 0)
-
       state = %{debugged_pid => %ProcessInfo{alive?: true, watchers: MapSet.new()}}
 
       event = %DebuggerMounted{debugged_pid: debugged_pid, debugger_pid: debugger_pid}
@@ -104,12 +99,40 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
              }
     end
 
+    test "for DebuggerMounted event when pid is unknown and alive" do
+      debugged_pid = self()
+      debugger_pid = :c.pid(0, 12, 0)
+      state = %{}
+
+      event = %DebuggerMounted{debugged_pid: debugged_pid, debugger_pid: debugger_pid}
+
+      assert {:noreply, new_state} = TableWatcher.handle_info(event, state)
+
+      assert new_state == %{
+               debugged_pid => %ProcessInfo{alive?: true, watchers: MapSet.new([debugger_pid])}
+             }
+    end
+
+    @tag :current
+    test "for DebuggerMounted event when pid is unknown and not alive" do
+      debugged_pid = spawn(fn -> :ok end)
+      debugger_pid = :c.pid(0, 12, 0)
+      state = %{}
+      event = %DebuggerMounted{debugged_pid: debugged_pid, debugger_pid: debugger_pid}
+
+      Process.exit(debugged_pid, :normal)
+
+      assert Process.alive?(debugged_pid) == false
+
+      assert {:noreply, new_state} = TableWatcher.handle_info(event, state)
+
+      assert new_state == %{}
+    end
+
     test "for DebuggerTerminated event" do
       debugged_pid = self()
       debugger_pid = :c.pid(0, 12, 0)
-
       state = %{debugged_pid => %ProcessInfo{alive?: true, watchers: MapSet.new([debugger_pid])}}
-
       event = %DebuggerTerminated{debugged_pid: debugged_pid, debugger_pid: debugger_pid}
 
       assert {:noreply, new_state} = TableWatcher.handle_info(event, state)
