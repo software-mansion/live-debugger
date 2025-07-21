@@ -30,5 +30,16 @@ defmodule LiveDebuggerRefactor.Services.StateManager.ActionsTest do
 
       assert :ok = StateManagerActions.save_state!(pid)
     end
+
+    test "returns error when process is not alive" do
+      pid = :c.pid(0, 1, 0)
+
+      MockAPILiveViewDebug
+      |> expect(:socket, fn ^pid ->
+        {:error, :not_found}
+      end)
+
+      assert {:error, :not_found} = StateManagerActions.save_state!(pid)
+    end
   end
 end
