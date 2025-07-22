@@ -36,7 +36,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
         if MapSet.member?(watched_pids, pid) do
           false
         else
-          delete_states_table!(pid)
+          delete_state!(pid)
         end
 
       acc or result
@@ -62,9 +62,9 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
     true
   end
 
-  defp delete_states_table!(pid) do
+  defp delete_state!(pid) do
     StatesStorage.delete!(pid)
-    Bus.broadcast_event!(%TableDeleted{})
+    Bus.broadcast_event!(%TableTrimmed{})
     true
   end
 end

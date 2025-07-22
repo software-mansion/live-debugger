@@ -87,7 +87,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
       |> expect(:delete!, fn ^pid1 -> :ok end)
 
       MockBus
-      |> expect(:broadcast_event!, fn %TableDeleted{} -> :ok end)
+      |> expect(:broadcast_event!, fn %TableTrimmed{} -> :ok end)
 
       assert true == GarbageCollectingActions.garbage_collect_states!(watched_pids)
     end
