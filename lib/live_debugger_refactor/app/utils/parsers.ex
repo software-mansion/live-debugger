@@ -1,4 +1,4 @@
-defmodule LiveDebuggerRefactor.App.Web.Utils.Parsers do
+defmodule LiveDebuggerRefactor.App.Utils.Parsers do
   @moduledoc """
   Utility functions to parse and convert data types to string representations and vice versa.
   """

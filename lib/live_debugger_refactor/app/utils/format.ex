@@ -1,4 +1,4 @@
-defmodule LiveDebuggerRefactor.App.Web.Utils.Format do
+defmodule LiveDebuggerRefactor.App.Utils.Format do
   @moduledoc """
   Formatting functionalities to transform elements into expected format.
   """

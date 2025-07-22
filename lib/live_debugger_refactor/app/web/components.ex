@@ -5,7 +5,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
 
   use Phoenix.Component
 
-  alias LiveDebuggerRefactor.App.Web.Utils.Format
+  alias LiveDebuggerRefactor.App.Utils.Format
   alias Phoenix.LiveView.JS
 
   @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
