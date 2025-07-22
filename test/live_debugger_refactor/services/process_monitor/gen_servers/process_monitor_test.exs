@@ -59,7 +59,9 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       }
 
       MockBus
-      |> expect(:broadcast_event!, fn %LiveComponentCreated{cid: ^cid2}, ^pid -> :ok end)
+      |> expect(:broadcast_event!, fn %LiveComponentCreated{cid: ^cid2, pid: ^pid}, ^pid ->
+        :ok
+      end)
 
       assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
       assert new_state == %{pid => MapSet.new([cid1, cid2])}
@@ -164,7 +166,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
       }
 
       MockBus
-      |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid}, ^pid -> :ok end)
+      |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid, pid: ^pid}, ^pid -> :ok end)
 
       assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
       assert new_state == %{pid => MapSet.new()}
