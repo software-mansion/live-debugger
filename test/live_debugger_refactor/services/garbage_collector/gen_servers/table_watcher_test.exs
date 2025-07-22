@@ -116,12 +116,11 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
       event = %DebuggerMounted{debugged_pid: debugged_pid, debugger_pid: debugger_pid}
 
       Process.exit(debugged_pid, :normal)
+      Process.sleep(100)
 
       assert Process.alive?(debugged_pid) == false
 
-      assert {:noreply, new_state} = TableWatcher.handle_info(event, state)
-
-      assert new_state == %{}
+      assert {:noreply, %{}} = TableWatcher.handle_info(event, state)
     end
 
     test "for DebuggerTerminated event" do

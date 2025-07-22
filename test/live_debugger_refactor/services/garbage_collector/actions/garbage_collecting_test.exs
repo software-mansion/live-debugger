@@ -52,10 +52,13 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
       table1 = make_ref()
       table2 = make_ref()
 
+      Application.put_env(:live_debugger, :approx_table_max_size, 20)
+
       MockAPITracesStorage
       |> expect(:get_all_tables, fn -> [{pid1, table1}, {pid2, table2}] end)
       |> expect(:table_size, fn ^table1 -> 5 * @megabyte_unit end)
       |> expect(:table_size, fn ^table2 -> 0.5 * @megabyte_unit end)
+      |> deny(:trim_table!, 2)
 
       MockBus
       |> deny(:broadcast_event!, 2)
