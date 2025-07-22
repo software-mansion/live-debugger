@@ -21,15 +21,13 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.GarbageColle
 
   @impl true
   def init(_opts) do
-    if LiveDebuggerRefactor.Feature.enabled?(:garbage_collection) do
-      Task.start(&garbage_collection_loop/0)
-    end
+    init_garbage_collection_loop()
 
     {:ok, []}
   end
 
   @impl true
-  def handle_call(:garbage_collect, _from, state) do
+  def handle_info(:garbage_collect, state) do
     watched_pids = TableWatcher.watched_pids()
     alive_pids = TableWatcher.alive_pids()
 
@@ -40,7 +38,9 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.GarbageColle
       Bus.broadcast_event!(%GarbageCollected{})
     end
 
-    {:reply, :ok, state}
+    loop_garbage_collection()
+
+    {:noreply, state}
   end
 
   @impl true
@@ -49,10 +49,13 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.GarbageColle
     {:noreply, state}
   end
 
-  @spec garbage_collection_loop() :: no_return()
-  defp garbage_collection_loop() do
-    Process.sleep(@garbage_collect_interval)
-    :ok = GenServer.call(__MODULE__, :garbage_collect)
-    garbage_collection_loop()
+  defp init_garbage_collection_loop() do
+    if LiveDebuggerRefactor.Feature.enabled?(:garbage_collection) do
+      Process.send_after(self(), :garbage_collect, @garbage_collect_interval)
+    end
+  end
+
+  defp loop_garbage_collection() do
+    Process.send_after(self(), :garbage_collect, @garbage_collect_interval)
   end
 end
