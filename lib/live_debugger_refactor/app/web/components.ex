@@ -1,6 +1,7 @@
 defmodule LiveDebuggerRefactor.App.Web.Components do
   @moduledoc """
-  This module provides reusable components for LiveDebugger.
+  Core components used in the LiveDebugger application.
+  These are the general building blocks.
   """
 
   use Phoenix.Component
@@ -11,15 +12,13 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
   @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
 
   @doc """
-  Renders an alert
-  Right now we have styles only for `danger` variant, but it'll change soon
+  Alert message component. Use it to display error messages or warnings.
   """
-  attr(:variant, :string, required: true, values: ["danger"])
-
   attr(:class, :any, default: nil, doc: "Additional classes to add to the alert.")
   attr(:with_icon, :boolean, default: false, doc: "Whether to show an icon.")
   attr(:heading, :string, default: nil, doc: "Heading for the alert.")
   attr(:rest, :global)
+
   slot(:inner_block, required: true)
 
   def alert(assigns) do
@@ -32,7 +31,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
       {@rest}
     >
       <div class="flex items-center gap-2">
-        <.alert_icon :if={@with_icon} variant={@variant} />
+        <.icon :if={@with_icon} name="icon-x-circle" class="text-error-icon" />
         <p class="font-medium"><%= @heading %></p>
       </div>
       <%= render_slot(@inner_block) %>
@@ -41,14 +40,20 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
   end
 
   @doc """
-  Renders a checkbox.
+  Checkbox element usable in forms.
+
+  ## Examples
+
+    <.form for={@form}>
+      <.checkbox field={@form[:my_field]} label="My Field" />
+    </.form>
   """
   attr(:field, Phoenix.HTML.FormField, required: true)
   attr(:label, :string, default: nil)
 
-  attr(:wrapper_class, :any, default: nil)
-  attr(:input_class, :any, default: nil)
-  attr(:label_class, :any, default: nil)
+  attr(:wrapper_class, :any, default: nil, doc: "Additional classes for the wrapper div.")
+  attr(:input_class, :any, default: nil, doc: "Additional classes for the input element.")
+  attr(:label_class, :any, default: nil, doc: "Additional classes for the label element.")
   attr(:rest, :global, include: ~w(type))
 
   def checkbox(assigns) do
@@ -72,51 +77,14 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
     """
   end
 
-  attr(:value_field, Phoenix.HTML.FormField, required: true)
-  attr(:unit_field, Phoenix.HTML.FormField, required: true)
-  attr(:units, :list, required: true)
-  attr(:rest, :global, include: ~w(min max placeholder))
-
-  def input_with_units(assigns) do
-    assigns =
-      assigns
-      |> assign(:errors, assigns.value_field.errors)
-
-    ~H"""
-    <div class={[
-      "shadow-sm flex items-center rounded-[4px] outline outline-1 -outline-offset-1 has-[input:focus-within]:outline has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2",
-      @errors == [] && "outline-default-border has-[input:focus-within]:outline-ui-accent",
-      @errors != [] && "outline-error-text has-[input:focus-within]:outline-error-text"
-    ]}>
-      <input
-        id={@value_field.id}
-        name={@value_field.name}
-        type="number"
-        class="block remove-arrow max-w-20 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0"
-        value={Phoenix.HTML.Form.normalize_value("number", @value_field.value)}
-        {@rest}
-      />
-      <div class="grid shrink-0 grid-cols-1 focus-within:relative">
-        <select
-          id={@unit_field.id}
-          name={@unit_field.name}
-          class="border-none bg-surface-0-bg col-start-1 row-start-1 w-full appearance-none rounded-md py-1.5 pl-3 pr-7 text-xs text-secondary-text placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-ui-accent"
-        >
-          <%= Phoenix.HTML.Form.options_for_select(@units, @unit_field.value) %>
-        </select>
-      </div>
-    </div>
-    """
-  end
-
   @doc """
-  Renders a button.
-
+  Button component with customizable variant and size.
   """
   attr(:variant, :string, default: "primary", values: ["primary", "secondary"])
   attr(:size, :string, default: "md", values: ["md", "sm"])
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
   attr(:rest, :global)
+
   slot(:inner_block, required: true)
 
   def button(assigns) do
@@ -146,7 +114,10 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
 
       <.collapsible id="collapsible" open={true}>
         <:label>
-          <div>Collapsible <div class="hide-on-open">Info when closed</div></div>
+          <div>
+            <div class="hide-on-open">Info when closed</div>
+            <div class="show-on-open">Info when open</div>
+          </div>
         </:label>
         <div>Content</div>
       </.collapsible>
@@ -291,6 +262,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
   """
   attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
   attr(:rest, :global)
+
   slot(:inner_block, required: true)
 
   def h1(assigns) do
@@ -320,7 +292,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
   end
 
   @doc """
-  Renders a button with an icon in it.
+  Button with only an icon in it.
   """
 
   attr(:icon, :string, required: true, doc: "Icon to be displayed as a button.")
@@ -332,7 +304,6 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
   )
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
-
   attr(:rest, :global, include: ~w(id))
 
   def icon_button(assigns) do
@@ -351,12 +322,25 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
     """
   end
 
+  @doc """
+  Renders a list of elements using the `item` slot.
+
+  ## Examples
+
+      <.list elements={["Item 1", "Item 2", "Item 3"]}>
+        <:item :let={item}>
+          <div class="p-2 bg-gray-100 rounded">
+            <%= item %>
+          </div>
+        </:item>
+      </.list>
+  """
   attr(:elements, :list,
     required: true,
     doc: "Elements that will be displayed in the list's `item` slot."
   )
 
-  attr(:class, :any, default: nil, doc: "Additional classes.")
+  attr(:class, :any, default: nil, doc: "Additional classes for the list container.")
   attr(:item_class, :any, default: nil, doc: "Additional classes for each item.")
 
   slot(:item, required: true)
@@ -489,6 +473,9 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
     """
   end
 
+  @doc """
+  Circle spinner component used to indicate loading state.
+  """
   attr(:class, :any, default: nil, doc: "CSS class")
 
   attr(:size, :string,
@@ -533,6 +520,10 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
     """
   end
 
+  @doc """
+  Renders a badge with text and icon.
+  Used to add small labels in UI (e.g. `Embedded`).
+  """
   attr(:text, :string, required: true)
   attr(:icon, :string, required: true)
 
@@ -573,6 +564,9 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
     """
   end
 
+  @doc """
+  Link to report an issue on GitHub.
+  """
   attr(:class, :any, default: nil)
   attr(:text, :string, default: "See any issues?")
 
@@ -686,21 +680,6 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
     >
       <.icon name={@icon} class="h-6 w-6" />
     </button>
-    """
-  end
-
-  attr(:variant, :string, required: true, values: ["danger"])
-
-  defp alert_icon(assigns) do
-    {icon_name, icon_class} =
-      case assigns.variant do
-        "danger" -> {"icon-x-circle", "text-error-icon"}
-      end
-
-    assigns = assign(assigns, name: icon_name, class: icon_class)
-
-    ~H"""
-    <.icon name={@name} class={@class} />
     """
   end
 
