@@ -19,26 +19,24 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
   end
 
   describe "handle_call/3" do
-    test "for {:alive?, pid}" do
+    test "for :alive_pids" do
       pid1 = :c.pid(0, 11, 0)
       pid2 = :c.pid(0, 12, 0)
       pid3 = :c.pid(0, 13, 0)
 
       state = %{
         pid1 => %ProcessInfo{alive?: true, watchers: MapSet.new()},
-        pid2 => %ProcessInfo{alive?: false, watchers: MapSet.new()}
+        pid2 => %ProcessInfo{alive?: false, watchers: MapSet.new([pid3])}
       }
 
-      assert {:reply, true, ^state} = TableWatcher.handle_call({:alive?, pid1}, self(), state)
-      assert {:reply, false, ^state} = TableWatcher.handle_call({:alive?, pid2}, self(), state)
-      assert {:reply, false, ^state} = TableWatcher.handle_call({:alive?, pid3}, self(), state)
+      assert {:reply, reply, ^state} = TableWatcher.handle_call(:alive_pids, self(), state)
+      assert MapSet.equal?(reply, MapSet.new([pid1]))
     end
 
-    test "for {:watched?, pid}" do
+    test "for :watched_pids" do
       pid1 = :c.pid(0, 11, 0)
       pid2 = :c.pid(0, 12, 0)
       pid3 = :c.pid(0, 13, 0)
-      pid4 = :c.pid(0, 14, 0)
 
       state = %{
         pid1 => %ProcessInfo{alive?: true, watchers: MapSet.new([pid2])},
@@ -46,10 +44,8 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
         pid3 => %ProcessInfo{alive?: true, watchers: MapSet.new()}
       }
 
-      assert {:reply, true, ^state} = TableWatcher.handle_call({:watched?, pid1}, self(), state)
-      assert {:reply, true, ^state} = TableWatcher.handle_call({:watched?, pid2}, self(), state)
-      assert {:reply, false, ^state} = TableWatcher.handle_call({:watched?, pid3}, self(), state)
-      assert {:reply, false, ^state} = TableWatcher.handle_call({:watched?, pid4}, self(), state)
+      assert {:reply, reply, ^state} = TableWatcher.handle_call(:watched_pids, self(), state)
+      assert MapSet.equal?(reply, MapSet.new([pid1, pid2]))
     end
   end
 

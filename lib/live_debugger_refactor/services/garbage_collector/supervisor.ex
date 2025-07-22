@@ -5,6 +5,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Supervisor do
 
   use Supervisor
 
+  alias LiveDebuggerRefactor.Services.GarbageCollector.GenServers.GarbageCollector
   alias LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
 
   def start_link(opts \\ []) do
@@ -14,7 +15,8 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Supervisor do
   @impl true
   def init(_opts) do
     children = [
-      {TableWatcher, []}
+      {TableWatcher, []},
+      {GarbageCollector, []}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
