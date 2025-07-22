@@ -31,7 +31,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.ActionsTest do
       end)
 
       MockBus
-      |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid} ->
+      |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid ->
         :ok
       end)
 

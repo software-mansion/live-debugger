@@ -17,7 +17,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.Actions do
   def save_state!(pid) when is_pid(pid) do
     with {:ok, lv_state} <- LiveViewDebug.liveview_state(pid) do
       StatesStorage.save!(lv_state)
-      Bus.broadcast_state!(%StateChanged{pid: pid})
+      Bus.broadcast_state!(%StateChanged{pid: pid}, pid)
       :ok
     end
   end

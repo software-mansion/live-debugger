@@ -53,7 +53,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManagerTest
         ets_ref: nil
       }
 
-      MockBus |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid} -> :ok end)
+      MockBus |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid -> :ok end)
 
       assert {:noreply, []} = StateManager.handle_info(trace_event, [])
     end
@@ -64,7 +64,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManagerTest
         cid: %Phoenix.LiveComponent.CID{cid: 1}
       }
 
-      MockBus |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid} -> :ok end)
+      MockBus |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid -> :ok end)
 
       assert {:noreply, []} = StateManager.handle_info(delete_event, [])
     end
