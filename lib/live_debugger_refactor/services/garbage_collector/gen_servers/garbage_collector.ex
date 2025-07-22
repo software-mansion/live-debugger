@@ -43,8 +43,8 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.GarbageColle
     {:noreply, state}
   end
 
-  @impl true
   # Handle messages related to ETS table transfers from TracesStorage
+  @impl true
   def handle_info({:"ETS-TRANSFER", _ref, _from, _}, state) do
     {:noreply, state}
   end
