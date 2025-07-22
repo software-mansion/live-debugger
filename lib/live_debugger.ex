@@ -27,6 +27,7 @@ defmodule LiveDebugger do
 
     if Application.get_env(@app_name, :refactor, false) do
       LiveDebuggerRefactor.API.SettingsStorage.init()
+      LiveDebuggerRefactor.API.TracesStorage.init()
 
       get_refactor_children()
     else

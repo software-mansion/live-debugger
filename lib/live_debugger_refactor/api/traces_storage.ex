@@ -4,7 +4,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
   It uses Erlang's ETS (Erlang Term Storage).
   """
 
-  alias LiveDebugger.Structs.Trace
+  alias LiveDebuggerRefactor.Structs.Trace
   alias LiveDebuggerRefactor.CommonTypes
 
   @typedoc """
@@ -456,6 +456,10 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
         [] ->
           ref = :ets.new(@traces_table_name, [:ordered_set, :public])
           :ets.insert(@processes_table_name, {pid, ref})
+
+          # This cannot be given away to LiveDebugger.Supervisor - it's temporary solution
+          # It will be given away to GarbageCollector
+          :ets.give_away(ref, Process.whereis(LiveDebugger.Supervisor), nil)
           ref
 
         [{^pid, ref}] ->

@@ -33,7 +33,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV.Component,
         function: :render,
         cid: cid,
-        pid: pid
+        pid: pid,
+        ets_ref: nil
       }
 
       MockBus
@@ -53,7 +54,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV.Component,
         function: :render,
         cid: cid2,
-        pid: pid
+        pid: pid,
+        ets_ref: nil
       }
 
       MockBus
@@ -76,7 +78,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV.Component,
         function: :render,
         cid: cid1,
-        pid: pid2
+        pid: pid2,
+        ets_ref: nil
       }
 
       MockBus
@@ -106,7 +109,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV,
         function: :render,
         cid: nil,
-        pid: pid
+        pid: pid,
+        ets_ref: nil
       }
 
       MockBus
@@ -125,7 +129,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV,
         function: :render,
         cid: nil,
-        pid: pid2
+        pid: pid2,
+        ets_ref: nil
       }
 
       MockBus
@@ -156,7 +161,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: Phoenix.LiveView.Diff,
         function: :delete_component,
         cid: cid,
-        pid: pid
+        pid: pid,
+        ets_ref: nil
       }
 
       MockBus
@@ -177,7 +183,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: Phoenix.LiveView.Diff,
         function: :delete_component,
         cid: cid2,
-        pid: pid
+        pid: pid,
+        ets_ref: nil
       }
 
       MockBus
@@ -197,7 +204,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: Phoenix.LiveView.Diff,
         function: :delete_component,
         cid: cid,
-        pid: pid2
+        pid: pid2,
+        ets_ref: nil
       }
 
       MockBus
