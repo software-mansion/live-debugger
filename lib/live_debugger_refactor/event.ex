@@ -47,12 +47,10 @@ defmodule LiveDebuggerRefactor.Event do
 
   ## Examples
 
-  ### Basic Event Definition
-
+      # Basic Event Definition
       defevent(ButtonClicked, button_id: String.t(), user_id: integer())
 
-  ### Event with Complex Types
-
+      # Event with Complex Types
       defevent(StateChanged,
         old_state: map(),
         new_state: map(),
@@ -81,12 +79,12 @@ defmodule LiveDebuggerRefactor.Event do
   This macro should be used at the top of your events module to import
   the `defevent` macro and make it available for defining events.
 
-  ```elixir
-  defmodule LiveDebugger.Events do
-    use LiveDebuggerRefactor.Event
-    # Now you can use defevent/2
-  end
-  ```
+  ## Examples
+
+      defmodule LiveDebugger.Events do
+        use LiveDebuggerRefactor.Event
+        # Now you can use defevent/2
+      end
   """
   defmacro __using__(_) do
     quote do
