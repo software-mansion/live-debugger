@@ -39,36 +39,36 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
     {:ok, %{}}
   end
 
-  @spec alive?(pid()) :: boolean()
-  def alive?(pid) when is_pid(pid) do
-    GenServer.call(__MODULE__, {:alive?, pid})
+  @spec alive_pids() :: MapSet.t(pid())
+  def alive_pids() do
+    GenServer.call(__MODULE__, :alive_pids)
   end
 
-  @spec watched?(pid()) :: boolean()
-  def watched?(pid) when is_pid(pid) do
-    GenServer.call(__MODULE__, {:watched?, pid})
-  end
-
-  @impl true
-  def handle_call({:alive?, pid}, _, state) do
-    case Map.fetch(state, pid) do
-      {:ok, %ProcessInfo{alive?: alive?}} ->
-        {:reply, alive?, state}
-
-      :error ->
-        {:reply, false, state}
-    end
+  @spec watched_pids() :: MapSet.t(pid())
+  def watched_pids() do
+    GenServer.call(__MODULE__, :watched_pids)
   end
 
   @impl true
-  def handle_call({:watched?, pid}, _, state) do
-    case Map.fetch(state, pid) do
-      {:ok, %ProcessInfo{watchers: watchers}} ->
-        {:reply, not Enum.empty?(watchers), state}
+  def handle_call(:alive_pids, _, state) do
+    pids =
+      state
+      |> Map.filter(fn {_pid, %ProcessInfo{alive?: alive?}} -> alive? end)
+      |> Map.keys()
+      |> Enum.into(MapSet.new())
 
-      :error ->
-        {:reply, false, state}
-    end
+    {:reply, pids, state}
+  end
+
+  @impl true
+  def handle_call(:watched_pids, _, state) do
+    pids =
+      state
+      |> Map.filter(fn {_pid, %ProcessInfo{watchers: watchers}} -> not Enum.empty?(watchers) end)
+      |> Map.keys()
+      |> Enum.into(MapSet.new())
+
+    {:reply, pids, state}
   end
 
   @impl true

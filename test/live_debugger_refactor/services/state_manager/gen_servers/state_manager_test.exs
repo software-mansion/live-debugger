@@ -48,7 +48,8 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManagerTest
         function: :render,
         module: LiveDebuggerTest.DummyLiveView,
         cid: nil,
-        pid: pid
+        pid: pid,
+        ets_ref: nil
       }
 
       assert {:noreply, []} = StateManager.handle_info(trace_event, [])
