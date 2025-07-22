@@ -9,9 +9,12 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTe
   alias LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler
   alias LiveDebuggerRefactor.MockAPIDbg
   alias LiveDebuggerRefactor.MockAPIModule
+  alias LiveDebuggerRefactor.MockAPILiveViewDebug
+  alias LiveDebuggerRefactor.MockBus
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
 
   describe "handle_cast/2" do
-    test "handles compiler traces" do
+    test "handles recompilation traces" do
       pid = :c.pid(0, 1, 0)
 
       MockAPIDbg
@@ -29,7 +32,40 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTe
 
       assert TraceHandler.handle_cast(trace, nil) == {:noreply, nil}
 
-      Process.sleep(500)
+      Process.sleep(400)
+    end
+
+    test "handles LiveComponent deletion traces" do
+      transport_pid = :c.pid(0, 1, 0)
+      pid = :c.pid(0, 2, 0)
+
+      MockAPILiveViewDebug
+      |> expect(:socket, fn ^pid ->
+        {:ok, %{id: "123", transport_pid: transport_pid}}
+      end)
+
+      MockBus
+      |> expect(:broadcast_trace!, fn arg1, ^pid ->
+        assert %TraceCalled{
+                 trace_id: -1,
+                 ets_ref: nil,
+                 module: Phoenix.LiveView.Diff,
+                 function: :delete_component,
+                 pid: ^pid,
+                 cid: %Phoenix.LiveComponent.CID{cid: 15}
+               } = arg1
+
+        :ok
+      end)
+
+      trace =
+        {:new_trace,
+         {:trace_ts, pid, :call, {Phoenix.LiveView.Diff, :delete_component, [15, %{}]},
+          {1753, 176_335, 405_037}}, -1}
+
+      assert TraceHandler.handle_cast(trace, nil) == {:noreply, nil}
+
+      Process.sleep(400)
     end
   end
 end
