@@ -1,6 +1,6 @@
-defmodule LiveDebuggerRefactor.Services.GarbageCollector.Queries.GarbageCollecting do
+defmodule LiveDebuggerRefactor.Services.GarbageCollector.Utils do
   @moduledoc """
-  Queries for LiveDebuggerRefactor.Services.GarbageCollector.
+  Utility functions for the GarbageCollector service.
   """
 
   @megabyte_unit 1_048_576

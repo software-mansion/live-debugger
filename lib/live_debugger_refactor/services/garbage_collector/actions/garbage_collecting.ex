@@ -6,8 +6,8 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
   alias LiveDebuggerRefactor.API.StatesStorage
   alias LiveDebuggerRefactor.API.TracesStorage
 
-  alias LiveDebuggerRefactor.Services.GarbageCollector.Queries.GarbageCollecting,
-    as: GarbageCollectingQueries
+  alias LiveDebuggerRefactor.Services.GarbageCollector.Utils,
+    as: GarbageCollectorUtils
 
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.Services.GarbageCollector.Events.TableTrimmed
@@ -45,7 +45,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
 
   defp maybe_trim_traces_table!(table, type) when type in [:watched, :non_watched] do
     size = TracesStorage.table_size(table)
-    max_size = GarbageCollectingQueries.max_table_size(type)
+    max_size = GarbageCollectorUtils.max_table_size(type)
 
     if size > max_size do
       TracesStorage.trim_table!(table, max_size)
