@@ -33,7 +33,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV.Component,
         function: :render,
         cid: cid,
-        pid: pid
+        pid: pid,
+        ets_ref: nil
       }
 
       MockBus
@@ -53,11 +54,14 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV.Component,
         function: :render,
         cid: cid2,
-        pid: pid
+        pid: pid,
+        ets_ref: nil
       }
 
       MockBus
-      |> expect(:broadcast_event!, fn %LiveComponentCreated{cid: ^cid2}, ^pid -> :ok end)
+      |> expect(:broadcast_event!, fn %LiveComponentCreated{cid: ^cid2, pid: ^pid}, ^pid ->
+        :ok
+      end)
 
       assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
       assert new_state == %{pid => MapSet.new([cid1, cid2])}
@@ -74,7 +78,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV.Component,
         function: :render,
         cid: cid1,
-        pid: pid2
+        pid: pid2,
+        ets_ref: nil
       }
 
       MockBus
@@ -104,7 +109,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV,
         function: :render,
         cid: nil,
-        pid: pid
+        pid: pid,
+        ets_ref: nil
       }
 
       MockBus
@@ -123,7 +129,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: TestLV,
         function: :render,
         cid: nil,
-        pid: pid2
+        pid: pid2,
+        ets_ref: nil
       }
 
       MockBus
@@ -154,11 +161,12 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: Phoenix.LiveView.Diff,
         function: :delete_component,
         cid: cid,
-        pid: pid
+        pid: pid,
+        ets_ref: nil
       }
 
       MockBus
-      |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid}, ^pid -> :ok end)
+      |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid, pid: ^pid}, ^pid -> :ok end)
 
       assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
       assert new_state == %{pid => MapSet.new()}
@@ -175,7 +183,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: Phoenix.LiveView.Diff,
         function: :delete_component,
         cid: cid2,
-        pid: pid
+        pid: pid,
+        ets_ref: nil
       }
 
       MockBus
@@ -195,7 +204,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         module: Phoenix.LiveView.Diff,
         function: :delete_component,
         cid: cid,
-        pid: pid2
+        pid: pid2,
+        ets_ref: nil
       }
 
       MockBus

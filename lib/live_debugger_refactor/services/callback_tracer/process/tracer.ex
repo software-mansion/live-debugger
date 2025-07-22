@@ -3,9 +3,12 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Process.Tracer do
   This module defines a function that is used in the `:dbg.tracer` process.
   """
 
-  @spec handle_trace(args :: term(), n :: integer()) :: integer()
-  def handle_trace(_args, n) do
-    # Implement tracing logic
+  alias LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler
+
+  @spec handle_trace(trace :: term(), n :: integer()) :: integer()
+  def handle_trace(trace, n) do
+    TraceHandler.handle_trace(trace, n)
+
     n - 1
   end
 end
