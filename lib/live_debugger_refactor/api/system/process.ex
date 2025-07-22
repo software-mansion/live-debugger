@@ -3,7 +3,7 @@ defmodule LiveDebuggerRefactor.API.System.Process do
   This module provides wrappers for system functions that queries processes in the current application.
 
   It is discouraged to use it
-  It will entirely moved to `LiveDebuggerRefactor.API.LiveViewDebug` in the future.
+  It will be entirely moved to `LiveDebuggerRefactor.API.LiveViewDebug` in the future.
 
   https://github.com/software-mansion/live-debugger/issues/577
   """
