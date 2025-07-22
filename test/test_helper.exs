@@ -77,16 +77,6 @@ else
     :api_states_storage,
     LiveDebuggerRefactor.MockAPIStatesStorage
   )
-
-  Mox.defmock(LiveDebuggerRefactor.MockAPITracesStorage,
-    for: LiveDebuggerRefactor.API.TracesStorage
-  )
-
-  Application.put_env(
-    :live_debugger,
-    :api_traces_storage,
-    LiveDebuggerRefactor.MockAPITracesStorage
-  )
 end
 
 ExUnit.start()

@@ -6,7 +6,6 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.TraceTest do
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceErrored
-  alias LiveDebuggerRefactor.MockAPITracesStorage
   alias LiveDebuggerRefactor.MockBus
   import Mox
 
