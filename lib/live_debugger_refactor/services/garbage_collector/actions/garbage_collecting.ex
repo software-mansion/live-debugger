@@ -33,9 +33,10 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
     StatesStorage.get_all_states()
     |> Enum.reduce(false, fn {pid, _}, acc ->
       result =
-        cond do
-          MapSet.member?(watched_pids, pid) -> false
-          true -> delete_states_table!(pid)
+        if MapSet.member?(watched_pids, pid) do
+          false
+        else
+          delete_states_table!(pid)
         end
 
       acc or result
