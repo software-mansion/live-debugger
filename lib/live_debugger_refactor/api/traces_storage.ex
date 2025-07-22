@@ -23,8 +23,10 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
               {[Trace.t()], ets_continuation()} | :end_of_table
   @callback clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
   @callback get_table(ets_table_id()) :: reference()
+  @callback trim_table!(table_identifier(), max_size :: non_neg_integer()) :: true
   @callback delete_table!(table_identifier()) :: boolean()
   @callback get_all_tables() :: [reference()]
+  @callback table_size(table_identifier()) :: non_neg_integer()
 
   defguard is_table_identifier(id) when is_pid(id) or is_reference(id)
 
@@ -106,6 +108,11 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     impl().get_table(pid)
   end
 
+  @spec trim_table!(table_identifier(), non_neg_integer()) :: true
+  def trim_table!(table_id, max_size) when is_table_identifier(table_id) do
+    impl().trim_table!(table_id, max_size)
+  end
+
   @doc """
   Removes table for a given process from the storage
 
@@ -124,6 +131,14 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     impl().get_all_tables()
   end
 
+  @doc """
+  Returns the memory size of an ETS table in bytes.
+  """
+  @spec table_size(table_identifier()) :: non_neg_integer()
+  def table_size(table_id) do
+    impl().table_size(table_id)
+  end
+
   defp impl() do
     Application.get_env(
       :live_debugger,
@@ -136,6 +151,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     @moduledoc false
     @behaviour LiveDebuggerRefactor.API.TracesStorage
 
+    alias LiveDebuggerRefactor.Utils.Memory
     alias Phoenix.LiveComponent.CID
     alias LiveDebuggerRefactor.API.TracesStorage
 
@@ -224,6 +240,28 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     end
 
     @impl true
+    def trim_table!(pid, max_size) when is_pid(pid) do
+      pid
+      |> ets_table()
+      |> trim_table!(max_size)
+    end
+
+    def trim_table!(table, max_size) do
+      :ets.safe_fixtable(table, true)
+
+      # Try catch is used for early return from `foldl` since it doesn't support `:halt` | `:continue`.
+      try do
+        :ets.foldl(&foldl_record_sizes(&1, &2, max_size), 0, table)
+      catch
+        {:key, key} ->
+          :ets.select_delete(table, [{{:"$1", :_}, [{:>, :"$1", key}], [true]}])
+      end
+
+      :ets.safe_fixtable(table, false)
+      true
+    end
+
+    @impl true
     def delete_table!(ref) when is_reference(ref) do
       @processes_table_name
       |> :ets.select_delete([{{:_, ref}, [], [true]}])
@@ -249,6 +287,23 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     @impl true
     def get_all_tables() do
       :ets.tab2list(@processes_table_name)
+    end
+
+    @impl true
+    def table_size(pid) when is_pid(pid) do
+      pid
+      |> ets_table()
+      |> table_size()
+    end
+
+    def table_size(ref) do
+      case :ets.info(ref, :memory) do
+        size when is_integer(size) ->
+          size * :erlang.system_info(:wordsize)
+
+        _ ->
+          0
+      end
     end
 
     # Converts ETS entries of {key, Trace} to list of Trace structs
@@ -379,6 +434,18 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       min_time = Map.get(execution_times, "exec_time_min", 0)
       max_time = Map.get(execution_times, "exec_time_max", :infinity)
       {:andalso, {:>=, :"$2", min_time}, {:"=<", :"$2", max_time}}
+    end
+
+    @spec foldl_record_sizes({term(), term()}, non_neg_integer(), non_neg_integer()) ::
+            non_neg_integer()
+    defp foldl_record_sizes({key, _} = record, acc, max_size) do
+      size = Memory.term_size(record)
+
+      if acc + size > max_size do
+        throw({:key, key})
+      else
+        acc + size
+      end
     end
 
     @spec ets_table(table_identifier()) :: :ets.table()
