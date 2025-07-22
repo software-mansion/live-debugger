@@ -39,10 +39,10 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
   end
 
   @doc """
-  It sends a raw trace from `:dbg.tracer` process to the GenServer.
+  Handles trace from `:dbg.tracer` process.
   """
-  @spec send_trace(trace :: term(), n :: integer()) :: :ok
-  def send_trace(trace, n) do
+  @spec handle_trace(trace :: term(), n :: integer()) :: :ok
+  def handle_trace(trace, n) do
     GenServer.cast(__MODULE__, {:new_trace, trace, n})
   end
 
