@@ -1,5 +1,7 @@
 defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
-  @moduledoc false
+  @moduledoc """
+  LiveView page for changing application settings.
+  """
 
   use LiveDebuggerRefactor.App.Web, :live_view
 
