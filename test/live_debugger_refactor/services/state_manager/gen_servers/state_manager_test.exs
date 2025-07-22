@@ -47,6 +47,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManagerTest
         trace_id: -1,
         function: :render,
         module: LiveDebuggerTest.DummyLiveView,
+        ets_ref: nil,
         cid: nil,
         pid: pid
       }
