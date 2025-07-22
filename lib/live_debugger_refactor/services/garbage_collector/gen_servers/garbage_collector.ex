@@ -43,6 +43,11 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.GarbageColle
     {:reply, :ok, state}
   end
 
+  @impl true
+  def handle_info(_, state) do
+    {:noreply, state}
+  end
+
   @spec garbage_collection_loop() :: no_return()
   defp garbage_collection_loop() do
     Process.sleep(@garbage_collect_interval)

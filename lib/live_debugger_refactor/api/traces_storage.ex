@@ -151,6 +151,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     @moduledoc false
     @behaviour LiveDebuggerRefactor.API.TracesStorage
 
+    alias LiveDebuggerRefactor.Services.GarbageCollector.GenServers.GarbageCollector
     alias LiveDebuggerRefactor.Utils.Memory
     alias Phoenix.LiveComponent.CID
     alias LiveDebuggerRefactor.API.TracesStorage
@@ -456,14 +457,20 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
         [] ->
           ref = :ets.new(@traces_table_name, [:ordered_set, :public])
           :ets.insert(@processes_table_name, {pid, ref})
+          give_away_ownership(ref, GarbageCollector)
 
-          # This cannot be given away to LiveDebugger.Supervisor - it's temporary solution
-          # It will be given away to GarbageCollector
-          :ets.give_away(ref, Process.whereis(LiveDebugger.Supervisor), nil)
           ref
 
         [{^pid, ref}] ->
           ref
+      end
+    end
+
+    @spec give_away_ownership(reference(), module()) :: boolean()
+    defp give_away_ownership(ref, process_module) do
+      case Process.whereis(process_module) do
+        pid when is_pid(pid) -> :ets.give_away(ref, pid, nil)
+        _ -> false
       end
     end
   end
