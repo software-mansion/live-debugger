@@ -6,6 +6,9 @@ defmodule LiveDebuggerRefactor.Services.StateManager.Actions do
   alias LiveDebuggerRefactor.API.StatesStorage
   alias LiveDebuggerRefactor.API.LiveViewDebug
 
+  alias LiveDebuggerRefactor.Bus
+  alias LiveDebuggerRefactor.Services.StateManager.Events.StateChanged
+
   @doc """
   Fetches state of the given LiveView's `pid` and saves it to the storage.
   If the state cannot be fetched, it returns an error tuple.
@@ -14,6 +17,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.Actions do
   def save_state!(pid) when is_pid(pid) do
     with {:ok, lv_state} <- LiveViewDebug.liveview_state(pid) do
       StatesStorage.save!(lv_state)
+      Bus.broadcast_state!(%StateChanged{pid: pid})
       :ok
     end
   end
