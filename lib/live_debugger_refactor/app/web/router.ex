@@ -22,8 +22,10 @@ defmodule LiveDebuggerRefactor.App.Web.Router do
   scope "/", App do
     pipe_through([:dbg_browser])
 
+    live("/error/:error", Web.ErrorLive)
     live("/pid/:pid", Debugger.Web.DebuggerLive)
     live("/settings", Settings.Web.SettingsLive)
+    live("/transport_pid/:transport_pid", Discovery.Web.WindowDiscoveryLive)
     live("/", Discovery.Web.DiscoveryLive)
   end
 end
