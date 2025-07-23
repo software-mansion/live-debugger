@@ -156,7 +156,17 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTe
       state = %{{pid, module, fun} => {ref, trace, call_ts}}
 
       MockAPITracesStorage
-      |> expect(:insert!, fn ^ref, _updated_trace -> true end)
+      |> expect(:insert!, fn ^ref, updated_trace ->
+        assert %LiveDebuggerRefactor.Structs.Trace{
+                 id: 1,
+                 module: ^module,
+                 function: ^fun,
+                 pid: ^pid,
+                 type: :return_from
+               } = updated_trace
+
+        true
+      end)
 
       MockBus
       |> expect(:broadcast_trace!, fn arg1, ^pid ->
@@ -199,7 +209,17 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTe
       state = %{{pid, module, fun} => {ref, trace, call_ts}}
 
       MockAPITracesStorage
-      |> expect(:insert!, fn ^ref, _updated_trace -> true end)
+      |> expect(:insert!, fn ^ref, updated_trace ->
+        assert %LiveDebuggerRefactor.Structs.Trace{
+                 id: 1,
+                 module: ^module,
+                 function: ^fun,
+                 pid: ^pid,
+                 type: :exception_from
+               } = updated_trace
+
+        true
+      end)
 
       MockBus
       |> expect(:broadcast_trace!, fn arg1, ^pid ->
