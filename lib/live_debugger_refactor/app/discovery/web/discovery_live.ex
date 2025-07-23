@@ -25,41 +25,13 @@ defmodule LiveDebuggerRefactor.App.Discovery.Web.DiscoveryLive do
         <NavbarComponents.settings_button return_to={@url} />
       </NavbarComponents.navbar>
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
-        <div class="flex items-center justify-between">
-          <.h1>Active LiveViews</.h1>
-          <.button phx-click="refresh">
-            <div class="flex items-center gap-2">
-              <.icon name="icon-refresh" class="w-4 h-4" />
-              <p>Refresh</p>
-            </div>
-          </.button>
-        </div>
+        <DiscoveryComponents.header title="Active LiveViews" />
 
         <div class="mt-6">
           <.async_result :let={grouped_lv_processes} assign={@grouped_lv_processes}>
-            <:loading>
-              <div class="flex items-center justify-center">
-                <.spinner size="md" />
-              </div>
-            </:loading>
-            <:failed>
-              <.alert with_icon heading="Error fetching active LiveViews">
-                Check logs for more
-              </.alert>
-            </:failed>
-            <div id="live-sessions" class="flex flex-col gap-4">
-              <%= if Enum.empty?(grouped_lv_processes)  do %>
-                <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
-                  <p class="text-secondary-text text-center">No active LiveViews</p>
-                </div>
-              <% else %>
-                <DiscoveryComponents.tab_group
-                  :for={{transport_pid, grouped_lv_processes} <- grouped_lv_processes}
-                  transport_pid={transport_pid}
-                  grouped_lv_processes={grouped_lv_processes}
-                />
-              <% end %>
-            </div>
+            <:loading><DiscoveryComponents.loading /></:loading>
+            <:failed><DiscoveryComponents.failed /></:failed>
+            <DiscoveryComponents.live_sessions grouped_lv_processes={grouped_lv_processes} />
           </.async_result>
         </div>
       </div>

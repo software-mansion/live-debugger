@@ -12,9 +12,8 @@ defmodule LiveDebuggerRefactor.API.LiveViewDiscovery do
   @callback successor_lv_process(LvProcess.t()) :: LvProcess.t() | nil
   @callback group_lv_processes([LvProcess.t()]) :: %{pid() => %{LvProcess.t() => [LvProcess.t()]}}
   @callback lv_processes() :: [LvProcess.t()]
-  @callback children_lv_processes(pid(), searched_lv_processes :: [LvProcess.t()] | nil) :: [
-              LvProcess.t()
-            ]
+  @callback children_lv_processes(pid(), searched_lv_processes :: [LvProcess.t()] | nil) ::
+              [LvProcess.t()]
 
   @doc """
   Returns all debugged LvProcesses.
@@ -65,6 +64,21 @@ defmodule LiveDebuggerRefactor.API.LiveViewDiscovery do
   @spec successor_lv_process(lv_process :: LvProcess.t()) :: LvProcess.t() | nil
   def successor_lv_process(lv_process) do
     impl().successor_lv_process(lv_process)
+  end
+
+  @spec group_lv_processes([LvProcess.t()]) :: %{pid() => %{LvProcess.t() => [LvProcess.t()]}}
+  def group_lv_processes(lv_processes) do
+    impl().group_lv_processes(lv_processes)
+  end
+
+  @spec lv_processes() :: [LvProcess.t()]
+  def lv_processes() do
+    impl().lv_processes()
+  end
+
+  @spec children_lv_processes(pid(), [LvProcess.t()] | nil) :: [LvProcess.t()]
+  def children_lv_processes(pid, searched_lv_processes \\ nil) do
+    impl().children_lv_processes(pid, searched_lv_processes)
   end
 
   defp impl() do

@@ -9,6 +9,58 @@ defmodule LiveDebuggerRefactor.App.Discovery.Web.Components do
   alias LiveDebuggerRefactor.App.Utils.Parsers
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
 
+  attr(:title, :string, required: true)
+
+  def header(assigns) do
+    ~H"""
+    <div class="flex items-center justify-between">
+      <.h1><%= @title %></.h1>
+      <.button phx-click="refresh">
+        <div class="flex items-center gap-2">
+          <.icon name="icon-refresh" class="w-4 h-4" />
+          <p>Refresh</p>
+        </div>
+      </.button>
+    </div>
+    """
+  end
+
+  def loading(assigns) do
+    ~H"""
+    <div class="flex items-center justify-center">
+      <.spinner size="md" />
+    </div>
+    """
+  end
+
+  def failed(assigns) do
+    ~H"""
+    <.alert with_icon heading="Error fetching active LiveViews">
+      Check logs for more
+    </.alert>
+    """
+  end
+
+  attr(:grouped_lv_processes, :map, default: %{})
+
+  def live_sessions(assigns) do
+    ~H"""
+    <div id="live-sessions" class="flex flex-col gap-4">
+      <%= if Enum.empty?(@grouped_lv_processes)  do %>
+        <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
+          <p class="text-secondary-text text-center">No active LiveViews</p>
+        </div>
+      <% else %>
+        <.tab_group
+          :for={{transport_pid, grouped_lv_processes} <- @grouped_lv_processes}
+          transport_pid={transport_pid}
+          grouped_lv_processes={grouped_lv_processes}
+        />
+      <% end %>
+    </div>
+    """
+  end
+
   attr(:transport_pid, :any, required: true)
   attr(:grouped_lv_processes, :list, required: true)
 
