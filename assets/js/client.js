@@ -3,6 +3,7 @@
 
 import { initDebugButton } from './client/debug_button';
 import { initHighlight } from './client/highlight';
+import { initLiveDebuggerSocket } from './client/live_debugger_socket';
 
 // Fetch LiveDebugger URL
 function getSessionId() {
@@ -66,6 +67,8 @@ function getSessionURL(baseURL) {
 window.document.addEventListener('DOMContentLoaded', function () {
   const baseURL = getLiveDebuggerBaseURL();
   const sessionURL = getSessionURL(baseURL);
+  // const { liveDebuggerSocket, liveDebuggerChannel, joinedChannel } =
+  initLiveDebuggerSocket(baseURL, getSessionId());
 
   if (debugButtonEnabled()) {
     initDebugButton(sessionURL);
