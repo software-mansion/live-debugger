@@ -2,9 +2,10 @@ defmodule LiveDebuggerRefactor.App.Utils.Parsers do
   @moduledoc """
   Utility functions to parse and convert data types to string representations and vice versa.
   """
+  alias LiveDebuggerRefactor.CommonTypes
 
   @doc """
-  Converts PID to string representation (`0.123.0`).
+  Converts PID to string representation (`"0.123.0"`).
   """
   @spec pid_to_string(pid()) :: String.t()
   def pid_to_string(pid) when is_pid(pid) do
@@ -14,6 +15,17 @@ defmodule LiveDebuggerRefactor.App.Utils.Parsers do
     |> String.slice(1..-2//1)
   end
 
+  @doc """
+  Converts PID string representation (e.g. `"0.123.0"`) to valid PID.
+
+  ## Examples
+
+      iex> LiveDebuggerRefactor.App.Utils.Parsers.string_to_pid("0.123.0")
+      {:ok, #PID<0.123.0>}
+
+      iex> LiveDebuggerRefactor.App.Utils.Parsers.string_to_pid("invalid")
+      :error
+  """
   @spec string_to_pid(string :: String.t()) :: {:ok, pid()} | :error
   def string_to_pid(string) when is_binary(string) do
     if String.match?(string, ~r/[0-9]+\.[0-9]+\.[0-9]+/) do
@@ -23,7 +35,7 @@ defmodule LiveDebuggerRefactor.App.Utils.Parsers do
     end
   end
 
-  @spec cid_to_string(cid :: struct()) :: String.t()
+  @spec cid_to_string(cid :: CommonTypes.cid()) :: String.t()
   def cid_to_string(%Phoenix.LiveComponent.CID{cid: cid}) do
     Integer.to_string(cid)
   end
