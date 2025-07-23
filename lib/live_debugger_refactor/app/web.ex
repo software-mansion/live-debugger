@@ -7,6 +7,8 @@ defmodule LiveDebuggerRefactor.App.Web do
         layout: {unquote(__MODULE__).Layout, :app}
 
       on_mount({unquote(__MODULE__).Hooks.Flash, :add_hook})
+      on_mount({unquote(__MODULE__).Hooks.URL, :add_hook})
+      on_mount({unquote(__MODULE__).Hooks.IframeCheck, :add_hook})
 
       import Phoenix.HTML
       import LiveDebuggerRefactor.Helpers
