@@ -4,15 +4,17 @@ defmodule LiveDebuggerRefactor.Services.StateManager.ActionsTest do
   import Mox
 
   alias LiveDebuggerRefactor.Services.StateManager.Actions, as: StateManagerActions
+  alias LiveDebuggerRefactor.Services.StateManager.Events.StateChanged
   alias LiveDebuggerRefactor.Fakes
   alias LiveDebuggerRefactor.Structs.LvState
   alias LiveDebuggerRefactor.MockAPILiveViewDebug
   alias LiveDebuggerRefactor.MockAPIStatesStorage
+  alias LiveDebuggerRefactor.MockBus
 
   setup :verify_on_exit!
 
   describe "save_state!/1" do
-    test "saves state when process is alive" do
+    test "saves state and sends event when process is alive" do
       pid = :c.pid(0, 1, 0)
 
       MockAPILiveViewDebug
@@ -26,6 +28,11 @@ defmodule LiveDebuggerRefactor.Services.StateManager.ActionsTest do
       MockAPIStatesStorage
       |> expect(:save!, fn %LvState{pid: ^pid} ->
         true
+      end)
+
+      MockBus
+      |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid ->
+        :ok
       end)
 
       assert :ok = StateManagerActions.save_state!(pid)

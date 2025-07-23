@@ -4,6 +4,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManagerTest
   import Mox
 
   alias LiveDebuggerRefactor.MockBus
+  alias LiveDebuggerRefactor.Services.StateManager.Events.StateChanged
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentDeleted
 
@@ -42,7 +43,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManagerTest
       {:ok, pid: pid}
     end
 
-    test "saves state on TraceReturned event", %{pid: pid} do
+    test "handles TraceReturned event", %{pid: pid} do
       trace_event = %TraceReturned{
         trace_id: -1,
         function: :render,
@@ -53,14 +54,18 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManagerTest
         ets_ref: nil
       }
 
+      MockBus |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid -> :ok end)
+
       assert {:noreply, []} = StateManager.handle_info(trace_event, [])
     end
 
-    test "saves state on LiveComponentDeleted event", %{pid: pid} do
+    test "handles LiveComponentDeleted event", %{pid: pid} do
       delete_event = %LiveComponentDeleted{
         pid: pid,
         cid: %Phoenix.LiveComponent.CID{cid: 1}
       }
+
+      MockBus |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid -> :ok end)
 
       assert {:noreply, []} = StateManager.handle_info(delete_event, [])
     end
