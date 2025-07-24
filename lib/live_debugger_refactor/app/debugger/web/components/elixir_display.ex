@@ -14,7 +14,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Components.ElixirDisplay do
 
   attr(:id, :string, required: true)
   attr(:node, :any, required: true)
-  attr(:level, :integer, required: true)
+  attr(:level, :integer, default: 1)
 
   def term(assigns) do
     assigns =

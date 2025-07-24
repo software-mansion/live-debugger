@@ -5,9 +5,9 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
   """
 
   @type display_element() :: %{text: String.t(), color: String.t() | nil}
-  @type tree_element() :: %{
+  @type tree_node() :: %{
           kind: String.t(),
-          children: [tree_element()] | nil,
+          children: [tree_node()] | nil,
           content: [display_element()],
           expanded_before: [display_element()] | nil,
           expanded_after: [display_element()] | nil
@@ -24,7 +24,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
     |> String.replace(~r/#.+?<.*?>/, &"\"#{&1}\"")
   end
 
-  @spec term_to_display_tree(term()) :: tree_element()
+  @spec term_to_display_tree(term()) :: tree_node()
   def term_to_display_tree(term) do
     to_node(term, [])
   end
