@@ -13,7 +13,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Components.ElixirDisplay do
   """
 
   attr(:id, :string, required: true)
-  # TODO: Use struct for node if possible
   attr(:node, :any, required: true)
   attr(:level, :integer, required: true)
 

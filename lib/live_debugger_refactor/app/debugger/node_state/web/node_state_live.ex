@@ -6,36 +6,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
 
   use LiveDebuggerRefactor.App.Web, :live_view
 
-  # import LiveDebuggerWeb.Helpers.NestedLiveViewHelper
-
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebuggerRefactor.Structs.LvProcess
   alias LiveDebuggerRefactor.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebuggerRefactor.App.Utils.TermParser
-
-  attr(:id, :string, required: true)
-  attr(:socket, Phoenix.LiveView.Socket, required: true)
-  attr(:lv_process, LvProcess, required: true)
-  attr(:params, :map, required: true)
-  attr(:class, :string, default: "", doc: "CSS class for the container")
-
-  def live_render(assigns) do
-    session = %{
-      "lv_process" => assigns.lv_process,
-      "params" => assigns.params,
-      "parent_pid" => self()
-    }
-
-    assigns = assign(assigns, session: session)
-
-    ~H"""
-    <%= live_render(@socket, __MODULE__,
-      id: @id,
-      session: @session,
-      container: {:div, class: @class}
-    ) %>
-    """
-  end
 
   @impl true
   def mount(_params, session, socket) do

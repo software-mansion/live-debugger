@@ -13,18 +13,6 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
           expanded_after: [display_element()] | nil
         }
 
-  # TODO: Change to use this struct
-  # defmodule TreeElement do
-  #   defstruct [:kind, :children, :content, :expanded_before, :expanded_after]
-  #   @type t :: %__MODULE__{
-  #           kind: String.t(),
-  #           children: [TreeElement.t()] | nil,
-  #           content: [display_element()],
-  #           expanded_before: [display_element()] | nil,
-  #           expanded_after: [display_element()] | nil
-  #         }
-  # end
-
   @spec term_to_copy_string(term()) :: String.t()
   def term_to_copy_string(term) do
     term
