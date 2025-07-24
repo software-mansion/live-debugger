@@ -3,11 +3,8 @@ defmodule LiveDebuggerRefactor.Client do
   This module provides a set of functions to communicate with the client's browser where debugged LiveView is running.
   """
 
-  @pubsub_name Application.compile_env(
-                 :live_debugger,
-                 :endpoint_pubsub_name,
-                 LiveDebuggerRefactor.App.Web.Endpoint.PubSub
-               )
+  @callback push_event!(String.t(), String.t(), map()) :: :ok
+  @callback receive_events(String.t()) :: :ok | {:error, term()}
 
   @doc """
   Pushes event to the client.
@@ -20,7 +17,7 @@ defmodule LiveDebuggerRefactor.Client do
   """
   @spec push_event!(String.t(), String.t(), map()) :: :ok
   def push_event!(debugged_socket_id, event, payload \\ %{}) do
-    Phoenix.PubSub.broadcast!(@pubsub_name, "client:#{debugged_socket_id}", {event, payload})
+    impl().push_event!(debugged_socket_id, event, payload)
   end
 
   @doc """
@@ -42,6 +39,31 @@ defmodule LiveDebuggerRefactor.Client do
   """
   @spec receive_events(String.t()) :: :ok | {:error, term()}
   def receive_events(debugged_socket_id) do
-    Phoenix.PubSub.subscribe(@pubsub_name, "client:#{debugged_socket_id}:receive")
+    impl().receive_events(debugged_socket_id)
+  end
+
+  defp impl do
+    Application.get_env(:live_debugger, :client, __MODULE__.Impl)
+  end
+
+  defmodule Impl do
+    @moduledoc false
+    @behaviour LiveDebuggerRefactor.Client
+
+    @pubsub_name Application.compile_env(
+                   :live_debugger,
+                   :endpoint_pubsub_name,
+                   LiveDebuggerRefactor.App.Web.Endpoint.PubSub
+                 )
+
+    @impl true
+    def push_event!(debugged_socket_id, event, payload \\ %{}) do
+      Phoenix.PubSub.broadcast!(@pubsub_name, "client:#{debugged_socket_id}", {event, payload})
+    end
+
+    @impl true
+    def receive_events(debugged_socket_id) do
+      Phoenix.PubSub.subscribe(@pubsub_name, "client:#{debugged_socket_id}:receive")
+    end
   end
 end

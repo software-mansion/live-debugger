@@ -87,6 +87,9 @@ else
     :api_states_storage,
     LiveDebuggerRefactor.MockAPIStatesStorage
   )
+
+  Mox.defmock(LiveDebuggerRefactor.MockClient, for: LiveDebuggerRefactor.Client)
+  Application.put_env(:live_debugger, :client, LiveDebuggerRefactor.MockClient)
 end
 
 ExUnit.start()
