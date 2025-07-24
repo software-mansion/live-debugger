@@ -50,8 +50,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManagerTest
         module: LiveDebuggerTest.DummyLiveView,
         ets_ref: nil,
         cid: nil,
-        pid: pid,
-        ets_ref: nil
+        pid: pid
       }
 
       MockBus |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid -> :ok end)
