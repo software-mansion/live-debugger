@@ -8,6 +8,11 @@ defmodule LiveDebuggerRefactor.Feature do
     Application.get_env(:live_debugger, :garbage_collection?, true)
   end
 
+  def enabled?(:highlighting) do
+    Application.get_env(:live_debugger, :browser_features?, true) and
+      Application.get_env(:live_debugger, :highlighting?, true)
+  end
+
   def enabled?(feature_name) do
     raise "Feature #{feature_name} is not allowed"
   end
