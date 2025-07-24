@@ -1,4 +1,6 @@
 defmodule LiveDebuggerRefactor.Client.Socket do
+  @moduledoc false
+
   use Phoenix.Socket
 
   channel("client:*", LiveDebuggerRefactor.Client.Channel)
