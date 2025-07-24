@@ -1,6 +1,6 @@
-defmodule LiveDebuggerRefactor.App.Web.Socket.ClientChannel do
+defmodule LiveDebuggerRefactor.Client.Channel do
   @moduledoc """
-  This is channel for communication between LiveDebugger processes and debugged LiveView browser client.
+  This is channel for communication between LiveDebugger processes and debugged LiveView browser.
   """
   use Phoenix.Channel
 

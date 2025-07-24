@@ -1,7 +1,7 @@
-defmodule LiveDebuggerRefactor.App.Web.Socket.ClientSocket do
+defmodule LiveDebuggerRefactor.Client.Socket do
   use Phoenix.Socket
 
-  channel("client:*", LiveDebuggerRefactor.App.Web.Socket.ClientChannel)
+  channel("client:*", LiveDebuggerRefactor.Client.Channel)
 
   def connect(%{"sessionId" => client_session_id}, socket) do
     socket = assign(socket, :client_session_id, client_session_id)
