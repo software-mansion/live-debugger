@@ -3,10 +3,10 @@ defmodule LiveDebuggerRefactor.Client.Socket do
 
   channel("client:*", LiveDebuggerRefactor.Client.Channel)
 
-  def connect(%{"sessionId" => client_session_id}, socket) do
-    socket = assign(socket, :client_session_id, client_session_id)
+  def connect(%{"sessionId" => session_id}, socket) do
+    socket = assign(socket, :debugged_socket_id, session_id)
     {:ok, socket}
   end
 
-  def id(socket), do: "client:#{socket.assigns.client_session_id}"
+  def id(socket), do: "client:#{socket.assigns.debugged_socket_id}"
 end
