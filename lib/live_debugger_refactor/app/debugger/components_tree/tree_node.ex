@@ -37,7 +37,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.TreeNode do
     Parsers.pid_to_string(pid)
   end
 
-  def parse_id(%__MODULE__{type: :live_component, id: %Phoenix.LiveComponent.CID{cid: cid}}) do
+  def parse_id(%__MODULE__{type: :live_component, id: cid}) do
     Parsers.cid_to_string(cid)
   end
 end
