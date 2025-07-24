@@ -9,6 +9,7 @@ defmodule LiveDebuggerRefactor.App.Web.Helpers.Routes do
     router: LiveDebuggerRefactor.App.Web.Router
 
   alias LiveDebuggerRefactor.App.Utils.Parsers
+  alias LiveDebuggerRefactor.CommonTypes
 
   @spec discovery() :: String.t()
   def discovery() do
