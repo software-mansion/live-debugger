@@ -1,4 +1,7 @@
 defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web do
+  @moduledoc """
+  Functions responsible for accessing `LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web` context.
+  """
   use LiveDebuggerRefactor.App.Web, :component
 
   @doc """
