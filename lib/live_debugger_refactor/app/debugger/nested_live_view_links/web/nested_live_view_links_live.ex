@@ -19,8 +19,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.Web.NestedLiveVi
         <:loading>
           <.spinner size="sm" class="m-auto" />
         </:loading>
-        <.nested_live_views_links_label nested_lv_processes={nested_lv_processes} />
-        <%= unless Enum.empty?(nested_lv_processes) do %>
+        <p class="pl-2 shrink-0 font-medium text-secondary-text">
+          <%= if Enum.empty?(nested_lv_processes), do: "No nested LiveViews", else: "Nested LiveViews" %>
+        </p>
+        <%= if not Enum.empty?(nested_lv_processes) do %>
           <div class="pl-2 flex flex-col gap-1">
             <DebuggerComponents.live_view_link
               :for={{nested_lv_process, index} <- Enum.with_index(nested_lv_processes)}
@@ -32,23 +34,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.Web.NestedLiveVi
         <% end %>
       </.async_result>
     </div>
-    """
-  end
-
-  attr(:nested_lv_processes, :list, required: true)
-
-  defp nested_live_views_links_label(assigns) do
-    label =
-      if Enum.empty?(assigns.nested_lv_processes) do
-        "No nested LiveViews"
-      else
-        "Nested LiveViews"
-      end
-
-    assigns = assign(assigns, :label, label)
-
-    ~H"""
-    <p class="pl-2 shrink-0 font-medium text-secondary-text"><%= @label %></p>
     """
   end
 end
