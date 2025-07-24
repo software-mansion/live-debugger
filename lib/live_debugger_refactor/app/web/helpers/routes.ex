@@ -51,6 +51,11 @@ defmodule LiveDebuggerRefactor.App.Web.Helpers.Routes do
     ~p"/pid/#{pid}"
   end
 
+  @spec error(String.t()) :: String.t()
+  def error(error) do
+    ~p"/error/#{error}"
+  end
+
   @spec settings(return_to :: String.t() | nil) :: String.t()
   def settings(return_to \\ nil)
 
