@@ -3,7 +3,7 @@
 
 import { initDebugButton } from './client/debug_button';
 import { initHighlight } from './client/highlight';
-import { initLiveDebuggerSocket } from './client/live_debugger_socket';
+import { initDebugSocket } from './client/debug_socket';
 
 // Fetch LiveDebugger URL
 function getSessionId() {
@@ -67,11 +67,14 @@ function getSessionURL(baseURL) {
 window.document.addEventListener('DOMContentLoaded', function () {
   const baseURL = getLiveDebuggerBaseURL();
   const sessionURL = getSessionURL(baseURL);
-  const { liveDebuggerSocket, liveDebuggerChannel, joinedChannel } =
-    initLiveDebuggerSocket(baseURL, getSessionId());
+  const { debugSocket, debugChannel } = initDebugSocket(
+    baseURL,
+    getSessionId()
+  );
 
-  liveDebuggerChannel.push('client-message', {
-    message: 'Hello from the client!',
+  debugChannel.on('ping', (resp) => {
+    console.log('Received ping', resp);
+    debugChannel.push('pong', resp);
   });
 
   if (debugButtonEnabled()) {
