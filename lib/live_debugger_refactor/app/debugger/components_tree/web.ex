@@ -10,7 +10,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web do
   attr(:id, :string, required: true)
   attr(:socket, Phoenix.LiveView.Socket, required: true)
 
-  def components_tree_live(assigns) do
+  def live_render(assigns) do
     assigns = assign(assigns, :session, %{})
 
     ~H"""
