@@ -10,36 +10,33 @@ defmodule LiveDebuggerRefactor.Event do
 
   First, use this module in your events module:
 
-  ```elixir
-  defmodule LiveDebugger.Events do
-    use LiveDebuggerRefactor.Event
+      defmodule LiveDebugger.Events do
+        use LiveDebuggerRefactor.Event
 
-    defevent(UserCreated, name: String.t(), email: String.t(), age: integer())
-    defevent(ProcessStarted, pid: pid(), module: atom(), timestamp: DateTime.t())
-  end
-  ```
+        defevent(UserCreated, name: String.t(), email: String.t(), age: integer())
+        defevent(ProcessStarted, pid: pid(), module: atom(), timestamp: DateTime.t())
+      end
+
 
   Then create event instances:
 
-  ```elixir
-  # Create an event with required fields
-  event = %LiveDebugger.Events.UserCreated{
-    name: "John Doe",
-    email: "john.doe@example.com",
-    age: 30,
-    context: %{
-      debugger_pid: self(),
-      session_id: "abc123"
-    }
-  }
+      # Create an event with required fields
+      event = %LiveDebugger.Events.UserCreated{
+        name: "John Doe",
+        email: "john.doe@example.com",
+        age: 30,
+        context: %{
+          debugger_pid: self(),
+          session_id: "abc123"
+        }
+      }
 
-  # Context is optional and defaults to an empty map
-  simple_event = %LiveDebugger.Events.ProcessStarted{
-    pid: self(),
-    module: MyModule,
-    timestamp: DateTime.utc_now()
-  }
-  ```
+      # Context is optional and defaults to an empty map
+      simple_event = %LiveDebugger.Events.ProcessStarted{
+        pid: self(),
+        module: MyModule,
+        timestamp: DateTime.utc_now()
+      }
 
   ## Generated Struct
 
@@ -50,20 +47,16 @@ defmodule LiveDebuggerRefactor.Event do
 
   ## Examples
 
-  ### Basic Event Definition
-  ```elixir
-  defevent(ButtonClicked, button_id: String.t(), user_id: integer())
-  ```
+      # Basic Event Definition
+      defevent(ButtonClicked, button_id: String.t(), user_id: integer())
 
-  ### Event with Complex Types
-  ```elixir
-  defevent(StateChanged,
-    old_state: map(),
-    new_state: map(),
-    changed_keys: [atom()],
-    timestamp: DateTime.t()
-  )
-  ```
+      # Event with Complex Types
+      defevent(StateChanged,
+        old_state: map(),
+        new_state: map(),
+        changed_keys: [atom()],
+        timestamp: DateTime.t()
+      )
   """
 
   @typedoc """
@@ -86,14 +79,12 @@ defmodule LiveDebuggerRefactor.Event do
   This macro should be used at the top of your events module to import
   the `defevent` macro and make it available for defining events.
 
-  ## Example
+  ## Examples
 
-  ```elixir
-  defmodule LiveDebugger.Events do
-    use LiveDebuggerRefactor.Event
-    # Now you can use defevent/2
-  end
-  ```
+      defmodule LiveDebugger.Events do
+        use LiveDebuggerRefactor.Event
+        # Now you can use defevent/2
+      end
   """
   defmacro __using__(_) do
     quote do
