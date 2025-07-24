@@ -3,7 +3,14 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
 
   use LiveDebuggerRefactor.App.Web, :live_view
 
+  alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web, as: ComponentsTreeWeb
+
   def render(assigns) do
-    ~H""
+    ~H"""
+    <div id="debugger-live">
+      <h1>TEMPORARY DEBUGGER LIVE</h1>
+      <ComponentsTreeWeb.components_tree_live id="components-tree" socket={@socket} />
+    </div>
+    """
   end
 end
