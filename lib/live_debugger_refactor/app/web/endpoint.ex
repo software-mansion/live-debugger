@@ -21,6 +21,11 @@ defmodule LiveDebuggerRefactor.App.Web.Endpoint do
     longpoll: true
   )
 
+  socket("/client", LiveDebuggerRefactor.App.Web.Socket.ClientSocket,
+    websocket: true,
+    longpoll: false
+  )
+
   plug(Plug.Static, from: {:phoenix, "priv/static"}, at: "/assets/phoenix")
   plug(Plug.Static, from: {:phoenix_live_view, "priv/static"}, at: "/assets/phoenix_live_view")
 

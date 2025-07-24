@@ -67,8 +67,12 @@ function getSessionURL(baseURL) {
 window.document.addEventListener('DOMContentLoaded', function () {
   const baseURL = getLiveDebuggerBaseURL();
   const sessionURL = getSessionURL(baseURL);
-  // const { liveDebuggerSocket, liveDebuggerChannel, joinedChannel } =
-  initLiveDebuggerSocket(baseURL, getSessionId());
+  const { liveDebuggerSocket, liveDebuggerChannel, joinedChannel } =
+    initLiveDebuggerSocket(baseURL, getSessionId());
+
+  liveDebuggerChannel.push('client-message', {
+    message: 'Hello from the client!',
+  });
 
   if (debugButtonEnabled()) {
     initDebugButton(sessionURL);
