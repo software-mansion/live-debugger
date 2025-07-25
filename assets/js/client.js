@@ -67,10 +67,8 @@ function getSessionURL(baseURL) {
 window.document.addEventListener('DOMContentLoaded', function () {
   const baseURL = getLiveDebuggerBaseURL();
   const sessionURL = getSessionURL(baseURL);
-  const { debugSocket, debugChannel } = initDebugSocket(
-    baseURL,
-    getSessionId()
-  );
+
+  const { debugChannel } = initDebugSocket(baseURL, getSessionId());
 
   debugChannel.on('ping', (resp) => {
     console.log('Received ping', resp);
