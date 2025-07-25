@@ -106,6 +106,7 @@ function initDebugButton(liveDebuggerURL) {
   document.body.appendChild(tooltip);
 
   let tooltipVisible = false;
+  let isDragging = false;
 
   const showTooltip = () => {
     const buttonRect = debugButton.getBoundingClientRect();
@@ -136,10 +137,55 @@ function initDebugButton(liveDebuggerURL) {
   };
 
   const onClick = () => {
-    if (tooltipVisible) {
-      hideTooltip();
+    if (isDragging) {
+      placeButton();
     } else {
-      showTooltip();
+      if (tooltipVisible) {
+        hideTooltip();
+      } else {
+        showTooltip();
+      }
+    }
+  };
+
+  const startDragging = () => {
+    isDragging = true;
+    debugButton.style.cursor = 'grabbing';
+
+    // Add mouse move listener to follow cursor
+    document.addEventListener('mousemove', onMouseMove);
+  };
+
+  const placeButton = () => {
+    isDragging = false;
+    debugButton.style.cursor = 'pointer';
+
+    // Remove mouse move listener
+    document.removeEventListener('mousemove', onMouseMove);
+  };
+
+  const onMouseMove = (event) => {
+    if (isDragging) {
+      const buttonWidth = debugButton.offsetWidth;
+      const buttonHeight = debugButton.offsetHeight;
+
+      // Make sure the button doesn't overflow the viewport
+      const maxLeft = window.innerWidth - buttonWidth;
+      const maxTop = window.innerHeight - buttonHeight;
+
+      const newLeft = Math.max(
+        0,
+        Math.min(event.clientX - buttonWidth / 2, maxLeft)
+      );
+      const newTop = Math.max(
+        0,
+        Math.min(event.clientY - buttonHeight / 2, maxTop)
+      );
+
+      debugButton.style.left = `${newLeft}px`;
+      debugButton.style.top = `${newTop}px`;
+      debugButton.style.right = 'auto';
+      debugButton.style.bottom = 'auto';
     }
   };
 
@@ -160,7 +206,7 @@ function initDebugButton(liveDebuggerURL) {
 
   // Move
   tooltipOptions[2].addEventListener('click', () => {
-    console.log('Move option clicked');
+    startDragging();
     hideTooltip();
   });
 
