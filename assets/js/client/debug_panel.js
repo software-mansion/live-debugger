@@ -12,6 +12,7 @@ function initDebugPanel(liveDebuggerURL) {
   const panelState = {
     isDragging: false,
     menuVisible: false,
+    isInspecting: false,
   };
 
   // Button event handlers
@@ -97,8 +98,10 @@ function initDebugPanel(liveDebuggerURL) {
     hideMenu();
   };
 
-  const handleInspectMode = () => {
-    console.log('Inspect mode clicked');
+  const handleInspectMode = (event) => {
+    event.stopPropagation();
+    panelState.isInspecting = true;
+    document.body.style.cursor = 'crosshair';
     hideMenu();
   };
 
@@ -123,6 +126,11 @@ function initDebugPanel(liveDebuggerURL) {
       !debugMenu.contains(event.target)
     ) {
       hideMenu();
+    }
+
+    if (panelState.isInspecting) {
+      panelState.isInspecting = false;
+      document.body.style.cursor = 'default';
     }
   });
 
