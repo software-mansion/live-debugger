@@ -1,17 +1,17 @@
 import { createDebugButton } from './debug_panel/debug_button.js';
-import { createTooltipMenu } from './debug_panel/debug_menu.js';
+import { createDebugMenu } from './debug_panel/debug_menu.js';
 
 function initDebugPanel(liveDebuggerURL) {
   const debugButton = createDebugButton();
-  const tooltip = createTooltipMenu();
+  const debugMenu = createDebugMenu();
 
   document.body.appendChild(debugButton);
-  document.body.appendChild(tooltip);
+  document.body.appendChild(debugMenu);
 
   // Panel state
   const panelState = {
     isDragging: false,
-    tooltipVisible: false,
+    menuVisible: false,
   };
 
   // Button event handlers
@@ -19,10 +19,10 @@ function initDebugPanel(liveDebuggerURL) {
     if (panelState.isDragging) {
       placeButton();
     } else {
-      if (panelState.tooltipVisible) {
-        hideTooltip();
+      if (panelState.menuVisible) {
+        hideMenu();
       } else {
-        showTooltip();
+        showMenu();
       }
     }
   };
@@ -64,78 +64,76 @@ function initDebugPanel(liveDebuggerURL) {
     }
   };
 
-  // Tooltip event handlers
-  const showTooltip = () => {
+  const showMenu = () => {
     const buttonRect = debugButton.getBoundingClientRect();
-    const tooltipWidth = 160;
-    const tooltipHeight = 120;
+    const menuWidth = 160;
+    const menuHeight = 120;
 
-    // Check if the tooltip would overflow on the right
-    if (buttonRect.right + tooltipWidth > window.innerWidth) {
-      tooltip.style.left = `${buttonRect.left - tooltipWidth}px`;
+    // Check if the menu would overflow on the right
+    if (buttonRect.right + menuWidth > window.innerWidth) {
+      debugMenu.style.left = `${buttonRect.left - menuWidth}px`;
     } else {
-      tooltip.style.left = `${buttonRect.right}px`;
+      debugMenu.style.left = `${buttonRect.right}px`;
     }
 
-    // Check if the tooltip would overflow on the bottom
-    if (buttonRect.top + tooltipHeight > window.innerHeight) {
-      tooltip.style.top = `${buttonRect.bottom - tooltipHeight}px`;
+    // Check if the menu would overflow on the bottom
+    if (buttonRect.top + menuHeight > window.innerHeight) {
+      debugMenu.style.top = `${buttonRect.bottom - menuHeight}px`;
     } else {
-      tooltip.style.top = `${buttonRect.top}px`;
+      debugMenu.style.top = `${buttonRect.top}px`;
     }
 
-    tooltip.style.display = 'block';
-    panelState.tooltipVisible = true;
+    debugMenu.style.display = 'block';
+    panelState.menuVisible = true;
   };
 
-  const hideTooltip = () => {
-    tooltip.style.display = 'none';
-    panelState.tooltipVisible = false;
+  const hideMenu = () => {
+    debugMenu.style.display = 'none';
+    panelState.menuVisible = false;
   };
 
-  // Menu option handlers
   const handleOpenInNewTab = () => {
     window.open(liveDebuggerURL, '_blank');
-    hideTooltip();
+    hideMenu();
   };
 
   const handleInspectMode = () => {
     console.log('Inspect mode clicked');
-    hideTooltip();
+    hideMenu();
   };
 
   const handleMove = () => {
     startDragging();
-    hideTooltip();
+    hideMenu();
   };
 
   // Setup event listeners
   debugButton.addEventListener('click', onButtonClick);
 
   // Menu option clicks
-  const tooltipOptions = tooltip.querySelectorAll('.tooltip-option');
-  tooltipOptions[0].addEventListener('click', handleOpenInNewTab);
-  tooltipOptions[1].addEventListener('click', handleInspectMode);
-  tooltipOptions[2].addEventListener('click', handleMove);
+  const menuOptions = debugMenu.querySelectorAll('.tooltip-option');
+  menuOptions[0].addEventListener('click', handleOpenInNewTab);
+  menuOptions[1].addEventListener('click', handleInspectMode);
+  menuOptions[2].addEventListener('click', handleMove);
 
-  // Hide tooltip when clicking outside
+  // Hide menu when clicking outside
   document.addEventListener('click', (event) => {
     if (
       !debugButton.contains(event.target) &&
-      !tooltip.contains(event.target)
+      !debugMenu.contains(event.target)
     ) {
-      hideTooltip();
+      hideMenu();
     }
   });
 
-  // Hide tooltip when window is resized
+  // Hide menu when window is resized
   window.addEventListener('resize', () => {
-    if (panelState.tooltipVisible) {
-      hideTooltip();
+    if (panelState.menuVisible) {
+      hideMenu();
     }
   });
 
-  return { debugButton, tooltip, panelState };
+  return { debugButton, debugMenu, panelState };
 }
 
 export { initDebugPanel };

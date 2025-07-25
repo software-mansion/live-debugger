@@ -1,4 +1,4 @@
-export function createTooltipMenu() {
+export function createDebugMenu() {
   const tooltipHtml = /*html*/ `
     <div id="debug-tooltip" style="
       position: absolute;
@@ -48,7 +48,7 @@ export function createTooltipMenu() {
   tempDiv.innerHTML = tooltipHtml;
   const tooltip = tempDiv.firstElementChild;
 
-  // Add hover effects
+  // Since we can't add hover via inline styles, we need to add it via JS
   const options = tooltip.querySelectorAll('.tooltip-option');
   options.forEach((option) => {
     option.addEventListener('mouseenter', () => {
