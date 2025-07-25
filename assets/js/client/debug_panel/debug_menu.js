@@ -1,4 +1,4 @@
-export function createTooltipMenu(liveDebuggerURL) {
+export function createTooltipMenu() {
   const tooltipHtml = /*html*/ `
     <div id="debug-tooltip" style="
       position: absolute;
@@ -60,49 +60,4 @@ export function createTooltipMenu(liveDebuggerURL) {
   });
 
   return tooltip;
-}
-
-export function initTooltipEvents(
-  tooltip,
-  debugButton,
-  buttonState,
-  liveDebuggerURL
-) {
-  // Handle tooltip option clicks
-  const tooltipOptions = tooltip.querySelectorAll('.tooltip-option');
-
-  // Open in new tab
-  tooltipOptions[0].addEventListener('click', () => {
-    window.open(liveDebuggerURL, '_blank');
-    buttonState.hideTooltip();
-  });
-
-  // Inspect mode
-  tooltipOptions[1].addEventListener('click', () => {
-    console.log('Inspect mode clicked');
-    buttonState.hideTooltip();
-  });
-
-  // Move
-  tooltipOptions[2].addEventListener('click', () => {
-    buttonState.startDragging();
-    buttonState.hideTooltip();
-  });
-
-  // Hide tooltip when clicking outside
-  document.addEventListener('click', (event) => {
-    if (
-      !debugButton.contains(event.target) &&
-      !tooltip.contains(event.target)
-    ) {
-      buttonState.hideTooltip();
-    }
-  });
-
-  // Hide tooltip when window is resized
-  window.addEventListener('resize', () => {
-    if (buttonState.tooltipVisible) {
-      buttonState.hideTooltip();
-    }
-  });
 }
