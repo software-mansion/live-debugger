@@ -1,14 +1,14 @@
 import {
   createDebugButton,
   initButtonEvents,
-} from './debug_button_component.js';
+} from './debug_panel/debug_button.js';
 
 import {
   createTooltipMenu,
   initTooltipEvents,
-} from './debug_tooltip_component.js';
+} from './debug_panel/debug_menu.js';
 
-function initDebugButton(liveDebuggerURL) {
+function initDebugPanel(liveDebuggerURL) {
   const debugButton = createDebugButton(liveDebuggerURL);
   const tooltip = createTooltipMenu(liveDebuggerURL);
 
@@ -24,4 +24,4 @@ function initDebugButton(liveDebuggerURL) {
   return { debugButton, tooltip, buttonState };
 }
 
-export { initDebugButton };
+export { initDebugPanel };
