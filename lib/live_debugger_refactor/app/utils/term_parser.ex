@@ -147,7 +147,8 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
           {%{span | text: inspect(key, width: :infinity)}, black(" => ")}
 
         %TermNode{content: _content} ->
-          {%{text: inspect(key, width: :infinity), color: "text-code-1"}, black(" => ")}
+          {%DisplayElement{text: inspect(key, width: :infinity), color: "text-code-1"},
+           black(" => ")}
       end
 
     case to_node(value, suffix) do
