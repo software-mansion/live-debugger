@@ -1,9 +1,7 @@
-import { Socket } from 'phoenix';
-
 function initDebugSocket(baseURL, sessionId) {
   const websocketURL = baseURL.replace(/^http/, 'ws') + '/client';
 
-  const debugSocket = new Socket(websocketURL, {
+  const debugSocket = new window.Phoenix.Socket(websocketURL, {
     params: {
       sessionId: sessionId ? sessionId : 'embedded',
     },
