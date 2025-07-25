@@ -29,7 +29,7 @@ export function createDebugMenu() {
         gap: 8px;
         color: #374151;
         transition: background-color 0.15s;">
-        Inspect mode
+        Inspect elements
       </div>
       <div class="tooltip-option" style="
         padding: 8px 16px;
@@ -39,7 +39,7 @@ export function createDebugMenu() {
         gap: 8px;
         color: #374151;
         transition: background-color 0.15s;">
-        Move
+        Move button
       </div>
     </div>
   `;
