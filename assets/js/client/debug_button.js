@@ -112,14 +112,14 @@ function initDebugButton(liveDebuggerURL) {
     const tooltipWidth = 160;
     const tooltipHeight = 120;
 
-    // Would the tooltip overflow on the right?
+    // Check if the tooltip would overflow on the right
     if (buttonRect.right + tooltipWidth > window.innerWidth) {
       tooltip.style.left = `${buttonRect.left - tooltipWidth}px`;
     } else {
       tooltip.style.left = `${buttonRect.right}px`;
     }
 
-    // Would the tooltip overflow on the bottom?
+    // Check if the tooltip would overflow on the bottom
     if (buttonRect.top + tooltipHeight > window.innerHeight) {
       tooltip.style.top = `${buttonRect.bottom - tooltipHeight}px`;
     } else {
