@@ -18,7 +18,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
     |> assign(:lv_process, lv_process)
     |> assign(node_id: nil)
     |> assign(:node, AsyncResult.ok(%{assigns: %{a: 18, b: 23}}))
-    |> assign(:node_type, AsyncResult.ok(:live_view))
     |> ok()
   end
 
