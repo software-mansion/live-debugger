@@ -9,7 +9,7 @@ defmodule LiveDebuggerRefactor.Client do
   @doc """
   Pushes event to the client.
 
-  ## Example
+  ## Examples
 
       LiveDebugger.Client.push_event!("debugged_socket_id", "event", %{"key" => "value"})
   """
@@ -22,7 +22,7 @@ defmodule LiveDebuggerRefactor.Client do
   Subscribes to events from the client. You have to prepare `handle_info/2` handler for incoming events.
   Events are in form of tuple `{event :: String.t(), payload :: map()}`.
 
-  ## Example
+  ## Examples
 
       LiveDebugger.Client.receive_events("debugged_socket_id")
 
