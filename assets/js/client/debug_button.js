@@ -174,6 +174,13 @@ function initDebugButton(liveDebuggerURL) {
     }
   });
 
+  // Hide tooltip when window is resized
+  window.addEventListener('resize', () => {
+    if (tooltipVisible) {
+      hideTooltip();
+    }
+  });
+
   debugButton.addEventListener('click', onClick);
 }
 
