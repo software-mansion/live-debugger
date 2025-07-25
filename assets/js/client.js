@@ -67,13 +67,16 @@ function getSessionURL(baseURL) {
 window.document.addEventListener('DOMContentLoaded', function () {
   const baseURL = getLiveDebuggerBaseURL();
   const sessionURL = getSessionURL(baseURL);
+  const sessionId = getSessionId();
 
-  const { debugChannel } = initDebugSocket(baseURL, getSessionId());
+  if (sessionId) {
+    const { debugChannel } = initDebugSocket(baseURL, sessionId);
 
-  debugChannel.on('ping', (resp) => {
-    console.log('Received ping', resp);
-    debugChannel.push('pong', resp);
-  });
+    debugChannel.on('ping', (resp) => {
+      console.log('Received ping', resp);
+      debugChannel.push('pong', resp);
+    });
+  }
 
   if (debugButtonEnabled()) {
     initDebugButton(sessionURL);
