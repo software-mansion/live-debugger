@@ -9,11 +9,9 @@ defmodule LiveDebuggerRefactor.Client do
   @doc """
   Pushes event to the client.
 
-  ## Examples
+  ## Example
 
-  ```elixir
-  LiveDebugger.Client.push_event!("debugged_socket_id", "event", %{"key" => "value"})
-  ```
+      LiveDebugger.Client.push_event!("debugged_socket_id", "event", %{"key" => "value"})
   """
   @spec push_event!(String.t(), String.t(), map()) :: :ok
   def push_event!(debugged_socket_id, event, payload \\ %{}) do
@@ -24,18 +22,16 @@ defmodule LiveDebuggerRefactor.Client do
   Subscribes to events from the client. You have to prepare `handle_info/2` handler for incoming events.
   Events are in form of tuple `{event :: String.t(), payload :: map()}`.
 
-  ## Examples
+  ## Example
 
-  ```elixir
-  LiveDebugger.Client.receive_events("debugged_socket_id")
+      LiveDebugger.Client.receive_events("debugged_socket_id")
 
-  # ...
+      # ...
 
-  def handle_info({event, payload}, state) do
-    # handle event
-    {:noreply, state}
-  end
-  ```
+      def handle_info({event, payload}, state) do
+        # handle event
+        {:noreply, state}
+      end
   """
   @spec receive_events(String.t()) :: :ok | {:error, term()}
   def receive_events(debugged_socket_id) do
