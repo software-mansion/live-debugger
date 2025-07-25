@@ -3,11 +3,7 @@ defmodule LiveDebuggerRefactor.App do
   Managing web LiveDebugger app.
   """
 
-  @pubsub_name Application.compile_env(
-                 :live_debugger,
-                 :endpoint_pubsub_name,
-                 LiveDebuggerRefactor.App.Web.Endpoint.PubSub
-               )
+  @pubsub_name LiveDebuggerRefactor.Env.endpoint_pubsub_name()
 
   @spec append_app_children(children :: list()) :: list()
   def append_app_children(children) do
