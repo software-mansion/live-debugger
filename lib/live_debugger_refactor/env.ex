@@ -3,6 +3,21 @@ defmodule LiveDebuggerRefactor.Env do
   Gives you a save option to check env in runtime
   """
 
+  @endpoint_pubsub_name Application.compile_env(
+                          :live_debugger,
+                          :endpoint_pubsub_name,
+                          LiveDebuggerRefactor.App.Web.Endpoint.PubSub
+                        )
+
+  @bus_pubsub_name Application.compile_env(
+                     :live_debugger,
+                     :bus_pubsub_name,
+                     LiveDebuggerRefactor.Bus.PubSub
+                   )
+
+  def endpoint_pubsub_name(), do: @endpoint_pubsub_name
+  def bus_pubsub_name(), do: @bus_pubsub_name
+
   if Mix.env() == :dev do
     def dev?(), do: true
   else

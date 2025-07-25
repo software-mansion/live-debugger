@@ -4,11 +4,7 @@ defmodule LiveDebuggerRefactor.Client.Channel do
   """
   use Phoenix.Channel
 
-  @pubsub_name Application.compile_env(
-                 :live_debugger,
-                 :endpoint_pubsub_name,
-                 LiveDebuggerRefactor.App.Web.Endpoint.PubSub
-               )
+  @pubsub_name LiveDebuggerRefactor.Env.endpoint_pubsub_name()
 
   @impl true
   def join("client:" <> _debugged_socket_id, _params, socket) do

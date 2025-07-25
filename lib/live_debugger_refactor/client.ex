@@ -50,11 +50,7 @@ defmodule LiveDebuggerRefactor.Client do
     @moduledoc false
     @behaviour LiveDebuggerRefactor.Client
 
-    @pubsub_name Application.compile_env(
-                   :live_debugger,
-                   :endpoint_pubsub_name,
-                   LiveDebuggerRefactor.App.Web.Endpoint.PubSub
-                 )
+    @pubsub_name LiveDebuggerRefactor.Env.endpoint_pubsub_name()
 
     @impl true
     def push_event!(debugged_socket_id, event, payload \\ %{}) do

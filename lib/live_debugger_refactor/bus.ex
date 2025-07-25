@@ -198,11 +198,7 @@ defmodule LiveDebuggerRefactor.Bus do
 
     @behaviour LiveDebuggerRefactor.Bus
 
-    @pubsub_name Application.compile_env(
-                   :live_debugger,
-                   :bus_pubsub_name,
-                   LiveDebuggerRefactor.Bus.PubSub
-                 )
+    @pubsub_name LiveDebuggerRefactor.Env.bus_pubsub_name()
 
     @impl true
     def append_bus_tree(children) do
