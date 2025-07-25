@@ -4,14 +4,36 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
   Based on [Kino.Tree](https://github.com/livebook-dev/kino/blob/main/lib/kino/tree.ex)
   """
 
-  @type display_element() :: %{text: String.t(), color: String.t() | nil}
-  @type tree_node() :: %{
-          kind: String.t(),
-          children: [tree_node()] | nil,
-          content: [display_element()],
-          expanded_before: [display_element()] | nil,
-          expanded_after: [display_element()] | nil
-        }
+  defmodule DisplayElement do
+    @moduledoc false
+    defstruct [:text, color: nil]
+
+    @type t :: %__MODULE__{
+            text: String.t(),
+            color: String.t() | nil
+          }
+  end
+
+  defmodule TermNode do
+    @moduledoc """
+    Represents a node in the display tree.
+
+    - `kind`: The type of the node (e.g., "atom", "list", "map").
+    - `children`: A list of child nodes, if any.
+    - `content`: Display elements that represent the content of the node when has no children or not expanded.
+    - `expanded_before`: Display elements shown before the node's children when expanded.
+    - `expanded_after`: Display elements shown after the node's children when expanded.
+    """
+    defstruct [:kind, :children, :content, :expanded_before, :expanded_after]
+
+    @type t :: %__MODULE__{
+            kind: String.t(),
+            children: [TermNode.t()] | nil,
+            content: [DisplayElement.t()],
+            expanded_before: [DisplayElement.t()] | nil,
+            expanded_after: [DisplayElement.t()] | nil
+          }
+  end
 
   @spec term_to_copy_string(term()) :: String.t()
   def term_to_copy_string(term) do
@@ -24,11 +46,12 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
     |> String.replace(~r/#.+?<.*?>/, &"\"#{&1}\"")
   end
 
-  @spec term_to_display_tree(term()) :: tree_node()
+  @spec term_to_display_tree(term()) :: TermNode.t()
   def term_to_display_tree(term) do
     to_node(term, [])
   end
 
+  @spec to_node(term(), [DisplayElement.t()]) :: TermNode.t()
   defp to_node(string, suffix) when is_binary(string) do
     leaf_node("binary", [green(inspect(string)) | suffix])
   end
@@ -117,21 +140,21 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
   defp to_key_value_node({key, value}, suffix) do
     {key_span, sep_span} =
       case to_node(key, []) do
-        %{content: [%{text: ":" <> name} = span]} when is_atom(key) ->
+        %TermNode{content: [%DisplayElement{text: ":" <> name} = span]} when is_atom(key) ->
           {%{span | text: name <> ":"}, black(" ")}
 
-        %{content: [span]} ->
+        %TermNode{content: [span]} ->
           {%{span | text: inspect(key, width: :infinity)}, black(" => ")}
 
-        %{content: _content} ->
+        %TermNode{content: _content} ->
           {%{text: inspect(key, width: :infinity), color: "text-code-1"}, black(" => ")}
       end
 
     case to_node(value, suffix) do
-      %{content: content, children: nil} = node ->
+      %TermNode{content: content, children: nil} = node ->
         %{node | content: [key_span, sep_span | content]}
 
-      %{content: content, expanded_before: expanded_before} = node ->
+      %TermNode{content: content, expanded_before: expanded_before} = node ->
         %{
           node
           | content: [key_span, sep_span | content],
@@ -161,7 +184,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
   end
 
   defp leaf_node(kind, content) do
-    %{
+    %TermNode{
       kind: kind,
       content: content,
       children: nil,
@@ -171,7 +194,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
   end
 
   defp branch_node(kind, content, children, expanded_before, expanded_after) do
-    %{
+    %TermNode{
       kind: kind,
       content: content,
       children: children,
@@ -180,8 +203,8 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
     }
   end
 
-  defp blue(text), do: %{text: text, color: "text-code-1"}
-  defp black(text), do: %{text: text, color: "text-code-2"}
-  defp magenta(text), do: %{text: text, color: "text-code-3"}
-  defp green(text), do: %{text: text, color: "text-code-4"}
+  defp blue(text), do: %DisplayElement{text: text, color: "text-code-1"}
+  defp black(text), do: %DisplayElement{text: text, color: "text-code-2"}
+  defp magenta(text), do: %DisplayElement{text: text, color: "text-code-3"}
+  defp green(text), do: %DisplayElement{text: text, color: "text-code-4"}
 end

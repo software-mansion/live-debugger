@@ -6,6 +6,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Components.ElixirDisplay do
 
   use LiveDebuggerRefactor.App.Web, :component
 
+  alias LiveDebuggerRefactor.App.Utils.TermParser.DisplayElement
+  alias LiveDebuggerRefactor.App.Utils.TermParser.TermNode
+
   @max_auto_expand_size 6
 
   @doc """
@@ -13,7 +16,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Components.ElixirDisplay do
   """
 
   attr(:id, :string, required: true)
-  attr(:node, :any, required: true)
+  attr(:node, TermNode, required: true)
   attr(:level, :integer, default: 1)
 
   def term(assigns) do
@@ -73,19 +76,19 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Components.ElixirDisplay do
     """
   end
 
-  defp text_item_color_class(item) do
-    if item.color, do: "#{item.color}", else: ""
+  defp text_item_color_class(%DisplayElement{color: color}) do
+    if color, do: "#{color}", else: ""
   end
 
-  defp auto_expand?(_node, 1), do: true
+  defp auto_expand?(%TermNode{}, 1), do: true
 
-  defp auto_expand?(node, _level) do
+  defp auto_expand?(%TermNode{} = node, _level) do
     node.kind == "tuple" and children_number(node) <= @max_auto_expand_size
   end
 
-  defp has_children?(%{children: nil} = _node), do: false
-  defp has_children?(_node), do: true
+  defp has_children?(%TermNode{children: nil}), do: false
+  defp has_children?(%TermNode{}), do: true
 
-  defp children_number(%{children: nil} = _node), do: 0
-  defp children_number(%{children: children}), do: length(children)
+  defp children_number(%TermNode{children: nil}), do: 0
+  defp children_number(%TermNode{children: children}), do: length(children)
 end

@@ -10,10 +10,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web do
   @doc """
   Renders the `NodeStateLive` as a nested LiveView component.
 
-  `id` - dom id
-  `socket` - parent LiveView socket
-  `lv_process` - currently debugged LiveView process
-  `params` - query parameters of the page.
+  - `id` - dom id
+  - `socket` - parent LiveView socket
+  - `lv_process` - currently debugged LiveView process
+  - `params` - query parameters of the page.
   """
   attr(:id, :string, required: true)
   attr(:socket, Phoenix.LiveView.Socket, required: true)

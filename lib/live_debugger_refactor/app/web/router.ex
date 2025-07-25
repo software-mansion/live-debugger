@@ -25,5 +25,6 @@ defmodule LiveDebuggerRefactor.App.Web.Router do
     live("/pid/:pid", Debugger.Web.DebuggerLive)
     live("/settings", Settings.Web.SettingsLive)
     live("/", Discovery.Web.DiscoveryLive)
+    live("/node_state", Debugger.NodeState.Web.NodeStateLive)
   end
 end
