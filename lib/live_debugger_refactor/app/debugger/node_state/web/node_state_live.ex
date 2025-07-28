@@ -9,6 +9,39 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebuggerRefactor.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebuggerRefactor.App.Utils.TermParser
+  alias LiveDebuggerRefactor.Structs.LvProcess
+
+  @doc """
+  Renders the `NodeStateLive` as a nested LiveView component.
+
+  `id` - dom id
+  `socket` - parent LiveView socket
+  `lv_process` - currently debugged LiveView process
+  `params` - query parameters of the page.
+  """
+  attr(:id, :string, required: true)
+  attr(:socket, Phoenix.LiveView.Socket, required: true)
+  attr(:lv_process, LvProcess, required: true)
+  attr(:params, :map, required: true)
+  attr(:class, :string, default: "", doc: "CSS class for the container")
+
+  def live_render(assigns) do
+    session = %{
+      "lv_process" => assigns.lv_process,
+      "params" => assigns.params,
+      "parent_pid" => self()
+    }
+
+    assigns = assign(assigns, session: session)
+
+    ~H"""
+    <%= live_render(@socket, __MODULE__.NodeStateLive,
+      id: @id,
+      session: @session,
+      container: {:div, class: @class}
+    ) %>
+    """
+  end
 
   @impl true
   def mount(_params, session, socket) do
@@ -16,8 +49,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
 
     socket
     |> assign(:lv_process, lv_process)
-    |> assign(node_id: nil)
-    |> assign(:node, AsyncResult.ok(%{assigns: %{a: 18, b: 23}}))
+    |> assign(:node, AsyncResult.loading())
     |> ok()
   end
 

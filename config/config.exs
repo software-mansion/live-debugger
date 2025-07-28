@@ -48,7 +48,6 @@ if config_env() == :dev do
 
   config :live_debugger, LiveDebuggerWeb.Endpoint, debug_errors: true
   config :live_debugger, LiveDebuggerRefactor.App.Web.Endpoint, debug_errors: true
-  config :live_debugger, refactor: true
 end
 
 if config_env() == :test do

@@ -8,6 +8,7 @@ defmodule LiveDebuggerWeb.Components.Config do
 
   attr(:url, :string, required: true)
   attr(:assets_url, :string, required: true)
+  attr(:phoenix_url, :string, required: true)
   attr(:browser_features?, :boolean, default: true)
   attr(:debug_button?, :boolean, default: true)
   attr(:highlighting?, :boolean, default: true)
@@ -26,6 +27,8 @@ defmodule LiveDebuggerWeb.Components.Config do
     />
     <%= if @browser_features? do %>
       <script src={@assets_url}>
+      </script>
+      <script src={@phoenix_url}>
       </script>
     <% end %>
     """
