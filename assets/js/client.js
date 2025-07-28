@@ -47,6 +47,14 @@ function highlightingEnabled() {
   }
 }
 
+function refactorEnabled() {
+  const metaTag = document.querySelector('meta[name="live-debugger-config"]');
+
+  if (metaTag) {
+    return metaTag.hasAttribute('refactor');
+  }
+}
+
 function getLiveDebuggerBaseURL() {
   const metaTag = document.querySelector('meta[name="live-debugger-config"]');
 
@@ -69,13 +77,15 @@ window.document.addEventListener('DOMContentLoaded', function () {
   const sessionURL = getSessionURL(baseURL);
   const sessionId = getSessionId();
 
-  if (sessionId) {
-    const { debugChannel } = initDebugSocket(baseURL, sessionId);
+  if (refactorEnabled()) {
+    if (sessionId) {
+      const { debugChannel } = initDebugSocket(baseURL, sessionId);
 
-    debugChannel.on('ping', (resp) => {
-      console.log('Received ping', resp);
-      debugChannel.push('pong', resp);
-    });
+      debugChannel.on('ping', (resp) => {
+        console.log('Received ping', resp);
+        debugChannel.push('pong', resp);
+      });
+    }
   }
 
   if (debugButtonEnabled()) {
