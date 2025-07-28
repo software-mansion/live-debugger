@@ -14,6 +14,8 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.App.Events.UserRefreshedTrace
 
+  @available_settings SettingsQueries.available_settings()
+
   @impl true
   def handle_params(params, _url, socket) do
     socket
@@ -94,7 +96,8 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
   end
 
   @impl true
-  def handle_event("update", %{"setting" => setting}, socket) do
+  def handle_event("update", %{"setting" => setting}, socket)
+      when setting in @available_settings do
     setting = String.to_existing_atom(setting)
 
     socket

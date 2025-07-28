@@ -55,7 +55,7 @@ defmodule LiveDebuggerRefactor.API.SettingsStorage do
   @doc """
   List of available settings
   """
-  @spec available_settings() :: list()
+  @spec available_settings() :: [atom()]
   def available_settings(), do: @available_settings
 
   defp impl() do
