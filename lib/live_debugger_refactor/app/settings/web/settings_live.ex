@@ -5,9 +5,13 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
 
   use LiveDebuggerRefactor.App.Web, :live_view
 
+  alias LiveDebuggerRefactor.App.Settings.Actions, as: SettingsActions
   alias LiveDebuggerRefactor.App.Settings.Web.Components, as: SettingsComponents
   alias LiveDebuggerRefactor.App.Web.Components.Navbar, as: NavbarComponents
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
+
+  alias LiveDebuggerRefactor.Bus
+  alias LiveDebuggerRefactor.App.Events.UserRefreshedTrace
 
   @impl true
   def handle_params(params, _url, socket) do
@@ -36,7 +40,7 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
         <div class="mt-6 bg-surface-0-bg rounded shadow-custom border border-default-border">
           <%!-- Appearance --%>
           <div class="p-6">
-            <p class="font-semibold	mb-3">Appearance</p>
+            <p class="font-semibold mb-3">Appearance</p>
             <div class="flex gap-2">
               <SettingsComponents.dark_mode_button />
               <SettingsComponents.light_mode_button />
@@ -84,15 +88,18 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
 
   @impl true
   def handle_event("restart", _params, socket) do
+    Bus.broadcast_event!(%UserRefreshedTrace{})
+
     socket
-    |> push_flash("Not implemented yet")
     |> noreply()
   end
 
   @impl true
-  def handle_event("update", _params, socket) do
+  def handle_event("update", %{"setting" => setting}, socket) do
+    setting = String.to_existing_atom(setting)
+
     socket
-    |> push_flash("Not implemented yet")
+    |> SettingsActions.update_settings!(setting, not socket.assigns.settings[setting])
     |> noreply()
   end
 end
