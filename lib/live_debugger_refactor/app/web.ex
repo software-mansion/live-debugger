@@ -43,6 +43,7 @@ defmodule LiveDebuggerRefactor.App.Web do
       import Phoenix.LiveView
       import Phoenix.Component
       import LiveDebuggerRefactor.Helpers
+      import unquote(__MODULE__).Helpers.Hooks
     end
   end
 
@@ -55,10 +56,21 @@ defmodule LiveDebuggerRefactor.App.Web do
       import unquote(__MODULE__).Components
       import Phoenix.LiveView
       import Phoenix.Component
+      import unquote(__MODULE__).Helpers.Hooks
+
+      @behaviour unquote(__MODULE__).HookComponent
     end
   end
 
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
+  end
+
+  defmodule HookComponent do
+    @moduledoc """
+    Behaviour for components which register hooks.
+    """
+
+    @callback init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   end
 end
