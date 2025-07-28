@@ -17,7 +17,7 @@ defmodule LiveDebuggerRefactor.Fakes do
     ]
 
     Kernel.struct!(
-      LiveDebuggerRefactor.App.Debugger.ComponentsTree.TreeNode,
+      LiveDebuggerRefactor.App.Debugger.TreeNode,
       Keyword.merge(default, opts)
     )
   end
@@ -36,7 +36,7 @@ defmodule LiveDebuggerRefactor.Fakes do
     ]
 
     Kernel.struct!(
-      LiveDebuggerRefactor.App.Debugger.ComponentsTree.TreeNode,
+      LiveDebuggerRefactor.App.Debugger.TreeNode,
       Keyword.merge(default, opts)
     )
   end
