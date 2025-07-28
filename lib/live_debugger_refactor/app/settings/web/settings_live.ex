@@ -6,6 +6,7 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
   use LiveDebuggerRefactor.App.Web, :live_view
 
   alias LiveDebuggerRefactor.App.Settings.Actions, as: SettingsActions
+  alias LiveDebuggerRefactor.App.Settings.Queries, as: SettingsQueries
   alias LiveDebuggerRefactor.App.Settings.Web.Components, as: SettingsComponents
   alias LiveDebuggerRefactor.App.Web.Components.Navbar, as: NavbarComponents
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
@@ -16,10 +17,8 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
   @impl true
   def handle_params(params, _url, socket) do
     socket
-    |> assign(
-      return_to: params["return_to"],
-      settings: %{}
-    )
+    |> assign(return_to: params["return_to"])
+    |> SettingsQueries.assign_settings()
     |> noreply()
   end
 
