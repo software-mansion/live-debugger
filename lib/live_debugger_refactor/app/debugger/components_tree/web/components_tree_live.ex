@@ -6,12 +6,47 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   use LiveDebuggerRefactor.App.Web, :live_view
 
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.Components
+  alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.Components, as: TreeComponents
+
+  @doc """
+  Renders the ComponentsTreeLive as nested LiveView component.
+  """
+  attr(:id, :string, required: true)
+  attr(:socket, Phoenix.LiveView.Socket, required: true)
+
+  def live_render(assigns) do
+    assigns = assign(assigns, :session, %{})
+
+    ~H"""
+    <%= live_render(@socket, __MODULE__, id: @id, session: @session) %>
+    """
+  end
 
   @impl true
   def mount(_params, _session, socket) do
+    # Dummy data
+    dummy_node = %LiveDebuggerRefactor.App.Debugger.TreeNode{
+      id: :c.pid(0, 123, 0),
+      type: :live_view,
+      module: LiveDebuggerRefactor.App.Settings.Web.SettingsLive,
+      dom: %{
+        attribute: "id",
+        value: "phx-somevalue"
+      },
+      assigns: %{
+        dummy_assign: :value
+      },
+      children: []
+    }
+
+    # Assigns with dummy data
+    socket =
+      socket
+      |> assign(:tree, AsyncResult.ok(dummy_node))
+      |> assign(:selected_node_id, dummy_node.id)
+      |> assign(:max_opened_node_level, 1)
+
     socket
-    |> assign(:tree, AsyncResult.loading())
     |> assign(:highlight?, false)
     |> ok()
   end
@@ -38,7 +73,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
           />
         </div>
         <div class="flex-1">
-          <Components.tree_node
+          <TreeComponents.tree_node
             id="components-tree"
             tree_node={tree}
             selected_node_id={@selected_node_id}

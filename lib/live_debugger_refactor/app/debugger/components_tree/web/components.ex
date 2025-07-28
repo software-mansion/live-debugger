@@ -5,7 +5,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.Components do
 
   use LiveDebuggerRefactor.App.Web, :component
 
-  alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.TreeNode
+  alias LiveDebuggerRefactor.App.Debugger.TreeNode
   alias LiveDebuggerRefactor.App.Utils.Parsers
 
   @doc """
