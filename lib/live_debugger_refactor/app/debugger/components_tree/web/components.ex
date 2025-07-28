@@ -112,8 +112,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.Components do
     <span
       id={@id}
       phx-hook="Highlight"
-      phx-value-search-attribute={@tree_node.dom.attribute}
-      phx-value-search-value={@tree_node.dom.value}
+      phx-value-search-attribute={@tree_node.dom_id.attribute}
+      phx-value-search-value={@tree_node.dom_id.value}
       class={[
         "flex shrink grow items-center rounded-md hover:bg-surface-1-bg-hover",
         if(!@collapsible?, do: "p-1")
@@ -124,8 +124,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.Components do
         id={@button_id}
         phx-click="select_node"
         phx-value-node-id={@parsed_node_id}
-        phx-value-search-attribute={@tree_node.dom.attribute}
-        phx-value-search-value={@tree_node.dom.value}
+        phx-value-search-attribute={@tree_node.dom_id.attribute}
+        phx-value-search-value={@tree_node.dom_id.value}
         class="flex min-w-0 gap-1 items-center"
       >
         <.icon name={@icon} class="text-accent-icon w-4 h-4 shrink-0" />

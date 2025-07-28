@@ -29,7 +29,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
       id: :c.pid(0, 123, 0),
       type: :live_view,
       module: LiveDebuggerRefactor.App.Settings.Web.SettingsLive,
-      dom: %{
+      dom_id: %{
         attribute: "id",
         value: "phx-somevalue"
       },

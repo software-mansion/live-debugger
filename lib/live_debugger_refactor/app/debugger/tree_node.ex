@@ -8,7 +8,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.TreeNode do
 
   defstruct [
     :id,
-    :dom,
+    :dom_id,
     :type,
     :module,
     :assigns,
@@ -19,7 +19,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.TreeNode do
   @type type() :: :live_view | :live_component
   @type t() :: %__MODULE__{
           id: id(),
-          dom: %{
+          dom_id: %{
             attribute: String.t(),
             value: String.t()
           },

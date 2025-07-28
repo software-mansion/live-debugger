@@ -6,7 +6,7 @@ defmodule LiveDebuggerRefactor.Fakes do
   def tree_node_live_view(opts \\ []) do
     default = [
       id: :c.pid(0, 123, 0),
-      dom: %{attribute: "id", value: "phx-somevalueid"},
+      dom_id: %{attribute: "id", value: "phx-somevalueid"},
       type: :live_view,
       module: LiveDebuggerTest.LiveView,
       assigns: %{
@@ -25,7 +25,7 @@ defmodule LiveDebuggerRefactor.Fakes do
   def tree_node_live_component(opts \\ []) do
     default = [
       id: %Phoenix.LiveComponent.CID{cid: 1},
-      dom: %{attribute: "data-phx-id", value: "c1-somevalueid"},
+      dom_id: %{attribute: "data-phx-id", value: "c1-somevalueid"},
       type: :live_component,
       module: LiveDebuggerTest.LiveComponent,
       assigns: %{
