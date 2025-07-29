@@ -4,6 +4,10 @@ defmodule LiveDebuggerRefactor.App.Discovery.Queries do
   """
   alias LiveDebuggerRefactor.API.LiveViewDiscovery
 
+  @doc """
+  Fetches all active LiveView processes grouped by their transport PID.
+  Performs delayed fetching to ensure processes are captured.
+  """
   @spec fetch_grouped_lv_processes(transport_pid :: pid() | nil) ::
           {:ok,
            %{
