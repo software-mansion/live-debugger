@@ -96,8 +96,7 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
   def handle_event("restart", _params, socket) do
     Bus.broadcast_event!(%UserRefreshedTrace{})
 
-    socket
-    |> noreply()
+    {:noreply, socket}
   end
 
   @impl true
