@@ -1,5 +1,11 @@
 import bugIcon from './bug_icon.js';
 
+function createElement(html) {
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = html;
+  return tempDiv.firstElementChild;
+}
+
 function createDebugButton() {
   const debugButtonHtml = /*html*/ `
     <div id="live-debugger-debug-button">
@@ -7,9 +13,7 @@ function createDebugButton() {
     </div>
   `;
 
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = debugButtonHtml;
-  return tempDiv.firstElementChild;
+  return createElement(debugButtonHtml);
 }
 
 function createDebugMenu() {
@@ -27,9 +31,7 @@ function createDebugMenu() {
     </div>
   `;
 
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = tooltipHtml;
-  return tempDiv.firstElementChild;
+  return createElement(tooltipHtml);
 }
 
 function initDebugPanel(liveDebuggerURL) {
