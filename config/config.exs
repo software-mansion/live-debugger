@@ -14,7 +14,7 @@ if config_env() == :dev do
     ],
     build_client_js_deploy: [
       args:
-        ~w(client.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../../priv/static),
+        ~w(client.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../../priv/static --loader:.html=text),
       cd: Path.expand("../assets/client", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ],
@@ -31,7 +31,7 @@ if config_env() == :dev do
     ],
     build_client_js_dev: [
       args:
-        ~w(client.js --bundle --sourcemap=external --target=es2020 --outdir=../../priv/static/dev),
+        ~w(client.js --bundle --sourcemap=external --target=es2020 --outdir=../../priv/static/dev --loader:.html=text),
       cd: Path.expand("../assets/client", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ],
