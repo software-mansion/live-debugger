@@ -104,7 +104,8 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
       module: trace.module,
       function: trace.function,
       pid: trace.pid,
-      cid: trace.cid
+      cid: trace.cid,
+      transport_pid: trace.transport_pid
     }
   end
 
@@ -115,7 +116,8 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
       module: trace.module,
       function: trace.function,
       pid: trace.pid,
-      cid: trace.cid
+      cid: trace.cid,
+      transport_pid: trace.transport_pid
     }
   end
 
@@ -126,7 +128,8 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
       module: trace.module,
       function: trace.function,
       pid: trace.pid,
-      cid: trace.cid
+      cid: trace.cid,
+      transport_pid: trace.transport_pid
     }
   end
 end

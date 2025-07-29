@@ -48,10 +48,10 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
   end
 
   @impl true
-  def handle_info(%TraceReturned{function: :render, pid: pid}, state)
+  def handle_info(%TraceReturned{function: :render, pid: pid, transport_pid: tpid}, state)
       when not is_map_key(state, pid) do
     state
-    |> ProcessMonitorActions.register_live_view_born!(pid)
+    |> ProcessMonitorActions.register_live_view_born!(pid, tpid)
     |> noreply()
   end
 

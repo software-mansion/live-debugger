@@ -34,7 +34,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         function: :render,
         cid: cid,
         pid: pid,
-        ets_ref: nil
+        ets_ref: nil,
+        transport_pid: nil
       }
 
       MockBus
@@ -55,7 +56,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         function: :render,
         cid: cid2,
         pid: pid,
-        ets_ref: nil
+        ets_ref: nil,
+        transport_pid: nil
       }
 
       MockBus
@@ -79,7 +81,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         function: :render,
         cid: cid1,
         pid: pid2,
-        ets_ref: nil
+        ets_ref: nil,
+        transport_pid: nil
       }
 
       MockBus
@@ -110,7 +113,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         function: :render,
         cid: nil,
         pid: pid,
-        ets_ref: nil
+        ets_ref: nil,
+        transport_pid: nil
       }
 
       MockBus
@@ -130,7 +134,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         function: :render,
         cid: nil,
         pid: pid2,
-        ets_ref: nil
+        ets_ref: nil,
+        transport_pid: nil
       }
 
       MockBus
@@ -162,7 +167,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         function: :delete_component,
         cid: cid,
         pid: pid,
-        ets_ref: nil
+        ets_ref: nil,
+        transport_pid: nil
       }
 
       MockBus
@@ -184,7 +190,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         function: :delete_component,
         cid: cid2,
         pid: pid,
-        ets_ref: nil
+        ets_ref: nil,
+        transport_pid: nil
       }
 
       MockBus
@@ -205,7 +212,8 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
         function: :delete_component,
         cid: cid,
         pid: pid2,
-        ets_ref: nil
+        ets_ref: nil,
+        transport_pid: nil
       }
 
       MockBus
