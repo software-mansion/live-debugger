@@ -2,7 +2,7 @@ import bugIcon from './bug_icon.js';
 
 function createDebugButton() {
   const debugButtonHtml = /*html*/ `
-    <div id="debug-button">
+    <div id="live-debugger-debug-button">
       ${bugIcon}
     </div>
   `;
@@ -14,14 +14,14 @@ function createDebugButton() {
 
 function createDebugMenu() {
   const tooltipHtml = /*html*/ `
-    <div id="debug-tooltip">
-      <div class="tooltip-option" id="debug-tooltip-open-in-new-tab">
+    <div id="live-debugger-debug-tooltip">
+      <div class="live-debugger-tooltip-option" id="live-debugger-debug-tooltip-open-in-new-tab">
         Open in new tab
       </div>
-      <div class="tooltip-option" id="debug-tooltip-inspect-elements">
+      <div class="live-debugger-tooltip-option" id="live-debugger-debug-tooltip-inspect-elements">
         Inspect elements
       </div>
-      <div class="tooltip-option" id="debug-tooltip-move-button">
+      <div class="live-debugger-tooltip-option" id="live-debugger-debug-tooltip-move-button">
         Move button
       </div>
     </div>
@@ -151,13 +151,13 @@ function initDebugPanel(liveDebuggerURL) {
 
   // Menu option clicks
   debugMenu
-    .querySelector('#debug-tooltip-open-in-new-tab')
+    .querySelector('#live-debugger-debug-tooltip-open-in-new-tab')
     .addEventListener('click', handleOpenInNewTab);
   debugMenu
-    .querySelector('#debug-tooltip-inspect-elements')
+    .querySelector('#live-debugger-debug-tooltip-inspect-elements')
     .addEventListener('click', handleInspectMode);
   debugMenu
-    .querySelector('#debug-tooltip-move-button')
+    .querySelector('#live-debugger-debug-tooltip-move-button')
     .addEventListener('click', handleMove);
 
   // Hide menu when clicking outside

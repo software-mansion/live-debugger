@@ -1,4 +1,4 @@
-#debug-button {
+#live-debugger-debug-button {
   position: fixed;
   height: 40px;
   width: 40px;
@@ -17,7 +17,7 @@
   cursor: pointer;
 }
 
-#debug-tooltip {
+#live-debugger-debug-tooltip {
   position: absolute;
   background: white;
   border: 1px solid #e2e8f0;
@@ -29,7 +29,7 @@
   font-size: 14px;
 }
 
-#debug-tooltip .tooltip-option {
+#live-debugger-debug-tooltip .live-debugger-tooltip-option {
   padding: 8px 16px;
   cursor: pointer;
   display: flex;
@@ -39,6 +39,6 @@
   transition: background-color 0.15s;
 }
 
-#debug-tooltip .tooltip-option:hover {
+#live-debugger-debug-tooltip .live-debugger-tooltip-option:hover {
   background-color: #f3f4f6;
 }
