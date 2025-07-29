@@ -15,7 +15,5 @@ export function createDebugMenu() {
 
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = tooltipHtml;
-  const tooltip = tempDiv.firstElementChild;
-
-  return tooltip;
+  return tempDiv.firstElementChild;
 }
