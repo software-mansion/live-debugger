@@ -552,13 +552,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
 
   def tooltip(assigns) do
     ~H"""
-    <div
-      id={"tooltip_" <> @id}
-      phx-hook="Tooltip"
-      data-tooltip={@content}
-      data-position={@position}
-      {@rest}
-    >
+    <div id={@id} phx-hook="Tooltip" data-tooltip={@content} data-position={@position} {@rest}>
       <%= render_slot(@inner_block) %>
     </div>
     """
