@@ -19,7 +19,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
     Represents a node in the display tree.
 
     - `kind`: The type of the node (e.g., "atom", "list", "map").
-    - `children`: A list of child nodes, if any.
+    - `children`: A list of child nodes.
     - `content`: Display elements that represent the content of the node when has no children or not expanded.
     - `expanded_before`: Display elements shown before the node's children when expanded.
     - `expanded_after`: Display elements shown after the node's children when expanded.
@@ -28,7 +28,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
 
     @type t :: %__MODULE__{
             kind: String.t(),
-            children: [TermNode.t()] | nil,
+            children: [TermNode.t()],
             content: [DisplayElement.t()],
             expanded_before: [DisplayElement.t()] | nil,
             expanded_after: [DisplayElement.t()] | nil
@@ -152,7 +152,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
       end
 
     case to_node(value, suffix) do
-      %TermNode{content: content, children: nil} = node ->
+      %TermNode{content: content, children: []} = node ->
         %{node | content: [key_span, sep_span | content]}
 
       %TermNode{content: content, expanded_before: expanded_before} = node ->
@@ -188,7 +188,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParser do
     %TermNode{
       kind: kind,
       content: content,
-      children: nil,
+      children: [],
       expanded_before: nil,
       expanded_after: nil
     }

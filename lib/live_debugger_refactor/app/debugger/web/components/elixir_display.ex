@@ -86,7 +86,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Components.ElixirDisplay do
     node.kind == "tuple" and children_number(node) <= @max_auto_expand_size
   end
 
-  defp has_children?(%TermNode{children: nil}), do: false
+  defp has_children?(%TermNode{children: []}), do: false
   defp has_children?(%TermNode{}), do: true
 
   defp children_number(%TermNode{children: nil}), do: 0

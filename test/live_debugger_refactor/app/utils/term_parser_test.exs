@@ -15,7 +15,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
 
       expected = %TermNode{
         kind: "binary",
-        children: nil,
+        children: [],
         content: [%DisplayElement{text: "\"Hello, World!\"", color: "text-code-4"}],
         expanded_before: nil,
         expanded_after: nil
@@ -29,7 +29,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
 
       expected = %TermNode{
         kind: "atom",
-        children: nil,
+        children: [],
         content: [%DisplayElement{text: ":hello", color: "text-code-1"}],
         expanded_before: nil,
         expanded_after: nil
@@ -43,7 +43,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
 
       expected = %TermNode{
         kind: "number",
-        children: nil,
+        children: [],
         content: [%DisplayElement{text: "42", color: "text-code-1"}],
         expanded_before: nil,
         expanded_after: nil
@@ -60,7 +60,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
         children: [
           %TermNode{
             kind: "atom",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: ":ok", color: "text-code-1"},
               %DisplayElement{text: ",", color: "text-code-2"}
@@ -70,7 +70,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
           },
           %TermNode{
             kind: "binary",
-            children: nil,
+            children: [],
             content: [%DisplayElement{text: "\"Hello\"", color: "text-code-4"}],
             expanded_before: nil,
             expanded_after: nil
@@ -89,7 +89,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
 
       expected = %TermNode{
         kind: "tuple",
-        children: nil,
+        children: [],
         content: [%DisplayElement{text: "{}", color: "text-code-2"}],
         expanded_before: nil,
         expanded_after: nil
@@ -106,7 +106,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
         children: [
           %TermNode{
             kind: "number",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "1", color: "text-code-1"},
               %DisplayElement{text: ",", color: "text-code-2"}
@@ -116,7 +116,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
           },
           %TermNode{
             kind: "number",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "2", color: "text-code-1"},
               %DisplayElement{text: ",", color: "text-code-2"}
@@ -126,7 +126,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
           },
           %TermNode{
             kind: "number",
-            children: nil,
+            children: [],
             content: [%DisplayElement{text: "3", color: "text-code-1"}],
             expanded_before: nil,
             expanded_after: nil
@@ -145,7 +145,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
 
       expected = %TermNode{
         kind: "list",
-        children: nil,
+        children: [],
         content: [%DisplayElement{text: "[]", color: "text-code-2"}],
         expanded_before: nil,
         expanded_after: nil
@@ -159,7 +159,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
 
       expected = %TermNode{
         kind: "regex",
-        children: nil,
+        children: [],
         content: [%DisplayElement{text: "~r/hello/", color: "text-code-2"}],
         expanded_before: nil,
         expanded_after: nil
@@ -174,7 +174,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
       Enum.map(terms, fn term ->
         expected = %TermNode{
           kind: "atom",
-          children: nil,
+          children: [],
           content: [%DisplayElement{text: inspect(term), color: "text-code-3"}],
           expanded_before: nil,
           expanded_after: nil
@@ -189,7 +189,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
 
       expected = %TermNode{
         kind: "map",
-        children: nil,
+        children: [],
         content: [%DisplayElement{text: "%{}", color: "text-code-2"}],
         expanded_before: nil,
         expanded_after: nil
@@ -208,7 +208,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
         children: [
           %TermNode{
             kind: "binary",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "field1:", color: "text-code-1"},
               %DisplayElement{text: " ", color: "text-code-2"},
@@ -220,7 +220,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
           },
           %TermNode{
             kind: "number",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "field2:", color: "text-code-1"},
               %DisplayElement{text: " ", color: "text-code-2"},
@@ -253,7 +253,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
         children: [
           %TermNode{
             kind: "atom",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "calendar:", color: "text-code-1"},
               %DisplayElement{text: " ", color: "text-code-2"},
@@ -265,7 +265,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
           },
           %TermNode{
             kind: "number",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "month:", color: "text-code-1"},
               %DisplayElement{text: " ", color: "text-code-2"},
@@ -277,7 +277,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
           },
           %TermNode{
             kind: "number",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "day:", color: "text-code-1"},
               %DisplayElement{text: " ", color: "text-code-2"},
@@ -289,7 +289,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
           },
           %TermNode{
             kind: "number",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "year:", color: "text-code-1"},
               %DisplayElement{text: " ", color: "text-code-2"},
@@ -324,7 +324,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
         children: [
           %TermNode{
             kind: "binary",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "\"key1\"", color: "text-code-4"},
               %DisplayElement{text: " => ", color: "text-code-2"},
@@ -336,7 +336,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
           },
           %TermNode{
             kind: "number",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "\"key2\"", color: "text-code-4"},
               %DisplayElement{text: " => ", color: "text-code-2"},
@@ -348,7 +348,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
           },
           %TermNode{
             kind: "atom",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "\"key3\"", color: "text-code-4"},
               %DisplayElement{text: " => ", color: "text-code-2"},
@@ -377,7 +377,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
         children: [
           %TermNode{
             kind: "binary",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "{:ok, ~D[2025-07-08]}", color: "text-code-2"},
               %DisplayElement{text: " => ", color: "text-code-2"},
@@ -389,7 +389,7 @@ defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
           },
           %TermNode{
             kind: "binary",
-            children: nil,
+            children: [],
             content: [
               %DisplayElement{text: "%Phoenix.LiveComponent.CID{cid: 1}", color: "text-code-1"},
               %DisplayElement{text: " => ", color: "text-code-2"},
