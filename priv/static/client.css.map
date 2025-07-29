@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../assets/css/client.css"],
-  "sourcesContent": ["body {\n  background-color: red;\n}\n"],
-  "mappings": "AAAA,KACE",
+  "sourcesContent": ["#live-debugger-debug-button {\n  position: fixed;\n  height: 40px;\n  width: 40px;\n  padding-left: 5px;\n  padding-right: 5px;\n  border-radius: 10px;\n  background-color: #001a72;\n  color: #ffffff;\n  display: flex;\n  gap: 5px;\n  justify-content: center;\n  align-items: center;\n  z-index: 9999;\n  bottom: 20px;\n  right: 20px;\n  cursor: pointer;\n}\n\n#live-debugger-debug-tooltip {\n  position: absolute;\n  background: white;\n  border: 1px solid #e2e8f0;\n  border-radius: 8px;\n  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);\n  min-width: 160px;\n  z-index: 10000;\n  display: none;\n  font-size: 14px;\n}\n\n#live-debugger-debug-tooltip .live-debugger-tooltip-option {\n  padding: 8px 16px;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  color: #374151;\n  transition: background-color 0.15s;\n}\n\n#live-debugger-debug-tooltip .live-debugger-tooltip-option:hover {\n  background-color: #f3f4f6;\n}\n"],
+  "mappings": "AAAA,4BACE,eACA,YACA,WACA,iBACA,kBALF,mBAOE,yBACA,WACA,aACA,QACA,uBACA,mBACA,aACA,YACA,WACA,eAGF,6BACE,kBACA,iBACA,yBAtBF,kBAwBE,iCACA,gBACA,cACA,aACA,eAGF,2DA/BA,iBAiCE,eACA,aACA,mBACA,QACA,cACA,iCAGF,iEACE",
   "names": []
 }
