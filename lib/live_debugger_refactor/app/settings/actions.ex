@@ -16,7 +16,7 @@ defmodule LiveDebuggerRefactor.App.Settings.Actions do
   def update_settings!(settings, setting, value) do
     case SettingsStorage.save(setting, value) do
       :ok ->
-        Bus.broadcast_event!(%UserChangedSettings{key: setting, value: value})
+        Bus.broadcast_event!(%UserChangedSettings{key: setting, value: value, from: self()})
 
         {:ok, Map.put(settings, setting, value)}
 

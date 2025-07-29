@@ -5,6 +5,7 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
 
   use LiveDebuggerRefactor.App.Web, :live_view
 
+  alias LiveDebuggerRefactor.App.Events.UserChangedSettings
   alias LiveDebuggerRefactor.API.SettingsStorage
   alias LiveDebuggerRefactor.App.Settings.Actions, as: SettingsActions
   alias LiveDebuggerRefactor.App.Settings.Web.Components, as: SettingsComponents
@@ -18,6 +19,10 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
 
   @impl true
   def handle_params(params, _url, socket) do
+    if connected?(socket) do
+      Bus.receive_events!()
+    end
+
     socket
     |> assign(return_to: params["return_to"])
     |> assign(settings: SettingsStorage.get_all())
@@ -111,4 +116,14 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
     end
     |> noreply()
   end
+
+  @impl true
+  def handle_info(%UserChangedSettings{key: setting, value: value, from: from_pid}, socket)
+      when from_pid != socket.root_pid do
+    socket
+    |> assign(settings: Map.put(socket.assigns.settings, setting, value))
+    |> noreply()
+  end
+
+  def handle_info(_, socket), do: noreply(socket)
 end

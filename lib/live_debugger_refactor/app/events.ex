@@ -7,7 +7,8 @@ defmodule LiveDebuggerRefactor.App.Events do
 
   defevent(UserChangedSettings,
     key: :dead_view_mode | :tracing_update_on_code_reload,
-    value: term()
+    value: term(),
+    from: pid()
   )
 
   defevent(UserRefreshedTrace)
