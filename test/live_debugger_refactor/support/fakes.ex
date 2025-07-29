@@ -78,6 +78,7 @@ defmodule LiveDebuggerRefactor.Fakes do
     parent_pid = Keyword.get(opts, :parent_pid, nil)
     transport_pid = Keyword.get(opts, :transport_pid, :c.pid(0, 7, 0))
     view = Keyword.get(opts, :view, LiveDebuggerWeb.Main)
+    private = Keyword.get(opts, :private, %{})
 
     host_uri =
       if Keyword.get(opts, :embedded?, false) do
@@ -96,6 +97,16 @@ defmodule LiveDebuggerRefactor.Fakes do
           Keyword.get(opts, :root_pid, :c.pid(0, 0, 0))
       end
 
+    assigns =
+      Keyword.get(opts, :assigns, %{
+        assign: :value,
+        counter: 0,
+        __changed__: %{},
+        flash: %{},
+        live_action: nil,
+        datetime: nil
+      })
+
     %Phoenix.LiveView.Socket{
       id: socket_id,
       endpoint: LiveDebuggerDev.Endpoint,
@@ -105,14 +116,8 @@ defmodule LiveDebuggerRefactor.Fakes do
       router: LiveDebuggerDev.Router,
       transport_pid: transport_pid,
       host_uri: host_uri,
-      assigns: %{
-        assign: :value,
-        counter: 0,
-        __changed__: %{},
-        flash: %{},
-        live_action: nil,
-        datetime: nil
-      }
+      assigns: assigns,
+      private: private
     }
   end
 
