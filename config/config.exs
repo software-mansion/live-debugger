@@ -17,6 +17,16 @@ if config_env() == :dev do
         ~w(js/hooks.js js/client.js --bundle --sourcemap=external --target=es2020 --outdir=../priv/static/dev),
       cd: Path.expand("../assets", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+    ],
+    client_css_dev_build: [
+      args: ~w(css/client.css --bundle --sourcemap=external --outdir=../priv/static/dev),
+      cd: Path.expand("../assets", __DIR__),
+      env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+    ],
+    client_css_deploy_build: [
+      args: ~w(css/client.css --bundle --sourcemap=external --minify --outdir=../priv/static/),
+      cd: Path.expand("../assets", __DIR__),
+      env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ]
 
   config :tailwind,
