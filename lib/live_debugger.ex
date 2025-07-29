@@ -113,6 +113,7 @@ defmodule LiveDebugger do
     browser_features? = Keyword.get(config, :browser_features?, true)
     debug_button? = Keyword.get(config, :debug_button?, true)
     highlighting? = Keyword.get(config, :highlighting?, true)
+    refactor? = Keyword.get(config, :refactor, false)
     version = Application.spec(@app_name)[:vsn] |> to_string()
     dead_view_mode = Keyword.get(config, :dead_view_mode, true)
 
@@ -128,6 +129,7 @@ defmodule LiveDebugger do
       browser_features?: browser_features?,
       debug_button?: debug_button?,
       highlighting?: highlighting?,
+      refactor?: refactor?,
       version: version,
       devtools_allow_redirects: devtools_allow_redirects
     }
