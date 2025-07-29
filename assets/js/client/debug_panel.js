@@ -170,11 +170,29 @@ function initDebugPanel(liveDebuggerURL) {
     }
   });
 
-  // Hide menu when window is resized
+  const ensureButtonInViewport = () => {
+    const buttonRect = debugButton.getBoundingClientRect();
+
+    const isVisible =
+      buttonRect.top >= 0 &&
+      buttonRect.left >= 0 &&
+      buttonRect.bottom <= window.innerHeight &&
+      buttonRect.right <= window.innerWidth;
+
+    if (!isVisible) {
+      debugButton.style.left = 'auto';
+      debugButton.style.top = 'auto';
+      debugButton.style.right = '20px';
+      debugButton.style.bottom = '20px';
+    }
+  };
+
+  // Hide menu and ensure button is in viewport when window is resized
   window.addEventListener('resize', () => {
     if (panelState.menuVisible) {
       hideMenu();
     }
+    ensureButtonInViewport();
   });
 
   return { debugButton, debugMenu, panelState };
