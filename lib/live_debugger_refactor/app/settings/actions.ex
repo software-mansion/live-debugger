@@ -3,33 +3,25 @@ defmodule LiveDebuggerRefactor.App.Settings.Actions do
   Action for `LiveDebuggerRefactor.App.Settings` context.
   """
 
-  import LiveDebuggerRefactor.App.Web.Hooks.Flash, only: [push_flash: 2]
-  import Phoenix.Component
-
   alias LiveDebuggerRefactor.API.SettingsStorage
 
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.App.Events.UserChangedSettings
 
   @spec update_settings!(
-          socket :: Phoenix.LiveView.Socket.t(),
+          settings :: %{atom() => any()},
           setting :: atom(),
           value :: any()
-        ) ::
-          Phoenix.LiveView.Socket.t()
-  def update_settings!(socket, setting, value) do
-    settings = socket.assigns.settings
-
+        ) :: %{atom() => any()}
+  def update_settings!(settings, setting, value) do
     case SettingsStorage.save(setting, value) do
       :ok ->
         Bus.broadcast_event!(%UserChangedSettings{key: setting, value: value})
 
-        new_settings = Map.put(settings, setting, value)
+        {:ok, Map.put(settings, setting, value)}
 
-        assign(socket, settings: new_settings)
-
-      {:error, _} ->
-        push_flash(socket, "Failed to update setting")
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 end

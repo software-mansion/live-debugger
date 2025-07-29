@@ -5,8 +5,8 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
 
   use LiveDebuggerRefactor.App.Web, :live_view
 
+  alias LiveDebuggerRefactor.API.SettingsStorage
   alias LiveDebuggerRefactor.App.Settings.Actions, as: SettingsActions
-  alias LiveDebuggerRefactor.App.Settings.Queries, as: SettingsQueries
   alias LiveDebuggerRefactor.App.Settings.Web.Components, as: SettingsComponents
   alias LiveDebuggerRefactor.App.Web.Components.Navbar, as: NavbarComponents
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
@@ -14,13 +14,13 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.App.Events.UserRefreshedTrace
 
-  @available_settings SettingsQueries.available_settings()
+  @available_settings SettingsStorage.available_settings() |> Enum.map(&Atom.to_string/1)
 
   @impl true
   def handle_params(params, _url, socket) do
     socket
     |> assign(return_to: params["return_to"])
-    |> SettingsQueries.assign_settings()
+    |> assign(settings: SettingsStorage.get_all())
     |> noreply()
   end
 
@@ -100,8 +100,15 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
       when setting in @available_settings do
     setting = String.to_existing_atom(setting)
 
-    socket
+    socket.assigns.settings
     |> SettingsActions.update_settings!(setting, not socket.assigns.settings[setting])
+    |> case do
+      {:ok, new_settings} ->
+        assign(socket, settings: new_settings)
+
+      {:error, _} ->
+        push_flash(socket, "Failed to update setting")
+    end
     |> noreply()
   end
 end

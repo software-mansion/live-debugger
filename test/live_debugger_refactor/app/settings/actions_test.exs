@@ -1,11 +1,9 @@
 defmodule LiveDebuggerRefactor.App.Settings.ActionsTest do
   use ExUnit.Case, async: true
 
-  import Phoenix.Component
   import Mox
 
   alias LiveDebuggerRefactor.App.Settings.Actions, as: SettingsActions
-  alias LiveDebuggerRefactor.Fakes
   alias LiveDebuggerRefactor.MockAPISettingsStorage
 
   alias LiveDebuggerRefactor.MockBus
@@ -13,7 +11,7 @@ defmodule LiveDebuggerRefactor.App.Settings.ActionsTest do
 
   describe "update_settings!/3" do
     test "successfully updates settings" do
-      socket = assign(Fakes.socket(), settings: %{dead_view_mode: false})
+      settings = %{dead_view_mode: false, another_setting: true}
       setting = :dead_view_mode
       value = true
 
@@ -25,22 +23,19 @@ defmodule LiveDebuggerRefactor.App.Settings.ActionsTest do
         :ok
       end)
 
-      updated_socket = SettingsActions.update_settings!(socket, setting, value)
-
-      assert updated_socket.assigns.settings[setting] == value
+      assert {:ok, updated_settings} = SettingsActions.update_settings!(settings, setting, value)
+      assert %{dead_view_mode: true, another_setting: true} = updated_settings
     end
 
     test "fails to update settings" do
-      socket = assign(Fakes.socket(), settings: %{dead_view_mode: false})
+      settings = %{dead_view_mode: false, another_setting: true}
       setting = :dead_view_mode
-      value = false
+      value = true
 
       MockAPISettingsStorage
       |> expect(:save, fn ^setting, ^value -> {:error, :failed} end)
 
-      updated_socket = SettingsActions.update_settings!(socket, setting, value)
-
-      assert updated_socket.assigns.settings[setting] == false
+      assert {:error, :failed} = SettingsActions.update_settings!(settings, setting, value)
     end
   end
 end
