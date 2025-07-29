@@ -11,7 +11,8 @@ defmodule LiveDebugger do
   @default_secret_key_base "DEFAULT_SECRET_KEY_BASE_1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcd"
   @default_signing_salt "live_debugger_signing_salt"
 
-  @assets_path "assets/live_debugger/client.js"
+  @js_path "assets/live_debugger/client.js"
+  @css_path "assets/live_debugger/client.css"
   @phoenix_path "assets/phoenix/phoenix.js"
 
   def start(_type, _args) do
@@ -119,12 +120,14 @@ defmodule LiveDebugger do
 
     devtools_allow_redirects = Keyword.get(config, :devtools_allow_redirects, not dead_view_mode)
     live_debugger_url = Keyword.get(config, :external_url, "http://#{ip_string}:#{port}")
-    live_debugger_assets_url = "#{live_debugger_url}/#{@assets_path}"
+    live_debugger_js_url = "#{live_debugger_url}/#{@js_path}"
+    live_debugger_css_url = "#{live_debugger_url}/#{@css_path}"
     live_debugger_phoenix_url = "#{live_debugger_url}/#{@phoenix_path}"
 
     assigns = %{
       url: live_debugger_url,
-      assets_url: live_debugger_assets_url,
+      js_url: live_debugger_js_url,
+      css_url: live_debugger_css_url,
       phoenix_url: live_debugger_phoenix_url,
       browser_features?: browser_features?,
       debug_button?: debug_button?,

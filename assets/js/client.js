@@ -1,7 +1,7 @@
 // This file is being run in the client's debugged application
 // It introduces browser features that are not mandatory for LiveDebugger to run
 
-import { initDebugButton } from './client/debug_button';
+import { initDebugPanel } from './client/debug_panel';
 import { initHighlight } from './client/highlight';
 import { initDebugSocket } from './client/debug_socket';
 
@@ -89,7 +89,7 @@ window.document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (debugButtonEnabled()) {
-    initDebugButton(sessionURL);
+    initDebugPanel(sessionURL);
   }
 
   if (highlightingEnabled()) {

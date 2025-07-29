@@ -48,8 +48,16 @@ defmodule LiveDebugger.MixProject do
       test: ["test --exclude e2e"],
       e2e: [&e2e_tests_setup/1, "test --only e2e"],
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
-      "assets.build:deploy": ["esbuild deploy_build", "tailwind deploy_build"],
-      "assets.build:dev": ["esbuild dev_build", "tailwind dev_build"]
+      "assets.build:deploy": [
+        "esbuild deploy_build",
+        "esbuild client_css_deploy_build",
+        "tailwind deploy_build"
+      ],
+      "assets.build:dev": [
+        "esbuild dev_build",
+        "esbuild client_css_dev_build",
+        "tailwind dev_build"
+      ]
     ]
   end
 
