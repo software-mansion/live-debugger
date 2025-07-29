@@ -10,7 +10,7 @@ defmodule LiveDebuggerRefactor.App.Web.Helpers.Hooks do
   Raises an error if the key is not found.
   """
   @spec check_assigns!(LiveViewSocket.t(), atom() | [atom()]) :: LiveViewSocket.t()
-  def check_assigns!(socket, keys) when is_list(keys) do
+  def check_assigns!(%LiveViewSocket{} = socket, keys) when is_list(keys) do
     Enum.each(keys, &check_assigns!(socket, &1))
 
     socket
@@ -21,7 +21,7 @@ defmodule LiveDebuggerRefactor.App.Web.Helpers.Hooks do
     socket
   end
 
-  def check_assigns!(_, key) when is_atom(key) do
+  def check_assigns!(%LiveViewSocket{}, key) when is_atom(key) do
     raise "Assign #{key} not found in assigns"
   end
 
@@ -35,7 +35,7 @@ defmodule LiveDebuggerRefactor.App.Web.Helpers.Hooks do
     socket
   end
 
-  def check_stream!(_, key) do
+  def check_stream!(%LiveViewSocket{}, key) do
     raise "Stream #{key} not found in assigns.streams"
   end
 
