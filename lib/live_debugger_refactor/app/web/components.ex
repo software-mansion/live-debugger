@@ -539,7 +539,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
   @doc """
   Renders a tooltip using Tooltip hook.
   """
-  attr(:id, :string, required: true, doc: "ID of the tooltip. Prefix is added automatically.")
+  attr(:id, :string, required: true, doc: "ID of the tooltip.")
   attr(:content, :string, default: nil)
 
   attr(:position, :string,
@@ -625,9 +625,9 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
 
   def copy_button(assigns) do
     ~H"""
-    <.tooltip id={@id} content="Copy" position="top-center">
+    <.tooltip id={@id <> "-tooltip"} content="Copy" position="top-center">
       <.icon_button
-        id={"copy-button_" <> @id}
+        id={@id}
         icon="icon-copy"
         variant="secondary"
         class={
