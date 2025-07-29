@@ -5,17 +5,27 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
 
   use LiveDebuggerRefactor.App.Web, :live_view
 
+  alias LiveDebuggerRefactor.App.Events.UserChangedSettings
+  alias LiveDebuggerRefactor.API.SettingsStorage
+  alias LiveDebuggerRefactor.App.Settings.Actions, as: SettingsActions
   alias LiveDebuggerRefactor.App.Settings.Web.Components, as: SettingsComponents
   alias LiveDebuggerRefactor.App.Web.Components.Navbar, as: NavbarComponents
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
 
+  alias LiveDebuggerRefactor.Bus
+  alias LiveDebuggerRefactor.App.Events.UserRefreshedTrace
+
+  @available_settings SettingsStorage.available_settings() |> Enum.map(&Atom.to_string/1)
+
   @impl true
   def handle_params(params, _url, socket) do
+    if connected?(socket) do
+      Bus.receive_events!()
+    end
+
     socket
-    |> assign(
-      return_to: params["return_to"],
-      settings: %{}
-    )
+    |> assign(return_to: params["return_to"])
+    |> assign(settings: SettingsStorage.get_all())
     |> noreply()
   end
 
@@ -36,7 +46,7 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
         <div class="mt-6 bg-surface-0-bg rounded shadow-custom border border-default-border">
           <%!-- Appearance --%>
           <div class="p-6">
-            <p class="font-semibold	mb-3">Appearance</p>
+            <p class="font-semibold mb-3">Appearance</p>
             <div class="flex gap-2">
               <SettingsComponents.dark_mode_button />
               <SettingsComponents.light_mode_button />
@@ -84,15 +94,35 @@ defmodule LiveDebuggerRefactor.App.Settings.Web.SettingsLive do
 
   @impl true
   def handle_event("restart", _params, socket) do
-    socket
-    |> push_flash("Not implemented yet")
+    Bus.broadcast_event!(%UserRefreshedTrace{})
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("update", %{"setting" => setting}, socket)
+      when setting in @available_settings do
+    setting = String.to_existing_atom(setting)
+
+    socket.assigns.settings
+    |> SettingsActions.update_settings!(setting, not socket.assigns.settings[setting])
+    |> case do
+      {:ok, new_settings} ->
+        assign(socket, settings: new_settings)
+
+      {:error, _} ->
+        push_flash(socket, "Failed to update setting")
+    end
     |> noreply()
   end
 
   @impl true
-  def handle_event("update", _params, socket) do
+  def handle_info(%UserChangedSettings{key: setting, value: value, from: from_pid}, socket)
+      when from_pid != socket.root_pid do
     socket
-    |> push_flash("Not implemented yet")
+    |> assign(settings: Map.put(socket.assigns.settings, setting, value))
     |> noreply()
   end
+
+  def handle_info(_, socket), do: noreply(socket)
 end
