@@ -72,5 +72,6 @@ defmodule LiveDebuggerRefactor.App.Web do
     """
 
     @callback init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
+    @callback render(assigns :: map()) :: Phoenix.LiveView.Rendered.t()
   end
 end
