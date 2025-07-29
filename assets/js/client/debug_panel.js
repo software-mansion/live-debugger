@@ -101,18 +101,21 @@ function initDebugPanel(liveDebuggerURL) {
     const menuWidth = 160;
     const menuHeight = 120;
 
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
     // Check if the menu would overflow on the right
     if (buttonRect.right + menuWidth > window.innerWidth) {
-      debugMenu.style.left = `${buttonRect.left - menuWidth}px`;
+      debugMenu.style.left = `${buttonRect.left + scrollX - menuWidth}px`;
     } else {
-      debugMenu.style.left = `${buttonRect.right}px`;
+      debugMenu.style.left = `${buttonRect.right + scrollX}px`;
     }
 
     // Check if the menu would overflow on the bottom
     if (buttonRect.top + menuHeight > window.innerHeight) {
-      debugMenu.style.top = `${buttonRect.bottom - menuHeight}px`;
+      debugMenu.style.top = `${buttonRect.bottom + scrollY - menuHeight}px`;
     } else {
-      debugMenu.style.top = `${buttonRect.top}px`;
+      debugMenu.style.top = `${buttonRect.top + scrollY}px`;
     }
 
     debugMenu.style.display = 'block';
