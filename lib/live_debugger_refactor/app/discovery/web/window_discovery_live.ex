@@ -8,21 +8,31 @@ defmodule LiveDebuggerRefactor.App.Discovery.Web.WindowDiscoveryLive do
 
   use LiveDebuggerRefactor.App.Web, :live_view
 
+  alias Phoenix.LiveView.AsyncResult
+  alias LiveDebuggerRefactor.Structs.LvProcess
   alias LiveDebuggerRefactor.App.Utils.Parsers
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
-
-  alias Phoenix.LiveView.AsyncResult
   alias LiveDebuggerRefactor.App.Discovery.Web.Components, as: DiscoveryComponents
   alias LiveDebuggerRefactor.App.Web.Components.Navbar, as: NavbarComponents
+  alias LiveDebuggerRefactor.App.Discovery.Queries, as: DiscoveryQueries
+
+  alias LiveDebuggerRefactor.Bus
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewBorn
 
   @impl true
   def mount(%{"transport_pid" => string_transport_pid}, _session, socket) do
     string_transport_pid
     |> Parsers.string_to_pid()
     |> case do
-      {:ok, _transport_pid} ->
+      {:ok, transport_pid} ->
+        if connected?(socket) do
+          Bus.receive_events!()
+        end
+
         socket
-        |> assign(:grouped_lv_processes, AsyncResult.ok(%{}))
+        |> assign(transport_pid: transport_pid)
+        |> assign_async_grouped_lv_processes()
 
       :error ->
         push_navigate(socket, to: RoutesHelper.error("invalid_pid"))
@@ -61,7 +71,54 @@ defmodule LiveDebuggerRefactor.App.Discovery.Web.WindowDiscoveryLive do
   @impl true
   def handle_event("refresh", _params, socket) do
     socket
-    |> push_flash("Not implemented yet")
+    |> reassign_async_grouped_lv_processes()
     |> noreply()
+  end
+
+  @impl true
+  def handle_info(%LiveViewBorn{transport_pid: transport_pid}, socket)
+      when transport_pid == socket.assigns.transport_pid do
+    socket
+    |> reassign_async_grouped_lv_processes()
+    |> noreply()
+  end
+
+  def handle_info(%LiveViewDied{pid: pid}, socket) do
+    with {:ok, group} <- get_lv_processes_group(socket),
+         true <- in_group?(group, pid) do
+      reassign_async_grouped_lv_processes(socket)
+    else
+      _ -> socket
+    end
+    |> noreply()
+  end
+
+  def handle_info(_, socket), do: noreply(socket)
+
+  defp reassign_async_grouped_lv_processes(socket) do
+    socket
+    |> assign(grouped_lv_processes: AsyncResult.loading())
+    |> assign_async_grouped_lv_processes()
+  end
+
+  defp assign_async_grouped_lv_processes(%{assigns: %{transport_pid: transport_pid}} = socket) do
+    socket
+    |> assign_async(:grouped_lv_processes, fn ->
+      DiscoveryQueries.fetch_grouped_lv_processes(transport_pid)
+    end)
+  end
+
+  defp get_lv_processes_group(socket) do
+    transport_pid = socket.assigns.transport_pid
+
+    case socket.assigns.grouped_lv_processes.result do
+      nil -> {:error, :empty_result}
+      %{^transport_pid => group} -> {:ok, group}
+    end
+  end
+
+  defp in_group?(group, dead_pid) do
+    (Map.keys(group) ++ Enum.flat_map(Map.values(group), & &1))
+    |> Enum.any?(fn %LvProcess{pid: pid} -> pid == dead_pid end)
   end
 end
