@@ -98,8 +98,11 @@ function initDebugPanel(liveDebuggerURL) {
 
   const showMenu = () => {
     const buttonRect = debugButton.getBoundingClientRect();
-    const menuWidth = 160;
-    const menuHeight = 120;
+
+    debugMenu.style.display = 'block';
+    const menuRect = debugMenu.getBoundingClientRect();
+    const menuWidth = menuRect.width;
+    const menuHeight = menuRect.height;
 
     const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
     const scrollY = window.pageYOffset || document.documentElement.scrollTop;
@@ -118,7 +121,6 @@ function initDebugPanel(liveDebuggerURL) {
       debugMenu.style.top = `${buttonRect.top + scrollY}px`;
     }
 
-    debugMenu.style.display = 'block';
     panelState.menuVisible = true;
   };
 
