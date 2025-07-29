@@ -1,22 +1,6 @@
 export function createDebugButton() {
   const debugButtonHtml = /*html*/ `
-      <div id="debug-button" style="
-        position: fixed;
-        height: 40px;
-        width: 40px;
-        padding-left: 5px;
-        padding-right: 5px;
-        border-radius: 10px;
-        background-color: #001A72;
-        color: #ffffff;
-        display: flex;
-        gap: 5px;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        bottom: 20px;
-        right: 20px;
-        cursor: pointer;">
+      <div id="debug-button" >
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd" d="M22.0941 20.624C22.5697 20.624 22.9553 20.2385 22.9554 19.7628L22.9556 16.6568C22.9556 16.4283 22.8649 16.2093 22.7034 16.0477C22.5418 15.8862 22.3228 15.7955 22.0944 15.7955L18.3034 15.7955L18.3034 17.5179L21.2331 17.5179L21.2329 19.7627C21.2329 20.2384 21.6185 20.624 22.0941 20.624Z" fill="currentColor"/>
           <path fill-rule="evenodd" clip-rule="evenodd" d="M22.9823 12.9677C22.9823 12.4921 22.5968 12.1065 22.1211 12.1065L18.3034 12.1065V13.8289H22.1211C22.5968 13.8289 22.9823 13.4433 22.9823 12.9677Z" fill="currentColor"/>
