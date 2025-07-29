@@ -45,8 +45,10 @@ defmodule LiveDebuggerDev.Runner do
     [
       http: [port: System.get_env("PORT") || 4004],
       watchers: [
-        esbuild: {Esbuild, :install_and_run, [:dev_build, ~w(--watch)]},
-        tailwind: {Tailwind, :install_and_run, [:dev_build, ~w(--watch)]}
+        esbuild: {Esbuild, :install_and_run, [:build_app_js_dev, ~w(--watch)]},
+        tailwind: {Tailwind, :install_and_run, [:build_app_css_dev, ~w(--watch)]},
+        esbuild_client: {Esbuild, :install_and_run, [:build_client_js_dev, ~w(--watch)]},
+        esbuild_client_css: {Esbuild, :install_and_run, [:build_client_css_dev, ~w(--watch)]}
       ],
       live_reload: [
         patterns: [

@@ -6,42 +6,54 @@ import Config
 if config_env() == :dev do
   config :esbuild,
     version: "0.18.6",
-    deploy_build: [
+    build_app_js_deploy: [
       args:
-        ~w(js/hooks.js js/client.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../priv/static/),
-      cd: Path.expand("../assets", __DIR__),
+        ~w(app.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../../priv/static/),
+      cd: Path.expand("../assets/app", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ],
-    dev_build: [
+    build_client_js_deploy: [
       args:
-        ~w(js/hooks.js js/client.js --bundle --sourcemap=external --target=es2020 --outdir=../priv/static/dev),
-      cd: Path.expand("../assets", __DIR__),
+        ~w(client.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../../priv/static),
+      cd: Path.expand("../assets/client", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ],
-    client_css_dev_build: [
-      args: ~w(css/client.css --bundle --sourcemap=external --outdir=../priv/static/dev),
-      cd: Path.expand("../assets", __DIR__),
+    build_client_css_deploy: [
+      args: ~w(client.css --bundle --sourcemap=external --minify --outdir=../../priv/static/),
+      cd: Path.expand("../assets/client", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ],
-    client_css_deploy_build: [
-      args: ~w(css/client.css --bundle --sourcemap=external --minify --outdir=../priv/static/),
-      cd: Path.expand("../assets", __DIR__),
+    build_app_js_dev: [
+      args:
+        ~w(app.js --bundle --sourcemap=external --target=es2020 --outdir=../../priv/static/dev),
+      cd: Path.expand("../assets/app", __DIR__),
+      env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+    ],
+    build_client_js_dev: [
+      args:
+        ~w(client.js --bundle --sourcemap=external --target=es2020 --outdir=../../priv/static/dev),
+      cd: Path.expand("../assets/client", __DIR__),
+      env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
+    ],
+    build_client_css_dev: [
+      args: ~w(client.css --bundle --sourcemap=external --outdir=../../priv/static/dev),
+      cd: Path.expand("../assets/client", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ]
 
   config :tailwind,
     version: "4.1.8",
-    deploy_build: [
+    build_app_css_deploy: [
       args: ~w(
-      --input=assets/css/app.css
+      --input=assets/app/app.css
       --output=priv/static/app.css
       --minify
     ),
       cd: Path.expand("..", __DIR__)
     ],
-    dev_build: [
+    build_app_css_dev: [
       args: ~w(
-      --input=assets/css/app.css
+      --input=assets/app/app.css
       --output=priv/static/dev/app.css
     ),
       cd: Path.expand("..", __DIR__)
