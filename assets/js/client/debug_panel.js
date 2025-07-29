@@ -15,13 +15,13 @@ function createDebugButton() {
 function createDebugMenu() {
   const tooltipHtml = /*html*/ `
     <div id="debug-tooltip">
-      <div class="tooltip-option" >
+      <div class="tooltip-option" id="debug-tooltip-open-in-new-tab">
         Open in new tab
       </div>
-      <div class="tooltip-option">
+      <div class="tooltip-option" id="debug-tooltip-inspect-elements">
         Inspect elements
       </div>
-      <div class="tooltip-option">
+      <div class="tooltip-option" id="debug-tooltip-move-button">
         Move button
       </div>
     </div>
@@ -150,10 +150,15 @@ function initDebugPanel(liveDebuggerURL) {
   debugButton.addEventListener('click', onButtonClick);
 
   // Menu option clicks
-  const menuOptions = debugMenu.querySelectorAll('.tooltip-option');
-  menuOptions[0].addEventListener('click', handleOpenInNewTab);
-  menuOptions[1].addEventListener('click', handleInspectMode);
-  menuOptions[2].addEventListener('click', handleMove);
+  debugMenu
+    .querySelector('#debug-tooltip-open-in-new-tab')
+    .addEventListener('click', handleOpenInNewTab);
+  debugMenu
+    .querySelector('#debug-tooltip-inspect-elements')
+    .addEventListener('click', handleInspectMode);
+  debugMenu
+    .querySelector('#debug-tooltip-move-button')
+    .addEventListener('click', handleMove);
 
   // Hide menu when clicking outside
   document.addEventListener('click', (event) => {
