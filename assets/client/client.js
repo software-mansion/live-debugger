@@ -2,83 +2,26 @@
 // It introduces browser features that are not mandatory for LiveDebugger to run
 
 import initDebugMenu from './components/debug_menu';
-import initHighlight from './js/highlight';
-import initDebugSocket from './js/debug_socket';
-
-// Fetch LiveDebugger URL
-function getSessionId() {
-  let el;
-  if ((el = document.querySelector('[data-phx-main]'))) {
-    return el.id;
-  }
-  if ((el = document.querySelector('[id^="phx-"]'))) {
-    return el.id;
-  }
-  if ((el = document.querySelector('[data-phx-root-id]'))) {
-    return el.getAttribute('data-phx-root-id');
-  }
-}
-
-function handleMetaTagError() {
-  const message = `
-  LiveDebugger meta tag not found!
-  If you have recently bumped LiveDebugger version, please update your layout according to the instructions in the GitHub README.
-  You can find it here: https://github.com/software-mansion/live-debugger#installation
-  `;
-
-  throw new Error(message);
-}
-
-function debugButtonEnabled() {
-  const metaTag = document.querySelector('meta[name="live-debugger-config"]');
-
-  if (metaTag) {
-    return metaTag.hasAttribute('debug-button');
-  } else {
-    handleMetaTagError();
-  }
-}
-
-function highlightingEnabled() {
-  const metaTag = document.querySelector('meta[name="live-debugger-config"]');
-
-  if (metaTag) {
-    return metaTag.hasAttribute('highlighting');
-  }
-}
-
-function refactorEnabled() {
-  const metaTag = document.querySelector('meta[name="live-debugger-config"]');
-
-  if (metaTag) {
-    return metaTag.hasAttribute('refactor');
-  }
-}
-
-function getLiveDebuggerBaseURL() {
-  const metaTag = document.querySelector('meta[name="live-debugger-config"]');
-
-  if (metaTag) {
-    return metaTag.getAttribute('url');
-  } else {
-    handleMetaTagError();
-  }
-}
-
-function getSessionURL(baseURL) {
-  const session_id = getSessionId();
-  const session_path = session_id ? `redirect/${session_id}` : '';
-
-  return `${baseURL}/${session_path}`;
-}
+import initHighlight from './services/highlight';
+import initDebugSocket from './services/debug_socket';
+import {
+  getMetaTag,
+  fetchLiveDebuggerBaseURL,
+  fetchDebuggedSocketID,
+  isRefactorEnabled,
+  isDebugButtonEnabled,
+  isHighlightingEnabled,
+} from './utils/meta';
 
 window.document.addEventListener('DOMContentLoaded', function () {
-  const baseURL = getLiveDebuggerBaseURL();
-  const sessionURL = getSessionURL(baseURL);
-  const sessionId = getSessionId();
+  const metaTag = getMetaTag();
+  const baseURL = fetchLiveDebuggerBaseURL(metaTag);
+  const sessionId = fetchDebuggedSocketID();
 
-  if (refactorEnabled()) {
-    if (sessionId) {
+  const sessionURL = `${baseURL}/redirect/${sessionId}`;
+
+  if (sessionId) {
+    if (isRefactorEnabled(metaTag)) {
       const { debugChannel } = initDebugSocket(baseURL, sessionId);
 
       debugChannel.on('ping', (resp) => {
@@ -86,16 +29,15 @@ window.document.addEventListener('DOMContentLoaded', function () {
         debugChannel.push('pong', resp);
       });
     }
+
+    if (isDebugButtonEnabled(metaTag)) {
+      initDebugMenu(sessionURL);
+    }
+
+    if (isHighlightingEnabled(metaTag)) {
+      initHighlight();
+    }
   }
 
-  if (debugButtonEnabled()) {
-    initDebugMenu(sessionURL);
-  }
-
-  if (highlightingEnabled()) {
-    initHighlight();
-  }
-
-  // Finalize
   console.info(`LiveDebugger available at: ${baseURL}`);
 });
