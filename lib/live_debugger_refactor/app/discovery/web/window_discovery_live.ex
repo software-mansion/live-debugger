@@ -118,7 +118,10 @@ defmodule LiveDebuggerRefactor.App.Discovery.Web.WindowDiscoveryLive do
   end
 
   defp in_group?(group, dead_pid) do
-    (Map.keys(group) ++ Enum.flat_map(Map.values(group), & &1))
+    lv_processes = Map.keys(group)
+    nested_lv_processes = group |> Map.values() |> Enum.concat()
+
+    (lv_processes ++ nested_lv_processes)
     |> Enum.any?(fn %LvProcess{pid: pid} -> pid == dead_pid end)
   end
 end

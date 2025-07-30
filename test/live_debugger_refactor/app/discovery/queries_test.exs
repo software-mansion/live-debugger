@@ -64,5 +64,14 @@ defmodule LiveDebuggerRefactor.App.Discovery.QueriesTest do
       assert {:ok, %{grouped_lv_processes: ^grouped_lv_processes}} =
                DiscoveryQueries.fetch_grouped_lv_processes()
     end
+
+    test "returns empty map when no active LiveViews" do
+      MockAPILiveViewDiscovery
+      |> expect(:debugged_lv_processes, 3, fn -> [] end)
+      |> expect(:group_lv_processes, fn [] -> %{} end)
+
+      assert {:ok, %{grouped_lv_processes: %{}}} =
+               DiscoveryQueries.fetch_grouped_lv_processes()
+    end
   end
 end
