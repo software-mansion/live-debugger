@@ -6,6 +6,19 @@ export function initDebugButton() {
 
   let isDragging = false;
 
+  const onClick = () => {
+    if (isDragging) {
+      placeButton();
+    } else {
+      const event = new CustomEvent('live-debugger-debug-button-click', {
+        detail: {
+          buttonRect: debugButton.getBoundingClientRect(),
+        },
+      });
+      document.dispatchEvent(event);
+    }
+  };
+
   const dragButton = () => {
     isDragging = true;
     debugButton.style.cursor = 'grabbing';
@@ -41,19 +54,6 @@ export function initDebugButton() {
     debugButton.style.bottom = 'auto';
   };
 
-  const onClick = () => {
-    if (isDragging) {
-      placeButton();
-    } else {
-      const event = new CustomEvent('live-debugger-debug-button-click', {
-        detail: {
-          buttonRect: debugButton.getBoundingClientRect(),
-        },
-      });
-      document.dispatchEvent(event);
-    }
-  };
-
   const ensureButtonInViewport = () => {
     const buttonRect = debugButton.getBoundingClientRect();
 
@@ -72,11 +72,8 @@ export function initDebugButton() {
   };
 
   debugButton.addEventListener('click', onClick);
-
-  // Ensure button is in viewport when window is resized
-  window.addEventListener('resize', () => ensureButtonInViewport());
-
   document.addEventListener('live-debugger-debug-button-move', dragButton);
+  window.addEventListener('resize', () => ensureButtonInViewport());
 
   return { debugButton, dragButton };
 }
