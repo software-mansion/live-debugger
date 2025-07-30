@@ -59,6 +59,8 @@ export default function initDebugOptions({ liveDebuggerURL }) {
   };
 
   const onInspectButtonClick = () => {
+    const event = new CustomEvent('live-debugger-debug-button-inspect');
+    document.dispatchEvent(event);
     hideDebugOptions();
   };
 

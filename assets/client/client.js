@@ -4,6 +4,8 @@
 import initDebugMenu from './components/debug_menu';
 import initHighlight from './services/highlight';
 import initDebugSocket from './services/debug_socket';
+import initElementInspection from './services/inspect';
+
 import {
   getMetaTag,
   fetchLiveDebuggerBaseURL,
@@ -37,6 +39,8 @@ window.document.addEventListener('DOMContentLoaded', function () {
     if (isHighlightingEnabled(metaTag)) {
       initHighlight();
     }
+
+    initElementInspection();
   }
 
   console.info(`LiveDebugger available at: ${baseURL}`);
