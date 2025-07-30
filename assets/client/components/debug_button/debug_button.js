@@ -1,5 +1,5 @@
 import debugButtonHtml from './debug_button.html';
-import { createElement } from '../utils/dom';
+import { createElement } from '../../utils/dom';
 
 export default function initDebugButton() {
   const debugButton = createElement(debugButtonHtml);

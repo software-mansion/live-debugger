@@ -1,9 +1,9 @@
 // This file is being run in the client's debugged application
 // It introduces browser features that are not mandatory for LiveDebugger to run
 
-import initDebugMenu from './js/debug_menu';
-import { initHighlight } from './js/highlight';
-import { initDebugSocket } from './js/debug_socket';
+import initDebugMenu from './components/debug_menu';
+import initHighlight from './js/highlight';
+import initDebugSocket from './js/debug_socket';
 
 // Fetch LiveDebugger URL
 function getSessionId() {

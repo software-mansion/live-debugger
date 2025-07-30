@@ -1,5 +1,5 @@
-import initDebugButton from '../debug_button/debug_button';
-import initDebugOptions from '../debug_options/debug_options';
+import initDebugButton from './debug_button/debug_button';
+import initDebugOptions from './debug_options/debug_options';
 
 export default function initDebugMenu(liveDebuggerURL) {
   const debugButton = initDebugButton();

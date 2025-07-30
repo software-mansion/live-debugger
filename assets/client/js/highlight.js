@@ -124,10 +124,8 @@ function handlePulse({ detail }) {
   }
 }
 
-function initHighlight() {
+export default function initHighlight() {
   window.addEventListener('phx:highlight', handleHighlight);
   window.addEventListener('resize', handleHighlightResize);
   window.addEventListener('phx:pulse', handlePulse);
 }
-
-export { initHighlight };

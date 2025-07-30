@@ -1,5 +1,5 @@
 import debugOptionsHtml from './debug_options.html';
-import { createElement } from '../utils/dom';
+import { createElement } from '../../utils/dom';
 
 export default function initDebugOptions({ liveDebuggerURL }) {
   const debugOptions = createElement(debugOptionsHtml);
