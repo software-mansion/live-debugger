@@ -39,6 +39,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
 
   @impl true
   def render(assigns) do
+    assigns =
+      assign(
+        assigns,
+        render_body?: assigns.trace_display.render_body?,
+        trace: assigns.trace_display.trace
+      )
+
     ~H"""
     <.collapsible
       id={@id}
@@ -58,7 +65,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
           id={@id <> "-label"}
           class={["w-[90%] grow grid items-center gap-x-3 ml-2" | List.wrap(label[:class])]}
         >
-          <%= render_slot(label, assigns.trace_display) %>
+          <%= render_slot(label) %>
         </div>
       </:label>
       <div class="relative">

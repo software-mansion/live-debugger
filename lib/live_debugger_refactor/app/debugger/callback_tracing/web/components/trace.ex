@@ -12,22 +12,14 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace
   alias LiveDebuggerRefactor.App.Utils.TermParser
   alias LiveDebuggerRefactor.Structs.Trace
 
+  @doc """
+  Fullscreen modal with trace body.
+  """
   attr(:id, :string, required: true)
-  attr(:trace, Trace, default: nil)
+  attr(:trace, Trace, required: true)
 
   def trace_fullscreen(assigns) do
-    assigns =
-      case assigns.trace do
-        nil ->
-          assigns
-          |> assign(:callback_name, "Unknown trace")
-          |> assign(:trace_args, [])
-
-        trace ->
-          assigns
-          |> assign(:callback_name, Trace.callback_name(trace))
-          |> assign(:trace_args, trace.args)
-      end
+    assigns = assign(assigns, :callback_name, Trace.callback_name(assigns.trace))
 
     ~H"""
     <.fullscreen id={@id} title={@callback_name}>
@@ -38,6 +30,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace
     """
   end
 
+  @doc """
+  List of trace's args.
+  """
   attr(:id, :string, required: true)
   attr(:trace, Trace, required: true)
 
@@ -62,6 +57,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace
     """
   end
 
+  @doc """
+  Module of the trace.
+  """
   attr(:trace, Trace, required: true)
   attr(:class, :string, default: "")
 
@@ -81,6 +79,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace
     """
   end
 
+  @doc """
+  Callback name of the trace.
+  """
   attr(:trace, Trace, required: true)
 
   def callback_name(assigns) do
@@ -91,6 +92,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace
     """
   end
 
+  @doc """
+  Timestamp and execution time of the trace.
+  """
   attr(:trace_display, TraceDisplay, required: true)
 
   def trace_time_info(assigns) do
