@@ -6,26 +6,26 @@ export function initDebugOptions({ liveDebuggerURL }) {
 
   let isVisible = false;
 
-  const showMenu = (debugButtonRect) => {
+  const showDebugOptions = (debugButtonRect) => {
     debugOptions.style.display = 'block';
 
-    const menuRect = debugOptions.getBoundingClientRect();
-    const menuWidth = menuRect.width;
-    const menuHeight = menuRect.height;
+    const debugOptionsRect = debugOptions.getBoundingClientRect();
+    const debugOptionsWidth = debugOptionsRect.width;
+    const debugOptionsHeight = debugOptionsRect.height;
 
     const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
     const scrollY = window.pageYOffset || document.documentElement.scrollTop;
 
-    // Check if the menu would overflow on the right
-    if (debugButtonRect.right + menuWidth > window.innerWidth) {
-      debugOptions.style.left = `${debugButtonRect.left + scrollX - menuWidth}px`;
+    // Check if the debug options would overflow on the right
+    if (debugButtonRect.right + debugOptionsWidth > window.innerWidth) {
+      debugOptions.style.left = `${debugButtonRect.left + scrollX - debugOptionsWidth}px`;
     } else {
       debugOptions.style.left = `${debugButtonRect.right + scrollX}px`;
     }
 
-    // Check if the menu would overflow on the bottom
-    if (debugButtonRect.top + menuHeight > window.innerHeight) {
-      debugOptions.style.top = `${debugButtonRect.bottom + scrollY - menuHeight}px`;
+    // Check if the debug options would overflow on the bottom
+    if (debugButtonRect.top + debugOptionsHeight > window.innerHeight) {
+      debugOptions.style.top = `${debugButtonRect.bottom + scrollY - debugOptionsHeight}px`;
     } else {
       debugOptions.style.top = `${debugButtonRect.top + scrollY}px`;
     }
@@ -33,7 +33,7 @@ export function initDebugOptions({ liveDebuggerURL }) {
     isVisible = true;
   };
 
-  const hideMenu = () => {
+  const hideDebugOptions = () => {
     debugOptions.style.display = 'none';
     isVisible = false;
   };
@@ -41,9 +41,9 @@ export function initDebugOptions({ liveDebuggerURL }) {
   const onDebugButtonClick = (event) => {
     const debugButtonRect = event.detail.buttonRect;
     if (isVisible) {
-      hideMenu();
+      hideDebugOptions();
     } else {
-      showMenu(debugButtonRect);
+      showDebugOptions(debugButtonRect);
     }
   };
 
@@ -54,23 +54,23 @@ export function initDebugOptions({ liveDebuggerURL }) {
 
   window.addEventListener('resize', () => {
     if (isVisible) {
-      hideMenu();
+      hideDebugOptions();
     }
   });
 
   const onMoveButtonClick = () => {
     const event = new CustomEvent('live-debugger-debug-button-move');
     document.dispatchEvent(event);
-    hideMenu();
+    hideDebugOptions();
   };
 
   const onNewTabButtonClick = () => {
     window.open(liveDebuggerURL, '_blank');
-    hideMenu();
+    hideDebugOptions();
   };
 
   const onInspectButtonClick = () => {
-    hideMenu();
+    hideDebugOptions();
   };
 
   debugOptions
