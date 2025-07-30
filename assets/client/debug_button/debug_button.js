@@ -1,7 +1,7 @@
 import debugButtonHtml from './debug_button.html';
 import { createElement } from '../utils/dom';
 
-export function initDebugButton() {
+export default function initDebugButton() {
   const debugButton = createElement(debugButtonHtml);
 
   let isDragging = false;
@@ -75,5 +75,5 @@ export function initDebugButton() {
   document.addEventListener('live-debugger-debug-button-move', dragButton);
   window.addEventListener('resize', () => ensureButtonInViewport());
 
-  return { debugButton, dragButton };
+  return debugButton;
 }

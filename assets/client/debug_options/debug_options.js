@@ -1,7 +1,7 @@
 import debugOptionsHtml from './debug_options.html';
 import { createElement } from '../utils/dom';
 
-export function initDebugOptions({ liveDebuggerURL }) {
+export default function initDebugOptions({ liveDebuggerURL }) {
   const debugOptions = createElement(debugOptionsHtml);
 
   let isVisible = false;
@@ -77,6 +77,11 @@ export function initDebugOptions({ liveDebuggerURL }) {
   document.addEventListener(
     'live-debugger-debug-button-click',
     onDebugButtonClick
+  );
+
+  document.addEventListener(
+    'live-debugger-debug-menu-click-outside',
+    hideDebugOptions
   );
 
   window.addEventListener('resize', () => {

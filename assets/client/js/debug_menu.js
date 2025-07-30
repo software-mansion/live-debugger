@@ -1,8 +1,8 @@
-import { initDebugButton } from '../debug_button/debug_button';
-import { initDebugOptions } from '../debug_options/debug_options';
+import initDebugButton from '../debug_button/debug_button';
+import initDebugOptions from '../debug_options/debug_options';
 
-function initDebugPanel(liveDebuggerURL) {
-  const { debugButton } = initDebugButton();
+export default function initDebugMenu(liveDebuggerURL) {
+  const debugButton = initDebugButton();
   const debugMenu = initDebugOptions({ liveDebuggerURL });
 
   document.body.appendChild(debugButton);
@@ -14,11 +14,10 @@ function initDebugPanel(liveDebuggerURL) {
       !debugButton.contains(event.target) &&
       !debugMenu.contains(event.target)
     ) {
-      hideMenu();
+      const event = new CustomEvent('live-debugger-debug-menu-click-outside');
+      document.dispatchEvent(event);
     }
   });
 
   return { debugButton, debugMenu };
 }
-
-export { initDebugPanel };
