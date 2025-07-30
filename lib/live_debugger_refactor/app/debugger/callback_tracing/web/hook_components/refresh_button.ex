@@ -1,6 +1,7 @@
 defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.RefreshButton do
   @moduledoc """
   This component is used to refresh the traces.
+  It produces `refresh-history` event handled by hook added via `init/1`.
   """
 
   use LiveDebuggerRefactor.App.Web, :hook_component

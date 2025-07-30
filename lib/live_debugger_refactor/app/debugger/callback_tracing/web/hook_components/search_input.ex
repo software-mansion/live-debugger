@@ -1,6 +1,7 @@
 defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.SearchInput do
   @moduledoc """
   This component is used to add filtering by search query for callback traces.
+  It produces `search` and `search-submit` events handled by hook added via `init/1`.
   """
 
   use LiveDebuggerRefactor.App.Web, :hook_component
@@ -27,7 +28,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.S
       "has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2",
       "outline-default-border has-[input:focus-within]:outline-ui-accent"
     ]}>
-      <form phx-change="search" phx-submit="submit" class="flex items-center w-full h-full">
+      <form phx-change="search" phx-submit="search-submit" class="flex items-center w-full h-full">
         <.icon
           name="icon-search"
           class={[
@@ -51,6 +52,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.S
   end
 
   defp handle_event("search", _params, socket), do: {:halt, socket}
-  defp handle_event("submit", _params, socket), do: {:halt, socket}
+  defp handle_event("search-submit", _params, socket), do: {:halt, socket}
   defp handle_event(_, _, socket), do: {:cont, socket}
 end

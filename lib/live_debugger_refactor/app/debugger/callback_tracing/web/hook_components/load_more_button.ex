@@ -2,6 +2,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.L
   @moduledoc """
   This component is used to load more traces.
   It uses `trace_continuation` to determine if there are more traces to load.
+  It produces `load-more` event handled by hook added via `init/1`.
   """
 
   use LiveDebuggerRefactor.App.Web, :hook_component

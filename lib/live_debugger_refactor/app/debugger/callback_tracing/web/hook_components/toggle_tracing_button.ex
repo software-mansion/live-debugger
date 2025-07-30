@@ -34,5 +34,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
     """
   end
 
+  defp handle_event("switch-tracing", _, socket), do: {:halt, socket}
   defp handle_event(_, _, socket), do: {:cont, socket}
 end

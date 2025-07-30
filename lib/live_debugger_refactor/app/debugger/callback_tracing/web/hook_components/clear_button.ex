@@ -1,6 +1,7 @@
 defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.ClearButton do
   @moduledoc """
   This component is used to clear the traces.
+  It produces `clear-traces` event handled by hook added via `init/1`.
   """
 
   use LiveDebuggerRefactor.App.Web, :hook_component
@@ -36,5 +37,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.C
     """
   end
 
+  defp handle_event("clear-traces", _, socket), do: {:halt, socket}
   defp handle_event(_, _, socket), do: {:cont, socket}
 end
