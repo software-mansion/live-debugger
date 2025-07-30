@@ -41,6 +41,7 @@ export default function initElementInspection({ socketID, sessionURL }) {
 
     let attr = null;
     let val = null;
+    let addNodeID = false;
 
     if (!cid) {
       attr = 'id';
@@ -48,6 +49,7 @@ export default function initElementInspection({ socketID, sessionURL }) {
     } else {
       attr = 'data-phx-component';
       val = cid;
+      addNodeID = true;
     }
 
     const highlightEvent = new CustomEvent('live-debugger-inspect-highlight', {
@@ -67,7 +69,7 @@ export default function initElementInspection({ socketID, sessionURL }) {
     document.dispatchEvent(highlightEvent);
     document.dispatchEvent(pulseEvent);
 
-    window.open(sessionURL, '_blank');
+    window.open(sessionURL + (addNodeID ? `?node_id=${val}` : ''), '_blank');
 
     disableInspectMode();
   };
