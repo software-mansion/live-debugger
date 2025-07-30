@@ -1,4 +1,4 @@
-export default function initElementInspection({ socketID }) {
+export default function initElementInspection({ socketID, sessionURL }) {
   let inspectMode = false;
   let lastID = null;
 
@@ -66,7 +66,8 @@ export default function initElementInspection({ socketID }) {
 
     document.dispatchEvent(highlightEvent);
     document.dispatchEvent(pulseEvent);
-    console.log('Inspecting element', attr, val);
+
+    window.open(sessionURL, '_blank');
 
     disableInspectMode();
   };

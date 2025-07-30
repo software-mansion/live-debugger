@@ -40,7 +40,7 @@ window.document.addEventListener('DOMContentLoaded', function () {
       initHighlight();
     }
 
-    initElementInspection({ socketID });
+    initElementInspection({ socketID, sessionURL });
   }
 
   console.info(`LiveDebugger available at: ${baseURL}`);
