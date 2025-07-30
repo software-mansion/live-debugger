@@ -6,31 +6,15 @@ export default function initElementInspection({ socketID, sessionURL }) {
     const cid = event.target.closest('[data-phx-component]')?.dataset
       .phxComponent;
 
-    let attr = null;
-    let val = null;
+    const detail = getHighlightDetail(cid, socketID);
 
-    if (!cid) {
-      attr = 'id';
-      val = socketID;
-    } else {
-      attr = 'data-phx-component';
-      val = cid;
-    }
-
-    if (val === lastID) {
+    if (detail.val === lastID) {
       return;
     }
 
-    lastID = val;
+    lastID = detail.val;
 
-    const highlightEvent = new CustomEvent('live-debugger-inspect-highlight', {
-      detail: {
-        attr,
-        val,
-      },
-    });
-
-    document.dispatchEvent(highlightEvent);
+    pushHighlightEvent(detail);
   };
 
   const handleInspect = (event) => {
@@ -39,37 +23,12 @@ export default function initElementInspection({ socketID, sessionURL }) {
     const cid = event.target.closest('[data-phx-component]')?.dataset
       .phxComponent;
 
-    let attr = null;
-    let val = null;
-    let addNodeID = false;
+    const detail = getHighlightDetail(cid, socketID);
 
-    if (!cid) {
-      attr = 'id';
-      val = socketID;
-    } else {
-      attr = 'data-phx-component';
-      val = cid;
-      addNodeID = true;
-    }
+    pushHighlightEvent(detail);
+    pushPulseEvent(detail);
 
-    const highlightEvent = new CustomEvent('live-debugger-inspect-highlight', {
-      detail: {
-        attr,
-        val,
-      },
-    });
-
-    const pulseEvent = new CustomEvent('live-debugger-inspect-pulse', {
-      detail: {
-        attr,
-        val,
-      },
-    });
-
-    document.dispatchEvent(highlightEvent);
-    document.dispatchEvent(pulseEvent);
-
-    window.open(sessionURL + (addNodeID ? `?node_id=${val}` : ''), '_blank');
+    window.open(sessionURL + (cid ? `?node_id=${detail.val}` : ''), '_blank');
 
     disableInspectMode();
   };
@@ -100,4 +59,34 @@ export default function initElementInspection({ socketID, sessionURL }) {
   document.addEventListener('live-debugger-debug-button-inspect', (event) => {
     setTimeout(enableInspectMode);
   });
+}
+
+function pushHighlightEvent(detail) {
+  const highlightEvent = new CustomEvent('live-debugger-inspect-highlight', {
+    detail,
+  });
+
+  document.dispatchEvent(highlightEvent);
+}
+
+function pushPulseEvent(detail) {
+  const pulseEvent = new CustomEvent('live-debugger-inspect-pulse', {
+    detail,
+  });
+
+  document.dispatchEvent(pulseEvent);
+}
+
+function getHighlightDetail(cid, socketID) {
+  if (!cid) {
+    return {
+      attr: 'id',
+      val: socketID,
+    };
+  }
+
+  return {
+    attr: 'data-phx-component',
+    val: cid,
+  };
 }
