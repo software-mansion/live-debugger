@@ -3,7 +3,8 @@ export default function initElementInspection() {
 
   let inspectMode = false;
 
-  const handleInspect = () => {
+  const handleInspect = (event) => {
+    event.stopPropagation();
     console.log('Inspecting...');
     disableInspectMode();
   };
@@ -14,8 +15,8 @@ export default function initElementInspection() {
     }
 
     inspectMode = false;
-    document.body.style.cursor = 'default';
-    window.removeEventListener('click', handleInspect);
+    document.body.classList.remove('force-cursor-crosshair');
+    document.body.removeEventListener('click', handleInspect);
   };
 
   const enableInspectMode = () => {
@@ -24,8 +25,8 @@ export default function initElementInspection() {
     }
 
     inspectMode = true;
-    document.body.style.cursor = 'crosshair';
-    window.addEventListener('click', handleInspect);
+    document.body.classList.add('force-cursor-crosshair');
+    document.body.addEventListener('click', handleInspect);
     console.log('Inspect mode enabled');
   };
 

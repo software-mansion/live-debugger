@@ -42,3 +42,7 @@
 #live-debugger-debug-tooltip .live-debugger-tooltip-option:hover {
   background-color: #f3f4f6;
 }
+
+.force-cursor-crosshair * {
+  cursor: crosshair !important;
+}
