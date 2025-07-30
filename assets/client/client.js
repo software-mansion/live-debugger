@@ -18,13 +18,13 @@ import {
 window.document.addEventListener('DOMContentLoaded', function () {
   const metaTag = getMetaTag();
   const baseURL = fetchLiveDebuggerBaseURL(metaTag);
-  const sessionId = fetchDebuggedSocketID();
+  const socketID = fetchDebuggedSocketID();
 
-  const sessionURL = `${baseURL}/redirect/${sessionId}`;
+  const sessionURL = `${baseURL}/redirect/${socketID}`;
 
-  if (sessionId) {
+  if (socketID) {
     if (isRefactorEnabled(metaTag)) {
-      const { debugChannel } = initDebugSocket(baseURL, sessionId);
+      const { debugChannel } = initDebugSocket(baseURL, socketID);
 
       debugChannel.on('ping', (resp) => {
         console.log('Received ping', resp);
@@ -40,7 +40,7 @@ window.document.addEventListener('DOMContentLoaded', function () {
       initHighlight();
     }
 
-    initElementInspection();
+    initElementInspection({ socketID });
   }
 
   console.info(`LiveDebugger available at: ${baseURL}`);

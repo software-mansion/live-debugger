@@ -1,11 +1,73 @@
-export default function initElementInspection() {
-  console.log('Init element inspection');
-
+export default function initElementInspection({ socketID }) {
   let inspectMode = false;
+  let lastID = null;
+
+  const handleMove = (event) => {
+    const cid = event.target.closest('[data-phx-component]')?.dataset
+      .phxComponent;
+
+    let attr = null;
+    let val = null;
+
+    if (!cid) {
+      attr = 'id';
+      val = socketID;
+    } else {
+      attr = 'data-phx-component';
+      val = cid;
+    }
+
+    if (val === lastID) {
+      return;
+    }
+
+    lastID = val;
+
+    const highlightEvent = new CustomEvent('live-debugger-inspect-highlight', {
+      detail: {
+        attr,
+        val,
+      },
+    });
+
+    document.dispatchEvent(highlightEvent);
+  };
 
   const handleInspect = (event) => {
     event.stopPropagation();
-    console.log('Inspecting...');
+
+    const cid = event.target.closest('[data-phx-component]')?.dataset
+      .phxComponent;
+
+    let attr = null;
+    let val = null;
+
+    if (!cid) {
+      attr = 'id';
+      val = socketID;
+    } else {
+      attr = 'data-phx-component';
+      val = cid;
+    }
+
+    const highlightEvent = new CustomEvent('live-debugger-inspect-highlight', {
+      detail: {
+        attr,
+        val,
+      },
+    });
+
+    const pulseEvent = new CustomEvent('live-debugger-inspect-pulse', {
+      detail: {
+        attr,
+        val,
+      },
+    });
+
+    document.dispatchEvent(highlightEvent);
+    document.dispatchEvent(pulseEvent);
+    console.log('Inspecting element', attr, val);
+
     disableInspectMode();
   };
 
@@ -17,6 +79,7 @@ export default function initElementInspection() {
     inspectMode = false;
     document.body.classList.remove('force-cursor-crosshair');
     document.body.removeEventListener('click', handleInspect);
+    document.body.removeEventListener('mouseover', handleMove);
   };
 
   const enableInspectMode = () => {
@@ -27,6 +90,7 @@ export default function initElementInspection() {
     inspectMode = true;
     document.body.classList.add('force-cursor-crosshair');
     document.body.addEventListener('click', handleInspect);
+    document.body.addEventListener('mouseover', handleMove);
     console.log('Inspect mode enabled');
   };
 

@@ -125,6 +125,9 @@ function handlePulse({ detail }) {
 }
 
 export default function initHighlight() {
+  document.addEventListener('live-debugger-inspect-highlight', handleHighlight);
+  document.addEventListener('live-debugger-inspect-pulse', handlePulse);
+
   window.addEventListener('phx:highlight', handleHighlight);
   window.addEventListener('resize', handleHighlightResize);
   window.addEventListener('phx:pulse', handlePulse);
