@@ -6,7 +6,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Queries do
   alias LiveDebuggerRefactor.Structs.LvState
   alias LiveDebuggerRefactor.API.LiveViewDebug
   alias LiveDebuggerRefactor.API.StatesStorage
-  alias LiveDebuggerRefactor.App.Utils.Parsers
   alias LiveDebuggerRefactor.App.Debugger.TreeNode
 
   @spec fetch_node_assigns(pid :: pid(), node_id :: TreeNode.id()) ::
@@ -47,7 +46,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Queries do
     |> Enum.find(fn component -> component.cid == cid end)
     |> case do
       nil ->
-        {:error, "Component with CID #{Parsers.cid_to_string(cid)} not found"}
+        {:error, "Component with CID #{cid} not found"}
 
       component ->
         {:ok, %{node_assigns: component.assigns}}

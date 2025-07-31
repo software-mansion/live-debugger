@@ -24,6 +24,16 @@ defmodule LiveDebuggerRefactor.App.Utils.ParsersTest do
     assert Parsers.cid_to_string(cid) == "123"
   end
 
+  describe "string_to_cid/1" do
+    test "converts string to cid" do
+      assert {:ok, %Phoenix.LiveComponent.CID{cid: 123}} = Parsers.string_to_cid("123")
+    end
+
+    test "returns :error for invalid string" do
+      assert Parsers.string_to_cid("invalid") == :error
+    end
+  end
+
   test "module_to_string/1 converts module to string" do
     assert Parsers.module_to_string(LiveDebuggerTest.TestView) == "LiveDebuggerTest.TestView"
   end
