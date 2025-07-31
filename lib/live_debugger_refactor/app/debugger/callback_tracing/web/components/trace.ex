@@ -60,13 +60,14 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace
   @doc """
   Module of the trace.
   """
+  attr(:id, :string, required: true)
   attr(:trace, Trace, required: true)
   attr(:class, :string, default: "")
 
   def module(assigns) do
     ~H"""
     <div class={["text-primary text-2xs font-normal truncate", @class]}>
-      <.tooltip id={"#{@trace.id}-trace-module"} content="See in Node Inspector" class="w-max">
+      <.tooltip id={"#{@id}-trace-module"} content="See in Node Inspector" class="w-max">
         <.link
           class="block hover:underline"
           patch={RoutesHelper.debugger_node_inspector(@trace.pid, @trace.cid)}
@@ -95,24 +96,21 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace
   @doc """
   Timestamp and execution time of the trace.
   """
+  attr(:id, :string, required: true)
   attr(:trace_display, TraceDisplay, required: true)
 
   def trace_time_info(assigns) do
     ~H"""
     <div class="flex text-xs font-normal text-secondary-text align-center">
-      <.tooltip id={@trace_display.id <> "-timestamp-tooltip"} content="timestamp" class="min-w-24">
+      <.tooltip id={@id <> "-timestamp-tooltip"} content="timestamp" class="min-w-24">
         <%= Parsers.parse_timestamp(@trace_display.trace.timestamp) %>
       </.tooltip>
       <span class="mx-2 border-r border-default-border"></span>
-      <.tooltip
-        id={@trace_display.id <> "-exec-time-tooltip"}
-        content="execution time"
-        class="min-w-11"
-      >
+      <.tooltip id={@id <> "-exec-time-tooltip"} content="execution time" class="min-w-11">
         <span
-          id={@trace_display.id <> "-exec-time"}
+          id={@id <> "-exec-time"}
           class={["text-nowrap", get_threshold_class(@trace_display.trace.execution_time)]}
-          phx-hook={if @trace_display.from_tracing?, do: "TraceExecutionTime"}
+          phx-hook={if @trace_display.from_event?, do: "TraceExecutionTime"}
         >
           <%= Parsers.parse_elapsed_time(@trace_display.trace.execution_time) %>
         </span>
