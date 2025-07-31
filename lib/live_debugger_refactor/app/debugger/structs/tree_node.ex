@@ -29,6 +29,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.Structs.TreeNode do
           children: [t()]
         }
 
+  defmodule Guards do
+    defguard is_node_id(id) when is_pid(id) or is_struct(id, Phoenix.LiveComponent.CID)
+  end
+
   @doc """
   Uses Parsers to convert the `id` field to the appropriate string representation.
   """
@@ -50,4 +54,11 @@ defmodule LiveDebuggerRefactor.App.Debugger.Structs.TreeNode do
       Parsers.string_to_cid(id)
     end
   end
+
+  @doc """
+  Returns the type of the node based on the id.
+  """
+  @spec type(id()) :: type()
+  def type(id) when is_pid(id), do: :live_view
+  def type(%Phoenix.LiveComponent.CID{}), do: :live_component
 end
