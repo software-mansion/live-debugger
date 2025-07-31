@@ -7,10 +7,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   use LiveDebuggerRefactor.App.Web, :live_view
 
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebuggerRefactor.App.Debugger.Web.Helpers.NestedLiveView, as: NestedLiveViewHelper
-  alias LiveDebuggerRefactor.App.Debugger.Web.Components.ElixirDisplay
-  alias LiveDebuggerRefactor.App.Utils.TermParser
   alias LiveDebuggerRefactor.Structs.LvProcess
+  alias LiveDebuggerRefactor.App.Debugger.Web.Helpers.NestedLiveView, as: NestedLiveViewHelper
+  alias LiveDebuggerRefactor.App.Debugger.NodeState.Web.Components, as: NodeStateComponents
   alias LiveDebuggerRefactor.App.Debugger.NodeState.Queries, as: NodeStateQueries
 
   alias LiveDebuggerRefactor.Bus
@@ -73,47 +72,18 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
     <div class="flex-1 max-w-full flex flex-col gap-4">
       <.async_result :let={node_assigns} assign={@node_assigns}>
         <:loading>
-          <div class="w-full flex items-center justify-center">
-            <.spinner size="sm" />
-          </div>
+          <NodeStateComponents.loading />
         </:loading>
         <:failed>
-          <.alert class="w-full" with_icon heading="Error while fetching node state">
-            Check logs for more
-          </.alert>
+          <NodeStateComponents.failed />
         </:failed>
 
-        <.assigns_section assigns={node_assigns} />
-        <.fullscreen id="assigns-display-fullscreen" title="Assigns">
-          <ElixirDisplay.term
-            id="assigns-display-fullscreen-term"
-            node={TermParser.term_to_display_tree(node_assigns)}
-          />
-        </.fullscreen>
+        <NodeStateComponents.assigns_section
+          assigns={node_assigns}
+          fullscreen_id="assigns-display-fullscreen"
+        />
       </.async_result>
     </div>
-    """
-  end
-
-  attr(:assigns, :list, required: true)
-
-  defp assigns_section(assigns) do
-    ~H"""
-    <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
-      <:right_panel>
-        <div class="flex gap-2">
-          <.copy_button
-            id="assigns"
-            variant="icon-button"
-            value={TermParser.term_to_copy_string(@assigns)}
-          />
-          <.fullscreen_button id="assigns-display-fullscreen" />
-        </div>
-      </:right_panel>
-      <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
-        <ElixirDisplay.term id="assigns-display" node={TermParser.term_to_display_tree(@assigns)} />
-      </div>
-    </.section>
     """
   end
 
