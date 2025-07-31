@@ -14,6 +14,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   alias LiveDebuggerRefactor.App.Debugger.NodeState.Queries, as: NodeStateQueries
 
   alias LiveDebuggerRefactor.Bus
+  alias LiveDebuggerRefactor.App.Events.ParamsChanged
+  alias LiveDebuggerRefactor.Services.StateManager.Events.StateChanged
 
   @doc """
   Renders the `NodeStateLive` as a nested LiveView component.
@@ -51,6 +53,12 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   @impl true
   def mount(_params, session, socket) do
     lv_process = session["lv_process"]
+    parent_pid = session["parent_pid"]
+
+    if connected?(socket) do
+      Bus.receive_events!(parent_pid)
+      Bus.receive_states!(lv_process.pid)
+    end
 
     socket
     |> assign(:lv_process, lv_process)
@@ -107,6 +115,21 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
       </div>
     </.section>
     """
+  end
+
+  @impl true
+  def handle_info(%ParamsChanged{params: params}, socket) do
+    socket
+    |> NestedLiveViewHelper.assign_node_id(params)
+    |> assign_async_node_assigns()
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info(%StateChanged{}, socket) do
+    socket
+    |> assign_async_node_assigns()
+    |> noreply()
   end
 
   defp assign_async_node_assigns(
