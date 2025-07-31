@@ -6,7 +6,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace
   use LiveDebuggerRefactor.App.Web, :component
 
   alias LiveDebuggerRefactor.App.Debugger.Web.Components.ElixirDisplay
-  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.TraceDisplay
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebuggerRefactor.App.Utils.Parsers
   alias LiveDebuggerRefactor.App.Utils.TermParser

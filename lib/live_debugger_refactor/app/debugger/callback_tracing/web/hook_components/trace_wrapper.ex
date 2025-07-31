@@ -19,7 +19,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
 
   use LiveDebuggerRefactor.App.Web, :hook_component
 
-  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.TraceDisplay
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay
 
   @impl true
   def init(socket) do

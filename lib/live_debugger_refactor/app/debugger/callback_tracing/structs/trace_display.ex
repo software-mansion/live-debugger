@@ -1,4 +1,4 @@
-defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.TraceDisplay do
+defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   @moduledoc """
   Wrapper for trace to display it in the UI.
 
