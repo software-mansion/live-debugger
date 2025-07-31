@@ -31,15 +31,15 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.Actions do
     new_state
   end
 
-  @spec register_live_view_born!(ProcessMonitor.state(), pid()) :: ProcessMonitor.state()
-  def register_live_view_born!(state, pid) do
+  @spec register_live_view_born!(ProcessMonitor.state(), pid(), pid()) :: ProcessMonitor.state()
+  def register_live_view_born!(state, pid, transport_pid) do
     Process.monitor(pid)
 
     {:ok, components} = LiveViewDebug.live_components(pid)
     node_ids = Enum.map(components, &%Phoenix.LiveComponent.CID{cid: &1.cid})
     new_state = Map.put(state, pid, MapSet.new(node_ids))
 
-    Bus.broadcast_event!(%LiveViewBorn{pid: pid})
+    Bus.broadcast_event!(%LiveViewBorn{pid: pid, transport_pid: transport_pid})
 
     new_state
   end

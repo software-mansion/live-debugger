@@ -14,7 +14,8 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
     module: module(),
     function: atom(),
     pid: pid(),
-    cid: CommonTypes.cid() | nil
+    cid: CommonTypes.cid() | nil,
+    transport_pid: pid()
   )
 
   defevent(TraceReturned,
@@ -23,7 +24,8 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
     module: module(),
     function: atom(),
     pid: pid(),
-    cid: CommonTypes.cid() | nil
+    cid: CommonTypes.cid() | nil,
+    transport_pid: pid()
   )
 
   defevent(TraceErrored,
@@ -32,6 +34,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
     module: module(),
     function: atom(),
     pid: pid(),
-    cid: CommonTypes.cid() | nil
+    cid: CommonTypes.cid() | nil,
+    transport_pid: pid()
   )
 end

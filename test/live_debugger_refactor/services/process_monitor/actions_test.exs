@@ -42,6 +42,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.ActionsTest do
 
   test "register_live_view_born/2" do
     pid = self()
+    transport_pid = :c.pid(0, 12, 0)
     state = %{}
 
     MockBus
@@ -50,7 +51,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.ActionsTest do
     MockAPILiveViewDebug
     |> expect(:live_components, fn ^pid -> {:ok, [%{cid: 1}, %{cid: 2}]} end)
 
-    new_state = ProcessMonitorActions.register_live_view_born!(state, pid)
+    new_state = ProcessMonitorActions.register_live_view_born!(state, pid, transport_pid)
 
     assert new_state == %{
              pid =>

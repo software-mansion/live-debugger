@@ -8,12 +8,21 @@ defmodule LiveDebuggerRefactor.App.Discovery.Web.DiscoveryLive do
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebuggerRefactor.App.Discovery.Web.Components, as: DiscoveryComponents
   alias LiveDebuggerRefactor.App.Web.Components.Navbar, as: NavbarComponents
+  alias LiveDebuggerRefactor.App.Discovery.Queries, as: DiscoveryQueries
+
+  alias LiveDebuggerRefactor.Bus
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewBorn
 
   @impl true
-  def handle_params(_unsigned_params, _uri, socket) do
+  def mount(_params, _session, socket) do
+    if connected?(socket) do
+      Bus.receive_events!()
+    end
+
     socket
-    |> assign(:grouped_lv_processes, AsyncResult.ok(%{}))
-    |> noreply()
+    |> assign_async(:grouped_lv_processes, &DiscoveryQueries.fetch_grouped_lv_processes/0)
+    |> ok()
   end
 
   @impl true
@@ -42,7 +51,28 @@ defmodule LiveDebuggerRefactor.App.Discovery.Web.DiscoveryLive do
   @impl true
   def handle_event("refresh", _params, socket) do
     socket
-    |> push_flash("Not implemented yet")
+    |> reassign_async_grouped_lv_processes()
     |> noreply()
+  end
+
+  @impl true
+  def handle_info(%LiveViewBorn{}, socket) do
+    socket
+    |> reassign_async_grouped_lv_processes()
+    |> noreply()
+  end
+
+  def handle_info(%LiveViewDied{}, socket) do
+    socket
+    |> reassign_async_grouped_lv_processes()
+    |> noreply()
+  end
+
+  def handle_info(_, socket), do: noreply(socket)
+
+  defp reassign_async_grouped_lv_processes(socket) do
+    socket
+    |> assign(grouped_lv_processes: AsyncResult.loading())
+    |> assign_async(:grouped_lv_processes, &DiscoveryQueries.fetch_grouped_lv_processes/0)
   end
 end
