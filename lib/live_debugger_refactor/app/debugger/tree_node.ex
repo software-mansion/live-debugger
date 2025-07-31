@@ -40,4 +40,14 @@ defmodule LiveDebuggerRefactor.App.Debugger.TreeNode do
   def parse_id(%__MODULE__{type: :live_component, id: cid}) do
     Parsers.cid_to_string(cid)
   end
+
+  @doc """
+  Parses ID from string to PID or CID.
+  """
+  @spec id_from_string(id :: String.t()) :: {:ok, id()} | :error
+  def id_from_string(id) when is_binary(id) do
+    with :error <- Parsers.string_to_pid(id) do
+      Parsers.string_to_cid(id)
+    end
+  end
 end
