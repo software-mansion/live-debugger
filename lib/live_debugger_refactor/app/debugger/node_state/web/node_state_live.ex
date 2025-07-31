@@ -8,7 +8,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
 
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebuggerRefactor.Structs.LvProcess
-  alias LiveDebuggerRefactor.App.Debugger.Web.Helpers.NestedLiveView, as: NestedLiveViewHelper
+  alias LiveDebuggerRefactor.App.Debugger.Web.Assigns.NestedLiveView, as: NestedLiveViewAssigns
   alias LiveDebuggerRefactor.App.Debugger.NodeState.Web.Components, as: NodeStateComponents
   alias LiveDebuggerRefactor.App.Debugger.NodeState.Queries, as: NodeStateQueries
 
@@ -61,7 +61,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
 
     socket
     |> assign(:lv_process, lv_process)
-    |> NestedLiveViewHelper.assign_node_id(session)
+    |> NestedLiveViewAssigns.assign_node_id(session)
     |> assign_async_node_assigns()
     |> ok()
   end
@@ -90,7 +90,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   @impl true
   def handle_info(%ParamsChanged{params: params}, socket) do
     socket
-    |> NestedLiveViewHelper.assign_node_id(params)
+    |> NestedLiveViewAssigns.assign_node_id(params)
     |> assign_async_node_assigns()
     |> noreply()
   end

@@ -1,6 +1,6 @@
-defmodule LiveDebuggerRefactor.App.Debugger.Web.Helpers.NestedLiveView do
+defmodule LiveDebuggerRefactor.App.Debugger.Web.Assigns.NestedLiveView do
   @moduledoc """
-  This module contains helper functions for nested live views.
+  This module contains helper assigns functions for nested LiveViews.
   """
 
   import Phoenix.LiveView
