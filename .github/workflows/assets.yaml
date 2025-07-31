@@ -37,12 +37,19 @@ jobs:
       - name: Install Dependencies
         run: mix deps.get
 
-      - name: Cache npm dependencies
+      - name: Cache app npm dependencies
         uses: actions/cache@v4
         with:
-          path: ./assets/node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}
-          restore-keys: ${{ runner.os }}-npm-
+          path: ./assets/app/node_modules
+          key: ${{ runner.os }}-npm-app-${{ hashFiles('assets/app/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-app-
+
+      - name: Cache client npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ./assets/client/node_modules
+          key: ${{ runner.os }}-npm-client-${{ hashFiles('assets/client/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-npm-client-
 
       - name: Install npm dependencies in app
         working-directory: ./assets/app
