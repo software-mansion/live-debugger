@@ -39,6 +39,11 @@ export default function initElementInspection({ socketID, sessionURL }) {
     }
 
     inspectMode = false;
+
+    document
+      .getElementById('live-debugger-debug-button')
+      .classList.remove('live-debugger-inspect-mode');
+
     document.body.classList.remove('force-cursor-crosshair');
     document.body.removeEventListener('click', handleInspect);
     document.body.removeEventListener('mouseover', handleMove);
@@ -50,6 +55,11 @@ export default function initElementInspection({ socketID, sessionURL }) {
     }
 
     inspectMode = true;
+
+    document
+      .getElementById('live-debugger-debug-button')
+      .classList.add('live-debugger-inspect-mode');
+
     document.body.classList.add('force-cursor-crosshair');
     document.body.addEventListener('click', handleInspect);
     document.body.addEventListener('mouseover', handleMove);
