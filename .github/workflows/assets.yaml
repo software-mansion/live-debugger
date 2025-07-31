@@ -41,8 +41,12 @@ jobs:
           key: ${{ runner.os }}-npm-${{ hashFiles('assets/package-lock.json') }}
           restore-keys: ${{ runner.os }}-npm-
 
-      - name: Install npm dependencies
-        working-directory: ./assets
+      - name: Install npm dependencies in app
+        working-directory: ./assets/app
+        run: npm install
+
+      - name: Install npm dependencies in client
+        working-directory: ./assets/client
         run: npm install
 
       - name: Setup assets
