@@ -32,6 +32,14 @@ function createHighlightElement(activeElement, detail, id) {
   return highlight;
 }
 
+function removeHighlightElement() {
+  const highlightElement = document.getElementById(highlightElementID);
+
+  if (highlightElement) {
+    highlightElement.remove();
+  }
+}
+
 function handleHighlight({ detail }) {
   let highlightElement = document.getElementById(highlightElementID);
 
@@ -127,6 +135,7 @@ function handlePulse({ detail }) {
 export default function initHighlight() {
   document.addEventListener('lvdbg:inspect-highlight', handleHighlight);
   document.addEventListener('lvdbg:inspect-pulse', handlePulse);
+  document.addEventListener('lvdbg:inspect-clear', removeHighlightElement);
 
   window.addEventListener('phx:highlight', handleHighlight);
   window.addEventListener('resize', handleHighlightResize);

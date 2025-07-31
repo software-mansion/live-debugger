@@ -25,12 +25,22 @@ export default function initElementInspection({ socketID, sessionURL }) {
 
     const detail = getHighlightDetail(cid, socketID);
 
-    pushHighlightEvent(detail);
     pushPulseEvent(detail);
 
     window.open(sessionURL + (cid ? `?node_id=${detail.val}` : ''), '_blank');
 
     disableInspectMode();
+  };
+
+  const handleRightClick = (event) => {
+    event.preventDefault();
+    disableInspectMode();
+  };
+
+  const handleEscape = (event) => {
+    if (event.key === 'Escape') {
+      disableInspectMode();
+    }
   };
 
   const disableInspectMode = () => {
@@ -44,9 +54,13 @@ export default function initElementInspection({ socketID, sessionURL }) {
       .getElementById('live-debugger-debug-button')
       .classList.remove('live-debugger-inspect-mode');
 
+    pushClearEvent();
+
     document.body.classList.remove('force-cursor-crosshair');
     document.body.removeEventListener('click', handleInspect);
     document.body.removeEventListener('mouseover', handleMove);
+    document.body.removeEventListener('contextmenu', handleRightClick);
+    document.removeEventListener('keydown', handleEscape);
   };
 
   const enableInspectMode = () => {
@@ -63,6 +77,8 @@ export default function initElementInspection({ socketID, sessionURL }) {
     document.body.classList.add('force-cursor-crosshair');
     document.body.addEventListener('click', handleInspect);
     document.body.addEventListener('mouseover', handleMove);
+    document.body.addEventListener('contextmenu', handleRightClick);
+    document.addEventListener('keydown', handleEscape);
   };
 
   document.addEventListener('lvdbg:inspect-button-click', (event) => {
@@ -98,4 +114,10 @@ function getHighlightDetail(cid, socketID) {
     attr: 'data-phx-component',
     val: cid,
   };
+}
+
+function pushClearEvent() {
+  const clearEvent = new CustomEvent('lvdbg:inspect-clear');
+
+  document.dispatchEvent(clearEvent);
 }
