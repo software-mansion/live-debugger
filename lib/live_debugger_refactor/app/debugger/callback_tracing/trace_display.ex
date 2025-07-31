@@ -2,7 +2,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.TraceDisplay do
   @moduledoc """
   Wrapper for trace to display it in the UI.
 
-  * `id` - id of the trace
   * `trace` - trace to display
   * `from_event?` - whether the trace comes from an event
   * `render_body?` - whether to render the body of the trace
@@ -10,10 +9,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.TraceDisplay do
 
   alias LiveDebuggerRefactor.Structs.Trace
 
-  defstruct [:id, :trace, :from_event?, :counter, render_body?: false]
+  defstruct [:trace, :from_event?, :counter, render_body?: false]
 
   @type t() :: %__MODULE__{
-          id: integer(),
           trace: Trace.t(),
           from_event?: boolean(),
           render_body?: boolean()
@@ -21,7 +19,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.TraceDisplay do
 
   @spec from_trace(Trace.t(), from_event? :: boolean()) :: t()
   def from_trace(%Trace{} = trace, from_event? \\ false) do
-    %__MODULE__{id: trace.id, trace: trace, from_event?: from_event?}
+    %__MODULE__{trace: trace, from_event?: from_event?}
   end
 
   @spec render_body(t()) :: t()
