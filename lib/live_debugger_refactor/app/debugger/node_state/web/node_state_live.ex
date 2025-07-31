@@ -95,12 +95,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
     |> noreply()
   end
 
-  @impl true
   def handle_info(%StateChanged{}, socket) do
     socket
     |> assign_async_node_assigns()
     |> noreply()
   end
+
+  def handle_info(_, socket), do: {:noreply, socket}
 
   defp assign_async_node_assigns(
          %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket
