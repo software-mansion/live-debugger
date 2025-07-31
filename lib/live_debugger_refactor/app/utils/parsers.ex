@@ -40,6 +40,25 @@ defmodule LiveDebuggerRefactor.App.Utils.Parsers do
     Integer.to_string(cid)
   end
 
+  @doc """
+  Converts CID string representation (e.g. `"14"`) to valid `Phoenix.LiveComponent.CID` struct.
+
+  ## Examples
+
+      iex> LiveDebuggerRefactor.App.Utils.Parsers.string_to_cid("14")
+      {:ok, %Phoenix.LiveComponent.CID{cid: 14}}
+
+      iex> LiveDebuggerRefactor.App.Utils.Parsers.string_to_cid("invalid")
+      :error
+  """
+  @spec string_to_cid(string :: String.t()) :: {:ok, struct()} | :error
+  def string_to_cid(string) when is_binary(string) do
+    case Integer.parse(string) do
+      {cid, ""} -> {:ok, %Phoenix.LiveComponent.CID{cid: cid}}
+      _ -> :error
+    end
+  end
+
   @spec module_to_string(module :: module()) :: String.t()
   def module_to_string(module) do
     module
