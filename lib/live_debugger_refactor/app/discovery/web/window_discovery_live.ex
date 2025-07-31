@@ -8,7 +8,6 @@ defmodule LiveDebuggerRefactor.App.Discovery.Web.WindowDiscoveryLive do
 
   use LiveDebuggerRefactor.App.Web, :live_view
 
-  alias Phoenix.LiveView.AsyncResult
   alias LiveDebuggerRefactor.Structs.LvProcess
   alias LiveDebuggerRefactor.App.Utils.Parsers
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
@@ -71,7 +70,7 @@ defmodule LiveDebuggerRefactor.App.Discovery.Web.WindowDiscoveryLive do
   @impl true
   def handle_event("refresh", _params, socket) do
     socket
-    |> reassign_async_grouped_lv_processes()
+    |> assign_async_grouped_lv_processes()
     |> noreply()
   end
 
@@ -79,33 +78,29 @@ defmodule LiveDebuggerRefactor.App.Discovery.Web.WindowDiscoveryLive do
   def handle_info(%LiveViewBorn{transport_pid: transport_pid}, socket)
       when transport_pid == socket.assigns.transport_pid do
     socket
-    |> reassign_async_grouped_lv_processes()
+    |> assign_async_grouped_lv_processes()
     |> noreply()
   end
 
   def handle_info(%LiveViewDied{pid: pid}, socket) do
     with {:ok, group} <- get_lv_processes_group(socket),
          true <- in_group?(group, pid) do
-      reassign_async_grouped_lv_processes(socket)
+      assign_async_grouped_lv_processes(socket)
     else
       _ -> socket
     end
     |> noreply()
   end
 
-  def handle_info(_, socket), do: noreply(socket)
-
-  defp reassign_async_grouped_lv_processes(socket) do
-    socket
-    |> assign(grouped_lv_processes: AsyncResult.loading())
-    |> assign_async_grouped_lv_processes()
-  end
+  def handle_info(_, socket), do: {:noreply, socket}
 
   defp assign_async_grouped_lv_processes(%{assigns: %{transport_pid: transport_pid}} = socket) do
-    socket
-    |> assign_async(:grouped_lv_processes, fn ->
-      DiscoveryQueries.fetch_grouped_lv_processes(transport_pid)
-    end)
+    assign_async(
+      socket,
+      :grouped_lv_processes,
+      fn -> DiscoveryQueries.fetch_grouped_lv_processes(transport_pid) end,
+      reset: true
+    )
   end
 
   defp get_lv_processes_group(socket) do
