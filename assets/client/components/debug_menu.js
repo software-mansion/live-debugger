@@ -14,7 +14,7 @@ export default function initDebugMenu(liveDebuggerURL) {
       !debugButton.contains(event.target) &&
       !debugMenu.contains(event.target)
     ) {
-      const event = new CustomEvent('live-debugger-debug-menu-click-outside');
+      const event = new CustomEvent('lvdbg:click-outside-debug-menu');
       document.dispatchEvent(event);
     }
   });

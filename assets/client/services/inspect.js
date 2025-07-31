@@ -53,16 +53,15 @@ export default function initElementInspection({ socketID, sessionURL }) {
     document.body.classList.add('force-cursor-crosshair');
     document.body.addEventListener('click', handleInspect);
     document.body.addEventListener('mouseover', handleMove);
-    console.log('Inspect mode enabled');
   };
 
-  document.addEventListener('live-debugger-debug-button-inspect', (event) => {
+  document.addEventListener('lvdbg:inspect-button-click', (event) => {
     setTimeout(enableInspectMode);
   });
 }
 
 function pushHighlightEvent(detail) {
-  const highlightEvent = new CustomEvent('live-debugger-inspect-highlight', {
+  const highlightEvent = new CustomEvent('lvdbg:inspect-highlight', {
     detail,
   });
 
@@ -70,7 +69,7 @@ function pushHighlightEvent(detail) {
 }
 
 function pushPulseEvent(detail) {
-  const pulseEvent = new CustomEvent('live-debugger-inspect-pulse', {
+  const pulseEvent = new CustomEvent('lvdbg:inspect-pulse', {
     detail,
   });
 

@@ -125,8 +125,8 @@ function handlePulse({ detail }) {
 }
 
 export default function initHighlight() {
-  document.addEventListener('live-debugger-inspect-highlight', handleHighlight);
-  document.addEventListener('live-debugger-inspect-pulse', handlePulse);
+  document.addEventListener('lvdbg:inspect-highlight', handleHighlight);
+  document.addEventListener('lvdbg:inspect-pulse', handlePulse);
 
   window.addEventListener('phx:highlight', handleHighlight);
   window.addEventListener('resize', handleHighlightResize);

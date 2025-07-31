@@ -10,7 +10,7 @@ export default function initDebugButton() {
     if (isDragging) {
       placeButton();
     } else {
-      const event = new CustomEvent('live-debugger-debug-button-click', {
+      const event = new CustomEvent('lvdbg:debug-button-click', {
         detail: {
           buttonRect: debugButton.getBoundingClientRect(),
         },
@@ -72,7 +72,7 @@ export default function initDebugButton() {
   };
 
   debugButton.addEventListener('click', onClick);
-  document.addEventListener('live-debugger-debug-button-move', dragButton);
+  document.addEventListener('lvdbg:move-button-click', dragButton);
   window.addEventListener('resize', () => ensureButtonInViewport());
 
   return debugButton;

@@ -48,7 +48,7 @@ export default function initDebugOptions({ liveDebuggerURL }) {
   };
 
   const onMoveButtonClick = () => {
-    const event = new CustomEvent('live-debugger-debug-button-move');
+    const event = new CustomEvent('lvdbg:move-button-click');
     document.dispatchEvent(event);
     hideDebugOptions();
   };
@@ -59,7 +59,7 @@ export default function initDebugOptions({ liveDebuggerURL }) {
   };
 
   const onInspectButtonClick = () => {
-    const event = new CustomEvent('live-debugger-debug-button-inspect');
+    const event = new CustomEvent('lvdbg:inspect-button-click');
     document.dispatchEvent(event);
     hideDebugOptions();
   };
@@ -76,15 +76,9 @@ export default function initDebugOptions({ liveDebuggerURL }) {
     .querySelector('#live-debugger-debug-tooltip-move-button')
     .addEventListener('click', onMoveButtonClick);
 
-  document.addEventListener(
-    'live-debugger-debug-button-click',
-    onDebugButtonClick
-  );
+  document.addEventListener('lvdbg:debug-button-click', onDebugButtonClick);
 
-  document.addEventListener(
-    'live-debugger-debug-menu-click-outside',
-    hideDebugOptions
-  );
+  document.addEventListener('lvdbg:click-outside-debug-menu', hideDebugOptions);
 
   window.addEventListener('resize', () => {
     if (isVisible) {
