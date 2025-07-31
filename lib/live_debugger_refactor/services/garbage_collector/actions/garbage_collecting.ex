@@ -28,12 +28,12 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
     end)
   end
 
-  @spec garbage_collect_states!(MapSet.t(pid())) :: boolean()
-  def garbage_collect_states!(watched_pids) do
+  @spec garbage_collect_states!(MapSet.t(pid()), MapSet.t(pid())) :: boolean()
+  def garbage_collect_states!(watched_pids, alive_pids) do
     StatesStorage.get_all_states()
     |> Enum.reduce(false, fn {pid, _}, acc ->
       result =
-        if MapSet.member?(watched_pids, pid) do
+        if MapSet.member?(watched_pids, pid) or MapSet.member?(alive_pids, pid) do
           false
         else
           delete_state!(pid)
