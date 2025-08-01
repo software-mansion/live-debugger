@@ -5,7 +5,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.Web.NestedLiveVi
 
   use LiveDebuggerRefactor.App.Web, :live_view
 
-  alias Phoenix.LiveView.AsyncResult
   alias LiveDebuggerRefactor.Structs.LvProcess
   alias LiveDebuggerRefactor.API.LiveViewDiscovery
   alias LiveDebuggerRefactor.App.Debugger.Web.Components, as: DebuggerComponents
@@ -89,13 +88,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.Web.NestedLiveVi
   @impl true
   def handle_info(%LiveViewBorn{pid: pid}, socket) do
     if NestedLiveViewLinksQueries.child_lv_process?(socket.assigns.lv_process.pid, pid) do
-      new_lv_process = LvProcess.new(pid)
-
-      new_nested_lv_processes =
-        socket.assigns.nested_lv_processes.result ++ [new_lv_process]
-
-      socket
-      |> assign(nested_lv_processes: AsyncResult.ok(new_nested_lv_processes))
+      assign_async_nested_lv_processes(socket)
     else
       socket
     end
@@ -103,11 +96,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.Web.NestedLiveVi
   end
 
   def handle_info(%LiveViewDied{pid: pid}, socket) do
-    known_child_lv_process? =
-      socket.assigns.nested_lv_processes.result
-      |> Enum.any?(fn %LvProcess{pid: nested_pid} -> nested_pid == pid end)
-
-    if known_child_lv_process? do
+    if known_child_lv_process?(socket, pid) do
       assign_async_nested_lv_processes(socket)
     else
       socket
@@ -123,5 +112,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.Web.NestedLiveVi
       :nested_lv_processes,
       fn -> {:ok, %{nested_lv_processes: LiveViewDiscovery.children_lv_processes(pid)}} end
     )
+  end
+
+  defp known_child_lv_process?(socket, pid) do
+    socket.assigns.nested_lv_processes.result
+    |> Enum.any?(fn %LvProcess{pid: nested_pid} -> nested_pid == pid end)
   end
 end
