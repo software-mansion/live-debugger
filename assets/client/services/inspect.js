@@ -18,6 +18,7 @@ export default function initElementInspection({ socketID, sessionURL }) {
   };
 
   const handleInspect = (event) => {
+    event.preventDefault();
     event.stopPropagation();
 
     const cid = event.target.closest('[data-phx-component]')?.dataset
@@ -57,7 +58,7 @@ export default function initElementInspection({ socketID, sessionURL }) {
 
     pushClearEvent();
 
-    document.body.classList.remove('force-cursor-crosshair');
+    document.body.classList.remove('live-debugger-inspect-mode');
     document.body.removeEventListener('click', handleInspect);
     document.body.removeEventListener('mouseover', handleMove);
     document.removeEventListener('contextmenu', handleRightClick);
@@ -75,7 +76,7 @@ export default function initElementInspection({ socketID, sessionURL }) {
       .getElementById('live-debugger-debug-button')
       .classList.add('live-debugger-inspect-mode');
 
-    document.body.classList.add('force-cursor-crosshair');
+    document.body.classList.add('live-debugger-inspect-mode');
     document.body.addEventListener('click', handleInspect);
     document.body.addEventListener('mouseover', handleMove);
     document.addEventListener('contextmenu', handleRightClick);

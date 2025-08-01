@@ -60,6 +60,7 @@
   background-color: #f3f4f6;
 }
 
-.force-cursor-crosshair * {
+.live-debugger-inspect-mode * {
   cursor: crosshair !important;
+  pointer-events: auto !important;
 }
