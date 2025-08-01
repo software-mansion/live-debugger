@@ -49,6 +49,7 @@ export default function initElementInspection({ socketID, sessionURL }) {
     }
 
     inspectMode = false;
+    lastID = null;
 
     document
       .getElementById('live-debugger-debug-button')
@@ -59,7 +60,7 @@ export default function initElementInspection({ socketID, sessionURL }) {
     document.body.classList.remove('force-cursor-crosshair');
     document.body.removeEventListener('click', handleInspect);
     document.body.removeEventListener('mouseover', handleMove);
-    document.body.removeEventListener('contextmenu', handleRightClick);
+    document.removeEventListener('contextmenu', handleRightClick);
     document.removeEventListener('keydown', handleEscape);
   };
 
@@ -77,7 +78,7 @@ export default function initElementInspection({ socketID, sessionURL }) {
     document.body.classList.add('force-cursor-crosshair');
     document.body.addEventListener('click', handleInspect);
     document.body.addEventListener('mouseover', handleMove);
-    document.body.addEventListener('contextmenu', handleRightClick);
+    document.addEventListener('contextmenu', handleRightClick);
     document.addEventListener('keydown', handleEscape);
   };
 
