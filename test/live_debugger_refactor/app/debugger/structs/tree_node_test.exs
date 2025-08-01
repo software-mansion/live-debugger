@@ -21,4 +21,18 @@ defmodule LiveDebuggerRefactor.App.Debugger.Structs.TreeNodeTest do
       assert "2" == TreeNode.parse_id(tree_node)
     end
   end
+
+  describe "id_from_string/1" do
+    test "parses PID from string" do
+      assert {:ok, :c.pid(0, 1, 0)} == TreeNode.id_from_string("0.1.0")
+    end
+
+    test "parses CID from string" do
+      assert {:ok, %Phoenix.LiveComponent.CID{cid: 2}} == TreeNode.id_from_string("2")
+    end
+
+    test "returns :error for invalid string" do
+      assert :error == TreeNode.id_from_string("invalid")
+    end
+  end
 end

@@ -32,7 +32,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.GarbageColle
     alive_pids = TableWatcher.alive_pids()
 
     traces_collected = GarbageCollectingActions.garbage_collect_traces!(watched_pids, alive_pids)
-    states_collected = GarbageCollectingActions.garbage_collect_states!(watched_pids)
+    states_collected = GarbageCollectingActions.garbage_collect_states!(watched_pids, alive_pids)
 
     if traces_collected or states_collected do
       Bus.broadcast_event!(%GarbageCollected{})

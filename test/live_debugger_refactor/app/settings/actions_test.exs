@@ -9,6 +9,8 @@ defmodule LiveDebuggerRefactor.App.Settings.ActionsTest do
   alias LiveDebuggerRefactor.MockBus
   alias LiveDebuggerRefactor.App.Events.UserChangedSettings
 
+  setup :verify_on_exit!
+
   describe "update_settings!/3" do
     test "successfully updates settings" do
       settings = %{dead_view_mode: false, another_setting: true}
