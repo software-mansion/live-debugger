@@ -58,6 +58,16 @@ else
     LiveDebuggerRefactor.MockAPILiveViewDebug
   )
 
+  Mox.defmock(LiveDebuggerRefactor.MockAPILiveViewDiscovery,
+    for: LiveDebuggerRefactor.API.LiveViewDiscovery
+  )
+
+  Application.put_env(
+    :live_debugger,
+    :api_live_view_discovery,
+    LiveDebuggerRefactor.MockAPILiveViewDiscovery
+  )
+
   Mox.defmock(LiveDebuggerRefactor.MockAPISettingsStorage,
     for: LiveDebuggerRefactor.API.SettingsStorage
   )

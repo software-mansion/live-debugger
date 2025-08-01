@@ -7,7 +7,7 @@ defmodule LiveDebuggerRefactor.Services.ProcessMonitor.Events do
 
   alias LiveDebuggerRefactor.CommonTypes
 
-  defevent(LiveViewBorn, pid: pid())
+  defevent(LiveViewBorn, pid: pid(), transport_pid: pid())
   defevent(LiveViewDied, pid: pid())
   defevent(LiveComponentCreated, pid: pid(), cid: CommonTypes.cid())
   defevent(LiveComponentDeleted, pid: pid(), cid: CommonTypes.cid())
