@@ -62,5 +62,4 @@
 
 .live-debugger-inspect-mode * {
   cursor: crosshair !important;
-  pointer-events: auto !important;
 }
