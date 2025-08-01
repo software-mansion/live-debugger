@@ -1,5 +1,6 @@
 import initDebugButton from './debug_button/debug_button';
 import initDebugOptions from './debug_options/debug_options';
+import { dispatchCustomEvent } from '../utils/dom';
 
 export default function initDebugMenu(liveDebuggerURL) {
   const debugButton = initDebugButton();
@@ -14,8 +15,7 @@ export default function initDebugMenu(liveDebuggerURL) {
       !debugButton.contains(event.target) &&
       !debugMenu.contains(event.target)
     ) {
-      const event = new CustomEvent('live-debugger-debug-menu-click-outside');
-      document.dispatchEvent(event);
+      dispatchCustomEvent('lvdbg:click-outside-debug-menu');
     }
   });
 
