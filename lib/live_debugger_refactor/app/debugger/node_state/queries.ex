@@ -6,7 +6,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Queries do
   alias LiveDebuggerRefactor.Structs.LvState
   alias LiveDebuggerRefactor.API.LiveViewDebug
   alias LiveDebuggerRefactor.API.StatesStorage
-  alias LiveDebuggerRefactor.App.Debugger.TreeNode
+  alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
 
   @spec fetch_node_assigns(pid :: pid(), node_id :: TreeNode.id()) ::
           {:ok, %{node_assigns: map()}} | {:error, term()}

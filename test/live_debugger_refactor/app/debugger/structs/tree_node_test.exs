@@ -1,8 +1,8 @@
-defmodule LiveDebuggerRefactor.App.Debugger.TreeNodeTest do
+defmodule LiveDebuggerRefactor.App.Debugger.Structs.TreeNodeTest do
   use ExUnit.Case, async: true
 
   alias LiveDebuggerRefactor.Fakes
-  alias LiveDebuggerRefactor.App.Debugger.TreeNode
+  alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
 
   describe "parse_id/1" do
     test "parses id for LiveView" do

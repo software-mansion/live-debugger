@@ -53,7 +53,7 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
     test "for LiveViewBorn event" do
       pid = self()
       state = %{}
-      event = %LiveViewBorn{pid: pid}
+      event = %LiveViewBorn{pid: pid, transport_pid: nil}
 
       assert {:noreply, new_state} = TableWatcher.handle_info(event, state)
 

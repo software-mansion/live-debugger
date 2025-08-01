@@ -1,4 +1,4 @@
-defmodule LiveDebuggerRefactor.App.Debugger.TreeNode do
+defmodule LiveDebuggerRefactor.App.Debugger.Structs.TreeNode do
   @moduledoc """
   Structs and functions to build and manipulate the tree of LiveView and LiveComponent nodes.
   """

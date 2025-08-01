@@ -94,53 +94,53 @@ defmodule LiveDebuggerRefactor.Structs.Trace do
   def live_component_delete?(_), do: false
 
   @spec callback_name(t()) :: String.t()
-  def callback_name(trace) do
-    "#{trace.function}/#{trace.arity}"
+  def callback_name(%__MODULE__{function: function, arity: arity}) do
+    "#{function}/#{arity}"
   end
 
   @spec arg_name(t(), non_neg_integer()) :: String.t()
   def arg_name(trace, arg_index)
 
   # Callbacks common for LiveView and LiveComponent
-  def arg_name(%{function: :handle_async}, 0), do: "name"
-  def arg_name(%{function: :handle_async}, 1), do: "async_fun_result"
-  def arg_name(%{function: :handle_async}, 2), do: "socket"
+  def arg_name(%__MODULE__{function: :handle_async}, 0), do: "name"
+  def arg_name(%__MODULE__{function: :handle_async}, 1), do: "async_fun_result"
+  def arg_name(%__MODULE__{function: :handle_async}, 2), do: "socket"
 
-  def arg_name(%{function: :handle_call}, 0), do: "message"
-  def arg_name(%{function: :handle_call}, 1), do: "from"
-  def arg_name(%{function: :handle_call}, 2), do: "socket"
+  def arg_name(%__MODULE__{function: :handle_call}, 0), do: "message"
+  def arg_name(%__MODULE__{function: :handle_call}, 1), do: "from"
+  def arg_name(%__MODULE__{function: :handle_call}, 2), do: "socket"
 
-  def arg_name(%{function: :handle_cast}, 0), do: "message"
-  def arg_name(%{function: :handle_cast}, 1), do: "socket"
+  def arg_name(%__MODULE__{function: :handle_cast}, 0), do: "message"
+  def arg_name(%__MODULE__{function: :handle_cast}, 1), do: "socket"
 
-  def arg_name(%{function: :handle_event}, 0), do: "event"
-  def arg_name(%{function: :handle_event}, 1), do: "unsigned_params"
-  def arg_name(%{function: :handle_event}, 2), do: "socket"
+  def arg_name(%__MODULE__{function: :handle_event}, 0), do: "event"
+  def arg_name(%__MODULE__{function: :handle_event}, 1), do: "unsigned_params"
+  def arg_name(%__MODULE__{function: :handle_event}, 2), do: "socket"
 
-  def arg_name(%{function: :handle_info}, 0), do: "message"
-  def arg_name(%{function: :handle_info}, 1), do: "socket"
+  def arg_name(%__MODULE__{function: :handle_info}, 0), do: "message"
+  def arg_name(%__MODULE__{function: :handle_info}, 1), do: "socket"
 
-  def arg_name(%{function: :handle_params}, 0), do: "unsigned_params"
-  def arg_name(%{function: :handle_params}, 1), do: "uri"
-  def arg_name(%{function: :handle_params}, 2), do: "socket"
+  def arg_name(%__MODULE__{function: :handle_params}, 0), do: "unsigned_params"
+  def arg_name(%__MODULE__{function: :handle_params}, 1), do: "uri"
+  def arg_name(%__MODULE__{function: :handle_params}, 2), do: "socket"
 
-  def arg_name(%{function: :render}, 0), do: "assigns"
+  def arg_name(%__MODULE__{function: :render}, 0), do: "assigns"
 
-  def arg_name(%{function: :terminate}, 0), do: "reason"
-  def arg_name(%{function: :terminate}, 1), do: "socket"
+  def arg_name(%__MODULE__{function: :terminate}, 0), do: "reason"
+  def arg_name(%__MODULE__{function: :terminate}, 1), do: "socket"
 
   # LiveView specific
-  def arg_name(%{function: :mount, arity: 3}, 0), do: "params"
-  def arg_name(%{function: :mount, arity: 3}, 1), do: "session"
-  def arg_name(%{function: :mount, arity: 3}, 2), do: "socket"
+  def arg_name(%__MODULE__{function: :mount, arity: 3}, 0), do: "params"
+  def arg_name(%__MODULE__{function: :mount, arity: 3}, 1), do: "session"
+  def arg_name(%__MODULE__{function: :mount, arity: 3}, 2), do: "socket"
 
   # LiveComponent specific
-  def arg_name(%{function: :mount, arity: 1}, 0), do: "socket"
+  def arg_name(%__MODULE__{function: :mount, arity: 1}, 0), do: "socket"
 
-  def arg_name(%{function: :update}, 0), do: "assigns"
-  def arg_name(%{function: :update}, 1), do: "socket"
+  def arg_name(%__MODULE__{function: :update}, 0), do: "assigns"
+  def arg_name(%__MODULE__{function: :update}, 1), do: "socket"
 
-  def arg_name(%{function: :update_many}, 0), do: "list"
+  def arg_name(%__MODULE__{function: :update_many}, 0), do: "list"
 
   defp get_transport_pid_from_args(args) do
     args

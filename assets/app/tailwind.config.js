@@ -7,7 +7,7 @@ const path = require('path');
 
 module.exports = {
   darkMode: 'class',
-  content: ['./js/**/*.js', '../lib/**/*.ex'],
+  content: ['./js/**/*.js', '../../lib/**/*.ex'],
   theme: {
     extend: {
       boxShadow: { custom: '0px 2px 4px 0px rgba(0, 26, 114, 0.05)' },

@@ -32,7 +32,7 @@ defmodule LiveDebuggerRefactor.App.Web.Layout do
         </script>
         <script src="/assets/phoenix_live_view/phoenix_live_view.js">
         </script>
-        <script src="/assets/live_debugger/hooks.js">
+        <script src="/assets/live_debugger/app.js">
         </script>
         <script>
           let liveSocket = new window.LiveView.LiveSocket('/live', window.Phoenix.Socket, {

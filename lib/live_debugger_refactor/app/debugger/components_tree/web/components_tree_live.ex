@@ -25,7 +25,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   @impl true
   def mount(_params, _session, socket) do
     # Dummy data
-    dummy_node = %LiveDebuggerRefactor.App.Debugger.TreeNode{
+    dummy_node = %LiveDebuggerRefactor.App.Debugger.Structs.TreeNode{
       id: :c.pid(0, 123, 0),
       type: :live_view,
       module: LiveDebuggerRefactor.App.Settings.Web.SettingsLive,

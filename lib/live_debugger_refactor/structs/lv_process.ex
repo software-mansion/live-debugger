@@ -7,6 +7,8 @@ defmodule LiveDebuggerRefactor.Structs.LvProcess do
   * debugger? - whether the process is a LiveDebugger process
   """
 
+  alias LiveDebuggerRefactor.Utils.Modules, as: UtilsModules
+
   defstruct [
     :socket_id,
     :root_pid,
@@ -37,10 +39,7 @@ defmodule LiveDebuggerRefactor.Structs.LvProcess do
   def new(pid, socket) do
     nested? = pid != socket.root_pid
 
-    debugger? =
-      socket.view
-      |> Atom.to_string()
-      |> String.starts_with?(["Elixir.LiveDebugger.", "Elixir.LiveDebuggerWeb."])
+    debugger? = UtilsModules.debugger_module?(socket.view)
 
     embedded? = socket.host_uri == :not_mounted_at_router
 

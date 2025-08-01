@@ -1,4 +1,4 @@
-function initDebugSocket(baseURL, sessionId) {
+export default function initDebugSocket(baseURL, sessionId) {
   const websocketURL = baseURL.replace(/^http/, 'ws') + '/client';
 
   const debugSocket = new window.Phoenix.Socket(websocketURL, {
@@ -25,5 +25,3 @@ function initDebugSocket(baseURL, sessionId) {
 
   return { debugSocket, debugChannel };
 }
-
-export { initDebugSocket };

@@ -6,7 +6,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Assigns.NestedLiveView do
   import Phoenix.LiveView
   import Phoenix.Component
 
-  alias LiveDebuggerRefactor.App.Debugger.TreeNode
+  alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
 
   @doc """

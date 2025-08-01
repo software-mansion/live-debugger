@@ -11,7 +11,7 @@ import AutoClearFlash from './hooks/auto_clear_flash';
 import TraceExecutionTime from './hooks/trace_execution_time';
 import CopyButton from './hooks/copy_button';
 
-import topbar from '../vendor/topbar';
+import topbar from './vendor/topbar';
 
 Alpine.start();
 Alpine.plugin(collapse);
