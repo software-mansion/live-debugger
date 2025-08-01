@@ -1,12 +1,24 @@
 defmodule LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksLive do
+  @moduledoc """
+  This LiveView displays links to nested LiveViews of provided LiveView process.
+  """
+
   use LiveDebuggerRefactor.App.Web, :live_view
 
+  alias Phoenix.LiveView.AsyncResult
   alias LiveDebuggerRefactor.Structs.LvProcess
   alias LiveDebuggerRefactor.API.LiveViewDiscovery
   alias LiveDebuggerRefactor.App.Debugger.Web.Components, as: DebuggerComponents
 
+  alias LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.Queries,
+    as: NestedLiveViewLinksQueries
+
+  alias LiveDebuggerRefactor.Bus
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewBorn
+
   @doc """
-  Renders the `NodeStateLive` as a nested LiveView component.
+  Renders the `NestedLiveViewLinksLive` as a nested LiveView component.
 
   `id` - dom id
   `socket` - parent LiveView socket
@@ -37,6 +49,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.Web.NestedLiveVi
   @impl true
   def mount(_params, session, socket) do
     lv_process = session["lv_process"]
+
+    if connected?(socket) do
+      Bus.receive_events!()
+    end
 
     socket
     |> assign(lv_process: lv_process)
@@ -70,9 +86,42 @@ defmodule LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.Web.NestedLiveVi
     """
   end
 
+  @impl true
+  def handle_info(%LiveViewBorn{pid: pid}, socket) do
+    if NestedLiveViewLinksQueries.child_lv_process?(socket.assigns.lv_process.pid, pid) do
+      new_lv_process = LvProcess.new(pid)
+
+      new_nested_lv_processes =
+        socket.assigns.nested_lv_processes.result ++ [new_lv_process]
+
+      socket
+      |> assign(nested_lv_processes: AsyncResult.ok(new_nested_lv_processes))
+    else
+      socket
+    end
+    |> noreply()
+  end
+
+  def handle_info(%LiveViewDied{pid: pid}, socket) do
+    known_child_lv_process? =
+      socket.assigns.nested_lv_processes.result
+      |> Enum.any?(fn %LvProcess{pid: nested_pid} -> nested_pid == pid end)
+
+    if known_child_lv_process? do
+      assign_async_nested_lv_processes(socket)
+    else
+      socket
+    end
+    |> noreply()
+  end
+
+  def handle_info(_, socket), do: {:noreply, socket}
+
   defp assign_async_nested_lv_processes(%{assigns: %{lv_process: %{pid: pid}}} = socket) do
-    assign_async(socket, :nested_lv_processes, fn ->
-      {:ok, %{nested_lv_processes: LiveViewDiscovery.children_lv_processes(pid)}}
-    end)
+    assign_async(
+      socket,
+      :nested_lv_processes,
+      fn -> {:ok, %{nested_lv_processes: LiveViewDiscovery.children_lv_processes(pid)}} end
+    )
   end
 end
