@@ -1,5 +1,5 @@
 import debugButtonHtml from './debug_button.html';
-import { createElement } from '../../utils/dom';
+import { createElement, dispatchCustomEvent } from '../../utils/dom';
 
 export default function initDebugButton() {
   const debugButton = createElement(debugButtonHtml);
@@ -10,12 +10,11 @@ export default function initDebugButton() {
     if (isDragging) {
       placeButton();
     } else {
-      const event = new CustomEvent('lvdbg:debug-button-click', {
+      dispatchCustomEvent('lvdbg:debug-button-click', {
         detail: {
           buttonRect: debugButton.getBoundingClientRect(),
         },
       });
-      document.dispatchEvent(event);
     }
   };
 

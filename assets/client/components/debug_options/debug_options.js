@@ -1,5 +1,5 @@
 import debugOptionsHtml from './debug_options.html';
-import { createElement } from '../../utils/dom';
+import { createElement, dispatchCustomEvent } from '../../utils/dom';
 
 export default function initDebugOptions({ liveDebuggerURL }) {
   const debugOptions = createElement(debugOptionsHtml);
@@ -48,8 +48,7 @@ export default function initDebugOptions({ liveDebuggerURL }) {
   };
 
   const onMoveButtonClick = () => {
-    const event = new CustomEvent('lvdbg:move-button-click');
-    document.dispatchEvent(event);
+    dispatchCustomEvent('lvdbg:move-button-click');
     hideDebugOptions();
   };
 
@@ -59,8 +58,7 @@ export default function initDebugOptions({ liveDebuggerURL }) {
   };
 
   const onInspectButtonClick = () => {
-    const event = new CustomEvent('lvdbg:inspect-button-click');
-    document.dispatchEvent(event);
+    dispatchCustomEvent('lvdbg:inspect-button-click');
     hideDebugOptions();
   };
 

@@ -1,3 +1,5 @@
+import { dispatchCustomEvent } from '../utils/dom';
+
 export default function initElementInspection({ socketID, sessionURL }) {
   let inspectMode = false;
   let lastID = null;
@@ -89,19 +91,15 @@ export default function initElementInspection({ socketID, sessionURL }) {
 }
 
 function pushHighlightEvent(detail) {
-  const highlightEvent = new CustomEvent('lvdbg:inspect-highlight', {
+  dispatchCustomEvent('lvdbg:inspect-highlight', {
     detail,
   });
-
-  document.dispatchEvent(highlightEvent);
 }
 
 function pushPulseEvent(detail) {
-  const pulseEvent = new CustomEvent('lvdbg:inspect-pulse', {
+  dispatchCustomEvent('lvdbg:inspect-pulse', {
     detail,
   });
-
-  document.dispatchEvent(pulseEvent);
 }
 
 function getHighlightDetail(cid, socketID) {
@@ -119,7 +117,5 @@ function getHighlightDetail(cid, socketID) {
 }
 
 function pushClearEvent() {
-  const clearEvent = new CustomEvent('lvdbg:inspect-clear');
-
-  document.dispatchEvent(clearEvent);
+  dispatchCustomEvent('lvdbg:inspect-clear');
 }

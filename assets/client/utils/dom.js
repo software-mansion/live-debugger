@@ -3,3 +3,8 @@ export function createElement(html) {
   tempDiv.innerHTML = html;
   return tempDiv.firstElementChild;
 }
+
+export function dispatchCustomEvent(event, payload = {}) {
+  const customEvent = new CustomEvent(event, payload);
+  document.dispatchEvent(customEvent);
+}
