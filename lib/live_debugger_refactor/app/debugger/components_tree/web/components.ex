@@ -5,7 +5,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.Components do
 
   use LiveDebuggerRefactor.App.Web, :component
 
-  alias LiveDebuggerRefactor.App.Debugger.TreeNode
+  alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
   alias LiveDebuggerRefactor.App.Utils.Parsers
 
   @doc """
@@ -129,7 +129,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.Components do
         class="flex min-w-0 gap-1 items-center"
       >
         <.icon name={@icon} class="text-accent-icon w-4 h-4 shrink-0" />
-        <.tooltip id={"tooltip-#{@id}"} content={@tooltip_content} class="truncate">
+        <.tooltip id={@id <> "-tooltip"} content={@tooltip_content} class="truncate">
           <span class={["hover:underline", if(@selected?, do: "font-semibold")]}>
             <%= @label %>
           </span>
