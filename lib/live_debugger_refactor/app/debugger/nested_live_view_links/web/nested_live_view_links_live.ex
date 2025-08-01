@@ -115,7 +115,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.Web.NestedLiveVi
   end
 
   defp known_child_lv_process?(socket, pid) do
-    socket.assigns.nested_lv_processes.result
-    |> Enum.any?(fn %LvProcess{pid: nested_pid} -> nested_pid == pid end)
+    case socket.assigns.nested_lv_processes.result do
+      nil -> false
+      result -> Enum.any?(result, fn %LvProcess{pid: nested_pid} -> nested_pid == pid end)
+    end
   end
 end
