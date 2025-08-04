@@ -4,6 +4,8 @@
 import initDebugMenu from './components/debug_menu';
 import initHighlight from './services/highlight';
 import initDebugSocket from './services/debug_socket';
+import initElementInspection from './services/inspect';
+
 import {
   getMetaTag,
   fetchLiveDebuggerBaseURL,
@@ -16,13 +18,13 @@ import {
 window.document.addEventListener('DOMContentLoaded', function () {
   const metaTag = getMetaTag();
   const baseURL = fetchLiveDebuggerBaseURL(metaTag);
-  const sessionId = fetchDebuggedSocketID();
+  const socketID = fetchDebuggedSocketID();
 
-  const sessionURL = `${baseURL}/redirect/${sessionId}`;
+  const sessionURL = `${baseURL}/redirect/${socketID}`;
 
-  if (sessionId) {
+  if (socketID) {
     if (isRefactorEnabled(metaTag)) {
-      const { debugChannel } = initDebugSocket(baseURL, sessionId);
+      const { debugChannel } = initDebugSocket(baseURL, socketID);
 
       debugChannel.on('ping', (resp) => {
         console.log('Received ping', resp);
@@ -37,6 +39,8 @@ window.document.addEventListener('DOMContentLoaded', function () {
     if (isHighlightingEnabled(metaTag)) {
       initHighlight();
     }
+
+    initElementInspection({ socketID, sessionURL });
   }
 
   console.info(`LiveDebugger available at: ${baseURL}`);

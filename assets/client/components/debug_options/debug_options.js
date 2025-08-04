@@ -1,5 +1,5 @@
 import debugOptionsHtml from './debug_options.html';
-import { createElement } from '../../utils/dom';
+import { createElement, dispatchCustomEvent } from '../../utils/dom';
 
 export default function initDebugOptions({ liveDebuggerURL }) {
   const debugOptions = createElement(debugOptionsHtml);
@@ -48,8 +48,7 @@ export default function initDebugOptions({ liveDebuggerURL }) {
   };
 
   const onMoveButtonClick = () => {
-    const event = new CustomEvent('live-debugger-debug-button-move');
-    document.dispatchEvent(event);
+    dispatchCustomEvent('lvdbg:move-button-click');
     hideDebugOptions();
   };
 
@@ -59,6 +58,7 @@ export default function initDebugOptions({ liveDebuggerURL }) {
   };
 
   const onInspectButtonClick = () => {
+    dispatchCustomEvent('lvdbg:inspect-button-click');
     hideDebugOptions();
   };
 
@@ -74,15 +74,9 @@ export default function initDebugOptions({ liveDebuggerURL }) {
     .querySelector('#live-debugger-debug-tooltip-move-button')
     .addEventListener('click', onMoveButtonClick);
 
-  document.addEventListener(
-    'live-debugger-debug-button-click',
-    onDebugButtonClick
-  );
+  document.addEventListener('lvdbg:debug-button-click', onDebugButtonClick);
 
-  document.addEventListener(
-    'live-debugger-debug-menu-click-outside',
-    hideDebugOptions
-  );
+  document.addEventListener('lvdbg:click-outside-debug-menu', hideDebugOptions);
 
   window.addEventListener('resize', () => {
     if (isVisible) {

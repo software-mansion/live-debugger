@@ -17,6 +17,23 @@
   cursor: pointer;
 }
 
+#live-debugger-debug-button.live-debugger-inspect-mode {
+  background-color: #87cce8;
+}
+
+#live-debugger-debug-button.live-debugger-inspect-mode .live-debugger-bug-icon {
+  display: none;
+}
+
+#live-debugger-debug-button .live-debugger-inspect-icon {
+  display: none;
+}
+
+#live-debugger-debug-button.live-debugger-inspect-mode
+  .live-debugger-inspect-icon {
+  display: block;
+}
+
 #live-debugger-debug-tooltip {
   position: absolute;
   background: white;
@@ -41,4 +58,8 @@
 
 #live-debugger-debug-tooltip .live-debugger-tooltip-option:hover {
   background-color: #f3f4f6;
+}
+
+.live-debugger-inspect-mode * {
+  cursor: crosshair !important;
 }
