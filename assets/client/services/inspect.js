@@ -7,6 +7,11 @@ export default function initElementInspection({ baseURL }) {
   const handleMove = (event) => {
     const live_view_element = event.target.closest('[data-phx-session]');
     const component_element = event.target.closest('[data-phx-component]');
+
+    if (!live_view_element) {
+      return;
+    }
+
     const detail = getHighlightDetail(component_element, live_view_element);
 
     if (detail.val === lastID) {
@@ -39,7 +44,7 @@ export default function initElementInspection({ baseURL }) {
       url.searchParams.set('root_id', root_element.id);
     }
 
-    if (detail.type === 'component') {
+    if (component_element) {
       url.searchParams.set('node_id', component_element.dataset.phxComponent);
     }
 
@@ -120,25 +125,15 @@ function pushClearEvent() {
 }
 
 function getHighlightDetail(component_element, live_view_element) {
-  const return_live_view = {
+  if (component_element && live_view_element.contains(component_element)) {
+    return {
+      attr: 'data-phx-id',
+      val: `c${component_element.dataset.phxComponent}-${live_view_element.id}`,
+    };
+  }
+
+  return {
     attr: 'id',
-    val: live_view_element?.id,
-    type: 'live_view',
+    val: live_view_element.id,
   };
-
-  const return_component = {
-    attr: 'data-phx-id',
-    val: `c${component_element?.dataset.phxComponent}-${live_view_element?.id}`,
-    type: 'component',
-  };
-
-  if (!component_element) {
-    return return_live_view;
-  }
-
-  if (live_view_element.contains(component_element)) {
-    return return_component;
-  }
-
-  return return_live_view;
 }
