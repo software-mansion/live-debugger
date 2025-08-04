@@ -7,11 +7,7 @@ export default function initElementInspection({ baseURL }) {
   const handleMove = (event) => {
     const live_view_element = event.target.closest('[data-phx-session]');
     const component_element = event.target.closest('[data-phx-component]');
-
     const detail = getHighlightDetail(component_element, live_view_element);
-    console.log(detail);
-
-    console.log(detail);
 
     if (detail.val === lastID) {
       return;
@@ -28,12 +24,26 @@ export default function initElementInspection({ baseURL }) {
 
     const live_view_element = event.target.closest('[data-phx-session]');
     const component_element = event.target.closest('[data-phx-component]');
+    const root_element = document.querySelector('[data-phx-main]');
+
+    if (!live_view_element) {
+      return;
+    }
 
     const detail = getHighlightDetail(component_element, live_view_element);
-
     pushPulseEvent(detail);
 
-    // window.open(baseURL + (cid ? `?node_id=${detail.val}` : ''), '_blank');
+    const url = new URL(`${baseURL}/redirect/${live_view_element.id}`);
+
+    if (live_view_element.id !== root_element.id) {
+      url.searchParams.set('root_id', root_element.id);
+    }
+
+    if (detail.type === 'component') {
+      url.searchParams.set('node_id', component_element.dataset.phxComponent);
+    }
+
+    window.open(url, '_blank');
 
     disableInspectMode();
   };
@@ -105,23 +115,25 @@ function pushPulseEvent(detail) {
   });
 }
 
+function pushClearEvent() {
+  dispatchCustomEvent('lvdbg:inspect-clear');
+}
+
 function getHighlightDetail(component_element, live_view_element) {
   const return_live_view = {
     attr: 'id',
     val: live_view_element?.id,
+    type: 'live_view',
   };
 
   const return_component = {
     attr: 'data-phx-id',
     val: `c${component_element?.dataset.phxComponent}-${live_view_element?.id}`,
+    type: 'component',
   };
 
   if (!component_element) {
     return return_live_view;
-  }
-
-  if (!live_view_element) {
-    return return_component;
   }
 
   if (live_view_element.contains(component_element)) {
@@ -129,8 +141,4 @@ function getHighlightDetail(component_element, live_view_element) {
   }
 
   return return_live_view;
-}
-
-function pushClearEvent() {
-  dispatchCustomEvent('lvdbg:inspect-clear');
 }
