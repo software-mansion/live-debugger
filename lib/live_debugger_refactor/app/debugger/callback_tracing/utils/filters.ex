@@ -6,7 +6,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.Filters do
   import LiveDebuggerRefactor.App.Debugger.Structs.TreeNode.Guards
 
   alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
-  alias LiveDebuggerRefactor.Utils.Callbacks, as: UtilsCallbacks
+  alias LiveDebuggerRefactor.Utils.Callbacks, as: CallbacksUtils
   alias LiveDebuggerRefactor.App.Utils.Parsers
 
   @doc """
@@ -27,21 +27,21 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.Filters do
   Returns a list of callbacks' `{function, arity}` tuples for the given node_id's type.
   Returns all callbacks if the node_id is nil.
   """
-  @spec node_callbacks(TreeNode.id() | nil) :: [UtilsCallbacks.fa()]
+  @spec node_callbacks(TreeNode.id() | nil) :: [CallbacksUtils.fa()]
   def node_callbacks(node_id) when is_nil(node_id) or is_node_id(node_id) do
     type = if node_id, do: TreeNode.type(node_id), else: :global
 
     case type do
-      :live_view -> UtilsCallbacks.live_view_callbacks()
-      :live_component -> UtilsCallbacks.live_component_callbacks()
-      :global -> UtilsCallbacks.all_callbacks()
+      :live_view -> CallbacksUtils.live_view_callbacks()
+      :live_component -> CallbacksUtils.live_component_callbacks()
+      :global -> CallbacksUtils.all_callbacks()
     end
   end
 
   @doc """
   Parses a callback tuple into a string.
   """
-  @spec parse_callback(UtilsCallbacks.fa()) :: String.t()
+  @spec parse_callback(CallbacksUtils.fa()) :: String.t()
   def parse_callback({function, arity}) do
     "#{function}/#{arity}"
   end

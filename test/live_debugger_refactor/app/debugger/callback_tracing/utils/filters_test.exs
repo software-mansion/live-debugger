@@ -2,19 +2,19 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.FiltersTest do
   use ExUnit.Case, async: true
 
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.Filters, as: FiltersUtils
-  alias LiveDebuggerRefactor.Utils.Callbacks, as: UtilsCallbacks
+  alias LiveDebuggerRefactor.Utils.Callbacks, as: CallbacksUtils
 
   describe "node_callbacks/1" do
     test "returns all callbacks when node_id is nil" do
-      assert FiltersUtils.node_callbacks(nil) == UtilsCallbacks.all_callbacks()
+      assert FiltersUtils.node_callbacks(nil) == CallbacksUtils.all_callbacks()
     end
 
     test "returns proper callbacks based on node_id" do
       assert FiltersUtils.node_callbacks(%Phoenix.LiveComponent.CID{cid: 1}) ==
-               UtilsCallbacks.live_component_callbacks()
+               CallbacksUtils.live_component_callbacks()
 
       assert FiltersUtils.node_callbacks(:c.pid(0, 123, 0)) ==
-               UtilsCallbacks.live_view_callbacks()
+               CallbacksUtils.live_view_callbacks()
     end
   end
 
