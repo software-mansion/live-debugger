@@ -357,6 +357,12 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
     """
   end
 
+  @doc """
+  Renders a sidebar slide over element.
+  Clicking outside or the cross icon results in the `close-sidebar` event being triggered.
+  """
+
+  attr(:id, :string, required: true)
   attr(:sidebar_hidden?, :boolean, default: true, doc: "The default state of the sidebar")
   slot(:inner_block)
 
@@ -364,14 +370,14 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
     ~H"""
     <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
       <div
-        id="filters-sidebar-form"
+        id={@id}
         class={[
           (@sidebar_hidden? && "hidden") || "flex",
           "fixed inset-0 bg-black/25 justify-end items-start lg:flex lg:static lg:inset-auto lg:bg-transparent z-20"
         ]}
       >
         <div
-          phx-click-away="close_mobile_content"
+          phx-click-away="close-sidebar"
           class="h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border lg:border-l"
         >
           <.icon_button
@@ -379,7 +385,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
             icon="icon-cross"
             class="absolute top-4 right-4 lg:hidden"
             variant="secondary"
-            phx-click="close_mobile_content"
+            phx-click="close-sidebar"
           />
           <%= render_slot(@inner_block) %>
         </div>
