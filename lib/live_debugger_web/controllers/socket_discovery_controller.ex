@@ -22,14 +22,12 @@ defmodule LiveDebuggerWeb.SocketDiscoveryController do
         )
 
       result ->
-        dbg(result)
-
         Logger.error(
-          "No LiveView process found for socket_id: #{socket_id}, result: #{inspect(result)}"
+          "Could not find single LiveView process for socket_id: #{socket_id}, node_id: #{node_id}, root_id: #{root_id}, result: #{inspect(result)}"
         )
 
         conn
-        |> Phoenix.Controller.redirect(to: RoutesHelper.error("LiveView process not found"))
+        |> Phoenix.Controller.redirect(to: RoutesHelper.error("multiple_live_views"))
     end
   end
 
@@ -46,6 +44,5 @@ defmodule LiveDebuggerWeb.SocketDiscoveryController do
       nil -> processes
       root_process -> Enum.filter(processes, &(&1.transport_pid == root_process.transport_pid))
     end
-    |> dbg()
   end
 end
