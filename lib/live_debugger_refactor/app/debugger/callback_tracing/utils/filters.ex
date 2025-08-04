@@ -84,8 +84,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.Filters do
         "max_unit" => max_time_unit
       }) do
     []
-    |> validate_execution_time_value_is_integer(:exec_time_min, min_time)
-    |> validate_execution_time_value_is_integer(:exec_time_max, max_time)
+    |> validate_is_integer(:exec_time_min, min_time)
+    |> validate_is_integer(:exec_time_max, max_time)
     |> validate_execution_time_min_is_less_than_max(
       min_time,
       max_time,
@@ -105,12 +105,17 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.Filters do
     |> Enum.into(%{})
   end
 
-  defp validate_execution_time_value_is_integer(errors, field, value) do
+  defp validate_is_integer(errors, field, value) do
     if String.contains?(value, [",", "."]) do
       Keyword.put(errors, field, "must be an integer")
     else
       errors
     end
+  end
+
+  defp validate_execution_time_min_is_less_than_max([], min_time, max_time, _, _)
+       when min_time == "" or max_time == "" do
+    []
   end
 
   defp validate_execution_time_min_is_less_than_max(
@@ -120,9 +125,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.Filters do
          min_time_unit,
          max_time_unit
        ) do
-    if min_time != "" and max_time != "" and
-         apply_unit_factor(min_time, min_time_unit) >
-           apply_unit_factor(max_time, max_time_unit) do
+    min_time_value = apply_unit_factor(min_time, min_time_unit)
+    max_time_value = apply_unit_factor(max_time, max_time_unit)
+
+    if min_time_value > max_time_value do
       []
       |> Keyword.put(:exec_time_min, "min must be less than max")
       |> Keyword.put(:exec_time_max, "max must be greater than min")
