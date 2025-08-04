@@ -30,6 +30,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Structs.TreeNode do
         }
 
   defmodule Guards do
+    @moduledoc "Guards for the TreeNode struct."
     defguard is_node_id(id) when is_pid(id) or is_struct(id, Phoenix.LiveComponent.CID)
   end
 
