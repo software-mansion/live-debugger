@@ -5,14 +5,14 @@ export default function initElementInspection({ baseURL }) {
   let lastID = null;
 
   const handleMove = (event) => {
-    const live_view_element = event.target.closest('[data-phx-session]');
-    const component_element = event.target.closest('[data-phx-component]');
+    const liveViewElement = event.target.closest('[data-phx-session]');
+    const componentElement = event.target.closest('[data-phx-component]');
 
-    if (!live_view_element) {
+    if (!liveViewElement) {
       return;
     }
 
-    const detail = getHighlightDetail(component_element, live_view_element);
+    const detail = getHighlightDetail(componentElement, liveViewElement);
 
     if (detail.val === lastID) {
       return;
@@ -27,25 +27,27 @@ export default function initElementInspection({ baseURL }) {
     event.preventDefault();
     event.stopPropagation();
 
-    const live_view_element = event.target.closest('[data-phx-session]');
-    const component_element = event.target.closest('[data-phx-component]');
-    const root_element = document.querySelector('[data-phx-main]');
+    const liveViewElement = event.target.closest('[data-phx-session]');
+    const componentElement = event.target.closest('[data-phx-component]');
+    const rootElement = document.querySelector('[data-phx-main]');
 
-    if (!live_view_element) {
+    if (!liveViewElement) {
       return;
     }
 
-    const detail = getHighlightDetail(component_element, live_view_element);
+    const rootID = rootElement?.id || liveViewElement.dataset.phxRootId;
+
+    const detail = getHighlightDetail(componentElement, liveViewElement);
     pushPulseEvent(detail);
 
-    const url = new URL(`${baseURL}/redirect/${live_view_element.id}`);
+    const url = new URL(`${baseURL}/redirect/${liveViewElement.id}`);
 
-    if (live_view_element.id !== root_element.id) {
-      url.searchParams.set('root_id', root_element.id);
+    if (liveViewElement.id !== rootID) {
+      url.searchParams.set('root_id', rootID);
     }
 
-    if (component_element) {
-      url.searchParams.set('node_id', component_element.dataset.phxComponent);
+    if (componentElement) {
+      url.searchParams.set('node_id', componentElement.dataset.phxComponent);
     }
 
     window.open(url, '_blank');
@@ -124,16 +126,16 @@ function pushClearEvent() {
   dispatchCustomEvent('lvdbg:inspect-clear');
 }
 
-function getHighlightDetail(component_element, live_view_element) {
-  if (component_element && live_view_element.contains(component_element)) {
+function getHighlightDetail(componentElement, liveViewElement) {
+  if (componentElement && liveViewElement.contains(componentElement)) {
     return {
       attr: 'data-phx-id',
-      val: `c${component_element.dataset.phxComponent}-${live_view_element.id}`,
+      val: `c${componentElement.dataset.phxComponent}-${liveViewElement.id}`,
     };
   }
 
   return {
     attr: 'id',
-    val: live_view_element.id,
+    val: liveViewElement.id,
   };
 }
