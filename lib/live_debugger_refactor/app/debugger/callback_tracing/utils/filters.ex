@@ -10,6 +10,20 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.Filters do
   alias LiveDebuggerRefactor.App.Utils.Parsers
 
   @doc """
+  Calculates the number of selected filters, based on the default and current filters.
+  """
+  @spec calculate_selected_filters(default_filters :: map(), current_filters :: map()) ::
+          integer()
+  def calculate_selected_filters(default_filters, current_filters) do
+    current_flattened_filters = flattened_filters(current_filters, [:min_unit, :max_unit])
+    default_flattened_filters = flattened_filters(default_filters, [:min_unit, :max_unit])
+
+    Enum.count(current_flattened_filters, fn {key, value} ->
+      value != Map.get(default_flattened_filters, key)
+    end)
+  end
+
+  @doc """
   Returns a list of callbacks' `{function, arity}` tuples for the given node_id's type.
   Returns all callbacks if the node_id is nil.
   """
@@ -82,6 +96,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.Filters do
       [] -> :ok
       errors -> {:error, errors}
     end
+  end
+
+  defp flattened_filters(filters, exclude_keys) when is_map(filters) and is_list(exclude_keys) do
+    filters
+    |> Enum.flat_map(fn {_group, value} -> value end)
+    |> Enum.reject(fn {key, _value} -> key in exclude_keys end)
+    |> Enum.into(%{})
   end
 
   defp validate_execution_time_value_is_integer(errors, field, value) do
