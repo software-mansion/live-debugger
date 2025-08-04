@@ -81,9 +81,10 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
   end
 
   describe "garbage_collect_states!/1" do
-    test "collects garbage for states if pids are not watched" do
+    test "collects garbage for states if pids are not watched and not alive" do
       pid1 = :c.pid(0, 12, 0)
       watched_pids = MapSet.new([:c.pid(0, 11, 0)])
+      alive_pids = MapSet.new([:c.pid(0, 13, 0)])
 
       MockAPIStatesStorage
       |> expect(:get_all_states, fn -> [{pid1, :some_state}] end)
@@ -92,21 +93,23 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecti
       MockBus
       |> expect(:broadcast_event!, fn %TableTrimmed{} -> :ok end)
 
-      assert true == GarbageCollectingActions.garbage_collect_states!(watched_pids)
+      assert true == GarbageCollectingActions.garbage_collect_states!(watched_pids, alive_pids)
     end
 
-    test "does not collect garbage for states if pids are watched" do
+    test "does not collect garbage for states if pids are watched or alive" do
       pid1 = :c.pid(0, 12, 0)
+      pid2 = :c.pid(0, 13, 0)
       watched_pids = MapSet.new([pid1])
+      alive_pids = MapSet.new([pid2])
 
       MockAPIStatesStorage
-      |> expect(:get_all_states, fn -> [{pid1, :some_state}] end)
+      |> expect(:get_all_states, fn -> [{pid1, :some_state}, {pid2, :some_other_state}] end)
       |> deny(:delete!, 1)
 
       MockBus
       |> deny(:broadcast_event!, 1)
 
-      assert false == GarbageCollectingActions.garbage_collect_states!(watched_pids)
+      assert false == GarbageCollectingActions.garbage_collect_states!(watched_pids, alive_pids)
     end
   end
 end

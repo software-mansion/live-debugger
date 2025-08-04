@@ -7,9 +7,14 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   use LiveDebuggerRefactor.App.Web, :live_view
 
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebuggerRefactor.App.Debugger.Web.Components.ElixirDisplay
-  alias LiveDebuggerRefactor.App.Utils.TermParser
   alias LiveDebuggerRefactor.Structs.LvProcess
+  alias LiveDebuggerRefactor.App.Debugger.Web.Assigns.NestedLiveView, as: NestedLiveViewAssigns
+  alias LiveDebuggerRefactor.App.Debugger.NodeState.Web.Components, as: NodeStateComponents
+  alias LiveDebuggerRefactor.App.Debugger.NodeState.Queries, as: NodeStateQueries
+
+  alias LiveDebuggerRefactor.Bus
+  alias LiveDebuggerRefactor.App.Events.ParamsChanged
+  alias LiveDebuggerRefactor.Services.StateManager.Events.StateChanged
 
   @doc """
   Renders the `NodeStateLive` as a nested LiveView component.
@@ -19,6 +24,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   `lv_process` - currently debugged LiveView process
   `params` - query parameters of the page.
   """
+
   attr(:id, :string, required: true)
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:lv_process, LvProcess, required: true)
@@ -35,7 +41,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
     assigns = assign(assigns, session: session)
 
     ~H"""
-    <%= live_render(@socket, __MODULE__.NodeStateLive,
+    <%= live_render(@socket, __MODULE__,
       id: @id,
       session: @session,
       container: {:div, class: @class}
@@ -46,10 +52,17 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   @impl true
   def mount(_params, session, socket) do
     lv_process = session["lv_process"]
+    parent_pid = session["parent_pid"]
+
+    if connected?(socket) do
+      Bus.receive_events!(parent_pid)
+      Bus.receive_states!(lv_process.pid)
+    end
 
     socket
     |> assign(:lv_process, lv_process)
-    |> assign(:node, AsyncResult.loading())
+    |> NestedLiveViewAssigns.assign_node_id(session)
+    |> assign_async_node_assigns()
     |> ok()
   end
 
@@ -57,49 +70,49 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   def render(assigns) do
     ~H"""
     <div class="flex-1 max-w-full flex flex-col gap-4">
-      <.async_result :let={node} assign={@node}>
+      <.async_result :let={node_assigns} assign={@node_assigns}>
         <:loading>
-          <div class="w-full flex items-center justify-center">
-            <.spinner size="sm" />
-          </div>
+          <NodeStateComponents.loading />
         </:loading>
         <:failed>
-          <.alert class="w-full" with_icon heading="Error while fetching node state">
-            Check logs for more
-          </.alert>
+          <NodeStateComponents.failed />
         </:failed>
 
-        <.assigns_section assigns={node.assigns} />
-        <.fullscreen id="assigns-display-fullscreen" title="Assigns">
-          <ElixirDisplay.term
-            id="assigns-display-fullscreen-term"
-            node={TermParser.term_to_display_tree(node.assigns)}
-          />
-        </.fullscreen>
+        <NodeStateComponents.assigns_section
+          assigns={node_assigns}
+          fullscreen_id="assigns-display-fullscreen"
+        />
       </.async_result>
     </div>
     """
   end
 
-  attr(:assigns, :list, required: true)
+  @impl true
+  def handle_info(%ParamsChanged{params: params}, socket) do
+    socket
+    |> NestedLiveViewAssigns.assign_node_id(params)
+    |> assign_async_node_assigns()
+    |> noreply()
+  end
 
-  defp assigns_section(assigns) do
-    ~H"""
-    <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
-      <:right_panel>
-        <div class="flex gap-2">
-          <.copy_button
-            id="assigns"
-            variant="icon-button"
-            value={TermParser.term_to_copy_string(@assigns)}
-          />
-          <.fullscreen_button id="assigns-display-fullscreen" />
-        </div>
-      </:right_panel>
-      <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
-        <ElixirDisplay.term id="assigns-display" node={TermParser.term_to_display_tree(@assigns)} />
-      </div>
-    </.section>
-    """
+  def handle_info(%StateChanged{}, socket) do
+    socket
+    |> assign_async_node_assigns()
+    |> noreply()
+  end
+
+  def handle_info(_, socket), do: {:noreply, socket}
+
+  defp assign_async_node_assigns(
+         %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket
+       )
+       when not is_nil(node_id) do
+    assign_async(socket, :node_assigns, fn ->
+      NodeStateQueries.fetch_node_assigns(pid, node_id)
+    end)
+  end
+
+  defp assign_async_node_assigns(socket) do
+    assign(socket, :node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
   end
 end
