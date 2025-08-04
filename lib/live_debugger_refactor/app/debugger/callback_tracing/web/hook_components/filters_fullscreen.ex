@@ -53,7 +53,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
     filters_number =
       assigns.node_id
       |> FiltersHelpers.default_filters()
-      |> FiltersUtils.calculate_selected_filters(assigns.current_filters)
+      |> FiltersUtils.count_selected_filters(assigns.current_filters)
 
     assigns = assign(assigns, :applied_filters_number, filters_number)
 

@@ -11,9 +11,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.Filters do
   @doc """
   Calculates the number of selected filters, based on the default and current filters.
   """
-  @spec calculate_selected_filters(default_filters :: map(), current_filters :: map()) ::
+  @spec count_selected_filters(default_filters :: map(), current_filters :: map()) ::
           integer()
-  def calculate_selected_filters(default_filters, current_filters) do
+  def count_selected_filters(default_filters, current_filters) do
     current_flattened_filters = flattened_filters(current_filters, [:min_unit, :max_unit])
     default_flattened_filters = flattened_filters(default_filters, [:min_unit, :max_unit])
 

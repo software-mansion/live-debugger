@@ -18,7 +18,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.FiltersTest do
     end
   end
 
-  test "calculate_selected_filters/2 returns the number of selected filters without min and max units" do
+  test "count_selected_filters/2 returns the number of selected filters without min and max units" do
     current_filters = %{
       functions: %{
         "mount/3" => false
@@ -43,6 +43,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.FiltersTest do
       }
     }
 
-    assert FiltersUtils.calculate_selected_filters(default_filters, current_filters) == 2
+    assert FiltersUtils.count_selected_filters(default_filters, current_filters) == 2
   end
 end
