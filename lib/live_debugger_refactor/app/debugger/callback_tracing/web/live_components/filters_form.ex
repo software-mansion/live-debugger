@@ -12,7 +12,6 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
     as: FiltersComponents
 
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
-  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.Filters, as: FiltersUtils
   alias LiveDebuggerRefactor.App.Utils.Parsers
 
   @impl true
@@ -49,7 +48,7 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
             title="Callbacks"
             group_name={:functions}
             target={@myself}
-            group_changed?={FiltersUtils.group_changed?(@form.params, @default_filters, :functions)}
+            group_changed?={FiltersHelpers.group_changed?(@form.params, @default_filters, :functions)}
           />
           <div class="flex flex-col gap-3 pl-0.5 pb-4 border-b border-default-border">
             <.checkbox
@@ -64,7 +63,7 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
             group_name={:execution_time}
             target={@myself}
             group_changed?={
-              FiltersUtils.group_changed?(@form.params, @default_filters, :execution_time)
+              FiltersHelpers.group_changed?(@form.params, @default_filters, :execution_time)
             }
           />
           <div class="pb-5">
@@ -91,7 +90,7 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
 
           <div class="flex pt-4 pb-2 border-t border-default-border items-center justify-between pr-3">
             <div class="flex gap-2 items-center h-10">
-              <%= if FiltersUtils.filters_changed?(@form.params, @active_filters) do %>
+              <%= if FiltersHelpers.filters_changed?(@form.params, @active_filters) do %>
                 <.button variant="primary" type="submit">
                   Apply
                 </.button>
@@ -111,7 +110,7 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
               <% end %>
             </div>
             <button
-              :if={FiltersUtils.filters_changed?(@form.params, @default_filters)}
+              :if={FiltersHelpers.filters_changed?(@form.params, @default_filters)}
               type="button"
               class="flex align-center text-link-primary hover:text-link-primary-hover"
               phx-click="reset"
@@ -208,7 +207,7 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
         Map.put(acc, filter, Map.get(params, filter, value))
       end)
 
-    case FiltersUtils.validate_execution_time_params(execution_time) do
+    case FiltersHelpers.validate_execution_time_params(execution_time) do
       :ok -> {:ok, %{functions: functions, execution_time: execution_time}}
       {:error, errors} -> {:error, errors}
     end
