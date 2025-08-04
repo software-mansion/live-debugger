@@ -10,6 +10,15 @@ defmodule LiveDebuggerRefactor.App.Utils.Parsers do
   @spec time_units() :: [String.t()]
   def time_units(), do: @time_units
 
+  @spec time_to_microseconds(value :: non_neg_integer(), unit :: String.t()) :: non_neg_integer()
+  def time_to_microseconds(value, unit) when unit in @time_units do
+    case unit do
+      "s" -> value * 1_000_000
+      "ms" -> value * 1_000
+      "µs" -> value
+    end
+  end
+
   @doc """
   Parses a unix timestamp in microseconds to a string representation of the timestamp.
 

@@ -1,7 +1,7 @@
-defmodule LiveDebuggerRefactor.CallbackTracing.Helpers.FiltersTest do
+defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebuggerRefactor.CallbackTracing.Helpers.Filters, as: FiltersHelpers
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
   describe "get_callbacks/1" do
     test "returns all callbacks when node_id is nil" do
@@ -44,54 +44,5 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Helpers.FiltersTest do
              ] ==
                FiltersHelpers.get_callbacks(:c.pid(0, 123, 0))
     end
-  end
-
-  test "group_changed?/3 properly checks if group filters has changed" do
-    params = %{
-      "mount/3" => false,
-      exec_time_min: 10,
-      exec_time_max: 20,
-      min_unit: "ms",
-      max_unit: "ms"
-    }
-
-    filters = %{
-      functions: %{
-        "mount/3" => true
-      },
-      execution_time: %{
-        exec_time_min: 10,
-        exec_time_max: 20,
-        min_unit: "ms",
-        max_unit: "ms"
-      }
-    }
-
-    assert FiltersHelpers.group_changed?(params, filters, :functions)
-    refute FiltersHelpers.group_changed?(params, filters, :execution_time)
-  end
-
-  test "filters_changed?/2 properly checks if filters have changed" do
-    params = %{
-      "mount/3" => false,
-      exec_time_min: 10,
-      exec_time_max: 20,
-      min_unit: "ms",
-      max_unit: "ms"
-    }
-
-    filters = %{
-      functions: %{
-        "mount/3" => true
-      },
-      execution_time: %{
-        exec_time_min: 10,
-        exec_time_max: 20,
-        min_unit: "ms",
-        max_unit: "ms"
-      }
-    }
-
-    assert FiltersHelpers.filters_changed?(params, filters)
   end
 end
