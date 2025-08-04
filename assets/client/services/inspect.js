@@ -1,14 +1,17 @@
 import { dispatchCustomEvent } from '../utils/dom';
 
-export default function initElementInspection({ socketID, sessionURL }) {
+export default function initElementInspection({ baseURL }) {
   let inspectMode = false;
   let lastID = null;
 
   const handleMove = (event) => {
-    const cid = event.target.closest('[data-phx-component]')?.dataset
-      .phxComponent;
+    const live_view_element = event.target.closest('[data-phx-session]');
+    const component_element = event.target.closest('[data-phx-component]');
 
-    const detail = getHighlightDetail(cid, socketID);
+    const detail = getHighlightDetail(component_element, live_view_element);
+    console.log(detail);
+
+    console.log(detail);
 
     if (detail.val === lastID) {
       return;
@@ -23,14 +26,14 @@ export default function initElementInspection({ socketID, sessionURL }) {
     event.preventDefault();
     event.stopPropagation();
 
-    const cid = event.target.closest('[data-phx-component]')?.dataset
-      .phxComponent;
+    const live_view_element = event.target.closest('[data-phx-session]');
+    const component_element = event.target.closest('[data-phx-component]');
 
-    const detail = getHighlightDetail(cid, socketID);
+    const detail = getHighlightDetail(component_element, live_view_element);
 
     pushPulseEvent(detail);
 
-    window.open(sessionURL + (cid ? `?node_id=${detail.val}` : ''), '_blank');
+    // window.open(baseURL + (cid ? `?node_id=${detail.val}` : ''), '_blank');
 
     disableInspectMode();
   };
@@ -102,20 +105,34 @@ function pushPulseEvent(detail) {
   });
 }
 
-function getHighlightDetail(cid, socketID) {
-  if (!cid) {
-    return {
-      attr: 'id',
-      val: socketID,
-    };
+function getHighlightDetail(component_element, live_view_element) {
+  const return_live_view = {
+    attr: 'id',
+    val: live_view_element?.id,
+  };
+
+  const return_component = {
+    attr: 'data-phx-id',
+    val: `c${component_element?.dataset.phxComponent}-${live_view_element?.id}`,
+  };
+
+  if (!component_element) {
+    return return_live_view;
   }
 
-  return {
-    attr: 'data-phx-component',
-    val: cid,
-  };
+  if (!live_view_element) {
+    return return_component;
+  }
+
+  if (live_view_element.contains(component_element)) {
+    return return_component;
+  }
+
+  return return_live_view;
 }
 
 function pushClearEvent() {
   dispatchCustomEvent('lvdbg:inspect-clear');
 }
+
+// live_session_inner_2
