@@ -677,6 +677,45 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
     """
   end
 
+  attr(:value_field, Phoenix.HTML.FormField, required: true)
+  attr(:unit_field, Phoenix.HTML.FormField, required: true)
+  attr(:units, :list, required: true)
+  attr(:rest, :global, include: ~w(min max placeholder))
+
+  def input_with_units(assigns) do
+    assigns =
+      assigns
+      |> assign(:errors, assigns.value_field.errors)
+
+    ~H"""
+    <div class={[
+      "shadow-sm flex items-center rounded-[4px] outline outline-1 -outline-offset-1 has-[input:focus-within]:outline has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2",
+      @errors == [] && "outline-default-border has-[input:focus-within]:outline-ui-accent",
+      @errors != [] && "outline-error-text has-[input:focus-within]:outline-error-text"
+    ]}>
+      <input
+        id={@value_field.id}
+        name={@value_field.name}
+        type="number"
+        min="0"
+        step="1"
+        class="block remove-arrow max-w-20 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0"
+        value={Phoenix.HTML.Form.normalize_value("number", @value_field.value)}
+        {@rest}
+      />
+      <div class="grid shrink-0 grid-cols-1 focus-within:relative">
+        <select
+          id={@unit_field.id}
+          name={@unit_field.name}
+          class="border-none bg-surface-0-bg col-start-1 row-start-1 w-full appearance-none rounded-md py-1.5 pl-3 pr-7 text-xs text-secondary-text placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-ui-accent"
+        >
+          <%= Phoenix.HTML.Form.options_for_select(@units, @unit_field.value) %>
+        </select>
+      </div>
+    </div>
+    """
+  end
+
   defp button_color_classes(variant) do
     case variant do
       "primary" ->
