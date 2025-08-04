@@ -134,5 +134,3 @@ function getHighlightDetail(component_element, live_view_element) {
 function pushClearEvent() {
   dispatchCustomEvent('lvdbg:inspect-clear');
 }
-
-// live_session_inner_2
