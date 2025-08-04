@@ -5,6 +5,7 @@
     height="24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
+    class="live-debugger-bug-icon"
   >
     <path
       fill-rule="evenodd"
@@ -49,30 +50,115 @@
       fill="currentColor"
     />
   </svg>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#001A72"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    class="lucide lucide-square-dashed-mouse-pointer-icon lucide-square-dashed-mouse-pointer live-debugger-inspect-icon"
+  >
+    <path
+      d="M12.034 12.681a.498.498 0 0 1 .647-.647l9 3.5a.5.5 0 0 1-.033.943l-3.444 1.068a1 1 0 0 0-.66.66l-1.067 3.443a.5.5 0 0 1-.943.033z"
+    />
+    <path d="M5 3a2 2 0 0 0-2 2" />
+    <path d="M19 3a2 2 0 0 1 2 2" />
+    <path d="M5 21a2 2 0 0 1-2-2" />
+    <path d="M9 3h1" />
+    <path d="M9 21h2" />
+    <path d="M14 3h1" />
+    <path d="M3 9v1" />
+    <path d="M21 9v2" />
+    <path d="M3 14v1" />
+  </svg>
 </div>
-`;function p(e){let t=document.createElement("div");return t.innerHTML=e,t.firstElementChild}function b(){let e=p(y),t=!1,o=()=>{if(t)n();else{let r=new CustomEvent("live-debugger-debug-button-click",{detail:{buttonRect:e.getBoundingClientRect()}});document.dispatchEvent(r)}},i=()=>{t=!0,e.style.cursor="grabbing",document.addEventListener("mousemove",d)},n=()=>{t=!1,e.style.cursor="pointer",document.removeEventListener("mousemove",d)},d=r=>{let u=e.offsetWidth,l=e.offsetHeight,s=window.innerWidth-u,c=window.innerHeight-l,g=Math.max(0,Math.min(r.clientX-u/2,s)),a=Math.max(0,Math.min(r.clientY-l/2,c));e.style.left=`${g}px`,e.style.top=`${a}px`,e.style.right="auto",e.style.bottom="auto"},h=()=>{let r=e.getBoundingClientRect();r.top>=0&&r.left>=0&&r.bottom<=window.innerHeight&&r.right<=window.innerWidth||(e.style.left="auto",e.style.top="auto",e.style.right="20px",e.style.bottom="20px")};return e.addEventListener("click",o),document.addEventListener("live-debugger-debug-button-move",i),window.addEventListener("resize",()=>h()),e}var E=`<div id="live-debugger-debug-tooltip">
+`;function m(e){let t=document.createElement("div");return t.innerHTML=e,t.firstElementChild}function u(e,t={}){let n=new CustomEvent(e,t);document.dispatchEvent(n)}function b(){let e=m(y),t=!1,n=()=>{t?o():u("lvdbg:debug-button-click",{detail:{buttonRect:e.getBoundingClientRect()}})},i=()=>{t=!0,e.style.cursor="grabbing",document.addEventListener("mousemove",s)},o=()=>{t=!1,e.style.cursor="pointer",document.removeEventListener("mousemove",s)},s=r=>{let a=e.offsetWidth,l=e.offsetHeight,d=window.innerWidth-a,g=window.innerHeight-l,c=Math.max(0,Math.min(r.clientX-a/2,d)),h=Math.max(0,Math.min(r.clientY-l/2,g));e.style.left=`${c}px`,e.style.top=`${h}px`,e.style.right="auto",e.style.bottom="auto"},p=()=>{let r=e.getBoundingClientRect();r.top>=0&&r.left>=0&&r.bottom<=window.innerHeight&&r.right<=window.innerWidth||(e.style.left="auto",e.style.top="auto",e.style.right="20px",e.style.bottom="20px")};return e.addEventListener("click",n),document.addEventListener("lvdbg:move-button-click",i),window.addEventListener("resize",()=>p()),e}var k=`<div id="live-debugger-debug-tooltip">
   <div
     class="live-debugger-tooltip-option"
     id="live-debugger-debug-tooltip-open-in-new-tab"
   >
-    Open in new tab
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#001a72"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="lucide lucide-square-arrow-out-up-right-icon lucide-square-arrow-out-up-right"
+    >
+      <path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6" />
+      <path d="m21 3-9 9" />
+      <path d="M15 3h6v6" />
+    </svg>
+    <p>Open in new tab</p>
   </div>
   <div
     class="live-debugger-tooltip-option"
     id="live-debugger-debug-tooltip-inspect-elements"
   >
-    Inspect elements
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#001a72"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="lucide lucide-square-dashed-mouse-pointer-icon lucide-square-dashed-mouse-pointer"
+    >
+      <path
+        d="M12.034 12.681a.498.498 0 0 1 .647-.647l9 3.5a.5.5 0 0 1-.033.943l-3.444 1.068a1 1 0 0 0-.66.66l-1.067 3.443a.5.5 0 0 1-.943.033z"
+      />
+      <path d="M5 3a2 2 0 0 0-2 2" />
+      <path d="M19 3a2 2 0 0 1 2 2" />
+      <path d="M5 21a2 2 0 0 1-2-2" />
+      <path d="M9 3h1" />
+      <path d="M9 21h2" />
+      <path d="M14 3h1" />
+      <path d="M3 9v1" />
+      <path d="M21 9v2" />
+      <path d="M3 14v1" />
+    </svg>
+    <p>Inspect elements</p>
   </div>
   <div
     class="live-debugger-tooltip-option"
     id="live-debugger-debug-tooltip-move-button"
   >
-    Move buttons
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="#001a72"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="lucide lucide-move-icon lucide-move"
+    >
+      <path d="M12 2v20" />
+      <path d="m15 19-3 3-3-3" />
+      <path d="m19 9 3 3-3 3" />
+      <path d="M2 12h20" />
+      <path d="m5 9-3 3 3 3" />
+      <path d="m9 5 3-3 3 3" />
+    </svg>
+    <p>Move buttons</p>
   </div>
 </div>
-`;function f({liveDebuggerURL:e}){let t=p(E),o=!1,i=l=>{t.style.display="block";let s=t.getBoundingClientRect(),c=s.width,g=s.height,a=window.pageXOffset||document.documentElement.scrollLeft,L=window.pageYOffset||document.documentElement.scrollTop;l.right+c>window.innerWidth?t.style.left=`${l.left+a-c}px`:t.style.left=`${l.right+a}px`,l.top+g>window.innerHeight?t.style.top=`${l.bottom+L-g}px`:t.style.top=`${l.top+L}px`,o=!0},n=()=>{t.style.display="none",o=!1},d=l=>{let s=l.detail.buttonRect;o?n():i(s)},h=()=>{let l=new CustomEvent("live-debugger-debug-button-move");document.dispatchEvent(l),n()},r=()=>{window.open(e,"_blank"),n()},u=()=>{n()};return t.querySelector("#live-debugger-debug-tooltip-open-in-new-tab").addEventListener("click",r),t.querySelector("#live-debugger-debug-tooltip-inspect-elements").addEventListener("click",u),t.querySelector("#live-debugger-debug-tooltip-move-button").addEventListener("click",h),document.addEventListener("live-debugger-debug-button-click",d),document.addEventListener("live-debugger-debug-menu-click-outside",n),window.addEventListener("resize",()=>{o&&n()}),t}function m(e){let t=b(),o=f({liveDebuggerURL:e});return document.body.appendChild(t),document.body.appendChild(o),document.addEventListener("click",i=>{if(!t.contains(i.target)&&!o.contains(i.target)){let n=new CustomEvent("live-debugger-debug-menu-click-outside");document.dispatchEvent(n)}}),{debugButton:t,debugMenu:o}}var v="live-debugger-highlight-element",V="live-debugger-highlight-pulse-element",x=e=>{if(!e)return!1;let t=window.getComputedStyle(e);return t.display!=="none"&&t.visibility!=="hidden"&&t.opacity!=="0"};function k(e,t,o){let i=e.getBoundingClientRect(),n=document.createElement("div");return n.id=o,n.dataset.attr=t.attr,n.dataset.val=t.val,n.style.position="absolute",n.style.top=`${i.top+window.scrollY}px`,n.style.left=`${i.left+window.scrollX}px`,n.style.width=`${e.offsetWidth}px`,n.style.height=`${e.offsetHeight}px`,n.style.backgroundColor="#87CCE880",n.style.zIndex="10000",n.style.pointerEvents="none",n}function I({detail:e}){let t=document.getElementById(v);if(t){t.remove();let i=e.attr===void 0||e.val===void 0,n=t.dataset.val===e.val;if(i||n)return}let o=document.querySelector(`[${e.attr}="${e.val}"]`);x(o)&&(t=k(o,e,v),document.body.appendChild(t))}function Z(){let e=document.getElementById(v);if(e){let t=document.querySelector(`[${e.dataset.attr}="${e.dataset.val}"]`),o=t.getBoundingClientRect();e.style.top=`${o.top+window.scrollY}px`,e.style.left=`${o.left+window.scrollX}px`,e.style.width=`${t.offsetWidth}px`,e.style.height=`${t.offsetHeight}px`}}function q({detail:e}){let t=document.querySelector(`[${e.attr}="${e.val}"]`);if(x(t)){let o=k(t,e,V);document.body.appendChild(o);let i=o.offsetWidth,n=o.offsetHeight;o.animate([{width:`${i}px`,height:`${n}px`,transform:"translate(0, 0)",backgroundColor:"#87CCE860"},{width:`${i+20}px`,height:`${n+20}px`,transform:"translate(-10px, -10px)",backgroundColor:"#87CCE830"},{width:`${i+40}px`,height:`${n+40}px`,transform:"translate(-20px, -20px)",backgroundColor:"#87CCE800"}],{duration:500,iterations:1,delay:200}).onfinish=()=>{o.remove()}}}function C(){window.addEventListener("phx:highlight",I),window.addEventListener("resize",Z),window.addEventListener("phx:pulse",q)}function w(e,t){let o=e.replace(/^http/,"ws")+"/client",i=new window.Phoenix.Socket(o,{params:{sessionId:t||"embedded"}});i.connect();let n=i.channel(`client:${t}`);return n.join().receive("ok",()=>{console.log("LiveDebugger debug connection established!")}).receive("error",d=>{console.error(`LiveDebugger was unable to establish websocket debug connection! Browser features will not work:
-`,d)}),{debugSocket:i,debugChannel:n}}function D(){let e;if((e=document.querySelector("[data-phx-main]"))||(e=document.querySelector('[id^="phx-"]')))return e.id;if(e=document.querySelector("[data-phx-root-id]"))return e.getAttribute("data-phx-root-id")}function $(){let e=document.querySelector('meta[name="live-debugger-config"]');if(e)return e;{let t=`
+`;function f({liveDebuggerURL:e}){let t=m(k),n=!1,i=l=>{t.style.display="block";let d=t.getBoundingClientRect(),g=d.width,c=d.height,h=window.pageXOffset||document.documentElement.scrollLeft,x=window.pageYOffset||document.documentElement.scrollTop;l.right+g>window.innerWidth?t.style.left=`${l.left+h-g}px`:t.style.left=`${l.right+h}px`,l.top+c>window.innerHeight?t.style.top=`${l.bottom+x-c}px`:t.style.top=`${l.top+x}px`,n=!0},o=()=>{t.style.display="none",n=!1},s=l=>{let d=l.detail.buttonRect;n?o():i(d)},p=()=>{u("lvdbg:move-button-click"),o()},r=()=>{window.open(e,"_blank"),o()},a=()=>{u("lvdbg:inspect-button-click"),o()};return t.querySelector("#live-debugger-debug-tooltip-open-in-new-tab").addEventListener("click",r),t.querySelector("#live-debugger-debug-tooltip-inspect-elements").addEventListener("click",a),t.querySelector("#live-debugger-debug-tooltip-move-button").addEventListener("click",p),document.addEventListener("lvdbg:debug-button-click",s),document.addEventListener("lvdbg:click-outside-debug-menu",o),window.addEventListener("resize",()=>{n&&o()}),t}function w(e){let t=b(),n=f({liveDebuggerURL:e});return document.body.appendChild(t),document.body.appendChild(n),document.addEventListener("click",i=>{!t.contains(i.target)&&!n.contains(i.target)&&u("lvdbg:click-outside-debug-menu")}),{debugButton:t,debugMenu:n}}var v="live-debugger-highlight-element",W="live-debugger-highlight-pulse-element",$=e=>{if(!e)return!1;let t=window.getComputedStyle(e);return t.display!=="none"&&t.visibility!=="hidden"&&t.opacity!=="0"};function B(e,t,n){let i=e.getBoundingClientRect(),o=document.createElement("div");return o.id=n,o.dataset.attr=t.attr,o.dataset.val=t.val,o.style.position="absolute",o.style.top=`${i.top+window.scrollY}px`,o.style.left=`${i.left+window.scrollX}px`,o.style.width=`${e.offsetWidth}px`,o.style.height=`${e.offsetHeight}px`,o.style.backgroundColor="#87CCE880",o.style.zIndex="10000",o.style.pointerEvents="none",o}function z(){let e=document.getElementById(v);e&&e.remove()}function M({detail:e}){let t=document.getElementById(v);if(t){t.remove();let i=e.attr===void 0||e.val===void 0,o=t.dataset.val===e.val;if(i||o)return}let n=document.querySelector(`[${e.attr}="${e.val}"]`);$(n)&&(t=B(n,e,v),document.body.appendChild(t))}function A(){let e=document.getElementById(v);if(e){let t=document.querySelector(`[${e.dataset.attr}="${e.dataset.val}"]`),n=t.getBoundingClientRect();e.style.top=`${n.top+window.scrollY}px`,e.style.left=`${n.left+window.scrollX}px`,e.style.width=`${t.offsetWidth}px`,e.style.height=`${t.offsetHeight}px`}}function D({detail:e}){let t=document.querySelector(`[${e.attr}="${e.val}"]`);if($(t)){let n=B(t,e,W);document.body.appendChild(n);let i=n.offsetWidth,o=n.offsetHeight;n.animate([{width:`${i}px`,height:`${o}px`,transform:"translate(0, 0)",backgroundColor:"#87CCE860"},{width:`${i+20}px`,height:`${o+20}px`,transform:"translate(-10px, -10px)",backgroundColor:"#87CCE830"},{width:`${i+40}px`,height:`${o+40}px`,transform:"translate(-20px, -20px)",backgroundColor:"#87CCE800"}],{duration:500,iterations:1,delay:200}).onfinish=()=>{n.remove()}}}function C(){document.addEventListener("lvdbg:inspect-highlight",M),document.addEventListener("lvdbg:inspect-pulse",D),document.addEventListener("lvdbg:inspect-clear",z),window.addEventListener("phx:highlight",M),window.addEventListener("resize",A),window.addEventListener("phx:pulse",D)}function E(e,t){let n=e.replace(/^http/,"ws")+"/client",i=new window.Phoenix.Socket(n,{params:{sessionId:t||"embedded"}});i.connect();let o=i.channel(`client:${t}`);return o.join().receive("ok",()=>{console.log("LiveDebugger debug connection established!")}).receive("error",s=>{console.error(`LiveDebugger was unable to establish websocket debug connection! Browser features will not work:
+`,s)}),{debugSocket:i,debugChannel:o}}function L({socketID:e,sessionURL:t}){let n=!1,i=null,o=d=>{let g=d.target.closest("[data-phx-component]")?.dataset.phxComponent,c=H(g,e);c.val!==i&&(i=c.val,P(c))},s=d=>{d.preventDefault(),d.stopPropagation();let g=d.target.closest("[data-phx-component]")?.dataset.phxComponent,c=H(g,e);Y(c),window.open(t+(g?`?node_id=${c.val}`:""),"_blank"),a()},p=d=>{d.preventDefault(),a()},r=d=>{d.key==="Escape"&&a()},a=()=>{n&&(n=!1,i=null,document.getElementById("live-debugger-debug-button").classList.remove("live-debugger-inspect-mode"),j(),document.body.classList.remove("live-debugger-inspect-mode"),document.body.removeEventListener("click",s),document.body.removeEventListener("mouseover",o),document.removeEventListener("contextmenu",p),document.removeEventListener("keydown",r))},l=()=>{n||(n=!0,document.getElementById("live-debugger-debug-button").classList.add("live-debugger-inspect-mode"),document.body.classList.add("live-debugger-inspect-mode"),document.body.addEventListener("click",s),document.body.addEventListener("mouseover",o),document.addEventListener("contextmenu",p),document.addEventListener("keydown",r))};document.addEventListener("lvdbg:inspect-button-click",d=>{setTimeout(l)})}function P(e){u("lvdbg:inspect-highlight",{detail:e})}function Y(e){u("lvdbg:inspect-pulse",{detail:e})}function H(e,t){return e?{attr:"data-phx-component",val:e}:{attr:"id",val:t}}function j(){u("lvdbg:inspect-clear")}function I(){let e;if((e=document.querySelector("[data-phx-main]"))||(e=document.querySelector('[id^="phx-"]')))return e.id;if(e=document.querySelector("[data-phx-root-id]"))return e.getAttribute("data-phx-root-id")}function S(){let e=document.querySelector('meta[name="live-debugger-config"]');if(e)return e;{let t=`
     LiveDebugger meta tag not found!
     If you have recently bumped LiveDebugger version, please update your layout according to the instructions in the GitHub README.
     You can find it here: https://github.com/software-mansion/live-debugger#installation
-    `;throw new Error(t)}}function M(e){return e.getAttribute("url")}function H(e){return e.hasAttribute("debug-button")}function B(e){return e.hasAttribute("highlighting")}function S(e){return e.hasAttribute("refactor")}window.document.addEventListener("DOMContentLoaded",function(){let e=$(),t=M(e),o=D(),i=`${t}/redirect/${o}`;if(o){if(S(e)){let{debugChannel:n}=w(t,o);n.on("ping",d=>{console.log("Received ping",d),n.push("pong",d)})}H(e)&&m(i),B(e)&&C()}console.info(`LiveDebugger available at: ${t}`)});})();
+    `;throw new Error(t)}}function q(e){return e.getAttribute("url")}function R(e){return e.hasAttribute("debug-button")}function O(e){return e.hasAttribute("highlighting")}function V(e){return e.hasAttribute("refactor")}window.document.addEventListener("DOMContentLoaded",function(){let e=S(),t=q(e),n=I(),i=`${t}/redirect/${n}`;if(n){if(V(e)){let{debugChannel:o}=E(t,n);o.on("ping",s=>{console.log("Received ping",s),o.push("pong",s)})}R(e)&&w(i),O(e)&&C(),L({socketID:n,sessionURL:i})}console.info(`LiveDebugger available at: ${t}`)});})();
