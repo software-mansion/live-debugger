@@ -32,7 +32,7 @@ window.document.addEventListener('DOMContentLoaded', function () {
         debugChannel.push('pong', resp);
       });
 
-      initWindowIdentifier(debugChannel);
+      initWindowIdentifier(debugChannel, socketID);
     }
 
     if (isDebugButtonEnabled(metaTag)) {
