@@ -1,5 +1,7 @@
 {
-  "dependencies": {},
+  "dependencies": {
+    "uuid": "^11.1.0"
+  },
   "devDependencies": {
     "prettier": "^3.5.1"
   }
