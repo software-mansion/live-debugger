@@ -49,16 +49,18 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
         socket
       ) do
     socket
-    |> assign(:id, id)
-    |> assign(:parent_pid, parent_pid)
-    |> assign(:lv_process, lv_process)
+    |> assign(
+      id: id,
+      parent_pid: parent_pid,
+      lv_process: lv_process,
+      traces_empty?: true,
+      traces_continuation: nil,
+      existing_traces_status: :loading,
+      displayed_trace: nil,
+      tracing_started?: false,
+      trace_callback_running?: false
+    )
     |> stream(:existing_traces, [], reset: true)
-    |> assign(:traces_empty?, true)
-    |> assign(:traces_continuation, nil)
-    |> assign(:existing_traces_status, :loading)
-    |> assign(:displayed_trace, nil)
-    |> assign(:tracing_started?, false)
-    |> assign(:trace_callback_running?, false)
     |> put_private(:page_size, @page_size)
     |> put_private(:live_stream_limit, @live_stream_limit)
     |> NestedLiveViewAssigns.assign_node_id(session)
