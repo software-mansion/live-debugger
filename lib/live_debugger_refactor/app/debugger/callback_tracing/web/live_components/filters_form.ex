@@ -135,8 +135,7 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
         nil
     end
 
-    socket
-    |> noreply()
+    {:noreply, socket}
   end
 
   def handle_event("change", params, socket) do
