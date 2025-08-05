@@ -21,6 +21,12 @@ defmodule LiveDebuggerRefactor.Client.Channel do
       {message, payload}
     )
 
+    Phoenix.PubSub.broadcast!(
+      @pubsub_name,
+      "client:receive",
+      {message, payload}
+    )
+
     {:noreply, socket}
   end
 
