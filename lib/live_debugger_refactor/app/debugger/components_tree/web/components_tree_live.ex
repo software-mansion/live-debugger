@@ -5,17 +5,38 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
 
   use LiveDebuggerRefactor.App.Web, :live_view
 
-  alias Phoenix.LiveView.AsyncResult
+  require Logger
+
+  alias LiveDebugger.Utils.URL
+  alias LiveDebuggerRefactor.Structs.LvProcess
+  alias LiveDebuggerRefactor.App.Debugger.Web.Assigns.NestedLiveView, as: NestedLiveViewAssigns
   alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.Components, as: TreeComponents
+  alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Utils, as: ComponentsTreeUtils
+  alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Queries, as: ComponentsTreeQueries
 
   @doc """
-  Renders the ComponentsTreeLive as nested LiveView component.
+  Renders the `ComponentsTreeLive` as a nested LiveView component.
+
+  `id` - dom id
+  `socket` - parent LiveView socket
+  `lv_process` - currently debugged LiveView process
+  `params` - query parameters of the page.
   """
+
   attr(:id, :string, required: true)
   attr(:socket, Phoenix.LiveView.Socket, required: true)
+  attr(:lv_process, LvProcess, required: true)
+  attr(:params, :map, required: true)
+  attr(:url, :string, required: true)
 
   def live_render(assigns) do
-    assigns = assign(assigns, :session, %{})
+    session = %{
+      "lv_process" => assigns.lv_process,
+      "params" => assigns.params,
+      "url" => assigns.url
+    }
+
+    assigns = assign(assigns, session: session)
 
     ~H"""
     <%= live_render(@socket, __MODULE__, id: @id, session: @session) %>
@@ -23,31 +44,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   end
 
   @impl true
-  def mount(_params, _session, socket) do
-    # Dummy data
-    dummy_node = %LiveDebuggerRefactor.App.Debugger.Structs.TreeNode{
-      id: :c.pid(0, 123, 0),
-      type: :live_view,
-      module: LiveDebuggerRefactor.App.Settings.Web.SettingsLive,
-      dom_id: %{
-        attribute: "id",
-        value: "phx-somevalue"
-      },
-      assigns: %{
-        dummy_assign: :value
-      },
-      children: []
-    }
-
-    # Assigns with dummy data
-    socket =
-      socket
-      |> assign(:tree, AsyncResult.ok(dummy_node))
-      |> assign(:selected_node_id, dummy_node.id)
-      |> assign(:max_opened_node_level, 1)
-
+  def mount(_params, session, socket) do
     socket
-    |> assign(:highlight?, false)
+    |> assign(lv_process: session["lv_process"])
+    |> assign(url: session["url"])
+    |> assign(highlight?: false)
+    |> NestedLiveViewAssigns.assign_node_id(session)
+    |> assign_async_tree()
     |> ok()
   end
 
@@ -76,8 +79,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
           <TreeComponents.tree_node
             id="components-tree"
             tree_node={tree}
-            selected_node_id={@selected_node_id}
-            max_opened_node_level={@max_opened_node_level}
+            selected_node_id={@node_id}
+            max_opened_node_level={ComponentsTreeUtils.max_opened_node_level(tree)}
           />
         </div>
       </div>
@@ -92,8 +95,18 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
     |> noreply()
   end
 
-  def handle_event("select_node", _, socket) do
+  def handle_event("select_node", %{"node-id" => node_id}, socket) do
     socket
+    |> push_patch(to: URL.upsert_query_param(socket.assigns.url, "node_id", node_id))
+    |> assign(:highlight?, false)
     |> noreply()
+  end
+
+  defp assign_async_tree(socket) do
+    pid = socket.assigns.lv_process.pid
+
+    assign_async(socket, [:tree], fn ->
+      ComponentsTreeQueries.fetch_components_tree(pid)
+    end)
   end
 end

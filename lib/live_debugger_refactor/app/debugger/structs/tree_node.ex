@@ -3,6 +3,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.Structs.TreeNode do
   Structs and functions to build and manipulate the tree of LiveView and LiveComponent nodes.
   """
 
+  alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
+  alias LiveDebuggerRefactor.Structs.LvState
   alias LiveDebuggerRefactor.App.Utils.Parsers
   alias LiveDebuggerRefactor.CommonTypes
 
@@ -11,7 +13,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.Structs.TreeNode do
     :dom_id,
     :type,
     :module,
-    :assigns,
     :children
   ]
 
@@ -25,7 +26,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.Structs.TreeNode do
           },
           type: type(),
           module: module(),
-          assigns: map(),
           children: [t()]
         }
 
@@ -50,4 +50,87 @@ defmodule LiveDebuggerRefactor.App.Debugger.Structs.TreeNode do
       Parsers.string_to_cid(id)
     end
   end
+
+  @doc """
+  Adds a child to the parent node.
+  """
+  @spec add_child(parent :: t(), child :: t()) :: t()
+  def add_child(parent, child) do
+    %{parent | children: parent.children ++ [child]}
+  end
+
+  @doc """
+  Parses LiveView state to LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
+
+  ## Examples
+
+      iex> {:ok, state} = LiveDebuggerRefactor.API.LiveViewDebug.liveview_state(pid)
+      iex> LiveDebuggerRefactor.App.Debugger.Structs.TreeNode.live_view_node(state)
+      {:ok, %LiveDebuggerRefactor.App.Debugger.Structs.TreeNode{...}}
+  """
+  @spec live_view_node(LvState.t()) :: {:ok, t()} | {:error, term()}
+  def live_view_node(%LvState{
+        pid: pid,
+        socket: %{id: socket_id, root_pid: pid, view: view}
+      }) do
+    {:ok,
+     %TreeNode{
+       id: pid,
+       dom_id: %{
+         attribute: "id",
+         value: socket_id
+       },
+       type: :live_view,
+       module: view,
+       children: []
+     }}
+  end
+
+  def live_view_node(_), do: {:error, :invalid_lv_state}
+
+  @doc """
+  Parses `LvState` to a list of all LiveDebugger.Structs.TreeNode.LiveComponent nodes.
+  It doesn't include children.
+
+  ## Examples
+
+      iex> {:ok, state} = LiveDebugger.Services.get_channel_state(pid)
+      iex> LiveDebugger.Structs.TreeNode.live_component_nodes(state)
+      {:ok, [%LiveDebugger.Structs.TreeNode.LiveComponent{...}, ...]}
+  """
+  @spec live_component_nodes(LvState.t()) :: {:ok, [t()]} | {:error, term()}
+
+  def live_component_nodes(%LvState{socket: socket, components: components}) do
+    Enum.reduce_while(components, {:ok, []}, fn component, acc ->
+      case parse_channel_live_component(component, socket.id) do
+        {:ok, component} ->
+          {:ok, acc_components} = acc
+          {:cont, {:ok, [component | acc_components]}}
+
+        {:error, reason} ->
+          {:halt, {:error, reason}}
+      end
+    end)
+  end
+
+  def live_component_nodes(_), do: {:error, :invalid_lv_state}
+
+  defp parse_channel_live_component(
+         %{cid: integer_cid, module: module},
+         socket_id
+       ) do
+    {:ok,
+     %TreeNode{
+       id: %Phoenix.LiveComponent.CID{cid: integer_cid},
+       dom_id: %{
+         attribute: "data-phx-id",
+         value: "c#{integer_cid}-#{socket_id}"
+       },
+       type: :live_component,
+       module: module,
+       children: []
+     }}
+  end
+
+  defp parse_channel_live_component(_, _), do: {:error, :invalid_live_component}
 end
