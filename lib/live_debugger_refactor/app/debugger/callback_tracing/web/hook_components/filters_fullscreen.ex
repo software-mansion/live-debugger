@@ -27,6 +27,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
 
   @impl true
   def render(assigns) do
+    assigns = assign(assigns, fullscreen_id: @fullscreen_id, form_id: @form_id)
+
     ~H"""
     <.fullscreen id={@fullscreen_id} title="Filters" class="max-w-112 min-w-[20rem]">
       <.live_component
@@ -107,4 +109,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
     |> assign(:current_filters, FiltersHelpers.default_filters(socket.assigns.node_id))
     |> halt()
   end
+
+  defp handle_event(_, _, socket), do: {:cont, socket}
 end

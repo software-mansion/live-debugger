@@ -156,9 +156,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters 
     max_time_value = apply_unit_factor(max_time, max_time_unit)
 
     if min_time_value > max_time_value do
-      []
-      |> Keyword.put(:exec_time_min, "min must be less than max")
-      |> Keyword.put(:exec_time_max, "max must be greater than min")
+      Keyword.put([], :exec_time_min, "min must be less than max")
     else
       []
     end
