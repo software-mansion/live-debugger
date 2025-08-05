@@ -4,6 +4,7 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.Supervisor do
   """
 
   use Supervisor
+  alias LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.ClientEventsReceiver
 
   def start_link(opts \\ []) do
     Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
@@ -11,7 +12,7 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.Supervisor do
 
   @impl true
   def init(_opts) do
-    children = []
+    children = [ClientEventsReceiver]
 
     Supervisor.init(children, strategy: :one_for_one)
   end
