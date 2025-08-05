@@ -123,13 +123,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   end
 
   @impl true
-  def handle_info(%LiveComponentCreated{} = msg, socket) do
+  def handle_info(%LiveComponentCreated{}, socket) do
     socket
     |> assign_async_tree()
     |> noreply()
   end
 
-  def handle_info(%LiveComponentDeleted{} = msg, socket) do
+  def handle_info(%LiveComponentDeleted{}, socket) do
     socket
     |> assign_async_tree()
     |> noreply()
