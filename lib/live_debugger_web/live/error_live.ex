@@ -56,6 +56,12 @@ defmodule LiveDebuggerWeb.ErrorLive do
     assign(socket, description: "Node id provided in the URL has invalid format")
   end
 
+  defp assign_description(%{assigns: %{error: "multiple_live_views"}} = socket) do
+    assign(socket,
+      description: "Could not find a single LiveView process for the given socket id"
+    )
+  end
+
   defp assign_description(socket) do
     assign(socket,
       description: "Debugger encountered unexpected error. Check logs for more information"
