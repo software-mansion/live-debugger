@@ -5,6 +5,7 @@ import initDebugMenu from './components/debug_menu';
 import initHighlight from './services/highlight';
 import initDebugSocket from './services/debug_socket';
 import initElementInspection from './services/inspect';
+import initWindowIdentifier from './services/window_identifier';
 
 import {
   getMetaTag,
@@ -30,6 +31,8 @@ window.document.addEventListener('DOMContentLoaded', function () {
         console.log('Received ping', resp);
         debugChannel.push('pong', resp);
       });
+
+      initWindowIdentifier(debugChannel);
     }
 
     if (isDebugButtonEnabled(metaTag)) {
