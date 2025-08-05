@@ -16,6 +16,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Utils, as: ComponentsTreeUtils
   alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Queries, as: ComponentsTreeQueries
 
+  alias LiveDebuggerRefactor.Bus
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentDeleted
+  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentCreated
+
   @doc """
   Renders the `ComponentsTreeLive` as a nested LiveView component.
 
@@ -23,6 +27,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   `socket` - parent LiveView socket
   `lv_process` - currently debugged LiveView process
   `params` - query parameters of the page.
+  `url` - current URL of the page, used for patching
   """
 
   attr(:id, :string, required: true)
@@ -47,8 +52,14 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
 
   @impl true
   def mount(_params, session, socket) do
+    lv_process = session["lv_process"]
+
+    if connected?(socket) do
+      Bus.receive_events!(lv_process.pid)
+    end
+
     socket
-    |> assign(lv_process: session["lv_process"])
+    |> assign(lv_process: lv_process)
     |> assign(url: session["url"])
     |> assign(highlight?: false)
     |> NestedLiveViewAssigns.assign_node_id(session)
@@ -97,7 +108,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
     |> noreply()
   end
 
-  @impl true
   def handle_event("highlight", params, socket) do
     socket
     |> highlight_element(params)
@@ -112,9 +122,21 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
     |> noreply()
   end
 
+  @impl true
+  def handle_info(%LiveComponentCreated{} = msg, socket) do
+    socket
+    |> assign_async_tree()
+    |> noreply()
+  end
+
+  def handle_info(%LiveComponentDeleted{} = msg, socket) do
+    socket
+    |> assign_async_tree()
+    |> noreply()
+  end
+
   defp assign_async_tree(socket) do
     pid = socket.assigns.lv_process.pid
-
     assign_async(socket, [:tree], fn -> ComponentsTreeQueries.fetch_components_tree(pid) end)
   end
 
