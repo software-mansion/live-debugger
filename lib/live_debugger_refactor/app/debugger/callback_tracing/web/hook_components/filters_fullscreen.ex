@@ -6,7 +6,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
   use LiveDebuggerRefactor.App.Web, :hook_component
 
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
-  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Utils.Filters, as: FiltersUtils
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
   @required_assigns [:current_filters]
@@ -53,7 +52,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
     filters_number =
       assigns.node_id
       |> FiltersHelpers.default_filters()
-      |> FiltersUtils.count_selected_filters(assigns.current_filters)
+      |> FiltersHelpers.count_selected_filters(assigns.current_filters)
 
     assigns = assign(assigns, :applied_filters_number, filters_number)
 

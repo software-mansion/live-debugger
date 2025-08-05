@@ -227,4 +227,32 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.FiltersT
              )
     end
   end
+
+  test "count_selected_filters/2 returns the number of selected filters without min and max units" do
+    current_filters = %{
+      functions: %{
+        "mount/3" => false
+      },
+      execution_time: %{
+        exec_time_min: "10",
+        exec_time_max: "",
+        min_unit: "ms",
+        max_unit: "ms"
+      }
+    }
+
+    default_filters = %{
+      functions: %{
+        "mount/3" => true
+      },
+      execution_time: %{
+        exec_time_min: "",
+        exec_time_max: "",
+        min_unit: "ms",
+        max_unit: "ms"
+      }
+    }
+
+    assert FiltersHelpers.count_selected_filters(default_filters, current_filters) == 2
+  end
 end
