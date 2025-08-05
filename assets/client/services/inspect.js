@@ -1,14 +1,18 @@
 import { dispatchCustomEvent } from '../utils/dom';
 
-export default function initElementInspection({ socketID, sessionURL }) {
+export default function initElementInspection({ baseURL }) {
   let inspectMode = false;
   let lastID = null;
 
   const handleMove = (event) => {
-    const cid = event.target.closest('[data-phx-component]')?.dataset
-      .phxComponent;
+    const liveViewElement = event.target.closest('[data-phx-session]');
+    const componentElement = event.target.closest('[data-phx-component]');
 
-    const detail = getHighlightDetail(cid, socketID);
+    if (!liveViewElement) {
+      return;
+    }
+
+    const detail = getHighlightDetail(componentElement, liveViewElement);
 
     if (detail.val === lastID) {
       return;
@@ -23,14 +27,30 @@ export default function initElementInspection({ socketID, sessionURL }) {
     event.preventDefault();
     event.stopPropagation();
 
-    const cid = event.target.closest('[data-phx-component]')?.dataset
-      .phxComponent;
+    const liveViewElement = event.target.closest('[data-phx-session]');
+    const componentElement = event.target.closest('[data-phx-component]');
+    const rootElement = document.querySelector('[data-phx-main]');
 
-    const detail = getHighlightDetail(cid, socketID);
+    if (!liveViewElement) {
+      return;
+    }
 
+    const rootID = rootElement?.id || liveViewElement.dataset.phxRootId;
+
+    const detail = getHighlightDetail(componentElement, liveViewElement);
     pushPulseEvent(detail);
 
-    window.open(sessionURL + (cid ? `?node_id=${detail.val}` : ''), '_blank');
+    const url = new URL(`${baseURL}/redirect/${liveViewElement.id}`);
+
+    if (liveViewElement.id !== rootID) {
+      url.searchParams.set('root_id', rootID);
+    }
+
+    if (componentElement) {
+      url.searchParams.set('node_id', componentElement.dataset.phxComponent);
+    }
+
+    window.open(url, '_blank');
 
     disableInspectMode();
   };
@@ -102,20 +122,20 @@ function pushPulseEvent(detail) {
   });
 }
 
-function getHighlightDetail(cid, socketID) {
-  if (!cid) {
+function pushClearEvent() {
+  dispatchCustomEvent('lvdbg:inspect-clear');
+}
+
+function getHighlightDetail(componentElement, liveViewElement) {
+  if (componentElement && liveViewElement.contains(componentElement)) {
     return {
-      attr: 'id',
-      val: socketID,
+      attr: 'data-phx-id',
+      val: `c${componentElement.dataset.phxComponent}-${liveViewElement.id}`,
     };
   }
 
   return {
-    attr: 'data-phx-component',
-    val: cid,
+    attr: 'id',
+    val: liveViewElement.id,
   };
-}
-
-function pushClearEvent() {
-  dispatchCustomEvent('lvdbg:inspect-clear');
 }
