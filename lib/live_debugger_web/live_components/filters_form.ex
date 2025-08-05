@@ -130,8 +130,7 @@ defmodule LiveDebuggerWeb.LiveComponents.FiltersForm do
         nil
     end
 
-    socket
-    |> noreply()
+    {:noreply, socket}
   end
 
   @impl true
