@@ -153,7 +153,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   end
 
   defp pulse_element(socket, %{"search-attribute" => attr, "search-value" => val}) do
-    if LiveDebugger.Feature.enabled?(:highlighting) do
+    if LiveDebuggerRefactor.Feature.enabled?(:highlighting) do
       # Resets the highlight when the user selects node
       if socket.assigns.highlight? do
         send_event(socket.assigns.lv_process.pid, "highlight", %{attr: attr, val: val})
