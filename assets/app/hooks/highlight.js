@@ -12,7 +12,7 @@ const Highlight = {
           'search-value': attr['phx-value-search-value'].value,
         };
 
-        this.pushEventTo('#sidebar', 'highlight', params);
+        this.pushEvent('highlight', params);
       }
     };
 

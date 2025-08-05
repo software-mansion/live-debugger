@@ -7,6 +7,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
 
   require Logger
 
+  alias Phoenix.Socket.Message
+  alias LiveDebuggerRefactor.API.System.Process, as: ProcessAPI
   alias LiveDebugger.Utils.URL
   alias LiveDebuggerRefactor.Structs.LvProcess
   alias LiveDebuggerRefactor.App.Debugger.Web.Assigns.NestedLiveView, as: NestedLiveViewAssigns
@@ -95,8 +97,16 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
     |> noreply()
   end
 
-  def handle_event("select_node", %{"node-id" => node_id}, socket) do
+  @impl true
+  def handle_event("highlight", params, socket) do
     socket
+    |> highlight_element(params)
+    |> noreply()
+  end
+
+  def handle_event("select_node", %{"node-id" => node_id} = params, socket) do
+    socket
+    |> pulse_element(params)
     |> push_patch(to: URL.upsert_query_param(socket.assigns.url, "node_id", node_id))
     |> assign(:highlight?, false)
     |> noreply()
@@ -105,8 +115,44 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   defp assign_async_tree(socket) do
     pid = socket.assigns.lv_process.pid
 
-    assign_async(socket, [:tree], fn ->
-      ComponentsTreeQueries.fetch_components_tree(pid)
-    end)
+    assign_async(socket, [:tree], fn -> ComponentsTreeQueries.fetch_components_tree(pid) end)
+  end
+
+  defp highlight_element(
+         %{assigns: %{highlight?: true, lv_process: %{pid: pid}}} = socket,
+         %{"search-attribute" => attr, "search-value" => val}
+       ) do
+    send_event(pid, "highlight", %{attr: attr, val: val})
+    socket
+  end
+
+  defp highlight_element(socket, _) do
+    socket
+  end
+
+  defp pulse_element(socket, %{"search-attribute" => attr, "search-value" => val}) do
+    if LiveDebugger.Feature.enabled?(:highlighting) do
+      # Resets the highlight when the user selects node
+      if socket.assigns.highlight? do
+        send_event(socket.assigns.lv_process.pid, "highlight", %{attr: attr, val: val})
+      end
+
+      send_event(socket.assigns.lv_process.pid, "pulse", %{attr: attr, val: val})
+    end
+
+    socket
+  end
+
+  defp send_event(pid, event, payload) do
+    {:ok, state} = ProcessAPI.state(pid)
+
+    message = %Message{
+      topic: state.topic,
+      event: "diff",
+      payload: %{e: [[event, payload]]},
+      join_ref: state.join_ref
+    }
+
+    send(state.socket.transport_pid, state.serializer.encode!(message))
   end
 end
