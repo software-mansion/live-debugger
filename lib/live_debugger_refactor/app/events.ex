@@ -16,4 +16,5 @@ defmodule LiveDebuggerRefactor.App.Events do
   defevent(DebuggerMounted, debugged_pid: pid(), debugger_pid: pid())
   defevent(DebuggerTerminated, debugged_pid: pid(), debugger_pid: pid())
   defevent(ParamsChanged, params: map())
+  defevent(FindSuccessor, debugged_socket_id: String.t())
 end
