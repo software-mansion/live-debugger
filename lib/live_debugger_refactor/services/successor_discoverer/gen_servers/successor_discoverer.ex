@@ -129,7 +129,7 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
     %{state | socket_to_window: Map.delete(state.socket_to_window, socket_id)}
   end
 
-  defp timeout(_attempt = 0), do: 200
+  defp timeout(0 = _attempt), do: 200
   defp timeout(1), do: 800
   defp timeout(_), do: 1000
 end
