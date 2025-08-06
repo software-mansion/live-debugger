@@ -87,4 +87,20 @@ defmodule LiveDebuggerRefactor.App.Web.Helpers.HooksTest do
       end
     end
   end
+
+  describe "check_private!/2" do
+    test "returns the socket if the private key is found" do
+      socket = Fakes.socket(private: %{hook: :value})
+
+      assert Hooks.check_private!(socket, :hook) == socket
+    end
+
+    test "raises an error if the private key is not found" do
+      socket = Fakes.socket()
+
+      assert_raise RuntimeError, fn ->
+        Hooks.check_private!(socket, :not_found)
+      end
+    end
+  end
 end
