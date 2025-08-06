@@ -51,7 +51,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.LiveComponents.F
   @impl true
   def render(assigns) do
     assigns =
-      assign(assigns, errors: assigns.form.errors, form_valid?: Enum.empty?(assigns.form.errors))
+      assigns
+      |> assign(errors: assigns.form.errors)
+      |> assign(form_valid?: Enum.empty?(assigns.form.errors))
 
     ~H"""
     <div id={@id <> "-wrapper"} class={if @disabled?, do: "opacity-50 pointer-events-none"}>
