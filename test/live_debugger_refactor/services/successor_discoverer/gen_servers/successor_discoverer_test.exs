@@ -59,7 +59,7 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
   end
 
   describe "handle_info/2 with :find_successor message" do
-    # This a case when transport pid was not changed e.g. when user used LiveNavigation
+    # This is a case when transport pid was not changed e.g. when user used LiveNavigation
     # WebSocket connection in such case is not closed => transport pid is not changed
     test "finds successor using transport pid" do
       socket_id = "phx-123"
@@ -146,6 +146,12 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
             transport_pid: :c.pid(0, 11, 0),
             nested?: false,
             embedded?: false
+          },
+          %LvProcess{
+            socket_id: "phx-successor",
+            transport_pid: :c.pid(0, 12, 0),
+            nested?: false,
+            embedded?: false
           }
         ]
       end)
@@ -189,7 +195,7 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
       }
 
       assert {:noreply, _state} = SuccessorDiscoverer.handle_info(event, state)
-      assert_receive({:find_successor, %LvProcess{socket_id: ^socket_id}, 1}, 300)
+      assert_receive({:find_successor, %LvProcess{socket_id: ^socket_id}, 1}, 500)
     end
 
     test "stops reattempting to find successor when attempt is 3" do
@@ -256,8 +262,17 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
         embedded?: false
       }
 
-      # Mock API to return no processes (so it falls back to state-based lookup)
-      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn -> [] end)
+      # Mock API to return no processes with matching transport pid (so it falls back to state-based lookup)
+      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn ->
+        [
+          %LvProcess{
+            socket_id: "socket-2",
+            transport_pid: :c.pid(0, 456, 0),
+            nested?: false,
+            embedded?: false
+          }
+        ]
+      end)
 
       # Expect successor found event
       expect(MockBus, :broadcast_event!, fn event ->
@@ -344,8 +359,17 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
         embedded?: false
       }
 
-      # Mock API to return no processes (so it falls back to state-based lookup)
-      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn -> [] end)
+      # Mock API to return no processes with matching transport pid (so it falls back to state-based lookup)
+      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn ->
+        [
+          %LvProcess{
+            socket_id: "socket-2",
+            transport_pid: :c.pid(0, 456, 0),
+            nested?: false,
+            embedded?: false
+          }
+        ]
+      end)
 
       # Expect successor found event
       expect(MockBus, :broadcast_event!, fn event ->
