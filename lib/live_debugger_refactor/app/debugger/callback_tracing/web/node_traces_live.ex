@@ -64,7 +64,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
     |> put_private(:page_size, @page_size)
     |> put_private(:live_stream_limit, @live_stream_limit)
     |> NestedLiveViewAssigns.assign_node_id(session)
-    |> FiltersAssigns.assign_default_filters()
     |> FiltersAssigns.assign_current_filters()
     |> HookComponents.ClearButton.init()
     |> HookComponents.LoadMoreButton.init()

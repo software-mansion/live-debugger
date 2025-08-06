@@ -8,13 +8,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Assigns.Filters 
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
   @doc """
-  Assigns filters as `:default_filters`.
-  """
-  def assign_default_filters(%{assigns: %{node_id: node_id}} = socket) do
-    assign(socket, :default_filters, FiltersHelpers.default_filters(node_id))
-  end
-
-  @doc """
   Assigns filters as `:current_filters`.
   """
   def assign_current_filters(socket, filters) do
