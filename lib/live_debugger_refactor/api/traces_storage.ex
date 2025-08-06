@@ -79,6 +79,8 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     * `:limit` - Maximum number of traces to return (default: 100)
     * `:cont` - Used to get next page of items in the following queries
     * `:functions` - List of function names to filter traces by e.g ["handle_info/2", "render/1"]
+    * `:execution_times` - Map specifying minimum and maximum execution time of a callback in microseconds 
+                        e.g. %{"exec_time_min" => 0, "exec_time_max" => 100}
     * `:search_query` - String to filter traces by, performs a case-sensitive substring search on the entire Trace struct
   """
   @spec get!(table_identifier(), opts :: keyword()) ::

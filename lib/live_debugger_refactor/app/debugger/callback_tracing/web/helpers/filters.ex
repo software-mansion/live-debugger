@@ -115,8 +115,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters 
   Returns the active functions from the current filters.
   It uses the `current_filters` assigns to determine the active functions.
   """
-  def get_active_functions(socket) do
-    socket.assigns.current_filters.functions
+  @spec get_active_functions(current_filters :: %{functions: map()}) :: [String.t()]
+  def get_active_functions(current_filters) do
+    current_filters.functions
     |> Enum.filter(fn {_, active?} -> active? end)
     |> Enum.map(fn {function, _} -> function end)
   end
@@ -125,22 +126,26 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters 
   Returns the execution times from the current filters.
   It uses the `current_filters` assigns to determine the execution times.
   """
-  def get_execution_times(socket) do
-    execution_time = socket.assigns.current_filters.execution_time
+  @spec get_execution_times(current_filters :: %{execution_time: map()}) ::
+          %{String.t() => non_neg_integer()}
+  def get_execution_times(%{
+        execution_time: %{
+          "exec_time_min" => min_time,
+          "exec_time_max" => max_time,
+          "min_unit" => min_time_unit,
+          "max_unit" => max_time_unit
+        }
+      }) do
+    %{}
+    |> maybe_put_exec_time("exec_time_min", min_time, min_time_unit)
+    |> maybe_put_exec_time("exec_time_max", max_time, max_time_unit)
+  end
 
-    execution_time
-    |> Enum.filter(fn {_, value} -> value not in ["" | Parsers.time_units()] end)
-    |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
-    |> Enum.map(fn {filter, value} ->
-      case filter do
-        "exec_time_min" ->
-          {filter, Parsers.time_to_microseconds(value, execution_time["min_unit"])}
-
-        "exec_time_max" ->
-          {filter, Parsers.time_to_microseconds(value, execution_time["max_unit"])}
-      end
-    end)
-    |> Map.new()
+  defp maybe_put_exec_time(execution_times, key, value, unit) do
+    case value do
+      "" -> execution_times
+      value -> Map.put(execution_times, key, apply_unit_factor(value, unit))
+    end
   end
 
   defp node_callbacks(node_id) when is_nil(node_id) or is_node_id(node_id) do
