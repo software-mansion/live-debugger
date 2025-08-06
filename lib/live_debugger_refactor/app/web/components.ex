@@ -357,6 +357,12 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
     """
   end
 
+  @doc """
+  Renders a sidebar slide over element.
+  Clicking outside or the cross icon results in the `close-sidebar` event being triggered.
+  """
+
+  attr(:id, :string, required: true)
   attr(:sidebar_hidden?, :boolean, default: true, doc: "The default state of the sidebar")
   slot(:inner_block)
 
@@ -364,14 +370,14 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
     ~H"""
     <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
       <div
-        id="filters-sidebar-form"
+        id={@id}
         class={[
           (@sidebar_hidden? && "hidden") || "flex",
           "fixed inset-0 bg-black/25 justify-end items-start lg:flex lg:static lg:inset-auto lg:bg-transparent z-20"
         ]}
       >
         <div
-          phx-click-away="close_mobile_content"
+          phx-click-away="close-sidebar"
           class="h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border lg:border-l"
         >
           <.icon_button
@@ -379,7 +385,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
             icon="icon-cross"
             class="absolute top-4 right-4 lg:hidden"
             variant="secondary"
-            phx-click="close_mobile_content"
+            phx-click="close-sidebar"
           />
           <%= render_slot(@inner_block) %>
         </div>
@@ -674,6 +680,45 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
     >
       <.icon name={@icon} class="h-6 w-6" />
     </button>
+    """
+  end
+
+  attr(:value_field, Phoenix.HTML.FormField, required: true)
+  attr(:unit_field, Phoenix.HTML.FormField, required: true)
+  attr(:units, :list, required: true)
+  attr(:rest, :global, include: ~w(min max placeholder))
+
+  def input_with_units(assigns) do
+    assigns =
+      assigns
+      |> assign(:errors, assigns.value_field.errors)
+
+    ~H"""
+    <div class={[
+      "shadow-sm flex items-center rounded-[4px] outline outline-1 -outline-offset-1 has-[input:focus-within]:outline has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2",
+      @errors == [] && "outline-default-border has-[input:focus-within]:outline-ui-accent",
+      @errors != [] && "outline-error-text has-[input:focus-within]:outline-error-text"
+    ]}>
+      <input
+        id={@value_field.id}
+        name={@value_field.name}
+        type="number"
+        min="0"
+        step="1"
+        class="block remove-arrow max-w-20 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0"
+        value={Phoenix.HTML.Form.normalize_value("number", @value_field.value)}
+        {@rest}
+      />
+      <div class="grid shrink-0 grid-cols-1 focus-within:relative">
+        <select
+          id={@unit_field.id}
+          name={@unit_field.name}
+          class="border-none bg-surface-0-bg col-start-1 row-start-1 w-full appearance-none rounded-md py-1.5 pl-3 pr-7 text-xs text-secondary-text placeholder:text-gray-400 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-ui-accent"
+        >
+          <%= Phoenix.HTML.Form.options_for_select(@units, @unit_field.value) %>
+        </select>
+      </div>
+    </div>
     """
   end
 
