@@ -111,6 +111,38 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters 
     end)
   end
 
+  @doc """
+  Returns the active functions from the current filters.
+  It uses the `current_filters` assigns to determine the active functions.
+  """
+  def get_active_functions(socket) do
+    socket.assigns.current_filters.functions
+    |> Enum.filter(fn {_, active?} -> active? end)
+    |> Enum.map(fn {function, _} -> function end)
+  end
+
+  @doc """
+  Returns the execution times from the current filters.
+  It uses the `current_filters` assigns to determine the execution times.
+  """
+  def get_execution_times(socket) do
+    execution_time = socket.assigns.current_filters.execution_time
+
+    execution_time
+    |> Enum.filter(fn {_, value} -> value not in ["" | Parsers.time_units()] end)
+    |> Enum.map(fn {filter, value} -> {filter, String.to_integer(value)} end)
+    |> Enum.map(fn {filter, value} ->
+      case filter do
+        "exec_time_min" ->
+          {filter, Parsers.time_to_microseconds(value, execution_time["min_unit"])}
+
+        "exec_time_max" ->
+          {filter, Parsers.time_to_microseconds(value, execution_time["max_unit"])}
+      end
+    end)
+    |> Map.new()
+  end
+
   defp node_callbacks(node_id) when is_nil(node_id) or is_node_id(node_id) do
     type = if node_id, do: TreeNode.type(node_id), else: :global
 

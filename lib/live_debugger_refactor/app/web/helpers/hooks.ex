@@ -53,6 +53,19 @@ defmodule LiveDebuggerRefactor.App.Web.Helpers.Hooks do
   end
 
   @doc """
+  Checks if the given key is present in the private of the socket.
+  Raises an error if the key is not found.
+  """
+  @spec check_private!(LiveViewSocket.t(), atom()) :: LiveViewSocket.t()
+  def check_private!(%LiveViewSocket{private: private} = socket, key) do
+    if Map.has_key?(private, key) do
+      socket
+    else
+      raise "Private key #{key} not found in socket.private"
+    end
+  end
+
+  @doc """
   Add a hook to the socket via `socket.private.hooks`.
   """
   @spec register_hook(LiveViewSocket.t(), atom()) :: LiveViewSocket.t()
