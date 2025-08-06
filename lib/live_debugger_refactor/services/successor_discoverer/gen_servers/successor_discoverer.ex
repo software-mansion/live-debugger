@@ -1,4 +1,4 @@
-defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.ClientEventsReceiver do
+defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.SuccessorDiscoverer do
   @moduledoc """
   It receives events from client associated with initializing windows.
   """
@@ -80,6 +80,7 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.ClientEve
     end
   end
 
+  @impl true
   def handle_info({:find_successor, lv_process, _attempt}, state) do
     Bus.broadcast_event!(%SuccessorNotFound{old_socket_id: lv_process.socket_id})
     {:noreply, state}
