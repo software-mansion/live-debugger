@@ -6,10 +6,12 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.ClientEve
   use GenServer
 
   alias LiveDebuggerRefactor.Client
+  alias LiveDebuggerRefactor.Services.SuccessorDiscoverer.Queries.Successor, as: SuccessorQueries
 
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.App.Events.FindSuccessor
   alias LiveDebuggerRefactor.Services.SuccessorDiscoverer.Events.SuccessorFound
+  alias LiveDebuggerRefactor.Services.SuccessorDiscoverer.Events.SuccessorNotFound
 
   defmodule State do
     @moduledoc """
@@ -53,27 +55,50 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.ClientEve
   end
 
   @impl true
-  def handle_info(%FindSuccessor{debugged_socket_id: old_socket_id}, state) do
-    window_id = get_window_id(state, old_socket_id)
-    new_socket_id = get_socket_id(state, window_id)
+  def handle_info(%FindSuccessor{lv_process: lv_process}, state) do
+    send(self(), {:find_successor, lv_process, 0})
 
-    if is_binary(new_socket_id) do
-      new_state = remove_socket_from_window(state, old_socket_id)
+    {:noreply, state}
+  end
 
-      Bus.broadcast_event!(%SuccessorFound{
-        old_socket_id: old_socket_id,
-        new_socket_id: new_socket_id
-      })
-
-      {:noreply, new_state}
-    else
+  @impl true
+  def handle_info({:find_successor, lv_process, attempt}, state) when attempt < 3 do
+    with nil <- SuccessorQueries.find_successor(lv_process),
+         nil <- find_successor_using_state(state, lv_process.socket_id) do
+      Process.send_after(self(), {:find_successor, lv_process, attempt + 1}, timeout(attempt))
       {:noreply, state}
+    else
+      successor ->
+        new_state = remove_socket_from_window(state, lv_process.socket_id)
+
+        Bus.broadcast_event!(%SuccessorFound{
+          old_socket_id: lv_process.socket_id,
+          new_socket_id: successor.socket_id
+        })
+
+        {:noreply, new_state}
     end
+  end
+
+  def handle_info({:find_successor, lv_process, _attempt}, state) do
+    Bus.broadcast_event!(%SuccessorNotFound{old_socket_id: lv_process.socket_id})
+    {:noreply, state}
   end
 
   @impl true
   def handle_info(_, state) do
     {:noreply, state}
+  end
+
+  defp find_successor_using_state(state, old_socket_id) do
+    window_id = get_window_id(state, old_socket_id)
+    new_socket_id = get_socket_id(state, window_id)
+
+    if is_binary(new_socket_id) do
+      new_socket_id
+    else
+      nil
+    end
   end
 
   defp put_window_to_socket(state, window_id, socket_id) do
@@ -95,4 +120,8 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.ClientEve
   defp remove_socket_from_window(state, socket_id) do
     %{state | socket_to_window: Map.delete(state.socket_to_window, socket_id)}
   end
+
+  defp timeout(_attempt = 0), do: 200
+  defp timeout(1), do: 800
+  defp timeout(_), do: 1000
 end
