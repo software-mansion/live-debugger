@@ -6,14 +6,35 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.Queries.Successor do
   alias LiveDebuggerRefactor.API.LiveViewDiscovery
   alias LiveDebuggerRefactor.Structs.LvProcess
 
-  @doc """
-  It finds a successor of LiveView process within the same transport pid.
-  If LiveViews have the same transport pid, it means that they are hosted by the same WebSocket connection.
-  When LiveViews are hosted by the same WebSocket connection it means that they are displayed in the same browser tab.
-  """
-  @spec find_successor(lv_process :: LvProcess.t()) :: LvProcess.t() | nil
-  def find_successor(lv_process) do
-    LiveViewDiscovery.debugged_lv_processes()
+  @spec find_successor(lv_process :: LvProcess.t(), new_socket_id :: String.t() | nil) ::
+          LvProcess.t() | nil
+  def find_successor(lv_process, new_socket_id) do
+    with lv_processes <- LiveViewDiscovery.debugged_lv_processes(),
+         nil <- find_successor_by_transport_pid(lv_processes, lv_process),
+         nil <- find_successor_using_state(lv_processes, new_socket_id) do
+      nil
+    else
+      successor -> successor
+    end
+  end
+
+  # It finds a successor based on new_socket_id
+  defp find_successor_using_state(lv_processes, new_socket_id) when is_binary(new_socket_id) do
+    lv_processes
+    |> Enum.filter(&(&1.socket_id == new_socket_id))
+    |> case do
+      [successor] -> successor
+      _ -> nil
+    end
+  end
+
+  defp find_successor_using_state(_, _), do: nil
+
+  # It finds a successor of LiveView process within the same transport pid.
+  # If LiveViews have the same transport pid, it means that they are hosted by the same WebSocket connection.
+  # When LiveViews are hosted by the same WebSocket connection it means that they are displayed in the same browser tab.
+  defp find_successor_by_transport_pid(lv_processes, lv_process) do
+    lv_processes
     |> Enum.filter(&(&1.transport_pid == lv_process.transport_pid))
     |> find_successor_by_priority()
   end
