@@ -255,4 +255,63 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.FiltersT
 
     assert FiltersHelpers.count_selected_filters(default_filters, current_filters) == 2
   end
+
+  test "get_active_functions/1 returns currently active functions from filters" do
+    filters = %{
+      functions: %{
+        "mount/3" => false,
+        "render/1" => true,
+        "handle_info/2" => true
+      },
+      execution_time: %{
+        "exec_time_min" => "10",
+        "exec_time_max" => "",
+        "min_unit" => "ms",
+        "max_unit" => "ms"
+      }
+    }
+
+    assert functions = FiltersHelpers.get_active_functions(filters)
+    assert 2 == length(functions)
+    assert "render/1" in functions
+    assert "handle_info/2" in functions
+  end
+
+  describe "get_execution_times/1" do
+    test "returns currently active execution time limits from filters" do
+      filters = %{
+        functions: %{
+          "mount/3" => false
+        },
+        execution_time: %{
+          "exec_time_min" => "14",
+          "exec_time_max" => "2",
+          "min_unit" => "ms",
+          "max_unit" => "s"
+        }
+      }
+
+      assert %{
+               "exec_time_min" => 14_000,
+               "exec_time_max" => 2_000_000
+             } =
+               FiltersHelpers.get_execution_times(filters)
+    end
+
+    test "returns only non empty execution time limits from filters" do
+      filters = %{
+        functions: %{
+          "mount/3" => false
+        },
+        execution_time: %{
+          "exec_time_min" => "140",
+          "exec_time_max" => "",
+          "min_unit" => "µs",
+          "max_unit" => "s"
+        }
+      }
+
+      assert %{"exec_time_min" => 140} = FiltersHelpers.get_execution_times(filters)
+    end
+  end
 end
