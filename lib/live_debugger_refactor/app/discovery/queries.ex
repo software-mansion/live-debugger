@@ -3,6 +3,7 @@ defmodule LiveDebuggerRefactor.App.Discovery.Queries do
   Queries for the `LiveDebuggerRefactor.App.Discovery` context.
   """
   alias LiveDebuggerRefactor.API.LiveViewDiscovery
+  alias LiveDebuggerRefactor.Structs.LvProcess
 
   @doc """
   Fetches all active LiveView processes grouped by their transport PID.
