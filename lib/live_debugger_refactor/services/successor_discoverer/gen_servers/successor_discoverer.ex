@@ -70,14 +70,20 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
     else
       successor ->
         socket_id = if is_binary(successor), do: successor, else: successor.socket_id
-        new_state = remove_socket_from_window(state, lv_process.socket_id)
 
-        Bus.broadcast_event!(%SuccessorFound{
-          old_socket_id: lv_process.socket_id,
-          new_socket_id: socket_id
-        })
+        if socket_id == lv_process.socket_id do
+          Process.send_after(self(), {:find_successor, lv_process, attempt + 1}, timeout(attempt))
+          {:noreply, state}
+        else
+          new_state = remove_socket_from_window(state, lv_process.socket_id)
 
-        {:noreply, new_state}
+          Bus.broadcast_event!(%SuccessorFound{
+            old_socket_id: lv_process.socket_id,
+            new_socket_id: socket_id
+          })
+
+          {:noreply, new_state}
+        end
     end
   end
 
