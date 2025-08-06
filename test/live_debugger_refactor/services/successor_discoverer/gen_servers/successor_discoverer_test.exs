@@ -98,7 +98,12 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
       expect(MockBus, :broadcast_event!, fn event ->
         assert event == %SuccessorFound{
                  old_socket_id: socket_id,
-                 new_socket_id: "phx-successor"
+                 new_lv_process: %LvProcess{
+                   socket_id: "phx-successor",
+                   transport_pid: transport_pid,
+                   nested?: false,
+                   embedded?: false
+                 }
                }
 
         :ok
@@ -159,7 +164,12 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
       expect(MockBus, :broadcast_event!, fn event ->
         assert event == %SuccessorFound{
                  old_socket_id: socket_id,
-                 new_socket_id: "phx-successor"
+                 new_lv_process: %LvProcess{
+                   socket_id: "phx-successor",
+                   transport_pid: :c.pid(0, 12, 0),
+                   nested?: false,
+                   embedded?: false
+                 }
                }
 
         :ok
@@ -278,7 +288,12 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
       expect(MockBus, :broadcast_event!, fn event ->
         assert event == %SuccessorFound{
                  old_socket_id: "socket-1",
-                 new_socket_id: "socket-2"
+                 new_lv_process: %LvProcess{
+                   socket_id: "socket-2",
+                   transport_pid: :c.pid(0, 456, 0),
+                   nested?: false,
+                   embedded?: false
+                 }
                }
 
         :ok
@@ -375,7 +390,12 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
       expect(MockBus, :broadcast_event!, fn event ->
         assert event == %SuccessorFound{
                  old_socket_id: "socket-1",
-                 new_socket_id: "socket-2"
+                 new_lv_process: %LvProcess{
+                   socket_id: "socket-2",
+                   transport_pid: :c.pid(0, 456, 0),
+                   nested?: false,
+                   embedded?: false
+                 }
                }
 
         :ok

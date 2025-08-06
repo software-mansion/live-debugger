@@ -83,7 +83,7 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
 
         Bus.broadcast_event!(%SuccessorFound{
           old_socket_id: lv_process.socket_id,
-          new_socket_id: successor.socket_id
+          new_lv_process: successor
         })
 
         {:noreply, new_state}
