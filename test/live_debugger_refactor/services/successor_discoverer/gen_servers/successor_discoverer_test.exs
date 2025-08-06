@@ -219,4 +219,69 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
       assert {:noreply, _state} = SuccessorDiscoverer.handle_info(event, state)
     end
   end
+
+  describe "handle_info/2 with combination of messages" do
+    test "complete workflow: window initialization, reload, and successor discovery" do
+      # Start with initial state
+      expect(MockBus, :receive_events, fn -> :ok end)
+      expect(MockClient, :receive_events, fn -> :ok end)
+
+      {:ok, state} = SuccessorDiscoverer.init([])
+
+      # Step 1: Window gets initialized
+      {:noreply, state} =
+        SuccessorDiscoverer.handle_info(
+          {"window-initialized", %{"window_id" => "window-1", "socket_id" => "socket-1"}},
+          state
+        )
+
+      assert state.window_to_socket == %{"window-1" => "socket-1"}
+      assert state.socket_to_window == %{"socket-1" => "window-1"}
+
+      # Step 2: Page reloads, new socket is created for same window
+      {:noreply, state} =
+        SuccessorDiscoverer.handle_info(
+          {"window-initialized", %{"window_id" => "window-1", "socket_id" => "socket-2"}},
+          state
+        )
+
+      assert state.window_to_socket == %{"window-1" => "socket-2"}
+      assert state.socket_to_window == %{"socket-1" => "window-1", "socket-2" => "window-1"}
+
+      # Step 3: Try to find successor for old socket
+      lv_process = %LvProcess{
+        socket_id: "socket-1",
+        transport_pid: :c.pid(0, 123, 0),
+        nested?: false,
+        embedded?: false
+      }
+
+      # Mock API to return no processes (so it falls back to state-based lookup)
+      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn -> [] end)
+
+      # Expect successor found event
+      expect(MockBus, :broadcast_event!, fn event ->
+        assert event == %SuccessorFound{
+                 old_socket_id: "socket-1",
+                 new_socket_id: "socket-2"
+               }
+
+        :ok
+      end)
+
+      # Send FindSuccessor event
+      {:noreply, state} =
+        SuccessorDiscoverer.handle_info(%FindSuccessor{lv_process: lv_process}, state)
+
+      assert_receive {:find_successor, %LvProcess{socket_id: "socket-1"}, 0}
+
+      # Step 4: Find the successor
+      {:noreply, state} =
+        SuccessorDiscoverer.handle_info({:find_successor, lv_process, 0}, state)
+
+      # Verify old socket was removed from state
+      assert state.window_to_socket == %{"window-1" => "socket-2"}
+      assert state.socket_to_window == %{"socket-2" => "window-1"}
+    end
+  end
 end
