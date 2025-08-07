@@ -86,9 +86,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Utils do
         nil
 
       {children_cids, components_cids_map} ->
-        Enum.map(children_cids, fn cid ->
-          {cid, tree_merge(components_cids_map, cid)}
-        end)
+        children_cids
+        |> Enum.map(fn cid -> {cid, tree_merge(components_cids_map, cid)} end)
         |> Enum.into(%{})
     end
   end
