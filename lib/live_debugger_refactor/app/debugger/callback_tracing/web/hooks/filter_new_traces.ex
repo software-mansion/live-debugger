@@ -38,11 +38,20 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.FilterNewT
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp filter_trace_event(socket, trace_event) do
-    with true <- matches_function_filter?(socket, trace_event),
+    with true <- matches_node_id?(socket, trace_event),
+         true <- matches_function_filter?(socket, trace_event),
          true <- matches_search_query?(socket, trace_event) do
       {:cont, socket}
     else
       _ -> {:halt, socket}
+    end
+  end
+
+  defp matches_node_id?(socket, trace_event) do
+    case socket.assigns[:node_id] do
+      nil -> true
+      pid when is_pid(pid) -> pid == trace_event.pid
+      %Phoenix.LiveComponent.CID{} = cid -> cid == trace_event.cid
     end
   end
 
