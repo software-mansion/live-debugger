@@ -47,6 +47,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManagerTest
       trace_event = %TraceReturned{
         trace_id: -1,
         function: :render,
+        arity: 1,
         module: LiveDebuggerTest.DummyLiveView,
         ets_ref: nil,
         cid: nil,

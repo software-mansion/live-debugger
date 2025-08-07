@@ -103,6 +103,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
       ets_ref: ref,
       module: trace.module,
       function: trace.function,
+      arity: trace.arity,
       pid: trace.pid,
       cid: trace.cid,
       transport_pid: trace.transport_pid
@@ -115,6 +116,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
       ets_ref: ref,
       module: trace.module,
       function: trace.function,
+      arity: trace.arity,
       pid: trace.pid,
       cid: trace.cid,
       transport_pid: trace.transport_pid
@@ -127,6 +129,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
       ets_ref: ref,
       module: trace.module,
       function: trace.function,
+      arity: trace.arity,
       pid: trace.pid,
       cid: trace.cid,
       transport_pid: trace.transport_pid
