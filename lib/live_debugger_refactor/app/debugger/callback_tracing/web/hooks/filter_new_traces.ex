@@ -15,6 +15,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.FilterNewT
     :current_filters
   ]
 
+  @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
     |> check_assigns!(@required_assigns)
