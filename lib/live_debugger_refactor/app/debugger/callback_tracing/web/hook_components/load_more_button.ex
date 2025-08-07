@@ -14,6 +14,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.L
     socket
     |> check_assigns!(@required_assigns)
     |> check_stream!(:existing_traces)
+    |> check_private!(:page_size)
     |> attach_hook(:load_more_button, :handle_event, &handle_event/3)
     |> register_hook(:load_more_button)
   end

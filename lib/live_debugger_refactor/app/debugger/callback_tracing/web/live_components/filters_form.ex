@@ -1,9 +1,9 @@
-defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
+defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm do
   @moduledoc """
   Form for filtering traces by callback.
   It sends `{:filters_updated, filters}` to the parent LiveView after the form is submitted.
 
-  You can use `LiveDebuggerRefactor.CallbackTracing.Web.Components.Filters` to render additional
+  You can use `LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Filters` to render additional
   """
 
   use LiveDebuggerWeb, :live_component
@@ -15,13 +15,23 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
   alias LiveDebuggerRefactor.App.Utils.Parsers
 
   @impl true
+  def update(%{reset_form?: true}, socket) do
+    socket
+    |> assign_form(socket.assigns.active_filters)
+    |> ok()
+  end
+
+  @impl true
   def update(assigns, socket) do
+    disabled? = Map.get(assigns, :disabled?, false)
+    revert_button_visible? = Map.get(assigns, :revert_button_visible?, false)
+
     socket
     |> assign(:id, assigns.id)
     |> assign(:active_filters, assigns.filters)
     |> assign(:node_id, assigns.node_id)
-    |> assign(:disabled?, assigns.disabled?)
-    |> assign(:revert_button_visible?, assigns.revert_button_visible?)
+    |> assign(:disabled?, disabled?)
+    |> assign(:revert_button_visible?, revert_button_visible?)
     |> assign(:default_filters, FiltersHelpers.default_filters(assigns.node_id))
     |> assign_form(assigns.filters)
     |> ok()
@@ -40,6 +50,11 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
 
   @impl true
   def render(assigns) do
+    assigns =
+      assigns
+      |> assign(errors: assigns.form.errors)
+      |> assign(form_valid?: Enum.empty?(assigns.form.errors))
+
     ~H"""
     <div id={@id <> "-wrapper"} class={if @disabled?, do: "opacity-50 pointer-events-none"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
@@ -91,7 +106,11 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
           <div class="flex pt-4 pb-2 border-t border-default-border items-center justify-between pr-3">
             <div class="flex gap-2 items-center h-10">
               <%= if FiltersHelpers.filters_changed?(@form.params, @active_filters) do %>
-                <.button variant="primary" type="submit">
+                <.button
+                  variant="primary"
+                  type="submit"
+                  class={if(not @form_valid?, do: "opacity-50 pointer-events-none")}
+                >
                   Apply
                 </.button>
                 <.button
@@ -127,7 +146,7 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
 
   @impl true
   def handle_event("submit", params, socket) do
-    case update_filters(socket.assigns.filters, params) do
+    case update_filters(socket.assigns.active_filters, params) do
       {:ok, filters} ->
         send(self(), {:filters_updated, filters})
 
@@ -139,7 +158,7 @@ defmodule LiveDebuggerRefactor.CallbackTracing.Web.LiveComponents.FiltersForm do
   end
 
   def handle_event("change", params, socket) do
-    case update_filters(socket.assigns.filters, params) do
+    case update_filters(socket.assigns.active_filters, params) do
       {:ok, filters} ->
         socket
         |> assign_form(filters)

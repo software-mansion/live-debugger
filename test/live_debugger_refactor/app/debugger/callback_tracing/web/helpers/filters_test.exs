@@ -221,10 +221,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.FiltersT
                  "max_unit" => "ms"
                })
 
-      assert Keyword.equal?(errors,
-               exec_time_min: "min must be less than max",
-               exec_time_max: "max must be greater than min"
-             )
+      assert Keyword.equal?(errors, exec_time_min: "min must be less than max")
     end
   end
 

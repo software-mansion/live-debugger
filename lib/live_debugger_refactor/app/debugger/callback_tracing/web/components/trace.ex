@@ -93,6 +93,18 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace
     """
   end
 
+  attr(:trace, Trace, required: true)
+
+  def short_trace_content(assigns) do
+    assigns = assign(assigns, :content, Enum.map_join(assigns.trace.args, " ", &inspect/1))
+
+    ~H"""
+    <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
+      <p class="hide-on-open mt-0.5"><%= @content %></p>
+    </div>
+    """
+  end
+
   @doc """
   Timestamp and execution time of the trace.
   """
