@@ -403,7 +403,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       ]
     end
 
-    defp to_spec(functions, []) do
+    defp to_spec(functions, %{}) do
       [{:andalso, functions_to_spec(functions), {:"/=", :"$2", nil}}]
     end
 
