@@ -9,9 +9,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay
 
   alias LiveDebuggerRefactor.Structs.Trace
 
-  defstruct [:trace, :from_event?, :counter, render_body?: false]
+  defstruct [:id, :trace, :from_event?, :counter, render_body?: false]
 
   @type t() :: %__MODULE__{
+          id: Trace.id(),
           trace: Trace.t(),
           from_event?: boolean(),
           render_body?: boolean()
@@ -19,7 +20,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay
 
   @spec from_trace(Trace.t(), from_event? :: boolean()) :: t()
   def from_trace(%Trace{} = trace, from_event? \\ false) do
-    %__MODULE__{trace: trace, from_event?: from_event?}
+    %__MODULE__{id: trace.id, trace: trace, from_event?: from_event?}
   end
 
   @spec render_body(t()) :: t()
