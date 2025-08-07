@@ -64,7 +64,7 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
     window_id = payload["window_id"]
     socket_id = payload["socket_id"]
 
-    if is_binary(window_id) and is_binary(socket_id) do
+    if not is_nil(window_id) and not is_nil(socket_id) do
       new_state =
         state
         |> put_window_to_socket(window_id, socket_id)

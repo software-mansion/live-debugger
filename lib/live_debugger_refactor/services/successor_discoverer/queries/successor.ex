@@ -19,7 +19,7 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.Queries.Successor do
   end
 
   # It finds a successor based on new_socket_id
-  defp find_successor_using_state(lv_processes, new_socket_id) when is_binary(new_socket_id) do
+  defp find_successor_using_state(lv_processes, new_socket_id) when not is_nil(new_socket_id) do
     lv_processes
     |> Enum.filter(&(&1.socket_id == new_socket_id))
     |> case do
