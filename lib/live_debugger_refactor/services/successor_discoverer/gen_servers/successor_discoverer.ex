@@ -85,8 +85,8 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
 
   @impl true
   def handle_info({:find_successor, lv_process, attempt}, state) when attempt < 3 do
-    window_id = get_window_id(state, lv_process.socket_id)
-    new_socket_id = get_socket_id(state, window_id)
+    window_id = get_window_from_socket(state, lv_process.socket_id)
+    new_socket_id = get_socket_from_window(state, window_id)
 
     successor = SuccessorQueries.find_successor(lv_process, new_socket_id)
 
@@ -131,11 +131,11 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
     %{state | socket_to_window: Map.put(state.socket_to_window, socket_id, window_id)}
   end
 
-  defp get_window_id(state, socket_id) do
+  defp get_window_from_socket(state, socket_id) do
     state.socket_to_window[socket_id]
   end
 
-  defp get_socket_id(state, window_id) do
+  defp get_socket_from_window(state, window_id) do
     state.window_to_socket[window_id]
   end
 
