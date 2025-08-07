@@ -9,10 +9,6 @@ defmodule LiveDebuggerRefactor.Fakes do
       dom_id: %{attribute: "id", value: "phx-somevalueid"},
       type: :live_view,
       module: LiveDebuggerTest.LiveView,
-      assigns: %{
-        assign: :value,
-        counter: 0
-      },
       children: []
     ]
 
@@ -28,10 +24,6 @@ defmodule LiveDebuggerRefactor.Fakes do
       dom_id: %{attribute: "data-phx-id", value: "c1-somevalueid"},
       type: :live_component,
       module: LiveDebuggerTest.LiveComponent,
-      assigns: %{
-        assign: :value,
-        counter: 0
-      },
       children: []
     ]
 
