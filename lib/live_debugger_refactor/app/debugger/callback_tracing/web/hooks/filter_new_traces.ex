@@ -9,6 +9,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.FilterNewT
 
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceErrored
 
   @required_assigns [
     :current_filters
@@ -22,26 +23,27 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.FilterNewT
   end
 
   defp handle_info(%TraceCalled{} = trace_called, socket) do
-    with true <- matches_function_filter?(socket, trace_called),
-         true <- matches_search_query?(socket, trace_called) do
-      dbg(trace_called)
-      {:cont, socket}
-    else
-      _ -> {:halt, socket}
-    end
+    filter_trace_event(socket, trace_called)
   end
 
   defp handle_info(%TraceReturned{} = trace_returned, socket) do
-    with true <- matches_function_filter?(socket, trace_returned),
-         true <- matches_search_query?(socket, trace_returned) do
-      dbg(trace_returned)
+    filter_trace_event(socket, trace_returned)
+  end
+
+  defp handle_info(%TraceErrored{} = trace_errored, socket) do
+    filter_trace_event(socket, trace_errored)
+  end
+
+  defp handle_info(_, socket), do: {:cont, socket}
+
+  defp filter_trace_event(socket, trace_event) do
+    with true <- matches_function_filter?(socket, trace_event),
+         true <- matches_search_query?(socket, trace_event) do
       {:cont, socket}
     else
       _ -> {:halt, socket}
     end
   end
-
-  defp handle_info(_, socket), do: {:cont, socket}
 
   defp matches_function_filter?(socket, %{function: function, arity: arity}) do
     socket.assigns.current_filters.functions["#{function}/#{arity}"]
