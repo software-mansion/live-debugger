@@ -5,6 +5,7 @@ defmodule LiveDebuggerRefactor.Client do
 
   @callback push_event!(String.t(), String.t(), map()) :: :ok
   @callback receive_events(String.t()) :: :ok | {:error, term()}
+  @callback receive_events() :: :ok | {:error, term()}
 
   @doc """
   Pushes event to the client.
@@ -19,7 +20,8 @@ defmodule LiveDebuggerRefactor.Client do
   end
 
   @doc """
-  Subscribes to events from the client. You have to prepare `handle_info/2` handler for incoming events.
+  Subscribes to events from the client with specific debugged socket id.
+  You have to prepare `handle_info/2` handler for incoming events.
   Events are in form of tuple `{event :: String.t(), payload :: map()}`.
 
   ## Examples
@@ -36,6 +38,16 @@ defmodule LiveDebuggerRefactor.Client do
   @spec receive_events(String.t()) :: :ok | {:error, term()}
   def receive_events(debugged_socket_id) do
     impl().receive_events(debugged_socket_id)
+  end
+
+  @doc """
+  Subscribes to events from the client with any debugged socket id.
+  You have to prepare `handle_info/2` handler for incoming events.
+  Events are in form of tuple `{event :: String.t(), payload :: map()}`.
+  """
+  @spec receive_events() :: :ok | {:error, term()}
+  def receive_events() do
+    impl().receive_events()
   end
 
   defp impl do
@@ -56,6 +68,11 @@ defmodule LiveDebuggerRefactor.Client do
     @impl true
     def receive_events(debugged_socket_id) do
       Phoenix.PubSub.subscribe(@pubsub_name, "client:#{debugged_socket_id}:receive")
+    end
+
+    @impl true
+    def receive_events() do
+      Phoenix.PubSub.subscribe(@pubsub_name, "client:receive")
     end
   end
 end

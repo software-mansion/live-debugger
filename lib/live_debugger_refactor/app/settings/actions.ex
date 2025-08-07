@@ -12,7 +12,7 @@ defmodule LiveDebuggerRefactor.App.Settings.Actions do
           settings :: %{atom() => any()},
           setting :: atom(),
           value :: any()
-        ) :: %{atom() => any()}
+        ) :: {:ok, %{atom() => any()}} | {:error, term()}
   def update_settings!(settings, setting, value) do
     case SettingsStorage.save(setting, value) do
       :ok ->

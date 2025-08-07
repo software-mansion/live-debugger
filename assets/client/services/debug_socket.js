@@ -1,15 +1,13 @@
-export default function initDebugSocket(baseURL, sessionId) {
+export default function initDebugSocket(baseURL, socketID) {
   const websocketURL = baseURL.replace(/^http/, 'ws') + '/client';
 
   const debugSocket = new window.Phoenix.Socket(websocketURL, {
-    params: {
-      sessionId: sessionId ? sessionId : 'embedded',
-    },
+    params: { socketID },
   });
 
   debugSocket.connect();
 
-  const debugChannel = debugSocket.channel(`client:${sessionId}`);
+  const debugChannel = debugSocket.channel(`client:${socketID}`);
 
   debugChannel
     .join()
