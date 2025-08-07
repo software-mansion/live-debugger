@@ -18,18 +18,6 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.Queries.Successor do
     end
   end
 
-  # It finds a successor based on new_socket_id
-  defp find_successor_using_state(lv_processes, new_socket_id) when not is_nil(new_socket_id) do
-    lv_processes
-    |> Enum.filter(&(&1.socket_id == new_socket_id))
-    |> case do
-      [successor] -> successor
-      _ -> nil
-    end
-  end
-
-  defp find_successor_using_state(_, _), do: nil
-
   # It finds a successor of LiveView process within the same transport pid.
   # If LiveViews have the same transport pid, it means that they are hosted by the same WebSocket connection.
   # When LiveViews are hosted by the same WebSocket connection it means that they are displayed in the same browser tab.
@@ -64,4 +52,16 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.Queries.Successor do
   defp find_single_process(processes) do
     if length(processes) == 1, do: List.first(processes), else: nil
   end
+
+  # It finds a successor based on new_socket_id
+  defp find_successor_using_state(lv_processes, new_socket_id) when not is_nil(new_socket_id) do
+    lv_processes
+    |> Enum.filter(&(&1.socket_id == new_socket_id))
+    |> case do
+      [successor] -> successor
+      _ -> nil
+    end
+  end
+
+  defp find_successor_using_state(_, _), do: nil
 end
