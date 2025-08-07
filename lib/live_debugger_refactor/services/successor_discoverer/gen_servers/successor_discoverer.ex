@@ -95,6 +95,7 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
         find_successor_after(lv_process, attempt)
         {:noreply, state}
 
+      # If the successor is the same as the debugged process, it means that successor did not report itself yet.
       successor.socket_id == lv_process.socket_id ->
         find_successor_after(lv_process, attempt)
         {:noreply, state}
