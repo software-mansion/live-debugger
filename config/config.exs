@@ -41,8 +41,6 @@ if config_env() == :dev do
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ]
 
-  config :live_debugger, refactor: true
-
   config :tailwind,
     version: "4.1.8",
     build_app_css_deploy: [
