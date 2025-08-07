@@ -3,9 +3,9 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.Events do
   Events for the `SuccessorDiscoverer` service.
   """
 
-  alias LiveDebuggerRefactor.Structs.LvProcess
-
   use LiveDebuggerRefactor.Event
+
+  alias LiveDebuggerRefactor.Structs.LvProcess
 
   defevent(SuccessorFound, old_socket_id: String.t(), new_lv_process: LvProcess.t())
   defevent(SuccessorNotFound, socket_id: String.t())
