@@ -30,6 +30,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.TracingFus
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
+    |> check_hook!(:filter_new_traces)
     |> check_assigns!(@required_assigns)
     |> put_private(:fuse, nil)
     |> put_private(:trace_callback_running?, false)
