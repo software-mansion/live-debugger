@@ -19,8 +19,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.FilterNewT
   def init(socket) do
     socket
     |> check_assigns!(@required_assigns)
-    |> attach_hook(:filter_traces, :handle_info, &handle_info/2)
-    |> register_hook(:filter_traces)
+    |> attach_hook(:filter_new_traces, :handle_info, &handle_info/2)
+    |> register_hook(:filter_new_traces)
   end
 
   defp handle_info(%TraceCalled{} = trace_called, socket) do
