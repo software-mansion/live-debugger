@@ -13,6 +13,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
     ets_ref: reference() | nil,
     module: module(),
     function: atom(),
+    arity: non_neg_integer(),
     pid: pid(),
     cid: CommonTypes.cid() | nil,
     transport_pid: pid()
@@ -23,6 +24,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
     ets_ref: reference() | nil,
     module: module(),
     function: atom(),
+    arity: non_neg_integer(),
     pid: pid(),
     cid: CommonTypes.cid() | nil,
     transport_pid: pid()
@@ -33,6 +35,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
     ets_ref: reference() | nil,
     module: module(),
     function: atom(),
+    arity: non_neg_integer(),
     pid: pid(),
     cid: CommonTypes.cid() | nil,
     transport_pid: pid()

@@ -91,7 +91,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.TracingFus
     |> cont()
   end
 
-  defp handle_info(msg, socket), do: {:cont, socket}
+  defp handle_info(_, socket), do: {:cont, socket}
 
   defp push_tracing_stopped_flash(socket) do
     limit = @trace_limit_per_period
