@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const KEY = 'lvdbg:window-id';
 
-export default function initWindowIdentifier(debugChannel, socketID) {
+export default function pushWindowInitialized(debugChannel, socketID) {
   const windowID = maybeSetWindowID();
 
   debugChannel.push('window-initialized', {
