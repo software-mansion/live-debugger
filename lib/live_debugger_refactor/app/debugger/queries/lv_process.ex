@@ -3,7 +3,15 @@ defmodule LiveDebuggerRefactor.App.Debugger.Queries.LvProcess do
   Queries for fetching the LvProcess.
   """
 
+  alias LiveDebuggerRefactor.API.LiveViewDebug
   alias LiveDebuggerRefactor.Structs.LvProcess
+  alias LiveDebuggerRefactor.Structs.LvState
+  alias LiveDebuggerRefactor.API.StatesStorage
+
+  @spec parent_lv_process(pid()) :: LvProcess.t() | nil
+  def parent_lv_process(pid) when is_pid(pid) do
+    get_lv_process(pid)
+  end
 
   @spec fetch_with_retries(pid()) :: LvProcess.t() | nil
   def fetch_with_retries(pid) when is_pid(pid) do
@@ -15,6 +23,20 @@ defmodule LiveDebuggerRefactor.App.Debugger.Queries.LvProcess do
 
   defp fetch_after(pid, milliseconds) when is_pid(pid) and is_integer(milliseconds) do
     Process.sleep(milliseconds)
-    LvProcess.new(pid)
+
+    get_lv_process(pid)
+  end
+
+  defp get_lv_process(pid) when is_pid(pid) do
+    with nil <- StatesStorage.get!(pid),
+         {:error, _} <- LiveViewDebug.socket(pid) do
+      nil
+    else
+      %LvState{socket: socket} ->
+        LvProcess.new(pid, socket)
+
+      {:ok, socket} ->
+        LvProcess.new(pid, socket)
+    end
   end
 end
