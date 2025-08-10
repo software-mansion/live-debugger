@@ -360,7 +360,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
           {String.to_existing_atom(function), String.to_integer(arity)}
         end)
 
-      execution_times = Keyword.get(opts, :execution_times, %{})
+      execution_times = Keyword.get(opts, :execution_times, [])
       node_id = Keyword.get(opts, :node_id)
 
       if limit < 1 do
@@ -403,7 +403,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       ]
     end
 
-    defp to_spec(functions, %{}) do
+    defp to_spec(functions, []) do
       [{:andalso, functions_to_spec(functions), {:"/=", :"$2", nil}}]
     end
 

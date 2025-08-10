@@ -207,7 +207,7 @@ defmodule LiveDebuggerRefactor.API.LiveViewDiscovery do
     def lv_processes() do
       LiveDebuggerRefactor.API.LiveViewDebug.list_liveviews()
       |> Enum.reject(&(&1.pid == self()))
-      |> Enum.map(fn pid ->
+      |> Enum.map(fn %{pid: pid} ->
         case LiveDebuggerRefactor.API.LiveViewDebug.socket(pid) do
           {:ok, socket} ->
             LvProcess.new(pid, socket)
