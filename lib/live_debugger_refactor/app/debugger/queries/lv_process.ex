@@ -8,10 +8,12 @@ defmodule LiveDebuggerRefactor.App.Debugger.Queries.LvProcess do
   alias LiveDebuggerRefactor.Structs.LvState
   alias LiveDebuggerRefactor.API.StatesStorage
 
-  @spec parent_lv_process(pid()) :: LvProcess.t() | nil
-  def parent_lv_process(pid) when is_pid(pid) do
-    get_lv_process(pid)
+  @spec parent_lv_process(LvProcess.t()) :: LvProcess.t() | nil
+  def parent_lv_process(%LvProcess{parent_pid: parent_pid}) when is_pid(parent_pid) do
+    get_lv_process(parent_pid)
   end
+
+  def parent_lv_process(_lv_process), do: nil
 
   @spec fetch_with_retries(pid()) :: LvProcess.t() | nil
   def fetch_with_retries(pid) when is_pid(pid) do
