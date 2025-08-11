@@ -151,6 +151,10 @@ function showTooltip(data) {
     return;
   }
 
+  if (data.type === 'LiveComponent') {
+    highlightElement.style.backgroundColor = '#00BB0080';
+  }
+
   const tooltip = createTooltip(data);
   positionTooltip(tooltip, highlightElement);
 }
