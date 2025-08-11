@@ -26,6 +26,8 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
 
   use GenServer
 
+  import LiveDebuggerRefactor.Helpers
+
   alias LiveDebuggerRefactor.Client
   alias LiveDebuggerRefactor.Services.SuccessorDiscoverer.Queries.Successor, as: SuccessorQueries
 
@@ -65,15 +67,13 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
     socket_id = payload["socket_id"]
 
     if not is_nil(window_id) and not is_nil(socket_id) do
-      new_state =
-        state
-        |> put_window_to_socket(window_id, socket_id)
-        |> put_socket_to_window(socket_id, window_id)
-
-      {:noreply, new_state}
+      state
+      |> put_window_to_socket(window_id, socket_id)
+      |> put_socket_to_window(socket_id, window_id)
     else
-      {:noreply, state}
+      state
     end
+    |> noreply()
   end
 
   @impl true
@@ -94,12 +94,12 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
     |> case do
       nil ->
         find_successor_after(lv_process, attempt)
-        {:noreply, state}
+        state
 
       # If the successor is the same as the debugged process, it means that successor did not report itself yet.
       %LvProcess{socket_id: ^previous_socket_id} ->
         find_successor_after(lv_process, attempt)
-        {:noreply, state}
+        state
 
       %LvProcess{} = successor ->
         new_state = remove_socket_from_window(state, lv_process.socket_id)
@@ -109,8 +109,9 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
           new_lv_process: successor
         })
 
-        {:noreply, new_state}
+        new_state
     end
+    |> noreply()
   end
 
   @impl true
