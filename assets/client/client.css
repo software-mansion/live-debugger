@@ -84,10 +84,41 @@
 }
 
 .live-debugger-tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.live-debugger-tooltip-module {
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.live-debugger-tooltip-info {
+  border-top: 1px solid #e1e5e9;
+  padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.live-debugger-tooltip-info-item {
+  font-size: 11px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.live-debugger-tooltip-info-item .label {
+  color: #666;
+  font-weight: 400;
+}
+
+.live-debugger-tooltip-info-item .value {
+  color: #333;
+  font-weight: 500;
 }
 
 .live-debugger-tooltip-arrow {

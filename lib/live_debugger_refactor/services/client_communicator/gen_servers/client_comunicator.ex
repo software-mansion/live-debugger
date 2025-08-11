@@ -6,6 +6,7 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
   alias LiveDebuggerRefactor.Client
   alias LiveDebuggerRefactor.API.LiveViewDiscovery
   alias LiveDebuggerRefactor.API.LiveViewDebug
+  alias LiveDebuggerRefactor.App.Utils.Parsers
 
   def start_link(args \\ []) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -34,10 +35,11 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
         case type do
           "LiveView" ->
             Client.push_event!(root_socket_id, "found-node-element", %{
-              "module" => lv_process.module
+              "module" => Parsers.module_to_string(lv_process.module),
+              "type" => "LiveView",
+              "id_key" => "PID",
+              "id_value" => Parsers.pid_to_string(lv_process.pid)
             })
-
-            dbg(lv_process.module)
 
           _ ->
             lv_process.pid
@@ -49,9 +51,12 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
                   |> Enum.find(fn component -> component.cid == id |> String.to_integer() end)
                   |> Map.get(:module)
 
-                dbg(module)
-
-                Client.push_event!(root_socket_id, "found-node-element", %{"module" => module})
+                Client.push_event!(root_socket_id, "found-node-element", %{
+                  "module" => Parsers.module_to_string(module),
+                  "type" => "LiveComponent",
+                  "id_key" => "CID",
+                  "id_value" => id
+                })
 
               {:error, _} ->
                 nil

@@ -7,10 +7,37 @@ function createTooltip(data) {
   tooltip.id = tooltipID;
   tooltip.className = 'live-debugger-inspection-tooltip';
 
-  // Create tooltip content - just module name
+  // Create tooltip content
   const content = document.createElement('div');
   content.className = 'live-debugger-tooltip-content';
-  content.textContent = data.module || 'Element';
+
+  // Module name (main content)
+  const moduleName = document.createElement('div');
+  moduleName.className = 'live-debugger-tooltip-module';
+  moduleName.textContent = data.module || 'Element';
+
+  // Additional info section
+  const infoSection = document.createElement('div');
+  infoSection.className = 'live-debugger-tooltip-info';
+
+  if (data.type) {
+    const typeInfo = document.createElement('div');
+    typeInfo.className = 'live-debugger-tooltip-info-item';
+    typeInfo.innerHTML = `<span class="label">Type:</span> <span class="value">${data.type}</span>`;
+    infoSection.appendChild(typeInfo);
+  }
+
+  if (data.id_key && data.id_value) {
+    const idInfo = document.createElement('div');
+    idInfo.className = 'live-debugger-tooltip-info-item';
+    idInfo.innerHTML = `<span class="label">${data.id_key}:</span> <span class="value">${data.id_value}</span>`;
+    infoSection.appendChild(idInfo);
+  }
+
+  content.appendChild(moduleName);
+  if (infoSection.children.length > 0) {
+    content.appendChild(infoSection);
+  }
 
   tooltip.appendChild(content);
   document.body.appendChild(tooltip);

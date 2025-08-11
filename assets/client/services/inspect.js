@@ -9,7 +9,12 @@ export default function initElementInspection({
   let lastID = null;
 
   debugChannel.on('found-node-element', (event) => {
-    pushShowTooltipEvent({ module: event.module });
+    pushShowTooltipEvent({
+      module: event.module,
+      type: event.type,
+      id_key: event.id_key,
+      id_value: event.id_value,
+    });
   });
 
   const handleMove = (event) => {
