@@ -87,16 +87,17 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.Successor
   def handle_info({:find_successor, lv_process, attempt}, state) when attempt < 3 do
     window_id = get_window_from_socket(state, lv_process.socket_id)
     new_socket_id = get_socket_from_window(state, window_id)
+    previous_socket_id = lv_process.socket_id
 
-    successor = SuccessorQueries.find_successor(lv_process, new_socket_id)
-
-    cond do
-      is_nil(successor) ->
+    lv_process
+    |> SuccessorQueries.find_successor(new_socket_id)
+    |> case do
+      nil ->
         find_successor_after(lv_process, attempt)
         {:noreply, state}
 
       # If the successor is the same as the debugged process, it means that successor did not report itself yet.
-      successor.socket_id == lv_process.socket_id ->
+      %LvProcess{socket_id: ^previous_socket_id} ->
         find_successor_after(lv_process, attempt)
         {:noreply, state}
 
