@@ -1,3 +1,5 @@
+import { dispatchCustomEvent } from '../utils/dom';
+
 const highlightElementID = 'live-debugger-highlight-element';
 const highlightPulseElementID = 'live-debugger-highlight-pulse-element';
 
@@ -38,6 +40,8 @@ function removeHighlightElement() {
   if (highlightElement) {
     highlightElement.remove();
   }
+
+  pushRemoveTooltipEvent();
 }
 
 function handleHighlight({ detail }) {
@@ -130,6 +134,10 @@ function handlePulse({ detail }) {
       highlightPulse.remove();
     };
   }
+}
+
+function pushRemoveTooltipEvent() {
+  dispatchCustomEvent('lvdbg:remove-tooltip');
 }
 
 export default function initHighlight() {

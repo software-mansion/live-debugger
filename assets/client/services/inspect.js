@@ -9,9 +9,7 @@ export default function initElementInspection({
   let lastID = null;
 
   debugChannel.on('found-node-element', (event) => {
-    console.log('found-node-element', event);
-    document.getElementById('live-debugger-highlight-element').innerText =
-      event.module;
+    pushShowTooltipEvent({ module: event.module });
   });
 
   const handleMove = (event) => {
@@ -101,6 +99,9 @@ export default function initElementInspection({
 
     pushClearEvent();
 
+    // Remove tooltip when inspection mode is disabled
+    pushRemoveTooltipEvent();
+
     document.body.classList.remove('live-debugger-inspect-mode');
     document.body.removeEventListener('click', handleInspect);
     document.body.removeEventListener('mouseover', handleMove);
@@ -145,6 +146,16 @@ function pushPulseEvent(detail) {
 
 function pushClearEvent() {
   dispatchCustomEvent('lvdbg:inspect-clear');
+}
+
+function pushShowTooltipEvent(detail) {
+  dispatchCustomEvent('lvdbg:show-tooltip', {
+    detail,
+  });
+}
+
+function pushRemoveTooltipEvent() {
+  dispatchCustomEvent('lvdbg:remove-tooltip');
 }
 
 function getHighlightDetail(componentElement, liveViewElement) {

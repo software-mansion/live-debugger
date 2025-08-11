@@ -6,6 +6,7 @@ import initHighlight from './services/highlight';
 import initDebugSocket from './services/debug_socket';
 import initElementInspection from './services/inspect';
 import initWindowIdentifier from './services/window_identifier';
+import initTooltip from './services/tooltip';
 
 import {
   getMetaTag,
@@ -34,6 +35,7 @@ window.document.addEventListener('DOMContentLoaded', function () {
 
       initWindowIdentifier(debugChannel, socketID);
       initElementInspection({ baseURL, debugChannel, socketID });
+      initTooltip();
     }
 
     if (isDebugButtonEnabled(metaTag)) {
