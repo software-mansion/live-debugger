@@ -9,7 +9,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
 
   alias Phoenix.Socket.Message
   alias LiveDebuggerRefactor.API.System.Process, as: ProcessAPI
-  alias LiveDebugger.Utils.URL
+  alias LiveDebuggerRefactor.App.Utils.URL
   alias LiveDebuggerRefactor.Structs.LvProcess
   alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.Components, as: TreeComponents
   alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Utils, as: ComponentsTreeUtils

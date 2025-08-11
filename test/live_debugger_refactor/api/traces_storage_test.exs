@@ -7,7 +7,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorageTest do
   alias LiveDebuggerRefactor.Fakes
   alias LiveDebuggerRefactor.API.TracesStorage.Impl, as: TracesStorageImpl
 
-  @all_functions LiveDebugger.Utils.Callbacks.all_callbacks()
+  @all_functions LiveDebuggerRefactor.Utils.Callbacks.all_callbacks()
                  |> Enum.map(fn {function, arity} -> "#{function}/#{arity}" end)
 
   @processes_table_name :lvdbg_traces_processes
