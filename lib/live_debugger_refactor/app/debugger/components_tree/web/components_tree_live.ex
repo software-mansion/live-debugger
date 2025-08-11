@@ -35,6 +35,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   attr(:lv_process, LvProcess, required: true)
   attr(:node_id, :any, required: true)
   attr(:url, :string, required: true)
+  attr(:class, :string, default: "", doc: "CSS class for the wrapper div")
 
   def live_render(assigns) do
     session = %{
@@ -47,7 +48,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
     assigns = assign(assigns, session: session)
 
     ~H"""
-    <%= live_render(@socket, __MODULE__, id: @id, session: @session) %>
+    <%= live_render(@socket, __MODULE__, id: @id, session: @session, container: {:div, class: @class}) %>
     """
   end
 
