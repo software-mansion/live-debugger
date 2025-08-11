@@ -1,7 +1,11 @@
 defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces do
   @moduledoc """
   This hook is responsible for displaying new traces.
-  It is used to display new traces when the user starts tracing.
+  It is used to display new traces and filter them by execution time when the user starts tracing.
+
+  It incorporates debouncing `TraceCalled` event. It helps to reduce inserting and deleting traces from
+  a stream in a very short intervals (e.g. when callback execution time is only couple of microseconds
+  and they don't match the filter they appear in the UI and are removed very quickly which casuses blinking effect).
   """
 
   use LiveDebuggerRefactor.App.Web, :hook
@@ -15,7 +19,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.DisplayNew
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceErrored
 
-  @debounce_timeout 1
+  @debounce_timeout_ms 10
 
   @required_assigns [
     :current_filters,
@@ -32,7 +36,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.DisplayNew
     |> check_assigns!(@required_assigns)
     |> check_stream!(:existing_traces)
     |> check_private!(:live_stream_limit)
-    |> put_private(:canceled, false)
+    |> put_private(:trace_insertion_canceled, false)
     |> attach_hook(:display_new_traces, :handle_info, &handle_info/2)
     |> register_hook(:display_new_traces)
   end
@@ -41,7 +45,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.DisplayNew
     debounce_trace_event(trace_called)
 
     socket
-    |> put_private(:canceled, false)
+    |> put_private(:trace_insertion_canceled, false)
     |> halt()
   end
 
@@ -63,7 +67,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.DisplayNew
     |> halt()
   end
 
-  defp handle_info({:debounce, _}, socket) when socket.private.canceled do
+  defp handle_info({:debounce, _}, socket) when socket.private.trace_insertion_canceled do
     {:halt, socket}
   end
 
@@ -78,6 +82,18 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.DisplayNew
 
   defp handle_info(_, socket), do: {:cont, socket}
 
+  defp stream_update_trace(socket, trace) do
+    if matches_execution_time_filter?(socket, trace) do
+      socket
+      |> stream_insert_trace(trace)
+      |> assign(traces_empty?: false)
+    else
+      socket
+      |> stream_delete(:existing_traces, TraceDisplay.from_trace(trace, true))
+    end
+    |> put_private(:trace_insertion_canceled, true)
+  end
+
   defp stream_insert_trace(socket, trace) do
     stream_insert(
       socket,
@@ -86,24 +102,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.DisplayNew
       at: 0,
       limit: socket.private.live_stream_limit
     )
-  end
-
-  defp stream_update_trace(socket, trace) do
-    trace_display = TraceDisplay.from_trace(trace, true)
-
-    if matches_execution_time_filter?(socket, trace) do
-      stream_insert(
-        socket,
-        :existing_traces,
-        trace_display,
-        at: 0,
-        limit: socket.private.live_stream_limit
-      )
-    else
-      socket
-      |> put_private(:canceled, true)
-      |> stream_delete(:existing_traces, trace_display)
-    end
   end
 
   defp matches_execution_time_filter?(socket, %Trace{execution_time: execution_time}) do
@@ -116,6 +114,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.DisplayNew
   end
 
   defp debounce_trace_event(event) do
-    Process.send_after(self(), {:debounce, event}, @debounce_timeout)
+    Process.send_after(self(), {:debounce, event}, @debounce_timeout_ms)
   end
 end
