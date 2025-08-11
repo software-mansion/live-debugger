@@ -18,6 +18,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentDeleted
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentCreated
+  alias LiveDebuggerRefactor.App.Debugger.Events.NodeIdParamChanged
 
   @doc """
   Renders the `ComponentsTreeLive` as a nested LiveView component.
@@ -39,7 +40,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
     session = %{
       "lv_process" => assigns.lv_process,
       "node_id" => assigns.node_id,
-      "url" => assigns.url
+      "url" => assigns.url,
+      "parent_pid" => self()
     }
 
     assigns = assign(assigns, session: session)
@@ -52,13 +54,16 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   @impl true
   def mount(_params, session, socket) do
     lv_process = session["lv_process"]
+    parent_pid = session["parent_pid"]
 
     if connected?(socket) do
       Bus.receive_events!(lv_process.pid)
+      Bus.receive_events!(parent_pid)
     end
 
     socket
     |> assign(lv_process: lv_process)
+    |> assign(parent_pid: parent_pid)
     |> assign(node_id: session["node_id"])
     |> assign(url: session["url"])
     |> assign(highlight?: false)
@@ -122,15 +127,30 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   end
 
   @impl true
-  def handle_info(%LiveComponentCreated{}, socket) do
+  def handle_info(
+        %LiveComponentCreated{pid: pid},
+        %{assigns: %{lv_process: %{pid: pid}}} = socket
+      ) do
     socket
     |> assign_async_tree()
     |> noreply()
   end
 
-  def handle_info(%LiveComponentDeleted{}, socket) do
+  def handle_info(
+        %LiveComponentDeleted{pid: pid},
+        %{assigns: %{lv_process: %{pid: pid}}} = socket
+      ) do
     socket
     |> assign_async_tree()
+    |> noreply()
+  end
+
+  def handle_info(
+        %NodeIdParamChanged{node_id: node_id, debugger_pid: pid},
+        %{assigns: %{parent_pid: pid}} = socket
+      ) do
+    socket
+    |> assign(node_id: node_id)
     |> noreply()
   end
 

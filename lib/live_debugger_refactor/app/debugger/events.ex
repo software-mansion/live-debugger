@@ -7,5 +7,5 @@ defmodule LiveDebuggerRefactor.App.Debugger.Events do
 
   alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
 
-  defevent(NodeIdParamChanged, node_id: TreeNode.id())
+  defevent(NodeIdParamChanged, node_id: TreeNode.id(), debugger_pid: pid())
 end
