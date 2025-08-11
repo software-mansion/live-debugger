@@ -6,8 +6,6 @@ defmodule LiveDebuggerRefactor.App.Web.Components.Navbar do
   use LiveDebuggerRefactor.App.Web, :component
 
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
-  alias LiveDebuggerRefactor.Structs.LvProcess
-  alias LiveDebuggerRefactor.App.Utils.Parsers
 
   @doc """
   Base navbar component. Wrap other components inside this to create a navbar.
@@ -89,62 +87,5 @@ defmodule LiveDebuggerRefactor.App.Web.Components.Navbar do
       <.nav_icon icon="icon-settings" />
     </.link>
     """
-  end
-
-  attr(:id, :string, required: true)
-  attr(:lv_process, LvProcess, required: true)
-
-  def connected(assigns) do
-    connected? = assigns.lv_process.alive?
-    status = if(connected?, do: :connected, else: :disconnected)
-
-    assigns =
-      assigns
-      |> assign(:status, status)
-      |> assign(:connected?, connected?)
-      |> assign(:display_pid, Parsers.pid_to_string(assigns.lv_process.pid))
-      |> assign(:tooltip_content, tooltip_content(connected?))
-
-    ~H"""
-    <.tooltip id={@id <> "-tooltip"} position="bottom" content={@tooltip_content}>
-      <div id={@id} class="flex items-center gap-1 text-xs text-primary ml-1">
-        <.status_icon status={@status} />
-        <%= if @connected? do %>
-          <span class="font-medium">Monitored PID </span>
-          <%= @display_pid %>
-        <% else %>
-          <span class="font-medium">Disconnected</span>
-          <.button phx-click="find-successor" variant="secondary" size="sm">Continue</.button>
-        <% end %>
-      </div>
-    </.tooltip>
-    """
-  end
-
-  attr(:status, :atom, required: true, values: [:connected, :disconnected])
-
-  defp status_icon(assigns) do
-    assigns =
-      case(assigns.status) do
-        :connected ->
-          assign(assigns, icon: "icon-check-circle", class: "text-(--swm-green-100)")
-
-        :disconnected ->
-          assign(assigns, icon: "icon-cross-circle", class: "text-(--swm-pink-100)")
-      end
-
-    ~H"""
-    <div class={["w-4 h-4 rounded-full flex items-center justify-center", @class]}>
-      <.icon :if={@icon} name={@icon} class={["w-4 h-4", @class]} />
-    </div>
-    """
-  end
-
-  defp tooltip_content(true) do
-    "LiveView process is alive"
-  end
-
-  defp tooltip_content(false) do
-    "LiveView process is dead - you can still debug the last state"
   end
 end

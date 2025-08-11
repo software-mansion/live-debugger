@@ -8,6 +8,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   use LiveDebuggerRefactor.App.Web, :live_view
 
   alias LiveDebuggerRefactor.App.Debugger.Web.Hooks
+  alias LiveDebuggerRefactor.App.Debugger.Web.HookComponents
   alias LiveDebuggerRefactor.App.Utils.Parsers
   alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
@@ -26,6 +27,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
       {:ok, pid} ->
         socket
         |> Hooks.AsyncLvProcess.init(pid)
+        |> HookComponents.DeadViewMode.init()
         |> assign(:pid, pid)
 
       :error ->
@@ -63,7 +65,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
             class="sm:hidden"
           />
           <Navbar.live_debugger_logo_icon />
-          <Navbar.connected id="navbar-connected" lv_process={lv_process} />
+          <HookComponents.DeadViewMode.render id="navbar-connected" lv_process={lv_process} />
           <div class="flex items-center gap-2">
             <Navbar.settings_button return_to={@url} />
             <span class="h-5 border-r border-default-border lg:hidden"></span>
