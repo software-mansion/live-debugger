@@ -1,8 +1,18 @@
 import { dispatchCustomEvent } from '../utils/dom';
 
-export default function initElementInspection({ baseURL }) {
+export default function initElementInspection({
+  baseURL,
+  debugChannel,
+  socketID,
+}) {
   let inspectMode = false;
   let lastID = null;
+
+  debugChannel.on('found-node-element', (event) => {
+    console.log('found-node-element', event);
+    document.getElementById('live-debugger-highlight-element').innerText =
+      event.module;
+  });
 
   const handleMove = (event) => {
     const liveViewElement = event.target.closest('[data-phx-session]');
@@ -17,6 +27,17 @@ export default function initElementInspection({ baseURL }) {
     if (detail.val === lastID) {
       return;
     }
+
+    debugChannel.push('request-node-element', {
+      root_socket_id: socketID,
+      socket_id: liveViewElement.id,
+      type: detail.attr === 'id' ? 'LiveView' : 'LiveComponent',
+
+      id:
+        detail.attr === 'id'
+          ? detail.val
+          : componentElement.dataset.phxComponent,
+    });
 
     lastID = detail.val;
 

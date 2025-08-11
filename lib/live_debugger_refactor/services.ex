@@ -10,7 +10,8 @@ defmodule LiveDebuggerRefactor.Services do
         {LiveDebuggerRefactor.Services.CallbackTracer.Supervisor, []},
         {LiveDebuggerRefactor.Services.GarbageCollector.Supervisor, []},
         {LiveDebuggerRefactor.Services.ProcessMonitor.Supervisor, []},
-        {LiveDebuggerRefactor.Services.StateManager.Supervisor, []}
+        {LiveDebuggerRefactor.Services.StateManager.Supervisor, []},
+        {LiveDebuggerRefactor.Services.ClientCommunicator.Supervisor, []}
       ]
   end
 end

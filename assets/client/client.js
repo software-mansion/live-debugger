@@ -33,6 +33,7 @@ window.document.addEventListener('DOMContentLoaded', function () {
       });
 
       initWindowIdentifier(debugChannel, socketID);
+      initElementInspection({ baseURL, debugChannel, socketID });
     }
 
     if (isDebugButtonEnabled(metaTag)) {
@@ -42,8 +43,6 @@ window.document.addEventListener('DOMContentLoaded', function () {
     if (isHighlightingEnabled(metaTag)) {
       initHighlight();
     }
-
-    initElementInspection({ baseURL });
   }
 
   console.info(`LiveDebugger available at: ${baseURL}`);
