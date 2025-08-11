@@ -79,7 +79,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     * `:limit` - Maximum number of traces to return (default: 100)
     * `:cont` - Used to get next page of items in the following queries
     * `:functions` - List of function names to filter traces by e.g ["handle_info/2", "render/1"]
-    * `:execution_times` - Map specifying minimum and maximum execution time of a callback in microseconds 
+    * `:execution_times` - Map specifying minimum and maximum execution time of a callback in microseconds
                         e.g. %{"exec_time_min" => 0, "exec_time_max" => 100}
     * `:search_query` - String to filter traces by, performs a case-sensitive substring search on the entire Trace struct
   """
@@ -360,7 +360,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
           {String.to_existing_atom(function), String.to_integer(arity)}
         end)
 
-      execution_times = Keyword.get(opts, :execution_times, [])
+      execution_times = Keyword.get(opts, :execution_times, %{})
       node_id = Keyword.get(opts, :node_id)
 
       if limit < 1 do
