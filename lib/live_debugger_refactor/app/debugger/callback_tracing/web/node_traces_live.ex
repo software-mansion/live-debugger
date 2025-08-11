@@ -7,6 +7,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
 
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Assigns.Filters, as: FiltersAssigns
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks
 
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace,
     as: TraceComponents
@@ -76,6 +77,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
     |> HookComponents.FiltersFullscreen.init()
     |> HookComponents.RefreshButton.init()
     |> HookComponents.ToggleTracingButton.init()
+    |> Hooks.ExistingTraces.init()
+    |> Hooks.FilterNewTraces.init()
     |> ok()
   end
 
