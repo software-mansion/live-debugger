@@ -3,9 +3,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Hooks.AsyncLvProcess do
   Hooks for asynchronous LVProcess assignment.
   """
 
+  require Logger
+
   use LiveDebuggerRefactor.App.Web, :hook
 
   alias LiveDebuggerRefactor.App.Debugger.Queries.LvProcess, as: LvProcessQueries
+  alias LiveDebuggerRefactor.Structs.LvProcess
+  alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
   alias Phoenix.LiveView.AsyncResult
 
   @spec init(Phoenix.LiveView.Socket.t(), pid()) :: Phoenix.LiveView.Socket.t()
@@ -17,15 +21,25 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Hooks.AsyncLvProcess do
     |> start_async(:lv_process, fn -> LvProcessQueries.fetch_with_retries(pid) end)
   end
 
-  defp handle_async(:lv_process, {:ok, lv_process}, socket) do
+  defp handle_async(:lv_process, {:ok, %LvProcess{} = lv_process}, socket) do
     socket
     |> assign(:lv_process, AsyncResult.ok(lv_process))
     |> halt()
   end
 
-  defp handle_async(:lv_process, _, socket) do
+  defp handle_async(:lv_process, {:ok, nil}, socket) do
     socket
-    |> assign(:lv_process, AsyncResult.failed(socket.assigns.lv_process, :not_found))
+    |> push_navigate(to: RoutesHelper.error("not_found"))
+    |> halt()
+  end
+
+  defp handle_async(:lv_process, {:exit, reason}, socket) do
+    Logger.error(
+      "LiveDebugger encountered unexpected error while fetching information for process: #{inspect(reason)}"
+    )
+
+    socket
+    |> push_navigate(to: RoutesHelper.error("unexpected_error"))
     |> halt()
   end
 
