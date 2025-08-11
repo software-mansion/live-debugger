@@ -10,9 +10,8 @@ defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.Queries.Successor do
           LvProcess.t() | nil
   def find_successor(lv_process, new_socket_id) do
     with lv_processes <- LiveViewDiscovery.debugged_lv_processes(),
-         nil <- find_successor_by_transport_pid(lv_processes, lv_process),
-         nil <- find_successor_using_state(lv_processes, new_socket_id) do
-      nil
+         nil <- find_successor_by_transport_pid(lv_processes, lv_process) do
+      find_successor_using_state(lv_processes, new_socket_id)
     else
       successor -> successor
     end
