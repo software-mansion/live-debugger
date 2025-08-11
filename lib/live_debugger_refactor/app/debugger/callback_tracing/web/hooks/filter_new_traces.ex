@@ -15,6 +15,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.FilterNewT
     :current_filters
   ]
 
+  @doc """
+  Initializes the hook by attaching the hook to the socket and checking the required assigns, other hooks and streams.
+  """
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
     socket
