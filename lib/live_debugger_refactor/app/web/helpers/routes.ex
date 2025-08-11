@@ -57,6 +57,17 @@ defmodule LiveDebuggerRefactor.App.Web.Helpers.Routes do
     ~p"/pid/#{pid}"
   end
 
+  @spec debugger_global_traces(pid :: pid() | String.t()) :: String.t()
+  def debugger_global_traces(pid) when is_pid(pid) do
+    pid
+    |> Parsers.pid_to_string()
+    |> debugger_global_traces()
+  end
+
+  def debugger_global_traces(pid) when is_binary(pid) do
+    ~p"/pid/#{pid}/global_traces"
+  end
+
   @spec error(String.t()) :: String.t()
   def error(error) do
     ~p"/error/#{error}"
