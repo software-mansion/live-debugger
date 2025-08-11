@@ -5,7 +5,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
 
   use LiveDebuggerRefactor.App.Web, :live_view
 
-  alias LiveDebuggerRefactor.App.Debugger.Web.Assigns.NestedLiveView, as: NestedLiveViewAssigns
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Assigns.Filters, as: FiltersAssigns
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents
 
@@ -20,13 +19,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:id, :string, required: true)
   attr(:lv_process, LvProcess, required: true)
-  attr(:params, :map, required: true, doc: "Query params from the root LiveView")
+  attr(:node_id, :any, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
       "lv_process" => assigns.lv_process,
-      "params" => assigns.params,
+      "node_id" => assigns.node_id,
       "id" => assigns.id,
       "parent_pid" => self()
     }
@@ -45,7 +44,12 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
   @impl true
   def mount(
         _params,
-        %{"parent_pid" => parent_pid, "lv_process" => lv_process, "id" => id} = session,
+        %{
+          "parent_pid" => parent_pid,
+          "lv_process" => lv_process,
+          "id" => id,
+          "node_id" => node_id
+        },
         socket
       ) do
     socket
@@ -53,6 +57,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
       id: id,
       parent_pid: parent_pid,
       lv_process: lv_process,
+      node_id: node_id,
       traces_empty?: true,
       traces_continuation: nil,
       existing_traces_status: :loading,
@@ -63,7 +68,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
     |> stream(:existing_traces, [], reset: true)
     |> put_private(:page_size, @page_size)
     |> put_private(:live_stream_limit, @live_stream_limit)
-    |> NestedLiveViewAssigns.assign_node_id(session)
     |> FiltersAssigns.assign_current_filters()
     |> HookComponents.ClearButton.init()
     |> HookComponents.LoadMoreButton.init()

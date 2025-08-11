@@ -11,7 +11,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   alias LiveDebuggerRefactor.API.System.Process, as: ProcessAPI
   alias LiveDebugger.Utils.URL
   alias LiveDebuggerRefactor.Structs.LvProcess
-  alias LiveDebuggerRefactor.App.Debugger.Web.Assigns.NestedLiveView, as: NestedLiveViewAssigns
   alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.Components, as: TreeComponents
   alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Utils, as: ComponentsTreeUtils
   alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Queries, as: ComponentsTreeQueries
@@ -26,20 +25,20 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   `id` - dom id
   `socket` - parent LiveView socket
   `lv_process` - currently debugged LiveView process
-  `params` - query parameters of the page.
+  `node_id` - node id of the currently selected node
   `url` - current URL of the page, used for patching
   """
 
   attr(:id, :string, required: true)
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:lv_process, LvProcess, required: true)
-  attr(:params, :map, required: true)
+  attr(:node_id, :any, required: true)
   attr(:url, :string, required: true)
 
   def live_render(assigns) do
     session = %{
       "lv_process" => assigns.lv_process,
-      "params" => assigns.params,
+      "node_id" => assigns.node_id,
       "url" => assigns.url
     }
 
@@ -60,9 +59,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
 
     socket
     |> assign(lv_process: lv_process)
+    |> assign(node_id: session["node_id"])
     |> assign(url: session["url"])
     |> assign(highlight?: false)
-    |> NestedLiveViewAssigns.assign_node_id(session)
     |> assign_async_tree()
     |> ok()
   end

@@ -8,12 +8,11 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
 
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebuggerRefactor.Structs.LvProcess
-  alias LiveDebuggerRefactor.App.Debugger.Web.Assigns.NestedLiveView, as: NestedLiveViewAssigns
   alias LiveDebuggerRefactor.App.Debugger.NodeState.Web.Components, as: NodeStateComponents
   alias LiveDebuggerRefactor.App.Debugger.NodeState.Queries, as: NodeStateQueries
 
   alias LiveDebuggerRefactor.Bus
-  alias LiveDebuggerRefactor.App.Events.ParamsChanged
+  alias LiveDebuggerRefactor.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebuggerRefactor.Services.StateManager.Events.StateChanged
 
   @doc """
@@ -28,13 +27,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   attr(:id, :string, required: true)
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:lv_process, LvProcess, required: true)
-  attr(:params, :map, required: true)
+  attr(:node_id, :any, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
       "lv_process" => assigns.lv_process,
-      "params" => assigns.params,
+      "node_id" => assigns.node_id,
       "parent_pid" => self()
     }
 
@@ -53,6 +52,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   def mount(_params, session, socket) do
     lv_process = session["lv_process"]
     parent_pid = session["parent_pid"]
+    node_id = session["node_id"]
 
     if connected?(socket) do
       Bus.receive_events!(parent_pid)
@@ -61,7 +61,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
 
     socket
     |> assign(:lv_process, lv_process)
-    |> NestedLiveViewAssigns.assign_node_id(session)
+    |> assign(:node_id, node_id)
     |> assign_async_node_assigns()
     |> ok()
   end
@@ -88,9 +88,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   end
 
   @impl true
-  def handle_info(%ParamsChanged{params: params}, socket) do
+  def handle_info(%NodeIdParamChanged{node_id: node_id}, socket) do
     socket
-    |> NestedLiveViewAssigns.assign_node_id(params)
+    |> assign(:node_id, node_id)
     |> assign_async_node_assigns()
     |> noreply()
   end

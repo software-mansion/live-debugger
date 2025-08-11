@@ -10,7 +10,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
         socket: socket,
         id: "global-traces",
         lv_process: lv_process,
-        params: %{},
         class: "flex-1"
       )
 
@@ -33,14 +32,12 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:id, :string, required: true)
   attr(:lv_process, LvProcess, required: true)
-  attr(:params, :map, required: true, doc: "Query params from the root LiveView")
   attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
       "id" => assigns.id,
       "lv_process" => assigns.lv_process,
-      "params" => assigns.params,
       "parent_pid" => self()
     }
 
