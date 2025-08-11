@@ -1,3 +1,5 @@
+import pushWindowInitialized from './window_identifier';
+
 export default function initDebugSocket(baseURL, socketID) {
   const websocketURL = baseURL.replace(/^http/, 'ws') + '/client';
 
@@ -12,6 +14,7 @@ export default function initDebugSocket(baseURL, socketID) {
   debugChannel
     .join()
     .receive('ok', () => {
+      pushWindowInitialized(debugChannel, socketID);
       console.log('LiveDebugger debug connection established!');
     })
     .receive('error', (resp) => {
