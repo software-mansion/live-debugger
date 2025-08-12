@@ -3,15 +3,15 @@ defmodule LiveDebuggerRefactor.App.Debugger.Queries.LvProcess do
   Queries for fetching the LvProcess.
   """
 
+  @retries_timeouts [50, 100, 200]
+
   alias LiveDebuggerRefactor.App.Debugger.Queries.State, as: StateQueries
   alias LiveDebuggerRefactor.API.LiveViewDiscovery
   alias LiveDebuggerRefactor.Structs.LvProcess
 
   @spec get_successor_with_retries(LvProcess.t()) :: LvProcess.t() | nil
   def get_successor_with_retries(lv_process) do
-    retries = [50, 100, 200]
-
-    fetch_with_retries(fn -> LiveViewDiscovery.successor_lv_process(lv_process) end, retries)
+    fetch_with_retries(fn -> LiveViewDiscovery.successor_lv_process(lv_process) end)
   end
 
   @doc """
@@ -19,7 +19,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Queries.LvProcess do
   """
   @spec get_lv_process_with_retries(pid()) :: LvProcess.t() | nil
   def get_lv_process_with_retries(pid) when is_pid(pid) do
-    fetch_with_retries(fn -> get_lv_process(pid) end, [50, 100, 200])
+    fetch_with_retries(fn -> get_lv_process(pid) end)
   end
 
   @spec get_lv_process(pid()) :: LvProcess.t() | nil
@@ -30,8 +30,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.Queries.LvProcess do
     end
   end
 
-  defp fetch_with_retries(function, retries) when is_function(function) and is_list(retries) do
-    Enum.reduce_while(retries, nil, fn timeout, nil ->
+  defp fetch_with_retries(function) when is_function(function) do
+    Enum.reduce_while(@retries_timeouts, nil, fn timeout, nil ->
       Process.sleep(timeout)
 
       case function.() do
