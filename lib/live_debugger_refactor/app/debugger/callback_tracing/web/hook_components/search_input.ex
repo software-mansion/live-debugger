@@ -6,6 +6,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.S
 
   use LiveDebuggerRefactor.App.Web, :hook_component
 
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks
+
   @required_assigns [:trace_search_query]
 
   @impl true
@@ -51,7 +53,14 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.S
     """
   end
 
-  defp handle_event("search", _params, socket), do: {:halt, socket}
+  defp handle_event("search", %{"search_query" => search_query}, socket) do
+    socket
+    |> assign(trace_search_query: search_query)
+    |> Hooks.ExistingTraces.assign_async_existing_traces()
+    |> push_event("collapse-all-traces", %{})
+    |> halt()
+  end
+
   defp handle_event("search-submit", _params, socket), do: {:halt, socket}
   defp handle_event(_, _, socket), do: {:cont, socket}
 end

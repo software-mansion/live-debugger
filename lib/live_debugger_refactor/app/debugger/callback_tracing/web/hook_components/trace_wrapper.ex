@@ -19,6 +19,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
 
   use LiveDebuggerRefactor.App.Web, :hook_component
 
+  import LiveDebuggerWeb.Hooks.Flash, only: [push_flash: 3]
+
+  alias LiveDebuggerRefactor.API.TracesStorage
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay
 
   @impl true
@@ -74,7 +77,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
             id={"trace-fullscreen-#{@id}"}
             class="m-2"
             phx-click="open-trace"
-            phx-value-data={@trace.id}
+            phx-value-trace-id={@trace.id}
           />
         </div>
         <div class="flex flex-col gap-4 overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
@@ -91,7 +94,48 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
     """
   end
 
-  defp handle_event("open-trace", _, socket), do: {:halt, socket}
-  defp handle_event("toggle-collapsible", _, socket), do: {:halt, socket}
+  defp handle_event("open-trace", %{"trace-id" => string_trace_id}, socket) do
+    socket
+    |> get_trace(string_trace_id)
+    |> case do
+      nil ->
+        socket
+        |> push_flash("Trace has been removed.", socket.assigns.parent_pid)
+
+      trace ->
+        socket
+        |> assign(displayed_trace: trace)
+        |> push_event("trace-fullscreen-open", %{})
+    end
+    |> halt()
+  end
+
+  defp handle_event("toggle-collapsible", %{"trace-id" => string_trace_id}, socket) do
+    socket
+    |> get_trace(string_trace_id)
+    |> case do
+      nil ->
+        socket
+        |> push_flash("Trace has been removed.", socket.assigns.parent_pid)
+        |> push_event("existing_traces-#{string_trace_id}-collapsible", %{action: "close"})
+
+      trace ->
+        stream_insert_trace(socket, trace)
+    end
+    |> halt()
+  end
+
   defp handle_event(_, _, socket), do: {:cont, socket}
+
+  defp get_trace(socket, string_trace_id) do
+    TracesStorage.get_by_id!(socket.assigns.lv_process.pid, String.to_integer(string_trace_id))
+  end
+
+  defp stream_insert_trace(socket, trace) do
+    stream_insert(
+      socket,
+      :existing_traces,
+      TraceDisplay.from_trace(trace) |> TraceDisplay.render_body()
+    )
+  end
 end
