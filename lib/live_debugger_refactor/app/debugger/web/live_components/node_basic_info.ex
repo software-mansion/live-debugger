@@ -110,7 +110,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
       pid ->
         assign_async(socket, :parent_lv_process, fn ->
-          {:ok, %{parent_lv_process: LvProcessQueries.get_lv_process(pid)}}
+          {:ok, %{parent_lv_process: LvProcessQueries.get_lv_process_with_retries(pid)}}
         end)
     end
   end
