@@ -19,13 +19,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   alias LiveDebuggerRefactor.App.Debugger.Events.NodeIdParamChanged
 
   @impl true
-  def handle_params(params, _url, socket) do
-    socket
-    |> assign_and_broadcast_node_id(params)
-    |> noreply()
-  end
-
-  @impl true
   def mount(%{"pid" => string_pid}, _session, socket) do
     string_pid
     |> Parsers.string_to_pid()
@@ -39,6 +32,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
         push_navigate(socket, to: RoutesHelper.error("invalid_pid"))
     end
     |> ok()
+  end
+
+  @impl true
+  def handle_params(params, _url, socket) do
+    socket
+    |> assign_and_broadcast_node_id(params)
+    |> noreply()
   end
 
   @impl true
