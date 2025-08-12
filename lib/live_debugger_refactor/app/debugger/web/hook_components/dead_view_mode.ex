@@ -17,9 +17,12 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
   alias LiveDebuggerRefactor.App.Events.UserChangedSettings
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
 
+  @required_assigns [:pid]
+
   @impl true
   def init(socket) do
     socket
+    |> check_assigns!(@required_assigns)
     |> attach_hook(:dead_view_mode, :handle_info, &handle_info/2)
     |> attach_hook(:dead_view_mode, :handle_event, &handle_event/3)
     |> attach_hook(:dead_view_mode, :handle_async, &handle_async/3)
@@ -100,7 +103,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
          %LiveViewDied{pid: pid},
          %{
            assigns: %{
-             lv_process: %{result: %LvProcess{pid: pid}}
+             pid: pid
            }
          } = socket
        ) do

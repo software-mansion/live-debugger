@@ -23,6 +23,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
 
   @impl true
   def mount(%{"pid" => string_pid}, _session, socket) do
+    if connected?(socket) do
+      Bus.receive_events!()
+    end
+
     string_pid
     |> Parsers.string_to_pid()
     |> case do
@@ -104,14 +108,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   end
 
   defp init_debugger(socket, pid) when is_pid(pid) do
-    if connected?(socket) do
-      Bus.receive_events!()
-    end
-
     socket
-    |> Hooks.AsyncLvProcess.init(pid)
-    |> HookComponents.DeadViewMode.init()
     |> assign(:pid, pid)
+    |> Hooks.AsyncLvProcess.init()
+    |> HookComponents.DeadViewMode.init()
   end
 
   defp assign_and_broadcast_node_id(socket, %{"node_id" => node_id}) do
