@@ -55,4 +55,9 @@ defmodule LiveDebuggerRefactor.Structs.LvProcess do
       embedded?: embedded?
     }
   end
+
+  @spec make_dead(t()) :: t()
+  def make_dead(%__MODULE__{} = lv_process) do
+    %__MODULE__{lv_process | alive?: false}
+  end
 end

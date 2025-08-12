@@ -100,20 +100,22 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
          %LiveViewDied{pid: pid},
          %{
            assigns: %{
-             lv_process: %{result: %LvProcess{pid: pid} = lv_process_result}
+             lv_process: %{result: %LvProcess{pid: pid}}
            }
          } = socket
        ) do
     if socket.private[:dead_view_mode?] do
-      lv_process_result = %LvProcess{lv_process_result | alive?: false}
-      lv_process = %AsyncResult{socket.assigns.lv_process | result: lv_process_result}
+      lv_process =
+        socket.assigns.lv_process.result
+        |> LvProcess.make_dead()
+        |> AsyncResult.ok()
 
       socket
       |> assign(:lv_process, lv_process)
       |> halt()
     else
       socket
-      |> start_async_find_successor(lv_process_result)
+      |> start_async_find_successor()
       |> halt()
     end
   end
@@ -123,11 +125,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp handle_event("find-successor", _params, socket) do
-    lv_process = socket.assigns.lv_process
-
     socket
-    |> assign(:lv_process, AsyncResult.loading(lv_process))
-    |> start_async_find_successor(lv_process.result)
+    |> start_async_find_successor()
     |> halt()
   end
 
@@ -147,9 +146,15 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
 
   defp handle_async(_, _, socket), do: {:cont, socket}
 
-  defp start_async_find_successor(socket, lv_process) do
-    start_async(socket, :find_successor, fn ->
+  defp start_async_find_successor(socket) do
+    lv_process = socket.assigns.lv_process.result
+
+    socket
+    |> assign(:lv_process, AsyncResult.loading())
+    |> start_async(:find_successor, fn ->
+      Process.sleep(1000)
       LvProcessQueries.get_successor_with_retries(lv_process)
     end)
+    |> dbg()
   end
 end
