@@ -18,7 +18,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   alias LiveDebuggerRefactor.Structs.LvProcess
 
   alias LiveDebuggerRefactor.Bus
-  alias LiveDebuggerRefactor.App.Events.NodeIdParamChanged
+  alias LiveDebuggerRefactor.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebuggerRefactor.App.Events.DebuggerTerminated
 
   @impl true

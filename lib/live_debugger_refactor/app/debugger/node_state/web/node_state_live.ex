@@ -12,7 +12,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
   alias LiveDebuggerRefactor.App.Debugger.NodeState.Queries, as: NodeStateQueries
 
   alias LiveDebuggerRefactor.Bus
-  alias LiveDebuggerRefactor.App.Events.NodeIdParamChanged
+  alias LiveDebuggerRefactor.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebuggerRefactor.Services.StateManager.Events.StateChanged
 
   @doc """

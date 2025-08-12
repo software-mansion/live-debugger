@@ -2,8 +2,6 @@ defmodule LiveDebuggerRefactor.App.Events do
   @moduledoc """
   Events emitted by the LiveDebuggerRefactor UI.
   """
-  alias LiveDebuggerRefactor.CommonTypes
-
   use LiveDebuggerRefactor.Event
 
   alias LiveDebuggerRefactor.Structs.LvProcess
@@ -18,6 +16,6 @@ defmodule LiveDebuggerRefactor.App.Events do
 
   defevent(DebuggerMounted, debugged_pid: pid(), debugger_pid: pid())
   defevent(DebuggerTerminated, debugged_pid: pid(), debugger_pid: pid())
-  defevent(NodeIdParamChanged, node_id: pid() | CommonTypes.cid(), debugger_pid: pid())
+
   defevent(FindSuccessor, lv_process: LvProcess.t())
 end
