@@ -123,10 +123,11 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp handle_event("find-successor", _params, socket) do
-    lv_process = socket.assigns.lv_process.result
+    lv_process = socket.assigns.lv_process
 
     socket
-    |> start_async_find_successor(lv_process)
+    |> assign(:lv_process, AsyncResult.loading(lv_process))
+    |> start_async_find_successor(lv_process.result)
     |> halt()
   end
 
