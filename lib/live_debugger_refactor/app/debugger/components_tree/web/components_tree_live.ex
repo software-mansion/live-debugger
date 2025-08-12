@@ -18,7 +18,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentDeleted
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentCreated
-  alias LiveDebuggerRefactor.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebuggerRefactor.App.Events.NodeIdParamChanged
 
   @doc """
   Renders the `ComponentsTreeLive` as a nested LiveView component.

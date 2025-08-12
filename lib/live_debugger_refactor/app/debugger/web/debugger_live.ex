@@ -17,7 +17,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   alias LiveDebuggerRefactor.App.Debugger.Web.Components.NavigationMenu
 
   alias LiveDebuggerRefactor.Bus
-  alias LiveDebuggerRefactor.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebuggerRefactor.App.Events.NodeIdParamChanged
 
   @impl true
   def mount(%{"pid" => string_pid}, _session, socket) do
