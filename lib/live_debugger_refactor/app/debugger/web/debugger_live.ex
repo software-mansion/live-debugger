@@ -27,10 +27,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
     |> Parsers.string_to_pid()
     |> case do
       {:ok, pid} ->
-        socket
-        |> Hooks.AsyncLvProcess.init(pid)
-        |> HookComponents.DeadViewMode.init()
-        |> assign(:pid, pid)
+        init_debugger(socket, pid)
 
       :error ->
         push_navigate(socket, to: RoutesHelper.error("invalid_pid"))
@@ -104,6 +101,17 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
       debugger_pid: self(),
       debugged_pid: debugged_pid
     })
+  end
+
+  defp init_debugger(socket, pid) when is_pid(pid) do
+    if connected?(socket) do
+      Bus.receive_events!()
+    end
+
+    socket
+    |> Hooks.AsyncLvProcess.init(pid)
+    |> HookComponents.DeadViewMode.init()
+    |> assign(:pid, pid)
   end
 
   defp assign_and_broadcast_node_id(socket, %{"node_id" => node_id}) do

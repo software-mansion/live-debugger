@@ -14,14 +14,11 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebuggerRefactor.App.Debugger.Queries.LvProcess, as: LvProcessQueries
 
-  alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.App.Events.UserChangedSettings
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
 
   @impl true
   def init(socket) do
-    Bus.receive_events!()
-
     socket
     |> attach_hook(:dead_view_mode, :handle_info, &handle_info/2)
     |> attach_hook(:dead_view_mode, :handle_event, &handle_event/3)
