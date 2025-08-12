@@ -1,6 +1,6 @@
 defmodule LiveDebuggerRefactor.App.Debugger.Queries.Node do
   @moduledoc """
-  Queries connected to the node id.
+  Queries associated with the node id.
   """
 
   import LiveDebuggerRefactor.App.Debugger.Structs.TreeNode.Guards
