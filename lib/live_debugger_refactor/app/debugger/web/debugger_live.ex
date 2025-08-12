@@ -9,15 +9,17 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
 
   alias LiveDebuggerRefactor.App.Debugger.Web.Hooks
   alias LiveDebuggerRefactor.App.Debugger.Web.HookComponents
-  alias LiveDebuggerRefactor.App.Utils.Parsers
-  alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
-  alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebuggerRefactor.App.Debugger.Web.Components.NavigationMenu
   alias LiveDebuggerRefactor.App.Debugger.Web.Components.Pages
   alias LiveDebuggerRefactor.App.Web.Components.Navbar
-  alias LiveDebuggerRefactor.App.Debugger.Web.Components.NavigationMenu
+  alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebuggerRefactor.App.Utils.Parsers
+  alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
+  alias LiveDebuggerRefactor.Structs.LvProcess
 
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.App.Events.NodeIdParamChanged
+  alias LiveDebuggerRefactor.App.Events.DebuggerTerminated
 
   @impl true
   def mount(%{"pid" => string_pid}, _session, socket) do
@@ -94,6 +96,15 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
       </.async_result>
     </div>
     """
+  end
+
+  @impl true
+  def terminate(_, %{assigns: %{lv_process: %{result: %LvProcess{pid: debugged_pid}}}}) do
+    %DebuggerTerminated{
+      debugger_pid: self(),
+      debugged_pid: debugged_pid
+    }
+    |> Bus.broadcast_event!()
   end
 
   defp assign_and_broadcast_node_id(socket, %{"node_id" => node_id}) do
