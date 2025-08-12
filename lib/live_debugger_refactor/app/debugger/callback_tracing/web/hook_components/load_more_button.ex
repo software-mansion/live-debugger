@@ -7,6 +7,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.L
 
   use LiveDebuggerRefactor.App.Web, :hook_component
 
+  require Logger
+
   alias LiveDebuggerRefactor.API.TracesStorage
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
