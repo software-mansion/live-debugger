@@ -22,6 +22,8 @@ defmodule LiveDebuggerRefactor.App.Web.Router do
   scope "/", App do
     pipe_through([:dbg_browser])
 
+    get("/redirect/:socket_id", Controllers.SocketDiscoveryController, :redirect)
+
     live("/error/:error", Web.ErrorLive)
     live("/pid/:pid", Debugger.Web.DebuggerLive)
     live("/settings", Settings.Web.SettingsLive)
