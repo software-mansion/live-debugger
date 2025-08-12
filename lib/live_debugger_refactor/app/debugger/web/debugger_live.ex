@@ -95,9 +95,15 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   end
 
   defp assign_and_broadcast_node_id(socket, %{"node_id" => node_id}) do
+    socket_node_id = socket.assigns[:node_id]
+
     node_id
     |> TreeNode.id_from_string()
     |> case do
+      {:ok, ^socket_node_id} ->
+        Pages.close_node_inspector_sidebar()
+        socket
+
       {:ok, node_id} ->
         Bus.broadcast_event!(%NodeIdParamChanged{node_id: node_id, debugger_pid: self()}, self())
         Pages.close_node_inspector_sidebar()
