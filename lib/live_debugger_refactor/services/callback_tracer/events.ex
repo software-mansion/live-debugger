@@ -5,7 +5,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
 
   use LiveDebuggerRefactor.Event
 
-  alias LiveDebugger.CommonTypes
+  alias LiveDebuggerRefactor.CommonTypes
   alias LiveDebuggerRefactor.Structs.Trace
 
   defevent(TraceCalled,

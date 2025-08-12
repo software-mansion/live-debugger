@@ -12,7 +12,7 @@ defmodule LiveDebuggerRefactor.Client do
 
   ## Examples
 
-      LiveDebugger.Client.push_event!("debugged_socket_id", "event", %{"key" => "value"})
+      LiveDebuggerRefactor.Client.push_event!("debugged_socket_id", "event", %{"key" => "value"})
   """
   @spec push_event!(String.t(), String.t(), map()) :: :ok
   def push_event!(debugged_socket_id, event, payload \\ %{}) do
@@ -26,7 +26,7 @@ defmodule LiveDebuggerRefactor.Client do
 
   ## Examples
 
-      LiveDebugger.Client.receive_events("debugged_socket_id")
+      LiveDebuggerRefactor.Client.receive_events("debugged_socket_id")
 
       # ...
 

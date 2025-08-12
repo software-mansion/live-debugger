@@ -23,7 +23,8 @@ defmodule LiveDebuggerRefactor.App.Web.Router do
     pipe_through([:dbg_browser])
 
     live("/error/:error", Web.ErrorLive)
-    live("/pid/:pid", Debugger.Web.DebuggerLive)
+    live("/pid/:pid", Debugger.Web.DebuggerLive, :node_inspector)
+    live("/pid/:pid/global_traces", Debugger.Web.DebuggerLive, :global_traces)
     live("/settings", Settings.Web.SettingsLive)
     live("/transport_pid/:transport_pid", Discovery.Web.WindowDiscoveryLive)
     live("/", Discovery.Web.DiscoveryLive)

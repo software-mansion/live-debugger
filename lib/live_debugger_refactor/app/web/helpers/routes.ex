@@ -16,6 +16,11 @@ defmodule LiveDebuggerRefactor.App.Web.Helpers.Routes do
     ~p"/"
   end
 
+  @spec discovery(transport_pid :: pid()) :: String.t()
+  def discovery(transport_pid) when is_pid(transport_pid) do
+    ~p"/transport_pid/#{Parsers.pid_to_string(transport_pid)}"
+  end
+
   @spec debugger_node_inspector(
           pid :: pid() | String.t(),
           cid :: CommonTypes.cid() | String.t() | nil
@@ -50,6 +55,17 @@ defmodule LiveDebuggerRefactor.App.Web.Helpers.Routes do
 
   def debugger_node_inspector(pid) when is_binary(pid) do
     ~p"/pid/#{pid}"
+  end
+
+  @spec debugger_global_traces(pid :: pid() | String.t()) :: String.t()
+  def debugger_global_traces(pid) when is_pid(pid) do
+    pid
+    |> Parsers.pid_to_string()
+    |> debugger_global_traces()
+  end
+
+  def debugger_global_traces(pid) when is_binary(pid) do
+    ~p"/pid/#{pid}/global_traces"
   end
 
   @spec error(String.t()) :: String.t()
