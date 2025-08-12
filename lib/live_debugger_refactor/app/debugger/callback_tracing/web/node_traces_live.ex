@@ -79,6 +79,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
     |> HookComponents.ToggleTracingButton.init()
     |> Hooks.ExistingTraces.init()
     |> Hooks.FilterNewTraces.init()
+    |> Hooks.TracingFuse.init()
+    |> Hooks.DisplayNewTraces.init()
     |> ok()
   end
 

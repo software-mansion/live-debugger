@@ -87,6 +87,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
     |> HookComponents.SearchInput.init()
     |> Hooks.ExistingTraces.init()
     |> Hooks.FilterNewTraces.init()
+    |> Hooks.TracingFuse.init()
+    |> Hooks.DisplayNewTraces.init()
     |> ok()
   end
 
