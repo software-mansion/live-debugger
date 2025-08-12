@@ -120,7 +120,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
     end
   end
 
-  defp handle_info(%LiveViewDied{}, socket), do: {:cont, socket}
+  defp handle_info(%LiveViewDied{}, socket), do: {:halt, socket}
 
   defp handle_info(_, socket), do: {:cont, socket}
 
@@ -152,9 +152,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
     socket
     |> assign(:lv_process, AsyncResult.loading())
     |> start_async(:find_successor, fn ->
-      Process.sleep(1000)
       LvProcessQueries.get_successor_with_retries(lv_process)
     end)
-    |> dbg()
   end
 end
