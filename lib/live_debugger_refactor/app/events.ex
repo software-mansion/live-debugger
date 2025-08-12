@@ -2,6 +2,7 @@ defmodule LiveDebuggerRefactor.App.Events do
   @moduledoc """
   Events emitted by the LiveDebuggerRefactor UI.
   """
+
   use LiveDebuggerRefactor.Event
 
   alias LiveDebuggerRefactor.Structs.LvProcess

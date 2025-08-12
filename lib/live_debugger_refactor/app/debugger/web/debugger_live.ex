@@ -100,11 +100,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
 
   @impl true
   def terminate(_, %{assigns: %{lv_process: %{result: %LvProcess{pid: debugged_pid}}}}) do
-    %DebuggerTerminated{
+    Bus.broadcast_event!(%DebuggerTerminated{
       debugger_pid: self(),
       debugged_pid: debugged_pid
-    }
-    |> Bus.broadcast_event!()
+    })
   end
 
   defp assign_and_broadcast_node_id(socket, %{"node_id" => node_id}) do
