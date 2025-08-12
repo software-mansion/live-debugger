@@ -5,6 +5,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   use LiveDebuggerRefactor.App.Web, :live_component
 
+  alias Phoenix.LiveView.AsyncResult
   alias LiveDebuggerRefactor.App.Debugger.Web.Components, as: DebuggerComponents
   alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
   alias LiveDebuggerRefactor.App.Debugger.Queries.Node, as: NodeQueries
@@ -101,10 +102,16 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.LiveComponents.NodeBasicInfo do
   end
 
   defp assign_async_parent_lv_process(socket) do
-    lv_process = socket.assigns.lv_process
+    parent_pid = socket.assigns.lv_process.parent_pid
 
-    assign_async(socket, :parent_lv_process, fn ->
-      {:ok, %{parent_lv_process: LvProcessQueries.parent_lv_process(lv_process)}}
-    end)
+    case parent_pid do
+      nil ->
+        assign(socket, :parent_lv_process, AsyncResult.ok(nil))
+
+      pid ->
+        assign_async(socket, :parent_lv_process, fn ->
+          {:ok, %{parent_lv_process: LvProcessQueries.get_lv_process(pid)}}
+        end)
+    end
   end
 end

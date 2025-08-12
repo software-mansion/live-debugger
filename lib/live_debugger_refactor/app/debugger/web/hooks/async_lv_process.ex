@@ -18,7 +18,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Hooks.AsyncLvProcess do
     |> attach_hook(:async_lv_process, :handle_async, &handle_async/3)
     |> register_hook(:async_lv_process)
     |> assign(:lv_process, AsyncResult.loading())
-    |> start_async(:lv_process, fn -> LvProcessQueries.fetch_with_retries(pid) end)
+    |> start_async(:lv_process, fn -> LvProcessQueries.get_lv_process(pid) end)
   end
 
   defp handle_async(:lv_process, {:ok, %LvProcess{} = lv_process}, socket) do
