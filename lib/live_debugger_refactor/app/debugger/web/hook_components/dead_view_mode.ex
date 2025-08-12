@@ -9,9 +9,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
 
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebuggerRefactor.Structs.LvProcess
-  alias LiveDebuggerRefactor.App.Utils.Parsers
   alias LiveDebuggerRefactor.API.SettingsStorage
+  alias LiveDebuggerRefactor.App.Utils.Parsers
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebuggerRefactor.App.Debugger.Queries.LvProcess, as: LvProcessQueries
 
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.App.Events.UserChangedSettings
@@ -24,6 +25,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
     socket
     |> attach_hook(:dead_view_mode, :handle_info, &handle_info/2)
     |> attach_hook(:dead_view_mode, :handle_event, &handle_event/3)
+    |> attach_hook(:dead_view_mode, :handle_async, &handle_async/3)
     |> register_hook(:dead_view_mode)
     |> put_private(:dead_view_mode?, SettingsStorage.get(:dead_view_mode))
   end
@@ -114,7 +116,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
       |> halt()
     else
       socket
-      |> push_navigate(to: RoutesHelper.discovery())
+      |> start_async_find_successor(lv_process_result)
       |> halt()
     end
   end
@@ -124,10 +126,32 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp handle_event("find-successor", _params, socket) do
+    lv_process = socket.assigns.lv_process.result
+
     socket
-    |> push_navigate(to: RoutesHelper.discovery())
+    |> start_async_find_successor(lv_process)
     |> halt()
   end
 
   defp handle_event(_, _, socket), do: {:cont, socket}
+
+  defp handle_async(:find_successor, {:ok, %LvProcess{pid: pid}}, socket) do
+    socket
+    |> push_navigate(to: RoutesHelper.debugger_node_inspector(pid))
+    |> halt()
+  end
+
+  defp handle_async(:find_successor, _, socket) do
+    socket
+    |> push_navigate(to: RoutesHelper.error("not_found"))
+    |> halt()
+  end
+
+  defp handle_async(_, _, socket), do: {:cont, socket}
+
+  defp start_async_find_successor(socket, lv_process) do
+    start_async(socket, :find_successor, fn ->
+      LvProcessQueries.get_successor_with_retries(lv_process)
+    end)
+  end
 end
