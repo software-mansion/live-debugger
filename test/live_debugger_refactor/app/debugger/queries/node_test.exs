@@ -10,7 +10,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Queries.NodeTest do
   alias LiveDebuggerRefactor.MockAPIStatesStorage
   alias LiveDebuggerRefactor.Fakes
 
-  describe "module_from_id/2" do
+  describe "get_module_from_id/2" do
     test "returns the module from the node id when it's a live component" do
       pid = :c.pid(0, 0, 1)
       node_id = %Phoenix.LiveComponent.CID{cid: 2}
@@ -24,7 +24,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.Queries.NodeTest do
         }
       end)
 
-      assert {:ok, LiveDebuggerDev.LiveComponents.Send} = NodeQueries.module_from_id(node_id, pid)
+      assert {:ok, LiveDebuggerDev.LiveComponents.Send} =
+               NodeQueries.get_module_from_id(node_id, pid)
     end
 
     test "returns the module from the node id when it's a live view" do
@@ -40,7 +41,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Queries.NodeTest do
         }
       end)
 
-      assert {:ok, SomeLiveView} = NodeQueries.module_from_id(node_id, pid)
+      assert {:ok, SomeLiveView} = NodeQueries.get_module_from_id(node_id, pid)
     end
 
     test "returns error when the node id is not found" do
@@ -52,7 +53,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Queries.NodeTest do
         %LvState{pid: pid, socket: Fakes.socket(), components: Fakes.live_components()}
       end)
 
-      assert :error = NodeQueries.module_from_id(node_id, pid)
+      assert :error = NodeQueries.get_module_from_id(node_id, pid)
     end
   end
 end

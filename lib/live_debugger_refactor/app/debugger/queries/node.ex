@@ -9,8 +9,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.Queries.Node do
   alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
   alias LiveDebuggerRefactor.API.StatesStorage
 
-  @spec module_from_id(TreeNode.id(), pid()) :: {:ok, module()} | :error
-  def module_from_id(node_id, pid) when is_node_id(node_id) do
+  @spec get_module_from_id(TreeNode.id(), pid()) :: {:ok, module()} | :error
+  def get_module_from_id(node_id, pid) when is_node_id(node_id) do
     with %LvState{} = state <- StatesStorage.get!(pid),
          {:ok, %TreeNode{module: module}} <- get_node(state, node_id) do
       {:ok, module}

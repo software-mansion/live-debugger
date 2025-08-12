@@ -89,7 +89,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     pid = socket.assigns.lv_process.pid
 
     assign_async(socket, :node_module, fn ->
-      case NodeQueries.module_from_id(node_id, pid) do
+      case NodeQueries.get_module_from_id(node_id, pid) do
         {:ok, module} ->
           node_module = Parsers.module_to_string(module)
           {:ok, %{node_module: node_module}}
