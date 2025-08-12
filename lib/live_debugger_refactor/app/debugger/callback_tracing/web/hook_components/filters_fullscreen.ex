@@ -5,6 +5,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
 
   use LiveDebuggerRefactor.App.Web, :hook_component
 
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
@@ -88,6 +89,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
     socket
     |> assign(:current_filters, filters)
     |> push_event("filters-fullscreen-close", %{})
+    |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> halt()
   end
 

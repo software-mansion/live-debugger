@@ -6,6 +6,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
 
   use LiveDebuggerRefactor.App.Web, :hook_component
 
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
 
   @required_assigns [:current_filters, :sidebar_hidden?, :tracing_started?]
@@ -46,6 +47,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
     socket
     |> assign(:current_filters, filters)
     |> assign(:sidebar_hidden?, true)
+    |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> halt()
   end
 

@@ -49,7 +49,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.ExistingTr
         search_query: Map.get(socket.assigns, :trace_search_query, "")
       ]
 
-    start_async(socket, :fetch_existing_traces, fn -> TracesStorage.get!(pid, opts) end)
+    socket
+    |> assign(:traces_empty?, true)
+    |> start_async(:fetch_existing_traces, fn -> TracesStorage.get!(pid, opts) end)
   end
 
   defp handle_async(:fetch_existing_traces, {:ok, {trace_list, cont}}, socket) do
