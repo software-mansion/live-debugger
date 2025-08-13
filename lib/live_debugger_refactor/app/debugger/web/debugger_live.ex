@@ -105,7 +105,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
       debugger_pid: self(),
       debugged_pid: debugged_pid
     })
-    |> dbg()
   end
 
   defp init_debugger(socket, pid) when is_pid(pid) do
