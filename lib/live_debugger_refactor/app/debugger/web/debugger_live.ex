@@ -15,13 +15,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebuggerRefactor.App.Utils.Parsers
   alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
-  alias LiveDebuggerRefactor.Structs.LvProcess
 
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebuggerRefactor.App.Events.DebuggerTerminated
 
   @impl true
+  @spec mount(map(), any(), Phoenix.LiveView.Socket.t()) :: {:ok, any()}
   def mount(%{"pid" => string_pid}, _session, socket) do
     if connected?(socket) do
       Bus.receive_events!()
@@ -100,12 +100,14 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   end
 
   @impl true
-  def terminate(_, %{assigns: %{lv_process: %{result: %LvProcess{pid: debugged_pid}}}}) do
+  def terminate(_, %{private: %{pid: debugged_pid}}) do
     Bus.broadcast_event!(%DebuggerTerminated{
       debugger_pid: self(),
       debugged_pid: debugged_pid
     })
   end
+
+  def terminate(_, _), do: :ok
 
   defp init_debugger(socket, pid) when is_pid(pid) do
     socket

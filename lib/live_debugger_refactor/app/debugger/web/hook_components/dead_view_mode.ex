@@ -95,7 +95,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
     |> halt()
   end
 
-  defp handle_info(%LiveViewDied{pid: pid}, %{assigns: %{pid: pid}} = socket) do
+  defp handle_info(%LiveViewDied{pid: pid}, %{private: %{pid: pid}} = socket) do
     if socket.private[:dead_view_mode?] do
       lv_process =
         socket.assigns.lv_process.result
