@@ -4,9 +4,10 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.Queries.LvProcess do
   """
 
   alias LiveDebuggerRefactor.Structs.LvProcess
+  alias LiveDebuggerRefactor.Structs.LvState
+
   alias LiveDebuggerRefactor.API.LiveViewDiscovery
   alias LiveDebuggerRefactor.API.LiveViewDebug
-  alias LiveDebuggerRefactor.Structs.LvState
 
   @spec get_by_socket_id(String.t()) :: {:ok, LvProcess.t()} | :not_found
   def get_by_socket_id(socket_id) do
