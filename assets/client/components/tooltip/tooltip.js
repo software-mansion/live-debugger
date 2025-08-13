@@ -3,43 +3,28 @@ import { createElement } from '../../utils/dom';
 
 const tooltipID = 'live-debugger-tooltip';
 
-function createTypeInfo(data) {
-  const typeInfo = document.createElement('div');
-  typeInfo.className = 'live-debugger-tooltip-info-item';
+function populateTypeInfo(tooltip, data) {
+  const typeInfo = tooltip.querySelector('.type-info');
+  const typeText = typeInfo.querySelector('.type-text');
+  const typeSquare = typeInfo.querySelector('.live-debugger-type-square');
 
-  // Create colored square based on type
-  const squareColor = data.type === 'LiveComponent' ? '#87CCE8' : '#b1dfd0';
-  const typeSquare = document.createElement('span');
-  typeSquare.className = 'live-debugger-type-square';
-  typeSquare.style.backgroundColor = squareColor;
-
-  const typeValue = document.createElement('span');
-  typeValue.className = 'value';
-  typeValue.appendChild(document.createTextNode(data.type));
-  typeValue.appendChild(typeSquare);
-
-  typeInfo.innerHTML = `<span class="label">Type:</span>`;
-  typeInfo.appendChild(typeValue);
-
-  return typeInfo;
+  typeText.textContent = data.type;
+  typeSquare.style.backgroundColor =
+    data.type === 'LiveComponent' ? '#87CCE8' : '#b1dfd0';
 }
 
-function createIdInfo(data) {
-  const idInfo = document.createElement('div');
-  idInfo.className = 'live-debugger-tooltip-info-item';
-  idInfo.innerHTML = `<span class="label">${data.id_key}:</span> <span class="value">${data.id_value}</span>`;
+function populateIdInfo(tooltip, data) {
+  const idInfo = tooltip.querySelector('.id-info');
+  const label = idInfo.querySelector('.label');
+  const value = idInfo.querySelector('.value');
 
-  return idInfo;
+  label.textContent = `${data.id_key}:`;
+  value.textContent = data.id_value;
 }
 
 function populateInfoSection(tooltip, data) {
-  const infoSection = tooltip.querySelector('.live-debugger-tooltip-info');
-
-  const typeInfo = createTypeInfo(data);
-  infoSection.appendChild(typeInfo);
-
-  const idInfo = createIdInfo(data);
-  infoSection.appendChild(idInfo);
+  populateTypeInfo(tooltip, data);
+  populateIdInfo(tooltip, data);
 }
 
 function setModuleName(tooltip, data) {
@@ -58,7 +43,6 @@ function createTooltip(data) {
 }
 
 function calculateInitialPosition(highlightRect, tooltipRect) {
-  // Start with position above the highlight element
   let top = highlightRect.top - tooltipRect.height - 10;
   let left = highlightRect.left;
 
@@ -136,7 +120,6 @@ function positionTooltip(tooltip, highlightElement) {
 
   applyPosition(tooltip, top, left);
 
-  // Add arrow pointing to the highlight element
   addTooltipArrow(tooltip, highlightRect, top, left, tooltipRect);
 }
 
