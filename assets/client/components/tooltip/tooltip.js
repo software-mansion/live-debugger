@@ -1,5 +1,5 @@
 import tooltipHtml from './tooltip.html';
-import { createElement, dispatchCustomEvent } from '../../utils/dom';
+import { createElement } from '../../utils/dom';
 
 const tooltipID = 'live-debugger-tooltip';
 
