@@ -329,16 +329,17 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     defp filter_by_search({traces, cont}, phrase) do
       down = String.downcase(phrase)
 
-      filtered =
-        traces
-        |> Enum.filter(fn trace ->
-          trace
-          |> inspect()
-          |> String.downcase()
-          |> String.contains?(down)
-        end)
-
-      {filtered, cont}
+      traces
+      |> Enum.filter(fn trace ->
+        trace
+        |> inspect()
+        |> String.downcase()
+        |> String.contains?(down)
+      end)
+      |> case do
+        [] -> :end_of_table
+        filtered -> {filtered, cont}
+      end
     end
 
     # Formats the continuation token and handles end-of-table marker.
