@@ -24,10 +24,15 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
   alias LiveDebuggerRefactor.API.TracesStorage
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay
 
+  @required_assigns [:lv_process, :displayed_trace, :parent_pid]
+  @trace_not_found_close_delay_ms 200
+
   @impl true
   def init(socket) do
     socket
+    |> check_assigns!(@required_assigns)
     |> attach_hook(:trace, :handle_event, &handle_event/3)
+    |> attach_hook(:trace, :handle_info, &handle_info/2)
     |> register_hook(:trace)
   end
 
@@ -115,9 +120,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
     |> get_trace(string_trace_id)
     |> case do
       nil ->
+        handle_trace_not_found(string_trace_id)
         socket
-        |> push_flash("Trace has been removed.", socket.assigns.parent_pid)
-        |> push_event("existing_traces-#{string_trace_id}-collapsible", %{action: "close"})
 
       trace ->
         stream_insert_trace(socket, trace)
@@ -127,8 +131,25 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
 
   defp handle_event(_, _, socket), do: {:cont, socket}
 
+  defp handle_info({:trace_wrapper_not_found, string_trace_id}, socket) do
+    socket
+    |> push_flash("Trace has been removed.", socket.assigns.parent_pid)
+    |> push_event("existing_traces-#{string_trace_id}-collapsible", %{action: "close"})
+    |> halt()
+  end
+
+  defp handle_info(_, socket), do: {:cont, socket}
+
   defp get_trace(socket, string_trace_id) do
     TracesStorage.get_by_id!(socket.assigns.lv_process.pid, String.to_integer(string_trace_id))
+  end
+
+  defp handle_trace_not_found(string_trace_id) do
+    Process.send_after(
+      self(),
+      {:trace_wrapper_not_found, string_trace_id},
+      @trace_not_found_close_delay_ms
+    )
   end
 
   defp stream_insert_trace(socket, trace) do
