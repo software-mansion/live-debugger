@@ -37,6 +37,8 @@ defmodule LiveDebuggerRefactor.Bus do
   @callback receive_states!() :: :ok
   @callback receive_states!(pid()) :: :ok
 
+  @callback stop_receiving_traces(pid()) :: :ok
+
   @doc """
   Appends the bus children to the supervision tree.
   """
@@ -189,6 +191,14 @@ defmodule LiveDebuggerRefactor.Bus do
     impl().receive_states!(pid)
   end
 
+  @doc """
+  Stop receiving traces from traces topic with specific pid: `lvdbg/traces/{pid}`.
+  """
+  @spec stop_receiving_traces(pid()) :: :ok
+  def stop_receiving_traces(pid) when is_pid(pid) do
+    impl().stop_receiving_traces(pid)
+  end
+
   defp impl() do
     Application.get_env(:live_debugger, :bus, __MODULE__.Impl)
   end
@@ -305,6 +315,11 @@ defmodule LiveDebuggerRefactor.Bus do
         {:error, error} ->
           raise "Failed to receive traces for pid #{inspect(pid)}: #{inspect(error)}"
       end
+    end
+
+    @impl true
+    def stop_receiving_traces(pid) do
+      Phoenix.PubSub.unsubscribe(@pubsub_name, "lvdbg/traces/#{inspect(pid)}")
     end
 
     @impl true

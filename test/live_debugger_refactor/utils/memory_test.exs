@@ -1,7 +1,7 @@
 defmodule LiveDebuggerRefactor.Utils.MemoryTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebugger.Utils.Memory
+  alias LiveDebuggerRefactor.Utils.Memory
 
   describe "term_size/1" do
     test "returns the size of an elixir term in bytes" do

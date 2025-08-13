@@ -38,7 +38,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Utils do
   end
 
   @doc """
-  Creates a tree with LiveDebugger.Structs.TreeNode elements from the live view state.
+  Creates a tree with `LiveDebuggerRefactor.App.Debugger.Structs.TreeNode` elements from the live view state.
   """
   @spec build_tree(lv_state :: LvState.t()) :: {:ok, TreeNode.t()} | {:error, term()}
   def build_tree(lv_state) do

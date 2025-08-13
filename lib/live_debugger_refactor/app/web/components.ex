@@ -364,6 +364,8 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
 
   attr(:id, :string, required: true)
   attr(:sidebar_hidden?, :boolean, default: true, doc: "The default state of the sidebar")
+  attr(:event_target, :any, default: nil, doc: "The target of the closing sidebar event")
+
   slot(:inner_block)
 
   def sidebar_slide_over(assigns) do
@@ -379,6 +381,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
         <div
           phx-click-away="close-sidebar"
           class="h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border lg:border-l"
+          {@event_target && %{:"phx-target" => @event_target} || %{}}
         >
           <.icon_button
             :if={!@sidebar_hidden?}
@@ -386,6 +389,7 @@ defmodule LiveDebuggerRefactor.App.Web.Components do
             class="absolute top-4 right-4 lg:hidden"
             variant="secondary"
             phx-click="close-sidebar"
+            {@event_target && %{:"phx-target" => @event_target} || %{}}
           />
           <%= render_slot(@inner_block) %>
         </div>
