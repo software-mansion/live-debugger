@@ -48,7 +48,8 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
       _ ->
         cid = String.to_integer(payload["id"])
 
-        LvProcess.get_live_component(lv_process, cid)
+        lv_process
+        |> LvProcess.get_live_component(cid)
         |> case do
           {:ok, component} ->
             send_component_info(component, root_socket_id)
