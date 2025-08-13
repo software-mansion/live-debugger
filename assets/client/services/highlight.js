@@ -141,7 +141,6 @@ function handlePulse({ detail }) {
 }
 
 function showTooltip(detail) {
-  // Check if detail object has all required keys
   const requiredKeys = ['module', 'type', 'id_key', 'id_value'];
   const hasAllKeys = requiredKeys.every((key) => detail.hasOwnProperty(key));
 
