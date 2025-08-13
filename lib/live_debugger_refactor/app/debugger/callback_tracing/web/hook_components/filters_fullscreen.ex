@@ -9,7 +9,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
-  @required_assigns [:current_filters]
+  @required_assigns [:current_filters, :node_id]
 
   @fullscreen_id "filters-fullscreen"
   @form_id "filters-fullscreen-form"
@@ -17,6 +17,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
   @impl true
   def init(socket) do
     socket
+    |> check_hook!(:existing_traces)
     |> check_assigns!(@required_assigns)
     |> attach_hook(:filters, :handle_info, &handle_info/2)
     |> attach_hook(:filters, :handle_event, &handle_event/3)

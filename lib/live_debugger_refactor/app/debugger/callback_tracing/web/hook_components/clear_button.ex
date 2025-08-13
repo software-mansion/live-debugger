@@ -8,7 +8,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.C
 
   alias LiveDebuggerRefactor.API.TracesStorage
 
-  @required_assigns [:lv_process, :traces_empty?]
+  @required_assigns [:lv_process, :traces_empty?, :node_id]
 
   @impl true
   def init(socket) do
@@ -40,10 +40,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.C
   end
 
   defp handle_event("clear-traces", _, socket) do
-    pid = socket.assigns.lv_process.pid
-    node_id = Map.get(socket.assigns, :node_id, nil)
-
-    TracesStorage.clear!(pid, node_id)
+    TracesStorage.clear!(socket.assigns.lv_process.pid, socket.assigns.node_id)
 
     socket
     |> stream(:existing_traces, [], reset: true)

@@ -14,6 +14,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
   @impl true
   def init(socket) do
     socket
+    |> check_hook!(:existing_traces)
     |> check_assigns!(@required_assigns)
     |> attach_hook(:filters, :handle_info, &handle_info/2)
     |> attach_hook(:filters, :handle_event, &handle_event/3)

@@ -135,7 +135,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
     stream_insert(
       socket,
       :existing_traces,
-      TraceDisplay.from_trace(trace) |> TraceDisplay.render_body()
+      trace |> TraceDisplay.from_trace() |> TraceDisplay.render_body()
     )
   end
 end

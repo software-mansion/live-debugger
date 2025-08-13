@@ -13,7 +13,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.L
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
-  @required_assigns [:lv_process, :traces_continuation, :current_filters]
+  @required_assigns [:lv_process, :traces_continuation, :current_filters, :node_id]
 
   @impl true
   def init(socket) do
@@ -78,7 +78,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.L
         limit: socket.private.page_size,
         functions: FiltersHelpers.get_active_functions(socket.assigns.current_filters),
         execution_times: FiltersHelpers.get_execution_times(socket.assigns.current_filters),
-        node_id: Map.get(socket.assigns, :node_id),
+        node_id: socket.assigns.node_id,
         search_query: Map.get(socket.assigns, :trace_search_query, ""),
         cont: socket.assigns.traces_continuation
       ]

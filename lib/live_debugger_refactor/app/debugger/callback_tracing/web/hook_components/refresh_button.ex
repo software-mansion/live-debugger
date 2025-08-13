@@ -11,6 +11,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.R
   @impl true
   def init(socket) do
     socket
+    |> check_hook!(:existing_traces)
     |> attach_hook(:refresh_button, :handle_event, &handle_event/3)
     |> register_hook(:refresh_button)
   end
