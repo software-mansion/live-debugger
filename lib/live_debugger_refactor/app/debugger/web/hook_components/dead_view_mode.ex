@@ -88,11 +88,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
 
   defp handle_info(%UserChangedSettings{key: :dead_view_mode, value: value}, socket) do
     if value do
-      socket
-      |> put_private(:dead_view_mode?, true)
+      put_private(socket, :dead_view_mode?, true)
     else
-      socket
-      |> put_private(:dead_view_mode?, false)
+      put_private(socket, :dead_view_mode?, false)
     end
     |> halt()
   end
