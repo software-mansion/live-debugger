@@ -58,6 +58,12 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.TracingFus
     clear_tracing(socket)
   end
 
+  @spec decrement_fuse(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
+  def decrement_fuse(socket) do
+    fuse = socket.private.fuse
+    put_private(socket, :fuse, %{fuse | count: fuse.count - 1})
+  end
+
   defp handle_info(%TraceCalled{}, socket) do
     socket
     |> check_fuse()
@@ -75,12 +81,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.TracingFus
       {_, socket} ->
         {:halt, socket}
     end
-  end
-
-  @spec decrement_fuse(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
-  def decrement_fuse(socket) do
-    fuse = socket.private.fuse
-    put_private(socket, :fuse, %{fuse | count: fuse.count - 1})
   end
 
   defp handle_info(%TraceReturned{}, socket)
