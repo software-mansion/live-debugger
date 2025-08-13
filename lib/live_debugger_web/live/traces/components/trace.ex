@@ -15,7 +15,9 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   alias LiveDebuggerWeb.Hooks.Flash
   alias LiveDebuggerWeb.Live.Traces.Components
 
-  @required_assigns [:lv_process, :displayed_trace]
+  @required_assigns [:lv_process, :displayed_trace, :parent_pid]
+
+  @trace_not_found_close_delay_ms 200
 
   @doc """
   Initializes the trace component by attaching the hook to the socket and checking the required assigns.
@@ -25,6 +27,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
     socket
     |> check_assigns!(@required_assigns)
     |> attach_hook(:trace, :handle_event, &handle_event/3)
+    |> attach_hook(:trace, :handle_info, &handle_info/2)
     |> register_hook(:trace)
   end
 
@@ -183,9 +186,13 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
     |> TraceService.get(trace_id)
     |> case do
       nil ->
+        Process.send_after(
+          self(),
+          {:trace_wrapper_not_found, string_trace_id},
+          @trace_not_found_close_delay_ms
+        )
+
         socket
-        |> Flash.push_flash("Trace has been removed.", socket.assigns.root_pid)
-        |> push_event("#{:existing_traces}-#{string_trace_id}-collapsible", %{action: "close"})
 
       trace ->
         socket
@@ -199,4 +206,13 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   end
 
   defp handle_event(_, _, socket), do: {:cont, socket}
+
+  defp handle_info({:trace_wrapper_not_found, string_trace_id}, socket) do
+    socket
+    |> Flash.push_flash("Trace has been removed.", socket.assigns.parent_pid)
+    |> push_event("#{:existing_traces}-#{string_trace_id}-collapsible", %{action: "close"})
+    |> halt()
+  end
+
+  defp handle_info(_, socket), do: {:cont, socket}
 end
