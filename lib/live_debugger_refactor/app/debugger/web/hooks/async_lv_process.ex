@@ -15,14 +15,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Hooks.AsyncLvProcess do
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.App.Events.DebuggerMounted
 
-  @required_assigns [:pid]
-
-  @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
-  def init(socket) do
-    pid = socket.assigns.pid
-
+  @spec init(Phoenix.LiveView.Socket.t(), pid()) :: Phoenix.LiveView.Socket.t()
+  def init(socket, pid) do
     socket
-    |> check_assigns!(@required_assigns)
     |> attach_hook(:async_lv_process, :handle_async, &handle_async/3)
     |> register_hook(:async_lv_process)
     |> assign(:lv_process, AsyncResult.loading())

@@ -109,8 +109,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
 
   defp init_debugger(socket, pid) when is_pid(pid) do
     socket
-    |> assign(:pid, pid)
-    |> Hooks.AsyncLvProcess.init()
+    |> Hooks.AsyncLvProcess.init(pid)
+    |> put_private(:pid, pid)
     |> HookComponents.DeadViewMode.init()
   end
 
