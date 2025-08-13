@@ -5,11 +5,17 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
 
   use LiveDebuggerRefactor.App.Web, :hook_component
 
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks
+
+  @separator HookComponents.Stream.separator_stream_element()
+
   @required_assigns [:tracing_started?, :traces_empty?]
 
   @impl true
   def init(socket) do
     socket
+    |> check_hook!(:tracing_fuse)
     |> check_assigns!(@required_assigns)
     |> attach_hook(:toggle_tracing_button, :handle_event, &handle_event/3)
     |> register_hook(:toggle_tracing_button)
@@ -34,6 +40,20 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
     """
   end
 
-  defp handle_event("switch-tracing", _, socket), do: {:halt, socket}
+  defp handle_event("switch-tracing", _, socket) do
+    socket
+    |> Hooks.TracingFuse.switch_tracing()
+    |> case do
+      %{assigns: %{tracing_started?: true, traces_empty?: false}} = socket ->
+        socket
+        |> stream_delete(:existing_traces, @separator)
+        |> stream_insert(:existing_traces, @separator, at: 0)
+
+      socket ->
+        socket
+    end
+    |> halt()
+  end
+
   defp handle_event(_, _, socket), do: {:cont, socket}
 end

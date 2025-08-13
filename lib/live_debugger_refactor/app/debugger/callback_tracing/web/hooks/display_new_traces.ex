@@ -12,8 +12,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.DisplayNew
 
   alias LiveDebuggerRefactor.Structs.Trace
   alias LiveDebuggerRefactor.API.TracesStorage
-  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks
 
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
@@ -89,6 +90,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.DisplayNew
       |> assign(traces_empty?: false)
     else
       socket
+      |> Hooks.TracingFuse.decrement_fuse()
       |> stream_delete(:existing_traces, TraceDisplay.from_trace(trace, true))
     end
     |> put_private(:trace_insertion_canceled, true)
