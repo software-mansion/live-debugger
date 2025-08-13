@@ -27,7 +27,8 @@ function createHighlightElement(activeElement, detail, id) {
   highlight.style.left = `${rect.left + window.scrollX}px`;
   highlight.style.width = `${activeElement.offsetWidth}px`;
   highlight.style.height = `${activeElement.offsetHeight}px`;
-  highlight.style.backgroundColor = '#87CCE880';
+  highlight.style.backgroundColor =
+    detail.type === 'LiveComponent' ? '#87CCE880' : '#b1dfd080';
   highlight.style.zIndex = '10000';
   highlight.style.pointerEvents = 'none';
 
@@ -69,10 +70,6 @@ function handleHighlight({ detail }) {
       detail,
       highlightElementID
     );
-
-    if (detail.type === 'LiveView') {
-      highlightElement.style.backgroundColor = '#00BB0080';
-    }
 
     document.body.appendChild(highlightElement);
     showTooltip(detail);

@@ -23,7 +23,20 @@ function createTooltip(data) {
   if (data.type) {
     const typeInfo = document.createElement('div');
     typeInfo.className = 'live-debugger-tooltip-info-item';
-    typeInfo.innerHTML = `<span class="label">Type:</span> <span class="value">${data.type}</span>`;
+
+    // Create colored square based on type
+    const squareColor = data.type === 'LiveComponent' ? '#87CCE8' : '#b1dfd0';
+    const typeSquare = document.createElement('span');
+    typeSquare.className = 'live-debugger-type-square';
+    typeSquare.style.backgroundColor = squareColor;
+
+    const typeValue = document.createElement('span');
+    typeValue.className = 'value';
+    typeValue.appendChild(document.createTextNode(data.type));
+    typeValue.appendChild(typeSquare);
+
+    typeInfo.innerHTML = `<span class="label">Type:</span>`;
+    typeInfo.appendChild(typeValue);
     infoSection.appendChild(typeInfo);
   }
 

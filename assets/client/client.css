@@ -121,6 +121,15 @@
   font-weight: 500;
 }
 
+.live-debugger-type-square {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  vertical-align: middle;
+  margin-left: 6px;
+  margin-bottom: 2px;
+}
+
 .live-debugger-tooltip-arrow {
   position: absolute;
   width: 0;
