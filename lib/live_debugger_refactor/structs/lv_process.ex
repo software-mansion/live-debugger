@@ -55,25 +55,4 @@ defmodule LiveDebuggerRefactor.Structs.LvProcess do
       embedded?: embedded?
     }
   end
-
-  @doc """
-  Creates new LvProcess struct with the given `pid` by fetching the socket from `LiveViewDebug`.
-  """
-  @spec new(pid :: pid()) :: t() | nil
-  def new(pid) do
-    case LiveDebuggerRefactor.API.LiveViewDebug.socket(pid) do
-      {:ok, socket} ->
-        new(pid, socket)
-
-      {:error, _} ->
-        nil
-    end
-  end
-
-  @doc """
-  Returns the parent LvProcess of the given `lv_process`.
-  """
-  @spec parent(lv_process :: t()) :: t() | nil
-  def parent(%__MODULE__{parent_pid: nil}), do: nil
-  def parent(%__MODULE__{parent_pid: parent_pid}), do: new(parent_pid)
 end

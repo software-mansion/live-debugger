@@ -33,7 +33,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.Components do
       <:right_panel>
         <div class="flex gap-2">
           <.copy_button
-            id="assigns"
+            id="assigns-copy-button"
             variant="icon-button"
             value={TermParser.term_to_copy_string(@assigns)}
           />

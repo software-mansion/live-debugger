@@ -117,6 +117,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.Structs.TreeNode do
 
   def live_component_nodes(_), do: {:error, :invalid_lv_state}
 
+  @doc """
+  Returns the type of the node based on the id.
+  """
+  @spec type(id()) :: type()
+  def type(id) when is_pid(id), do: :live_view
+  def type(%Phoenix.LiveComponent.CID{}), do: :live_component
+
   defp parse_channel_live_component(%{cid: integer_cid, module: module}, socket_id) do
     {:ok,
      %TreeNode{
@@ -132,11 +139,4 @@ defmodule LiveDebuggerRefactor.App.Debugger.Structs.TreeNode do
   end
 
   defp parse_channel_live_component(_, _), do: {:error, :invalid_live_component}
-
-  @doc """
-  Returns the type of the node based on the id.
-  """
-  @spec type(id()) :: type()
-  def type(id) when is_pid(id), do: :live_view
-  def type(%Phoenix.LiveComponent.CID{}), do: :live_component
 end

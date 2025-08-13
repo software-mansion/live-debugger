@@ -10,7 +10,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
         socket: socket,
         id: "global-traces",
         lv_process: lv_process,
-        params: %{},
         class: "flex-1"
       )
 
@@ -21,6 +20,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
 
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Assigns.Filters, as: FiltersAssigns
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks
 
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace,
     as: TraceComponents
@@ -33,14 +33,12 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:id, :string, required: true)
   attr(:lv_process, LvProcess, required: true)
-  attr(:params, :map, required: true, doc: "Query params from the root LiveView")
   attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
       "id" => assigns.id,
       "lv_process" => assigns.lv_process,
-      "params" => assigns.params,
       "parent_pid" => self()
     }
 
@@ -79,6 +77,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
     |> put_private(:page_size, @page_size)
     |> put_private(:live_stream_limit, @live_stream_limit)
     |> FiltersAssigns.assign_current_filters()
+    |> Hooks.ExistingTraces.init()
+    |> Hooks.FilterNewTraces.init()
+    |> Hooks.TracingFuse.init()
+    |> Hooks.DisplayNewTraces.init()
     |> HookComponents.LoadMoreButton.init()
     |> HookComponents.RefreshButton.init()
     |> HookComponents.ClearButton.init()

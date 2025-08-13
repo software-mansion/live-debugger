@@ -29,16 +29,18 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
   def render(assigns) do
     ~H"""
     <.sidebar_slide_over id="filters-sidebar" sidebar_hidden?={@sidebar_hidden?}>
-      <div class="text-secondary-text font-semibold pt-6 pb-2 px-4">Filters</div>
-      <div class="px-3">
-        <.live_component
-          module={FiltersForm}
-          id="filters-sidebar-form"
-          node_id={nil}
-          filters={@current_filters}
-          disabled?={@tracing_started?}
-          revert_button_visible?={true}
-        />
+      <div>
+        <div class="text-secondary-text font-semibold pt-6 pb-2 px-4">Filters</div>
+        <div class="px-3">
+          <.live_component
+            module={FiltersForm}
+            id="filters-sidebar-form"
+            node_id={nil}
+            filters={@current_filters}
+            disabled?={@tracing_started?}
+            revert_button_visible?={true}
+          />
+        </div>
       </div>
     </.sidebar_slide_over>
     """
