@@ -100,14 +100,11 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   end
 
   @impl true
-  def terminate(_, %{private: %{pid: debugged_pid}}) do
+  def terminate(_, _) do
     Bus.broadcast_event!(%DebuggerTerminated{
-      debugger_pid: self(),
-      debugged_pid: debugged_pid
+      debugger_pid: self()
     })
   end
-
-  def terminate(_, _), do: :ok
 
   defp init_debugger(socket, pid) when is_pid(pid) do
     socket
