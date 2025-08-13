@@ -146,10 +146,6 @@ function showTooltip(detail) {
   const hasAllKeys = requiredKeys.every((key) => detail.hasOwnProperty(key));
 
   if (!hasAllKeys) {
-    console.warn(
-      'Detail object missing required keys:',
-      requiredKeys.filter((key) => !detail.hasOwnProperty(key))
-    );
     return;
   }
 
