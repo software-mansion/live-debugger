@@ -26,7 +26,7 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.Queries.LvProcess do
     |> LiveViewDebug.live_components()
     |> case do
       {:ok, components} ->
-        {:ok, find_component_by_cid(components, cid)}
+        find_component_by_cid(components, cid)
 
       {:error, _} ->
         :not_found
@@ -36,7 +36,7 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.Queries.LvProcess do
   defp find_component_by_cid(components, cid) do
     case Enum.find(components, fn component -> component.cid == cid end) do
       nil -> :not_found
-      component -> component
+      component -> {:ok, component}
     end
   end
 end
