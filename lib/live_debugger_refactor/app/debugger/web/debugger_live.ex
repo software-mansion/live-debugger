@@ -100,6 +100,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   end
 
   @impl true
+  def handle_info(_, socket), do: {:noreply, socket}
+
+  @impl true
   def terminate(_, _) do
     Bus.broadcast_event!(%DebuggerTerminated{
       debugger_pid: self()
