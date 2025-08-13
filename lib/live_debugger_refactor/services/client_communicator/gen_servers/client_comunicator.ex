@@ -38,25 +38,25 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
     {:noreply, state}
   end
 
-  defp process_node_element_request(lv_process, payload, root_socket_id) do
-    type = payload["type"]
+  defp process_node_element_request(lv_process, %{"type" => "LiveView"}, root_socket_id) do
+    send_live_view_info(lv_process, root_socket_id)
+  end
 
-    case type do
-      "LiveView" ->
-        send_live_view_info(lv_process, root_socket_id)
+  defp process_node_element_request(
+         lv_process,
+         %{"type" => "LiveComponent", "id" => id},
+         root_socket_id
+       ) do
+    cid = String.to_integer(id)
 
-      _ ->
-        cid = String.to_integer(payload["id"])
+    lv_process
+    |> LvProcess.get_live_component(cid)
+    |> case do
+      {:ok, component} ->
+        send_live_component_info(component, root_socket_id)
 
-        lv_process
-        |> LvProcess.get_live_component(cid)
-        |> case do
-          {:ok, component} ->
-            send_live_component_info(component, root_socket_id)
-
-          :not_found ->
-            :ok
-        end
+      :not_found ->
+        :ok
     end
   end
 
