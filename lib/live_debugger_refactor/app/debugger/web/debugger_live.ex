@@ -105,6 +105,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
       debugger_pid: self(),
       debugged_pid: debugged_pid
     })
+    |> dbg()
   end
 
   defp init_debugger(socket, pid) when is_pid(pid) do
@@ -136,7 +137,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   end
 
   defp assign_and_broadcast_node_id(socket, _) do
-    assign(socket, :node_id, socket.assigns.pid)
+    assign(socket, :node_id, socket.private.pid)
   end
 
   defp get_return_link(lv_process, in_iframe?) do
