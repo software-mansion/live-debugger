@@ -146,13 +146,7 @@ function showTooltip(data) {
     'live-debugger-highlight-element'
   );
   if (!highlightElement) {
-    // If highlight element doesn't exist yet, try again after a short delay
-    setTimeout(() => showTooltip(data), 100);
     return;
-  }
-
-  if (data.type === 'LiveComponent') {
-    highlightElement.style.backgroundColor = '#00BB0080';
   }
 
   const tooltip = createTooltip(data);

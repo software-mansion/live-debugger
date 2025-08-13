@@ -41,7 +41,7 @@ function removeHighlightElement() {
     highlightElement.remove();
   }
 
-  pushRemoveTooltipEvent();
+  dispatchCustomEvent('lvdbg:remove-tooltip');
 }
 
 function handleHighlight({ detail }) {
@@ -49,6 +49,7 @@ function handleHighlight({ detail }) {
 
   if (highlightElement) {
     highlightElement.remove();
+    dispatchCustomEvent('lvdbg:remove-tooltip');
 
     const toClear = detail.attr === undefined || detail.val === undefined;
     const sameElement = highlightElement.dataset.val === detail.val;
@@ -68,7 +69,13 @@ function handleHighlight({ detail }) {
       detail,
       highlightElementID
     );
+
+    if (detail.type === 'LiveView') {
+      highlightElement.style.backgroundColor = '#00BB0080';
+    }
+
     document.body.appendChild(highlightElement);
+    showTooltip(detail);
   }
 }
 
@@ -136,8 +143,29 @@ function handlePulse({ detail }) {
   }
 }
 
-function pushRemoveTooltipEvent() {
-  dispatchCustomEvent('lvdbg:remove-tooltip');
+function showTooltip(detail) {
+  // Check if detail object has all required keys
+  const requiredKeys = ['module', 'type', 'id_key', 'id_value'];
+  const hasAllKeys = requiredKeys.every((key) => detail.hasOwnProperty(key));
+
+  if (!hasAllKeys) {
+    console.warn(
+      'Detail object missing required keys:',
+      requiredKeys.filter((key) => !detail.hasOwnProperty(key))
+    );
+    return;
+  }
+
+  const props = {
+    detail: {
+      module: detail.module,
+      type: detail.type,
+      id_key: detail.id_key,
+      id_value: detail.id_value,
+    },
+  };
+
+  dispatchCustomEvent('lvdbg:show-tooltip', props);
 }
 
 export default function initHighlight() {

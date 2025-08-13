@@ -14,7 +14,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
   alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.Components, as: TreeComponents
   alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Utils, as: ComponentsTreeUtils
   alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Queries, as: ComponentsTreeQueries
-
+  alias LiveDebuggerRefactor.App.Utils.Parsers
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentDeleted
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentCreated
@@ -162,9 +162,18 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
 
   defp highlight_element(
          %{assigns: %{highlight?: true, lv_process: %{pid: pid}}} = socket,
-         %{"search-attribute" => attr, "search-value" => val}
+         %{"search-attribute" => attr, "search-value" => val} = params
        ) do
-    send_event(pid, "highlight", %{attr: attr, val: val})
+    payload = %{
+      attr: attr,
+      val: val,
+      type: if(params["type"] == "live_view", do: "LiveView", else: "LiveComponent"),
+      module: Parsers.module_to_string(params["module"]),
+      id_value: params["id"],
+      id_key: if(params["type"] == "live_view", do: "PID", else: "CID")
+    }
+
+    send_event(pid, "highlight", payload)
     socket
   end
 
