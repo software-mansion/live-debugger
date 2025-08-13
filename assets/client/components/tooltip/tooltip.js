@@ -31,7 +31,6 @@ function showTooltip(data) {
       tooltip,
       highlightElement.getBoundingClientRect(),
       positionData.top,
-      positionData.left,
       positionData.tooltipRect
     );
   }
@@ -49,7 +48,6 @@ function handleTooltipResize() {
         tooltip,
         highlightElement.getBoundingClientRect(),
         positionData.top,
-        positionData.left,
         positionData.tooltipRect
       );
     }

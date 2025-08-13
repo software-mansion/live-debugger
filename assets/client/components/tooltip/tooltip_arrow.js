@@ -22,7 +22,6 @@ export function addTooltipArrow(
   tooltip,
   highlightRect,
   tooltipTop,
-  tooltipLeft,
   tooltipRect
 ) {
   removeExistingArrow(tooltip);
