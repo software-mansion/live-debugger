@@ -102,8 +102,6 @@ export default function initElementInspection({
       .classList.remove('live-debugger-inspect-mode');
 
     pushClearEvent();
-
-    // Remove tooltip when inspection mode is disabled
     pushRemoveTooltipEvent();
 
     document.body.classList.remove('live-debugger-inspect-mode');
