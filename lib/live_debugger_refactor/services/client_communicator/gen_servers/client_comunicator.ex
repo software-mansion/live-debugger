@@ -4,9 +4,8 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
   use GenServer
 
   alias LiveDebuggerRefactor.Client
-  alias LiveDebuggerRefactor.API.LiveViewDiscovery
-  alias LiveDebuggerRefactor.API.LiveViewDebug
   alias LiveDebuggerRefactor.App.Utils.Parsers
+  alias LiveDebuggerRefactor.Services.ClientCommunicator.Queries.LvProcess
 
   def start_link(args \\ []) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -15,62 +14,66 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
   @impl true
   def init(args) do
     Client.receive_events()
-
     {:ok, args}
   end
 
   @impl true
   def handle_info({"request-node-element", payload}, state) do
     socket_id = payload["socket_id"]
-    type = payload["type"]
-    id = payload["id"]
     root_socket_id = payload["root_socket_id"]
-    dbg(payload)
-    dbg(root_socket_id)
 
-    LiveViewDiscovery.debugged_lv_processes()
-    |> Enum.filter(fn lv_process -> lv_process.socket_id == socket_id end)
+    socket_id
+    |> LvProcess.get_by_socket_id()
     |> case do
-      [lv_process] ->
-        case type do
-          "LiveView" ->
-            Client.push_event!(root_socket_id, "found-node-element", %{
-              "module" => Parsers.module_to_string(lv_process.module),
-              "type" => "LiveView",
-              "id_key" => "PID",
-              "id_value" => Parsers.pid_to_string(lv_process.pid)
-            })
+      {:ok, lv_process} ->
+        process_node_element_request(lv_process, payload, root_socket_id)
+        {:noreply, state}
 
-          _ ->
-            lv_process.pid
-            |> LiveViewDebug.live_components()
-            |> case do
-              {:ok, components} ->
-                module =
-                  components
-                  |> Enum.find(fn component -> component.cid == id |> String.to_integer() end)
-                  |> Map.get(:module)
-
-                Client.push_event!(root_socket_id, "found-node-element", %{
-                  "module" => Parsers.module_to_string(module),
-                  "type" => "LiveComponent",
-                  "id_key" => "CID",
-                  "id_value" => id
-                })
-
-              {:error, _} ->
-                nil
-            end
-        end
-
-      _ ->
-        :ok
+      :not_found ->
+        {:noreply, state}
     end
-
-    {:noreply, state}
   end
 
   def handle_info(_, state) do
     {:noreply, state}
+  end
+
+  defp process_node_element_request(lv_process, payload, root_socket_id) do
+    type = payload["type"]
+
+    case type do
+      "LiveView" ->
+        send_live_view_element_info(lv_process, root_socket_id)
+
+      _ ->
+        cid = String.to_integer(payload["id"])
+
+        LvProcess.get_live_component(lv_process, cid)
+        |> case do
+          {:ok, component} ->
+            send_component_info(component, root_socket_id)
+
+          :not_found ->
+            :ok
+        end
+    end
+  end
+
+  defp send_live_view_element_info(lv_process, root_socket_id) do
+    Client.push_event!(root_socket_id, "found-node-element", %{
+      "module" => Parsers.module_to_string(lv_process.module),
+      "type" => "LiveView",
+      "id_key" => "PID",
+      "id_value" => Parsers.pid_to_string(lv_process.pid)
+    })
+  end
+
+  defp send_component_info(component, root_socket_id) do
+    Client.push_event!(root_socket_id, "found-node-element", %{
+      "module" => Parsers.module_to_string(component.module),
+      "type" => "LiveComponent",
+      "id_key" => "CID",
+      "id_value" => component.cid
+    })
   end
 end
