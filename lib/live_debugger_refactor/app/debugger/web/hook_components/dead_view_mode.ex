@@ -34,11 +34,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
   @impl true
   def render(assigns) do
     connected? = assigns.lv_process.alive?
-    status = if(connected?, do: :connected, else: :disconnected)
 
     assigns =
       assigns
-      |> assign(:status, status)
       |> assign(:connected?, connected?)
       |> assign(:display_pid, Parsers.pid_to_string(assigns.lv_process.pid))
       |> assign(:tooltip_content, tooltip_content(connected?))
@@ -46,7 +44,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
     ~H"""
     <.tooltip id={@id <> "-tooltip"} position="bottom" content={@tooltip_content}>
       <div id={@id} class="flex items-center gap-1 text-xs text-primary ml-1">
-        <.status_icon status={@status} />
+        <.status_icon connected?={@connected?} />
         <%= if @connected? do %>
           <span class="font-medium">Monitored PID </span>
           <%= @display_pid %>
@@ -59,16 +57,14 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
     """
   end
 
-  attr(:status, :atom, required: true, values: [:connected, :disconnected])
+  attr(:connected?, :boolean, required: true)
 
   defp status_icon(assigns) do
     assigns =
-      case(assigns.status) do
-        :connected ->
-          assign(assigns, icon: "icon-check-circle", class: "text-(--swm-green-100)")
-
-        :disconnected ->
-          assign(assigns, icon: "icon-cross-circle", class: "text-(--swm-pink-100)")
+      if assigns.connected? do
+        assign(assigns, icon: "icon-check-circle", class: "text-(--swm-green-100)")
+      else
+        assign(assigns, icon: "icon-cross-circle", class: "text-(--swm-pink-100)")
       end
 
     ~H"""
