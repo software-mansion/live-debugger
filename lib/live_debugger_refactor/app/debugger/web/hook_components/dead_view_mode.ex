@@ -83,11 +83,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
   end
 
   defp handle_info(%UserChangedSettings{key: :dead_view_mode, value: value}, socket) do
-    if value do
-      put_private(socket, :dead_view_mode?, true)
-    else
-      put_private(socket, :dead_view_mode?, false)
-    end
+    socket
+    |> put_private(:dead_view_mode?, value)
     |> halt()
   end
 
@@ -95,7 +92,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.DeadViewMode do
     if socket.private[:dead_view_mode?] do
       lv_process =
         socket.assigns.lv_process.result
-        |> LvProcess.make_dead()
+        |> LvProcess.set_alive(false)
         |> AsyncResult.ok()
 
       socket

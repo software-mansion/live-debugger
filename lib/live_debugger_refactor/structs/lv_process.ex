@@ -56,8 +56,8 @@ defmodule LiveDebuggerRefactor.Structs.LvProcess do
     }
   end
 
-  @spec make_dead(t()) :: t()
-  def make_dead(%__MODULE__{} = lv_process) do
-    %__MODULE__{lv_process | alive?: false}
+  @spec set_alive(t(), boolean()) :: t()
+  def set_alive(%__MODULE__{} = lv_process, alive?) when is_boolean(alive?) do
+    %__MODULE__{lv_process | alive?: alive?}
   end
 end
