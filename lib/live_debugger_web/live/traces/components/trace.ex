@@ -15,7 +15,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
   alias LiveDebuggerWeb.Hooks.Flash
   alias LiveDebuggerWeb.Live.Traces.Components
 
-  @required_assigns [:lv_process, :displayed_trace]
+  @required_assigns [:lv_process, :displayed_trace, :parent_pid]
 
   @doc """
   Initializes the trace component by attaching the hook to the socket and checking the required assigns.
@@ -184,7 +184,7 @@ defmodule LiveDebuggerWeb.Live.Traces.Components.Trace do
     |> case do
       nil ->
         socket
-        |> Flash.push_flash("Trace has been removed.", socket.assigns.root_pid)
+        |> Flash.push_flash("Trace has been removed.", socket.assigns.parent_pid)
         |> push_event("#{:existing_traces}-#{string_trace_id}-collapsible", %{action: "close"})
 
       trace ->
