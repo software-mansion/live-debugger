@@ -43,7 +43,7 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
 
     case type do
       "LiveView" ->
-        send_live_view_element_info(lv_process, root_socket_id)
+        send_live_view_info(lv_process, root_socket_id)
 
       _ ->
         cid = String.to_integer(payload["id"])
@@ -52,7 +52,7 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
         |> LvProcess.get_live_component(cid)
         |> case do
           {:ok, component} ->
-            send_component_info(component, root_socket_id)
+            send_live_component_info(component, root_socket_id)
 
           :not_found ->
             :ok
@@ -60,7 +60,7 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
     end
   end
 
-  defp send_live_view_element_info(lv_process, root_socket_id) do
+  defp send_live_view_info(lv_process, root_socket_id) do
     Client.push_event!(root_socket_id, "found-node-element", %{
       "module" => Parsers.module_to_string(lv_process.module),
       "type" => "LiveView",
@@ -69,7 +69,7 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
     })
   end
 
-  defp send_component_info(component, root_socket_id) do
+  defp send_live_component_info(component, root_socket_id) do
     Client.push_event!(root_socket_id, "found-node-element", %{
       "module" => Parsers.module_to_string(component.module),
       "type" => "LiveComponent",
