@@ -1,6 +1,6 @@
 defmodule LiveDebuggerRefactor.App.Events do
   @moduledoc """
-  Temporary events for the LiveDebuggerRefactor app.
+  Events emitted by the LiveDebuggerRefactor UI.
   """
 
   use LiveDebuggerRefactor.Event
@@ -16,6 +16,7 @@ defmodule LiveDebuggerRefactor.App.Events do
   defevent(UserRefreshedTrace)
 
   defevent(DebuggerMounted, debugged_pid: pid(), debugger_pid: pid())
-  defevent(DebuggerTerminated, debugged_pid: pid(), debugger_pid: pid())
+  defevent(DebuggerTerminated, debugger_pid: pid())
+
   defevent(FindSuccessor, lv_process: LvProcess.t())
 end

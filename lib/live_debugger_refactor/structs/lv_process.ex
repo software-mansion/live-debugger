@@ -55,4 +55,9 @@ defmodule LiveDebuggerRefactor.Structs.LvProcess do
       embedded?: embedded?
     }
   end
+
+  @spec set_alive(t(), boolean()) :: t()
+  def set_alive(%__MODULE__{} = lv_process, alive?) when is_boolean(alive?) do
+    %__MODULE__{lv_process | alive?: alive?}
+  end
 end

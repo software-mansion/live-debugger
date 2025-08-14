@@ -127,11 +127,25 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
       debugged_pid = self()
       debugger_pid = :c.pid(0, 12, 0)
       state = %{debugged_pid => %ProcessInfo{alive?: true, watchers: MapSet.new([debugger_pid])}}
-      event = %DebuggerTerminated{debugged_pid: debugged_pid, debugger_pid: debugger_pid}
+      event = %DebuggerTerminated{debugger_pid: debugger_pid}
 
       assert {:noreply, new_state} = TableWatcher.handle_info(event, state)
 
       assert new_state == %{debugged_pid => %ProcessInfo{alive?: true, watchers: MapSet.new()}}
+    end
+
+    test "for DebuggerTerminated event when `debugger_pid` is not in the state" do
+      debugger_pid = :c.pid(0, 12, 0)
+      other_debugger_pid = :c.pid(0, 13, 0)
+      debugged_pid = :c.pid(0, 14, 0)
+
+      state = %{
+        debugged_pid => %ProcessInfo{alive?: true, watchers: MapSet.new([other_debugger_pid])}
+      }
+
+      event = %DebuggerTerminated{debugger_pid: debugger_pid}
+
+      assert {:noreply, ^state} = TableWatcher.handle_info(event, state)
     end
   end
 end

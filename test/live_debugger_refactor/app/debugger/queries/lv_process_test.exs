@@ -9,8 +9,30 @@ defmodule LiveDebuggerRefactor.App.Debugger.Queries.LvProcessTest do
   alias LiveDebuggerRefactor.App.Debugger.Queries.LvProcess, as: LvProcessQueries
   alias LiveDebuggerRefactor.MockAPIStatesStorage
   alias LiveDebuggerRefactor.MockAPILiveViewDebug
+  alias LiveDebuggerRefactor.MockAPILiveViewDiscovery
   alias LiveDebuggerRefactor.Fakes
   alias LiveDebuggerRefactor.Structs.LvProcess
+
+  describe "get_successor_with_retries/1" do
+    test "returns nil after 3 tries" do
+      lv_process = %LvProcess{pid: :c.pid(0, 0, 1)}
+
+      MockAPILiveViewDiscovery
+      |> expect(:successor_lv_process, 3, fn ^lv_process -> nil end)
+
+      assert nil == LvProcessQueries.get_successor_with_retries(lv_process)
+    end
+
+    test "returns LvProcess when found" do
+      lv_process = %LvProcess{pid: :c.pid(0, 0, 1)}
+      successor_lv_process = %LvProcess{pid: :c.pid(0, 0, 2)}
+
+      MockAPILiveViewDiscovery
+      |> expect(:successor_lv_process, fn ^lv_process -> successor_lv_process end)
+
+      assert ^successor_lv_process = LvProcessQueries.get_successor_with_retries(lv_process)
+    end
+  end
 
   describe "get_lv_process/1" do
     test "returns LvProcess when found" do

@@ -93,14 +93,20 @@ defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
   end
 
   @impl true
-  def handle_info(
-        %DebuggerTerminated{debugged_pid: debugged_pid, debugger_pid: debugger_pid},
-        state
-      )
-      when is_map_key(state, debugged_pid) do
+  def handle_info(%DebuggerTerminated{debugger_pid: debugger_pid}, state) do
     state
-    |> remove_watcher(debugged_pid, debugger_pid)
-    |> noreply()
+    |> Enum.find(fn {_, %ProcessInfo{watchers: watchers}} ->
+      MapSet.member?(watchers, debugger_pid)
+    end)
+    |> case do
+      {debugged_pid, _} ->
+        state
+        |> remove_watcher(debugged_pid, debugger_pid)
+        |> noreply()
+
+      nil ->
+        {:noreply, state}
+    end
   end
 
   @impl true
