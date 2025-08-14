@@ -1,9 +1,21 @@
 import { dispatchCustomEvent } from '../utils/dom';
 
-export default function initElementInspection({ baseURL }) {
+export default function initElementInspection({
+  baseURL,
+  debugChannel,
+  socketID,
+}) {
   let inspectMode = false;
   let lastID = null;
 
+  debugChannel.on('found-node-element', (event) => {
+    pushShowTooltipEvent({
+      module: event.module,
+      type: event.type,
+      id_key: event.id_key,
+      id_value: event.id_value,
+    });
+  });
   const handleMove = (event) => {
     const liveViewElement = event.target.closest('[data-phx-session]');
     const componentElement = event.target.closest('[data-phx-component]');
@@ -18,9 +30,20 @@ export default function initElementInspection({ baseURL }) {
       return;
     }
 
+    const type = detail.attr === 'id' ? 'LiveView' : 'LiveComponent';
+    const id =
+      detail.attr === 'id' ? detail.val : componentElement.dataset.phxComponent;
+
+    debugChannel.push('request-node-element', {
+      root_socket_id: socketID,
+      socket_id: liveViewElement.id,
+      type,
+      id,
+    });
+
     lastID = detail.val;
 
-    pushHighlightEvent(detail);
+    pushHighlightEvent({ attr: detail.attr, val: detail.val, type });
   };
 
   const handleInspect = (event) => {
@@ -79,6 +102,7 @@ export default function initElementInspection({ baseURL }) {
       .classList.remove('live-debugger-inspect-mode');
 
     pushClearEvent();
+    pushRemoveTooltipEvent();
 
     document.body.classList.remove('live-debugger-inspect-mode');
     document.body.removeEventListener('click', handleInspect);
@@ -124,6 +148,16 @@ function pushPulseEvent(detail) {
 
 function pushClearEvent() {
   dispatchCustomEvent('lvdbg:inspect-clear');
+}
+
+function pushShowTooltipEvent(detail) {
+  dispatchCustomEvent('lvdbg:show-tooltip', {
+    detail,
+  });
+}
+
+function pushRemoveTooltipEvent() {
+  dispatchCustomEvent('lvdbg:remove-tooltip');
 }
 
 function getHighlightDetail(componentElement, liveViewElement) {
