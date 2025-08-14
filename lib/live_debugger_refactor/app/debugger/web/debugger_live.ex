@@ -21,7 +21,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   alias LiveDebuggerRefactor.App.Events.DebuggerTerminated
 
   @impl true
-  @spec mount(map(), any(), Phoenix.LiveView.Socket.t()) :: {:ok, any()}
   def mount(%{"pid" => string_pid}, _session, socket) do
     if connected?(socket) do
       Bus.receive_events!()
