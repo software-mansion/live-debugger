@@ -2,7 +2,7 @@ defmodule LiveDebugger.E2E.LiveViewsDashboardTest do
   use LiveDebugger.E2ECase
 
   @sessions 3
-  feature "user can see active live views and refresh to see more", %{
+  feature "user can see active live views which are refreshed automatically", %{
     sessions: [dev_app1, dev_app2, debugger]
   } do
     dev_app1
@@ -17,8 +17,6 @@ defmodule LiveDebugger.E2E.LiveViewsDashboardTest do
     |> visit(@dev_app_url)
 
     debugger
-    |> assert_has(live_sessions(count: 1))
-    |> click(refresh_button())
     |> assert_has(live_sessions(count: 2))
   end
 

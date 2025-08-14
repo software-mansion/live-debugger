@@ -552,7 +552,7 @@ defmodule LiveDebugger.E2E.ChannelDashboardTest do
         return false;
       };
     """)
-    |> click(css("button#copy-button_module-name"))
+    |> click(css("button#copy-button-module-name"))
     |> execute_script("return window._copiedText;", fn copied_text ->
       assert copied_text == "LiveDebuggerDev.LiveViews.Main"
     end)

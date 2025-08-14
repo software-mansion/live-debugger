@@ -55,7 +55,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               >
                 <%= node_module %>
               </.tooltip>
-              <.copy_button id="module-name" value={node_module} />
+              <.copy_button id="copy-button-module-name" value={node_module} />
             </div>
           </div>
         </div>

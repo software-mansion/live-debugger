@@ -7,8 +7,8 @@ defmodule LiveDebugger.E2E.SettingsTest do
   } do
     LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager.ping!()
 
-    LiveDebugger.GenServers.SettingsServer.save(:dead_view_mode, false)
-    LiveDebugger.GenServers.SettingsServer.save(:tracing_update_on_code_reload, false)
+    LiveDebuggerRefactor.API.SettingsStorage.save(:dead_view_mode, false)
+    LiveDebuggerRefactor.API.SettingsStorage.save(:tracing_update_on_code_reload, false)
 
     dev_app
     |> visit(@dev_app_url)
