@@ -12,7 +12,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.FilterNewT
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceErrored
 
   @required_assigns [
-    :current_filters
+    :current_filters,
+    :node_id
   ]
 
   @doc """
@@ -51,10 +52,15 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.FilterNewT
   end
 
   defp matches_node_id?(socket, trace_event) do
-    case socket.assigns[:node_id] do
-      nil -> true
-      pid when is_pid(pid) -> pid == trace_event.pid
-      %Phoenix.LiveComponent.CID{} = cid -> cid == trace_event.cid
+    case socket.assigns.node_id do
+      nil ->
+        true
+
+      pid when is_pid(pid) ->
+        pid == trace_event.pid && trace_event.cid == nil
+
+      %Phoenix.LiveComponent.CID{} = cid ->
+        cid == trace_event.cid
     end
   end
 
