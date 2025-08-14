@@ -7,6 +7,7 @@ export default function initElementInspection({
 }) {
   let inspectMode = false;
   let lastID = null;
+  let sourceLiveViews = [];
 
   debugChannel.on('found-node-element', (event) => {
     pushShowTooltipEvent({
@@ -15,6 +16,16 @@ export default function initElementInspection({
       id_key: event.id_key,
       id_value: event.id_value,
     });
+  });
+
+  debugChannel.on('inspect-mode-changed', (event) => {
+    if (event.inspect_mode) {
+      enableInspectMode();
+      sourceLiveViews.push(event.pid);
+    } else {
+      disableInspectMode();
+      sourceLiveViews = sourceLiveViews.filter((pid) => pid !== event.pid);
+    }
   });
   const handleMove = (event) => {
     const liveViewElement = event.target.closest('[data-phx-session]');
@@ -73,7 +84,16 @@ export default function initElementInspection({
       url.searchParams.set('node_id', componentElement.dataset.phxComponent);
     }
 
-    window.open(url, '_blank');
+    if (sourceLiveViews.length === 0) {
+      window.open(url, '_blank');
+    } else {
+      sourceLiveViews.forEach((pid) => {
+        debugChannel.push('element-inspected', {
+          pid: pid,
+          url: url,
+        });
+      });
+    }
 
     disableInspectMode();
   };
