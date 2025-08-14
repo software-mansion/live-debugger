@@ -1,6 +1,17 @@
 import tooltipHtml from './tooltip.html';
 import { createElement } from '../../utils/dom';
 
+function setTypeIcon(tooltip, data) {
+  const componentIcon = tooltip.querySelector(
+    '.live-debugger-tooltip-icon-component'
+  );
+  componentIcon.style.display =
+    data.type === 'LiveComponent' ? 'block' : 'none';
+
+  const viewIcon = tooltip.querySelector('.live-debugger-tooltip-icon-view');
+  viewIcon.style.display = data.type === 'LiveView' ? 'block' : 'none';
+}
+
 function populateTypeInfo(tooltip, data) {
   const typeInfo = tooltip.querySelector('.type-info');
   const typeText = typeInfo.querySelector('.type-text');
@@ -34,6 +45,7 @@ export function createTooltip(data) {
   const tooltip = createElement(tooltipHtml);
 
   setModuleName(tooltip, data);
+  setTypeIcon(tooltip, data);
   populateInfoSection(tooltip, data);
 
   document.body.appendChild(tooltip);
