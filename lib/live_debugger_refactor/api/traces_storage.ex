@@ -220,7 +220,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       |> normalize_entries()
       |> filter_by_search(search_query)
       |> format_response()
-      |> limit_response(limit)
+      |> maybe_limit_response(limit)
     end
 
     @impl true
@@ -325,11 +325,6 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       {traces, cont}
     end
 
-    # defp normalize_entries(entries) do
-    #   traces = Enum.map(entries, &elem(&1, 1))
-    #   traces
-    # end
-
     # Applies simple case-sensitive substring search on entire struct
     @spec filter_by_search(
             {[Trace.t()], continuation() | :searched_without_limit} | :end_of_table,
@@ -362,12 +357,12 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     defp format_response({traces, :"$end_of_table"}), do: {traces, :end_of_table}
     defp format_response({traces, cont}), do: {traces, cont}
 
-    @spec limit_response(
+    @spec maybe_limit_response(
             {[Trace.t()], continuation() | :searched_without_limit} | :end_of_table,
             limit :: pos_integer()
           ) ::
             {[Trace.t()], continuation()} | :end_of_table
-    defp limit_response({traces, :searched_without_limit}, limit) do
+    defp maybe_limit_response({traces, :searched_without_limit}, limit) do
       if length(traces) > limit do
         traces = Enum.slice(traces, 0, limit)
         last_id = List.last(traces) |> Map.get(:id)
@@ -377,8 +372,8 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       end
     end
 
-    defp limit_response(:end_of_table, _), do: :end_of_table
-    defp limit_response({traces, cont}, _), do: {traces, cont}
+    defp maybe_limit_response(:end_of_table, _), do: :end_of_table
+    defp maybe_limit_response({traces, cont}, _), do: {traces, cont}
 
     @spec existing_traces_start(ets_table_id(), Keyword.t()) ::
             {[ets_elem()], continuation() | :searched_without_limit} | :"$end_of_table"
