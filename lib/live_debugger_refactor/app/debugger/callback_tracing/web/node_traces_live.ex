@@ -70,6 +70,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
     |> put_private(:page_size, @page_size)
     |> put_private(:live_stream_limit, @live_stream_limit)
     |> FiltersAssigns.assign_current_filters()
+    |> Hooks.ExistingTraces.init()
+    |> Hooks.FilterNewTraces.init()
+    |> Hooks.TracingFuse.init()
+    |> Hooks.DisplayNewTraces.init()
     |> HookComponents.ClearButton.init()
     |> HookComponents.LoadMoreButton.init()
     |> HookComponents.TraceWrapper.init()
@@ -77,10 +81,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
     |> HookComponents.FiltersFullscreen.init()
     |> HookComponents.RefreshButton.init()
     |> HookComponents.ToggleTracingButton.init()
-    |> Hooks.ExistingTraces.init()
-    |> Hooks.FilterNewTraces.init()
-    |> Hooks.TracingFuse.init()
-    |> Hooks.DisplayNewTraces.init()
     |> ok()
   end
 

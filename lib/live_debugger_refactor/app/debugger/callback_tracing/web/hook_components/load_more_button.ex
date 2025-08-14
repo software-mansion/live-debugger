@@ -7,7 +7,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.L
 
   use LiveDebuggerRefactor.App.Web, :hook_component
 
-  @required_assigns [:lv_process, :traces_continuation, :current_filters]
+  require Logger
+
+  alias LiveDebuggerRefactor.API.TracesStorage
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
+
+  @required_assigns [:lv_process, :traces_continuation, :current_filters, :node_id]
 
   @impl true
   def init(socket) do
@@ -16,6 +22,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.L
     |> check_stream!(:existing_traces)
     |> check_private!(:page_size)
     |> attach_hook(:load_more_button, :handle_event, &handle_event/3)
+    |> attach_hook(:load_more_button, :handle_async, &handle_async/3)
     |> register_hook(:load_more_button)
   end
 
@@ -55,6 +62,56 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.L
     """
   end
 
-  defp handle_event("load-more", _, socket), do: {:halt, socket}
+  defp handle_event("load-more", _, socket) do
+    socket
+    |> load_more_existing_traces()
+    |> halt()
+  end
+
   defp handle_event(_, _, socket), do: {:cont, socket}
+
+  defp load_more_existing_traces(socket) do
+    pid = socket.assigns.lv_process.pid
+
+    opts =
+      [
+        limit: socket.private.page_size,
+        functions: FiltersHelpers.get_active_functions(socket.assigns.current_filters),
+        execution_times: FiltersHelpers.get_execution_times(socket.assigns.current_filters),
+        node_id: socket.assigns.node_id,
+        search_query: Map.get(socket.assigns, :trace_search_query, ""),
+        cont: socket.assigns.traces_continuation
+      ]
+
+    socket
+    |> assign(traces_continuation: :loading)
+    |> start_async(:load_more_existing_traces, fn -> TracesStorage.get!(pid, opts) end)
+  end
+
+  defp handle_async(:load_more_existing_traces, {:ok, {trace_list, cont}}, socket) do
+    trace_list = Enum.map(trace_list, &TraceDisplay.from_trace/1)
+
+    socket
+    |> assign(traces_continuation: cont)
+    |> stream(:existing_traces, trace_list)
+    |> halt()
+  end
+
+  defp handle_async(:load_more_existing_traces, {:ok, :end_of_table}, socket) do
+    socket
+    |> assign(traces_continuation: :end_of_table)
+    |> halt()
+  end
+
+  defp handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
+    Logger.error(
+      "LiveDebugger encountered unexpected error while loading more existing traces: #{inspect(reason)}"
+    )
+
+    socket
+    |> assign(traces_continuation: :error)
+    |> halt()
+  end
+
+  defp handle_async(_, _, socket), do: {:cont, socket}
 end
