@@ -8,7 +8,7 @@ function populateTypeInfo(tooltip, data) {
 
   typeText.textContent = data.type;
   typeSquare.style.backgroundColor =
-    data.type === 'LiveComponent' ? '#87CCE8' : '#b1dfd0';
+    data.type === 'LiveComponent' ? '#87CCE8' : '#ffe780';
 }
 
 function populateIdInfo(tooltip, data) {
