@@ -579,15 +579,15 @@ defmodule LiveDebugger.E2E.ChannelDashboardTest do
   defp reset_filters_button(), do: css("button[phx-click=\"reset-filters\"]")
 
   defp conditional_component_5_node_button() do
-    css("#tree-node-button-5-component-tree-sidebar-content-slide-over")
+    css("#button-tree-node-5-components-tree")
   end
 
   defp conditional_component_6_node_button() do
-    css("#tree-node-button-6-component-tree-sidebar-content-slide-over")
+    css("#button-tree-node-6-components-tree")
   end
 
   defp many_assigns_15_node_button() do
-    css("#tree-node-button-15-component-tree-sidebar-content-slide-over")
+    css("#button-tree-node-15-components-tree")
   end
 
   defp reset_group_button(group) do

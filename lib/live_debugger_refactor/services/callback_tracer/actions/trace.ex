@@ -6,6 +6,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
   alias LiveDebuggerRefactor.Structs.Trace
   alias LiveDebuggerRefactor.API.TracesStorage
   alias LiveDebuggerRefactor.API.LiveViewDebug
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Actions.State, as: StateActions
 
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
@@ -89,6 +90,8 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace do
 
   @spec publish_trace(Trace.t(), reference() | nil) :: :ok | {:error, term()}
   def publish_trace(%Trace{pid: pid} = trace, ref \\ nil) do
+    StateActions.maybe_save_state!(trace)
+
     trace
     |> get_event(ref)
     |> Bus.broadcast_trace!(pid)

@@ -12,9 +12,12 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTe
   alias LiveDebuggerRefactor.MockAPILiveViewDebug
   alias LiveDebuggerRefactor.MockBus
   alias LiveDebuggerRefactor.MockAPITracesStorage
+  alias LiveDebuggerRefactor.MockAPIStatesStorage
+  alias LiveDebugger.Fakes
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceErrored
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.StateChanged
 
   describe "handle_cast/2" do
     test "handles proper recompilation traces" do
@@ -58,12 +61,27 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTe
     test "handles LiveComponent deletion traces" do
       transport_pid = :c.pid(0, 1, 0)
       pid = :c.pid(0, 2, 0)
+      socket = %{id: "123", transport_pid: transport_pid}
 
+      # create delete trace
       MockAPILiveViewDebug
-      |> expect(:socket, fn ^pid ->
-        {:ok, %{id: "123", transport_pid: transport_pid}}
+      |> expect(:socket, fn ^pid -> {:ok, socket} end)
+
+      # save state
+      MockAPILiveViewDebug
+      |> expect(:socket, fn ^pid -> {:ok, socket} end)
+      |> expect(:live_components, fn ^pid -> {:ok, []} end)
+
+      MockAPIStatesStorage
+      |> expect(:save!, fn _ -> true end)
+
+      # broadcast state
+      MockBus
+      |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid ->
+        :ok
       end)
 
+      # broadcast trace
       MockBus
       |> expect(:broadcast_trace!, fn arg1, ^pid ->
         assert %TraceCalled{
@@ -166,6 +184,20 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTe
                } = updated_trace
 
         true
+      end)
+
+      # save state
+      MockAPILiveViewDebug
+      |> expect(:socket, fn ^pid -> {:ok, Fakes.socket()} end)
+      |> expect(:live_components, fn ^pid -> {:ok, []} end)
+
+      MockAPIStatesStorage
+      |> expect(:save!, fn _ -> true end)
+
+      # broadcast state
+      MockBus
+      |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid ->
+        :ok
       end)
 
       MockBus
