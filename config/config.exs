@@ -72,6 +72,8 @@ if config_env() == :dev do
   config :live_debugger, LiveDebuggerRefactor.App.Web.Endpoint, debug_errors: true
 end
 
+config :live_debugger, refactor: true
+
 if config_env() == :test do
   config :wallaby,
     driver: Wallaby.Chrome,

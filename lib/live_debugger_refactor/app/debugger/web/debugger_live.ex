@@ -14,7 +14,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   alias LiveDebuggerRefactor.App.Debugger.Web.Components.Pages
   alias LiveDebuggerRefactor.App.Web.Components.Navbar
   alias LiveDebuggerRefactor.App.Debugger.Web.Components.NavigationMenu
-
+  alias LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.App.Debugger.Events.NodeIdParamChanged
 
@@ -31,6 +31,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
       :error ->
         push_navigate(socket, to: RoutesHelper.error("invalid_pid"))
     end
+    |> InspectButton.init()
     |> ok()
   end
 
@@ -65,6 +66,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
           <Navbar.live_debugger_logo_icon />
           <Navbar.connected id="navbar-connected" lv_process={lv_process} />
           <div class="flex items-center gap-2">
+            <InspectButton.render inspect_mode?={@inspect_mode?} />
             <Navbar.settings_button return_to={@url} />
             <span class="h-5 border-r border-default-border lg:hidden"></span>
             <.nav_icon
