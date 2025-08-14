@@ -13,6 +13,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
   """
   @type ets_table_id() :: pid()
   @type ets_continuation() :: term()
+  @type continuation() :: {:last_id, integer()} | ets_continuation()
   @type table_identifier() :: ets_table_id() | reference()
 
   @callback init() :: :ok
@@ -20,7 +21,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
   @callback insert!(table_ref :: reference(), Trace.t()) :: true
   @callback get_by_id!(table_identifier(), trace_id :: integer()) :: Trace.t() | nil
   @callback get!(table_identifier(), opts :: keyword()) ::
-              {[Trace.t()], ets_continuation()} | :end_of_table
+              {[Trace.t()], continuation()} | :end_of_table
   @callback clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
   @callback get_table(ets_table_id()) :: reference()
   @callback trim_table!(table_identifier(), max_size :: non_neg_integer()) :: true
@@ -84,7 +85,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     * `:search_query` - String to filter traces by, performs a case-sensitive substring search on the entire Trace struct
   """
   @spec get!(table_identifier(), opts :: keyword()) ::
-          {[Trace.t()], ets_continuation()} | :end_of_table
+          {[Trace.t()], continuation()} | :end_of_table
   def get!(table_id, opts \\ []) when is_table_identifier(table_id) and is_list(opts) do
     impl().get!(table_id, opts)
   end
@@ -163,7 +164,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     @processes_table_name :lvdbg_traces_processes
 
     @type ets_elem() :: {integer(), Trace.t()}
-    @type ets_continuation() :: TracesStorage.ets_continuation()
+    @type continuation() :: TracesStorage.continuation()
     @type ets_table_id() :: TracesStorage.ets_table_id()
     @type table_identifier() :: TracesStorage.table_identifier()
 
@@ -200,20 +201,26 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
 
     @impl true
     def get!(table_id, opts \\ []) do
-      search_query = Keyword.get(opts, :search_query, nil)
+      limit = Keyword.get(opts, :limit, @default_limit)
+      search_query = Keyword.get(opts, :search_query, "")
       cont = Keyword.get(opts, :cont, nil)
+
+      if limit < 1 do
+        raise ArgumentError, "limit must be >= 1"
+      end
 
       raw_result =
         case cont do
           :end_of_table -> :end_of_table
           nil -> existing_traces_start(table_id, opts)
-          _cont -> existing_traces_continuation(opts)
+          _cont -> existing_traces_continuation(table_id, opts)
         end
 
       raw_result
       |> normalize_entries()
       |> filter_by_search(search_query)
       |> format_response()
+      |> maybe_limit_response(limit)
     end
 
     @impl true
@@ -320,11 +327,12 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
 
     # Applies simple case-sensitive substring search on entire struct
     @spec filter_by_search(
-            {[Trace.t()], ets_continuation()} | :end_of_table,
-            String.t() | nil
-          ) :: {[Trace.t()], ets_continuation()} | :end_of_table
+            {[Trace.t()], continuation() | :searched_without_limit} | :end_of_table,
+            String.t()
+          ) ::
+            {[Trace.t()], continuation() | :searched_without_limit} | :end_of_table
     defp filter_by_search(:end_of_table, _phrase), do: :end_of_table
-    defp filter_by_search({traces, cont}, nil), do: {traces, cont}
+    defp filter_by_search({traces, cont}, ""), do: {traces, cont}
 
     defp filter_by_search({traces, cont}, phrase) do
       down = String.downcase(phrase)
@@ -343,17 +351,74 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     end
 
     # Formats the continuation token and handles end-of-table marker.
-    @spec format_response({[Trace.t()], ets_continuation()} | :end_of_table) ::
-            {[Trace.t()], ets_continuation()} | :end_of_table
+    @spec format_response({[Trace.t()], continuation() | :searched_without_limit} | :end_of_table) ::
+            {[Trace.t()], continuation() | :searched_without_limit} | :end_of_table
     defp format_response(:end_of_table), do: :end_of_table
     defp format_response({traces, :"$end_of_table"}), do: {traces, :end_of_table}
     defp format_response({traces, cont}), do: {traces, cont}
 
-    @spec existing_traces_start(ets_table_id(), Keyword.t()) ::
-            {[ets_elem()], ets_continuation()} | :"$end_of_table"
-    defp existing_traces_start(table_id, opts) do
-      limit = Keyword.get(opts, :limit, @default_limit)
+    @spec maybe_limit_response(
+            {[Trace.t()], continuation() | :searched_without_limit} | :end_of_table,
+            limit :: pos_integer()
+          ) ::
+            {[Trace.t()], continuation()} | :end_of_table
+    defp maybe_limit_response({traces, :searched_without_limit}, limit) do
+      if length(traces) > limit do
+        traces = Enum.slice(traces, 0, limit)
+        last_id = List.last(traces) |> Map.get(:id)
+        {traces, {:last_id, last_id}}
+      else
+        {traces, :end_of_table}
+      end
+    end
 
+    defp maybe_limit_response(:end_of_table, _), do: :end_of_table
+    defp maybe_limit_response({traces, cont}, _), do: {traces, cont}
+
+    @spec existing_traces_start(ets_table_id(), Keyword.t()) ::
+            {[ets_elem()], continuation() | :searched_without_limit} | :"$end_of_table"
+    defp existing_traces_start(table_id, opts) do
+      match_spec = get_match_spec_from_opts(opts)
+
+      if Keyword.get(opts, :search_query, "") == "" do
+        table_id
+        |> ets_table()
+        |> :ets.select(match_spec, Keyword.get(opts, :limit, @default_limit))
+      else
+        table_id
+        |> ets_table()
+        |> :ets.select(match_spec)
+        |> case do
+          [] -> :"$end_of_table"
+          traces -> {traces, :searched_without_limit}
+        end
+      end
+    end
+
+    @spec existing_traces_continuation(ets_table_id(), Keyword.t()) ::
+            {[ets_elem()], continuation() | :searched_without_limit} | :"$end_of_table"
+    defp existing_traces_continuation(table_id, opts) do
+      cont = Keyword.get(opts, :cont, nil)
+
+      case cont do
+        {:last_id, last_id} ->
+          match_spec = get_match_spec_from_opts(opts)
+
+          table_id
+          |> ets_table()
+          |> :ets.select(match_spec)
+          |> Enum.drop_while(fn {id, _} -> id <= last_id end)
+          |> case do
+            [] -> :"$end_of_table"
+            traces -> {traces, :searched_without_limit}
+          end
+
+        _ ->
+          :ets.select(cont)
+      end
+    end
+
+    defp get_match_spec_from_opts(opts) do
       functions =
         Keyword.get(opts, :functions, [])
         |> Enum.map(&String.split(&1, "/"))
@@ -364,23 +429,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       execution_times = Keyword.get(opts, :execution_times, %{})
       node_id = Keyword.get(opts, :node_id)
 
-      if limit < 1 do
-        raise ArgumentError, "limit must be >= 1"
-      end
-
-      match_spec = match_spec(node_id, functions, execution_times)
-
-      table_id
-      |> ets_table()
-      |> :ets.select(match_spec, limit)
-    end
-
-    @spec existing_traces_continuation(Keyword.t()) ::
-            {[ets_elem()], ets_continuation()} | :"$end_of_table"
-    defp existing_traces_continuation(opts) do
-      cont = Keyword.get(opts, :cont, nil)
-
-      :ets.select(cont)
+      match_spec(node_id, functions, execution_times)
     end
 
     defp match_spec(node_id, functions, execution_times) when is_pid(node_id) do

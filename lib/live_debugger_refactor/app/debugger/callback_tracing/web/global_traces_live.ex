@@ -94,8 +94,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
 
   @impl true
   def render(assigns) do
-    assigns = assign_load_more_button(assigns)
-
     ~H"""
     <div class="grow p-8 overflow-y-auto scrollbar-main">
       <div class="w-full min-w-[25rem] max-w-screen-2xl mx-auto">
@@ -144,7 +142,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
                 </:trace>
               </HookComponents.Stream.render>
               <HookComponents.LoadMoreButton.render
-                :if={@load_more_button?}
+                :if={not @tracing_started? and not @traces_empty?}
                 traces_continuation={@traces_continuation}
               />
               <TraceComponents.trace_fullscreen
@@ -163,13 +161,5 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
       tracing_started?={@tracing_started?}
     />
     """
-  end
-
-  defp assign_load_more_button(assigns) do
-    load_more_button? =
-      not assigns.tracing_started? and not assigns.traces_empty? and
-        assigns.trace_search_query == ""
-
-    assign(assigns, :load_more_button?, load_more_button?)
   end
 end
