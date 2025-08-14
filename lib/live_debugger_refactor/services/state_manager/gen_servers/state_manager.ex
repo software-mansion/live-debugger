@@ -8,7 +8,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManager do
   alias LiveDebuggerRefactor.Services.StateManager.Actions
 
   alias LiveDebuggerRefactor.Bus
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentDeleted
 
   def start_link(opts \\ []) do
@@ -24,7 +24,7 @@ defmodule LiveDebuggerRefactor.Services.StateManager.GenServers.StateManager do
   end
 
   @impl true
-  def handle_info(%TraceReturned{function: :render, pid: pid}, state) do
+  def handle_info(%TraceCalled{function: :render, pid: pid}, state) do
     Actions.save_state!(pid)
 
     {:noreply, state}
