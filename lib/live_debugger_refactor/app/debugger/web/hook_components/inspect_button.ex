@@ -48,6 +48,19 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton do
     end
   end
 
+  defp handle_info(
+         {"inspect-mode-changed", %{"inspect_mode" => inspect_mode?, "pid" => pid}},
+         socket
+       ) do
+    if pid == inspect(socket.assigns.pid) do
+      socket
+      |> assign(:inspect_mode?, inspect_mode?)
+      |> halt()
+    else
+      {:halt, socket}
+    end
+  end
+
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp handle_event("switch-inspect-mode", _, socket) do

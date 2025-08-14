@@ -100,11 +100,26 @@ export default function initElementInspection({
 
   const handleRightClick = (event) => {
     event.preventDefault();
+
+    sourceLiveViews.forEach((pid) => {
+      debugChannel.push('inspect-mode-changed', {
+        inspect_mode: false,
+        pid: pid,
+      });
+    });
+
     disableInspectMode();
   };
 
   const handleEscape = (event) => {
     if (event.key === 'Escape') {
+      sourceLiveViews.forEach((pid) => {
+        debugChannel.push('inspect-mode-changed', {
+          inspect_mode: false,
+          pid: pid,
+        });
+      });
+
       disableInspectMode();
     }
   };
