@@ -5,7 +5,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
   feature "all settings are working properly", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebugger.GenServers.CallbackTracingServer.ping!()
+    LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager.ping!()
 
     LiveDebugger.GenServers.SettingsServer.save(:dead_view_mode, false)
     LiveDebugger.GenServers.SettingsServer.save(:tracing_update_on_code_reload, false)
