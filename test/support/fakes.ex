@@ -69,7 +69,7 @@ defmodule LiveDebugger.Fakes do
     socket_id = Keyword.get(opts, :socket_id, socket_id)
     parent_pid = Keyword.get(opts, :parent_pid, nil)
     transport_pid = Keyword.get(opts, :transport_pid, :c.pid(0, 7, 0))
-    view = Keyword.get(opts, :view, LiveDebuggerWeb.Main)
+    view = Keyword.get(opts, :view, LiveDebugger.App.Web.Main)
     private = Keyword.get(opts, :private, %{})
 
     host_uri =

@@ -59,9 +59,9 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Queries.CallbacksTest do
       |> expect(:all, fn ->
         [
           {~c"LiveDebugger.TestModule", ~c"/path", true},
-          {~c"LiveDebuggerWeb.TestModule", ~c"/path", true},
+          {~c"LiveDebugger.App.Web.TestModule", ~c"/path", true},
           {~c"Elixir.LiveDebugger.TestModule", ~c"/path", true},
-          {~c"Elixir.LiveDebuggerWeb.TestModule", ~c"/path", true}
+          {~c"Elixir.LiveDebugger.App.Web.TestModule", ~c"/path", true}
         ]
       end)
       |> stub(:loaded?, fn _module -> true end)

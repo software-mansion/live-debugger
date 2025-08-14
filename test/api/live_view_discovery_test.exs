@@ -39,7 +39,7 @@ defmodule LiveDebuggerRefactor.API.LiveViewDiscoveryTest do
       live_debugger_pid = :c.pid(0, 0, 2)
 
       live_view_module = :"Elixir.SomeLiveView"
-      live_debugger_module = :"Elixir.LiveDebuggerWeb.Debugger"
+      live_debugger_module = :"Elixir.LiveDebugger.App.Web.Debugger"
 
       MockAPILiveViewDebug
       |> expect(:list_liveviews, fn ->
@@ -70,7 +70,7 @@ defmodule LiveDebuggerRefactor.API.LiveViewDiscoveryTest do
     live_debugger_pid = :c.pid(0, 0, 2)
     live_view_pid = :c.pid(0, 0, 1)
 
-    live_debugger_module = :"Elixir.LiveDebuggerWeb.SomLiveView"
+    live_debugger_module = :"Elixir.LiveDebugger.App.Web.SomLiveView"
     live_view_module = :"Elixir.SomeLiveView"
 
     MockAPILiveViewDebug
