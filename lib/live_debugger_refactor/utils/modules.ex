@@ -12,9 +12,7 @@ defmodule LiveDebuggerRefactor.Utils.Modules do
 
     String.starts_with?(stringified_module, [
       "Elixir.LiveDebugger.",
-      "Elixir.LiveDebuggerWeb.",
       "LiveDebugger.",
-      "LiveDebuggerWeb.",
       "LiveDebuggerRefactor.",
       "Elixir.LiveDebuggerRefactor."
     ])

@@ -38,7 +38,7 @@ defmodule LiveDebugger.MixProject do
   defp elixirc_paths(:dev), do: ["lib", "dev"]
 
   defp elixirc_paths(:test),
-    do: ["lib", "dev", "test/support", "test/live_debugger_refactor/support"]
+    do: ["lib", "dev", "test/support"]
 
   defp elixirc_paths(_), do: ["lib"]
 

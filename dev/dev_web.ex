@@ -6,7 +6,7 @@ defmodule DevWeb do
 
       import LiveDebuggerDev.Components
       import Phoenix.HTML
-      import LiveDebuggerWeb.Helpers
+      import DevWeb.Helpers
       import LiveDebuggerDev.Helpers
     end
   end
@@ -17,12 +17,17 @@ defmodule DevWeb do
 
       import LiveDebuggerDev.Components
       import Phoenix.HTML
-      import LiveDebuggerWeb.Helpers
+      import DevWeb.Helpers
       import LiveDebuggerDev.Helpers
     end
   end
 
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
+  end
+
+  defmodule Helpers do
+    def ok(socket), do: {:ok, socket}
+    def noreply(socket), do: {:noreply, socket}
   end
 end

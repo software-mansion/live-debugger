@@ -110,6 +110,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
   defp handle_event("reset-filters", _, socket) do
     socket
     |> assign(:current_filters, FiltersHelpers.default_filters(socket.assigns.node_id))
+    |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> halt()
   end
 

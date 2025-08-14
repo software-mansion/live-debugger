@@ -19,7 +19,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
 
   use LiveDebuggerRefactor.App.Web, :hook_component
 
-  import LiveDebuggerWeb.Hooks.Flash, only: [push_flash: 3]
+  import LiveDebuggerRefactor.App.Web.Hooks.Flash, only: [push_flash: 3]
 
   alias LiveDebuggerRefactor.API.TracesStorage
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay
