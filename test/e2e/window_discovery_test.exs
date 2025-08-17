@@ -1,4 +1,4 @@
-defmodule LiveDebugger.E2E.WindowDashboardTest do
+defmodule LiveDebugger.E2E.WindowDiscoveryTest do
   use LiveDebugger.E2ECase
 
   @sessions 3

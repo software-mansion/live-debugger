@@ -1,4 +1,4 @@
-defmodule LiveDebugger.E2E.ProcessCallbackTracesTest do
+defmodule LiveDebugger.E2E.GlobalTracesTest do
   use LiveDebugger.E2ECase
 
   @sessions 2

@@ -1,4 +1,4 @@
-defmodule LiveDebugger.E2E.ChannelDashboardTest do
+defmodule LiveDebugger.E2E.NodeInspectorTest do
   use LiveDebugger.E2ECase
 
   @sessions 2
