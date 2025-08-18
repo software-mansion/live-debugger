@@ -1,7 +1,7 @@
-defmodule LiveDebuggerRefactor.API.System.ModuleImplTest do
+defmodule LiveDebugger.API.System.ModuleImplTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebuggerRefactor.API.System.Module.Impl, as: ModuleImpl
+  alias LiveDebugger.API.System.Module.Impl, as: ModuleImpl
 
   describe "behaviours/1" do
     defmodule TestLiveViewModule do

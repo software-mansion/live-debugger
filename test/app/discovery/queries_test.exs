@@ -1,11 +1,11 @@
-defmodule LiveDebuggerRefactor.App.Discovery.QueriesTest do
+defmodule LiveDebugger.App.Discovery.QueriesTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.Structs.LvProcess
-  alias LiveDebuggerRefactor.App.Discovery.Queries, as: DiscoveryQueries
-  alias LiveDebuggerRefactor.MockAPILiveViewDiscovery
+  alias LiveDebugger.Structs.LvProcess
+  alias LiveDebugger.App.Discovery.Queries, as: DiscoveryQueries
+  alias LiveDebugger.MockAPILiveViewDiscovery
 
   describe "fetch_grouped_lv_processes/1" do
     test "returns LiveView processes using api" do

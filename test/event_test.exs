@@ -1,11 +1,11 @@
-defmodule LiveDebuggerRefactor.EventTest do
+defmodule LiveDebugger.EventTest do
   @moduledoc false
 
   use ExUnit.Case, async: true
 
   defmodule TestEvents do
     @moduledoc false
-    use LiveDebuggerRefactor.Event
+    use LiveDebugger.Event
 
     defevent(UserCreated, name: String.t(), email: String.t(), age: integer())
   end
