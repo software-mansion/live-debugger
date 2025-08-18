@@ -27,50 +27,17 @@ defmodule LiveDebugger do
     put_endpoint_config(config)
     put_live_debugger_tags(config)
 
-    if Application.get_env(@app_name, :refactor, false) do
+    if LiveDebuggerRefactor.Env.unit_test?() do
+      []
+    else
       LiveDebuggerRefactor.API.SettingsStorage.init()
       LiveDebuggerRefactor.API.TracesStorage.init()
       LiveDebuggerRefactor.API.StatesStorage.init()
 
-      get_refactor_children()
-    else
-      get_legacy_children(config)
-    end
-  end
-
-  defp get_refactor_children() do
-    if LiveDebuggerRefactor.Env.unit_test?() do
-      []
-    else
       []
       |> LiveDebuggerRefactor.App.append_app_children()
       |> LiveDebuggerRefactor.Bus.append_bus_tree()
       |> LiveDebuggerRefactor.Services.append_services_children()
-    end
-  end
-
-  defp get_legacy_children(config) do
-    pubsub_name = Keyword.get(config, :pubsub_name, LiveDebugger.PubSub)
-
-    children = [
-      {Phoenix.PubSub, name: pubsub_name},
-      {LiveDebuggerWeb.Endpoint,
-       [
-         check_origin: false,
-         pubsub_server: pubsub_name
-       ]}
-    ]
-
-    if LiveDebugger.Env.unit_test?() do
-      children
-    else
-      children ++
-        [
-          {LiveDebugger.GenServers.SettingsServer, []},
-          {LiveDebugger.GenServers.EtsTableServer, []},
-          {LiveDebugger.GenServers.StateServer, []},
-          {LiveDebugger.GenServers.CallbackTracingServer, []}
-        ]
     end
   end
 
@@ -103,7 +70,6 @@ defmodule LiveDebugger do
         Keyword.put(endpoint_config, :server, endpoint_server)
       end
 
-    Application.put_env(@app_name, LiveDebuggerWeb.Endpoint, endpoint_config)
     Application.put_env(@app_name, LiveDebuggerRefactor.App.Web.Endpoint, endpoint_config)
   end
 
@@ -114,7 +80,6 @@ defmodule LiveDebugger do
     browser_features? = Keyword.get(config, :browser_features?, true)
     debug_button? = Keyword.get(config, :debug_button?, true)
     highlighting? = Keyword.get(config, :highlighting?, true)
-    refactor? = Keyword.get(config, :refactor, false)
     version = Application.spec(@app_name)[:vsn] |> to_string()
     dead_view_mode = Keyword.get(config, :dead_view_mode, true)
 
@@ -132,12 +97,11 @@ defmodule LiveDebugger do
       browser_features?: browser_features?,
       debug_button?: debug_button?,
       highlighting?: highlighting?,
-      refactor?: refactor?,
       version: version,
       devtools_allow_redirects: devtools_allow_redirects
     }
 
-    tags = LiveDebuggerWeb.Components.Config.live_debugger_tags(assigns)
+    tags = LiveDebuggerRefactor.Client.ConfigComponent.live_debugger_tags(assigns)
     Application.put_env(@app_name, :live_debugger_tags, tags)
   end
 end

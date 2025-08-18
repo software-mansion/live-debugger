@@ -10,7 +10,6 @@ import {
   getMetaTag,
   fetchLiveDebuggerBaseURL,
   fetchDebuggedSocketID,
-  isRefactorEnabled,
   isDebugButtonEnabled,
   isHighlightingEnabled,
 } from './utils/meta';
@@ -23,14 +22,12 @@ window.document.addEventListener('DOMContentLoaded', function () {
   const sessionURL = `${baseURL}/redirect/${socketID}`;
 
   if (socketID) {
-    if (isRefactorEnabled(metaTag)) {
-      const { debugChannel } = initDebugSocket(baseURL, socketID);
+    const { debugChannel } = initDebugSocket(baseURL, socketID);
 
-      debugChannel.on('ping', (resp) => {
-        console.log('Received ping', resp);
-        debugChannel.push('pong', resp);
-      });
-    }
+    debugChannel.on('ping', (resp) => {
+      console.log('Received ping', resp);
+      debugChannel.push('pong', resp);
+    });
 
     if (isDebugButtonEnabled(metaTag)) {
       initDebugMenu(sessionURL);

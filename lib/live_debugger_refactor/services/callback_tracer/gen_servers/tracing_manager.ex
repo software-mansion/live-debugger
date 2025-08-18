@@ -17,12 +17,24 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
+  @doc """
+  Checks if GenServer has been loaded
+  """
+  def ping!() do
+    GenServer.call(__MODULE__, :ping)
+  end
+
   @impl true
   def init(opts) do
     Bus.receive_events!()
     Process.send_after(self(), :setup_tracing, @tracing_setup_delay)
 
     {:ok, opts}
+  end
+
+  @impl true
+  def handle_call(:ping, _from, state) do
+    {:reply, :pong, state}
   end
 
   @impl true
