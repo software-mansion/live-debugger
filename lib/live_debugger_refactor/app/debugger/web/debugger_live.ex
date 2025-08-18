@@ -12,7 +12,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   alias LiveDebuggerRefactor.App.Debugger.Web.Components.NavigationMenu
   alias LiveDebuggerRefactor.App.Debugger.Web.Components.Pages
   alias LiveDebuggerRefactor.App.Web.Components.Navbar
-  alias LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton
+  alias LiveDebuggerRefactor.App.Debugger.Web.HookComponents
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebuggerRefactor.App.Utils.Parsers
   alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
@@ -36,7 +36,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
       :error ->
         push_navigate(socket, to: RoutesHelper.error("invalid_pid"))
     end
-    |> InspectButton.init()
     |> ok()
   end
 
@@ -71,7 +70,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
           <Navbar.live_debugger_logo_icon />
           <HookComponents.DeadViewMode.render id="navbar-connected" lv_process={lv_process} />
           <div class="flex items-center gap-2">
-            <InspectButton.render inspect_mode?={@inspect_mode?} />
+            <HookComponents.InspectButton.render inspect_mode?={@inspect_mode?} />
             <Navbar.settings_button return_to={@url} />
             <span class="h-5 border-r border-default-border lg:hidden"></span>
             <.nav_icon
@@ -115,6 +114,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
     socket
     |> Hooks.AsyncLvProcess.init(pid)
     |> put_private(:pid, pid)
+    |> HookComponents.InspectButton.init()
     |> HookComponents.DeadViewMode.init()
   end
 

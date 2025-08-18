@@ -9,14 +9,12 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton do
   alias LiveDebuggerRefactor.Client
   alias LiveDebuggerRefactor.API.LiveViewDebug
 
-  @required_assigns [:pid]
-
   @impl true
   def init(socket) do
     Client.receive_events()
 
     socket
-    |> check_assigns!(@required_assigns)
+    |> check_private!(:pid)
     |> assign(:inspect_mode?, false)
     |> attach_hook(:inspect_button, :handle_info, &handle_info/2)
     |> attach_hook(:inspect_button, :handle_event, &handle_event/3)
@@ -39,7 +37,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton do
   end
 
   defp handle_info({"element-inspected", %{"pid" => pid, "url" => url}}, socket) do
-    if pid == inspect(socket.assigns.pid) do
+    if pid == inspect(socket.private.pid) do
       socket
       |> redirect(external: url)
       |> halt()
@@ -52,7 +50,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton do
          {"inspect-mode-changed", %{"inspect_mode" => inspect_mode?, "pid" => pid}},
          socket
        ) do
-    if pid == inspect(socket.assigns.pid) do
+    if pid == inspect(socket.private.pid) do
       socket
       |> assign(:inspect_mode?, inspect_mode?)
       |> halt()
@@ -64,11 +62,11 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton do
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp handle_event("switch-inspect-mode", _, socket) do
-    pid = socket.assigns.pid
+    pid = socket.private.pid
     inspect_mode? = !socket.assigns.inspect_mode?
 
     # Well it cannot stay like this, but we need root pid...
-    case LiveViewDebug.socket(socket.assigns.pid) do
+    case LiveViewDebug.socket(pid) do
       {:ok, %{root_pid: root_pid, id: socket_id}} when root_pid == pid ->
         Client.push_event!(socket_id, "inspect-mode-changed", %{
           inspect_mode: inspect_mode?,
