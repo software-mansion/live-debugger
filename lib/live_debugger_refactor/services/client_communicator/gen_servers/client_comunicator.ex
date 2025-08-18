@@ -19,7 +19,8 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
 
   @impl true
   def handle_info(
-        {"request-node-element", %{"socket_id" => socket_id, "root_socket_id" => root_socket_id}},
+        {"request-node-element",
+         %{"root_socket_id" => root_socket_id, "socket_id" => socket_id} = payload},
         state
       ) do
     socket_id
