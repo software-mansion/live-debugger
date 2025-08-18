@@ -28,7 +28,7 @@ defmodule LiveDebugger.Support.CssQueries do
   end
 
   def sidebar_basic_info() do
-    css("#sidebar-content-slide-over-basic-info")
+    css("#node-inspector-basic-info")
   end
 
   def search_bar() do

@@ -12,8 +12,11 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Hooks.AsyncLvProcess do
   alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
   alias Phoenix.LiveView.AsyncResult
 
+  alias LiveDebuggerRefactor.Bus
+  alias LiveDebuggerRefactor.App.Events.DebuggerMounted
+
   @spec init(Phoenix.LiveView.Socket.t(), pid()) :: Phoenix.LiveView.Socket.t()
-  def init(socket, pid) when is_pid(pid) do
+  def init(socket, pid) do
     socket
     |> attach_hook(:async_lv_process, :handle_async, &handle_async/3)
     |> register_hook(:async_lv_process)
@@ -22,6 +25,11 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.Hooks.AsyncLvProcess do
   end
 
   defp handle_async(:lv_process, {:ok, %LvProcess{} = lv_process}, socket) do
+    Bus.broadcast_event!(%DebuggerMounted{
+      debugger_pid: self(),
+      debugged_pid: lv_process.pid
+    })
+
     socket
     |> assign(:lv_process, AsyncResult.ok(lv_process))
     |> halt()

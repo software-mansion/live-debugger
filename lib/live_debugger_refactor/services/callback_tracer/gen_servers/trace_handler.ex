@@ -10,6 +10,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
   alias LiveDebuggerRefactor.Utils.Callbacks, as: CallbackUtils
   alias LiveDebuggerRefactor.Services.CallbackTracer.Actions.Trace, as: TraceActions
   alias LiveDebuggerRefactor.Services.CallbackTracer.Actions.Tracing, as: TracingActions
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Actions.State, as: StateActions
   alias LiveDebuggerRefactor.Structs.Trace
 
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
@@ -104,6 +105,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
       ) do
     Task.start(fn ->
       with {:ok, trace} <- TraceActions.create_delete_component_trace(n, args, pid, cid, ts),
+           :ok <- StateActions.maybe_save_state!(trace),
            :ok <- TraceActions.publish_trace(trace) do
         :ok
       else
@@ -150,6 +152,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler d
          params <- %{execution_time: execution_time, type: type},
          {:ok, updated_trace} <- TraceActions.update_trace(trace, params),
          {:ok, ref} <- TraceActions.persist_trace(updated_trace, ref),
+         :ok <- StateActions.maybe_save_state!(updated_trace),
          :ok <- TraceActions.publish_trace(updated_trace, ref) do
       {:noreply, delete_trace_record(state, trace_key)}
     else

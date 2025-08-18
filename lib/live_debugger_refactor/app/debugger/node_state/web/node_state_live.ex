@@ -13,7 +13,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.NodeState.Web.NodeStateLive do
 
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.App.Debugger.Events.NodeIdParamChanged
-  alias LiveDebuggerRefactor.Services.StateManager.Events.StateChanged
+  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.StateChanged
 
   @doc """
   Renders the `NodeStateLive` as a nested LiveView component.

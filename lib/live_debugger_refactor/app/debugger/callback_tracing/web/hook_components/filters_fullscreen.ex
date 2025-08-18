@@ -5,10 +5,11 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
 
   use LiveDebuggerRefactor.App.Web, :hook_component
 
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
-  @required_assigns [:current_filters]
+  @required_assigns [:current_filters, :node_id]
 
   @fullscreen_id "filters-fullscreen"
   @form_id "filters-fullscreen-form"
@@ -16,6 +17,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
   @impl true
   def init(socket) do
     socket
+    |> check_hook!(:existing_traces)
     |> check_assigns!(@required_assigns)
     |> attach_hook(:filters, :handle_info, &handle_info/2)
     |> attach_hook(:filters, :handle_event, &handle_event/3)
@@ -88,6 +90,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
     socket
     |> assign(:current_filters, filters)
     |> push_event("filters-fullscreen-close", %{})
+    |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> halt()
   end
 
@@ -107,6 +110,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.F
   defp handle_event("reset-filters", _, socket) do
     socket
     |> assign(:current_filters, FiltersHelpers.default_filters(socket.assigns.node_id))
+    |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> halt()
   end
 

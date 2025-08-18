@@ -6,7 +6,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.LiveComponents.F
   You can use `LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Filters` to render additional
   """
 
-  use LiveDebuggerWeb, :live_component
+  use LiveDebuggerRefactor.App.Web, :live_component
 
   alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Filters,
     as: FiltersComponents

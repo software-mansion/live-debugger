@@ -6,9 +6,12 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.R
 
   use LiveDebuggerRefactor.App.Web, :hook_component
 
+  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks
+
   @impl true
   def init(socket) do
     socket
+    |> check_hook!(:existing_traces)
     |> attach_hook(:refresh_button, :handle_event, &handle_event/3)
     |> register_hook(:refresh_button)
   end
@@ -33,6 +36,11 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.R
     """
   end
 
-  defp handle_event("refresh-history", _, socket), do: {:halt, socket}
+  defp handle_event("refresh-history", _, socket) do
+    socket
+    |> Hooks.ExistingTraces.assign_async_existing_traces()
+    |> halt()
+  end
+
   defp handle_event(_, _, socket), do: {:cont, socket}
 end

@@ -52,6 +52,11 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.S
     """
   end
 
+  @spec separator_stream_element() :: %{id: String.t()}
+  def separator_stream_element() do
+    %{id: "separator"}
+  end
+
   attr(:id, :string, required: true)
 
   defp separator(assigns) do
