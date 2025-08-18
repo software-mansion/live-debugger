@@ -37,7 +37,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton do
   end
 
   defp handle_info({"element-inspected", %{"pid" => pid, "url" => url}}, socket) do
-    if pid == inspect(socket.private.pid) do
+    if pid == inspect(self()) do
       socket
       |> redirect(external: url)
       |> halt()
@@ -50,7 +50,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton do
          {"inspect-mode-changed", %{"inspect_mode" => inspect_mode?, "pid" => pid}},
          socket
        ) do
-    if pid == inspect(socket.private.pid) do
+    if pid == inspect(self()) do
       socket
       |> assign(:inspect_mode?, inspect_mode?)
       |> halt()
@@ -70,9 +70,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton do
       {:ok, %{root_pid: root_pid, id: socket_id}} when root_pid == pid ->
         Client.push_event!(socket_id, "inspect-mode-changed", %{
           inspect_mode: inspect_mode?,
-          pid: inspect(pid)
+          pid: inspect(self())
         })
-        |> dbg()
 
       {:ok, %{root_pid: root_pid}} when root_pid != pid ->
         LiveViewDebug.socket(root_pid)
@@ -80,9 +79,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton do
           {:ok, %{id: socket_id}} ->
             Client.push_event!(socket_id, "inspect-mode-changed", %{
               inspect_mode: inspect_mode?,
-              pid: inspect(pid)
+              pid: inspect(self())
             })
-            |> dbg()
         end
 
       _ ->

@@ -23,8 +23,11 @@ export default function initElementInspection({
       enableInspectMode();
       sourceLiveViews.push(event.pid);
     } else {
-      disableInspectMode();
       sourceLiveViews = sourceLiveViews.filter((pid) => pid !== event.pid);
+
+      if (sourceLiveViews.length === 0) {
+        disableInspectMode();
+      }
     }
   });
 
@@ -96,6 +99,7 @@ export default function initElementInspection({
       });
     }
 
+    sourceLiveViews = [];
     disableInspectMode();
   };
 
@@ -109,6 +113,7 @@ export default function initElementInspection({
       });
     });
 
+    sourceLiveViews = [];
     disableInspectMode();
   };
 
@@ -121,6 +126,7 @@ export default function initElementInspection({
         });
       });
 
+      sourceLiveViews = [];
       disableInspectMode();
     }
   };
