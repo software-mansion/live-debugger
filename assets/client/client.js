@@ -25,14 +25,13 @@ window.document.addEventListener('DOMContentLoaded', function () {
   if (socketID) {
     const { debugChannel } = initDebugSocket(baseURL, socketID);
 
-      debugChannel.on('ping', (resp) => {
-        console.log('Received ping', resp);
-        debugChannel.push('pong', resp);
-      });
+    debugChannel.on('ping', (resp) => {
+      console.log('Received ping', resp);
+      debugChannel.push('pong', resp);
+    });
 
-      initElementInspection({ baseURL, debugChannel, socketID });
-      initTooltip();
-    }
+    initElementInspection({ baseURL, debugChannel, socketID });
+    initTooltip();
 
     if (isDebugButtonEnabled(metaTag)) {
       initDebugMenu(sessionURL);
