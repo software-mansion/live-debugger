@@ -89,6 +89,11 @@ export default function initElementInspection({
     }
   };
 
+  const handleMouseLeave = () => {
+    pushClearEvent();
+    lastID = null;
+  };
+
   const disableInspectMode = () => {
     if (!inspectMode) {
       return;
@@ -107,6 +112,7 @@ export default function initElementInspection({
     document.body.classList.remove('live-debugger-inspect-mode');
     document.body.removeEventListener('click', handleInspect);
     document.body.removeEventListener('mouseover', handleMove);
+    document.removeEventListener('mouseleave', handleMouseLeave);
     document.removeEventListener('contextmenu', handleRightClick);
     document.removeEventListener('keydown', handleEscape);
   };
@@ -125,6 +131,7 @@ export default function initElementInspection({
     document.body.classList.add('live-debugger-inspect-mode');
     document.body.addEventListener('click', handleInspect);
     document.body.addEventListener('mouseover', handleMove);
+    document.body.addEventListener('mouseleave', handleMouseLeave);
     document.addEventListener('contextmenu', handleRightClick);
     document.addEventListener('keydown', handleEscape);
   };
