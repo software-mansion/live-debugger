@@ -1,3 +1,5 @@
+import { dispatchCustomEvent } from '../utils/dom';
+
 const highlightElementID = 'live-debugger-highlight-element';
 const highlightPulseElementID = 'live-debugger-highlight-pulse-element';
 
@@ -25,7 +27,8 @@ function createHighlightElement(activeElement, detail, id) {
   highlight.style.left = `${rect.left + window.scrollX}px`;
   highlight.style.width = `${activeElement.offsetWidth}px`;
   highlight.style.height = `${activeElement.offsetHeight}px`;
-  highlight.style.backgroundColor = '#87CCE880';
+  highlight.style.backgroundColor =
+    detail.type === 'LiveComponent' ? '#87CCE880' : '#ffe78080';
   highlight.style.zIndex = '10000';
   highlight.style.pointerEvents = 'none';
 
@@ -38,6 +41,8 @@ function removeHighlightElement() {
   if (highlightElement) {
     highlightElement.remove();
   }
+
+  dispatchCustomEvent('lvdbg:remove-tooltip');
 }
 
 function handleHighlight({ detail }) {
@@ -45,6 +50,7 @@ function handleHighlight({ detail }) {
 
   if (highlightElement) {
     highlightElement.remove();
+    dispatchCustomEvent('lvdbg:remove-tooltip');
 
     const toClear = detail.attr === undefined || detail.val === undefined;
     const sameElement = highlightElement.dataset.val === detail.val;
@@ -64,7 +70,9 @@ function handleHighlight({ detail }) {
       detail,
       highlightElementID
     );
+
     document.body.appendChild(highlightElement);
+    showTooltip(detail);
   }
 }
 
@@ -130,6 +138,26 @@ function handlePulse({ detail }) {
       highlightPulse.remove();
     };
   }
+}
+
+function showTooltip(detail) {
+  const requiredKeys = ['module', 'type', 'id_key', 'id_value'];
+  const hasAllKeys = requiredKeys.every((key) => detail.hasOwnProperty(key));
+
+  if (!hasAllKeys) {
+    return;
+  }
+
+  const props = {
+    detail: {
+      module: detail.module,
+      type: detail.type,
+      id_key: detail.id_key,
+      id_value: detail.id_value,
+    },
+  };
+
+  dispatchCustomEvent('lvdbg:show-tooltip', props);
 }
 
 export default function initHighlight() {

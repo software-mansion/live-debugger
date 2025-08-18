@@ -10,6 +10,9 @@ const Highlight = {
         params = {
           'search-attribute': attr['phx-value-search-attribute'].value,
           'search-value': attr['phx-value-search-value'].value,
+          type: attr['phx-value-type'].value,
+          module: attr['phx-value-module'].value,
+          id: attr['phx-value-id'].value,
         };
 
         this.pushEvent('highlight', params);
