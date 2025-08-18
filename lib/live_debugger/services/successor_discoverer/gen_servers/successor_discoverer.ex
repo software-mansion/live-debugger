@@ -102,10 +102,10 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
         state
 
       %LvProcess{} = successor ->
-        new_state = remove_socket_from_window(state, lv_process.socket_id)
+        new_state = remove_socket_from_window(state, previous_socket_id)
 
         Bus.broadcast_event!(%SuccessorFound{
-          old_socket_id: lv_process.socket_id,
+          old_socket_id: previous_socket_id,
           new_lv_process: successor
         })
 

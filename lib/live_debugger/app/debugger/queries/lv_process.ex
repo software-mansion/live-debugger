@@ -6,7 +6,6 @@ defmodule LiveDebugger.App.Debugger.Queries.LvProcess do
   @retries_timeouts [50, 100, 200]
 
   alias LiveDebugger.App.Debugger.Queries.State, as: StateQueries
-  alias LiveDebugger.API.LiveViewDiscovery
   alias LiveDebugger.Structs.LvProcess
 
   @spec get_successor_with_retries(LvProcess.t()) :: LvProcess.t() | nil
