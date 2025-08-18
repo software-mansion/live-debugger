@@ -36,6 +36,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
       :error ->
         push_navigate(socket, to: RoutesHelper.error("invalid_pid"))
     end
+    |> HookComponents.InspectButton.init()
     |> ok()
   end
 
@@ -114,7 +115,6 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
     socket
     |> Hooks.AsyncLvProcess.init(pid)
     |> put_private(:pid, pid)
-    |> HookComponents.InspectButton.init()
     |> HookComponents.DeadViewMode.init()
   end
 
