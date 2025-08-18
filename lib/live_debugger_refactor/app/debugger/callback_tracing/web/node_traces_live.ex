@@ -14,6 +14,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
 
   alias LiveDebuggerRefactor.Structs.LvProcess
 
+  alias LiveDebuggerRefactor.Bus
+  alias LiveDebuggerRefactor.App.Debugger.Events.NodeIdParamChanged
+
   @live_stream_limit 128
   @page_size 25
 
@@ -53,6 +56,10 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
         },
         socket
       ) do
+    if connected?(socket) do
+      Bus.receive_events!(parent_pid)
+    end
+
     socket
     |> assign(
       id: id,
@@ -137,5 +144,18 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.NodeTracesLive d
       />
     </div>
     """
+  end
+
+  @impl true
+  def handle_info(
+        %NodeIdParamChanged{node_id: node_id, debugger_pid: pid},
+        %{assigns: %{parent_pid: pid}} = socket
+      ) do
+    socket
+    |> assign(:node_id, node_id)
+    |> FiltersAssigns.assign_current_filters()
+    |> Hooks.TracingFuse.disable_tracing()
+    |> Hooks.ExistingTraces.assign_async_existing_traces()
+    |> noreply()
   end
 end

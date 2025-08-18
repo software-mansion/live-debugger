@@ -28,7 +28,7 @@ function createHighlightElement(activeElement, detail, id) {
   highlight.style.width = `${activeElement.offsetWidth}px`;
   highlight.style.height = `${activeElement.offsetHeight}px`;
   highlight.style.backgroundColor =
-    detail.type === 'LiveComponent' ? '#87CCE880' : '#b1dfd080';
+    detail.type === 'LiveComponent' ? '#87CCE880' : '#ffe78080';
   highlight.style.zIndex = '10000';
   highlight.style.pointerEvents = 'none';
 

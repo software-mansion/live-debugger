@@ -152,3 +152,9 @@
   bottom: 100%;
   filter: drop-shadow(0 -2px 2px rgba(0, 0, 0, 0.1));
 }
+
+.live-debugger-tooltip-type-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

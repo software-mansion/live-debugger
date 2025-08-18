@@ -38,7 +38,3 @@ export function isDebugButtonEnabled(metaTag) {
 export function isHighlightingEnabled(metaTag) {
   return metaTag.hasAttribute('highlighting');
 }
-
-export function isRefactorEnabled(metaTag) {
-  return metaTag.hasAttribute('refactor');
-}

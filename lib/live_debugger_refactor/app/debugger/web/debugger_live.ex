@@ -8,25 +8,30 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   use LiveDebuggerRefactor.App.Web, :live_view
 
   alias LiveDebuggerRefactor.App.Debugger.Web.Hooks
-  alias LiveDebuggerRefactor.App.Utils.Parsers
-  alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
-  alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebuggerRefactor.App.Debugger.Web.HookComponents
+  alias LiveDebuggerRefactor.App.Debugger.Web.Components.NavigationMenu
   alias LiveDebuggerRefactor.App.Debugger.Web.Components.Pages
   alias LiveDebuggerRefactor.App.Web.Components.Navbar
-  alias LiveDebuggerRefactor.App.Debugger.Web.Components.NavigationMenu
   alias LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton
+  alias LiveDebuggerRefactor.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebuggerRefactor.App.Utils.Parsers
+  alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
+
   alias LiveDebuggerRefactor.Bus
   alias LiveDebuggerRefactor.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebuggerRefactor.App.Events.DebuggerTerminated
 
   @impl true
   def mount(%{"pid" => string_pid}, _session, socket) do
+    if connected?(socket) do
+      Bus.receive_events!()
+    end
+
     string_pid
     |> Parsers.string_to_pid()
     |> case do
       {:ok, pid} ->
-        socket
-        |> Hooks.AsyncLvProcess.init(pid)
-        |> assign(:pid, pid)
+        init_debugger(socket, pid)
 
       :error ->
         push_navigate(socket, to: RoutesHelper.error("invalid_pid"))
@@ -64,7 +69,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
             class="sm:hidden"
           />
           <Navbar.live_debugger_logo_icon />
-          <Navbar.connected id="navbar-connected" lv_process={lv_process} />
+          <HookComponents.DeadViewMode.render id="navbar-connected" lv_process={lv_process} />
           <div class="flex items-center gap-2">
             <InspectButton.render inspect_mode?={@inspect_mode?} />
             <Navbar.settings_button return_to={@url} />
@@ -96,6 +101,23 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
     """
   end
 
+  @impl true
+  def handle_info(_, socket), do: {:noreply, socket}
+
+  @impl true
+  def terminate(_, _) do
+    Bus.broadcast_event!(%DebuggerTerminated{
+      debugger_pid: self()
+    })
+  end
+
+  defp init_debugger(socket, pid) when is_pid(pid) do
+    socket
+    |> Hooks.AsyncLvProcess.init(pid)
+    |> put_private(:pid, pid)
+    |> HookComponents.DeadViewMode.init()
+  end
+
   defp assign_and_broadcast_node_id(socket, %{"node_id" => node_id}) do
     socket_node_id = socket.assigns[:node_id]
 
@@ -118,7 +140,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.Web.DebuggerLive do
   end
 
   defp assign_and_broadcast_node_id(socket, _) do
-    assign(socket, :node_id, socket.assigns.pid)
+    assign(socket, :node_id, socket.private.pid)
   end
 
   defp get_return_link(lv_process, in_iframe?) do

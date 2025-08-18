@@ -162,11 +162,11 @@ defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.Web.ComponentsTreeLiv
 
   defp highlight_element(
          %{assigns: %{highlight?: true, lv_process: %{pid: pid}}} = socket,
-         %{"search-attribute" => attr, "search-value" => val} = params
+         params
        ) do
     payload = %{
-      attr: attr,
-      val: val,
+      attr: params["search-attribute"],
+      val: params["search-value"],
       type: if(params["type"] == "live_view", do: "LiveView", else: "LiveComponent"),
       module: Parsers.module_to_string(params["module"]),
       id_value: params["id"],

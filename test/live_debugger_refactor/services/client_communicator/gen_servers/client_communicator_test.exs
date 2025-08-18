@@ -6,7 +6,7 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
   alias LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientCommunicator
   alias LiveDebuggerRefactor.Services.ClientCommunicator.Queries.LvProcess
   alias LiveDebuggerRefactor.Structs.LvProcess
-  alias LiveDebuggerRefactor.Fakes
+  alias LiveDebugger.Fakes
   alias LiveDebuggerRefactor.MockClient
   alias LiveDebuggerRefactor.MockAPILiveViewDiscovery
   alias LiveDebuggerRefactor.MockAPILiveViewDebug
