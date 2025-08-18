@@ -5,7 +5,7 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.Queries.LvProcessTest
 
   alias LiveDebuggerRefactor.Services.ClientCommunicator.Queries.LvProcess, as: LvProcessQueries
   alias LiveDebuggerRefactor.Structs.LvProcess
-  alias LiveDebuggerRefactor.Fakes
+  alias LiveDebugger.Fakes
   alias LiveDebuggerRefactor.MockAPILiveViewDiscovery
   alias LiveDebuggerRefactor.MockAPILiveViewDebug
 
