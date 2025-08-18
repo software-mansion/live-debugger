@@ -9,7 +9,6 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
   @callback debugger_lv_processes() :: [LvProcess.t()]
   @callback lv_process(pid :: pid()) :: LvProcess.t() | nil
   @callback lv_process(socket_id :: String.t()) :: LvProcess.t() | nil
-  @callback successor_lv_process(LvProcess.t()) :: LvProcess.t() | nil
   @callback group_lv_processes([LvProcess.t()]) :: %{pid() => %{LvProcess.t() => [LvProcess.t()]}}
   @callback lv_processes() :: [LvProcess.t()]
   @callback children_lv_processes(pid(), searched_lv_processes :: [LvProcess.t()] | nil) ::
@@ -50,20 +49,6 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
   @spec lv_process(socket_id :: String.t()) :: LvProcess.t() | nil
   def lv_process(socket_id) when is_binary(socket_id) do
     impl().lv_process(socket_id)
-  end
-
-  @doc """
-  Finds a successor LiveView process based on the following priority:
-  1. A non-nested, non-embedded process with matching transport_pid
-  2. A single process with matching transport_pid
-  3. A single non-nested, non-embedded process in the entire process list with matching module
-  4. A single non-nested process in the entire process list with matching module
-  5. A single process in the entire process list with matching module
-  Returns nil if no suitable successor is found.
-  """
-  @spec successor_lv_process(lv_process :: LvProcess.t()) :: LvProcess.t() | nil
-  def successor_lv_process(lv_process) do
-    impl().successor_lv_process(lv_process)
   end
 
   @spec group_lv_processes([LvProcess.t()]) :: %{pid() => %{LvProcess.t() => [LvProcess.t()]}}
@@ -121,67 +106,6 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
     def lv_process(socket_id) when is_binary(socket_id) do
       debugged_lv_processes()
       |> Enum.find(&(&1.socket_id == socket_id))
-    end
-
-    @impl true
-    def successor_lv_process(lv_process) do
-      processes = debugged_lv_processes()
-      module = lv_process.module
-
-      transport_processes =
-        Enum.filter(processes, &(&1.transport_pid == lv_process.transport_pid))
-
-      find_successor_by_priority(transport_processes, processes, module)
-    end
-
-    defp find_successor_by_priority(transport_processes, all_processes, module) do
-      find_first_match([
-        # Priority 1: Find a non-nested, non-embedded process with matching transport_pid
-        fn -> find_non_nested_non_embedded(transport_processes) end,
-        # Priority 2: Use single process with matching transport_pid if it exists
-        fn -> find_single_process(transport_processes) end,
-        # Priority 3: Use single non-nested, non-embedded process if it exists
-        fn -> find_single_non_nested_non_embedded(all_processes, module) end,
-        # Priority 4: Use single non-nested process if it exists
-        fn -> find_single_non_nested(all_processes, module) end,
-        # Priority 5: Use single process if it exists
-        fn -> find_single_process(all_processes, module) end
-      ])
-    end
-
-    defp find_first_match(functions) do
-      Enum.reduce_while(functions, nil, fn fun, _acc ->
-        case fun.() do
-          nil -> {:cont, nil}
-          result -> {:halt, result}
-        end
-      end)
-    end
-
-    defp find_non_nested_non_embedded(processes) do
-      Enum.find(processes, &(not &1.nested? and not &1.embedded?))
-    end
-
-    defp find_single_process(processes, module) do
-      processes
-      |> Enum.filter(&(&1.module == module))
-      |> find_single_process()
-    end
-
-    defp find_single_non_nested_non_embedded(processes, module) do
-      processes
-      |> Enum.filter(&(not &1.nested? and not &1.embedded? and &1.module == module))
-      |> find_single_process()
-    end
-
-    defp find_single_non_nested(processes, module) do
-      processes
-      |> Enum.filter(&(not &1.nested? and &1.module == module))
-      |> find_single_process()
-    end
-
-    defp find_single_process(processes) do
-      if length(processes) == 1, do: List.first(processes), else: nil
     end
 
     @impl true
