@@ -76,7 +76,8 @@ export default function initElementInspection({
     const rootID = rootElement?.id || liveViewElement.dataset.phxRootId;
 
     const detail = getHighlightDetail(componentElement, liveViewElement);
-    pushPulseEvent(detail);
+    const type = detail.attr === 'id' ? 'LiveView' : 'LiveComponent';
+    pushPulseEvent({ attr: detail.attr, val: detail.val, type });
 
     const url = new URL(`${baseURL}/redirect/${liveViewElement.id}`);
 
