@@ -27,6 +27,7 @@ export default function initElementInspection({
       sourceLiveViews = sourceLiveViews.filter((pid) => pid !== event.pid);
     }
   });
+
   const handleMove = (event) => {
     const liveViewElement = event.target.closest('[data-phx-session]');
     const componentElement = event.target.closest('[data-phx-component]');
