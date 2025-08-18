@@ -18,10 +18,10 @@ defmodule LiveDebuggerRefactor.Services.ClientCommunicator.GenServers.ClientComm
   end
 
   @impl true
-  def handle_info({"request-node-element", payload}, state) do
-    socket_id = payload["socket_id"]
-    root_socket_id = payload["root_socket_id"]
-
+  def handle_info(
+        {"request-node-element", %{"socket_id" => socket_id, "root_socket_id" => root_socket_id}},
+        state
+      ) do
     socket_id
     |> LvProcess.get_by_socket_id()
     |> case do
