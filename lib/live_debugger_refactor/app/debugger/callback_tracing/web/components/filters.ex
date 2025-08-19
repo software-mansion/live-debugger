@@ -3,7 +3,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Filte
   UI components for filters form.
   """
 
-  use LiveDebuggerWeb, :component
+  use LiveDebuggerRefactor.App.Web, :component
 
   attr(:title, :string, required: true, doc: "Displayed title of the group")
   attr(:group_name, :atom, required: true, doc: "Name of the group in the form")

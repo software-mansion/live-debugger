@@ -40,4 +40,6 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Events do
     cid: CommonTypes.cid() | nil,
     transport_pid: pid()
   )
+
+  defevent(StateChanged, pid: pid())
 end
