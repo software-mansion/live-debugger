@@ -70,7 +70,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
       displayed_trace: nil,
       traces_continuation: nil,
       sidebar_hidden?: true,
-      trace_search_query: "",
+      trace_search_phrase: "",
       node_id: nil
     )
     |> stream(:existing_traces, [], reset: true)
@@ -108,7 +108,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
             <div class="ml-2">
               <HookComponents.SearchInput.render
                 disabled?={@tracing_started?}
-                trace_search_query={@trace_search_query}
+                trace_search_phrase={@trace_search_phrase}
               />
             </div>
             <div class="flex gap-2 items-center h-8 px-2">

@@ -300,13 +300,13 @@ defmodule LiveDebuggerRefactor.API.TracesStorageTest do
       assert {[^trace1], _} =
                TracesStorageImpl.get!(pid,
                  functions: @all_functions,
-                 search_query: "dashboard"
+                 search_phrase: "dashboard"
                )
 
       assert {[^trace1], _} =
                TracesStorageImpl.get!(table,
                  functions: @all_functions,
-                 search_query: "dashboard"
+                 search_phrase: "dashboard"
                )
     end
 
@@ -336,13 +336,13 @@ defmodule LiveDebuggerRefactor.API.TracesStorageTest do
       assert {[^trace2], _} =
                TracesStorageImpl.get!(pid,
                  functions: @all_functions,
-                 search_query: "phrase"
+                 search_phrase: "phrase"
                )
 
       assert {[^trace2], _} =
                TracesStorageImpl.get!(table,
                  functions: @all_functions,
-                 search_query: "phrase"
+                 search_phrase: "phrase"
                )
     end
 
@@ -355,14 +355,41 @@ defmodule LiveDebuggerRefactor.API.TracesStorageTest do
       assert {[^trace1], _} =
                TracesStorageImpl.get!(pid,
                  functions: @all_functions,
-                 search_query: "casesensitive"
+                 search_phrase: "casesensitive"
                )
 
       assert {[^trace1], _} =
                TracesStorageImpl.get!(table,
                  functions: @all_functions,
-                 search_query: "casesensitive"
+                 search_phrase: "casesensitive"
                )
+    end
+
+    test "returns traces with pagination when phrase searching", %{pid: pid, table: table} do
+      trace1 = Fakes.trace(id: 1, pid: pid, args: [%{note: "phrase"}])
+      trace2 = Fakes.trace(id: 2, pid: pid, args: [%{note: "phrase"}])
+      trace3 = Fakes.trace(id: 3, pid: pid, args: [%{note: ""}])
+      trace4 = Fakes.trace(id: 4, pid: pid, args: [%{note: "phrase"}])
+
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+      :ets.insert(table, {trace3.id, trace3})
+      :ets.insert(table, {trace4.id, trace4})
+
+      {traces1, cont} =
+        TracesStorageImpl.get!(pid, limit: 2, functions: @all_functions, search_phrase: "phrase")
+
+      {traces2, cont} =
+        TracesStorageImpl.get!(pid,
+          cont: cont,
+          functions: @all_functions,
+          search_phrase: "phrase"
+        )
+
+      assert [trace1, trace2] == traces1
+      assert [trace4] == traces2
+      assert cont == :end_of_table
     end
   end
 

@@ -82,7 +82,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     * `:functions` - List of function names to filter traces by e.g ["handle_info/2", "render/1"]
     * `:execution_times` - Map specifying minimum and maximum execution time of a callback in microseconds
                         e.g. %{"exec_time_min" => 0, "exec_time_max" => 100}
-    * `:search_query` - String to filter traces by, performs a case-sensitive substring search on the entire Trace struct
+    * `:search_phrase` - String to filter traces by, performs a case-insensitive substring search on the entire Trace struct
   """
   @spec get!(table_identifier(), opts :: keyword()) ::
           {[Trace.t()], continuation()} | :end_of_table
@@ -202,25 +202,15 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     @impl true
     def get!(table_id, opts \\ []) do
       limit = Keyword.get(opts, :limit, @default_limit)
-      search_query = Keyword.get(opts, :search_query, "")
-      cont = Keyword.get(opts, :cont, nil)
 
       if limit < 1 do
         raise ArgumentError, "limit must be >= 1"
       end
 
-      raw_result =
-        case cont do
-          :end_of_table -> :end_of_table
-          nil -> existing_traces_start(table_id, opts)
-          _cont -> existing_traces_continuation(table_id, opts)
-        end
-
-      raw_result
-      |> normalize_entries()
-      |> filter_by_search(search_query)
-      |> format_response()
-      |> maybe_limit_response(limit)
+      case Keyword.get(opts, :search_phrase, "") do
+        "" -> regular_get!(table_id, limit, opts)
+        phrase -> get_with_search_phrase!(table_id, limit, phrase, opts)
+      end
     end
 
     @impl true
@@ -316,6 +306,32 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       end
     end
 
+    defp regular_get!(table_id, limit, opts) do
+      opts
+      |> Keyword.get(:cont, nil)
+      |> case do
+        :end_of_table -> :end_of_table
+        nil -> existing_traces_start!(table_id, limit, opts)
+        cont -> existing_traces_continuation(cont)
+      end
+      |> normalize_entries()
+      |> format_response()
+    end
+
+    defp get_with_search_phrase!(table_id, limit, search_phrase, opts) do
+      opts
+      |> Keyword.get(:cont, nil)
+      |> case do
+        :end_of_table -> :end_of_table
+        nil -> existing_traces_start_with_search_phrase!(table_id, opts)
+        cont -> existing_traces_continuation_with_search_phrase!(table_id, cont, opts)
+      end
+      |> normalize_entries()
+      |> filter_by_search(search_phrase)
+      |> format_response()
+      |> limit_response(limit)
+    end
+
     # Converts ETS entries of {key, Trace} to list of Trace structs
     defp normalize_entries(:end_of_table), do: :end_of_table
     defp normalize_entries(:"$end_of_table"), do: :end_of_table
@@ -340,7 +356,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       traces
       |> Enum.filter(fn trace ->
         trace
-        |> inspect()
+        |> inspect(limit: :infinity, structs: false)
         |> String.downcase()
         |> String.contains?(down)
       end)
@@ -357,12 +373,14 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
     defp format_response({traces, :"$end_of_table"}), do: {traces, :end_of_table}
     defp format_response({traces, cont}), do: {traces, cont}
 
-    @spec maybe_limit_response(
-            {[Trace.t()], continuation() | :searched_without_limit} | :end_of_table,
+    @spec limit_response(
+            {[Trace.t()], :searched_without_limit} | :end_of_table,
             limit :: pos_integer()
           ) ::
             {[Trace.t()], continuation()} | :end_of_table
-    defp maybe_limit_response({traces, :searched_without_limit}, limit) do
+    defp limit_response(:end_of_table, _), do: :end_of_table
+
+    defp limit_response({traces, :searched_without_limit}, limit) do
       if length(traces) > limit do
         traces = Enum.slice(traces, 0, limit)
         last_id = List.last(traces) |> Map.get(:id)
@@ -372,49 +390,52 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       end
     end
 
-    defp maybe_limit_response(:end_of_table, _), do: :end_of_table
-    defp maybe_limit_response({traces, cont}, _), do: {traces, cont}
-
-    @spec existing_traces_start(ets_table_id(), Keyword.t()) ::
-            {[ets_elem()], continuation() | :searched_without_limit} | :"$end_of_table"
-    defp existing_traces_start(table_id, opts) do
+    @spec existing_traces_start!(ets_table_id(), pos_integer(), Keyword.t()) ::
+            {[ets_elem()], continuation()} | :"$end_of_table"
+    defp existing_traces_start!(table_id, limit, opts) do
       match_spec = get_match_spec_from_opts(opts)
 
-      if Keyword.get(opts, :search_query, "") == "" do
-        table_id
-        |> ets_table()
-        |> :ets.select(match_spec, Keyword.get(opts, :limit, @default_limit))
-      else
-        table_id
-        |> ets_table()
-        |> :ets.select(match_spec)
-        |> case do
-          [] -> :"$end_of_table"
-          traces -> {traces, :searched_without_limit}
-        end
+      table_id
+      |> ets_table()
+      |> :ets.select(match_spec, limit)
+    end
+
+    @spec existing_traces_continuation(continuation()) ::
+            {[ets_elem()], continuation()} | :"$end_of_table"
+    defp existing_traces_continuation(cont) do
+      :ets.select(cont)
+    end
+
+    @spec existing_traces_start_with_search_phrase!(ets_table_id(), Keyword.t()) ::
+            {[ets_elem()], :searched_without_limit} | :"$end_of_table"
+    defp existing_traces_start_with_search_phrase!(table_id, opts) do
+      match_spec = get_match_spec_from_opts(opts)
+
+      table_id
+      |> ets_table()
+      |> :ets.select(match_spec)
+      |> case do
+        [] -> :"$end_of_table"
+        traces -> {traces, :searched_without_limit}
       end
     end
 
-    @spec existing_traces_continuation(ets_table_id(), Keyword.t()) ::
-            {[ets_elem()], continuation() | :searched_without_limit} | :"$end_of_table"
-    defp existing_traces_continuation(table_id, opts) do
-      cont = Keyword.get(opts, :cont, nil)
+    @spec existing_traces_continuation_with_search_phrase!(
+            ets_table_id(),
+            continuation(),
+            Keyword.t()
+          ) ::
+            {[ets_elem()], :searched_without_limit} | :"$end_of_table"
+    defp existing_traces_continuation_with_search_phrase!(table_id, {:last_id, last_id}, opts) do
+      match_spec = get_match_spec_from_opts(opts)
 
-      case cont do
-        {:last_id, last_id} ->
-          match_spec = get_match_spec_from_opts(opts)
-
-          table_id
-          |> ets_table()
-          |> :ets.select(match_spec)
-          |> Enum.drop_while(fn {id, _} -> id <= last_id end)
-          |> case do
-            [] -> :"$end_of_table"
-            traces -> {traces, :searched_without_limit}
-          end
-
-        _ ->
-          :ets.select(cont)
+      table_id
+      |> ets_table()
+      |> :ets.select(match_spec)
+      |> Enum.drop_while(fn {id, _} -> id <= last_id end)
+      |> case do
+        [] -> :"$end_of_table"
+        traces -> {traces, :searched_without_limit}
       end
     end
 

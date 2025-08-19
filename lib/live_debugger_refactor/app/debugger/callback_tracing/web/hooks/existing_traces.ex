@@ -46,7 +46,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.ExistingTr
         functions: FiltersHelpers.get_active_functions(socket.assigns.current_filters),
         execution_times: FiltersHelpers.get_execution_times(socket.assigns.current_filters),
         node_id: Map.get(socket.assigns, :node_id),
-        search_query: Map.get(socket.assigns, :trace_search_query, "")
+        search_phrase: Map.get(socket.assigns, :trace_search_phrase, "")
       ]
 
     socket

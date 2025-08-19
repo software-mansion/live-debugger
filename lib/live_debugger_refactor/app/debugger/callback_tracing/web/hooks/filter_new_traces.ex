@@ -44,7 +44,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.FilterNewT
   defp filter_trace_event(socket, trace_event) do
     with true <- matches_node_id?(socket, trace_event),
          true <- matches_function_filter?(socket, trace_event),
-         true <- matches_search_query?(socket, trace_event) do
+         true <- matches_search_phrase?(socket, trace_event) do
       {:cont, socket}
     else
       _ -> {:halt, socket}
@@ -68,8 +68,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.FilterNewT
     socket.assigns.current_filters.functions["#{function}/#{arity}"]
   end
 
-  defp matches_search_query?(socket, %{ets_ref: ets_ref, trace_id: trace_id}) do
-    case Map.get(socket.assigns, :trace_search_query, "") do
+  defp matches_search_phrase?(socket, %{ets_ref: ets_ref, trace_id: trace_id}) do
+    case Map.get(socket.assigns, :trace_search_phrase, "") do
       "" ->
         true
 
