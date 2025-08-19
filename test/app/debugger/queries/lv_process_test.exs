@@ -1,17 +1,17 @@
-defmodule LiveDebuggerRefactor.App.Debugger.Queries.LvProcessTest do
+defmodule LiveDebugger.App.Debugger.Queries.LvProcessTest do
   use ExUnit.Case, async: true
 
   import Mox
 
   setup :verify_on_exit!
 
-  alias LiveDebuggerRefactor.Structs.LvState
-  alias LiveDebuggerRefactor.App.Debugger.Queries.LvProcess, as: LvProcessQueries
-  alias LiveDebuggerRefactor.MockAPIStatesStorage
-  alias LiveDebuggerRefactor.MockAPILiveViewDebug
-  alias LiveDebuggerRefactor.MockAPILiveViewDiscovery
+  alias LiveDebugger.Structs.LvState
+  alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
+  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.MockAPILiveViewDiscovery
   alias LiveDebugger.Fakes
-  alias LiveDebuggerRefactor.Structs.LvProcess
+  alias LiveDebugger.Structs.LvProcess
 
   describe "get_successor_with_retries/1" do
     test "returns nil after 3 tries" do

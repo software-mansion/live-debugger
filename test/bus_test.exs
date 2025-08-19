@@ -1,18 +1,18 @@
-defmodule LiveDebuggerRefactor.BusTest do
+defmodule LiveDebugger.BusTest do
   @moduledoc false
 
   use ExUnit.Case, async: true
 
-  alias LiveDebuggerRefactor.Bus.Impl, as: BusImpl
+  alias LiveDebugger.Bus.Impl, as: BusImpl
 
   defmodule TestEvents do
-    use LiveDebuggerRefactor.Event
+    use LiveDebugger.Event
 
     defevent(TestEvent, name: String.t())
   end
 
   setup do
-    start_supervised({Phoenix.PubSub, name: LiveDebuggerRefactor.Bus.PubSub})
+    start_supervised({Phoenix.PubSub, name: LiveDebugger.Bus.PubSub})
     :ok
   end
 
@@ -20,10 +20,9 @@ defmodule LiveDebuggerRefactor.BusTest do
     test "appends bus to the children" do
       assert BusImpl.append_bus_tree([]) == [
                %{
-                 id: LiveDebuggerRefactor.Bus.PubSub,
+                 id: LiveDebugger.Bus.PubSub,
                  start:
-                   {Phoenix.PubSub.Supervisor, :start_link,
-                    [[name: LiveDebuggerRefactor.Bus.PubSub]]},
+                   {Phoenix.PubSub.Supervisor, :start_link, [[name: LiveDebugger.Bus.PubSub]]},
                  type: :supervisor
                }
              ]

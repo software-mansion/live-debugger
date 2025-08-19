@@ -27,17 +27,17 @@ defmodule LiveDebugger do
     put_endpoint_config(config)
     put_live_debugger_tags(config)
 
-    if LiveDebuggerRefactor.Env.unit_test?() do
+    if LiveDebugger.Env.unit_test?() do
       []
     else
-      LiveDebuggerRefactor.API.SettingsStorage.init()
-      LiveDebuggerRefactor.API.TracesStorage.init()
-      LiveDebuggerRefactor.API.StatesStorage.init()
+      LiveDebugger.API.SettingsStorage.init()
+      LiveDebugger.API.TracesStorage.init()
+      LiveDebugger.API.StatesStorage.init()
 
       []
-      |> LiveDebuggerRefactor.App.append_app_children()
-      |> LiveDebuggerRefactor.Bus.append_bus_tree()
-      |> LiveDebuggerRefactor.Services.append_services_children()
+      |> LiveDebugger.App.append_app_children()
+      |> LiveDebugger.Bus.append_bus_tree()
+      |> LiveDebugger.Services.append_services_children()
     end
   end
 
@@ -70,7 +70,7 @@ defmodule LiveDebugger do
         Keyword.put(endpoint_config, :server, endpoint_server)
       end
 
-    Application.put_env(@app_name, LiveDebuggerRefactor.App.Web.Endpoint, endpoint_config)
+    Application.put_env(@app_name, LiveDebugger.App.Web.Endpoint, endpoint_config)
   end
 
   defp put_live_debugger_tags(config) do
@@ -101,7 +101,7 @@ defmodule LiveDebugger do
       devtools_allow_redirects: devtools_allow_redirects
     }
 
-    tags = LiveDebuggerRefactor.Client.ConfigComponent.live_debugger_tags(assigns)
+    tags = LiveDebugger.Client.ConfigComponent.live_debugger_tags(assigns)
     Application.put_env(@app_name, :live_debugger_tags, tags)
   end
 end

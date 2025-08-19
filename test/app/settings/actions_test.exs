@@ -1,13 +1,13 @@
-defmodule LiveDebuggerRefactor.App.Settings.ActionsTest do
+defmodule LiveDebugger.App.Settings.ActionsTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.App.Settings.Actions, as: SettingsActions
-  alias LiveDebuggerRefactor.MockAPISettingsStorage
+  alias LiveDebugger.App.Settings.Actions, as: SettingsActions
+  alias LiveDebugger.MockAPISettingsStorage
 
-  alias LiveDebuggerRefactor.MockBus
-  alias LiveDebuggerRefactor.App.Events.UserChangedSettings
+  alias LiveDebugger.MockBus
+  alias LiveDebugger.App.Events.UserChangedSettings
 
   setup :verify_on_exit!
 

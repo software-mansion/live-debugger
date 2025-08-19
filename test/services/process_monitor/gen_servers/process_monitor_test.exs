@@ -1,18 +1,18 @@
-defmodule LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
+defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.GenServers.ProcessMonitor
-  alias LiveDebuggerRefactor.MockAPILiveViewDebug
+  alias LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor
+  alias LiveDebugger.MockAPILiveViewDebug
 
-  alias LiveDebuggerRefactor.MockBus
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewBorn
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentDeleted
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveComponentCreated
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
+  alias LiveDebugger.MockBus
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
 
   setup :verify_on_exit!
 

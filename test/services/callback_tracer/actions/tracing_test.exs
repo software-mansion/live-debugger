@@ -1,12 +1,12 @@
-defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.TracingTest do
+defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Actions.Tracing, as: TracingActions
-  alias LiveDebuggerRefactor.MockAPIDbg
-  alias LiveDebuggerRefactor.MockAPIModule
-  alias LiveDebuggerRefactor.MockAPISettingsStorage
+  alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
+  alias LiveDebugger.MockAPIDbg
+  alias LiveDebugger.MockAPIModule
+  alias LiveDebugger.MockAPISettingsStorage
 
   setup :verify_on_exit!
 

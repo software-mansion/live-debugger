@@ -1,7 +1,7 @@
-defmodule LiveDebuggerRefactor.App.Utils.FormatTest do
+defmodule LiveDebugger.App.Utils.FormatTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebuggerRefactor.App.Utils.Format
+  alias LiveDebugger.App.Utils.Format
 
   test "kebab_to_text/1 converts kebab case to sentence" do
     assert Format.kebab_to_text("hello-world") == "Hello world"

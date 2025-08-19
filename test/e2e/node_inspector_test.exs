@@ -5,7 +5,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   feature "user can see traces of executed callbacks and updated assigns", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
 
     dev_app
     |> visit(@dev_app_url)
@@ -136,7 +136,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   feature "user can change nodes using node tree and see their assigns and callback traces", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
 
     dev_app
     |> visit(@dev_app_url)
@@ -169,7 +169,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can filter traces by callback name", %{sessions: [dev_app, debugger]} do
-    LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
 
     dev_app
     |> visit(@dev_app_url)
@@ -266,7 +266,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can filter traces by execution time", %{sessions: [dev_app, debugger]} do
-    LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
 
     dev_app
     |> visit(@dev_app_url)
@@ -336,7 +336,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can filter traces by names and execution time", %{sessions: [dev_app, debugger]} do
-    LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
 
     dev_app
     |> visit(@dev_app_url)
@@ -446,7 +446,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can inspect arguments of executed callback", %{sessions: [dev_app, debugger]} do
-    LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
 
     dev_app
     |> visit(@dev_app_url)
@@ -494,7 +494,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   feature "when user navigates in debugged app, it causes dead view mode", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
 
     dev_app
     |> visit(@dev_app_url)
@@ -526,7 +526,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can copy values", %{sessions: [dev_app, debugger]} do
-    LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
 
     dev_app
     |> visit(@dev_app_url)

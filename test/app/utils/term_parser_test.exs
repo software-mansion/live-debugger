@@ -1,9 +1,9 @@
-defmodule LiveDebuggerRefactor.App.Utils.TermParserTest do
+defmodule LiveDebugger.App.Utils.TermParserTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebuggerRefactor.App.Utils.TermParser.DisplayElement
-  alias LiveDebuggerRefactor.App.Utils.TermParser.TermNode
-  alias LiveDebuggerRefactor.App.Utils.TermParser
+  alias LiveDebugger.App.Utils.TermParser.DisplayElement
+  alias LiveDebugger.App.Utils.TermParser.TermNode
+  alias LiveDebugger.App.Utils.TermParser
 
   defmodule TestStruct do
     defstruct [:field1, :field2]
