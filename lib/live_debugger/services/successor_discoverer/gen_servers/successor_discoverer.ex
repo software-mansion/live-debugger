@@ -88,6 +88,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
     window_id = get_window_from_socket(state, lv_process.socket_id)
     new_socket_id = get_socket_from_window(state, window_id)
     previous_socket_id = lv_process.socket_id
+    previous_pid = lv_process.pid
 
     lv_process
     |> SuccessorQueries.find_successor(new_socket_id)
@@ -97,7 +98,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
         state
 
       # If the successor is the same as the debugged process, it means that successor did not report itself yet.
-      %LvProcess{socket_id: ^previous_socket_id} ->
+      %LvProcess{pid: ^previous_pid} ->
         find_successor_after(lv_process, attempt)
         state
 

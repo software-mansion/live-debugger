@@ -68,6 +68,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
 
       lv_process = %LvProcess{
         socket_id: socket_id,
+        pid: :c.pid(0, 999, 0),
         transport_pid: transport_pid,
         nested?: false,
         embedded?: false
@@ -82,12 +83,14 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
         [
           %LvProcess{
             socket_id: "phx-successor",
+            pid: :c.pid(0, 888, 0),
             transport_pid: transport_pid,
             nested?: false,
             embedded?: false
           },
           %LvProcess{
             socket_id: "phx-456",
+            pid: :c.pid(0, 777, 0),
             transport_pid: :c.pid(0, 10, 0),
             nested?: false,
             embedded?: false
@@ -100,6 +103,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
                  old_socket_id: socket_id,
                  new_lv_process: %LvProcess{
                    socket_id: "phx-successor",
+                   pid: :c.pid(0, 888, 0),
                    transport_pid: transport_pid,
                    nested?: false,
                    embedded?: false
@@ -128,6 +132,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
 
       lv_process = %LvProcess{
         socket_id: socket_id,
+        pid: :c.pid(0, 999, 0),
         transport_pid: transport_pid,
         nested?: false,
         embedded?: false
@@ -142,18 +147,21 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
         [
           %LvProcess{
             socket_id: "phx-456",
+            pid: :c.pid(0, 555, 0),
             transport_pid: :c.pid(0, 10, 0),
             nested?: false,
             embedded?: false
           },
           %LvProcess{
             socket_id: "phx-789",
+            pid: :c.pid(0, 666, 0),
             transport_pid: :c.pid(0, 11, 0),
             nested?: false,
             embedded?: false
           },
           %LvProcess{
             socket_id: "phx-successor",
+            pid: :c.pid(0, 777, 0),
             transport_pid: :c.pid(0, 12, 0),
             nested?: false,
             embedded?: false
@@ -166,6 +174,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
                  old_socket_id: socket_id,
                  new_lv_process: %LvProcess{
                    socket_id: "phx-successor",
+                   pid: :c.pid(0, 777, 0),
                    transport_pid: :c.pid(0, 12, 0),
                    nested?: false,
                    embedded?: false
@@ -234,6 +243,42 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
 
       assert {:noreply, _state} = SuccessorDiscoverer.handle_info(event, state)
     end
+
+    test "reattempts to find successor when found process has same pid" do
+      socket_id = "phx-123"
+      transport_pid = :c.pid(0, 123, 0)
+      same_pid = :c.pid(0, 999, 0)
+
+      lv_process = %LvProcess{
+        socket_id: socket_id,
+        pid: same_pid,
+        transport_pid: transport_pid,
+        nested?: false,
+        embedded?: false
+      }
+
+      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn ->
+        [
+          %LvProcess{
+            socket_id: "phx-different-socket",
+            pid: same_pid,
+            transport_pid: transport_pid,
+            nested?: false,
+            embedded?: false
+          }
+        ]
+      end)
+
+      event = {:find_successor, lv_process, 0}
+
+      state = %State{
+        window_to_socket: %{"uuid1" => socket_id},
+        socket_to_window: %{socket_id => "uuid1"}
+      }
+
+      assert {:noreply, _state} = SuccessorDiscoverer.handle_info(event, state)
+      assert_receive({:find_successor, %LvProcess{socket_id: ^socket_id}, 1}, 500)
+    end
   end
 
   describe "handle_info/2 with combination of messages" do
@@ -267,6 +312,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
       # Step 3: Try to find successor for old socket
       lv_process = %LvProcess{
         socket_id: "socket-1",
+        pid: :c.pid(0, 999, 0),
         transport_pid: :c.pid(0, 123, 0),
         nested?: false,
         embedded?: false
@@ -277,6 +323,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
         [
           %LvProcess{
             socket_id: "socket-2",
+            pid: :c.pid(0, 888, 0),
             transport_pid: :c.pid(0, 456, 0),
             nested?: false,
             embedded?: false
@@ -290,6 +337,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
                  old_socket_id: "socket-1",
                  new_lv_process: %LvProcess{
                    socket_id: "socket-2",
+                   pid: :c.pid(0, 888, 0),
                    transport_pid: :c.pid(0, 456, 0),
                    nested?: false,
                    embedded?: false
@@ -334,6 +382,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
       # Step 2: Server is down - try to find successor for socket-1 (but no successor exists yet)
       lv_process = %LvProcess{
         socket_id: "socket-1",
+        pid: :c.pid(0, 999, 0),
         transport_pid: :c.pid(0, 123, 0),
         nested?: false,
         embedded?: false
@@ -369,6 +418,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
       # Step 5: Try to find successor again (should succeed now)
       lv_process_2 = %LvProcess{
         socket_id: "socket-1",
+        pid: :c.pid(0, 999, 0),
         transport_pid: :c.pid(0, 123, 0),
         nested?: false,
         embedded?: false
@@ -379,6 +429,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
         [
           %LvProcess{
             socket_id: "socket-2",
+            pid: :c.pid(0, 888, 0),
             transport_pid: :c.pid(0, 456, 0),
             nested?: false,
             embedded?: false
@@ -392,6 +443,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
                  old_socket_id: "socket-1",
                  new_lv_process: %LvProcess{
                    socket_id: "socket-2",
+                   pid: :c.pid(0, 888, 0),
                    transport_pid: :c.pid(0, 456, 0),
                    nested?: false,
                    embedded?: false
