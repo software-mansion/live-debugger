@@ -102,14 +102,12 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
         state
 
       %LvProcess{} = successor ->
-        new_state = remove_socket_from_window(state, previous_socket_id)
-
         Bus.broadcast_event!(%SuccessorFound{
           old_socket_id: previous_socket_id,
           new_lv_process: successor
         })
 
-        new_state
+        state
     end
     |> noreply()
   end
@@ -139,10 +137,6 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
 
   defp get_socket_from_window(state, window_id) do
     state.window_to_socket[window_id]
-  end
-
-  defp remove_socket_from_window(state, socket_id) do
-    %{state | socket_to_window: Map.delete(state.socket_to_window, socket_id)}
   end
 
   defp find_successor_after(lv_process, attempt) do
