@@ -117,7 +117,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
 
       assert {:noreply, state} = SuccessorDiscoverer.handle_info(event, state)
       assert state.window_to_socket == %{window_id => socket_id}
-      assert state.socket_to_window == %{}
+      assert state.socket_to_window == %{socket_id => window_id}
     end
 
     # This is a case when page was reloaded => WS connection was closed => transport pid was changed
@@ -188,7 +188,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
 
       assert {:noreply, state} = SuccessorDiscoverer.handle_info(event, state)
       assert state.window_to_socket == %{window_id => "phx-successor"}
-      assert state.socket_to_window == %{"phx-successor" => window_id}
+      assert state.socket_to_window == %{socket_id => window_id, "phx-successor" => window_id}
     end
 
     test "reattempts to find successor when attempt is less than 3" do
@@ -357,9 +357,9 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
       {:noreply, state} =
         SuccessorDiscoverer.handle_info({:find_successor, lv_process, 0}, state)
 
-      # Verify old socket was removed from state
+      # Verify old socket was not removed from state
       assert state.window_to_socket == %{"window-1" => "socket-2"}
-      assert state.socket_to_window == %{"socket-2" => "window-1"}
+      assert state.socket_to_window == %{"socket-1" => "window-1", "socket-2" => "window-1"}
     end
 
     test "handles server down scenario" do
@@ -463,9 +463,9 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
       {:noreply, state} =
         SuccessorDiscoverer.handle_info({:find_successor, lv_process_2, 0}, state)
 
-      # Verify old socket was removed from state
+      # Verify old socket was not removed from state
       assert state.window_to_socket == %{"window-1" => "socket-2"}
-      assert state.socket_to_window == %{"socket-2" => "window-1"}
+      assert state.socket_to_window == %{"socket-1" => "window-1", "socket-2" => "window-1"}
     end
   end
 end
