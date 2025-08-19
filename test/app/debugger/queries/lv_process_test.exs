@@ -12,7 +12,6 @@ defmodule LiveDebugger.App.Debugger.Queries.LvProcessTest do
   alias LiveDebugger.Fakes
   alias LiveDebugger.Structs.LvProcess
 
-
   describe "get_lv_process/1" do
     test "returns LvProcess when found" do
       pid = :c.pid(0, 0, 1)
