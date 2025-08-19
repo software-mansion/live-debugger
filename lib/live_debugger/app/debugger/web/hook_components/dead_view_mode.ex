@@ -12,7 +12,6 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
   alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
-  alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
 
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.FindSuccessor

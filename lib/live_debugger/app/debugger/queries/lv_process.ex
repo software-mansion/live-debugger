@@ -8,11 +8,6 @@ defmodule LiveDebugger.App.Debugger.Queries.LvProcess do
   alias LiveDebugger.App.Debugger.Queries.State, as: StateQueries
   alias LiveDebugger.Structs.LvProcess
 
-  @spec get_successor_with_retries(LvProcess.t()) :: LvProcess.t() | nil
-  def get_successor_with_retries(lv_process) do
-    fetch_with_retries(fn -> LiveViewDiscovery.successor_lv_process(lv_process) end)
-  end
-
   @doc """
   Same as `get_lv_process/1` but it uses timeout and retries to fetch the LvProcess.
   """
