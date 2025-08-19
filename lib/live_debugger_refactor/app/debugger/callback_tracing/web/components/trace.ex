@@ -84,8 +84,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace
   Callback name of the trace.
   """
   attr(:trace, Trace, required: true)
+  attr(:search_phrase, :string, default: "")
 
-  def callback_name(assigns) do
+  def callback_name(%{search_phrase: ""} = assigns) do
     assigns = assign(assigns, :content, Trace.callback_name(assigns.trace))
 
     ~H"""
@@ -93,16 +94,80 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Components.Trace
     """
   end
 
-  attr(:trace, Trace, required: true)
+  def callback_name(assigns) do
+    search_regex = ~r/#{Regex.escape(assigns.search_phrase)}/i
+    parts = Trace.callback_name(assigns.trace) |> get_parts(search_regex, trim: true)
 
-  def short_trace_content(assigns) do
-    assigns = assign(assigns, :content, Enum.map_join(assigns.trace.args, " ", &inspect/1))
+    dbg(parts)
+
+    assigns = assign(assigns, :parts, parts)
+
+    ~H"""
+    <p class="font-medium text-sm">
+      <%= for text <- @parts do %>
+        <%= if text =~ search_regex do %>
+          <mark><%= text %></mark>
+        <% else %>
+          <%= text %>
+        <% end %>
+      <% end %>
+    </p>
+    """
+  end
+
+  attr(:trace, Trace, required: true)
+  attr(:search_phrase, :string, default: "")
+
+  def short_trace_content(%{search_phrase: _} = assigns) do
+    assigns =
+      assign(
+        assigns,
+        :content,
+        Enum.map_join(assigns.trace.args, " ", &inspect(&1, limit: :infinity, structs: false))
+      )
 
     ~H"""
     <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
       <p class="hide-on-open mt-0.5"><%= @content %></p>
     </div>
     """
+  end
+
+  def short_trace_content(assigns) do
+    search_regex = ~r/#{Regex.escape(assigns.search_phrase)}/i
+
+    parts =
+      assigns.trace.args
+      |> Enum.map_join(" ", &inspect(&1, limit: :infinity, structs: false))
+      |> get_parts(search_regex)
+
+    assigns = assign(assigns, parts: parts)
+
+    ~H"""
+    <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
+      <p class="hide-on-open mt-0.5 whitespace-pre">
+        <%= for text <- @parts do %>
+          <%= if text =~ search_regex do %>
+            <mark><%= text %></mark>
+          <% else %>
+            <span><%= text %></span>
+          <% end %>
+        <% end %>
+      </p>
+    </div>
+    """
+  end
+
+  defp get_parts(text, search_regex, opts \\ []) do
+    parts = text |> String.split(search_regex, [include_captures: true] ++ opts)
+
+    first_part = List.first(parts)
+
+    if String.length(first_part) > 20 do
+      ["..." <> String.slice(first_part, -17..-1//1) | tl(parts)]
+    else
+      parts
+    end
   end
 
   @doc """

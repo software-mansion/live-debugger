@@ -38,6 +38,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
 
   attr(:id, :string, required: true)
   attr(:trace_display, TraceDisplay, required: true)
+  attr(:search_phrase, :string, default: "")
 
   slot(:body, required: true)
 
@@ -72,6 +73,8 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
           :for={label <- @label}
           id={@id <> "-label"}
           class={["w-[90%] grow grid items-center gap-x-3 ml-2" | List.wrap(label[:class])]}
+          phx-hook="SearchPhraseHighlight"
+          data-phrase={@search_phrase}
         >
           <%= render_slot(label) %>
         </div>

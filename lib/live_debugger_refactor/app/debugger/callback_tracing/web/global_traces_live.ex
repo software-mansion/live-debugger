@@ -129,11 +129,21 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.GlobalTracesLive
                 existing_traces={@streams.existing_traces}
               >
                 <:trace :let={{id, trace_display}}>
-                  <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
+                  <HookComponents.TraceWrapper.render
+                    id={id}
+                    trace_display={trace_display}
+                    search_phrase={@trace_search_query}
+                  >
                     <:label class="grid-cols-[auto_1fr_auto]">
                       <TraceComponents.module id={id} trace={trace_display.trace} class="col-span-3" />
-                      <TraceComponents.callback_name trace={trace_display.trace} />
-                      <TraceComponents.short_trace_content trace={trace_display.trace} />
+                      <TraceComponents.callback_name
+                        trace={trace_display.trace}
+                        search_phrase={@trace_search_query}
+                      />
+                      <TraceComponents.short_trace_content
+                        trace={trace_display.trace}
+                        search_phrase={@trace_search_query}
+                      />
                       <TraceComponents.trace_time_info id={id} trace_display={trace_display} />
                     </:label>
 

@@ -332,7 +332,7 @@ defmodule LiveDebuggerRefactor.API.TracesStorage do
       traces
       |> Enum.filter(fn trace ->
         trace
-        |> inspect()
+        |> inspect(limit: :infinity, printable_limit: :infinity, structs: false)
         |> String.downcase()
         |> String.contains?(down)
       end)

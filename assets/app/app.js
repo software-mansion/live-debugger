@@ -10,6 +10,7 @@ import LiveDropdown from './hooks/live_dropdown';
 import AutoClearFlash from './hooks/auto_clear_flash';
 import TraceExecutionTime from './hooks/trace_execution_time';
 import CopyButton from './hooks/copy_button';
+import SearchPhraseHighlight from './hooks/search_phrase_highlight';
 
 import topbar from './vendor/topbar';
 
@@ -32,6 +33,7 @@ function createHooks() {
     AutoClearFlash,
     TraceExecutionTime,
     CopyButton,
+    SearchPhraseHighlight,
   };
 }
 
