@@ -70,7 +70,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
       displayed_trace: nil,
       traces_continuation: nil,
       sidebar_hidden?: true,
-      trace_search_query: "",
+      trace_search_phrase: "",
       node_id: nil
     )
     |> stream(:existing_traces, [], reset: true)
@@ -94,8 +94,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
 
   @impl true
   def render(assigns) do
-    assigns = assign_load_more_button(assigns)
-
     ~H"""
     <div class="grow p-8 overflow-y-auto scrollbar-main">
       <div class="w-full min-w-[25rem] max-w-screen-2xl mx-auto">
@@ -110,7 +108,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
             <div class="ml-2">
               <HookComponents.SearchInput.render
                 disabled?={@tracing_started?}
-                trace_search_query={@trace_search_query}
+                trace_search_phrase={@trace_search_phrase}
               />
             </div>
             <div class="flex gap-2 items-center h-8 px-2">
@@ -144,7 +142,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                 </:trace>
               </HookComponents.Stream.render>
               <HookComponents.LoadMoreButton.render
-                :if={@load_more_button?}
+                :if={not @tracing_started? and not @traces_empty?}
                 traces_continuation={@traces_continuation}
               />
               <TraceComponents.trace_fullscreen
@@ -163,13 +161,5 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
       tracing_started?={@tracing_started?}
     />
     """
-  end
-
-  defp assign_load_more_button(assigns) do
-    load_more_button? =
-      not assigns.tracing_started? and not assigns.traces_empty? and
-        assigns.trace_search_query == ""
-
-    assign(assigns, :load_more_button?, load_more_button?)
   end
 end
