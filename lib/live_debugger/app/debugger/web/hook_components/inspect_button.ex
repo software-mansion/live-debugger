@@ -1,12 +1,12 @@
-defmodule LiveDebuggerRefactor.App.Debugger.Web.HookComponents.InspectButton do
+defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   @moduledoc """
   This component is used to inspect the node.
   It produces `inspect-node` event handled by hook added via `init/1`.
   """
 
-  use LiveDebuggerRefactor.App.Web, :hook_component
+  use LiveDebugger.App.Web, :hook_component
 
-  alias LiveDebuggerRefactor.Client
+  alias LiveDebugger.Client
 
   @impl true
   def init(socket) do
