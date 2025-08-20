@@ -8,7 +8,7 @@ function findRanges(root, search) {
   while (walker.nextNode()) {
     const node = walker.currentNode;
 
-    if (node.parentElement.classList.contains('whitespace-pre')) {
+    if (node.parentElement.dataset.text_item === 'true') {
       const start = text.length;
       text += node.nodeValue;
       const end = text.length;
