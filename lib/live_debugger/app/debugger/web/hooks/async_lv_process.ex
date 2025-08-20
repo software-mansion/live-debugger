@@ -22,10 +22,10 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
     |> attach_hook(:async_lv_process, :handle_async, &handle_async/3)
     |> register_hook(:async_lv_process)
     |> assign(:lv_process, AsyncResult.loading())
-    |> start_async(:lv_process, fn -> LvProcessQueries.get_lv_process_with_retries(pid) end)
+    |> start_async(:lv_process, fn -> get_lv_process_with_root_socket_id(pid) end)
   end
 
-  defp handle_async(:lv_process, {:ok, %LvProcess{} = lv_process}, socket) do
+  defp handle_async(:lv_process, {:ok, {%LvProcess{} = lv_process, root_socket_id}}, socket) do
     Bus.broadcast_event!(%DebuggerMounted{
       debugger_pid: self(),
       debugged_pid: lv_process.pid
@@ -33,7 +33,7 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
 
     socket
     |> assign(:lv_process, AsyncResult.ok(lv_process))
-    |> assign_root_socket_id(lv_process)
+    |> assign(:root_socket_id, root_socket_id)
     |> halt()
   end
 
@@ -55,19 +55,23 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
 
   defp handle_async(_, _, socket), do: {:cont, socket}
 
-  defp assign_root_socket_id(socket, lv_process) do
-    if lv_process.root_pid == lv_process.pid do
-      assign(socket, :root_socket_id, lv_process.socket_id)
-    else
-      lv_process.root_pid
-      |> StateQueries.get_socket()
-      |> case do
-        {:ok, %{id: socket_id}} ->
-          assign(socket, :root_socket_id, socket_id)
+  defp get_lv_process_with_root_socket_id(pid) do
+    with %LvProcess{} = lv_process <- LvProcessQueries.get_lv_process_with_retries(pid),
+         root_socket_id <- get_root_socket_id(lv_process) do
+      {lv_process, root_socket_id}
+    end
+  end
 
-        _ ->
-          assign(socket, :root_socket_id, nil)
-      end
+  defp get_root_socket_id(lv_process) when lv_process.root_pid == lv_process.pid do
+    lv_process.socket_id
+  end
+
+  defp get_root_socket_id(lv_process) do
+    lv_process.root_pid
+    |> StateQueries.get_socket()
+    |> case do
+      {:ok, %{id: socket_id}} -> socket_id
+      _ -> nil
     end
   end
 end
