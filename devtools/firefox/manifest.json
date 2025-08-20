@@ -11,9 +11,6 @@
     "128": "images/icon-128.png"
   },
   "devtools_page": "./devtools.html",
-  "background": {
-    "scripts": ["background.js"]
-  },
   "browser_specific_settings": {
     "gecko": {
       "id": "@live-debugger-addon-swm",
