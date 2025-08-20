@@ -20,7 +20,7 @@ function maybeShorten(text, maxLength = 150) {
   return text;
 }
 
-function adjustShortTraceContent(element, phrase) {
+function adjustTextContent(element, phrase) {
   match = element.textContent.match(new RegExp(RegExp.escape(phrase), 'i'));
 
   let shortened = element.textContent;
@@ -32,46 +32,27 @@ function adjustShortTraceContent(element, phrase) {
   element.textContent = maybeShorten(shortened);
 }
 
-function handleHighlight(phrase, callbackNameEl, traceContentEl) {
+function handleHighlight(phrase, element) {
   if (phrase === undefined || phrase === '') {
-    traceContentEl.textContent = maybeShorten(traceContentEl.textContent);
+    element.textContent = maybeShorten(element.textContent);
     return;
   }
 
-  adjustShortTraceContent(traceContentEl, phrase);
+  adjustTextContent(element, phrase);
 
   const phraseRegexp = new RegExp(RegExp.escape(phrase), 'gi');
-  const callbackNameRanges = constructRanges(callbackNameEl, phraseRegexp);
-  const traceContentRanges = constructRanges(traceContentEl, phraseRegexp);
+  const traceContentRanges = constructRanges(element, phraseRegexp);
 
-  highlightSearchRanges(...callbackNameRanges, ...traceContentRanges);
+  highlightSearchRanges(traceContentRanges);
 }
 
 const TraceLabelSearchHighlight = {
   mounted() {
-    const phrase = this.el.dataset.phrase;
-    const traceContentEl = this.el.querySelector('.short-trace-content');
-    const callbackNameEl = this.el.querySelector('.callback-name');
-
-    if (phrase === undefined || phrase === '') {
-      traceContentEl.textContent = maybeShorten(traceContentEl.textContent);
-      return;
-    }
-
-    adjustShortTraceContent(traceContentEl, phrase);
-
-    const phraseRegexp = new RegExp(RegExp.escape(phrase), 'gi');
-    const callbackNameRanges = constructRanges(callbackNameEl, phraseRegexp);
-    const traceContentRanges = constructRanges(traceContentEl, phraseRegexp);
-
-    highlightSearchRanges(...callbackNameRanges, ...traceContentRanges);
+    handleHighlight(this.el.dataset.search_phrase, this.el);
   },
   updated() {
-    const phrase = this.el.dataset.phrase;
-    const traceContentEl = this.el.querySelector('.short-trace-content');
-    const callbackNameEl = this.el.querySelector('.callback-name');
-
-    handleHighlight(phrase, callbackNameEl, traceContentEl);
+    console.log(this.el.dataset);
+    handleHighlight(this.el.dataset.search_phrase, this.el);
   },
 };
 

@@ -1,13 +1,13 @@
 import { highlightSearchRanges } from '../utils/dom';
 
 function findRanges(root, search) {
-  const ranges = [];
   let text = '';
   const parts = [];
-
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+
   while (walker.nextNode()) {
     const node = walker.currentNode;
+
     if (node.parentElement.classList.contains('whitespace-pre')) {
       const start = text.length;
       text += node.nodeValue;
@@ -16,9 +16,10 @@ function findRanges(root, search) {
     }
   }
 
-  const matches = text.matchAll(new RegExp(RegExp.escape(search), 'gi'));
+  const searchRegexp = new RegExp(RegExp.escape(search), 'gi');
+  const ranges = [];
 
-  for (const match of matches) {
+  for (const match of text.matchAll(searchRegexp)) {
     const matchStart = match.index;
     const matchEnd = matchStart + search.length;
 
@@ -27,7 +28,7 @@ function findRanges(root, search) {
       if (start >= matchEnd) break;
 
       let d = node.parentElement.closest('details');
-      while (d.dataset.open === 'false') {
+      while (d && d.dataset.open === 'false') {
         d.dataset.open = true;
         d = d.parentElement.closest('details');
       }
@@ -44,12 +45,12 @@ function findRanges(root, search) {
 
 const TraceBodySearchHighlight = {
   mounted() {
-    const phrase = this.el.dataset.phrase;
+    const phrase = this.el.dataset.search_phrase;
     if (phrase === undefined || phrase === '') return;
 
     const ranges = findRanges(this.el, phrase);
 
-    highlightSearchRanges(...ranges);
+    highlightSearchRanges(ranges);
   },
 };
 

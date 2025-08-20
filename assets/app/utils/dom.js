@@ -1,4 +1,4 @@
-export function highlightSearchRanges(...ranges) {
+export function highlightSearchRanges(ranges) {
   let highlight = CSS.highlights.get('search-highlight');
 
   if (highlight) {
