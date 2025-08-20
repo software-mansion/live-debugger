@@ -9,9 +9,9 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
 
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
+  alias LiveDebugger.App.Debugger.Queries.State, as: StateQueries
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
-  alias LiveDebugger.API.LiveViewDebug
 
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.DebuggerMounted
@@ -60,7 +60,7 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
       assign(socket, :root_socket_id, lv_process.socket_id)
     else
       lv_process.root_pid
-      |> LiveViewDebug.socket()
+      |> StateQueries.get_socket()
       |> case do
         {:ok, %{id: socket_id}} ->
           assign(socket, :root_socket_id, socket_id)
