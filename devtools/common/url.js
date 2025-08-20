@@ -27,6 +27,14 @@ function getLiveDebuggerSessionURL(browserElement) {
         function getSessionId() {
           let el;
           if ((el = document.querySelector('[data-phx-main]'))) {
+            return el.id;
+          }
+          if ((el = document.querySelector('[id^="phx-"]'))) {
+            return el.id;
+          }
+          if ((el = document.querySelector('[data-phx-root-id]'))) {
+            return el.getAttribute('data-phx-root-id');
+          }
           return null;
         }
 
