@@ -17,18 +17,5 @@ chrome.devtools.panels.create(
         }
       }
     });
-
-    chrome.webNavigation.onCompleted.addListener(async (details) => {
-      if (
-        details.tabId === chrome.devtools.inspectedWindow.tabId &&
-        (await allowRedirects(chrome))
-      ) {
-        try {
-          panelWindow.setIframeUrl(await getLiveDebuggerSessionURL(chrome));
-        } catch (error) {
-          panelWindow.setIframeUrl(null);
-        }
-      }
-    });
-  },
+  }
 );

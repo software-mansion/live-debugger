@@ -14,7 +14,6 @@ defmodule LiveDebugger.Client.ConfigComponent do
   attr(:debug_button?, :boolean, default: true)
   attr(:highlighting?, :boolean, default: true)
   attr(:version, :string, default: nil)
-  attr(:devtools_allow_redirects, :boolean, default: false)
 
   def live_debugger_tags(assigns) do
     ~H"""
@@ -24,7 +23,6 @@ defmodule LiveDebugger.Client.ConfigComponent do
       version={@version}
       debug-button={@debug_button?}
       highlighting={@highlighting?}
-      devtools-allow-redirects={@devtools_allow_redirects}
     />
     <%= if @browser_features? do %>
       <script src={@js_url}>
