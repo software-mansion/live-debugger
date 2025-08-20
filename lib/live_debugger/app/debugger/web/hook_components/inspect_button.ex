@@ -29,12 +29,6 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
     """
   end
 
-  defp handle_info(:inspect_node, socket) do
-    socket
-    |> assign(:inspect_node, true)
-    |> halt()
-  end
-
   defp handle_info({"element-inspected", %{"pid" => pid, "url" => url}}, socket) do
     if pid == inspect(self()) do
       socket
