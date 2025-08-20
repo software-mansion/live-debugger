@@ -18,6 +18,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
 
   @doc """
   Renders the `ComponentsTreeLive` as a nested LiveView component.
@@ -70,6 +71,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     |> assign(root_socket_id: session["root_socket_id"])
     |> assign(url: session["url"])
     |> assign(highlight?: false)
+    |> assign(highlight_disabled?: false)
     |> assign_async_tree()
     |> ok()
   end
@@ -93,6 +95,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
             label="Highlight"
             checked={@highlight?}
             phx-click="toggle-highlight"
+            disabled={@highlight_disabled?}
           />
         </div>
         <div class="flex-1">
@@ -154,6 +157,15 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
       ) do
     socket
     |> assign(node_id: node_id)
+    |> noreply()
+  end
+
+  def handle_info(
+        %DeadViewModeEntered{debugger_pid: pid},
+        %{assigns: %{parent_pid: pid}} = socket
+      ) do
+    socket
+    |> assign(highlight_disabled?: true)
     |> noreply()
   end
 

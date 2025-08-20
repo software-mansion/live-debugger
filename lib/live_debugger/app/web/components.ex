@@ -605,19 +605,29 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:label, :string, default: "", doc: "Label for the switch.")
   attr(:wrapper_class, :any, default: nil, doc: "Additional classes to add to the switch.")
   attr(:id, :string, required: true, doc: "ID of the switch.")
+  attr(:disabled, :boolean, default: false, doc: "Whether the switch is disabled.")
   attr(:rest, :global)
 
   def toggle_switch(assigns) do
     ~H"""
-    <label class={[
-      "inline-flex items-center cursor-pointer pr-6 py-3"
-      | List.wrap(@wrapper_class)
-    ]}>
+    <label class={
+      [
+        "inline-flex items-center pr-6 py-3",
+        if(@disabled, do: "opacity-50", else: "cursor-pointer")
+      ] ++ List.wrap(@wrapper_class)
+    }>
       <span class="text-xs font-normal text-primary-text mx-2">
         <%= @label %>
       </span>
       <form>
-        <input id={@id} type="checkbox" class="sr-only peer" checked={@checked} {@rest} />
+        <input
+          id={@id}
+          type="checkbox"
+          class="sr-only peer"
+          checked={@checked}
+          disabled={@disabled}
+          {@rest}
+        />
         <div class="relative w-9 h-5 bg-ui-muted peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ui-accent rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-ui-surface after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-ui-accent ">
         </div>
       </form>
