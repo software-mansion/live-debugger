@@ -38,7 +38,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
 
   attr(:id, :string, required: true)
   attr(:trace_display, TraceDisplay, required: true)
-  attr(:search_phrase, :string, default: "")
+  attr(:search_phrase, :string, default: nil)
 
   slot(:body, required: true)
 
@@ -73,7 +73,7 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
           :for={label <- @label}
           id={@id <> "-label"}
           class={["w-[90%] grow grid items-center gap-x-3 ml-2" | List.wrap(label[:class])]}
-          phx-hook="SearchPhraseHighlight"
+          phx-hook={if @search_phrase != nil, do: "TraceLabelSearchHighlight", else: false}
           data-phrase={@search_phrase}
         >
           <%= render_slot(label) %>
@@ -90,7 +90,13 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.HookComponents.T
         </div>
         <div class="flex flex-col gap-4 overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
           <%= if @render_body? do %>
-            <%= render_slot(@body) %>
+            <div
+              id={@id <> "-body"}
+              phx-hook={if @search_phrase != nil, do: "TraceBodySearchHighlight", else: false}
+              data-phrase={@search_phrase}
+            >
+              <%= render_slot(@body) %>
+            </div>
           <% else %>
             <div class="w-full flex items-center justify-center">
               <.spinner size="sm" />

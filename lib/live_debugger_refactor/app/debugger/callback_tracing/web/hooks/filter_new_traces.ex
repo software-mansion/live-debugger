@@ -75,9 +75,9 @@ defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Hooks.FilterNewT
 
       search ->
         TracesStorage.get_by_id!(ets_ref, trace_id)
-        |> inspect()
+        |> inspect(limit: :infinity, structs: false)
         |> String.downcase()
-        |> String.contains?(search)
+        |> String.contains?(String.downcase(search))
     end
   end
 end
