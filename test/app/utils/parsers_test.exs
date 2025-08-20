@@ -1,7 +1,7 @@
-defmodule LiveDebuggerRefactor.App.Utils.ParsersTest do
+defmodule LiveDebugger.App.Utils.ParsersTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebuggerRefactor.App.Utils.Parsers
+  alias LiveDebugger.App.Utils.Parsers
 
   describe "parse_timestamp/1" do
     test "parses a valid timestamp" do

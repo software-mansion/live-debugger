@@ -1,7 +1,7 @@
-defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
+defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
   describe "get_callbacks/1" do
     test "returns all callbacks when node_id is nil" do

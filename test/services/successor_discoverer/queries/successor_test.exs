@@ -1,11 +1,11 @@
-defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.Queries.SuccessorTest do
+defmodule LiveDebugger.Services.SuccessorDiscoverer.Queries.SuccessorTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.MockAPILiveViewDiscovery
-  alias LiveDebuggerRefactor.Services.SuccessorDiscoverer.Queries.Successor
-  alias LiveDebuggerRefactor.Structs.LvProcess
+  alias LiveDebugger.MockAPILiveViewDiscovery
+  alias LiveDebugger.Services.SuccessorDiscoverer.Queries.Successor
+  alias LiveDebugger.Structs.LvProcess
 
   setup :verify_on_exit!
 

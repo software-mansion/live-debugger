@@ -1,13 +1,13 @@
-defmodule LiveDebuggerRefactor.Services.ClientCommunicator.Queries.LvProcessTest do
+defmodule LiveDebugger.Services.ClientCommunicator.Queries.LvProcessTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.Services.ClientCommunicator.Queries.LvProcess, as: LvProcessQueries
-  alias LiveDebuggerRefactor.Structs.LvProcess
+  alias LiveDebugger.Services.ClientCommunicator.Queries.LvProcess, as: LvProcessQueries
+  alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Fakes
-  alias LiveDebuggerRefactor.MockAPILiveViewDiscovery
-  alias LiveDebuggerRefactor.MockAPILiveViewDebug
+  alias LiveDebugger.MockAPILiveViewDiscovery
+  alias LiveDebugger.MockAPILiveViewDebug
 
   setup :verify_on_exit!
 

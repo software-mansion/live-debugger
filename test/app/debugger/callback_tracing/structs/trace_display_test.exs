@@ -1,7 +1,7 @@
-defmodule LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplayTest do
+defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplayTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebuggerRefactor.App.Debugger.CallbackTracing.Structs.TraceDisplay
+  alias LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay
   alias LiveDebugger.Fakes
 
   test "from_trace/1 creates a TraceDisplay struct" do

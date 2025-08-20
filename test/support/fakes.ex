@@ -13,7 +13,7 @@ defmodule LiveDebugger.Fakes do
     ]
 
     Kernel.struct!(
-      LiveDebuggerRefactor.App.Debugger.Structs.TreeNode,
+      LiveDebugger.App.Debugger.Structs.TreeNode,
       Keyword.merge(default, opts)
     )
   end
@@ -28,7 +28,7 @@ defmodule LiveDebugger.Fakes do
     ]
 
     Kernel.struct!(
-      LiveDebuggerRefactor.App.Debugger.Structs.TreeNode,
+      LiveDebugger.App.Debugger.Structs.TreeNode,
       Keyword.merge(default, opts)
     )
   end
@@ -49,7 +49,7 @@ defmodule LiveDebugger.Fakes do
 
     fields = Keyword.merge(default, opts)
 
-    Kernel.struct!(LiveDebuggerRefactor.Structs.Trace, fields)
+    Kernel.struct!(LiveDebugger.Structs.Trace, fields)
   end
 
   def liveview(opts \\ []) do

@@ -1,7 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 
-const KEY = 'lvdbg:window-id';
-
 export default function pushWindowInitialized(debugChannel, socketID) {
   const windowID = maybeSetWindowID();
 
@@ -12,12 +10,12 @@ export default function pushWindowInitialized(debugChannel, socketID) {
 }
 
 function maybeSetWindowID() {
-  const windowID = sessionStorage.getItem(KEY);
+  const windowID = window.name;
   if (windowID) {
     return windowID;
   }
 
   const newWindowID = uuidv4();
-  sessionStorage.setItem(KEY, newWindowID);
+  window.name = newWindowID;
   return newWindowID;
 }

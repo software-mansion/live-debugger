@@ -1,15 +1,15 @@
-defmodule LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.QueriesTest do
+defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.QueriesTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.Structs.LvState
+  alias LiveDebugger.Structs.LvState
 
-  alias LiveDebuggerRefactor.App.Debugger.NestedLiveViewLinks.Queries,
+  alias LiveDebugger.App.Debugger.NestedLiveViewLinks.Queries,
     as: NestedLiveViewLinksQueries
 
-  alias LiveDebuggerRefactor.MockAPIStatesStorage
-  alias LiveDebuggerRefactor.MockAPILiveViewDebug
+  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.MockAPILiveViewDebug
 
   setup :verify_on_exit!
 
