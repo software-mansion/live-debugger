@@ -63,7 +63,7 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
 
   defp get_lv_process_with_root_socket_id(pid) do
     with %LvProcess{} = lv_process <- LvProcessQueries.get_lv_process_with_retries(pid),
-         {:ok, root_socket_id} <- get_root_socket_id(lv_process) |> dbg() do
+         {:ok, root_socket_id} <- get_root_socket_id(lv_process) do
       {lv_process, root_socket_id}
     else
       {:error, :root_socket_id_not_found} -> :root_socket_id_not_found
