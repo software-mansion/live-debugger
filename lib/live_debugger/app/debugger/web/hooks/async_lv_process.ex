@@ -37,6 +37,7 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
 
   defp handle_async(:lv_process, {:ok, nil}, socket) do
     socket
+    |> put_flash(:error, "Process not found")
     |> push_navigate(to: RoutesHelper.discovery())
     |> halt()
   end
