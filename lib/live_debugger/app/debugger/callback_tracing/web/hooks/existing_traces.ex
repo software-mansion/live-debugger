@@ -51,6 +51,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.ExistingTraces do
 
     socket
     |> assign(:traces_empty?, true)
+    |> stream(:existing_traces, [], reset: true)
     |> start_async(:fetch_existing_traces, fn -> TracesStorage.get!(pid, opts) end)
   end
 
