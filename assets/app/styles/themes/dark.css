@@ -68,5 +68,7 @@
 
     /* Warning */
     --warning-text: var(--swm-yellow-40);
+
+    --search-highlight: var(--swm-yellow-100);
   }
 }

@@ -71,5 +71,5 @@ body {
 }
 
 ::highlight(search-highlight) {
-  background-color: yellow;
+  background-color: var(--search-highlight);
 }

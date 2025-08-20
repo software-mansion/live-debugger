@@ -67,4 +67,6 @@
 
   /* Warning */
   --warning-text: #9a7e00;
+
+  --search-highlight: var(--swm-yellow-80);
 }
