@@ -98,27 +98,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   end
 
   @sessions 2
-  feature "return button redirects to window dashboard in case of iframe", %{
-    sessions: [dev_app, debugger]
-  } do
-    LiveDebugger.MockIframeCheck
-    |> stub(:on_mount, fn _, _, _, socket ->
-      {:cont, Phoenix.Component.assign(socket, :in_iframe?, true)}
-    end)
-
-    dev_app
-    |> visit(@dev_app_url)
-
-    debugger
-    |> visit("/")
-    |> click(first_link())
-    |> assert_has(css("div#traces", text: "Callback traces"))
-    |> click(return_button())
-    |> assert_has(css("h1", text: "Active LiveViews in a single window"))
-  end
-
-  @sessions 2
-  feature "return button redirects to active live views dashboard not in iframe", %{
+  feature "return button redirects to active live views dashboard", %{
     sessions: [dev_app, debugger]
   } do
     dev_app

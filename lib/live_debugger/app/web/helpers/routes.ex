@@ -16,11 +16,6 @@ defmodule LiveDebugger.App.Web.Helpers.Routes do
     ~p"/"
   end
 
-  @spec discovery(transport_pid :: pid()) :: String.t()
-  def discovery(transport_pid) when is_pid(transport_pid) do
-    ~p"/transport_pid/#{Parsers.pid_to_string(transport_pid)}"
-  end
-
   @spec debugger_node_inspector(
           pid :: pid() | String.t(),
           cid :: CommonTypes.cid() | String.t() | nil

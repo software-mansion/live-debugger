@@ -28,7 +28,6 @@ defmodule LiveDebugger.App.Web.Router do
     live("/pid/:pid", Debugger.Web.DebuggerLive, :node_inspector)
     live("/pid/:pid/global_traces", Debugger.Web.DebuggerLive, :global_traces)
     live("/settings", Settings.Web.SettingsLive)
-    live("/transport_pid/:transport_pid", Discovery.Web.WindowDiscoveryLive)
     live("/", Discovery.Web.DiscoveryLive)
   end
 end
