@@ -1,17 +1,17 @@
-defmodule LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollectingTest do
+defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.Services.GarbageCollector.Actions.GarbageCollecting,
+  alias LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting,
     as: GarbageCollectingActions
 
-  alias LiveDebuggerRefactor.MockAPITracesStorage
-  alias LiveDebuggerRefactor.MockAPIStatesStorage
+  alias LiveDebugger.MockAPITracesStorage
+  alias LiveDebugger.MockAPIStatesStorage
 
-  alias LiveDebuggerRefactor.MockBus
-  alias LiveDebuggerRefactor.Services.GarbageCollector.Events.TableTrimmed
-  alias LiveDebuggerRefactor.Services.GarbageCollector.Events.TableDeleted
+  alias LiveDebugger.MockBus
+  alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
+  alias LiveDebugger.Services.GarbageCollector.Events.TableDeleted
 
   @megabyte_unit 1_048_576
 

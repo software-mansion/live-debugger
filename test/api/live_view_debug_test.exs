@@ -1,11 +1,11 @@
-defmodule LiveDebuggerRefactor.API.LiveViewDebugTest do
+defmodule LiveDebugger.API.LiveViewDebugTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.Structs.LvState
-  alias LiveDebuggerRefactor.API.LiveViewDebug
-  alias LiveDebuggerRefactor.MockAPILiveViewDebug
+  alias LiveDebugger.Structs.LvState
+  alias LiveDebugger.API.LiveViewDebug
+  alias LiveDebugger.MockAPILiveViewDebug
   alias LiveDebugger.Fakes
 
   setup :verify_on_exit!
@@ -50,7 +50,7 @@ defmodule LiveDebuggerRefactor.API.LiveViewDebugTest do
   end
 
   if not Code.ensure_loaded?(Phoenix.LiveView.Debug) do
-    alias LiveDebuggerRefactor.MockAPIProcess
+    alias LiveDebugger.MockAPIProcess
 
     describe "list_liveviews/0" do
       test "returns list of all active LiveView processes" do

@@ -1,7 +1,7 @@
-defmodule LiveDebuggerRefactor.Services.GarbageCollector.UtilsTest do
+defmodule LiveDebugger.Services.GarbageCollector.UtilsTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebuggerRefactor.Services.GarbageCollector.Utils,
+  alias LiveDebugger.Services.GarbageCollector.Utils,
     as: GarbageCollectorUtils
 
   describe "max_table_size/1" do

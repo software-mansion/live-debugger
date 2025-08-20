@@ -1,19 +1,19 @@
-defmodule LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.SuccessorDiscovererTest do
+defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscovererTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.SuccessorDiscoverer
-  alias LiveDebuggerRefactor.Services.SuccessorDiscoverer.GenServers.SuccessorDiscoverer.State
-  alias LiveDebuggerRefactor.Services.SuccessorDiscoverer.Events.SuccessorFound
-  alias LiveDebuggerRefactor.Services.SuccessorDiscoverer.Events.SuccessorNotFound
-  alias LiveDebuggerRefactor.App.Events.FindSuccessor
+  alias LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscoverer
+  alias LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscoverer.State
+  alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorFound
+  alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorNotFound
+  alias LiveDebugger.App.Events.FindSuccessor
 
-  alias LiveDebuggerRefactor.Structs.LvProcess
+  alias LiveDebugger.Structs.LvProcess
 
-  alias LiveDebuggerRefactor.MockBus
-  alias LiveDebuggerRefactor.MockClient
-  alias LiveDebuggerRefactor.MockAPILiveViewDiscovery
+  alias LiveDebugger.MockBus
+  alias LiveDebugger.MockClient
+  alias LiveDebugger.MockAPILiveViewDiscovery
 
   setup :verify_on_exit!
 

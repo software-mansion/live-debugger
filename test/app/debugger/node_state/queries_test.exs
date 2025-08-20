@@ -1,12 +1,12 @@
-defmodule LiveDebuggerRefactor.App.Debugger.NodeState.QueriesTest do
+defmodule LiveDebugger.App.Debugger.NodeState.QueriesTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.MockAPIStatesStorage
-  alias LiveDebuggerRefactor.MockAPILiveViewDebug
-  alias LiveDebuggerRefactor.Structs.LvState
-  alias LiveDebuggerRefactor.App.Debugger.NodeState.Queries, as: NodeStateQueries
+  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.Structs.LvState
+  alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
 
   setup :verify_on_exit!
 

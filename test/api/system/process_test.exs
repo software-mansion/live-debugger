@@ -1,7 +1,7 @@
-defmodule LiveDebuggerRefactor.API.System.ProcessImplTest do
+defmodule LiveDebugger.API.System.ProcessImplTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebuggerRefactor.API.System.Process.Impl, as: ProcessImpl
+  alias LiveDebugger.API.System.Process.Impl, as: ProcessImpl
 
   defmodule TestServer do
     use GenServer

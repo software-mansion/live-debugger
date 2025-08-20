@@ -1,4 +1,4 @@
-defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTest do
+defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
   use ExUnit.Case
 
   import Mox
@@ -6,18 +6,18 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTe
   setup :verify_on_exit!
   setup :set_mox_from_context
 
-  alias LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandler
-  alias LiveDebuggerRefactor.MockAPIDbg
-  alias LiveDebuggerRefactor.MockAPIModule
-  alias LiveDebuggerRefactor.MockAPILiveViewDebug
-  alias LiveDebuggerRefactor.MockBus
-  alias LiveDebuggerRefactor.MockAPITracesStorage
-  alias LiveDebuggerRefactor.MockAPIStatesStorage
+  alias LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler
+  alias LiveDebugger.MockAPIDbg
+  alias LiveDebugger.MockAPIModule
+  alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.MockBus
+  alias LiveDebugger.MockAPITracesStorage
+  alias LiveDebugger.MockAPIStatesStorage
   alias LiveDebugger.Fakes
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceReturned
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.TraceErrored
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
+  alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
 
   describe "handle_cast/2" do
     test "handles proper recompilation traces" do
@@ -163,7 +163,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTe
       return_ts = {1753, 174_270, 760_820}
       ref = make_ref()
 
-      trace = %LiveDebuggerRefactor.Structs.Trace{
+      trace = %LiveDebugger.Structs.Trace{
         id: 1,
         module: module,
         function: fun,
@@ -175,7 +175,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTe
 
       MockAPITracesStorage
       |> expect(:insert!, fn ^ref, updated_trace ->
-        assert %LiveDebuggerRefactor.Structs.Trace{
+        assert %LiveDebugger.Structs.Trace{
                  id: 1,
                  module: ^module,
                  function: ^fun,
@@ -230,7 +230,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTe
       return_ts = {1753, 174_270, 760_820}
       ref = make_ref()
 
-      trace = %LiveDebuggerRefactor.Structs.Trace{
+      trace = %LiveDebugger.Structs.Trace{
         id: 1,
         module: module,
         function: fun,
@@ -242,7 +242,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TraceHandlerTe
 
       MockAPITracesStorage
       |> expect(:insert!, fn ^ref, updated_trace ->
-        assert %LiveDebuggerRefactor.Structs.Trace{
+        assert %LiveDebugger.Structs.Trace{
                  id: 1,
                  module: ^module,
                  function: ^fun,
