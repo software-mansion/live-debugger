@@ -43,6 +43,12 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
     |> halt()
   end
 
+  defp handle_async(:lv_process, {:ok, :root_socket_id_not_found}, socket) do
+    socket
+    |> push_navigate(to: RoutesHelper.error("root_socket_id_not_found"))
+    |> halt()
+  end
+
   defp handle_async(:lv_process, {:exit, reason}, socket) do
     Logger.error(
       "LiveDebugger encountered unexpected error while fetching information for process: #{inspect(reason)}"
@@ -57,21 +63,24 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
 
   defp get_lv_process_with_root_socket_id(pid) do
     with %LvProcess{} = lv_process <- LvProcessQueries.get_lv_process_with_retries(pid),
-         root_socket_id <- get_root_socket_id(lv_process) do
+         {:ok, root_socket_id} <- get_root_socket_id(lv_process) |> dbg() do
       {lv_process, root_socket_id}
+    else
+      {:error, :root_socket_id_not_found} -> :root_socket_id_not_found
+      nil -> nil
     end
   end
 
   defp get_root_socket_id(lv_process) when lv_process.root_pid == lv_process.pid do
-    lv_process.socket_id
+    {:ok, lv_process.socket_id}
   end
 
   defp get_root_socket_id(lv_process) do
     lv_process.root_pid
     |> StateQueries.get_socket()
     |> case do
-      {:ok, %{id: socket_id}} -> socket_id
-      _ -> nil
+      {:ok, %{id: socket_id}} -> {:ok, socket_id}
+      _ -> {:error, :root_socket_id_not_found}
     end
   end
 end
