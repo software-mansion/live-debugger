@@ -1,63 +1,31 @@
-function getLiveDebuggerSessionURL(browserElement) {
+async function getLiveDebuggerSessionURL(browserElement) {
   return new Promise((resolve, reject) => {
     const script = `
       (function() {
-        function getMetaTag() {
+        try {
           const metaTag = document.querySelector('meta[name="live-debugger-config"]');
-          if (metaTag) {
-            return metaTag;
-          } else {
-            handleMetaTagError();
+          if (!metaTag) {
+            throw new Error("LiveDebugger meta tag not found!");
           }
-        }
 
-        function handleMetaTagError() {
-          throw new Error("LiveDebugger meta tag not found!");
-        }
-
-        function getLiveDebuggerBaseURL(metaTag) {
-          return metaTag.getAttribute('url');
-        }
-
-        function getVersion(metaTag) {
-          const version = metaTag.getAttribute('version');
-          return version ? version : "0.2"
-        }
-
-        function getSessionId() {
+          let sessionId = null;
           let el;
           if ((el = document.querySelector('[data-phx-main]'))) {
-            return el.id;
+            sessionId = el.id;
+          } else if ((el = document.querySelector('[id^="phx-"]'))) {
+            sessionId = el.id;
+          } else if ((el = document.querySelector('[data-phx-root-id]'))) {
+            sessionId = el.getAttribute('data-phx-root-id');
           }
-          if ((el = document.querySelector('[id^="phx-"]'))) {
-            return el.id;
-          }
-          if ((el = document.querySelector('[data-phx-root-id]'))) {
-            return el.getAttribute('data-phx-root-id');
-          }
-          return null;
+
+          return {
+            url: metaTag.getAttribute('url'),
+            version: metaTag.getAttribute('version'),
+            sessionId: sessionId
+          };
+        } catch (error) {
+          throw error;
         }
-
-        function getSessionURL(baseURL, version, sessionId) {
-          let prefix = '';
-          if (version.startsWith("0.2")) {
-            prefix = "transport_pid";
-          } else {
-            prefix = "redirect";
-          }
-
-          const session_path = sessionId ? \`\${prefix}/\${sessionId}\` : '';
-          return \`\${baseURL}/\${session_path}\`;
-        }
-
-        const metaTag = getMetaTag();
-
-        const version = getVersion(metaTag);
-        const baseURL = getLiveDebuggerBaseURL(metaTag);
-        const sessionId = getSessionId();
-        const url = getSessionURL(baseURL, version, sessionId);
-        
-        return url;
       })();
     `;
 
@@ -66,23 +34,32 @@ function getLiveDebuggerSessionURL(browserElement) {
       (result, isException) => {
         if (isException || !result) {
           reject(new Error("Error fetching LiveDebugger session URL"));
-        } else {
-          resolve(result);
+          return;
         }
-      },
+
+        try {
+          const version = _getVersion(result);
+          const url = _getSessionURL(result.url, version, result.sessionId);
+          resolve(url);
+        } catch (error) {
+          reject(error);
+        }
+      }
     );
   });
 }
 
-function allowRedirects(browserElement) {
+async function allowRedirects(browserElement) {
   return new Promise((resolve, reject) => {
     const script = `
       (function() {
         const metaTag = document.querySelector('meta[name="live-debugger-config"]');
         if (metaTag) {
-          return metaTag.hasAttribute('devtools-allow-redirects');
-        } 
-        return false;
+          return {
+            version: metaTag.getAttribute('version')
+          };
+        }
+        return null;
       })();
     `;
 
@@ -91,10 +68,39 @@ function allowRedirects(browserElement) {
       (result, isException) => {
         if (isException) {
           reject(new Error("Error checking allow redirects"));
-        } else {
-          resolve(result);
+          return;
         }
-      },
+
+        if (result) {
+          const version = _getVersion(result);
+          const shouldAllow = _isVersionLessThan(version, "0.4");
+          resolve(shouldAllow);
+          return;
+        }
+
+        resolve(false);
+      }
     );
   });
+}
+
+function _getVersion(metaTagData) {
+  return metaTagData.version ? metaTagData.version : "0.2";
+}
+
+function _getSessionURL(baseURL, version, sessionId) {
+  let prefix = "";
+  if (version.startsWith("0.2")) {
+    prefix = "transport_pid";
+  } else {
+    prefix = "redirect";
+  }
+  const session_path = sessionId ? `${prefix}/${sessionId}` : "";
+  return `${baseURL}/${session_path}`;
+}
+
+function _isVersionLessThan(version, targetVersion) {
+  const versionNumber = parseFloat(version);
+  const targetNumber = parseFloat(targetVersion);
+  return versionNumber < targetNumber;
 }
