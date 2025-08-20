@@ -560,13 +560,14 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   defp assigns_entry(key: key, value: value) do
     xpath(
-      ".//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"#{key}:\")]/../*[contains(normalize-space(text()), \"#{value}\")]"
+      ".//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"#{key}:\")]/../..//*[contains(normalize-space(text()), \"#{value}\")]"
     )
   end
 
   defp map_entry(key: key, value: value) do
     xpath(
-      ".//*[contains(normalize-space(text()), \"#{key}:\")]/../*[contains(normalize-space(text()), \"#{value}\")]"
+      ".//*[contains(normalize-space(text()), \"#{key}:\")]/../..//*[contains(normalize-space(text()), \"#{value}\")]",
+      count: :any
     )
   end
 
