@@ -1,16 +1,16 @@
-defmodule LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManagerTest do
+defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.MockBus
-  alias LiveDebuggerRefactor.MockAPIDbg
-  alias LiveDebuggerRefactor.MockAPIModule
-  alias LiveDebuggerRefactor.MockAPISettingsStorage
-  alias LiveDebuggerRefactor.Services.CallbackTracer.GenServers.TracingManager
+  alias LiveDebugger.MockBus
+  alias LiveDebugger.MockAPIDbg
+  alias LiveDebugger.MockAPIModule
+  alias LiveDebugger.MockAPISettingsStorage
+  alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
 
-  alias LiveDebuggerRefactor.App.Events.UserChangedSettings
-  alias LiveDebuggerRefactor.App.Events.UserRefreshedTrace
+  alias LiveDebugger.App.Events.UserChangedSettings
+  alias LiveDebugger.App.Events.UserRefreshedTrace
 
   setup :verify_on_exit!
 

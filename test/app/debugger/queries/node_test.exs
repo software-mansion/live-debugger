@@ -1,13 +1,13 @@
-defmodule LiveDebuggerRefactor.App.Debugger.Queries.NodeTest do
+defmodule LiveDebugger.App.Debugger.Queries.NodeTest do
   use ExUnit.Case, async: true
 
   import Mox
 
   setup :verify_on_exit!
 
-  alias LiveDebuggerRefactor.App.Debugger.Queries.Node, as: NodeQueries
-  alias LiveDebuggerRefactor.Structs.LvState
-  alias LiveDebuggerRefactor.MockAPIStatesStorage
+  alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
+  alias LiveDebugger.Structs.LvState
+  alias LiveDebugger.MockAPIStatesStorage
   alias LiveDebugger.Fakes
 
   describe "get_module_from_id/2" do

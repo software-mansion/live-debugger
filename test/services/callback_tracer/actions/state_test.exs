@@ -1,21 +1,21 @@
-defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.StateTest do
+defmodule LiveDebugger.Services.CallbackTracer.Actions.StateTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Actions.State, as: StateActions
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
+  alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
   alias LiveDebugger.Fakes
-  alias LiveDebuggerRefactor.Structs.LvState
-  alias LiveDebuggerRefactor.MockAPILiveViewDebug
-  alias LiveDebuggerRefactor.MockAPIStatesStorage
-  alias LiveDebuggerRefactor.MockBus
+  alias LiveDebugger.Structs.LvState
+  alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.MockBus
 
   setup :verify_on_exit!
 
   describe "maybe_save_state!/1" do
     test "does nothing when trace is not a state changing trace" do
-      trace = %LiveDebuggerRefactor.Structs.Trace{
+      trace = %LiveDebugger.Structs.Trace{
         id: 1,
         module: TestModule,
         function: :handle_event,
@@ -29,7 +29,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.StateTest do
     test "saves state and sends event when process is alive" do
       pid = :c.pid(0, 1, 0)
 
-      trace = %LiveDebuggerRefactor.Structs.Trace{
+      trace = %LiveDebugger.Structs.Trace{
         id: 1,
         module: TestModule,
         function: :render,
@@ -61,7 +61,7 @@ defmodule LiveDebuggerRefactor.Services.CallbackTracer.Actions.StateTest do
     test "returns error when process is not alive" do
       pid = :c.pid(0, 1, 0)
 
-      trace = %LiveDebuggerRefactor.Structs.Trace{
+      trace = %LiveDebugger.Structs.Trace{
         id: 1,
         module: TestModule,
         function: :render,

@@ -1,16 +1,16 @@
-defmodule LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcherTest do
+defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcherTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.App.Events.DebuggerTerminated
-  alias LiveDebuggerRefactor.App.Events.DebuggerMounted
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewDied
-  alias LiveDebuggerRefactor.Services.ProcessMonitor.Events.LiveViewBorn
-  alias LiveDebuggerRefactor.MockBus
+  alias LiveDebugger.App.Events.DebuggerTerminated
+  alias LiveDebugger.App.Events.DebuggerMounted
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.MockBus
 
-  alias LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher
-  alias LiveDebuggerRefactor.Services.GarbageCollector.GenServers.TableWatcher.ProcessInfo
+  alias LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher
+  alias LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher.ProcessInfo
 
   test "init/1" do
     expect(MockBus, :receive_events!, fn -> :ok end)

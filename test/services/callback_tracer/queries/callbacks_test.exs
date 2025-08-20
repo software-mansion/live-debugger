@@ -1,10 +1,10 @@
-defmodule LiveDebuggerRefactor.Services.CallbackTracer.Queries.CallbacksTest do
+defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.Services.CallbackTracer.Queries.Callbacks
-  alias LiveDebuggerRefactor.MockAPIModule
+  alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks
+  alias LiveDebugger.MockAPIModule
 
   describe "all_callbacks/0" do
     test "returns a list of all callbacks" do

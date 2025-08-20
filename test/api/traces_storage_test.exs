@@ -1,13 +1,13 @@
-defmodule LiveDebuggerRefactor.API.TracesStorageTest do
+defmodule LiveDebugger.API.TracesStorageTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.Utils.Memory
+  alias LiveDebugger.Utils.Memory
   alias LiveDebugger.Fakes
-  alias LiveDebuggerRefactor.API.TracesStorage.Impl, as: TracesStorageImpl
+  alias LiveDebugger.API.TracesStorage.Impl, as: TracesStorageImpl
 
-  @all_functions LiveDebuggerRefactor.Utils.Callbacks.all_callbacks()
+  @all_functions LiveDebugger.Utils.Callbacks.all_callbacks()
                  |> Enum.map(fn {function, arity} -> "#{function}/#{arity}" end)
 
   @processes_table_name :lvdbg_traces_processes

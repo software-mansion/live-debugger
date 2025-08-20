@@ -1,13 +1,13 @@
-defmodule LiveDebuggerRefactor.App.Debugger.ComponentsTree.QueriesTest do
+defmodule LiveDebugger.App.Debugger.ComponentsTree.QueriesTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.App.Debugger.Structs.TreeNode
-  alias LiveDebuggerRefactor.Structs.LvState
-  alias LiveDebuggerRefactor.App.Debugger.ComponentsTree.Queries, as: ComponentsTreeQueries
-  alias LiveDebuggerRefactor.MockAPIStatesStorage
-  alias LiveDebuggerRefactor.MockAPILiveViewDebug
+  alias LiveDebugger.App.Debugger.Structs.TreeNode
+  alias LiveDebugger.Structs.LvState
+  alias LiveDebugger.App.Debugger.ComponentsTree.Queries, as: ComponentsTreeQueries
+  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.MockAPILiveViewDebug
 
   setup :verify_on_exit!
 

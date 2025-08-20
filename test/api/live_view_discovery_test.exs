@@ -1,11 +1,11 @@
-defmodule LiveDebuggerRefactor.API.LiveViewDiscoveryTest do
+defmodule LiveDebugger.API.LiveViewDiscoveryTest do
   use ExUnit.Case, async: true
 
   import Mox
 
-  alias LiveDebuggerRefactor.API.LiveViewDiscovery.Impl, as: LiveViewDiscoveryImpl
-  alias LiveDebuggerRefactor.MockAPILiveViewDebug
-  alias LiveDebuggerRefactor.Structs.LvProcess
+  alias LiveDebugger.API.LiveViewDiscovery.Impl, as: LiveViewDiscoveryImpl
+  alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Fakes
 
   setup :verify_on_exit!

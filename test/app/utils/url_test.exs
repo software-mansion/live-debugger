@@ -1,7 +1,7 @@
-defmodule LiveDebuggerRefactor.App.Utils.UrlTest do
+defmodule LiveDebugger.App.Utils.UrlTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebuggerRefactor.App.Utils.URL
+  alias LiveDebugger.App.Utils.URL
 
   describe "to_relative/1" do
     test "converts absolute URL to relative URL" do

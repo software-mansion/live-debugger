@@ -1,7 +1,7 @@
-defmodule LiveDebuggerRefactor.App.Web.Helpers.HooksTest do
+defmodule LiveDebugger.App.Web.Helpers.HooksTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebuggerRefactor.App.Web.Helpers.Hooks
+  alias LiveDebugger.App.Web.Helpers.Hooks
   alias LiveDebugger.Fakes
 
   describe "check_assigns!/1" do
