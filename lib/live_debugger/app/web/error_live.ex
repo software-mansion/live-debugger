@@ -35,7 +35,6 @@ defmodule LiveDebugger.App.Web.ErrorLive do
   defp assign_heading(socket) do
     heading =
       case socket.assigns.error do
-        "not_found" -> "Debugger disconnected"
         "invalid_pid" -> "Invalid PID format"
         "invalid_node_id" -> "Invalid node id"
         _ -> "Unexpected error"
@@ -47,9 +46,6 @@ defmodule LiveDebugger.App.Web.ErrorLive do
   defp assign_description(socket) do
     description =
       case socket.assigns.error do
-        "not_found" ->
-          "We couldn't find any LiveView associated with the given pid"
-
         "invalid_pid" ->
           "PID provided in the URL has invalid format"
 
