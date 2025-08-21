@@ -12,11 +12,12 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
   alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
   alias LiveDebugger.App.Debugger.Web.Components.Pages
   alias LiveDebugger.App.Web.Components.Navbar
+  alias LiveDebugger.App.Debugger.Web.HookComponents
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Debugger.Structs.TreeNode
-
   alias LiveDebugger.Bus
+
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebugger.App.Events.DebuggerTerminated
 
@@ -69,6 +70,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
           <Navbar.live_debugger_logo_icon />
           <HookComponents.DeadViewMode.render id="navbar-connected" lv_process={lv_process} />
           <div class="flex items-center gap-2">
+            <HookComponents.InspectButton.render inspect_mode?={@inspect_mode?} />
             <Navbar.settings_button return_to={@url} />
             <span class="h-5 border-r border-default-border lg:hidden"></span>
             <.nav_icon
@@ -113,6 +115,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
     |> Hooks.AsyncLvProcess.init(pid)
     |> put_private(:pid, pid)
     |> HookComponents.DeadViewMode.init()
+    |> HookComponents.InspectButton.init()
   end
 
   defp assign_and_broadcast_node_id(socket, %{"node_id" => node_id}) do
