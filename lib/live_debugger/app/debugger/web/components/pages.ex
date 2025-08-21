@@ -22,6 +22,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   attr(:lv_process, LvProcess, required: true)
   attr(:url, :string, required: true)
   attr(:node_id, :any, required: true)
+  attr(:root_socket_id, :string, required: true)
 
   def node_inspector(assigns) do
     assigns = assign(assigns, :sidebar_id, @node_inspector_sidebar_id)
@@ -59,6 +60,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
         id="components-tree"
         lv_process={@lv_process}
         socket={@socket}
+        root_socket_id={@root_socket_id}
         node_id={@node_id}
         url={@url}
         class="overflow-x-hidden"
