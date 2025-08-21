@@ -123,7 +123,8 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
          %{private: %{old_socket_id: socket_id}} = socket
        ) do
     socket
-    |> push_navigate(to: RoutesHelper.error("not_found"))
+    |> put_flash(:error, "New process couldn't be found")
+    |> push_navigate(to: RoutesHelper.discovery())
     |> halt()
   end
 
