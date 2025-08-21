@@ -7,6 +7,7 @@ export default function initElementInspection({
 }) {
   let inspectMode = false;
   let lastID = null;
+  let sourceLiveViews = [];
 
   debugChannel.on('found-node-element', (event) => {
     pushShowTooltipEvent({
@@ -16,6 +17,20 @@ export default function initElementInspection({
       id_value: event.id_value,
     });
   });
+
+  debugChannel.on('inspect-mode-changed', (event) => {
+    if (event.inspect_mode) {
+      enableInspectMode();
+      sourceLiveViews.push(event.pid);
+    } else {
+      sourceLiveViews = sourceLiveViews.filter((pid) => pid !== event.pid);
+
+      if (sourceLiveViews.length === 0) {
+        disableInspectMode();
+      }
+    }
+  });
+
   const handleMove = (event) => {
     const liveViewElement = event.target.closest('[data-phx-session]');
     const componentElement = event.target.closest('[data-phx-component]');
@@ -61,7 +76,8 @@ export default function initElementInspection({
     const rootID = rootElement?.id || liveViewElement.dataset.phxRootId;
 
     const detail = getHighlightDetail(componentElement, liveViewElement);
-    pushPulseEvent(detail);
+    const type = detail.attr === 'id' ? 'LiveView' : 'LiveComponent';
+    pushPulseEvent({ attr: detail.attr, val: detail.val, type });
 
     const url = new URL(`${baseURL}/redirect/${liveViewElement.id}`);
 
@@ -73,18 +89,45 @@ export default function initElementInspection({
       url.searchParams.set('node_id', componentElement.dataset.phxComponent);
     }
 
-    window.open(url, '_blank');
+    if (sourceLiveViews.length === 0) {
+      window.open(url, '_blank');
+    } else {
+      sourceLiveViews.forEach((pid) => {
+        debugChannel.push('element-inspected', {
+          pid: pid,
+          url: url,
+        });
+      });
+    }
 
+    sourceLiveViews = [];
     disableInspectMode();
   };
 
   const handleRightClick = (event) => {
     event.preventDefault();
+
+    sourceLiveViews.forEach((pid) => {
+      debugChannel.push('inspect-mode-changed', {
+        inspect_mode: false,
+        pid: pid,
+      });
+    });
+
+    sourceLiveViews = [];
     disableInspectMode();
   };
 
   const handleEscape = (event) => {
     if (event.key === 'Escape') {
+      sourceLiveViews.forEach((pid) => {
+        debugChannel.push('inspect-mode-changed', {
+          inspect_mode: false,
+          pid: pid,
+        });
+      });
+
+      sourceLiveViews = [];
       disableInspectMode();
     }
   };
