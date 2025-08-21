@@ -613,7 +613,7 @@ defmodule LiveDebugger.App.Web.Components do
     <label class={
       [
         "inline-flex items-center pr-6 py-3",
-        if(@disabled, do: "opacity-50", else: "cursor-pointer")
+        if(@disabled, do: "opacity-50 pointer-events-none", else: "cursor-pointer")
       ] ++ List.wrap(@wrapper_class)
     }>
       <span class="text-xs font-normal text-primary-text mx-2">

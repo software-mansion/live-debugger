@@ -166,6 +166,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
       ) do
     socket
     |> assign(highlight_disabled?: true)
+    |> assign(highlight?: false)
     |> noreply()
   end
 
@@ -174,7 +175,10 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     assign_async(socket, [:tree], fn -> ComponentsTreeQueries.fetch_components_tree(pid) end)
   end
 
-  defp highlight_element(%{assigns: %{highlight?: true}} = socket, params) do
+  defp highlight_element(
+         %{assigns: %{highlight_disabled?: false, highlight?: true}} = socket,
+         params
+       ) do
     payload = %{
       attr: params["search-attribute"],
       val: params["search-value"],
@@ -190,6 +194,10 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
   end
 
   defp highlight_element(socket, _) do
+    socket
+  end
+
+  defp pulse_element(%{assigns: %{highlight_disabled?: true}} = socket, _) do
     socket
   end
 
