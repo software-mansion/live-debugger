@@ -102,7 +102,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
       |> halt()
     else
       socket
-      |> start_async_find_successor()
+      |> start_successor_finding()
       |> halt()
     end
   end
@@ -131,13 +131,13 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
 
   defp handle_event("find-successor", _params, socket) do
     socket
-    |> start_async_find_successor()
+    |> start_successor_finding()
     |> halt()
   end
 
   defp handle_event(_, _, socket), do: {:cont, socket}
 
-  defp start_async_find_successor(socket) do
+  defp start_successor_finding(socket) do
     lv_process = socket.assigns.lv_process.result
 
     Bus.broadcast_event!(%FindSuccessor{lv_process: lv_process})
