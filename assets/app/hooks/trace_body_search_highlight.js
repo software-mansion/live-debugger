@@ -28,7 +28,7 @@ function findRanges(root, search) {
       if (start >= matchEnd) break;
 
       let d = node.parentElement.closest('details');
-      while (d && d.dataset.open === 'false') {
+      while (d) {
         d.dataset.open = true;
         d = d.parentElement.closest('details');
       }

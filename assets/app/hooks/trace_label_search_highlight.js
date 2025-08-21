@@ -51,7 +51,6 @@ const TraceLabelSearchHighlight = {
     handleHighlight(this.el.dataset.search_phrase, this.el);
   },
   updated() {
-    console.log(this.el.dataset);
     handleHighlight(this.el.dataset.search_phrase, this.el);
   },
 };
