@@ -21,7 +21,9 @@ function maybeShorten(text, maxLength = 150) {
 }
 
 function adjustTextContent(element, phrase) {
-  match = element.textContent.match(new RegExp(RegExp.escape(phrase), 'i'));
+  const match = element.textContent.match(
+    new RegExp(RegExp.escape(phrase), 'i')
+  );
 
   let shortened = element.textContent;
 
