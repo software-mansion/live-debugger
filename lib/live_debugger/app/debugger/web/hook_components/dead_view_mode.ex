@@ -125,7 +125,8 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
 
   defp handle_async(:find_successor, _, socket) do
     socket
-    |> push_navigate(to: RoutesHelper.error("not_found"))
+    |> put_flash(:error, "New process couldn't be found")
+    |> push_navigate(to: RoutesHelper.discovery())
     |> halt()
   end
 
