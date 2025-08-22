@@ -2,6 +2,13 @@ import { dispatchCustomEvent } from '../utils/dom';
 
 const highlightElementID = 'live-debugger-highlight-element';
 const highlightPulseElementID = 'live-debugger-highlight-pulse-element';
+const liveViewColors = ['#ffe78080', '#ffe78060', '#ffe78030', '#ffe78000'];
+const liveComponentsColors = [
+  '#87CCE880',
+  '#87CCE860',
+  '#87CCE830',
+  '#87CCE800',
+];
 
 const isElementVisible = (element) => {
   if (!element) return false;
@@ -18,8 +25,8 @@ const isElementVisible = (element) => {
   );
 };
 
-function getHighlightColor(type) {
-  return type === 'LiveComponent' ? '#87CCE880' : '#ffe78080';
+function getHighlightColors(type) {
+  return type === 'LiveComponent' ? liveComponentsColors : liveViewColors;
 }
 
 function createHighlightElement(activeElement, detail, id) {
@@ -35,7 +42,7 @@ function createHighlightElement(activeElement, detail, id) {
   highlight.style.left = `${rect.left + window.scrollX}px`;
   highlight.style.width = `${activeElement.offsetWidth}px`;
   highlight.style.height = `${activeElement.offsetHeight}px`;
-  highlight.style.backgroundColor = getHighlightColor(detail.type);
+  highlight.style.backgroundColor = getHighlightColors(detail.type)[0];
   highlight.style.zIndex = '10000';
   highlight.style.pointerEvents = 'none';
 
@@ -115,7 +122,7 @@ function handlePulse({ detail }) {
     const w = highlightPulse.offsetWidth;
     const h = highlightPulse.offsetHeight;
 
-    const color = getHighlightColor(detail.type).slice(0, -2);
+    const colors = getHighlightColors(detail.type);
 
     highlightPulse.animate(
       [
@@ -123,19 +130,19 @@ function handlePulse({ detail }) {
           width: `${w}px`,
           height: `${h}px`,
           transform: 'translate(0, 0)',
-          backgroundColor: color + '60',
+          backgroundColor: colors[1],
         },
         {
           width: `${w + 20}px`,
           height: `${h + 20}px`,
           transform: 'translate(-10px, -10px)',
-          backgroundColor: color + '30',
+          backgroundColor: colors[2],
         },
         {
           width: `${w + 40}px`,
           height: `${h + 40}px`,
           transform: 'translate(-20px, -20px)',
-          backgroundColor: color + '00',
+          backgroundColor: colors[3],
         },
       ],
       {
