@@ -160,6 +160,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                 :if={@displayed_trace}
                 id="trace-fullscreen"
                 trace={@displayed_trace}
+                phx-hook="TraceBodySearchHighlight"
+                data-search_phrase={@trace_search_phrase}
               />
             </div>
           </div>

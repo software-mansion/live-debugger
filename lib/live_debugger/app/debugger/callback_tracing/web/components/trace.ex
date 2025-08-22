@@ -17,6 +17,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   """
   attr(:id, :string, required: true)
   attr(:trace, Trace, required: true)
+  attr(:rest, :global)
 
   def trace_fullscreen(assigns) do
     assigns = assign(assigns, :callback_name, Trace.callback_name(assigns.trace))
@@ -24,7 +25,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
     ~H"""
     <.fullscreen id={@id} title={@callback_name}>
       <div class="w-full flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden">
-        <.trace_body id={@id <> "-fullscreen"} trace={@trace} />
+        <.trace_body id={@id <> "-fullscreen"} trace={@trace} {@rest} />
       </div>
     </.fullscreen>
     """

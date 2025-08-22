@@ -30,6 +30,7 @@ function findRanges(root, search) {
       let d = node.parentElement.closest('details');
       while (d) {
         d.dataset.open = true;
+        d.open = true;
         d = d.parentElement.closest('details');
       }
 
@@ -49,7 +50,13 @@ const TraceBodySearchHighlight = {
     if (phrase === undefined || phrase === '') return;
 
     const ranges = findRanges(this.el, phrase);
+    highlightSearchRanges(ranges);
+  },
+  updated() {
+    const phrase = this.el.dataset.search_phrase;
+    if (phrase === undefined || phrase === '') return;
 
+    const ranges = findRanges(this.el, phrase);
     highlightSearchRanges(ranges);
   },
 };
