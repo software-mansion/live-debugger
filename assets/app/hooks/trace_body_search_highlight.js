@@ -27,11 +27,12 @@ function findRanges(root, search) {
       if (end <= matchStart) continue;
       if (start >= matchEnd) break;
 
-      let d = node.parentElement.closest('details');
-      while (d) {
-        d.dataset.open = true;
-        d.open = true;
-        d = d.parentElement.closest('details');
+      let collapsibleElement = node.parentElement.closest('details');
+      while (collapsibleElement) {
+        collapsibleElement.dataset.open = true;
+        collapsibleElement.open = true;
+        collapsibleElement =
+          collapsibleElement.parentElement.closest('details');
       }
 
       const range = document.createRange();
