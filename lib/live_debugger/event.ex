@@ -24,11 +24,7 @@ defmodule LiveDebugger.Event do
       event = %LiveDebugger.Events.UserCreated{
         name: "John Doe",
         email: "john.doe@example.com",
-        age: 30,
-        context: %{
-          debugger_pid: self(),
-          session_id: "abc123"
-        }
+        age: 30
       }
 
       # Context is optional and defaults to an empty map
@@ -94,24 +90,20 @@ defmodule LiveDebugger.Event do
   end
 
   @doc """
-  Defines a new event struct with enforced fields and optional context.
+  Defines a new event struct with enforced fields.
 
   This macro generates a complete event module with:
   - A struct definition with all specified fields as enforced keys
-  - A `context` field that defaults to an empty map
   - Type specifications
   """
   defmacro defevent(module_name, fields \\ []) do
     quote do
       defmodule unquote(module_name) do
-        @default_fields [context: %{}]
-
         @enforce_keys unquote(Keyword.keys(fields))
-        defstruct unquote(fields |> Keyword.keys() |> Enum.map(&{&1, nil})) ++ @default_fields
+        defstruct unquote(fields |> Keyword.keys() |> Enum.map(&{&1, nil}))
 
         @type t :: %__MODULE__{
-                unquote_splicing(Enum.map(fields, fn {field, type} -> {field, type} end)),
-                context: map()
+                unquote_splicing(Enum.map(fields, fn {field, type} -> {field, type} end))
               }
       end
     end
