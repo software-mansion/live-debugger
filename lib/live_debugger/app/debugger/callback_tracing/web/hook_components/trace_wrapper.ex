@@ -85,7 +85,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
             phx-value-trace-id={@trace.id}
           />
         </div>
-        <div class="flex flex-col gap-4 overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
+        <div class="overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
           <%= if @render_body? do %>
             <%= render_slot(@body) %>
           <% else %>

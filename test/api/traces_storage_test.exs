@@ -274,42 +274,6 @@ defmodule LiveDebugger.API.TracesStorageTest do
       assert {[^trace1], _} = TracesStorageImpl.get!(table, functions: @all_functions)
     end
 
-    test "filters traces by search_phrase in all traces info", %{pid: pid, table: table} do
-      trace1 =
-        Fakes.trace(
-          id: 1,
-          module: CoolApp.Dashboard,
-          function: :render,
-          pid: pid,
-          args: [%{note: "hello world"}]
-        )
-
-      trace2 =
-        Fakes.trace(
-          id: 2,
-          module: CoolApp.Error,
-          function: :render,
-          pid: pid,
-          args: [%{note: "test phrase here"}]
-        )
-
-      :ets.insert(@processes_table_name, {pid, table})
-      :ets.insert(table, {trace1.id, trace1})
-      :ets.insert(table, {trace2.id, trace2})
-
-      assert {[^trace1], _} =
-               TracesStorageImpl.get!(pid,
-                 functions: @all_functions,
-                 search_phrase: "dashboard"
-               )
-
-      assert {[^trace1], _} =
-               TracesStorageImpl.get!(table,
-                 functions: @all_functions,
-                 search_phrase: "dashboard"
-               )
-    end
-
     test "filters traces by search_phrase in args maps", %{pid: pid, table: table} do
       trace1 =
         Fakes.trace(

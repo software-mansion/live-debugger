@@ -355,7 +355,7 @@ defmodule LiveDebugger.API.TracesStorage do
 
       traces
       |> Enum.filter(fn trace ->
-        trace
+        trace.args
         |> inspect(limit: :infinity, structs: false)
         |> String.downcase()
         |> String.contains?(down)

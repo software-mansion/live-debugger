@@ -17,6 +17,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   """
   attr(:id, :string, required: true)
   attr(:trace, Trace, required: true)
+  attr(:rest, :global)
 
   def trace_fullscreen(assigns) do
     assigns = assign(assigns, :callback_name, Trace.callback_name(assigns.trace))
@@ -24,7 +25,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
     ~H"""
     <.fullscreen id={@id} title={@callback_name}>
       <div class="w-full flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden">
-        <.trace_body id={@id <> "-fullscreen"} trace={@trace} />
+        <.trace_body id={@id <> "-fullscreen"} trace={@trace} {@rest} />
       </div>
     </.fullscreen>
     """
@@ -35,25 +36,28 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   """
   attr(:id, :string, required: true)
   attr(:trace, Trace, required: true)
+  attr(:rest, :global)
 
   def trace_body(assigns) do
     ~H"""
-    <%= for {args, index} <- Enum.with_index(@trace.args) do %>
-      <div :if={index > 0} class="border-t border-default-border w-full"></div>
-      <div class="flex flex-col gap-4 w-full [&>div>div>button]:hidden hover:[&>div>div>button]:block">
-        <div class="shrink-0 flex gap-2 items-center h-4">
-          <p class="font-semibold">
-            Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)
-          </p>
-          <.copy_button id={"#{@id}-arg-#{index}"} value={TermParser.term_to_copy_string(args)} />
+    <div id={@id <> "-body"} class="flex flex-col gap-4" {@rest}>
+      <%= for {args, index} <- Enum.with_index(@trace.args) do %>
+        <div :if={index > 0} class="border-t border-default-border w-full"></div>
+        <div class="flex flex-col gap-4 w-full [&>div>div>button]:hidden hover:[&>div>div>button]:block">
+          <div class="shrink-0 flex gap-2 items-center h-4">
+            <p class="font-semibold">
+              Arg <%= index %> (<%= Trace.arg_name(@trace, index) %>)
+            </p>
+            <.copy_button id={"#{@id}-arg-#{index}"} value={TermParser.term_to_copy_string(args)} />
+          </div>
+          <ElixirDisplay.term
+            id={@id <> "-#{index}"}
+            node={TermParser.term_to_display_tree(args)}
+            level={1}
+          />
         </div>
-        <ElixirDisplay.term
-          id={@id <> "-#{index}"}
-          node={TermParser.term_to_display_tree(args)}
-          level={1}
-        />
-      </div>
-    <% end %>
+      <% end %>
+    </div>
     """
   end
 
@@ -93,14 +97,28 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
     """
   end
 
+  attr(:id, :string, default: nil)
   attr(:trace, Trace, required: true)
+  attr(:full, :boolean, default: false)
+  attr(:rest, :global)
 
   def short_trace_content(assigns) do
-    assigns = assign(assigns, :content, Enum.map_join(assigns.trace.args, " ", &inspect/1))
+    assigns =
+      assigns
+      |> assign(
+        content:
+          Enum.map_join(
+            assigns.trace.args,
+            " ",
+            &inspect(&1, limit: if(assigns.full, do: :infinity, else: 10), structs: false)
+          )
+      )
 
     ~H"""
     <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
-      <p class="hide-on-open mt-0.5"><%= @content %></p>
+      <p id={if(@id, do: @id <> "-short-content", else: false)} class="hide-on-open mt-0.5" {@rest}>
+        <%= @content %>
+      </p>
     </div>
     """
   end

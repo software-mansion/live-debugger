@@ -69,3 +69,8 @@ body {
   scrollbar-width: auto;
   scrollbar-color: var(--scrollbar-thumb) transparent;
 }
+
+::highlight(search-highlight) {
+  background-color: var(--search-highlight-bg);
+  color: var(--search-highlight-text);
+}

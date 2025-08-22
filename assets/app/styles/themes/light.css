@@ -67,4 +67,7 @@
 
   /* Warning */
   --warning-text: #9a7e00;
+
+  --search-highlight-bg: var(--swm-yellow-80);
+  --search-highlight-text: var(--slate-900);
 }
