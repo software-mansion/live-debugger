@@ -26,20 +26,26 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
   end
 
   defp handle_async(:lv_process, {:ok, {%LvProcess{} = lv_process, root_socket_id}}, socket) do
-    Bus.broadcast_event!(%DebuggerMounted{
-      debugger_pid: self(),
-      debugged_pid: lv_process.pid
-    })
+    if Process.alive?(lv_process.pid) do
+      Bus.broadcast_event!(%DebuggerMounted{
+        debugger_pid: self(),
+        debugged_pid: lv_process.pid
+      })
 
-    socket
-    |> assign(:lv_process, AsyncResult.ok(lv_process))
-    |> assign(:root_socket_id, root_socket_id)
+      socket
+      |> assign(:lv_process, AsyncResult.ok(lv_process))
+      |> assign(:root_socket_id, root_socket_id)
+    else
+      socket
+      |> put_flash(:error, "LiveView process died")
+      |> push_navigate(to: RoutesHelper.discovery())
+    end
     |> halt()
   end
 
   defp handle_async(:lv_process, {:ok, nil}, socket) do
     socket
-    |> put_flash(:error, "Process not found")
+    |> put_flash(:error, "LiveView process not found")
     |> push_navigate(to: RoutesHelper.discovery())
     |> halt()
   end

@@ -88,6 +88,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
     window_id = get_window_from_socket(state, lv_process.socket_id)
     new_socket_id = get_socket_from_window(state, window_id)
     previous_socket_id = lv_process.socket_id
+    previous_pid = lv_process.pid
 
     lv_process
     |> SuccessorQueries.find_successor(new_socket_id)
@@ -97,19 +98,17 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
         state
 
       # If the successor is the same as the debugged process, it means that successor did not report itself yet.
-      %LvProcess{socket_id: ^previous_socket_id} ->
+      %LvProcess{pid: ^previous_pid} ->
         find_successor_after(lv_process, attempt)
         state
 
       %LvProcess{} = successor ->
-        new_state = remove_socket_from_window(state, lv_process.socket_id)
-
         Bus.broadcast_event!(%SuccessorFound{
-          old_socket_id: lv_process.socket_id,
+          old_socket_id: previous_socket_id,
           new_lv_process: successor
         })
 
-        new_state
+        state
     end
     |> noreply()
   end
@@ -139,10 +138,6 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
 
   defp get_socket_from_window(state, window_id) do
     state.window_to_socket[window_id]
-  end
-
-  defp remove_socket_from_window(state, socket_id) do
-    %{state | socket_to_window: Map.delete(state.socket_to_window, socket_id)}
   end
 
   defp find_successor_after(lv_process, attempt) do
