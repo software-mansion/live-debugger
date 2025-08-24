@@ -2,8 +2,7 @@ defmodule LiveDebugger.Event do
   @moduledoc """
   Provides a simple way to define structured events in LiveDebugger.
 
-  This module offers a `defevent` macro that generates event structs with enforced fields
-  and optional context. Events are useful for tracking and debugging application state
+  This module offers a `defevent` macro that generates event structs with enforced fields. Events are useful for tracking and debugging application state
   changes, user interactions, or system events within LiveDebugger.
 
   ## Usage
@@ -27,18 +26,10 @@ defmodule LiveDebugger.Event do
         age: 30
       }
 
-      # Context is optional and defaults to an empty map
-      simple_event = %LiveDebugger.Events.ProcessStarted{
-        pid: self(),
-        module: MyModule,
-        timestamp: DateTime.utc_now()
-      }
-
   ## Generated Struct
 
   The `defevent` macro generates a struct with:
   - All specified fields as enforced keys
-  - A `context` field (defaults to `%{}`)
   - Proper type specifications
 
   ## Examples
@@ -60,12 +51,12 @@ defmodule LiveDebugger.Event do
 
   It is a map with the following keys:
   - `:__struct__` - the name of the event module
-  - `:context` - the context of the event
+  - `:__event__` - used to pattern match on the event type
   - `optional(atom())` - the fields of the event
   """
   @type t :: %{
           :__struct__ => atom(),
-          :context => map(),
+          :__event__ => nil,
           optional(atom()) => any()
         }
 
@@ -100,10 +91,11 @@ defmodule LiveDebugger.Event do
     quote do
       defmodule unquote(module_name) do
         @enforce_keys unquote(Keyword.keys(fields))
-        defstruct unquote(fields |> Keyword.keys() |> Enum.map(&{&1, nil}))
+        defstruct unquote(fields |> Keyword.keys() |> Enum.map(&{&1, nil})) ++ [__event__: true]
 
         @type t :: %__MODULE__{
-                unquote_splicing(Enum.map(fields, fn {field, type} -> {field, type} end))
+                unquote_splicing(Enum.map(fields, fn {field, type} -> {field, type} end)),
+                __event__: true
               }
       end
     end
