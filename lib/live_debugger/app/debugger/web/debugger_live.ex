@@ -58,12 +58,9 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
         </:loading>
 
         <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto] pl-2 lg:pr-4">
-          <Navbar.return_link
-            return_link={get_return_link(lv_process, @in_iframe?)}
-            class="hidden sm:block"
-          />
+          <Navbar.return_link return_link={RoutesHelper.discovery()} class="hidden sm:block" />
           <NavigationMenu.dropdown
-            return_link={get_return_link(lv_process, @in_iframe?)}
+            return_link={RoutesHelper.discovery()}
             current_url={@url}
             class="sm:hidden"
           />
@@ -141,15 +138,5 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   defp assign_and_broadcast_node_id(socket, _) do
     assign(socket, :node_id, socket.private.pid)
-  end
-
-  defp get_return_link(lv_process, in_iframe?) do
-    cond do
-      not in_iframe? ->
-        RoutesHelper.discovery()
-
-      in_iframe? ->
-        RoutesHelper.discovery(lv_process.transport_pid)
-    end
   end
 end

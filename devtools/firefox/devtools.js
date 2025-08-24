@@ -17,5 +17,5 @@ browser.devtools.panels.create(
         }
       }
     });
-  },
+  }
 );
