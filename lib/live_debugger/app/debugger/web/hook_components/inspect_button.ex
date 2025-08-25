@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   use LiveDebugger.App.Web, :hook_component
 
   alias LiveDebugger.Client
+  alias LiveDebugger.Structs.LvProcess
 
   @impl true
   def init(socket) do
@@ -21,12 +22,20 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   end
 
   attr(:inspect_mode?, :boolean, default: false)
+  attr(:lv_process, LvProcess, required: true)
 
   @impl true
   def render(assigns) do
+    assigns = assign(assigns, :disabled?, !assigns.lv_process.alive?)
+
     ~H"""
     <.tooltip id="inspect-button-tooltip" position="bottom" content="Inspect element on the page">
-      <.nav_icon icon="icon-inspect" selected?={@inspect_mode?} phx-click="switch-inspect-mode" />
+      <.nav_icon
+        icon="icon-inspect"
+        selected?={@inspect_mode?}
+        phx-click="switch-inspect-mode"
+        disabled?={@disabled?}
+      />
     </.tooltip>
     """
   end

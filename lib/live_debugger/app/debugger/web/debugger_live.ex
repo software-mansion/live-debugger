@@ -67,7 +67,10 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
           <Navbar.live_debugger_logo_icon />
           <HookComponents.DeadViewMode.render id="navbar-connected" lv_process={lv_process} />
           <div class="flex items-center gap-2">
-            <HookComponents.InspectButton.render inspect_mode?={@inspect_mode?} />
+            <HookComponents.InspectButton.render
+              inspect_mode?={@inspect_mode?}
+              lv_process={lv_process}
+            />
             <Navbar.settings_button return_to={@url} />
             <span class="h-5 border-r border-default-border lg:hidden"></span>
             <.nav_icon
