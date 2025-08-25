@@ -8,6 +8,7 @@ Designed to enhance your development experience LiveDebugger gives you:
 - The ability to inspect assigns for LiveViews and LiveComponents ([`Assigns Inspection`](./assigns_inspection.md))
 - Tracing of their callback executions ([`Callback Tracing`](./callback_tracing.md))
 - Highlighting components in debugged app ([`Components Highlighting`](./components_highlighting.md))
+- Inspecting elements on the page ([`Elements Inspection`](./elements_inspection.md))
 
 ## Installation
 

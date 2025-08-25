@@ -102,7 +102,8 @@ defmodule LiveDebugger.MixProject do
         "docs/assigns_inspection.md": [title: "Assigns Inspection"],
         "docs/callback_tracing.md": [title: "Callback Tracking"],
         "docs/components_highlighting.md": [title: "Components Highlighting"],
-        "docs/dead_view_mode.md": [title: "Dead View Mode"]
+        "docs/dead_view_mode.md": [title: "Dead View Mode"],
+        "docs/elements_inspection.md": [title: "Elements Inspection"]
       ],
       groups_for_extras: [
         Configuration: [
@@ -113,7 +114,8 @@ defmodule LiveDebugger.MixProject do
           "docs/components_tree.md",
           "docs/callback_tracing.md",
           "docs/components_highlighting.md",
-          "docs/dead_view_mode.md"
+          "docs/dead_view_mode.md",
+          "docs/elements_inspection.md"
         ]
       ],
       source_url: "https://github.com/software-mansion/live-debugger",
