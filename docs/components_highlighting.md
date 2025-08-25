@@ -21,7 +21,7 @@ This feature helps you visually identify and locate components rendered in the c
 > config :live_debugger, :highlighting?, false
 > ```
 
-## Usage
+## How to use
 
 You turn highlighting mode on by clicking switch button on top of LiveComponents tree.
 

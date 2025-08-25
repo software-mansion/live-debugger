@@ -2,7 +2,7 @@ This feature helps you inspect current state of assigns of any `LiveView` or `Li
 
 ![Assigns placement](images/assigns_inspection/assigns.png)
 
-## Usage
+## How to use
 
 ### Example
 

@@ -6,7 +6,7 @@ This feature allows you to debug the state of your application after redirecting
 
 DeadView Mode allows you to freely use both `Node Inspector` and `Global Traces`. The state, and callbacks are stored until you will continue to the next LiveView.
 
-## Usage
+## How to use
 
 ### Status indicator
 

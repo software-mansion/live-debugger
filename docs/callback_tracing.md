@@ -20,7 +20,7 @@ Callback tracer can be in 2 states:
 
 By default it will be stopped when you change nodes or navigate to other LiveView.
 
-## Usage
+## How to use
 
 ### Buttons
 
