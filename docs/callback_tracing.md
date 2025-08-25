@@ -1,22 +1,22 @@
-This is a complex feature which allows to see how functions in your LiveView application are being called. It is main feature which helps with identifying many problems.
+This is a complex feature which allows to see how functions in your LiveView application are being called.
 
 Callback tracing is done inside `Node Inspector` where you can see callbacks of selected node
 
-![Callback Tracing inside Node Inspector](images/callback_tracing_node_inspector.png)
+![Callback Tracing inside Node Inspector](images/callback_tracing/node_inspector.png)
 
 or you can inspect all nodes inside `Global Traces`
 
-![Callback Tracing inside Global Traces](images/callback_tracking_global_traces.png)
+![Callback Tracing inside Global Traces](images/callback_tracing/global_traces.png)
 
 Callback tracer can be in 2 states:
 
 - **Started** - You see all traces live as you use your debugged application, you cannot use filters.
 
-![Callback Tracing started](images/callback_tracing_started.gif)
+![Callback Tracing started](images/callback_tracing/tracing_on.gif)
 
 - **Stopped** - you need to refresh to see newest callbacks, you can use filters
 
-![Callback Tracing stopped](images/callback_tracing_stopped.gif)
+![Callback Tracing stopped](images/callback_tracing/tracing_off.gif)
 
 By default it will be stopped when you change nodes or navigate to other LiveView.
 
@@ -27,30 +27,31 @@ By default it will be stopped when you change nodes or navigate to other LiveVie
 - _Start_ - starts active tracing
 - _Refresh_ - loads newest traces
 - _Clear_ - removes traces (also the ones stored in memory)
-- _Filters_ - opens filters modal (only in `Node Inspector`)
 
 ### Filters
 
 Filters are used for both started tracing and refreshing. In `Node Inspector` they can be accessed via button and are displayed in modal. You can reset each section or all of them. If you close modal without clicking `Apply` nothing will change.
 
-![Callback Traces filters in Node Inspector](images/callback_tracing_filters_node_inspector.png)
+![Callback Traces filters in Node Inspector](images/callback_tracing/filters_in_node_inspector.png)
 
 When using `Global Traces` filters will be shown on the right (or in sidebar on small screens). To discard filters change you can click _Revert changes_ button.
 
-![Callback Traces filters in Global Traces](images/callback_tracing_filters_global_traces.png)
+![Callback Traces filters in Global Traces](images/callback_tracing/filters_in_global_traces.png)
 
 To better improve locating specific information you can filter by:
 
 - **Callbacks** - When working in `Node Inspector` you will see **either** `LiveView` or `LiveComponent` callback names. In `Global Traces` there will be all available callbacks to filter. It is useful when some you want to check specific part of your application (typically `handle_event`).
 - **Execution Time** - It is useful for checking bottlenecks in your app. You can set both minimal and maximal value (with unit).
 
-### Search
+### Search and highlight
 
-Search is a special filter available only for `GLobal Traces`. It allows to query trace's arguments to filter traces and highlight searched phrase.
+![Search in Global Traces](images/callback_tracing/search.gif)
+
+Search is a special filter available only for `GLobal Traces`. It allows to query trace's arguments to filter traces and highlight searched phrase. It will highlight all occurrences inside callback arguments and expand structs to see all of them.
 
 ### Trace information
 
-![Example of trace inside Global Traces](images/callback_tracing_trace_in_global_traces.png)
+![Example of trace inside Global Traces](images/callback_tracing/trace_opened.png)
 
 Traces contain useful information:
 
@@ -65,11 +66,11 @@ When you expand a trace you will see detailed list of arguments.
 
 You can copy each one of them if you want to process them in terminal.
 
-![Copy icon inside expanded trace](images/callback_tracing_copy_assigns.png)
+![Copy icon inside expanded trace](images/callback_tracing/copy_assigns.png)
 
 You are also able to see them in fullscreen mode.
 
-![Fullscreen view of a trace args](images/callback_tracing_fullscreen.png)
+![Fullscreen view of a trace args](images/callback_tracing/trace_fullscreen.png)
 
 ### Traced callbacks
 
@@ -118,7 +119,7 @@ To properly check each callback we are leveraging erlang's [`:dbg`](https://www.
 
 If you are using code reloading tracing may stop working due to modules being recompiled. To fix this issue see `Settings` and either select automatic tracing refresh
 
-![Setting for refreshing tracing after recompilation](./images/callback_tracing_refresh_after_recompilation.png)
+![Setting for refreshing tracing after recompilation](./images/callback_tracing/refresh_after_recompilation.png)
 
 > ### Warning {: .warning}
 >
@@ -126,4 +127,4 @@ If you are using code reloading tracing may stop working due to modules being re
 
 or do it manually.
 
-![Refresh Tracing button](./images/callback_tracing_refresh_tracing.png)
+![Refresh Tracing button](./images/callback_tracing/refresh_tracing.png)
