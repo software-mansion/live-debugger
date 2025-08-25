@@ -20,7 +20,7 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     |> assert_has(css("div.live-debugger-inspect-mode"))
     |> hover(live_component(2))
 
-    Process.sleep(200)
+    Process.sleep(400)
 
     dev_app1
     |> assert_has(tooltip_module_text("LiveDebuggerDev.LiveComponents.Name"))
