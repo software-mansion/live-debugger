@@ -56,7 +56,7 @@ defmodule LiveDebugger.Event do
   """
   @type t :: %{
           :__struct__ => atom(),
-          :__event__ => nil,
+          :__event__ => true,
           optional(atom()) => any()
         }
 
