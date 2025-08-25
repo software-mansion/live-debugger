@@ -18,7 +18,7 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
 
     dev_app1
     |> assert_has(css("div.live-debugger-inspect-mode"))
-    |> click(css("div[data-phx-component=\"2\"]"))
+    |> click(live_component(2))
     |> refute_has(css("div.live-debugger-inspect-mode"))
 
     debugger
@@ -94,7 +94,7 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     |> click(first_link())
 
     dev_app1
-    |> click(css("div[data-phx-component=\"2\"]"))
+    |> click(live_component(2))
 
     debugger1
     |> assert_has(
@@ -116,9 +116,5 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
         text: "LiveDebuggerDev.LiveViews.Main"
       )
     )
-  end
-
-  defp switch_inspect_mode_button() do
-    css("button[phx-click=\"switch-inspect-mode\"]")
   end
 end
