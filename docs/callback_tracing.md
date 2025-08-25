@@ -44,6 +44,10 @@ To better improve locating specific information you can filter by:
 - **Callbacks** - When working in `Node Inspector` you will see **either** `LiveView` or `LiveComponent` callback names. In `Global Traces` there will be all available callbacks to filter. It is useful when some you want to check specific part of your application (typically `handle_event`).
 - **Execution Time** - It is useful for checking bottlenecks in your app. You can set both minimal and maximal value (with unit).
 
+### Search
+
+Search is a special filter available only for `GLobal Traces`. It allows to query trace's arguments to filter traces and highlight searched phrase.
+
 ### Trace information
 
 ![Example of trace inside Global Traces](images/callback_tracing_trace_in_global_traces.png)
