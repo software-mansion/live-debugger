@@ -29,4 +29,46 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
       )
     )
   end
+
+  @sessions 2
+  feature "user can disable inspect mode from LiveDebugger", %{
+    sessions: [dev_app1, debugger]
+  } do
+    dev_app1
+    |> visit(@dev_app_url)
+    |> refute_has(css("div.live-debugger-inspect-mode"))
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> click(css("button[phx-click=\"switch-inspect-mode\"]"))
+
+    dev_app1
+    |> assert_has(css("div.live-debugger-inspect-mode"))
+
+    debugger
+    |> click(css("button[phx-click=\"switch-inspect-mode\"]"))
+
+    dev_app1
+    |> refute_has(css("div.live-debugger-inspect-mode"))
+  end
+
+  @sessions 2
+  feature "user can disable inspect mode by right clicking in debugged window", %{
+    sessions: [dev_app1, debugger]
+  } do
+    dev_app1
+    |> visit(@dev_app_url)
+    |> refute_has(css("div.live-debugger-inspect-mode"))
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> click(css("button[phx-click=\"switch-inspect-mode\"]"))
+
+    dev_app1
+    |> assert_has(css("div.live-debugger-inspect-mode"))
+    |> click(:right)
+    |> refute_has(css("div.live-debugger-inspect-mode"))
+  end
 end
