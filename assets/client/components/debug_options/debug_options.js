@@ -1,7 +1,7 @@
 import debugOptionsHtml from './debug_options.html';
 import { createElement, dispatchCustomEvent } from '../../utils/dom';
 
-export default function initDebugOptions({ liveDebuggerURL }) {
+export default function initDebugOptions({ liveDebuggerURL, debugChannel }) {
   const debugOptions = createElement(debugOptionsHtml);
 
   let isVisible = false;
@@ -75,8 +75,9 @@ export default function initDebugOptions({ liveDebuggerURL }) {
     .addEventListener('click', onMoveButtonClick);
 
   document.addEventListener('lvdbg:debug-button-click', onDebugButtonClick);
-
   document.addEventListener('lvdbg:click-outside-debug-menu', hideDebugOptions);
+
+  debugChannel.on('inspect-mode-changed', hideDebugOptions);
 
   window.addEventListener('resize', () => {
     if (isVisible) {
