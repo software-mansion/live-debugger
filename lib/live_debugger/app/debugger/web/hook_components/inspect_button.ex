@@ -6,6 +6,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
 
   use LiveDebugger.App.Web, :hook_component
 
+  alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
   alias LiveDebugger.Client
   alias LiveDebugger.Structs.LvProcess
 
@@ -38,6 +39,17 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
       />
     </.tooltip>
     """
+  end
+
+  defp handle_info(%DeadViewModeEntered{debugger_pid: pid}, socket) when pid == self() do
+    Client.push_event!(socket.assigns.root_socket_id, "inspect-mode-changed", %{
+      inspect_mode: false,
+      pid: inspect(self())
+    })
+
+    socket
+    |> assign(:inspect_mode?, false)
+    |> halt()
   end
 
   defp handle_info({"element-inspected", %{"pid" => pid, "url" => url}}, socket) do
