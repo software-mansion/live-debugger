@@ -2,7 +2,7 @@ This feature helps you visually identify and locate components rendered in the c
 
 > #### Important {: .info}
 >
-> Components Highlighting works only when browser features are enabled. 
+> Components Highlighting works only when browser features are enabled.
 >
 > They are enabled by default but you can enable them explicitly.
 >
@@ -21,7 +21,7 @@ This feature helps you visually identify and locate components rendered in the c
 > config :live_debugger, :highlighting?, false
 > ```
 
-### Usage
+## Usage
 
 You turn highlighting mode on by clicking switch button on top of LiveComponents tree.
 
@@ -47,3 +47,6 @@ When highlighting mode is enabled you can hover over the name of given LiveCompo
   <img src="images/highlight_example_4.png" alt="Highlight example 4" width="50%" />
 </div>
 
+> #### Important {: .info}
+>
+> This feature is disabled when LiveDebugger is in DeadViewMode (when the debugged process dies).

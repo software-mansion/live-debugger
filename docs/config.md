@@ -1,4 +1,4 @@
-### Browser features
+## Browser features
 
 Some features require injecting JS into the debugged application. They are enabled by default, but you can disable them in your config.
 
@@ -18,7 +18,7 @@ config :live_debugger, :highlighting?, false
 config :live_debugger, :external_url, "http://localhost:9007"
 ```
 
-### Content Security Policy
+## Content Security Policy
 
 In `router.ex` of your Phoenix app, make sure your locally running Phoenix app can access the LiveDebugger JS files on port 4007. To achieve that you may need to extend your CSP in `:dev` mode:
 
@@ -30,7 +30,7 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
     plug :put_secure_browser_headers, %{"content-security-policy" => @csp}
 ```
 
-### Other
+## Other Settings
 
 ```elixir
 # config/dev.exs
