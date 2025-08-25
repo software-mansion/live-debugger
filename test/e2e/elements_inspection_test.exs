@@ -71,4 +71,51 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     |> click(:right)
     |> refute_has(css("div.live-debugger-inspect-mode"))
   end
+
+  @sessions 4
+  feature "selecting node redirects all debugger windows that are subscribed to it", %{
+    sessions: [dev_app1, debugger1, debugger2, debugger3]
+  } do
+    dev_app1
+    |> visit(@dev_app_url)
+    |> refute_has(css("div.live-debugger-inspect-mode"))
+
+    debugger1
+    |> visit("/")
+    |> click(first_link())
+    |> click(css("button[phx-click=\"switch-inspect-mode\"]"))
+
+    debugger2
+    |> visit("/")
+    |> click(first_link())
+    |> click(css("button[phx-click=\"switch-inspect-mode\"]"))
+
+    debugger3
+    |> visit("/")
+    |> click(first_link())
+
+    dev_app1
+    |> click(css("div[data-phx-component=\"2\"]"))
+
+    debugger1
+    |> assert_has(
+      css("#node-inspector-basic-info-current-node-module",
+        text: "LiveDebuggerDev.LiveComponents.Name"
+      )
+    )
+
+    debugger2
+    |> assert_has(
+      css("#node-inspector-basic-info-current-node-module",
+        text: "LiveDebuggerDev.LiveComponents.Name"
+      )
+    )
+
+    debugger3
+    |> assert_has(
+      css("#node-inspector-basic-info-current-node-module",
+        text: "LiveDebuggerDev.LiveViews.Main"
+      )
+    )
+  end
 end
