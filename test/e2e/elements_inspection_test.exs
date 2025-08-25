@@ -14,7 +14,7 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     debugger
     |> visit("/")
     |> click(first_link())
-    |> click(css("button[phx-click=\"switch-inspect-mode\"]"))
+    |> click(switch_inspect_mode_button())
 
     dev_app1
     |> assert_has(css("div.live-debugger-inspect-mode"))
@@ -40,7 +40,7 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     debugger
     |> visit("/")
     |> click(first_link())
-    |> click(css("button[phx-click=\"switch-inspect-mode\"]"))
+    |> click(switch_inspect_mode_button())
 
     dev_app1
     |> assert_has(css("div.live-debugger-inspect-mode"))
@@ -63,7 +63,7 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     debugger
     |> visit("/")
     |> click(first_link())
-    |> click(css("button[phx-click=\"switch-inspect-mode\"]"))
+    |> click(switch_inspect_mode_button())
 
     dev_app1
     |> assert_has(css("div.live-debugger-inspect-mode"))
@@ -82,12 +82,12 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     debugger1
     |> visit("/")
     |> click(first_link())
-    |> click(css("button[phx-click=\"switch-inspect-mode\"]"))
+    |> click(switch_inspect_mode_button())
 
     debugger2
     |> visit("/")
     |> click(first_link())
-    |> click(css("button[phx-click=\"switch-inspect-mode\"]"))
+    |> click(switch_inspect_mode_button())
 
     debugger3
     |> visit("/")
@@ -116,5 +116,9 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
         text: "LiveDebuggerDev.LiveViews.Main"
       )
     )
+  end
+
+  defp switch_inspect_mode_button() do
+    css("button[phx-click=\"switch-inspect-mode\"]")
   end
 end
