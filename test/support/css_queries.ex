@@ -23,6 +23,10 @@ defmodule LiveDebugger.Support.CssQueries do
 
   def first_link(), do: css("#live-sessions a.live-view-link", count: 1)
 
+  def live_component(id), do: css("div[data-phx-component=\"#{id}\"]")
+
+  def switch_inspect_mode_button(), do: css("button[phx-click=\"switch-inspect-mode\"]")
+
   def no_traces_info() do
     css("#global-traces-stream-empty", text: "No traces have been recorded yet.")
   end
