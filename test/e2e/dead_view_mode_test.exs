@@ -39,5 +39,15 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
 
     debugger
     |> assert_has(css("label.pointer-events-none", text: "Highlight"))
+    |> click(global_callback_traces_button())
+    |> assert_has(global_traces(count: 25))
+    |> click(node_inspector_button())
+    |> assert_has(css("label.pointer-events-none", text: "Highlight"))
   end
+
+  defp global_traces(opts), do: css("#global-traces-stream details", opts)
+
+  defp global_callback_traces_button(), do: css("button[aria-label=\"Icon globe\"]")
+
+  defp node_inspector_button(), do: css("button[aria-label=\"Icon info\"]")
 end
