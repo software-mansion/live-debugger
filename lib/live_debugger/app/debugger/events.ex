@@ -8,4 +8,5 @@ defmodule LiveDebugger.App.Debugger.Events do
   alias LiveDebugger.App.Debugger.Structs.TreeNode
 
   defevent(NodeIdParamChanged, node_id: TreeNode.id(), debugger_pid: pid())
+  defevent(DeadViewModeEntered, debugger_pid: pid())
 end

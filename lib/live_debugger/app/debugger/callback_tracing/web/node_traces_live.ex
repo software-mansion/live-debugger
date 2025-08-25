@@ -158,4 +158,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
     |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> noreply()
   end
+
+  def handle_info(_, socket), do: {:noreply, socket}
 end

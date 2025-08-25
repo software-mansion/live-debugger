@@ -19,6 +19,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
   alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorNotFound
   alias LiveDebugger.App.Events.UserChangedSettings
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
+  alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
 
   @impl true
   def init(socket) do
@@ -96,6 +97,8 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
         socket.assigns.lv_process.result
         |> LvProcess.set_alive(false)
         |> AsyncResult.ok()
+
+      Bus.broadcast_event!(%DeadViewModeEntered{debugger_pid: self()}, self())
 
       socket
       |> assign(:lv_process, lv_process)
