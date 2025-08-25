@@ -25,7 +25,9 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   @impl true
   def render(assigns) do
     ~H"""
-    <.nav_icon icon="icon-inspect" selected?={@inspect_mode?} phx-click="switch-inspect-mode" />
+    <.tooltip id="inspect-button-tooltip" position="bottom" content="Inspect element on the page">
+      <.nav_icon icon="icon-inspect" selected?={@inspect_mode?} phx-click="switch-inspect-mode" />
+    </.tooltip>
     """
   end
 
