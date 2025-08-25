@@ -2,9 +2,20 @@ import { dispatchCustomEvent } from '../utils/dom';
 
 const highlightElementID = 'live-debugger-highlight-element';
 const highlightPulseElementID = 'live-debugger-highlight-pulse-element';
+const liveViewColors = ['#ffe78080', '#ffe78060', '#ffe78030', '#ffe78000'];
+const liveComponentsColors = [
+  '#87CCE880',
+  '#87CCE860',
+  '#87CCE830',
+  '#87CCE800',
+];
 
 const isElementVisible = (element) => {
   if (!element) return false;
+
+  if (element.checkVisibility) {
+    return element.checkVisibility();
+  }
 
   const style = window.getComputedStyle(element);
   return (
@@ -13,6 +24,10 @@ const isElementVisible = (element) => {
     style.opacity !== '0'
   );
 };
+
+function getHighlightColors(type) {
+  return type === 'LiveComponent' ? liveComponentsColors : liveViewColors;
+}
 
 function createHighlightElement(activeElement, detail, id) {
   const rect = activeElement.getBoundingClientRect();
@@ -27,8 +42,7 @@ function createHighlightElement(activeElement, detail, id) {
   highlight.style.left = `${rect.left + window.scrollX}px`;
   highlight.style.width = `${activeElement.offsetWidth}px`;
   highlight.style.height = `${activeElement.offsetHeight}px`;
-  highlight.style.backgroundColor =
-    detail.type === 'LiveComponent' ? '#87CCE880' : '#ffe78080';
+  highlight.style.backgroundColor = getHighlightColors(detail.type)[0];
   highlight.style.zIndex = '10000';
   highlight.style.pointerEvents = 'none';
 
@@ -108,25 +122,27 @@ function handlePulse({ detail }) {
     const w = highlightPulse.offsetWidth;
     const h = highlightPulse.offsetHeight;
 
+    const colors = getHighlightColors(detail.type);
+
     highlightPulse.animate(
       [
         {
           width: `${w}px`,
           height: `${h}px`,
           transform: 'translate(0, 0)',
-          backgroundColor: '#87CCE860',
+          backgroundColor: colors[1],
         },
         {
           width: `${w + 20}px`,
           height: `${h + 20}px`,
           transform: 'translate(-10px, -10px)',
-          backgroundColor: '#87CCE830',
+          backgroundColor: colors[2],
         },
         {
           width: `${w + 40}px`,
           height: `${h + 40}px`,
           transform: 'translate(-20px, -20px)',
-          backgroundColor: '#87CCE800',
+          backgroundColor: colors[3],
         },
       ],
       {
@@ -160,12 +176,13 @@ function showTooltip(detail) {
   dispatchCustomEvent('lvdbg:show-tooltip', props);
 }
 
-export default function initHighlight() {
+export default function initHighlight(debugChannel) {
   document.addEventListener('lvdbg:inspect-highlight', handleHighlight);
   document.addEventListener('lvdbg:inspect-pulse', handlePulse);
   document.addEventListener('lvdbg:inspect-clear', removeHighlightElement);
 
-  window.addEventListener('phx:highlight', handleHighlight);
+  debugChannel.on('highlight', (e) => handleHighlight({ detail: e }));
+  debugChannel.on('pulse', (e) => handlePulse({ detail: e }));
+
   window.addEventListener('resize', handleHighlightResize);
-  window.addEventListener('phx:pulse', handlePulse);
 }

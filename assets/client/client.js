@@ -38,7 +38,7 @@ window.document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (isHighlightingEnabled(metaTag)) {
-      initHighlight();
+      initHighlight(debugChannel);
     }
   }
 
