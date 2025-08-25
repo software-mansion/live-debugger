@@ -5,7 +5,7 @@ You can open LiveDebugger `Node Inspector` on right element by selecting it with
 >
 > Elements Inspection works only when browser features are enabled. 
 >
-> They are enabled by default but you can enable them explicitly.
+> They are enabled by default but you can enable them explicitly:
 >
 > ```elixir
 > # config/dev.exs
@@ -16,6 +16,8 @@ You can open LiveDebugger `Node Inspector` on right element by selecting it with
 >
 > For proper working make sure you don't have highlighting disabled.
 >
+> It's enabled by default but you can enable it explicitly:
+>
 > ```elixir
 > # config/dev.exs
 >
@@ -24,11 +26,11 @@ You can open LiveDebugger `Node Inspector` on right element by selecting it with
 
 ### How to use
 You can enable inspecting mode in two ways:
-- Using `Debug Button` in the debugged LiveView window (clicking button and selecting from menu).
+- Using `Debug Button` in the debugged LiveView window (clicking button and selecting from menu)
 
 ![Debug Button - Inspect in new tab](images/debug_button_inspect_element.png)
 
-- Using `Inspect Element` button in the LiveDebugger.
+- Using `Inspect Element` button in the LiveDebugger (not available in `Dead View Mode`)
 
 ![Inspect Element Button](images/inspect_element_button.png)
 
