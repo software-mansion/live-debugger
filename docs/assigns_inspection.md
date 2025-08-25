@@ -1,6 +1,6 @@
 This feature helps you inspect current state of assigns of any `LiveView` or `LiveComponent` inside your debugged application. It is updated whenever assigns of currently inspected node (`LiveView` or `LiveComponent`) change.
 
-![Assigns placement](images/assigns.png)
+![Assigns placement](images/assigns_inspection/assigns.png)
 
 ## Usage
 
@@ -8,21 +8,20 @@ This feature helps you inspect current state of assigns of any `LiveView` or `Li
 
 After triggering events callbacks in debugged `LiveView`, changes in its assigns are immidiately shown. This is useful to see how user actions affect a component's state and confirm that assigns are updating as expected.
 
-![Assigns inspection](images/assigns_inspection.gif)
+![Assigns inspection](images/assigns_inspection/inspecting.gif)
 
 If examined assigns are too big they are collapsed at certain level for ease of use. You can expand them according to your needs.
 
-<div style="display: flex; justify-content: center; gap: 1rem;">
-  <img src="images/assigns_collapsed.png" alt="Assigns collapsed" width="50%" />
-  <img src="images/assigns_expanded.png" alt="Assigns expanded" width="50%" />
+<div style="display: flex; align-items: center; justify-content: center;">
+  <img src="images/assigns_inspection/expanding.gif" alt="Assigns expanding" width="50%" />
 </div>
 
 If you want to dive deeper and for example perform some operations on particular assigns you can copy them from LiveDebugger and paste it inside your IEx session.
 
 <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-  <img src="images/assigns_copied.png" alt="Assigns copied" width="70%" />
-  <img src="images/assigns_paste_iex.png" alt="Assigns pasting into iex" width="70%" />
-  <img src="images/assigns_in_iex.png" alt="Assigns available in iex" width="70%" />
+  <img src="images/assigns_inspection/copied.png" alt="Assigns copied" width="70%" />
+  <img src="images/assigns_inspection/paste_iex.png" alt="Assigns pasting into iex" width="70%" />
+  <img src="images/assigns_inspection/in_iex.png" alt="Assigns available in iex" width="70%" />
 </div>
 
 ## How It Helps with Debugging
