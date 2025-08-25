@@ -22,7 +22,6 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     |> refute_has(css("div.live-debugger-inspect-mode"))
 
     debugger
-    |> take_screenshot()
     |> assert_has(
       css("#node-inspector-basic-info-current-node-module",
         text: "LiveDebuggerDev.LiveComponents.Name"
