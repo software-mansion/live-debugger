@@ -34,11 +34,11 @@ window.document.addEventListener('DOMContentLoaded', function () {
     initTooltip();
 
     if (isDebugButtonEnabled(metaTag)) {
-      initDebugMenu(sessionURL);
+      initDebugMenu(sessionURL, debugChannel);
     }
 
     if (isHighlightingEnabled(metaTag)) {
-      initHighlight();
+      initHighlight(debugChannel);
     }
   }
 

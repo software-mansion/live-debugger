@@ -7,8 +7,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
 
   require Logger
 
-  alias Phoenix.Socket.Message
-  alias LiveDebugger.API.System.Process, as: ProcessAPI
+  alias LiveDebugger.Client
   alias LiveDebugger.App.Utils.URL
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Debugger.ComponentsTree.Web.Components, as: TreeComponents
@@ -19,6 +18,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
 
   @doc """
   Renders the `ComponentsTreeLive` as a nested LiveView component.
@@ -33,6 +33,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
   attr(:id, :string, required: true)
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:lv_process, LvProcess, required: true)
+  attr(:root_socket_id, :string, required: true)
   attr(:node_id, :any, required: true)
   attr(:url, :string, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the wrapper div")
@@ -41,6 +42,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     session = %{
       "lv_process" => assigns.lv_process,
       "node_id" => assigns.node_id,
+      "root_socket_id" => assigns.root_socket_id,
       "url" => assigns.url,
       "parent_pid" => self()
     }
@@ -66,8 +68,10 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     |> assign(lv_process: lv_process)
     |> assign(parent_pid: parent_pid)
     |> assign(node_id: session["node_id"])
+    |> assign(root_socket_id: session["root_socket_id"])
     |> assign(url: session["url"])
     |> assign(highlight?: false)
+    |> assign(highlight_disabled?: false)
     |> assign_async_tree()
     |> ok()
   end
@@ -91,6 +95,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
             label="Highlight"
             checked={@highlight?}
             phx-click="toggle-highlight"
+            disabled={@highlight_disabled?}
           />
         </div>
         <div class="flex-1">
@@ -155,13 +160,23 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     |> noreply()
   end
 
+  def handle_info(
+        %DeadViewModeEntered{debugger_pid: pid},
+        %{assigns: %{parent_pid: pid}} = socket
+      ) do
+    socket
+    |> assign(highlight_disabled?: true)
+    |> assign(highlight?: false)
+    |> noreply()
+  end
+
   defp assign_async_tree(socket) do
     pid = socket.assigns.lv_process.pid
     assign_async(socket, [:tree], fn -> ComponentsTreeQueries.fetch_components_tree(pid) end)
   end
 
   defp highlight_element(
-         %{assigns: %{highlight?: true, lv_process: %{pid: pid}}} = socket,
+         %{assigns: %{highlight_disabled?: false, highlight?: true}} = socket,
          params
        ) do
     payload = %{
@@ -173,7 +188,8 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
       id_key: if(params["type"] == "live_view", do: "PID", else: "CID")
     }
 
-    send_event(pid, "highlight", payload)
+    Client.push_event!(socket.assigns.root_socket_id, "highlight", payload)
+
     socket
   end
 
@@ -181,29 +197,26 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     socket
   end
 
-  defp pulse_element(socket, %{"search-attribute" => attr, "search-value" => val}) do
-    if LiveDebugger.Feature.enabled?(:highlighting) do
-      # Resets the highlight when the user selects node
-      if socket.assigns.highlight? do
-        send_event(socket.assigns.lv_process.pid, "highlight", %{attr: attr, val: val})
-      end
-
-      send_event(socket.assigns.lv_process.pid, "pulse", %{attr: attr, val: val})
-    end
-
+  defp pulse_element(%{assigns: %{highlight_disabled?: true}} = socket, _) do
     socket
   end
 
-  defp send_event(pid, event, payload) do
-    {:ok, state} = ProcessAPI.state(pid)
+  defp pulse_element(socket, params) do
+    if LiveDebugger.Feature.enabled?(:highlighting) do
+      # Resets the highlight when the user selects node
+      if socket.assigns.highlight? do
+        Client.push_event!(socket.assigns.root_socket_id, "highlight")
+      end
 
-    message = %Message{
-      topic: state.topic,
-      event: "diff",
-      payload: %{e: [[event, payload]]},
-      join_ref: state.join_ref
-    }
+      payload = %{
+        attr: params["search-attribute"],
+        val: params["search-value"],
+        type: if(params["type"] == "live_view", do: "LiveView", else: "LiveComponent")
+      }
 
-    send(state.socket.transport_pid, state.serializer.encode!(message))
+      Client.push_event!(socket.assigns.root_socket_id, "pulse", payload)
+    end
+
+    socket
   end
 end

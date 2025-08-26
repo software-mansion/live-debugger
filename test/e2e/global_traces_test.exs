@@ -113,7 +113,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     |> click(toggle_tracing_button())
 
     dev_app
-    |> click(css("button#send-button"))
+    |> click(button("send-button"))
 
     Process.sleep(200)
 
@@ -122,7 +122,35 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
 
     debugger
     |> fill_in(search_bar(), with: ":new_datetime")
-    |> assert_has(traces(count: 1))
+    |> find(traces(count: 1), fn trace -> assert_text(trace, ":new_datetime") end)
+    |> click(clear_traces_button())
+
+    dev_app
+    |> click(button("increment-button"))
+
+    [render_trace, handle_event_trace] =
+      debugger
+      |> fill_in(search_bar(), with: "deep value")
+      |> find(traces(count: 2))
+
+    render_trace
+    |> click(css("summary"))
+    |> assert_has(css("pre", text: "\"deep value\"", count: 2, visible: true))
+    |> click(open_fullscreen_trace_button())
+
+    debugger
+    |> find(css("#trace-fullscreen"))
+    |> assert_has(css("pre", text: "\"deep value\"", count: 2, visible: true))
+    |> click(button("trace-fullscreen-close"))
+
+    handle_event_trace
+    |> click(css("summary"))
+    |> assert_has(css("pre", text: "\"deep value\"", count: 1, visible: true))
+    |> click(open_fullscreen_trace_button())
+
+    debugger
+    |> find(css("#trace-fullscreen"))
+    |> assert_has(css("pre", text: "\"deep value\"", count: 1, visible: true))
   end
 
   @sessions 2
@@ -146,7 +174,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     |> click(toggle_tracing_button())
 
     dev_app
-    |> click(css("button#send-button"))
+    |> click(button("send-button"))
 
     Process.sleep(200)
 
@@ -161,4 +189,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
   defp trace_module(opts), do: css("#global-traces-stream details div.col-span-3", opts)
 
   defp global_callback_traces_button(), do: css("button[aria-label=\"Icon globe\"]")
+
+  defp open_fullscreen_trace_button(), do: css("button[phx-click=\"open-trace\"]")
 end

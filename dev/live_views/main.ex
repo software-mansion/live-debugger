@@ -27,6 +27,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
         long_assign:
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
       )
+      |> assign(deep_assign: %{b: %{c: %{d: %{e: %{f: %{g: "deep value"}}}}}})
 
     {:ok, socket}
   end
