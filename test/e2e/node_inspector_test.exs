@@ -538,6 +538,25 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     end)
   end
 
+  @sessions 2
+  feature "user can highlight nodes", %{sessions: [dev_app, debugger]} do
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> click(highlight_switch())
+    |> hover(name_component_2_node_button())
+
+    Process.sleep(400)
+
+    dev_app
+    |> assert_has(inspect_tooltip_module_text("LiveDebuggerDev.LiveComponents.Name"))
+    |> assert_has(inspect_tooltip_type_text("LiveComponent"))
+    |> assert_has(inspect_tooltip_value_text("2"))
+  end
+
   defp assigns_entry(key: key, value: value) do
     xpath(
       ".//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"#{key}:\")]/../..//*[contains(normalize-space(text()), \"#{value}\")]"
@@ -559,6 +578,10 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   defp reset_filters_button(), do: css("button[phx-click=\"reset-filters\"]")
 
+  defp name_component_2_node_button() do
+    css("#button-tree-node-2-components-tree")
+  end
+
   defp conditional_component_5_node_button() do
     css("#button-tree-node-5-components-tree")
   end
@@ -573,5 +596,12 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   defp reset_group_button(group) do
     css("button[phx-click=\"reset-group\"][phx-value-group=\"#{group}\"]")
+  end
+
+  # The toggle_switch component uses a hidden checkbox input with class "sr-only" (screen reader only).
+  # Wallaby cannot click on hidden elements, so we need to click on the visible label element
+  # that contains the checkbox instead of the checkbox itself.
+  defp highlight_switch() do
+    xpath("//label[.//input[@id='highlight-switch']]")
   end
 end

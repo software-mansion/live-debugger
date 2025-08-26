@@ -23,9 +23,9 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     Process.sleep(400)
 
     dev_app1
-    |> assert_has(tooltip_module_text("LiveDebuggerDev.LiveComponents.Name"))
-    |> assert_has(tooltip_type_text("LiveComponent"))
-    |> assert_has(tooltip_value_text("2"))
+    |> assert_has(inspect_tooltip_module_text("LiveDebuggerDev.LiveComponents.Name"))
+    |> assert_has(inspect_tooltip_type_text("LiveComponent"))
+    |> assert_has(inspect_tooltip_value_text("2"))
 
     dev_app1
     |> click(live_component(2))
@@ -126,17 +126,5 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
         text: "LiveDebuggerDev.LiveViews.Main"
       )
     )
-  end
-
-  defp tooltip_module_text(text) do
-    css("div#live-debugger-tooltip div.live-debugger-tooltip-module", text: text)
-  end
-
-  defp tooltip_type_text(text) do
-    css("div#live-debugger-tooltip span.type-text", text: text)
-  end
-
-  defp tooltip_value_text(text) do
-    css("div#live-debugger-tooltip span.value", text: text)
   end
 end

@@ -38,4 +38,16 @@ defmodule LiveDebugger.Support.CssQueries do
   def search_bar() do
     css("#trace-search-input")
   end
+
+  def inspect_tooltip_module_text(text) do
+    css("div#live-debugger-tooltip div.live-debugger-tooltip-module", text: text)
+  end
+
+  def inspect_tooltip_type_text(text) do
+    css("div#live-debugger-tooltip span.type-text", text: text)
+  end
+
+  def inspect_tooltip_value_text(text) do
+    css("div#live-debugger-tooltip span.value", text: text)
+  end
 end
