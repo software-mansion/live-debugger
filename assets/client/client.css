@@ -35,7 +35,7 @@
 }
 
 #live-debugger-debug-tooltip {
-  position: absolute;
+  position: fixed;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
