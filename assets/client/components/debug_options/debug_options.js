@@ -13,21 +13,18 @@ export default function initDebugOptions({ liveDebuggerURL, debugChannel }) {
     const debugOptionsWidth = debugOptionsRect.width;
     const debugOptionsHeight = debugOptionsRect.height;
 
-    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-
     // Check if the debug options would overflow on the right
     if (debugButtonRect.right + debugOptionsWidth > window.innerWidth) {
-      debugOptions.style.left = `${debugButtonRect.left + scrollX - debugOptionsWidth}px`;
+      debugOptions.style.left = `${debugButtonRect.left - debugOptionsWidth}px`;
     } else {
-      debugOptions.style.left = `${debugButtonRect.right + scrollX}px`;
+      debugOptions.style.left = `${debugButtonRect.right}px`;
     }
 
     // Check if the debug options would overflow on the bottom
     if (debugButtonRect.top + debugOptionsHeight > window.innerHeight) {
-      debugOptions.style.top = `${debugButtonRect.bottom + scrollY - debugOptionsHeight}px`;
+      debugOptions.style.top = `${debugButtonRect.bottom - debugOptionsHeight}px`;
     } else {
-      debugOptions.style.top = `${debugButtonRect.top + scrollY}px`;
+      debugOptions.style.top = `${debugButtonRect.top}px`;
     }
 
     isVisible = true;
