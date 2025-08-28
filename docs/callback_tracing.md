@@ -74,7 +74,7 @@ You are also able to see them in fullscreen mode.
 
 ### Traced callbacks
 
-`LiveDebugger` traces callbacks of `Phoenix.LiveView` and `Phoenix.LiveComponent` behaviours in your application.
+LiveDebugger traces callbacks of `Phoenix.LiveView` and `Phoenix.LiveComponent` behaviours in your application.
 
 #### LiveView
 
