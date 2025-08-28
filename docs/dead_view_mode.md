@@ -18,8 +18,6 @@ When LiveView is _alive_ you can see it's `PID`.
 
 When LiveView is _dead_ you can click `Continue` to find a successor (page which you've navigated to or the reconnected page after crash).
 
-![DeadView Mode navbar status: Dead](images/dead_view_status_dead.png)
-
 ### How it helps with Debugging
 
 When dealing with either crash or redirection you can:
@@ -34,5 +32,3 @@ You can enable or disable DeadView Mode either in config file or in settings. By
 ```elixir
 config :live_debugger, :dead_view_mode, true
 ```
-
-![DeadView Mode option in settings](images/dead_view_settings.png)

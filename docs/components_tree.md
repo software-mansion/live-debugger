@@ -15,18 +15,9 @@ The root of the tree is LiveView and children are LiveComponents with their CIDs
 
 Components Tree helps you discover adding and removing of conditionally rendered LiveComponents.
 
-<div style="display: flex; justify-content: space-evenly;">
-<img src="images/components_tree_conditional_closed.png" alt="Conditional closed in Components Tree" width="40%"/>
-<img src="images/components_tree_conditional_opened.png" alt="Conditional opened in Components Tree" width="40%"/>
-</div>
-
 ### Nested LiveViews
 
 Nested LiveViews are not shown inside Components Tree since they are separate processes which you can debug. In sidebar you can see list of LiveViews which are children to currently debugged one.
-
-<div style="display: flex; justify-content: center;">
-<img src="images/nested_live_views.png" alt="Nested LiveViews" height="200px">
-</div>
 
 > #### Important {: .info}
 >

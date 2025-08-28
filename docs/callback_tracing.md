@@ -2,21 +2,16 @@ This is a complex feature which allows to see how functions in your LiveView app
 
 Callback tracing is done inside `Node Inspector` where you can see callbacks of selected node
 
-![Callback Tracing inside Node Inspector](images/callback_tracing/node_inspector.png)
+![Callback Tracing inside Node Inspector](images/tracing_node_inspector.png)
 
 or you can inspect all nodes inside `Global Traces`
 
-![Callback Tracing inside Global Traces](images/callback_tracing/global_traces.png)
+![Callback Tracing inside Global Traces](images/tracing_global_traces.png)
 
 Callback tracer can be in 2 states:
 
 - **Started** - You see all traces live as you use your debugged application, you cannot use filters.
-
-![Callback Tracing started](images/callback_tracing/tracing_on.gif)
-
 - **Stopped** - you need to refresh to see newest callbacks, you can use filters
-
-![Callback Tracing stopped](images/callback_tracing/tracing_off.gif)
 
 By default it will be stopped when you change nodes or navigate to other LiveView.
 
@@ -32,11 +27,7 @@ By default it will be stopped when you change nodes or navigate to other LiveVie
 
 Filters are used for both started tracing and refreshing. In `Node Inspector` they can be accessed via button and are displayed in modal. You can reset each section or all of them. If you close modal without clicking `Apply` nothing will change.
 
-![Callback Traces filters in Node Inspector](images/callback_tracing/filters_in_node_inspector.png)
-
 When using `Global Traces` filters will be shown on the right (or in sidebar on small screens). To discard filters change you can click _Revert changes_ button.
-
-![Callback Traces filters in Global Traces](images/callback_tracing/filters_in_global_traces.png)
 
 To better improve locating specific information you can filter by:
 
@@ -45,13 +36,9 @@ To better improve locating specific information you can filter by:
 
 ### Search and highlight
 
-![Search in Global Traces](images/callback_tracing/search.gif)
-
 Search is a special filter available only for `GLobal Traces`. It allows to query trace's arguments to filter traces and highlight searched phrase. It will highlight all occurrences inside callback arguments and expand structs to see all of them.
 
 ### Trace information
-
-![Example of trace inside Global Traces](images/callback_tracing/trace_opened.png)
 
 Traces contain useful information:
 
@@ -66,11 +53,11 @@ When you expand a trace you will see detailed list of arguments.
 
 You can copy each one of them if you want to process them in terminal.
 
-![Copy icon inside expanded trace](images/callback_tracing/copy_assigns.png)
+![Copy icon inside expanded trace](images/trace_copy_button.png)
 
 You are also able to see them in fullscreen mode.
 
-![Fullscreen view of a trace args](images/callback_tracing/trace_fullscreen.png)
+![Fullscreen view of a trace args](images/trace_fullscreen_button.png)
 
 ### Traced callbacks
 
@@ -117,14 +104,8 @@ We are approximating size of elixir terms in garbage collection so the actual ma
 
 To properly check each callback we are leveraging erlang's [`:dbg`](https://www.erlang.org/doc/apps/runtime_tools/dbg.html) module. When the application starts `:dbg.tracer/0` is initiated and calls for all LiveView or LiveComponent modules are added. It traces start of the callback, end of it and exceptions if some occur which allows to measure time of execution and which callback ended with error.
 
-If you are using code reloading tracing may stop working due to modules being recompiled. To fix this issue see `Settings` and either select automatic tracing refresh
-
-![Setting for refreshing tracing after recompilation](./images/callback_tracing/refresh_after_recompilation.png)
+If you are using code reloading tracing may stop working due to modules being recompiled. To fix this issue see `Settings` and either select automatic tracing refresh or do it manually.
 
 > ### Warning {: .warning}
 >
-> It may have negative impact on your app performance
-
-or do it manually.
-
-![Refresh Tracing button](./images/callback_tracing/refresh_tracing.png)
+> Automatic tracing refresh may have negative impact on your app performance
