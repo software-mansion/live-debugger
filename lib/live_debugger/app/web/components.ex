@@ -670,6 +670,7 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:icon, :string, required: true, doc: "Icon to be displayed.")
   attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
   attr(:selected?, :boolean, default: false, doc: "Whether the icon is selected.")
+  attr(:disabled?, :boolean, default: false, doc: "Whether the icon is disabled.")
 
   attr(:rest, :global, include: ~w(id))
 
@@ -681,13 +682,19 @@ defmodule LiveDebugger.App.Web.Components do
         "text-navbar-icon hover:text-navbar-icon-hover hover:bg-navbar-icon-bg-hover"
       end
 
+    disabled_class =
+      if assigns.disabled? do
+        "opacity-50 pointer-events-none"
+      end
+
     assigns = assign(assigns, :selected_class, selected_class)
+    assigns = assign(assigns, :disabled_class, disabled_class)
 
     ~H"""
     <button
       aria-label={Format.kebab_to_text(@icon)}
       class={[
-        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold  #{@selected_class}"
+        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold  #{@selected_class} #{@disabled_class}"
         | List.wrap(@class)
       ]}
       {@rest}
