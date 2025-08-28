@@ -71,7 +71,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     |> assign(root_socket_id: session["root_socket_id"])
     |> assign(url: session["url"])
     |> assign(highlight?: false)
-    |> assign(highlight_disabled?: false)
+    |> assign(highlight_disabled?: !lv_process.alive?)
     |> assign_async_tree()
     |> ok()
   end
