@@ -23,6 +23,10 @@ defmodule LiveDebugger.Support.CssQueries do
 
   def first_link(), do: css("#live-sessions a.live-view-link", count: 1)
 
+  def live_component(id), do: css("div[data-phx-component=\"#{id}\"]")
+
+  def switch_inspect_mode_button(), do: css("button[phx-click=\"switch-inspect-mode\"]")
+
   def no_traces_info() do
     css("#global-traces-stream-empty", text: "No traces have been recorded yet.")
   end
@@ -33,5 +37,17 @@ defmodule LiveDebugger.Support.CssQueries do
 
   def search_bar() do
     css("#trace-search-input")
+  end
+
+  def inspect_tooltip_module_text(text) do
+    css("div#live-debugger-tooltip div.live-debugger-tooltip-module", text: text)
+  end
+
+  def inspect_tooltip_type_text(text) do
+    css("div#live-debugger-tooltip span.type-text", text: text)
+  end
+
+  def inspect_tooltip_value_text(text) do
+    css("div#live-debugger-tooltip span.value", text: text)
   end
 end
