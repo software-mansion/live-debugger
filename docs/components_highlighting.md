@@ -2,7 +2,7 @@ This feature helps you visually identify and locate components rendered in the c
 
 > #### Important {: .info}
 >
-> Components Highlighting works only when browser features are enabled. 
+> Components Highlighting works only when browser features are enabled.
 >
 > They are enabled by default but you can enable them explicitly.
 >
@@ -21,20 +21,19 @@ This feature helps you visually identify and locate components rendered in the c
 > config :live_debugger, :highlighting?, false
 > ```
 
-### Usage
+## How to use
 
 You turn highlighting mode on by clicking switch button on top of LiveComponents tree.
 
-<div style="display: flex; justify-content: center; gap: 1rem;">
-  <img src="images/components_highlighting_switch_off.png" alt="Component highlighting switch off" width="40%" />
-  <img src="images/components_highlighting_switch_on.png" alt="Component highlighting switch on" width="40%" />
+<div style="display: flex; justify-content: center;">
+  <img src="images/components_highlighting/toggle.gif" alt="Component highlighting switch off" width="70%" />
 </div>
 
 When highlighting mode is enabled you can hover over the name of given LiveComponent and LiveDebugger will highlight corresponding DOM element in your debugged LiveView. This mode provides immediate, non-intrusive feedback about where the component is rendered.
 
 <div style="display: flex; flex-direction: column; gap: 1rem;">
-  <img src="images/highlight_example_1.png" alt="Highlight example 1" />
-  <img src="images/highlight_example_2.png" alt="Highlight example 2" />
+  <img src="images/components_highlighting/example_1.png" alt="Highlight example 1" />
+  <img src="images/components_highlighting/example_2.png" alt="Highlight example 2" />
 </div>
 
 ### How It Helps with Debugging
@@ -43,7 +42,10 @@ When highlighting mode is enabled you can hover over the name of given LiveCompo
 - Distinguish LiveComponents that are rendered multiple times.
 
 <div style="display: flex; gap: 1rem;">
-  <img src="images/highlight_example_3.png" alt="Highlight example 3" width="50%" />
-  <img src="images/highlight_example_4.png" alt="Highlight example 4" width="50%" />
+  <img src="images/components_highlighting/example_3.png" alt="Highlight example 3" width="50%" />
+  <img src="images/components_highlighting/example_4.png" alt="Highlight example 4" width="50%" />
 </div>
 
+> #### Important {: .info}
+>
+> This feature is disabled when LiveDebugger is in DeadViewMode (when the debugged process dies).

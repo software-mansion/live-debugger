@@ -6,6 +6,8 @@ This feature allows you to debug the state of your application after redirecting
 
 DeadView Mode allows you to freely use both `Node Inspector` and `Global Traces`. The state, and callbacks are stored until you will continue to the next LiveView.
 
+## How to use
+
 ### Status indicator
 
 On your navbar you can see the status of monitored LiveView.
@@ -25,7 +27,7 @@ When dealing with either crash or redirection you can:
 - Inspect last state of LiveView or LiveComponents
 - See callbacks order and which one was the last
 
-### Configuration
+## Configuration
 
 You can enable or disable DeadView Mode either in config file or in settings. By default it will be enabled.
 
