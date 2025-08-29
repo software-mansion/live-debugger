@@ -14,7 +14,7 @@ Designed to enhance your development experience LiveDebugger gives you:
 >
 > We are currently taking a survey to improve LiveDebugger and decide its future.
 >
-> Every opinion and feedback matters so please take a moment to fill **[this survey](https://docs.google.com/forms/d/1-VdPBCDZ5oDxxSbgpyM9Yri3xhMvzNWA4wvQrXkbpzw/viewform?edit_requested=true)**
+> Every opinion and feedback matters so please take a moment to fill **[this survey](https://docs.google.com/forms/d/1-VdPBCDZ5oDxxSbgpyM9Yri3xhMvzNWA4wvQrXkbpzw/viewform)**
 
 ## Installation
 
