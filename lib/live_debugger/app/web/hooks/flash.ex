@@ -18,27 +18,31 @@ defmodule LiveDebugger.App.Web.Hooks.Flash do
   """
   @spec push_flash(
           socket :: Phoenix.LiveView.Socket.t(),
+          key :: String.t() | atom(),
           message :: String.t()
         ) ::
           Phoenix.LiveView.Socket.t()
-  def push_flash(socket, message) when is_binary(message) do
-    push_flash(socket, message, self())
+  def push_flash(socket, key, message)
+      when is_binary(message) and key in [:error, :info] do
+    push_flash(socket, key, message, self())
   end
 
   @spec push_flash(
           socket :: Phoenix.LiveView.Socket.t(),
+          key :: String.t() | atom(),
           message :: String.t(),
           pid :: pid()
         ) ::
           Phoenix.LiveView.Socket.t()
-  def push_flash(socket, message, pid) when is_pid(pid) and is_binary(message) do
-    send(pid, {:put_flash, message})
+  def push_flash(socket, key, message, pid)
+      when is_pid(pid) and is_binary(message) and key in [:error, :info] do
+    send(pid, {:put_flash, key, message})
 
     socket
   end
 
-  defp maybe_receive_flash({:put_flash, message}, socket) do
-    {:halt, put_flash(socket, :error, message)}
+  defp maybe_receive_flash({:put_flash, key, message}, socket) do
+    {:halt, put_flash(socket, key, message)}
   end
 
   defp maybe_receive_flash(_, socket), do: {:cont, socket}

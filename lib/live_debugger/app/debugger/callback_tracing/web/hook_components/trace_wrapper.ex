@@ -19,7 +19,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
 
   use LiveDebugger.App.Web, :hook_component
 
-  import LiveDebugger.App.Web.Hooks.Flash, only: [push_flash: 3]
+  import LiveDebugger.App.Web.Hooks.Flash, only: [push_flash: 4]
 
   alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay
@@ -105,7 +105,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
     |> case do
       nil ->
         socket
-        |> push_flash("Trace has been removed.", socket.assigns.parent_pid)
+        |> push_flash(:error, "Trace has been removed.", socket.assigns.parent_pid)
 
       trace ->
         socket
@@ -133,7 +133,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
 
   defp handle_info({:trace_wrapper_not_found, string_trace_id}, socket) do
     socket
-    |> push_flash("Trace has been removed.", socket.assigns.parent_pid)
+    |> push_flash(:error, "Trace has been removed.", socket.assigns.parent_pid)
     |> push_event("existing_traces-#{string_trace_id}-collapsible", %{action: "close"})
     |> halt()
   end
