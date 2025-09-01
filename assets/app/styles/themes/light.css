@@ -65,6 +65,12 @@
   --error-icon: var(--red-500);
   --error-text: var(--red-800);
 
+  /* Info */
+  --info-bg: var(--swm-green-20);
+  --info-border: var(--swm-green-40);
+  --info-icon: var(--swm-green-100);
+  --info-text: var(--swm-green-100);
+
   /* Warning */
   --warning-text: #9a7e00;
 

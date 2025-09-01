@@ -106,7 +106,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.TracingFuse do
 
     socket
     |> Flash.push_flash(
-      :error,
+      :info,
       "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}.",
       socket.assigns.parent_pid
     )

@@ -196,14 +196,14 @@ defmodule LiveDebugger.App.Web.Components do
         "fixed left-2 bottom-2 w-80 sm:w-96 z-50 rounded-sm p-4 flex justify-between items-center gap-3",
         @kind == :error && "bg-error-bg text-error-text border-error-text border",
         @kind == :info &&
-          "bg-button-secondary-bg text-primary-text border-button-secondary-border border"
+          "bg-info-bg text-info-text border-info-border border"
       ]}
       {@rest}
     >
       <div class="flex gap-3 items-start">
         <div>
           <.icon :if={@kind == :error} name="icon-x-circle" class="text-error-icon w-3 h-3" />
-          <.icon :if={@kind == :info} name="icon-info" class="text-primary-text w-3 h-3" />
+          <.icon :if={@kind == :info} name="icon-info" class="text-info-icon w-3 h-3" />
         </div>
         <p>
           <%= @message %>

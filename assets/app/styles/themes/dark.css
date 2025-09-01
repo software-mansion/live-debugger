@@ -71,5 +71,11 @@
 
     --search-highlight-bg: var(--swm-yellow-100);
     --search-highlight-text: var(--gray-900);
+
+    /* Info */
+    --info-bg: var(--gray-900);
+    --info-border: var(--gray-700);
+    --info-icon: var(--swm-green-100);
+    --info-text: var(--swm-green-100);
   }
 }
