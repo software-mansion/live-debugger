@@ -73,9 +73,9 @@
     --search-highlight-text: var(--gray-900);
 
     /* Info */
-    --info-bg: var(--gray-900);
-    --info-border: var(--gray-700);
-    --info-icon: var(--swm-green-100);
-    --info-text: var(--swm-green-100);
+    --info-bg: var(--surface-0-bg);
+    --info-border: var(--default-border);
+    --info-icon: var(--primary-text);
+    --info-text: var(--primary-text);
   }
 }
