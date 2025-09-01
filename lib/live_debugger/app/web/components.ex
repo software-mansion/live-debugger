@@ -175,14 +175,15 @@ defmodule LiveDebugger.App.Web.Components do
   """
   attr(:id, :string, doc: "the optional id of flash container")
   attr(:flash, :map, default: %{}, doc: "the map of flash messages to display")
+  attr(:kind, :atom, values: [:info, :error], doc: "used for styling and flash lookup")
   attr(:rest, :global, doc: "the arbitrary HTML attributes to add to the flash container")
 
   def flash(assigns) do
-    message = Phoenix.Flash.get(assigns.flash, :error)
+    message = Phoenix.Flash.get(assigns.flash, assigns.kind)
 
     assigns =
       assigns
-      |> assign_new(:id, fn -> "flash" end)
+      |> assign_new(:id, fn -> "flash-#{assigns.kind}" end)
       |> assign(:message, message)
 
     ~H"""
@@ -193,13 +194,16 @@ defmodule LiveDebugger.App.Web.Components do
       role="alert"
       class={[
         "fixed left-2 bottom-2 w-80 sm:w-96 z-50 rounded-sm p-4 flex justify-between items-center gap-3",
-        "bg-error-bg text-error-text border-error-text border"
+        @kind == :error && "bg-error-bg text-error-text border-error-text border",
+        @kind == :info &&
+          "bg-button-secondary-bg text-primary-text border-button-secondary-border border"
       ]}
       {@rest}
     >
       <div class="flex gap-3 items-start">
         <div>
-          <.icon name="icon-x-circle" class="text-error-icon w-3 h-3" />
+          <.icon :if={@kind == :error} name="icon-x-circle" class="text-error-icon w-3 h-3" />
+          <.icon :if={@kind == :info} name="icon-info" class="text-primary-text w-3 h-3" />
         </div>
         <p>
           <%= @message %>
@@ -208,7 +212,7 @@ defmodule LiveDebugger.App.Web.Components do
       <button
         phx-click={
           "lv:clear-flash"
-          |> JS.push(value: %{key: :error})
+          |> JS.push(value: %{key: @kind})
           |> JS.hide(
             to: "##{@id}",
             time: 200,
@@ -219,6 +223,25 @@ defmodule LiveDebugger.App.Web.Components do
       >
         <.icon name="icon-cross w-4 h-4" />
       </button>
+    </div>
+    """
+  end
+
+  @doc """
+  Shows the flash group with standard titles and content.
+
+  ## Examples
+
+      <.flash_group flash={@flash} />
+  """
+  attr(:flash, :map, required: true, doc: "the map of flash messages")
+  attr(:id, :string, default: "flash-group", doc: "the optional id of flash container")
+
+  def flash_group(assigns) do
+    ~H"""
+    <div id={@id}>
+      <.flash kind={:info} flash={@flash} />
+      <.flash kind={:error} flash={@flash} />
     </div>
     """
   end
