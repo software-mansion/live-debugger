@@ -45,7 +45,7 @@ defmodule LiveDebugger.API.System.Module do
 
     @impl true
     def loaded?(module) do
-      Code.ensure_loaded?(module)
+      Code.ensure_loaded?(module) and function_exported?(module, :module_info, 1)
     end
 
     @impl true
