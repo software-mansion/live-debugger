@@ -51,6 +51,10 @@ defmodule LiveDebugger.API.System.Module do
     @impl true
     def behaviours(module) do
       module.module_info(:attributes)[:behaviour] || []
+    rescue
+      # There is a chance that the module has been purged after we checked if it was loaded
+      # check https://github.com/software-mansion/live-debugger/issues/730
+      UndefinedFunctionError -> []
     end
   end
 end
