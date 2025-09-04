@@ -54,7 +54,7 @@ defmodule LiveDebugger.API.System.Module do
     rescue
       # There is a chance that the module has been purged after we checked if it was loaded
       # check https://github.com/software-mansion/live-debugger/issues/730
-      # It applies to compiler modules that does not have behaviours interesting for us
+      # It applies to compiler modules that does not have behaviours
       # It is safe to return empty list in this case
       UndefinedFunctionError -> []
     end
