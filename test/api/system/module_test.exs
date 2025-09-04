@@ -20,6 +20,10 @@ defmodule LiveDebugger.API.System.ModuleImplTest do
       assert Phoenix.LiveComponent in ModuleImpl.behaviours(TestLiveComponentModule)
       assert [] = ModuleImpl.behaviours(TestNoBehaviourModule)
     end
+
+    test "returns empty list if module does not exist" do
+      assert [] = ModuleImpl.behaviours(NonExistingModule)
+    end
   end
 
   describe "loaded?/1" do
