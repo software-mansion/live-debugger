@@ -45,12 +45,18 @@ defmodule LiveDebugger.API.System.Module do
 
     @impl true
     def loaded?(module) do
-      Code.ensure_loaded?(module)
+      Code.ensure_loaded?(module) and function_exported?(module, :module_info, 1)
     end
 
     @impl true
     def behaviours(module) do
       module.module_info(:attributes)[:behaviour] || []
+    rescue
+      # There is a chance that the module has been purged after we checked if it was loaded
+      # check https://github.com/software-mansion/live-debugger/issues/730
+      # It applies to compiler modules that does not have behaviours
+      # It is safe to return empty list in this case
+      UndefinedFunctionError -> []
     end
   end
 end
