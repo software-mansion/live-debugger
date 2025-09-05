@@ -13,7 +13,7 @@ defmodule LiveDebugger.App.Web do
       import Phoenix.HTML
       import LiveDebugger.Helpers
       import unquote(__MODULE__).Components
-      import unquote(__MODULE__).Hooks.Flash, only: [push_flash: 2, push_flash: 3]
+      import unquote(__MODULE__).Hooks.Flash, only: [push_flash: 3, push_flash: 4]
     end
   end
 
@@ -24,7 +24,7 @@ defmodule LiveDebugger.App.Web do
       import Phoenix.HTML
       import LiveDebugger.Helpers
       import unquote(__MODULE__).Components
-      import unquote(__MODULE__).Hooks.Flash, only: [push_flash: 2, push_flash: 3]
+      import unquote(__MODULE__).Hooks.Flash, only: [push_flash: 3, push_flash: 4]
     end
   end
 
