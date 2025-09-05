@@ -63,7 +63,7 @@ defmodule LiveDebugger.App.Web.Layout do
   def render("app.html", assigns) do
     ~H"""
     <main class="h-screen w-screen max-w-full">
-      <LiveDebugger.App.Web.Components.flash flash={@flash} />
+      <LiveDebugger.App.Web.Components.flash_group flash={@flash} />
       <%= @inner_content %>
     </main>
     """

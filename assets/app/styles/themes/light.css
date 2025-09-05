@@ -65,6 +65,12 @@
   --error-icon: var(--red-500);
   --error-text: var(--red-800);
 
+  /* Info */
+  --info-bg: var(--surface-0-bg);
+  --info-border: var(--default-border);
+  --info-icon: var(--primary-text);
+  --info-text: var(--primary-text);
+
   /* Warning */
   --warning-text: #9a7e00;
 
