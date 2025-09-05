@@ -55,7 +55,7 @@ const Collapsible = {
 
     setOpen(this.el);
 
-    if (this.el.closed) {
+    if (!this.el.open) {
       removeChildren(this.el, cachedChildNodes);
     }
 
