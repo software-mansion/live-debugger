@@ -152,7 +152,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
          params <- %{execution_time: execution_time, type: type},
          {:ok, updated_trace} <- TraceActions.update_trace(trace, params),
          {:ok, ref} <- TraceActions.persist_trace(updated_trace, ref),
-         :ok <- StateActions.maybe_save_state!(updated_trace),
+         _ <- StateActions.maybe_save_state!(updated_trace),
          :ok <- TraceActions.publish_trace(updated_trace, ref) do
       {:noreply, delete_trace_record(state, trace_key)}
     else

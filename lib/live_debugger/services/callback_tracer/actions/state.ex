@@ -28,8 +28,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
     with {:ok, lv_state} <- LiveViewDebug.liveview_state(pid) do
       StatesStorage.save!(lv_state)
       Bus.broadcast_state!(%StateChanged{pid: pid}, pid)
+      :ok
     end
-
-    :ok
   end
 end
