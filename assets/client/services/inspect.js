@@ -209,12 +209,6 @@ function getClosestElementInfo(target) {
   const componentElement = target.closest('[data-phx-component]');
   const rootElement = document.querySelector('[data-phx-main]');
 
-  if (!liveViewElement) {
-    return null;
-  }
-
-  const rootID = rootElement?.id || liveViewElement.dataset.phxRootId;
-
   if (componentElement && liveViewElement.contains(componentElement)) {
     return {
       element: componentElement,
