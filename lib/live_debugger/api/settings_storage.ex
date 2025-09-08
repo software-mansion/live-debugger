@@ -10,7 +10,7 @@ defmodule LiveDebugger.API.SettingsStorage do
   It uses Erlang's DETS (Disk Erlang Term Storage).
   Settings are retrieved in this order:
   1. locally saved file (inside `_build/*/live_debugger/` directory)
-  3. default values
+  2. default values
 
   Available settings are: `#{Enum.join(@available_settings, ", ")}`.
   """

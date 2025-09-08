@@ -5,6 +5,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
 
   use GenServer
   alias LiveDebugger.API.SettingsStorage
+  alias LiveDebugger.App.Events.UserChangedSettings
 
   alias LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher
 
@@ -12,7 +13,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
     as: GarbageCollectingActions
 
   alias LiveDebugger.Bus
-  alias LiveDebugger.App.Events.UserChangedSettings
+
   alias LiveDebugger.Services.GarbageCollector.Events.GarbageCollected
 
   @garbage_collect_interval 2000
