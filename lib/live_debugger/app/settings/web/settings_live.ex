@@ -71,6 +71,14 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
               phx-click="update"
               phx-value-setting="tracing_update_on_code_reload"
             />
+            <SettingsComponents.settings_switch
+              id="garbage-collection-switch"
+              label="Garbage Collection"
+              description="With garbage collection enabled, LiveDebugger will remove old data to free up memory."
+              checked={@settings[:garbage_collection]}
+              phx-click="update"
+              phx-value-setting="garbage_collection"
+            />
           </div>
         </div>
 
