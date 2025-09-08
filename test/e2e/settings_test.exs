@@ -9,6 +9,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     LiveDebugger.API.SettingsStorage.save(:dead_view_mode, false)
     LiveDebugger.API.SettingsStorage.save(:tracing_update_on_code_reload, false)
+    LiveDebugger.API.SettingsStorage.save(:garbage_collection, false)
 
     dev_app
     |> visit(@dev_app_url)
@@ -58,6 +59,12 @@ defmodule LiveDebugger.E2E.SettingsTest do
     |> assert_has(enable_tracing_update_on_reload_checkbox(selected: false))
     |> click(enable_tracing_update_on_reload_toggle())
     |> assert_has(enable_tracing_update_on_reload_checkbox(selected: true))
+
+    debugger
+    |> visit("/settings")
+    |> assert_has(enable_garbage_collector_checkbox(selected: false))
+    |> click(enable_garbage_collector_toggle())
+    |> assert_has(enable_garbage_collector_checkbox(selected: true))
   end
 
   defp enable_dead_view_mode_toggle() do
@@ -74,5 +81,13 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
   defp enable_tracing_update_on_reload_checkbox(opts) do
     css("input[phx-value-setting=\"tracing_update_on_code_reload\"]", opts)
+  end
+
+  defp enable_garbage_collector_toggle() do
+    css("label:has(input[phx-value-setting=\"garbage_collection\"])")
+  end
+
+  defp enable_garbage_collector_checkbox(opts) do
+    css("input[phx-value-setting=\"garbage_collection\"]", opts)
   end
 end
