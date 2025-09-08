@@ -117,6 +117,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
     |> case do
       {:ok, new_settings} ->
         assign(socket, settings: new_settings)
+        push_flash(socket, :info, "Setting updated successfully")
 
       {:error, _} ->
         push_flash(socket, :error, "Failed to update setting")
