@@ -64,7 +64,6 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
 
   @impl true
   def handle_info(%UserChangedSettings{key: :garbage_collection, value: false}, state) do
-
     {:noreply, Map.put(state, :garbage_collection_enabled?, false)}
   end
 
