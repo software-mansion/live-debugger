@@ -27,7 +27,6 @@ const ToggleTheme = {
 
   destroyed() {
     this.el.removeEventListener('click', this.handleClick);
-    window.removeEventListener('storage', this.handleStorage);
   },
 };
 
