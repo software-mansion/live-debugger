@@ -150,7 +150,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
   end
 
   defp style_for_padding(level, collapsible?) do
-    padding = (level + 1) * 0.5 + if(collapsible?, do: 0, else: 1.5)
+    padding = (level + 1) * 0.5 + if(collapsible?, do: 0.25, else: 1.5)
 
     "padding-left: #{padding}rem;"
   end
