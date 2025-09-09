@@ -45,6 +45,31 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
     |> assert_has(css("label.pointer-events-none", text: "Highlight"))
   end
 
+  @sessions 2
+  feature "traces ended with exception are visible in dead view mode", %{
+    sessions: [dev_app, debugger]
+  } do
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.API.SettingsStorage.save(:dead_view_mode, true)
+
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> click(global_callback_traces_button())
+    |> click(clear_traces_button())
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(css("button[phx-click=\"crash\"]"))
+
+    debugger
+    |> find(global_traces(count: 1))
+    |> assert_has(css("summary.border-error-icon"))
+  end
+
   defp global_traces(opts), do: css("#global-traces-stream details", opts)
 
   defp global_callback_traces_button(), do: css("button[aria-label=\"Icon globe\"]")
