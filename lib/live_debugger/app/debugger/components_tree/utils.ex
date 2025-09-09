@@ -95,13 +95,17 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Utils do
   defp add_children(parent_element, nil, _live_components), do: parent_element
 
   defp add_children(parent_element, children_cids_map, live_components) do
-    Enum.reduce(children_cids_map, parent_element, fn {cid, children_cids_map}, parent_element ->
-      child =
-        live_components
-        |> Enum.find(fn element -> element.id.cid == cid end)
-        |> add_children(children_cids_map, live_components)
+    tree_node =
+      Enum.reduce(children_cids_map, parent_element, fn {cid, children_cids_map},
+                                                        parent_element ->
+        child =
+          live_components
+          |> Enum.find(fn element -> element.id.cid == cid end)
+          |> add_children(children_cids_map, live_components)
 
-      TreeNode.add_child(parent_element, child)
-    end)
+        TreeNode.add_child(parent_element, child)
+      end)
+
+    %{tree_node | children: Enum.sort_by(tree_node.children, & &1.id.cid)}
   end
 end
