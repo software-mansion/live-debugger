@@ -88,7 +88,7 @@ module.exports = {
         },
       },
       animation: {
-        'fade-out': 'fadeOut 1s ease-out forwards',
+        'fade-out': 'fadeOut 200ms ease-out forwards',
         'fade-out-mobile': 'fadeOutMobile 200ms ease-out forwards',
       },
     },

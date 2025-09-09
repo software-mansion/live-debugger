@@ -25,12 +25,11 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
   @impl true
   def init(_opts) do
     Bus.receive_events!()
-    garbage_collection_enabled? = SettingsStorage.get(:garbage_collection)
     loop_garbage_collection()
 
     {:ok,
      %{
-       garbage_collection_enabled?: garbage_collection_enabled?
+       garbage_collection_enabled?: SettingsStorage.get(:garbage_collection)
      }}
   end
 
