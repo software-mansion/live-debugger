@@ -21,15 +21,7 @@ defmodule LiveDebugger.App.Settings.Web.Components do
         checked={@checked}
         wrapper_class="pr-3 py-0"
         {@rest}
-        phx-change={
-          "lv:clear-flash"
-          |> JS.push(value: %{key: :info})
-          |> JS.hide(
-            to: "#flash-info",
-            time: 200,
-            transition: "max-sm:animate-fade-out-mobile sm:animate-fade-out"
-          )
-        }
+        phx-change={clear_flash("#flash-info", :info)}
       />
       <div class="flex flex-col gap-0.5">
         <p class="font-semibold"><%= @label %></p>
@@ -93,5 +85,15 @@ defmodule LiveDebugger.App.Settings.Web.Components do
       <p><%= @text %></p>
     </button>
     """
+  end
+
+  defp clear_flash(to, key) do
+    "lv:clear-flash"
+    |> JS.push(value: %{key: key})
+    |> JS.hide(
+      to: "#{to}",
+      time: 200,
+      transition: "max-sm:animate-fade-out-mobile sm:animate-fade-out"
+    )
   end
 end
