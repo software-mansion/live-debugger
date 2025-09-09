@@ -55,7 +55,10 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
       id={"collapsible-#{@id}-#{@parsed_node_id}"}
       chevron_class="text-accent-icon h-5 w-5"
       open={@open}
-      label_class="rounded-md py-1 hover:bg-surface-1-bg-hover"
+      label_class={[
+        "rounded-md py-1 hover:bg-surface-1-bg-hover",
+        if(@selected?, do: "bg-surface-1-bg-hover")
+      ]}
       style={style_for_padding(@level, @collapsible?)}
     >
       <:label>
@@ -119,7 +122,8 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
       phx-value-id={TreeNode.parse_id(@tree_node)}
       class={[
         "flex shrink grow items-center rounded-md hover:bg-surface-1-bg-hover",
-        if(!@collapsible?, do: "p-1")
+        if(!@collapsible?, do: "p-1"),
+        if(@selected?, do: "bg-surface-1-bg-hover font-semibold")
       ]}
       style={if(!@collapsible?, do: @padding_style)}
     >
@@ -136,7 +140,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
       >
         <.icon name={@icon} class="text-accent-icon w-4 h-4 shrink-0" />
         <.tooltip id={@id <> "-tooltip"} content={@tooltip_content} class="truncate">
-          <span class={["hover:underline", if(@selected?, do: "font-semibold")]}>
+          <span class="hover:underline">
             <%= @label %>
           </span>
         </.tooltip>
