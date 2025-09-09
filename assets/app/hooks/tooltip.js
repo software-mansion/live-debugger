@@ -36,11 +36,11 @@ export function setTooltipPosition(tooltipEl, referencedElement) {
   if (
     ['top', 'bottom', 'top-center'].includes(referencedElement.dataset.position)
   ) {
-    if (tooltipRect.width > window.innerWidth) {
+    if (tooltipEl.clientWidth + 20 > window.innerWidth) {
       tooltipEl.style.left = '10px';
       tooltipEl.style.right = '10px';
       tooltipEl.style.wordBreak = 'break-all';
-    } else if (rect.left + tooltipRect.width > window.innerWidth) {
+    } else if (rect.left + tooltipEl.clientWidth > window.innerWidth) {
       tooltipEl.style.right = '10px';
       tooltipEl.style.left = 'auto';
     }
