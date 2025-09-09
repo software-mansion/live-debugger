@@ -32,16 +32,14 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersSi
       <div class="flex flex-col justify-between h-full">
         <div>
           <div class="text-secondary-text font-semibold pt-6 pb-2 px-4">Filters</div>
-          <div class="px-3">
-            <.live_component
-              module={FiltersForm}
-              id="filters-sidebar-form"
-              node_id={nil}
-              filters={@current_filters}
-              disabled?={@tracing_started?}
-              revert_button_visible?={true}
-            />
-          </div>
+          <.live_component
+            module={FiltersForm}
+            id="filters-sidebar-form"
+            node_id={nil}
+            filters={@current_filters}
+            disabled?={@tracing_started?}
+            revert_button_visible?={true}
+          />
         </div>
         <.report_issue class="border-t border-default-border" />
       </div>
