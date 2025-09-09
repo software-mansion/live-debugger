@@ -7,6 +7,7 @@ export function setTooltipPosition(tooltipEl, referencedElement) {
   tooltipEl.style.left = '';
   tooltipEl.style.right = '';
   tooltipEl.style.bottom = '';
+  tooltipEl.style.wordBreak = '';
 
   switch (referencedElement.dataset.position) {
     case 'top':
@@ -35,8 +36,12 @@ export function setTooltipPosition(tooltipEl, referencedElement) {
   if (
     ['top', 'bottom', 'top-center'].includes(referencedElement.dataset.position)
   ) {
-    if (rect.left + tooltipRect.width > window.innerWidth) {
-      tooltipEl.style.right = `${window.innerWidth - rect.right}px`;
+    if (tooltipEl.clientWidth + 20 > window.innerWidth) {
+      tooltipEl.style.left = '10px';
+      tooltipEl.style.right = '10px';
+      tooltipEl.style.wordBreak = 'break-all';
+    } else if (rect.left + tooltipEl.clientWidth > window.innerWidth) {
+      tooltipEl.style.right = '10px';
       tooltipEl.style.left = 'auto';
     }
   }
