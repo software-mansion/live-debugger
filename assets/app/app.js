@@ -78,7 +78,7 @@ function getCsrfToken() {
 function handleStorage(e) {
   if (e.key !== 'theme') return;
   document.documentElement.classList.toggle('dark', e.newValue === 'dark');
-};
+}
 
 window.addEventListener('storage', handleStorage);
 
