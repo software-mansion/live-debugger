@@ -116,9 +116,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
     ~H"""
     <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
-      <p id={if(@id, do: @id <> "-short-content", else: false)} class="hide-on-open mt-0.5" {@rest}>
-        <%= @content %>
-      </p>
+      <div class="hidden @[30rem]/traces:flex">
+        <p id={if(@id, do: @id <> "-short-content", else: false)} class="hide-on-open mt-0.5" {@rest}>
+          <%= @content %>
+        </p>
+      </div>
     </div>
     """
   end
