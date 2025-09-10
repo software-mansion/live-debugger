@@ -216,7 +216,7 @@ defmodule LiveDebugger.App.Web.Components do
           |> JS.hide(
             to: "##{@id}",
             time: 200,
-            transition: "max-sm:animate-fadeOutMobile sm:animate-fadeOut"
+            transition: "max-sm:animate-fade-out-mobile sm:animate-fade-out"
           )
         }
         aria-label="close"

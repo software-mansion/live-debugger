@@ -5,6 +5,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
 
   use GenServer
 
+  alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher
 
   alias LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting,
@@ -12,6 +13,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.GarbageCollector.Events.GarbageCollected
+  alias LiveDebugger.App.Events.UserChangedSettings
 
   @garbage_collect_interval 2000
 
@@ -21,13 +23,17 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
 
   @impl true
   def init(_opts) do
-    init_garbage_collection_loop()
+    Bus.receive_events!()
+    loop_garbage_collection()
 
-    {:ok, []}
+    {:ok,
+     %{
+       garbage_collection_enabled?: SettingsStorage.get(:garbage_collection)
+     }}
   end
 
   @impl true
-  def handle_info(:garbage_collect, state) do
+  def handle_info(:garbage_collect, %{garbage_collection_enabled?: true} = state) do
     watched_pids = TableWatcher.watched_pids()
     alive_pids = TableWatcher.alive_pids()
 
@@ -49,13 +55,34 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
     {:noreply, state}
   end
 
-  defp init_garbage_collection_loop() do
-    if LiveDebugger.Feature.enabled?(:garbage_collection) do
-      Process.send_after(self(), :garbage_collect, @garbage_collect_interval)
-    end
+  @impl true
+  def handle_info(%UserChangedSettings{key: :garbage_collection, value: true}, state) do
+    resume_garbage_collection()
+    {:noreply, Map.put(state, :garbage_collection_enabled?, true)}
+  end
+
+  @impl true
+  def handle_info(%UserChangedSettings{key: :garbage_collection, value: false}, state) do
+    {:noreply, Map.put(state, :garbage_collection_enabled?, false)}
+  end
+
+  @impl true
+  def handle_info(_, state) do
+    {:noreply, state}
   end
 
   defp loop_garbage_collection() do
-    Process.send_after(self(), :garbage_collect, @garbage_collect_interval)
+    Process.send_after(
+      self(),
+      :garbage_collect,
+      @garbage_collect_interval
+    )
+  end
+
+  defp resume_garbage_collection() do
+    send(
+      self(),
+      :garbage_collect
+    )
   end
 end

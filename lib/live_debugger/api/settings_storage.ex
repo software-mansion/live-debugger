@@ -1,16 +1,16 @@
 defmodule LiveDebugger.API.SettingsStorage do
   @available_settings [
     :dead_view_mode,
-    :tracing_update_on_code_reload
+    :tracing_update_on_code_reload,
+    :garbage_collection
   ]
 
   @moduledoc """
   API for managing settings storage. In order to properly use invoke `init/0` at the start of application.
-  It uses Erlang's DETS (Disk Erlang Term Storage) and `config` files.
+  It uses Erlang's DETS (Disk Erlang Term Storage).
   Settings are retrieved in this order:
   1. locally saved file (inside `_build/*/live_debugger/` directory)
-  2. `config` files
-  3. default values
+  2. default values
 
   Available settings are: `#{Enum.join(@available_settings, ", ")}`.
   """
@@ -74,7 +74,8 @@ defmodule LiveDebugger.API.SettingsStorage do
 
     @default_settings %{
       dead_view_mode: true,
-      tracing_update_on_code_reload: false
+      tracing_update_on_code_reload: false,
+      garbage_collection: true
     }
 
     @table_name :lvdbg_settings
@@ -115,8 +116,7 @@ defmodule LiveDebugger.API.SettingsStorage do
     end
 
     defp fetch_setting(setting) do
-      with {:error, :not_saved} <- get_from_dets(setting),
-           {:error, :not_saved} <- get_from_config(setting) do
+      with {:error, :not_saved} <- get_from_dets(setting) do
         @default_settings[setting]
       end
     end
@@ -129,10 +129,6 @@ defmodule LiveDebugger.API.SettingsStorage do
         _ ->
           {:error, :not_saved}
       end
-    end
-
-    defp get_from_config(setting) do
-      Application.get_env(:live_debugger, setting, {:error, :not_saved})
     end
 
     defp file_path() do
