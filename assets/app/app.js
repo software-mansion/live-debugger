@@ -75,6 +75,13 @@ function getCsrfToken() {
     .getAttribute('content');
 }
 
+this.handleStorage = (e) => {
+  if (e.key !== 'theme') return;
+  document.documentElement.classList.toggle('dark', e.newValue === 'dark');
+};
+
+window.addEventListener('storage', this.handleStorage);
+
 window.createHooks = createHooks;
 window.setTheme = setTheme;
 window.getCsrfToken = getCsrfToken;

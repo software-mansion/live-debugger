@@ -16,13 +16,6 @@ const ToggleTheme = {
     };
 
     this.el.addEventListener('click', this.handleClick);
-
-    this.handleStorage = (e) => {
-      if (e.key !== 'theme') return;
-      document.documentElement.classList.toggle('dark', e.newValue === 'dark');
-    };
-
-    window.addEventListener('storage', this.handleStorage);
   },
 
   destroyed() {
