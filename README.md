@@ -15,7 +15,8 @@ Designed to enhance your development experience LiveDebugger gives you:
 - :deciduous_tree: A detailed view of your LiveComponents tree
 - :mag: The ability to inspect assigns for LiveViews and LiveComponents
 - :link: Tracing and filtering of their callback executions
-- :flashlight: Components highlighting
+- :flashlight: Highlighting components in debugged app
+- :telescope: Inspecting elements on the page
 
 https://github.com/user-attachments/assets/a09d440c-4217-4597-b30e-f8b911a9094a
 
@@ -68,65 +69,88 @@ Since version v0.2.0 you can install official LiveDebugger DevTools extension, g
 
 ## Optional configuration
 
-### Browser features
+See [Configuration Guide](https://hexdocs.pm/live_debugger/config.html) for details on how to customize LiveDebugger to your needs.
 
-Some features require injecting JS into the debugged application. They are enabled by default, but you can disable them in your config.
+## Contributing
 
-```elixir
-# config/dev.exs
+For those planning to contribute to this project, you can run a dev version of the debugger with the following commands:
 
-# Disables all browser features and does not inject LiveDebugger JS
-config :live_debugger, :browser_features?, false
-
-# Disables only debug button
-config :live_debugger, :debug_button?, false
-
-# Disables only components highlighting
-config :live_debugger, :highlighting?, false
-
-# Used when LiveDebugger's assets are exposed on other address (e.g. when run inside Docker)
-config :live_debugger, :external_url, "http://localhost:9007"
+```console
+mix setup
+iex -S mix
 ```
 
-### Content Security Policy
+It'll run the application declared in the `dev/` directory with the library installed.
 
-In `router.ex` of your Phoenix app, make sure your locally running Phoenix app can access the LiveDebugger JS files on port 4007. To achieve that you may need to extend your CSP in `:dev` mode:
+LiveReload is working both for `.ex` files and static files, but if some styles don't show up, try using this command
 
-```elixir
-  @csp "{...your CSP} #{if Mix.env() == :dev, do: "http://127.0.0.1:4007"}"
-
-  pipeline :browser do
-    # ...
-    plug :put_secure_browser_headers, %{"content-security-policy" => @csp}
+```console
+mix assets.build:dev
 ```
 
-### Other
+## What's next
+
+To learn about our upcoming plans and developments, please visit our [discussion page](https://github.com/software-mansion/live-debugger/discussions/355).
+
+## Authors
+
+LiveDebugger is created by Software Mansion.
+
+Since 2012 [Software Mansion](https://swmansion.com/?utm_source=git&utm_medium=r
+- :: 
+
+https://github.com/user-attachments/assets/a09d440c-4217-4597-b30e-f8b911a9094a
+
+## Getting started
+
+> [!IMPORTANT]  
+> LiveDebugger should not be used on production - make sure that the dependency you've added is `:dev` only
+
+### Mix installation
+
+Add `live_debugger` to your list of dependencies in `mix.exs`:
 
 ```elixir
-# config/dev.exs
-
-# Allows you to disable LiveDebugger manually if needed
-config :live_debugger, :disabled?, true
-
-# Time in ms after tracing will be initialized. Useful in case multi-nodes envs
-config :live_debugger, :tracing_setup_delay, 0
-
-# Used when working with code reloading and traces are not visible.
-# WARNING! This may cause some performance issues.
-config :live_debugger, :tracing_update_on_code_reload?, true
-
-# LiveDebugger endpoint config
-config :live_debugger,
-  ip: {127, 0, 0, 1}, # IP on which LiveDebugger will be hosted
-  port: 4007, # Port on which LiveDebugger will be hosted
-  secret_key_base: "YOUR_SECRET_KEY_BASE", # Secret key used for LiveDebugger.Endpoint
-  signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
-  adapter: Bandit.PhoenixAdapter, # Adapter used in LiveDebugger.Endpoint
-  server: true, # Forces LiveDebugger to start even if project is not started with the `mix phx.server`
-
-# Name for LiveDebugger PubSub (it will create new one so don't put already used name)
-config :live_debugger, :pubsub_name, LiveDebugger.CustomPubSub
+  defp deps do
+    [
+      {:live_debugger, "~> 0.4.0", only: :dev}
+    ]
+  end
 ```
+
+For full experience we recommend adding below line to your application root layout. It attaches `meta` tag and LiveDebugger scripts in dev environment enabling browser features.
+
+```elixir
+  # lib/my_app_web/components/layouts/root.html.heex
+
+  <head>
+    <%= Application.get_env(:live_debugger, :live_debugger_tags) %>
+  </head>
+```
+
+After you start your application, LiveDebugger will be running at a default port `http://localhost:4007`.
+
+### Igniter installation
+
+LiveDebugger has [Igniter](https://github.com/ash-project/igniter) support - an alternative for standard mix installation. It'll automatically add LiveDebugger dependency and modify your `root.html.heex` after you use the below command.
+
+```bash
+mix igniter.install live_debugger
+```
+
+### DevTools extension
+
+Since version v0.2.0 you can install official LiveDebugger DevTools extension, giving you the ability to interact with its features alongside your application's runtime.
+
+- [Chrome extension](https://chromewebstore.google.com/detail/gmdfnfcigbfkmghbjeelmbkbiglbmbpe)
+- [Firefox extension](https://addons.mozilla.org/en-US/firefox/addon/livedebugger-devtools/)
+
+> [!NOTE]  
+> Ensure the main LiveDebugger dependency is added to your mix project, as the browser plugin alone is not enough.
+
+## Optional configuration
+
+See [Configuration Guide](https://hexdocs.pm/live_debugger/config.html) for details on how to customize LiveDebugger to your needs.
 
 ## Contributing
 
