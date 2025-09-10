@@ -9,7 +9,7 @@ defmodule LiveDebuggerDev.LiveViews.EndlessCrashReload do
       socket
       |> assign(:loop, AsyncResult.loading())
       |> start_async(:loop, fn ->
-        raise "crash"
+        Process.sleep(500)
       end)
 
     {:ok, socket}
@@ -27,5 +27,11 @@ defmodule LiveDebuggerDev.LiveViews.EndlessCrashReload do
       </:failed>
     </.async_result>
     """
+  end
+
+  @impl true
+  def handle_async(:loop, {:ok, _}, socket) do
+    raise "crash"
+    {:noreply, socket}
   end
 end
