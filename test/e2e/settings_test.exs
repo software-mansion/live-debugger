@@ -36,6 +36,9 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     debugger2
     |> visit("/settings")
+    |> assert_has(enable_dead_view_mode_checkbox(selected: false))
+    |> assert_has(enable_tracing_update_on_reload_checkbox(selected: false))
+    |> assert_has(enable_garbage_collector_checkbox(selected: false))
 
     debugger1
     |> visit("/settings")
