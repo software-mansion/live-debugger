@@ -75,12 +75,12 @@ function getCsrfToken() {
     .getAttribute('content');
 }
 
-this.handleStorage = (e) => {
+function handleStorage(e) {
   if (e.key !== 'theme') return;
   document.documentElement.classList.toggle('dark', e.newValue === 'dark');
 };
 
-window.addEventListener('storage', this.handleStorage);
+window.addEventListener('storage', handleStorage);
 
 window.createHooks = createHooks;
 window.setTheme = setTheme;
