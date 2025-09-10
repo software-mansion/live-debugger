@@ -71,6 +71,14 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
               phx-click="update"
               phx-value-setting="tracing_update_on_code_reload"
             />
+            <SettingsComponents.settings_switch
+              id="garbage-collection-switch"
+              label="Garbage Collection"
+              description="With garbage collection enabled, LiveDebugger will remove old data to free up memory."
+              checked={@settings[:garbage_collection]}
+              phx-click="update"
+              phx-value-setting="garbage_collection"
+            />
           </div>
         </div>
 
@@ -108,7 +116,9 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
     |> SettingsActions.update_settings!(setting, not socket.assigns.settings[setting])
     |> case do
       {:ok, new_settings} ->
-        assign(socket, settings: new_settings)
+        socket
+        |> assign(settings: new_settings)
+        |> push_flash(:info, "Setting updated successfully")
 
       {:error, _} ->
         push_flash(socket, :error, "Failed to update setting")

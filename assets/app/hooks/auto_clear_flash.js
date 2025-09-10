@@ -5,8 +5,8 @@ const AutoClearFlash = {
     let clearFlashAfter = hideElementAfter + 500; // ms
 
     setTimeout(() => {
-      this.el.classList.add('max-sm:animate-fadeOutMobile');
-      this.el.classList.add('sm:animate-fadeOut');
+      this.el.classList.add('max-sm:animate-fade-out-mobile');
+      this.el.classList.add('sm:animate-fade-out');
     }, hideElementAfter);
 
     this.timeOutId = setTimeout(() => {

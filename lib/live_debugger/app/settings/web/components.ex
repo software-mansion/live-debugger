@@ -5,6 +5,8 @@ defmodule LiveDebugger.App.Settings.Web.Components do
 
   use LiveDebugger.App.Web, :component
 
+  alias Phoenix.LiveView.JS
+
   attr(:id, :string, required: true)
   attr(:label, :string, required: true)
   attr(:description, :string, required: true)
@@ -14,7 +16,13 @@ defmodule LiveDebugger.App.Settings.Web.Components do
   def settings_switch(assigns) do
     ~H"""
     <div class="flex items-center">
-      <.toggle_switch id={@id} checked={@checked} wrapper_class="pr-3 py-0" {@rest} />
+      <.toggle_switch
+        id={@id}
+        checked={@checked}
+        wrapper_class="pr-3 py-0"
+        {@rest}
+        phx-change={clear_flash("#flash-info", :info)}
+      />
       <div class="flex flex-col gap-0.5">
         <p class="font-semibold"><%= @label %></p>
         <p class="text-secondary-text"><%= @description %></p>
@@ -77,5 +85,15 @@ defmodule LiveDebugger.App.Settings.Web.Components do
       <p><%= @text %></p>
     </button>
     """
+  end
+
+  defp clear_flash(to, key) do
+    "lv:clear-flash"
+    |> JS.push(value: %{key: key})
+    |> JS.hide(
+      to: "#{to}",
+      time: 200,
+      transition: "max-sm:animate-fade-out-mobile sm:animate-fade-out"
+    )
   end
 end
