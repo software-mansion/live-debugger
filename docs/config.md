@@ -8,12 +8,6 @@ Some features require injecting JS into the debugged application. They are enabl
 # Disables all browser features and does not inject LiveDebugger JS
 config :live_debugger, :browser_features?, false
 
-# Disables only debug button
-config :live_debugger, :debug_button?, false
-
-# Disables only components highlighting
-config :live_debugger, :highlighting?, false
-
 # Used when LiveDebugger's assets are exposed on other address (e.g. when run inside Docker)
 config :live_debugger, :external_url, "http://localhost:9007"
 ```
@@ -30,20 +24,23 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
     plug :put_secure_browser_headers, %{"content-security-policy" => @csp}
 ```
 
+## Disabling LiveDebugger
+
+In case you need LiveDebugger to not run at the start of your application but want to keep the dependency, you can disable it manually in your config:
+
+```elixir
+# config/dev.exs
+
+config :live_debugger, :disabled?, true
+```
+
 ## Other Settings
 
 ```elixir
 # config/dev.exs
 
-# Allows you to disable LiveDebugger manually if needed
-config :live_debugger, :disabled?, true
-
 # Time in ms after tracing will be initialized. Useful in case multi-nodes envs
 config :live_debugger, :tracing_setup_delay, 0
-
-# Used when working with code reloading and traces are not visible.
-# WARNING! This may cause some performance issues.
-config :live_debugger, :tracing_update_on_code_reload?, true
 
 # LiveDebugger endpoint config
 config :live_debugger,

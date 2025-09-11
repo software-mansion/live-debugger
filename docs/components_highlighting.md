@@ -12,14 +12,6 @@ This feature helps you visually identify and locate components rendered in the c
 > # Enables all browser features and inject LiveDebugger JS
 > config :live_debugger, :browser_features?, true
 > ```
->
-> You can also disable components highlighting keeping other browser features enabled.
->
-> ```elixir
-> # config/dev.exs
->
-> config :live_debugger, :highlighting?, false
-> ```
 
 ## How to use
 
