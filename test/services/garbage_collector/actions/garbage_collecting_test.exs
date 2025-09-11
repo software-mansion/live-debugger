@@ -29,8 +29,6 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest d
       max_table_size_watched = 20 * @megabyte_unit
       max_table_size_non_watched = 2 * @megabyte_unit
 
-      Application.put_env(:live_debugger, :approx_table_max_size, 20)
-
       MockAPITracesStorage
       |> expect(:get_all_tables, fn -> [{pid1, table1}, {pid2, table2}] end)
       |> expect(:table_size, fn ^table1 -> max_table_size_watched + @megabyte_unit end)
@@ -51,8 +49,6 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest d
       alive_pids = MapSet.new([pid2])
       table1 = make_ref()
       table2 = make_ref()
-
-      Application.put_env(:live_debugger, :approx_table_max_size, 20)
 
       MockAPITracesStorage
       |> expect(:get_all_tables, fn -> [{pid1, table1}, {pid2, table2}] end)
