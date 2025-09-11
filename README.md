@@ -15,7 +15,7 @@ Designed to enhance your development experience LiveDebugger gives you:
 - :deciduous_tree: A detailed view of your LiveComponents tree
 - :mag: The ability to inspect assigns for LiveViews and LiveComponents
 - :link: Tracing and filtering of their callback executions
-- :flashlight: Highlighting components in debugged app
+- :flashlight: Highlighting components in debugged apps
 - :telescope: Inspecting elements on the page
 
 https://github.com/user-attachments/assets/a09d440c-4217-4597-b30e-f8b911a9094a
