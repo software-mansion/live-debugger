@@ -7,7 +7,8 @@ defmodule LiveDebuggerDev.Components do
     {"/nested", "Nested"},
     {"/messages", "Messages"},
     {"/embedded", "Embedded"},
-    {"/embedded_in_controller", "EmbeddedInController"}
+    {"/embedded_in_controller", "EmbeddedInController"},
+    {"/endless_crash_reload", "EndlessCrashReload"}
   ]
 
   attr(:routes, :list, default: @routes)
