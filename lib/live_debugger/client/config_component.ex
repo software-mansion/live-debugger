@@ -15,11 +15,7 @@ defmodule LiveDebugger.Client.ConfigComponent do
 
   def live_debugger_tags(assigns) do
     ~H"""
-    <meta
-      name="live-debugger-config"
-      url={@url}
-      version={@version}
-    />
+    <meta name="live-debugger-config" url={@url} version={@version} />
     <%= if @browser_features? do %>
       <script src={@js_url}>
       </script>
