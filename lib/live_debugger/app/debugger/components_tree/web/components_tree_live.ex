@@ -90,7 +90,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
         <div class="flex items-center justify-between">
           <div class="shrink-0 font-medium text-secondary-text px-6 py-3">Components Tree</div>
           <.toggle_switch
-            :if={LiveDebugger.Feature.enabled?(:highlighting)}
+            :if={LiveDebugger.Feature.enabled?(:browser_features?)}
             id="highlight-switch"
             label="Highlight"
             checked={@highlight?}
@@ -202,7 +202,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
   end
 
   defp pulse_element(socket, params) do
-    if LiveDebugger.Feature.enabled?(:highlighting) do
+    if LiveDebugger.Feature.enabled?(:browser_features?) do
       # Resets the highlight when the user selects node
       if socket.assigns.highlight? do
         Client.push_event!(socket.assigns.root_socket_id, "highlight")
