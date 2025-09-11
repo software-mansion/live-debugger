@@ -92,14 +92,6 @@ When you have complex application and Callback Tracing doesn't work after starti
 config :live_debugger, :tracing_setup_delay, 200 # in ms
 ```
 
-LiveDebugger is using garbage collection of traces in order to not take too much space in memory. Each debugged LiveView has separate table and default maximum size is 10MB. You can change it in config:
-
-```elixir
- config :live_debugger, :approx_table_max_size, 20 # in MB
-```
-
-We are approximating size of elixir terms in garbage collection so the actual maximum value can be higher.
-
 ## How Callback Tracing works
 
 To properly check each callback we are leveraging erlang's [`:dbg`](https://www.erlang.org/doc/apps/runtime_tools/dbg.html) module. When the application starts `:dbg.tracer/0` is initiated and calls for all LiveView or LiveComponent modules are added. It traces start of the callback, end of it and exceptions if some occur which allows to measure time of execution and which callback ended with error.
