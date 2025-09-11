@@ -84,11 +84,14 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
   def dropdown_item(assigns) do
     ~H"""
     <div
-      class="flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer"
+      class={[
+        "flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer",
+        if(@selected?, do: "bg-surface-0-bg-hover font-semibold")
+      ]}
       {@rest}
     >
       <.icon name={@icon} class="h-4 w-4" />
-      <span class={if @selected?, do: "font-semibold"}>{@label}</span>
+      <span>{@label}</span>
     </div>
     """
   end

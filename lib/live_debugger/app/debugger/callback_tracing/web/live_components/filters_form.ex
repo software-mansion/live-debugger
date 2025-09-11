@@ -58,52 +58,58 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     ~H"""
     <div id={@id <> "-wrapper"} class={if @disabled?, do: "opacity-50 pointer-events-none"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
-        <div class="w-full px-1">
-          <FiltersComponents.filters_group_header
-            title="Callbacks"
-            group_name={:functions}
-            target={@myself}
-            group_changed?={FiltersHelpers.group_changed?(@form.params, @default_filters, :functions)}
-          />
-          <div class="flex flex-col gap-3 pl-0.5 pb-4 border-b border-default-border">
-            <.checkbox
-              :for={callback <- FiltersHelpers.get_callbacks(@node_id)}
-              field={@form[callback]}
-              label={callback}
+        <div class="w-full py-2">
+          <div class="px-4 border-b border-default-border">
+            <FiltersComponents.filters_group_header
+              title="Callbacks"
+              group_name={:functions}
+              target={@myself}
+              group_changed?={
+                FiltersHelpers.group_changed?(@form.params, @default_filters, :functions)
+              }
             />
-          </div>
-          <FiltersComponents.filters_group_header
-            title="Execution Time"
-            class="pt-2"
-            group_name={:execution_time}
-            target={@myself}
-            group_changed?={
-              FiltersHelpers.group_changed?(@form.params, @default_filters, :execution_time)
-            }
-          />
-          <div class="pb-5">
-            <div class="flex gap-3 items-center">
-              <.input_with_units
-                value_field={@form[:exec_time_min]}
-                unit_field={@form[:min_unit]}
-                units={Parsers.time_units()}
-                min="0"
-                placeholder="min"
-              /> -
-              <.input_with_units
-                value_field={@form[:exec_time_max]}
-                unit_field={@form[:max_unit]}
-                min="0"
-                units={Parsers.time_units()}
-                placeholder="max"
+            <div class="flex flex-col gap-3 pb-4 ">
+              <.checkbox
+                :for={callback <- FiltersHelpers.get_callbacks(@node_id)}
+                field={@form[callback]}
+                label={callback}
               />
             </div>
-            <p :for={{_, msg} <- @errors} class="mt-2 block text-error-text">
-              <%= msg %>
-            </p>
+          </div>
+          <div class="px-4 border-b border-default-border">
+            <FiltersComponents.filters_group_header
+              title="Execution Time"
+              class="pt-2"
+              group_name={:execution_time}
+              target={@myself}
+              group_changed?={
+                FiltersHelpers.group_changed?(@form.params, @default_filters, :execution_time)
+              }
+            />
+            <div class="pb-5">
+              <div class="flex gap-3 items-center">
+                <.input_with_units
+                  value_field={@form[:exec_time_min]}
+                  unit_field={@form[:min_unit]}
+                  units={Parsers.time_units()}
+                  min="0"
+                  placeholder="min"
+                /> -
+                <.input_with_units
+                  value_field={@form[:exec_time_max]}
+                  unit_field={@form[:max_unit]}
+                  min="0"
+                  units={Parsers.time_units()}
+                  placeholder="max"
+                />
+              </div>
+              <p :for={{_, msg} <- @errors} class="mt-2 block text-error-text">
+                <%= msg %>
+              </p>
+            </div>
           </div>
 
-          <div class="flex pt-4 pb-2 border-t border-default-border items-center justify-between pr-3">
+          <div class="flex pt-4 pb-2 px-4 items-center justify-between pr-3">
             <div class="flex gap-2 items-center h-10">
               <%= if FiltersHelpers.filters_changed?(@form.params, @active_filters) do %>
                 <.button
