@@ -41,11 +41,12 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
     """
   end
 
+  attr(:id, :string, default: "live-sessions")
   attr(:grouped_lv_processes, :map, default: %{})
 
   def live_sessions(assigns) do
     ~H"""
-    <div id="live-sessions" class="flex flex-col gap-4">
+    <div id={@id} class="flex flex-col gap-4">
       <%= if Enum.empty?(@grouped_lv_processes)  do %>
         <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
           <p class="text-secondary-text text-center">No active LiveViews</p>
