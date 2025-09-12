@@ -134,11 +134,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher do
   end
 
   defp add_watcher(state, pid, watcher) do
-    if Process.alive?(pid) do
-      Map.put(state, pid, %ProcessInfo{watchers: MapSet.new([watcher])})
-    else
-      state
-    end
+    Map.put(state, pid, %ProcessInfo{alive?: Process.alive?(pid), watchers: MapSet.new([watcher])})
   end
 
   @spec remove_watcher(state(), pid(), pid()) :: state()

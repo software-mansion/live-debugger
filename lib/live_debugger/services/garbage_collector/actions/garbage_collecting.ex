@@ -3,6 +3,7 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
   Actions for LiveDebugger.Services.GarbageCollector.
   """
 
+  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.TracesStorage
 
@@ -18,11 +19,18 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
   def garbage_collect_traces!(watched_pids, alive_pids) do
     TracesStorage.get_all_tables()
     |> Enum.reduce(false, fn {pid, table}, acc ->
+      to_remove =
+        case StatesStorage.get!(pid) do
+          nil -> true
+          %LvState{to_remove: to_remove} -> to_remove
+        end
+
       result =
         cond do
           MapSet.member?(watched_pids, pid) -> maybe_trim_traces_table!(table, :watched)
           MapSet.member?(alive_pids, pid) -> maybe_trim_traces_table!(table, :non_watched)
-          true -> delete_traces_table!(table)
+          to_remove -> delete_traces_table!(table)
+          true -> false
         end
 
       acc or result
@@ -32,16 +40,24 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
   @spec garbage_collect_states!(MapSet.t(pid()), MapSet.t(pid())) :: boolean()
   def garbage_collect_states!(watched_pids, alive_pids) do
     StatesStorage.get_all_states()
-    |> Enum.reduce(false, fn {pid, _}, acc ->
+    |> Enum.reduce(false, fn {pid, state}, acc ->
       result =
-        if MapSet.member?(watched_pids, pid) or MapSet.member?(alive_pids, pid) do
-          false
-        else
-          delete_state!(pid)
+        cond do
+          watched_or_alive?(pid, watched_pids, alive_pids) -> false
+          state.to_remove -> delete_state!(pid)
+          true -> mark_for_removal!(state)
         end
 
       acc or result
     end)
+  end
+
+  defp watched_or_alive?(pid, watched_pids, alive_pids) do
+    MapSet.member?(watched_pids, pid) or MapSet.member?(alive_pids, pid)
+  end
+
+  defp mark_for_removal!(state) do
+    StatesStorage.save!(%{state | to_remove: true})
   end
 
   defp maybe_trim_traces_table!(table, type) when type in [:watched, :non_watched] do
