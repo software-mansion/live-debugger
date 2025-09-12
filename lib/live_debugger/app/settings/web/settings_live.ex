@@ -79,6 +79,14 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
               phx-click="update"
               phx-value-setting="garbage_collection"
             />
+            <SettingsComponents.settings_switch
+              id="debug-button-switch"
+              label="Debug Button"
+              description="..."
+              checked={@settings[:debug_button]}
+              phx-click="update"
+              phx-value-setting="debug_button"
+            />
           </div>
         </div>
 
@@ -116,6 +124,10 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
     |> SettingsActions.update_settings!(setting, not socket.assigns.settings[setting])
     |> case do
       {:ok, new_settings} ->
+        if setting == :debug_button do
+          LiveDebugger.update_live_debugger_tags()
+        end
+
         socket
         |> assign(settings: new_settings)
         |> push_flash(:info, "Setting updated successfully")

@@ -19,6 +19,7 @@
 
 #live-debugger-debug-button.live-debugger-inspect-mode {
   background-color: #87cce8;
+  pointer-events: none;
 }
 
 #live-debugger-debug-button.live-debugger-inspect-mode .live-debugger-bug-icon {

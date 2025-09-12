@@ -145,9 +145,8 @@ export default function initElementInspection({
     inspectMode = false;
     lastID = null;
 
-    document
-      .getElementById('live-debugger-debug-button')
-      .classList.remove('live-debugger-inspect-mode');
+    const debugButton = document.getElementById('live-debugger-debug-button');
+    if (debugButton) debugButton.classList.remove('live-debugger-inspect-mode');
 
     pushClearEvent();
     pushRemoveTooltipEvent();
@@ -167,9 +166,8 @@ export default function initElementInspection({
 
     inspectMode = true;
 
-    document
-      .getElementById('live-debugger-debug-button')
-      .classList.add('live-debugger-inspect-mode');
+    const debugButton = document.getElementById('live-debugger-debug-button');
+    if (debugButton) debugButton.classList.add('live-debugger-inspect-mode');
 
     document.body.classList.add('live-debugger-inspect-mode');
     document.body.addEventListener('click', handleInspect);
