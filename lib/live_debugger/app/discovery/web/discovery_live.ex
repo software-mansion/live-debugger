@@ -5,6 +5,11 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
+  alias LiveDebugger.Structs.LvProcess
+  alias LiveDebugger.Structs.LvState
+  alias LiveDebugger.API.StatesStorage
+  alias LiveDebugger.API.LiveViewDiscovery
   alias LiveDebugger.App.Discovery.Web.Components, as: DiscoveryComponents
   alias LiveDebugger.App.Web.Components.Navbar, as: NavbarComponents
   alias LiveDebugger.App.Discovery.Queries, as: DiscoveryQueries
@@ -21,6 +26,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
     socket
     |> assign_async_grouped_lv_processes()
+    |> assign_async_dead_grouped_lv_processes()
     |> ok()
   end
 
@@ -32,15 +38,31 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
         <NavbarComponents.live_debugger_logo />
         <NavbarComponents.settings_button return_to={@url} />
       </NavbarComponents.navbar>
-      <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
-        <DiscoveryComponents.header title="Active LiveViews" />
+      <div>
+        <div class="min-h-92 flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
+          <DiscoveryComponents.header title="Active LiveViews" />
 
-        <div class="mt-6">
-          <.async_result :let={grouped_lv_processes} assign={@grouped_lv_processes}>
-            <:loading><DiscoveryComponents.loading /></:loading>
-            <:failed><DiscoveryComponents.failed /></:failed>
-            <DiscoveryComponents.live_sessions grouped_lv_processes={grouped_lv_processes} />
-          </.async_result>
+          <div class="mt-6">
+            <.async_result :let={grouped_lv_processes} assign={@grouped_lv_processes}>
+              <:loading><DiscoveryComponents.loading /></:loading>
+              <:failed><DiscoveryComponents.failed /></:failed>
+              <DiscoveryComponents.live_sessions grouped_lv_processes={grouped_lv_processes} />
+            </.async_result>
+          </div>
+        </div>
+        <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
+          <DiscoveryComponents.header title="Recently Died LiveViews" />
+
+          <div class="mt-6">
+            <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
+              <:loading><DiscoveryComponents.loading /></:loading>
+              <:failed><DiscoveryComponents.failed /></:failed>
+              <DiscoveryComponents.live_sessions
+                id="dead-sessions"
+                grouped_lv_processes={dead_grouped_lv_processes}
+              />
+            </.async_result>
+          </div>
         </div>
       </div>
     </div>
@@ -51,6 +73,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   def handle_event("refresh", _params, socket) do
     socket
     |> assign_async_grouped_lv_processes()
+    |> assign_async_dead_grouped_lv_processes()
     |> noreply()
   end
 
@@ -64,6 +87,13 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   def handle_info(%LiveViewDied{}, socket) do
     socket
     |> assign_async_grouped_lv_processes()
+    |> assign_async_dead_grouped_lv_processes()
+    |> noreply()
+  end
+
+  def handle_info(%TableTrimmed{}, socket) do
+    socket
+    |> assign_async_dead_grouped_lv_processes()
     |> noreply()
   end
 
@@ -76,5 +106,23 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
       &DiscoveryQueries.fetch_grouped_lv_processes/0,
       reset: true
     )
+  end
+
+  defp assign_async_dead_grouped_lv_processes(socket) do
+    assign_async(
+      socket,
+      :dead_grouped_lv_processes,
+      &fetch_dead_grouped_lv_processes/0
+    )
+  end
+
+  defp fetch_dead_grouped_lv_processes() do
+    dead_lv_processes =
+      StatesStorage.get_all_states()
+      |> Enum.filter(fn {pid, %LvState{}} -> not Process.alive?(pid) end)
+      |> Enum.map(&elem(&1, 1))
+      |> Enum.map(&(LvProcess.new(&1.pid, &1.socket) |> LvProcess.set_alive(false)))
+
+    {:ok, %{dead_grouped_lv_processes: LiveViewDiscovery.group_lv_processes(dead_lv_processes)}}
   end
 end
