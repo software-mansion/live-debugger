@@ -132,6 +132,8 @@ defmodule LiveDebugger.API.LiveViewDebug do
         end
       end
 
+      @impl true
+
       def process_initial_call(pid) do
         pid
         |> Process.info([:dictionary])
@@ -147,6 +149,8 @@ defmodule LiveDebugger.API.LiveViewDebug do
         end
       end
 
+      @impl true
+
       def process_state(pid) do
         try do
           if Process.alive?(pid) do
@@ -159,6 +163,8 @@ defmodule LiveDebugger.API.LiveViewDebug do
             {:error, reason}
         end
       end
+
+      @impl true
 
       def process_list(), do: Process.list()
     end
