@@ -59,11 +59,6 @@ export default function initDebugOptions({ liveDebuggerURL, debugChannel }) {
     hideDebugOptions();
   };
 
-  const onRemoveButtonClick = () => {
-    dispatchCustomEvent('lvdbg:remove-button-click');
-    hideDebugOptions();
-  };
-
   debugOptions
     .querySelector('#live-debugger-debug-tooltip-open-in-new-tab')
     .addEventListener('click', onNewTabButtonClick);
@@ -75,10 +70,6 @@ export default function initDebugOptions({ liveDebuggerURL, debugChannel }) {
   debugOptions
     .querySelector('#live-debugger-debug-tooltip-move-button')
     .addEventListener('click', onMoveButtonClick);
-
-  debugOptions
-    .querySelector('#live-debugger-debug-tooltip-remove-button')
-    .addEventListener('click', onRemoveButtonClick);
 
   document.addEventListener('lvdbg:debug-button-click', onDebugButtonClick);
   document.addEventListener('lvdbg:click-outside-debug-menu', hideDebugOptions);

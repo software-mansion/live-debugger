@@ -30,10 +30,6 @@ export default function initDebugButton() {
     document.removeEventListener('mousemove', onMouseMove);
   };
 
-  const removeButton = () => {
-    debugButton.remove();
-  };
-
   const onMouseMove = (event) => {
     const buttonWidth = debugButton.offsetWidth;
     const buttonHeight = debugButton.offsetHeight;
@@ -76,7 +72,6 @@ export default function initDebugButton() {
 
   debugButton.addEventListener('click', onClick);
   document.addEventListener('lvdbg:move-button-click', dragButton);
-  document.addEventListener('lvdbg:remove-button-click', removeButton);
   window.addEventListener('resize', () => ensureButtonInViewport());
 
   return debugButton;
