@@ -2,7 +2,8 @@ defmodule LiveDebugger.API.SettingsStorage do
   @available_settings [
     :dead_view_mode,
     :tracing_update_on_code_reload,
-    :garbage_collection
+    :garbage_collection,
+    :tracing_started_by_default
   ]
 
   @moduledoc """
@@ -75,7 +76,8 @@ defmodule LiveDebugger.API.SettingsStorage do
     @default_settings %{
       dead_view_mode: true,
       tracing_update_on_code_reload: false,
-      garbage_collection: true
+      garbage_collection: true,
+      tracing_started_by_default: false
     }
 
     @table_name :lvdbg_settings

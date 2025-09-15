@@ -79,6 +79,14 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
               phx-click="update"
               phx-value-setting="garbage_collection"
             />
+            <SettingsComponents.settings_switch
+              id="tracing-started-by-default-switch"
+              label="Tracing started by default"
+              description="..."
+              checked={@settings[:tracing_started_by_default]}
+              phx-click="update"
+              phx-value-setting="tracing_started_by_default"
+            />
           </div>
         </div>
 
