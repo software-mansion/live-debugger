@@ -83,7 +83,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
             <SettingsComponents.settings_switch
               id="debug-button-switch"
               label="Debug Button"
-              description="..."
+              description="When enabled, a debug button will be added to every LiveView page, allowing you to quickly open LiveDebugger for the current page."
               checked={@settings[:debug_button]}
               phx-click="update"
               phx-value-setting="debug_button"
