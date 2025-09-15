@@ -154,7 +154,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
     socket
     |> assign(:node_id, node_id)
     |> FiltersAssigns.assign_current_filters()
-    |> Hooks.TracingFuse.disable_tracing()
     |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> noreply()
   end
