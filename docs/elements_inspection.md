@@ -13,16 +13,6 @@ You can open LiveDebugger `Node Inspector` on right element by selecting it with
 > # Enables all browser features and inject LiveDebugger JS
 > config :live_debugger, :browser_features?, true
 > ```
->
-> For proper working make sure you don't have highlighting disabled.
->
-> It's enabled by default but you can enable it explicitly:
->
-> ```elixir
-> # config/dev.exs
->
-> config :live_debugger, :highlighting?, true
-> ```
 
 ### How to use
 
