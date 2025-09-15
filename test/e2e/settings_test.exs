@@ -1,9 +1,9 @@
 defmodule LiveDebugger.E2E.SettingsTest do
   use LiveDebugger.E2ECase
 
-  @sessions 3
   @table_name :lvdbg_settings
 
+  @sessions 3
   feature "all settings are working properly", %{
     sessions: [dev_app, debugger1, debugger2]
   } do
