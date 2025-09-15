@@ -8,11 +8,11 @@ defmodule LiveDebugger.Services.GarbageCollector.UtilsTest do
     @megabyte_unit 1_048_576
 
     test "returns the correct size for watched tables" do
-      assert 20 * @megabyte_unit == GarbageCollectorUtils.max_table_size(:watched)
+      assert 50 * @megabyte_unit == GarbageCollectorUtils.max_table_size(:watched)
     end
 
     test "returns the correct size for non watched tables" do
-      assert 2 * @megabyte_unit == GarbageCollectorUtils.max_table_size(:non_watched)
+      assert 5 * @megabyte_unit == GarbageCollectorUtils.max_table_size(:non_watched)
     end
   end
 end
