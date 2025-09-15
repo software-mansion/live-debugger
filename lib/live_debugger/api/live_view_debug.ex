@@ -75,7 +75,7 @@ defmodule LiveDebugger.API.LiveViewDebug do
         process_list()
         |> Enum.filter(&liveview?/1)
         |> Enum.map(fn pid ->
-          case state(pid) do
+          case process_state(pid) do
             {:ok, %{socket: socket, topic: topic}} ->
               %{
                 pid: pid,

@@ -62,8 +62,8 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
         non_lv_pid_2 = :c.pid(0, 15, 0)
 
         MockAPILiveViewDebug
-        |> expect(:list, fn -> [lv_pid_1, lv_pid_2, non_lv_pid_1, non_lv_pid_2] end)
-        |> expect(:initial_call, 4, fn pid ->
+        |> expect(:process_list, fn -> [lv_pid_1, lv_pid_2, non_lv_pid_1, non_lv_pid_2] end)
+        |> expect(:process_initial_call, 4, fn pid ->
           case pid do
             ^lv_pid_1 -> {:ok, {module, :mount, 3}}
             ^lv_pid_2 -> {:ok, {module, :mount, 3}}
@@ -71,7 +71,7 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
             ^non_lv_pid_2 -> {:ok, nil}
           end
         end)
-        |> expect(:state, 2, fn pid ->
+        |> expect(:process_state, 2, fn pid ->
           case pid do
             ^lv_pid_1 -> {:ok, %{socket: socket, topic: topic}}
             ^lv_pid_2 -> {:error, :not_alive}
@@ -96,7 +96,7 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
         socket = Fakes.socket()
 
         MockAPILiveViewDebug
-        |> expect(:state, fn ^pid -> {:ok, %{socket: socket}} end)
+        |> expect(:process_state, fn ^pid -> {:ok, %{socket: socket}} end)
 
         assert {:ok, ^socket} = LiveViewDebug.Impl.socket(pid)
       end
@@ -105,7 +105,7 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
         pid = :c.pid(0, 12, 0)
 
         MockAPILiveViewDebug
-        |> expect(:state, fn ^pid -> {:ok, %{data: [], socket: %{c: 3}}} end)
+        |> expect(:process_state, fn ^pid -> {:ok, %{data: [], socket: %{c: 3}}} end)
 
         assert {:error, :not_alive_or_not_a_liveview} = LiveViewDebug.Impl.socket(pid)
       end
@@ -114,7 +114,7 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
         pid = :c.pid(0, 12, 0)
 
         MockAPILiveViewDebug
-        |> expect(:state, fn ^pid -> {:error, :not_alive} end)
+        |> expect(:process_state, fn ^pid -> {:error, :not_alive} end)
 
         assert {:error, :not_alive_or_not_a_liveview} = LiveViewDebug.Impl.socket(pid)
       end
@@ -128,7 +128,7 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
         components = Fakes.live_components()
 
         MockAPILiveViewDebug
-        |> expect(:state, fn ^pid -> {:ok, %{components: raw_components}} end)
+        |> expect(:process_state, fn ^pid -> {:ok, %{components: raw_components}} end)
 
         assert {:ok, ^components} = LiveViewDebug.Impl.live_components(pid)
       end
@@ -137,7 +137,7 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
         pid = :c.pid(0, 12, 0)
 
         MockAPILiveViewDebug
-        |> expect(:state, fn ^pid -> {:ok, %{data: []}} end)
+        |> expect(:process_state, fn ^pid -> {:ok, %{data: []}} end)
 
         assert {:error, :not_alive_or_not_a_liveview} = LiveViewDebug.Impl.live_components(pid)
       end
@@ -146,7 +146,7 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
         pid = :c.pid(0, 12, 0)
 
         MockAPILiveViewDebug
-        |> expect(:state, fn ^pid -> {:error, :not_alive} end)
+        |> expect(:process_state, fn ^pid -> {:error, :not_alive} end)
 
         assert {:error, :not_alive_or_not_a_liveview} = LiveViewDebug.Impl.live_components(pid)
       end
@@ -180,27 +180,27 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
 
     describe "initial_call/1" do
       test "returns $initial_call for a live process", %{alive_pid: alive_pid} do
-        assert {:ok, {TestServer, :init, 1}} = LiveViewDebug.Impl.initial_call(alive_pid)
+        assert {:ok, {TestServer, :init, 1}} = LiveViewDebug.Impl.process_initial_call(alive_pid)
       end
 
       test "returns :error for a dead process", %{dead_pid: dead_pid} do
         assert Process.alive?(dead_pid) == false
-        assert {:error, :not_alive} = LiveViewDebug.Impl.initial_call(dead_pid)
+        assert {:error, :not_alive} = LiveViewDebug.Impl.process_initial_call(dead_pid)
       end
 
       test "returns :error for a process with no initial call" do
         pid = spawn(fn -> Process.sleep(:infinity) end)
-        assert {:error, :no_initial_call} = LiveViewDebug.Impl.initial_call(pid)
+        assert {:error, :no_initial_call} = LiveViewDebug.Impl.process_initial_call(pid)
       end
     end
 
     describe "state/1" do
       test "returns state of for a live process", %{alive_pid: alive_pid} do
-        assert {:ok, %{number: 14}} = LiveViewDebug.Impl.state(alive_pid)
+        assert {:ok, %{number: 14}} = LiveViewDebug.Impl.process_state(alive_pid)
       end
 
       test "returns :error for a dead process", %{dead_pid: dead_pid} do
-        assert {:error, :not_alive} = LiveViewDebug.Impl.state(dead_pid)
+        assert {:error, :not_alive} = LiveViewDebug.Impl.process_state(dead_pid)
       end
     end
   end
