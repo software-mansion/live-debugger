@@ -14,6 +14,9 @@ defmodule LiveDebugger.API.LiveViewDebug do
   @callback list_liveviews() :: [lv()]
   @callback socket(pid()) :: {:ok, Phoenix.LiveView.Socket.t()} | {:error, term()}
   @callback live_components(pid()) :: {:ok, [LvState.component()]} | {:error, term()}
+  @callback process_initial_call(pid :: pid()) :: {:ok, mfa()} | {:error, term()}
+  @callback process_state(pid :: pid()) :: {:ok, term()} | {:error, term()}
+  @callback process_list() :: [pid()]
 
   @spec list_liveviews() :: [lv()]
   def list_liveviews() do
