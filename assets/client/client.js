@@ -11,7 +11,6 @@ import {
   getMetaTag,
   fetchLiveDebuggerBaseURL,
   fetchDebuggedSocketID,
-  isDebugButtonEnabled,
   isHighlightingEnabled,
 } from './utils/meta';
 
@@ -33,9 +32,7 @@ window.document.addEventListener('DOMContentLoaded', function () {
     initElementInspection({ baseURL, debugChannel, socketID });
     initTooltip();
 
-    if (isDebugButtonEnabled(metaTag)) {
-      initDebugMenu(sessionURL, debugChannel);
-    }
+    initDebugMenu(metaTag, sessionURL, debugChannel);
 
     if (isHighlightingEnabled(metaTag)) {
       initHighlight(debugChannel);

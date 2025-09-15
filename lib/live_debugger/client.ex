@@ -9,10 +9,12 @@ defmodule LiveDebugger.Client do
 
   @doc """
   Pushes event to the client.
+  Use \"all\" as `debugged_socket_id` to send event to all connected clients.
 
   ## Examples
 
       LiveDebugger.Client.push_event!("debugged_socket_id", "event", %{"key" => "value"})
+      LiveDebugger.Client.push_event!("all", "event", %{"key" => "value"})
   """
   @spec push_event!(String.t(), String.t(), map()) :: :ok
   def push_event!(debugged_socket_id, event, payload \\ %{}) do

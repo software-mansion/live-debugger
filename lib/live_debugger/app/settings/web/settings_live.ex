@@ -5,6 +5,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  alias LiveDebugger.Client
   alias LiveDebugger.App.Events.UserChangedSettings
   alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Settings.Actions, as: SettingsActions
@@ -126,6 +127,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
       {:ok, new_settings} ->
         if setting == :debug_button do
           LiveDebugger.update_live_debugger_tags()
+          Client.push_event!("all", "toggle-debug-button")
         end
 
         socket
