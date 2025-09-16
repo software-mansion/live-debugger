@@ -127,7 +127,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
       {:ok, new_settings} ->
         if setting == :debug_button do
           LiveDebugger.update_live_debugger_tags()
-          Client.push_event!("all", "toggle-debug-button")
+          Client.push_event!("*", "toggle-debug-button", %{enabled: new_settings[:debug_button]})
         end
 
         socket

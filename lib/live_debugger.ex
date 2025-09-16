@@ -24,7 +24,8 @@ defmodule LiveDebugger do
   end
 
   def update_live_debugger_tags() do
-    Application.get_all_env(@app_name)
+    @app_name
+    |> Application.get_all_env()
     |> put_live_debugger_tags()
   end
 

@@ -8,7 +8,7 @@ defmodule LiveDebugger.Client.Channel do
 
   @impl true
   def join("client:" <> _debugged_socket_id, _params, socket) do
-    Phoenix.PubSub.subscribe(@pubsub_name, "client:all")
+    Phoenix.PubSub.subscribe(@pubsub_name, "client:*")
     {:ok, socket}
   end
 

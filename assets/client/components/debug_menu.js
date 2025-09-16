@@ -7,22 +7,18 @@ export default function initDebugMenu(metaTag, liveDebuggerURL, debugChannel) {
   const debugButton = initDebugButton();
   const debugMenu = initDebugOptions({ liveDebuggerURL, debugChannel });
 
-  let debugButtonEnabled = isDebugButtonEnabled(metaTag);
-
-  if (debugButtonEnabled) {
+  if (isDebugButtonEnabled(metaTag)) {
     document.body.appendChild(debugButton);
     document.body.appendChild(debugMenu);
   }
 
-  debugChannel.on('toggle-debug-button', (_payload) => {
-    if (debugButtonEnabled) {
-      debugButtonEnabled = false;
-      debugButton.remove();
-      debugMenu.remove();
-    } else {
-      debugButtonEnabled = true;
+  debugChannel.on('toggle-debug-button', ({ enabled }) => {
+    if (enabled) {
       document.body.appendChild(debugButton);
       document.body.appendChild(debugMenu);
+    } else {
+      debugButton.remove();
+      debugMenu.remove();
     }
   });
 
