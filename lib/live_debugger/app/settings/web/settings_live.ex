@@ -80,12 +80,12 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
               phx-value-setting="garbage_collection"
             />
             <SettingsComponents.settings_switch
-              id="tracing-started-by-default-switch"
-              label="Tracing started by default"
-              description="..."
-              checked={@settings[:tracing_started_by_default]}
+              id="tracing-enabled-on-start-switch"
+              label="Tracing enabled on start"
+              description="When enabled, LiveDebugger will start tracing as soon as you open the debugger. When disabled, LiveDebugger still records all traces, but you will need to manually start tracing to see new traces coming."
+              checked={@settings[:tracing_enabled_on_start]}
               phx-click="update"
-              phx-value-setting="tracing_started_by_default"
+              phx-value-setting="tracing_enabled_on_start"
             />
           </div>
         </div>

@@ -39,7 +39,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.TracingFuse do
       |> attach_hook(:tracing_fuse, :handle_info, &handle_info/2)
       |> register_hook(:tracing_fuse)
 
-    if SettingsStorage.get(:tracing_started_by_default) do
+    if SettingsStorage.get(:tracing_enabled_on_start) do
       start_tracing(socket)
     else
       socket
