@@ -6,12 +6,13 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.TracesStorage
 
-  alias LiveDebugger.Services.GarbageCollector.Utils,
-    as: GarbageCollectorUtils
-
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
   alias LiveDebugger.Services.GarbageCollector.Events.TableDeleted
+
+  @megabyte_unit 1_048_576
+  @watched_table_size 50 * @megabyte_unit
+  @non_watched_table_size 5 * @megabyte_unit
 
   @spec garbage_collect_traces!(MapSet.t(pid()), MapSet.t(pid())) :: boolean()
   def garbage_collect_traces!(watched_pids, alive_pids) do
@@ -45,7 +46,7 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
 
   defp maybe_trim_traces_table!(table, type) when type in [:watched, :non_watched] do
     size = TracesStorage.table_size(table)
-    max_size = GarbageCollectorUtils.max_table_size(type)
+    max_size = max_table_size(type)
 
     if size > max_size do
       TracesStorage.trim_table!(table, max_size)
@@ -67,4 +68,7 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
     Bus.broadcast_event!(%TableTrimmed{})
     true
   end
+
+  defp max_table_size(:watched), do: @watched_table_size
+  defp max_table_size(:non_watched), do: @non_watched_table_size
 end

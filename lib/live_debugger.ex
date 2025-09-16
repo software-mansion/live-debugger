@@ -78,8 +78,6 @@ defmodule LiveDebugger do
     port = Keyword.get(config, :port, @default_port)
 
     browser_features? = Keyword.get(config, :browser_features?, true)
-    debug_button? = Keyword.get(config, :debug_button?, true)
-    highlighting? = Keyword.get(config, :highlighting?, true)
     version = Application.spec(@app_name)[:vsn] |> to_string()
 
     live_debugger_url = Keyword.get(config, :external_url, "http://#{ip_string}:#{port}")
@@ -93,8 +91,6 @@ defmodule LiveDebugger do
       css_url: live_debugger_css_url,
       phoenix_url: live_debugger_phoenix_url,
       browser_features?: browser_features?,
-      debug_button?: debug_button?,
-      highlighting?: highlighting?,
       version: version
     }
 
