@@ -6,7 +6,6 @@ function highlightSearchRanges(ranges) {
 }
 
 function handleHighlight(phrase, root) {
-  console.log(phrase);
   if (phrase === undefined || phrase === '') {
     CSS.highlights.clear();
     return;
