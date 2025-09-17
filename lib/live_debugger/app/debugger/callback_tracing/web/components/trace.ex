@@ -24,7 +24,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
     ~H"""
     <.fullscreen id={@id} title={@callback_name}>
-      <div class="w-full flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden">
+      <div class="p-4 flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden">
         <.trace_body id={@id <> "-fullscreen"} trace={@trace} {@rest} />
       </div>
     </.fullscreen>
@@ -40,7 +40,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   def trace_body(assigns) do
     ~H"""
-    <div id={@id <> "-body"} class="flex flex-col gap-4" {@rest}>
+    <div id={@id <> "-body"} class="flex flex-col gap-4 w-full" {@rest}>
       <%= for {args, index} <- Enum.with_index(@trace.args) do %>
         <div :if={index > 0} class="border-t border-default-border w-full"></div>
         <div class="flex flex-col gap-4 w-full [&>div>div>button]:hidden hover:[&>div>div>button]:block">
@@ -116,9 +116,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
     ~H"""
     <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
-      <p id={if(@id, do: @id <> "-short-content", else: false)} class="hide-on-open mt-0.5" {@rest}>
-        <%= @content %>
-      </p>
+      <div class="hidden @[30rem]/traces:flex">
+        <p id={if(@id, do: @id <> "-short-content", else: false)} class="hide-on-open mt-0.5" {@rest}>
+          <%= @content %>
+        </p>
+      </div>
     </div>
     """
   end

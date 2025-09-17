@@ -11,7 +11,6 @@ import {
   getMetaTag,
   fetchLiveDebuggerBaseURL,
   fetchDebuggedSocketID,
-  isHighlightingEnabled,
 } from './utils/meta';
 
 window.document.addEventListener('DOMContentLoaded', function () {
@@ -31,12 +30,8 @@ window.document.addEventListener('DOMContentLoaded', function () {
 
     initElementInspection({ baseURL, debugChannel, socketID });
     initTooltip();
-
     initDebugMenu(metaTag, sessionURL, debugChannel);
-
-    if (isHighlightingEnabled(metaTag)) {
-      initHighlight(debugChannel);
-    }
+    initHighlight(debugChannel);
   }
 
   console.info(`LiveDebugger available at: ${baseURL}`);

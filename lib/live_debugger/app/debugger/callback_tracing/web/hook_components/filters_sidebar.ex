@@ -29,9 +29,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersSi
   def render(assigns) do
     ~H"""
     <.sidebar_slide_over id="filters-sidebar" sidebar_hidden?={@sidebar_hidden?}>
-      <div>
-        <div class="text-secondary-text font-semibold pt-6 pb-2 px-4">Filters</div>
-        <div class="px-3">
+      <div class="flex flex-col justify-between h-full">
+        <div>
+          <div class="text-secondary-text font-semibold pt-6 pb-2 px-4">Filters</div>
           <.live_component
             module={FiltersForm}
             id="filters-sidebar-form"
@@ -41,6 +41,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersSi
             revert_button_visible?={true}
           />
         </div>
+        <.report_issue class="border-t border-default-border" />
       </div>
     </.sidebar_slide_over>
     """

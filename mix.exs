@@ -96,6 +96,7 @@ defmodule LiveDebugger.MixProject do
       logo: "./docs/images/logo.png",
       extra_section: "GUIDES",
       extras: [
+        "CHANGELOG.md",
         "docs/welcome.md": [title: "Welcome to LiveDebugger"],
         "docs/config.md": [title: "Configuration"],
         "docs/components_tree.md": [title: "Components Tree"],
@@ -133,8 +134,11 @@ defmodule LiveDebugger.MixProject do
   defp package do
     [
       licenses: ["Apache-2.0"],
-      links: %{github: "https://github.com/software-mansion/live-debugger"},
-      files: ~w(lib priv LICENSE mix.exs README.md)
+      links: %{
+        changelog: "https://hexdocs.pm/live_debugger/changelog.html",
+        github: "https://github.com/software-mansion/live-debugger"
+      },
+      files: ~w(lib priv LICENSE mix.exs README.md CHANGELOG.md)
     ]
   end
 end
