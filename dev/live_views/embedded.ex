@@ -4,12 +4,20 @@ defmodule LiveDebuggerDev.LiveViews.Embedded do
   import LiveDebuggerDev.Components
 
   def render(assigns) do
+    assigns = assign(assigns, id: "embedded")
+
     ~H"""
     <.box title="Live Session [LiveView]" color="blue">
-      <.live_component module={LiveDebuggerDev.LiveComponents.Wrapper} id="wrapper">
-        <%= live_render(@socket, LiveDebuggerDev.LiveViews.Simple, id: "live_session_inner_1") %>
+      <.live_component module={LiveDebuggerDev.LiveComponents.Wrapper} id={"#{@id}_wrapper"}>
+        <LiveDebuggerDev.LiveViews.Simple.live_render
+          socket={@socket}
+          id={"#{@id}_live_session_inner_1"}
+        />
       </.live_component>
-      <%= live_render(@socket, LiveDebuggerDev.LiveViews.Simple, id: "live_session_inner_2") %>
+      <LiveDebuggerDev.LiveViews.Simple.live_render
+        socket={@socket}
+        id={"#{@id}_live_session_inner_2"}
+      />
     </.box>
     """
   end

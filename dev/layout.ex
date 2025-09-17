@@ -87,7 +87,7 @@ defmodule LiveDebuggerDev.Layout do
       <.box title="Embedded Live View [LiveView]" color="purple">
         <%= live_render(@socket, LiveDebuggerDev.LiveViews.Nested,
           id: "embedded_with_nested",
-          session: %{},
+          session: %{"id" => "embedded_with_nested"},
           sticky: true
         ) %>
       </.box>
