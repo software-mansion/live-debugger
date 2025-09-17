@@ -30,3 +30,7 @@ export function getMetaTag() {
 export function fetchLiveDebuggerBaseURL(metaTag) {
   return metaTag.getAttribute('url');
 }
+
+export function isDebugButtonEnabled(metaTag) {
+  return metaTag.hasAttribute('debug-button');
+}

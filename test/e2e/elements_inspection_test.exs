@@ -1,12 +1,13 @@
 defmodule LiveDebugger.E2E.ElementsInspectionTest do
-  @moduledoc false
-
   use LiveDebugger.E2ECase
 
   @sessions 2
   feature "user can inspect elements after enabling inspect mode from LiveDebugger", %{
     sessions: [dev_app1, debugger]
   } do
+    LiveDebugger.API.SettingsStorage.save(:debug_button, true)
+    LiveDebugger.update_live_debugger_tags()
+
     dev_app1
     |> visit(@dev_app_url)
     |> refute_has(css("div.live-debugger-inspect-mode"))
@@ -43,6 +44,9 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
   feature "user can disable inspect mode from LiveDebugger", %{
     sessions: [dev_app1, debugger]
   } do
+    LiveDebugger.API.SettingsStorage.save(:debug_button, true)
+    LiveDebugger.update_live_debugger_tags()
+
     dev_app1
     |> visit(@dev_app_url)
     |> refute_has(css("div.live-debugger-inspect-mode"))
@@ -66,6 +70,9 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
   feature "user can disable inspect mode by right clicking in debugged window", %{
     sessions: [dev_app1, debugger]
   } do
+    LiveDebugger.API.SettingsStorage.save(:debug_button, true)
+    LiveDebugger.update_live_debugger_tags()
+
     dev_app1
     |> visit(@dev_app_url)
     |> refute_has(css("div.live-debugger-inspect-mode"))
@@ -85,6 +92,9 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
   feature "selecting node redirects all debugger windows that are subscribed to it", %{
     sessions: [dev_app1, debugger1, debugger2, debugger3]
   } do
+    LiveDebugger.API.SettingsStorage.save(:debug_button, true)
+    LiveDebugger.update_live_debugger_tags()
+
     dev_app1
     |> visit(@dev_app_url)
     |> refute_has(css("div.live-debugger-inspect-mode"))

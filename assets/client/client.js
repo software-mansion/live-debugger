@@ -30,7 +30,7 @@ window.document.addEventListener('DOMContentLoaded', function () {
 
     initElementInspection({ baseURL, debugChannel, socketID });
     initTooltip();
-    initDebugMenu(sessionURL, debugChannel);
+    initDebugMenu(metaTag, sessionURL, debugChannel);
     initHighlight(debugChannel);
   }
 
