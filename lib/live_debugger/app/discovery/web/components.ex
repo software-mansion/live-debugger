@@ -79,7 +79,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
             <div class="flex items-center w-full">
               <.list_element lv_process={root_lv_process} />
             </div>
-            <.list elements={lv_processes} item_class="group">
+            <.list elements={lv_processes} item_class="group" class="pr-0">
               <:item :let={lv_process}>
                 <div class="flex items-center w-full">
                   <.nested_indent />
@@ -109,29 +109,41 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
 
   defp list_element(assigns) do
     ~H"""
-    <.link
-      navigate={RoutesHelper.debugger_node_inspector(@lv_process.pid)}
-      class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm live-view-link"
-    >
-      <div class="flex flex-col gap-1">
-        <div class="text-link-primary flex items-center gap-1">
-          <.icon :if={not @lv_process.nested?} name="icon-liveview" class="w-4 h-4" />
-          <p class={if(not @lv_process.nested?, do: "font-medium")}>
-            <%= Parsers.module_to_string(@lv_process.module) %>
+    <div class="flex w-full items-center">
+      <.link
+        navigate={RoutesHelper.debugger_node_inspector(@lv_process.pid)}
+        class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm live-view-link"
+      >
+        <div class="flex flex-col gap-1">
+          <div class="text-link-primary flex items-center gap-1">
+            <.icon :if={not @lv_process.nested?} name="icon-liveview" class="w-4 h-4" />
+            <p class={if(not @lv_process.nested?, do: "font-medium")}>
+              <%= Parsers.module_to_string(@lv_process.module) %>
+            </p>
+          </div>
+          <p class="text-secondary-text">
+            <%= Parsers.pid_to_string(@lv_process.pid) %> &middot; <%= @lv_process.socket_id %>
           </p>
         </div>
-        <p class="text-secondary-text">
-          <%= Parsers.pid_to_string(@lv_process.pid) %> &middot; <%= @lv_process.socket_id %>
-        </p>
+        <div>
+          <.badge
+            :if={@lv_process.embedded? and not @lv_process.nested?}
+            text="Embedded"
+            icon="icon-code"
+          />
+        </div>
+      </.link>
+      <div class="pl-3">
+        <.button
+          phx-click="remove-lv-process"
+          phx-value-pid={@lv_process.pid |> Parsers.pid_to_string()}
+          variant="secondary"
+          size="sm"
+        >
+          <.icon name="icon-cross" class="w-4 h-4" />
+        </.button>
       </div>
-      <div>
-        <.badge
-          :if={@lv_process.embedded? and not @lv_process.nested?}
-          text="Embedded"
-          icon="icon-code"
-        />
-      </div>
-    </.link>
+    </div>
     """
   end
 end

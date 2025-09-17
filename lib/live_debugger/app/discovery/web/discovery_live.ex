@@ -5,6 +5,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Structs.LvState
@@ -73,6 +74,26 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   def handle_event("refresh", _params, socket) do
     socket
     |> assign_async_grouped_lv_processes()
+    |> assign_async_dead_grouped_lv_processes()
+    |> noreply()
+  end
+
+  def handle_event("remove-lv-process", %{"pid" => string_pid}, socket) do
+    string_pid
+    |> Parsers.string_to_pid()
+    |> case do
+      {:ok, pid} ->
+        StatesStorage.delete!(pid)
+
+        StatesStorage.get_all_states()
+        |> Enum.filter(fn {_, %LvState{socket: socket}} -> socket.root_pid == pid end)
+        |> Enum.each(fn {pid, _} -> StatesStorage.delete!(pid) end)
+
+        socket
+
+      :error ->
+        socket
+    end
     |> assign_async_dead_grouped_lv_processes()
     |> noreply()
   end
