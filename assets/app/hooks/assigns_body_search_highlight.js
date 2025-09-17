@@ -21,16 +21,7 @@ const AssignsBodySearchHighlight = {
     handleHighlight(this.el.dataset.search_phrase, this.el);
   },
   updated() {
-    if (!this.elementIsVisible()) return;
     handleHighlight(this.el.dataset.search_phrase, this.el);
-  },
-
-  elementIsVisible() {
-    return !!(
-      this.el.offsetParent !== null &&
-      getComputedStyle(this.el).display !== 'none' &&
-      getComputedStyle(this.el).visibility !== 'hidden'
-    );
   },
 };
 
