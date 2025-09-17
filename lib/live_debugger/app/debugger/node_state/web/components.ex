@@ -56,10 +56,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       </div>
     </.section>
     <.fullscreen id={@fullscreen_id} title="Assigns">
-      <div
-        id="assigns-display-fullscreen-container"
-        class="p-4"
-      >
+      <div id="assigns-display-fullscreen-container" class="p-4">
         <ElixirDisplay.term
           id="assigns-display-fullscreen-term"
           node={TermParser.term_to_display_tree(@assigns)}
