@@ -213,7 +213,7 @@ function getClosestElementInfo(target) {
     return {
       element: componentElement,
       type: 'LiveComponent',
-      phxRootId: rootID,
+      phxRootId: rootElement.id,
       phxId: liveViewElement.id,
     };
   }
@@ -221,7 +221,7 @@ function getClosestElementInfo(target) {
   return {
     element: liveViewElement,
     type: 'LiveView',
-    phxRootId: rootID,
+    phxRootId: rootElement.id,
     phxId: liveViewElement.id,
   };
 }
