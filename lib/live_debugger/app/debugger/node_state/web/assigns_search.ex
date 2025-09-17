@@ -1,6 +1,6 @@
 defmodule LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch do
   @moduledoc """
-  This component is used to add filtering by search query for assigns.
+  This component is used to add search functionality for assigns.
   It produces `search` and `search-submit` events handled by hook added via `init/1`.
   """
 
