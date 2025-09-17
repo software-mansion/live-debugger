@@ -5,7 +5,7 @@ defmodule LiveDebugger.Support.CssQueries do
 
   import Wallaby.Query
 
-  def toggle_tracing_button(), do: css("button[phx-click=\"switch-tracing\"]")
+  def toggle_tracing_button(opts \\ []), do: css("button[phx-click=\"switch-tracing\"]", opts)
 
   def refresh_history_button(), do: css("button[phx-click=\"refresh-history\"]")
 
