@@ -47,7 +47,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         </div>
       </:right_panel>
       <div
-        id="assigns-display"
+        id="assigns-display-container"
         class="relative w-full h-max max-h-full p-4 overflow-y-auto"
         phx-hook="AssignsBodySearchHighlight"
         data-search_phrase={@assign_search_phrase}
@@ -57,16 +57,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     </.section>
     <.fullscreen id={@fullscreen_id} title="Assigns">
       <div
-        id="assigns-display-fullscreen"
+        id="assigns-display-fullscreen-container"
         class="p-4"
-        phx-hook="AssignsBodySearchHighlight"
-        data-search_phrase={@assign_search_phrase}
       >
         <ElixirDisplay.term
           id="assigns-display-fullscreen-term"
           node={TermParser.term_to_display_tree(@assigns)}
         />
-        {@assign_search_phrase}
       </div>
     </.fullscreen>
     """
