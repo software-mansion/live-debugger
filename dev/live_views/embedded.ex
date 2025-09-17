@@ -9,10 +9,7 @@ defmodule LiveDebuggerDev.LiveViews.Embedded do
     ~H"""
     <.box title="Live Session [LiveView]" color="blue">
       <.live_component module={LiveDebuggerDev.LiveComponents.Wrapper} id={"#{@id}_wrapper"}>
-        <LiveDebuggerDev.LiveViews.Simple.live_render
-          socket={@socket}
-          id={"#{@id}_live_session_inner_1"}
-        />
+        <LiveDebuggerDev.LiveViews.Simple.live_render socket={@socket} id={"#{@id}_wrapper_inner"} />
       </.live_component>
       <LiveDebuggerDev.LiveViews.Simple.live_render
         socket={@socket}
