@@ -4,6 +4,8 @@ defmodule LiveDebugger do
   """
   use Application
 
+  alias LiveDebugger.API.SettingsStorage
+
   @app_name :live_debugger
 
   @default_ip {127, 0, 0, 1}
@@ -21,18 +23,23 @@ defmodule LiveDebugger do
     Supervisor.start_link(children, strategy: :one_for_one, name: LiveDebugger.Supervisor)
   end
 
+  def update_live_debugger_tags() do
+    @app_name
+    |> Application.get_all_env()
+    |> put_live_debugger_tags()
+  end
+
   defp get_children() do
-    config = Application.get_all_env(@app_name)
-
-    put_endpoint_config(config)
-    put_live_debugger_tags(config)
-
     if LiveDebugger.Env.unit_test?() do
       []
     else
       LiveDebugger.API.SettingsStorage.init()
       LiveDebugger.API.TracesStorage.init()
       LiveDebugger.API.StatesStorage.init()
+
+      config = Application.get_all_env(@app_name)
+      put_endpoint_config(config)
+      put_live_debugger_tags(config)
 
       []
       |> LiveDebugger.App.append_app_children()
@@ -78,8 +85,6 @@ defmodule LiveDebugger do
     port = Keyword.get(config, :port, @default_port)
 
     browser_features? = Keyword.get(config, :browser_features?, true)
-    debug_button? = Keyword.get(config, :debug_button?, true)
-    highlighting? = Keyword.get(config, :highlighting?, true)
     version = Application.spec(@app_name)[:vsn] |> to_string()
 
     live_debugger_url = Keyword.get(config, :external_url, "http://#{ip_string}:#{port}")
@@ -93,9 +98,8 @@ defmodule LiveDebugger do
       css_url: live_debugger_css_url,
       phoenix_url: live_debugger_phoenix_url,
       browser_features?: browser_features?,
-      debug_button?: debug_button?,
-      highlighting?: highlighting?,
-      version: version
+      version: version,
+      debug_button?: SettingsStorage.get(:debug_button)
     }
 
     tags = LiveDebugger.Client.ConfigComponent.live_debugger_tags(assigns)

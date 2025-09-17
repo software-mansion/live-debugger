@@ -44,11 +44,6 @@ export default function initDebugOptions({ liveDebuggerURL, debugChannel }) {
     }
   };
 
-  const onMoveButtonClick = () => {
-    dispatchCustomEvent('lvdbg:move-button-click');
-    hideDebugOptions();
-  };
-
   const onNewTabButtonClick = () => {
     window.open(liveDebuggerURL, '_blank');
     hideDebugOptions();
@@ -56,6 +51,11 @@ export default function initDebugOptions({ liveDebuggerURL, debugChannel }) {
 
   const onInspectButtonClick = () => {
     dispatchCustomEvent('lvdbg:inspect-button-click');
+    hideDebugOptions();
+  };
+
+  const onMoveButtonClick = () => {
+    dispatchCustomEvent('lvdbg:move-button-click');
     hideDebugOptions();
   };
 

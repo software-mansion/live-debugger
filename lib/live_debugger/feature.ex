@@ -4,9 +4,8 @@ defmodule LiveDebugger.Feature do
   If you create a new feature that can be enabled or disabled, create a new function here with defined rules for enabling it.
   """
 
-  def enabled?(:highlighting) do
-    Application.get_env(:live_debugger, :browser_features?, true) and
-      Application.get_env(:live_debugger, :highlighting?, true)
+  def enabled?(:browser_features?) do
+    Application.get_env(:live_debugger, :browser_features?, true)
   end
 
   def enabled?(feature_name) do

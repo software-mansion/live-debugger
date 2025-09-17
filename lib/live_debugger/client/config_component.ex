@@ -11,19 +11,12 @@ defmodule LiveDebugger.Client.ConfigComponent do
   attr(:css_url, :string, required: true)
   attr(:phoenix_url, :string, required: true)
   attr(:browser_features?, :boolean, default: true)
-  attr(:debug_button?, :boolean, default: true)
-  attr(:highlighting?, :boolean, default: true)
   attr(:version, :string, default: nil)
+  attr(:debug_button?, :boolean, default: true)
 
   def live_debugger_tags(assigns) do
     ~H"""
-    <meta
-      name="live-debugger-config"
-      url={@url}
-      version={@version}
-      debug-button={@debug_button?}
-      highlighting={@highlighting?}
-    />
+    <meta name="live-debugger-config" url={@url} version={@version} debug-button={@debug_button?} />
     <%= if @browser_features? do %>
       <script src={@js_url}>
       </script>

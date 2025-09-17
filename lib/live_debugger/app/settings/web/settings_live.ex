@@ -5,6 +5,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  alias LiveDebugger.Client
   alias LiveDebugger.App.Events.UserChangedSettings
   alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Settings.Actions, as: SettingsActions
@@ -80,6 +81,14 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
               phx-value-setting="garbage_collection"
             />
             <SettingsComponents.settings_switch
+              id="debug-button-switch"
+              label="Debug Button"
+              description="When enabled, a debug button will be added to every LiveView page, allowing you to quickly open LiveDebugger for the current page."
+              checked={@settings[:debug_button]}
+              phx-click="update"
+              phx-value-setting="debug_button"
+            />
+            <SettingsComponents.settings_switch
               id="tracing-enabled-on-start-switch"
               label="Tracing enabled on start"
               description="When enabled, LiveDebugger will start tracing as soon as you open the debugger. When disabled, LiveDebugger still records all traces, but you will need to manually start tracing to see new traces coming."
@@ -124,6 +133,11 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
     |> SettingsActions.update_settings!(setting, not socket.assigns.settings[setting])
     |> case do
       {:ok, new_settings} ->
+        if setting == :debug_button do
+          LiveDebugger.update_live_debugger_tags()
+          Client.push_event!("*", "toggle-debug-button", %{enabled: new_settings[:debug_button]})
+        end
+
         socket
         |> assign(settings: new_settings)
         |> push_flash(:info, "Setting updated successfully")

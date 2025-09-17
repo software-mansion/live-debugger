@@ -1,9 +1,9 @@
 defmodule LiveDebugger.E2E.SettingsTest do
   use LiveDebugger.E2ECase
 
-  @sessions 3
   @table_name :lvdbg_settings
 
+  @sessions 3
   feature "all settings are working properly", %{
     sessions: [dev_app, debugger1, debugger2]
   } do
@@ -12,6 +12,15 @@ defmodule LiveDebugger.E2E.SettingsTest do
     LiveDebugger.API.SettingsStorage.save(:dead_view_mode, false)
     LiveDebugger.API.SettingsStorage.save(:tracing_update_on_code_reload, false)
     LiveDebugger.API.SettingsStorage.save(:garbage_collection, false)
+    LiveDebugger.API.SettingsStorage.save(:debug_button, false)
+    LiveDebugger.update_live_debugger_tags()
+
+    debugger2
+    |> visit("/settings")
+    |> assert_has(enable_dead_view_mode_checkbox(selected: false))
+    |> assert_has(enable_tracing_update_on_reload_checkbox(selected: false))
+    |> assert_has(enable_garbage_collector_checkbox(selected: false))
+    |> assert_has(enable_debug_button_checkbox(selected: false))
 
     dev_app
     |> visit(@dev_app_url)
@@ -33,12 +42,6 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     dev_app
     |> visit(@dev_app_url)
-
-    debugger2
-    |> visit("/settings")
-    |> assert_has(enable_dead_view_mode_checkbox(selected: false))
-    |> assert_has(enable_tracing_update_on_reload_checkbox(selected: false))
-    |> assert_has(enable_garbage_collector_checkbox(selected: false))
 
     debugger1
     |> visit("/settings")
@@ -78,6 +81,8 @@ defmodule LiveDebugger.E2E.SettingsTest do
     debugger2
     |> assert_has(enable_tracing_update_on_reload_checkbox(selected: true))
 
+    # Check garbage collector toggle
+
     debugger1
     |> visit("/settings")
     |> assert_has(enable_garbage_collector_checkbox(selected: false))
@@ -88,6 +93,38 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     debugger2
     |> assert_has(enable_garbage_collector_checkbox(selected: true))
+
+    # Check debug button toggle
+
+    dev_app
+    |> visit(@dev_app_url)
+    |> refute_has(css("#live-debugger-debug-button"))
+
+    debugger1
+    |> visit("/settings")
+    |> assert_has(enable_debug_button_checkbox(selected: false))
+    |> click(enable_debug_button_toggle())
+    |> assert_has(enable_debug_button_checkbox(selected: true))
+
+    assert(check_dets_for_setting(:debug_button))
+
+    debugger2
+    |> assert_has(enable_debug_button_checkbox(selected: true))
+
+    dev_app
+    |> assert_has(css("#live-debugger-debug-button"))
+    |> execute_script("window.location.reload();")
+    |> assert_has(css("#live-debugger-debug-button"))
+
+    debugger1
+    |> click(enable_debug_button_toggle())
+
+    refute(check_dets_for_setting(:debug_button))
+
+    dev_app
+    |> refute_has(css("#live-debugger-debug-button"))
+    |> execute_script("window.location.reload();")
+    |> refute_has(css("#live-debugger-debug-button"))
   end
 
   defp check_dets_for_setting(setting) do
@@ -119,5 +156,13 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
   defp enable_garbage_collector_checkbox(opts) do
     css("input[phx-value-setting=\"garbage_collection\"]", opts)
+  end
+
+  defp enable_debug_button_toggle() do
+    css("label:has(input[phx-value-setting=\"debug_button\"])")
+  end
+
+  defp enable_debug_button_checkbox(opts) do
+    css("input[phx-value-setting=\"debug_button\"]", opts)
   end
 end
