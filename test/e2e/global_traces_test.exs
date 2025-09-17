@@ -1,12 +1,17 @@
 defmodule LiveDebugger.E2E.GlobalTracesTest do
   use LiveDebugger.E2ECase
 
+  setup_all do
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.API.SettingsStorage.save(:tracing_enabled_on_start, false)
+
+    :ok
+  end
+
   @sessions 2
   feature "user can trace callbacks globally", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
 
@@ -56,8 +61,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
   feature "user can go to specific node from global callbacks", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
 
@@ -97,8 +100,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
   feature "user can search for callbacks using the searchbar", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
 
@@ -157,8 +158,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
   feature "incoming traces are filtered by search phrase", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
 

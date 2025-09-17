@@ -1,12 +1,17 @@
 defmodule LiveDebugger.E2E.NodeInspectorTest do
   use LiveDebugger.E2ECase
 
+  setup_all do
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.API.SettingsStorage.save(:tracing_enabled_on_start, false)
+
+    :ok
+  end
+
   @sessions 2
   feature "user can see traces of executed callbacks and updated assigns", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
 
@@ -116,8 +121,6 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   feature "user can change nodes using node tree and see their assigns and callback traces", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
 
@@ -149,8 +152,6 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can filter traces by callback name", %{sessions: [dev_app, debugger]} do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
 
@@ -246,8 +247,6 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can filter traces by execution time", %{sessions: [dev_app, debugger]} do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
     |> click(button("slow-increment-button"))
@@ -299,25 +298,8 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     end)
   end
 
-  defp assert_traces(session, count, callback_names) do
-    session
-    |> find(traces(count: count))
-    |> case do
-      traces when is_list(traces) -> traces
-      trace -> [trace]
-    end
-    |> Enum.zip(callback_names)
-    |> Enum.each(fn {trace, callback_name} ->
-      trace |> assert_text(callback_name)
-    end)
-
-    session
-  end
-
   @sessions 2
   feature "user can filter traces by names and execution time", %{sessions: [dev_app, debugger]} do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
 
@@ -426,8 +408,6 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can inspect arguments of executed callback", %{sessions: [dev_app, debugger]} do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
 
@@ -474,8 +454,6 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   feature "when user navigates in debugged app, it causes dead view mode", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
 
@@ -506,8 +484,6 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can copy values", %{sessions: [dev_app, debugger]} do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
 
@@ -555,6 +531,21 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     |> assert_has(inspect_tooltip_module_text("LiveDebuggerDev.LiveComponents.Name"))
     |> assert_has(inspect_tooltip_type_text("LiveComponent"))
     |> assert_has(inspect_tooltip_value_text("2"))
+  end
+
+  defp assert_traces(session, count, callback_names) do
+    session
+    |> find(traces(count: count))
+    |> case do
+      traces when is_list(traces) -> traces
+      trace -> [trace]
+    end
+    |> Enum.zip(callback_names)
+    |> Enum.each(fn {trace, callback_name} ->
+      trace |> assert_text(callback_name)
+    end)
+
+    session
   end
 
   defp assigns_entry(key: key, value: value) do

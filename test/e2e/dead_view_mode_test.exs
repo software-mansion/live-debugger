@@ -1,14 +1,17 @@
 defmodule LiveDebugger.E2E.DeadViewModeTest do
   use LiveDebugger.E2ECase
 
+  setup_all do
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.API.SettingsStorage.save(:dead_view_mode, true)
+
+    :ok
+  end
+
   @sessions 2
   feature "dead view mode with navigation and disabled highlighting", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
-    LiveDebugger.API.SettingsStorage.save(:dead_view_mode, true)
-
     dev_app
     |> visit(@dev_app_url)
 
@@ -49,9 +52,6 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
   feature "traces ended with exception are visible in dead view mode", %{
     sessions: [dev_app, debugger]
   } do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-    LiveDebugger.API.SettingsStorage.save(:dead_view_mode, true)
-
     dev_app
     |> visit(@dev_app_url)
 

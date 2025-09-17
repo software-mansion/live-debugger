@@ -1,6 +1,4 @@
 defmodule LiveDebugger.E2E.ElementsInspectionTest do
-  @moduledoc false
-
   use LiveDebugger.E2ECase
 
   @sessions 2
