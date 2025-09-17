@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.TracingFuse do
 
   use LiveDebugger.App.Web, :hook
 
+  alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Hooks.Flash
 
@@ -29,13 +30,20 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.TracingFuse do
   """
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
-    socket
-    |> check_hook!(:filter_new_traces)
-    |> check_assigns!(@required_assigns)
-    |> put_private(:fuse, nil)
-    |> put_private(:trace_callback_running?, false)
-    |> attach_hook(:tracing_fuse, :handle_info, &handle_info/2)
-    |> register_hook(:tracing_fuse)
+    socket =
+      socket
+      |> check_hook!(:filter_new_traces)
+      |> check_assigns!(@required_assigns)
+      |> put_private(:fuse, nil)
+      |> put_private(:trace_callback_running?, false)
+      |> attach_hook(:tracing_fuse, :handle_info, &handle_info/2)
+      |> register_hook(:tracing_fuse)
+
+    if SettingsStorage.get(:tracing_enabled_on_start) do
+      start_tracing(socket)
+    else
+      socket
+    end
   end
 
   @doc """
