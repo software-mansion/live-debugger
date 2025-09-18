@@ -127,4 +127,35 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
       )
     )
   end
+
+  @sessions 2
+  feature "inspection works for LiveViews nested in LiveComponents", %{
+    sessions: [dev_app, debugger]
+  } do
+    dev_app
+    |> visit(@dev_app_url <> "/embedded")
+    |> refute_has(css("div.live-debugger-inspect-mode"))
+
+    debugger
+    |> visit("/")
+    |> click(css("#live-sessions p.font-medium", text: "LiveDebuggerDev.LiveViews.Embedded"))
+    |> click(switch_inspect_mode_button())
+
+    Process.sleep(200)
+
+    dev_app
+    |> click(
+      css("div[data-phx-id=\"m1-embedded_wrapper_inner\"] span", text: "Simple [LiveView]")
+    )
+    |> refute_has(css("div.live-debugger-inspect-mode"))
+
+    Process.sleep(200)
+
+    debugger
+    |> assert_has(
+      css("#node-inspector-basic-info-current-node-module",
+        text: "LiveDebuggerDev.LiveViews.Simple"
+      )
+    )
+  end
 end
