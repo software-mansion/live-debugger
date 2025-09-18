@@ -15,7 +15,6 @@ defmodule LiveDebugger.E2E.AssignsSearchHighlightTest do
     |> click(first_link())
     |> assert_has(assigns_entry(key: "counter", value: "0"))
     |> fill_in(assigns_search_bar(), with: "deep value")
-    |> take_screenshot()
     |> assert_has(css("pre", text: "\"deep value\"", count: 1, visible: true))
   end
 
