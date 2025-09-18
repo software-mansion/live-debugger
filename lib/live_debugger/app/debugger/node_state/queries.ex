@@ -13,7 +13,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
   def fetch_node_assigns(pid, node_id) when is_pid(node_id) do
     case fetch_node_state(pid) do
       {:ok, %LvState{socket: %{assigns: assigns}}} ->
-        {:ok, %{node_assigns: assigns}}
+        {:ok, assigns}
 
       {:error, reason} ->
         {:error, reason}
@@ -49,7 +49,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
         {:error, "Component with CID #{cid} not found"}
 
       component ->
-        {:ok, %{node_assigns: component.assigns}}
+        {:ok, component.assigns}
     end
   end
 end

@@ -20,6 +20,10 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   attr(:level, :integer, default: 1)
 
   def term(assigns) do
+    if assigns.node.diffed do
+      dbg(assigns.node)
+    end
+
     assigns =
       assigns
       |> assign(:expanded?, auto_expand?(assigns.node, assigns.level))

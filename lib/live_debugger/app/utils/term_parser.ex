@@ -24,14 +24,15 @@ defmodule LiveDebugger.App.Utils.TermParser do
     - `expanded_before`: Display elements shown before the node's children when expanded.
     - `expanded_after`: Display elements shown after the node's children when expanded.
     """
-    defstruct [:kind, :children, :content, :expanded_before, :expanded_after]
+    defstruct [:kind, :children, :content, :expanded_before, :expanded_after, :diffed]
 
     @type t :: %__MODULE__{
             kind: String.t(),
             children: [TermNode.t()],
             content: [DisplayElement.t()],
             expanded_before: [DisplayElement.t()] | nil,
-            expanded_after: [DisplayElement.t()] | nil
+            expanded_after: [DisplayElement.t()] | nil,
+            diffed: boolean()
           }
   end
 
@@ -46,100 +47,150 @@ defmodule LiveDebugger.App.Utils.TermParser do
     |> String.replace(~r/#.+?<.*?>/, &"\"#{&1}\"")
   end
 
-  @spec term_to_display_tree(term()) :: TermNode.t()
-  def term_to_display_tree(term) do
-    to_node(term, [])
+  @spec term_to_display_tree(term(), map()) :: TermNode.t()
+  def term_to_display_tree(term, diff \\ %{}) do
+    dbg(diff)
+
+    to_node(term, [], diff)
   end
 
-  @spec to_node(term(), [DisplayElement.t()]) :: TermNode.t()
-  defp to_node(string, suffix) when is_binary(string) do
-    leaf_node("binary", [green(inspect(string)) | suffix])
+  @spec to_node(term(), [DisplayElement.t()], map()) :: TermNode.t()
+  defp to_node(term, suffix, diff)
+
+  defp to_node(string, suffix, diff) when is_binary(string) do
+    color = if diff != %{}, do: &red/1, else: &green/1
+    leaf_node("binary", [color.(inspect(string)) | suffix], diff != %{})
   end
 
-  defp to_node(atom, suffix) when is_atom(atom) do
+  defp to_node(atom, suffix, diff) when is_atom(atom) do
     span =
       if atom in [nil, true, false] do
-        magenta(inspect(atom))
+        color = if diff != %{}, do: &red/1, else: &magenta/1
+        color.(inspect(atom))
       else
-        blue(inspect(atom))
+        color = if diff != %{}, do: &red/1, else: &blue/1
+        color.(inspect(atom))
       end
 
-    leaf_node("atom", [span | suffix])
+    leaf_node("atom", [span | suffix], diff != %{})
   end
 
-  defp to_node(number, suffix) when is_number(number) do
-    leaf_node("number", [blue(inspect(number)) | suffix])
+  defp to_node(number, suffix, diff) when is_number(number) do
+    dbg({:number, diff})
+    color = if diff != %{}, do: &red/1, else: &blue/1
+    leaf_node("number", [color.(inspect(number)) | suffix], diff != %{})
   end
 
-  defp to_node({}, suffix) do
-    leaf_node("tuple", [black("{}") | suffix])
+  defp to_node({}, suffix, diff) do
+    color = if diff != %{}, do: &red/1, else: &black/1
+    leaf_node("tuple", [color.("{}") | suffix], diff != %{})
   end
 
-  defp to_node(tuple, suffix) when is_tuple(tuple) do
+  defp to_node(tuple, suffix, diff) when is_tuple(tuple) do
+    color = if diff != %{}, do: &red/1, else: &black/1
+
     size = tuple_size(tuple)
-    children = tuple |> Tuple.to_list() |> to_children(size)
-    branch_node("tuple", [black("{...}") | suffix], children, [black("{")], [black("}") | suffix])
+    children = tuple |> Tuple.to_list() |> to_children(size, diff)
+
+    branch_node(
+      "tuple",
+      [color.("{...}") | suffix],
+      children,
+      [color.("{")],
+      [
+        color.("}") | suffix
+      ],
+      diff != %{}
+    )
   end
 
-  defp to_node([], suffix) do
-    leaf_node("list", [black("[]") | suffix])
+  defp to_node([], suffix, diff) do
+    color = if diff != %{}, do: &red/1, else: &black/1
+    leaf_node("list", [color.("[]") | suffix], diff != %{})
   end
 
-  defp to_node(list, suffix) when is_list(list) do
+  defp to_node(list, suffix, diff) when is_list(list) do
+    color = if diff != %{}, do: &red/1, else: &black/1
+
     size = length(list)
 
     children =
       if Keyword.keyword?(list) do
         to_key_value_children(list, size)
       else
-        to_children(list, size)
+        to_children(list, size, diff)
       end
 
-    branch_node("list", [black("[...]") | suffix], children, [black("[")], [black("]") | suffix])
+    branch_node(
+      "list",
+      [color.("[...]") | suffix],
+      children,
+      [color.("[")],
+      [
+        color.("]") | suffix
+      ],
+      diff != %{}
+    )
   end
 
-  defp to_node(%Regex{} = regex, suffix) do
-    leaf_node("regex", [black(inspect(regex)) | suffix])
+  defp to_node(%Regex{} = regex, suffix, diff) do
+    color = if diff != %{}, do: &red/1, else: &black/1
+    leaf_node("regex", [color.(inspect(regex)) | suffix], diff != %{})
   end
 
-  defp to_node(%module{} = struct, suffix) when is_struct(struct) do
+  defp to_node(%module{} = struct, suffix, diff) when is_struct(struct) do
     content =
       if Inspect.impl_for(struct) in [Inspect.Any, Inspect.Phoenix.LiveView.Socket] do
-        [black("%"), blue(inspect(module)), black("{...}") | suffix]
+        color = if diff != %{}, do: &red/1, else: &blue/1
+        [black("%"), color.(inspect(module)), black("{...}") | suffix]
       else
-        [black(inspect(struct)) | suffix]
+        color = if diff != %{}, do: &red/1, else: &black/1
+        [color.(inspect(struct)) | suffix]
       end
 
     map = Map.from_struct(struct)
     size = map_size(map)
-    children = to_key_value_children(map, size)
+    children = to_key_value_children(map, size, diff)
+
+    color = if diff != %{}, do: &red/1, else: &blue/1
 
     branch_node(
       "struct",
       content,
       children,
-      [black("%"), blue(inspect(module)), black("{")],
-      [black("}") | suffix]
+      [black("%"), color.(inspect(module)), black("{")],
+      [black("}") | suffix],
+      diff != %{}
     )
   end
 
-  defp to_node(%{} = map, suffix) when map_size(map) == 0 do
-    leaf_node("map", [black("%{}") | suffix])
+  defp to_node(%{} = map, suffix, diff) when map_size(map) == 0 do
+    color = if diff != %{}, do: &red/1, else: &black/1
+    leaf_node("map", [color.("%{}") | suffix], diff != %{})
   end
 
-  defp to_node(map, suffix) when is_map(map) do
+  defp to_node(map, suffix, diff) when is_map(map) do
     size = map_size(map)
-    children = map |> Enum.sort() |> to_key_value_children(size)
-    branch_node("map", [black("%{...}") | suffix], children, [black("%{")], [black("}") | suffix])
+    children = map |> Enum.sort() |> to_key_value_children(size, diff)
+
+    branch_node(
+      "map",
+      [black("%{...}") | suffix],
+      children,
+      [black("%{")],
+      [black("}") | suffix],
+      diff != %{}
+    )
   end
 
-  defp to_node(other, suffix) do
-    leaf_node("other", [black(inspect(other)) | suffix])
+  defp to_node(other, suffix, diff) do
+    color = if diff != %{}, do: &red/1, else: &black/1
+    leaf_node("other", [color.(inspect(other)) | suffix], diff != %{})
   end
 
-  defp to_key_value_node({key, value}, suffix) do
+  defp to_key_value_node({key, value}, suffix, diff) do
     {key_span, sep_span} =
-      case to_node(key, []) do
+      case to_node(key, [], diff) do
         %TermNode{content: [%DisplayElement{text: ":" <> name} = span]} when is_atom(key) ->
           {%{span | text: name <> ":"}, black(" ")}
 
@@ -151,7 +202,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
            black(" => ")}
       end
 
-    case to_node(value, suffix) do
+    case to_node(value, suffix, diff) do
       %TermNode{content: content, children: []} = node ->
         %{node | content: [key_span, sep_span | content]}
 
@@ -164,15 +215,22 @@ defmodule LiveDebugger.App.Utils.TermParser do
     end
   end
 
-  defp to_children(items, container_size) do
+  defp to_children(items, container_size, diff) do
     Enum.with_index(items, fn item, index ->
-      to_node(item, suffix(index, container_size))
+      to_node(item, suffix(index, container_size), diff)
     end)
   end
 
-  defp to_key_value_children(items, container_size) do
-    Enum.with_index(items, fn item, index ->
-      to_key_value_node(item, suffix(index, container_size))
+  defp to_key_value_children(items, container_size, diff \\ %{}) do
+    Enum.with_index(items, fn {key, _} = item, index ->
+      new_diff =
+        if is_map(diff) do
+          Map.get(diff, key, %{})
+        else
+          true
+        end
+
+      to_key_value_node(item, suffix(index, container_size), new_diff)
     end)
   end
 
@@ -184,23 +242,25 @@ defmodule LiveDebugger.App.Utils.TermParser do
     end
   end
 
-  defp leaf_node(kind, content) do
+  defp leaf_node(kind, content, diffed \\ false) do
     %TermNode{
       kind: kind,
       content: content,
       children: [],
       expanded_before: nil,
-      expanded_after: nil
+      expanded_after: nil,
+      diffed: diffed
     }
   end
 
-  defp branch_node(kind, content, children, expanded_before, expanded_after) do
+  defp branch_node(kind, content, children, expanded_before, expanded_after, diffed \\ false) do
     %TermNode{
       kind: kind,
       content: content,
       children: children,
       expanded_before: expanded_before,
-      expanded_after: expanded_after
+      expanded_after: expanded_after,
+      diffed: diffed
     }
   end
 
@@ -208,4 +268,5 @@ defmodule LiveDebugger.App.Utils.TermParser do
   defp black(text), do: %DisplayElement{text: text, color: "text-code-2"}
   defp magenta(text), do: %DisplayElement{text: text, color: "text-code-3"}
   defp green(text), do: %DisplayElement{text: text, color: "text-code-4"}
+  defp red(text), do: %DisplayElement{text: text, color: "text-error-text"}
 end
