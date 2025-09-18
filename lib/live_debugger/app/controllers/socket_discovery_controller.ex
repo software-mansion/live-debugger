@@ -1,5 +1,5 @@
 defmodule LiveDebugger.App.Controllers.SocketDiscoveryController do
-  use Phoenix.Controller
+  use Phoenix.Controller, formats: []
 
   alias LiveDebugger.API.LiveViewDiscovery
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
