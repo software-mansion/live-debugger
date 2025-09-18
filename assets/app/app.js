@@ -12,6 +12,7 @@ import TraceExecutionTime from './hooks/trace_execution_time';
 import CopyButton from './hooks/copy_button';
 import TraceBodySearchHighlight from './hooks/trace_body_search_highlight';
 import TraceLabelSearchHighlight from './hooks/trace_label_search_highlight';
+import AssignsBodySearchHighlight from './hooks/assigns_body_search_highlight';
 
 import topbar from './vendor/topbar';
 
@@ -36,6 +37,7 @@ function createHooks() {
     CopyButton,
     TraceBodySearchHighlight,
     TraceLabelSearchHighlight,
+    AssignsBodySearchHighlight,
   };
 }
 
