@@ -32,62 +32,58 @@ export default function initElementInspection({
   });
 
   const handleMove = (event) => {
-    const liveViewElement = event.target.closest('[data-phx-session]');
-    const componentElement = event.target.closest('[data-phx-component]');
+    const elementInfo = getClosestElementInfo(event.target);
 
-    if (!liveViewElement) {
+    if (!elementInfo) {
       return;
     }
 
-    const detail = getHighlightDetail(componentElement, liveViewElement);
+    const detail = getHighlightDetail(elementInfo);
 
     if (detail.val === lastID) {
       return;
     }
 
-    const type = detail.attr === 'id' ? 'LiveView' : 'LiveComponent';
     const id =
-      detail.attr === 'id' ? detail.val : componentElement.dataset.phxComponent;
+      elementInfo.type == 'LiveComponent'
+        ? elementInfo.element.dataset.phxComponent
+        : elementInfo.element.id;
 
     debugChannel.push('request-node-element', {
       root_socket_id: socketID,
-      socket_id: liveViewElement.id,
-      type,
+      socket_id: elementInfo.phxId,
+      type: elementInfo.type,
       id,
     });
 
     lastID = detail.val;
 
-    pushHighlightEvent({ attr: detail.attr, val: detail.val, type });
+    pushHighlightEvent({
+      attr: detail.attr,
+      val: detail.val,
+      type: elementInfo.type,
+    });
   };
 
   const handleInspect = (event) => {
     event.preventDefault();
     event.stopPropagation();
 
-    const liveViewElement = event.target.closest('[data-phx-session]');
-    const componentElement = event.target.closest('[data-phx-component]');
-    const rootElement = document.querySelector('[data-phx-main]');
+    const elementInfo = getClosestElementInfo(event.target);
 
-    if (!liveViewElement) {
+    if (!elementInfo) {
       return;
     }
 
-    const rootID = rootElement?.id || liveViewElement.dataset.phxRootId;
+    const detail = getHighlightDetail(elementInfo);
 
-    const detail = getHighlightDetail(componentElement, liveViewElement);
-    const type = detail.attr === 'id' ? 'LiveView' : 'LiveComponent';
-    pushPulseEvent({ attr: detail.attr, val: detail.val, type });
+    pushPulseEvent({
+      attr: detail.attr,
+      val: detail.val,
+      type: elementInfo.type,
+    });
 
-    const url = new URL(`${baseURL}/redirect/${liveViewElement.id}`);
-
-    if (liveViewElement.id !== rootID) {
-      url.searchParams.set('root_id', rootID);
-    }
-
-    if (componentElement) {
-      url.searchParams.set('node_id', componentElement.dataset.phxComponent);
-    }
+    const url = getElementURL(baseURL, elementInfo);
 
     if (sourceLiveViews.length === 0) {
       window.open(url, '_blank');
@@ -208,16 +204,52 @@ function pushRemoveTooltipEvent() {
   dispatchCustomEvent('lvdbg:remove-tooltip');
 }
 
-function getHighlightDetail(componentElement, liveViewElement) {
+function getClosestElementInfo(target) {
+  const liveViewElement = target.closest('[data-phx-session]');
+  const componentElement = target.closest('[data-phx-component]');
+  const rootElement = document.querySelector('[data-phx-main]');
+
   if (componentElement && liveViewElement.contains(componentElement)) {
     return {
+      element: componentElement,
+      type: 'LiveComponent',
+      phxRootId: rootElement.id,
+      phxId: liveViewElement.id,
+    };
+  }
+
+  return {
+    element: liveViewElement,
+    type: 'LiveView',
+    phxRootId: rootElement.id,
+    phxId: liveViewElement.id,
+  };
+}
+
+function getElementURL(baseURL, { element, type, phxRootId, phxId }) {
+  const url = new URL(`${baseURL}/redirect/${phxId}`);
+
+  if (phxRootId !== phxId) {
+    url.searchParams.set('root_id', phxRootId);
+  }
+
+  if (type === 'LiveComponent') {
+    url.searchParams.set('node_id', element.dataset.phxComponent);
+  }
+
+  return url;
+}
+
+function getHighlightDetail({ type, element, phxId }) {
+  if (type === 'LiveComponent') {
+    return {
       attr: 'data-phx-id',
-      val: `c${componentElement.dataset.phxComponent}-${liveViewElement.id}`,
+      val: `c${element.dataset.phxComponent}-${phxId}`,
     };
   }
 
   return {
     attr: 'id',
-    val: liveViewElement.id,
+    val: element.id,
   };
 }
