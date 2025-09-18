@@ -56,7 +56,18 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       </div>
     </.section>
     <.fullscreen id={@fullscreen_id} title="Assigns">
-      <div id="assigns-display-fullscreen-container" class="p-4">
+      <div class="flex justify-between p-2 border-b border-default-border">
+        <AssignsSearch.render
+          placeholder="Search assigns"
+          assign_search_phrase={@assign_search_phrase}
+        />
+      </div>
+      <div
+        id="assigns-display-fullscreen-container"
+        class="p-4"
+        phx-hook="AssignsBodySearchHighlight"
+        data-search_phrase={@assign_search_phrase}
+      >
         <ElixirDisplay.term
           id="assigns-display-fullscreen-term"
           node={TermParser.term_to_display_tree(@assigns)}

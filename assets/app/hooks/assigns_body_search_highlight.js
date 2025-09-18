@@ -1,26 +1,43 @@
 import { findRanges } from '../utils/dom';
 
-function highlightSearchRanges(ranges) {
-  highlight = new Highlight(...ranges);
-  CSS.highlights.set('search-highlight', highlight);
-}
+let allRanges;
 
-function handleHighlight(phrase, root) {
-  if (phrase === undefined || phrase === '') {
+function highlightSearchRanges(allRanges) {
+  if (allRanges.length === 0) {
     CSS.highlights.clear();
     return;
   }
 
-  const ranges = findRanges(root, phrase);
-  highlightSearchRanges(ranges);
+  const highlight = new Highlight(...allRanges);
+  CSS.highlights.set('search-highlight', highlight);
+}
+
+function handleHighlight(phrase) {
+  if (phrase === undefined || phrase === '') {
+    allRanges = [];
+    CSS.highlights.clear();
+    return;
+  }
+
+  allRanges = [];
+  document
+    .querySelectorAll('[phx-hook="AssignsBodySearchHighlight"]')
+    .forEach((el) => {
+      if (el.dataset.search_phrase === phrase) {
+        const ranges = findRanges(el, phrase);
+        allRanges.push(...ranges);
+      }
+    });
+
+  highlightSearchRanges(allRanges);
 }
 
 const AssignsBodySearchHighlight = {
   mounted() {
-    handleHighlight(this.el.dataset.search_phrase, this.el);
+    handleHighlight(this.el.dataset.search_phrase);
   },
   updated() {
-    handleHighlight(this.el.dataset.search_phrase, this.el);
+    handleHighlight(this.el.dataset.search_phrase);
   },
 };
 
