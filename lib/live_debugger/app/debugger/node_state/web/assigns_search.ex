@@ -38,7 +38,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch do
         />
         <input
           disabled={@disabled?}
-          id="trace-search-input"
+          id="assigns-search-input"
           placeholder={@placeholder}
           value={@assign_search_phrase}
           type="text"
