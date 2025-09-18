@@ -20,10 +20,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   attr(:level, :integer, default: 1)
 
   def term(assigns) do
-    if assigns.node.diffed do
-      dbg(assigns.node)
-    end
-
     assigns =
       assigns
       |> assign(:expanded?, auto_expand?(assigns.node, assigns.level))
@@ -74,7 +70,11 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
     ~H"""
     <div class="flex">
       <%= for item <- @items do %>
-        <span class={"#{text_item_color_class(item)}"}>
+        <span
+          id={:rand.uniform() |> to_string}
+          phx-hook={if(item.pulse?, do: "DiffPulse")}
+          class={"#{text_item_color_class(item)}"}
+        >
           <pre data-text_item="true"><%= item.text %></pre>
         </span>
       <% end %>

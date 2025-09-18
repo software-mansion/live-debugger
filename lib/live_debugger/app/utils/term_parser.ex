@@ -6,11 +6,12 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
   defmodule DisplayElement do
     @moduledoc false
-    defstruct [:text, color: nil]
+    defstruct [:text, color: nil, pulse?: false]
 
     @type t :: %__MODULE__{
             text: String.t(),
-            color: String.t() | nil
+            color: String.t() | nil,
+            pulse?: boolean()
           }
   end
 
@@ -24,15 +25,14 @@ defmodule LiveDebugger.App.Utils.TermParser do
     - `expanded_before`: Display elements shown before the node's children when expanded.
     - `expanded_after`: Display elements shown after the node's children when expanded.
     """
-    defstruct [:kind, :children, :content, :expanded_before, :expanded_after, :diffed]
+    defstruct [:kind, :children, :content, :expanded_before, :expanded_after]
 
     @type t :: %__MODULE__{
             kind: String.t(),
             children: [TermNode.t()],
             content: [DisplayElement.t()],
             expanded_before: [DisplayElement.t()] | nil,
-            expanded_after: [DisplayElement.t()] | nil,
-            diffed: boolean()
+            expanded_after: [DisplayElement.t()] | nil
           }
   end
 
@@ -49,8 +49,6 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
   @spec term_to_display_tree(term(), map()) :: TermNode.t()
   def term_to_display_tree(term, diff \\ %{}) do
-    dbg(diff)
-
     to_node(term, [], diff)
   end
 
@@ -58,60 +56,48 @@ defmodule LiveDebugger.App.Utils.TermParser do
   defp to_node(term, suffix, diff)
 
   defp to_node(string, suffix, diff) when is_binary(string) do
-    color = if diff != %{}, do: &red/1, else: &green/1
-    leaf_node("binary", [color.(inspect(string)) | suffix], diff != %{})
+    leaf_node("binary", [green(inspect(string), diff != %{}) | suffix])
   end
 
   defp to_node(atom, suffix, diff) when is_atom(atom) do
     span =
       if atom in [nil, true, false] do
-        color = if diff != %{}, do: &red/1, else: &magenta/1
-        color.(inspect(atom))
+        magenta(inspect(atom), diff != %{})
       else
-        color = if diff != %{}, do: &red/1, else: &blue/1
-        color.(inspect(atom))
+        blue(inspect(atom), diff != %{})
       end
 
-    leaf_node("atom", [span | suffix], diff != %{})
+    leaf_node("atom", [span | suffix])
   end
 
   defp to_node(number, suffix, diff) when is_number(number) do
-    dbg({:number, diff})
-    color = if diff != %{}, do: &red/1, else: &blue/1
-    leaf_node("number", [color.(inspect(number)) | suffix], diff != %{})
+    leaf_node("number", [blue(inspect(number), diff != %{}) | suffix])
   end
 
   defp to_node({}, suffix, diff) do
-    color = if diff != %{}, do: &red/1, else: &black/1
-    leaf_node("tuple", [color.("{}") | suffix], diff != %{})
+    leaf_node("tuple", [black("{}", diff != %{}) | suffix])
   end
 
   defp to_node(tuple, suffix, diff) when is_tuple(tuple) do
-    color = if diff != %{}, do: &red/1, else: &black/1
-
     size = tuple_size(tuple)
     children = tuple |> Tuple.to_list() |> to_children(size, diff)
 
     branch_node(
       "tuple",
-      [color.("{...}") | suffix],
+      [black("{...}", diff != %{}) | suffix],
       children,
-      [color.("{")],
+      [black("{")],
       [
-        color.("}") | suffix
-      ],
-      diff != %{}
+        black("}") | suffix
+      ]
     )
   end
 
   defp to_node([], suffix, diff) do
-    color = if diff != %{}, do: &red/1, else: &black/1
-    leaf_node("list", [color.("[]") | suffix], diff != %{})
+    leaf_node("list", [black("[]", diff != %{}) | suffix])
   end
 
   defp to_node(list, suffix, diff) when is_list(list) do
-    color = if diff != %{}, do: &red/1, else: &black/1
-
     size = length(list)
 
     children =
@@ -123,50 +109,46 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
     branch_node(
       "list",
-      [color.("[...]") | suffix],
+      [black("[...]", diff != %{}) | suffix],
       children,
-      [color.("[")],
+      [black("[")],
       [
-        color.("]") | suffix
-      ],
-      diff != %{}
+        black("]") | suffix
+      ]
     )
   end
 
   defp to_node(%Regex{} = regex, suffix, diff) do
-    color = if diff != %{}, do: &red/1, else: &black/1
-    leaf_node("regex", [color.(inspect(regex)) | suffix], diff != %{})
+    leaf_node("regex", [black(inspect(regex), diff != %{}) | suffix])
   end
 
   defp to_node(%module{} = struct, suffix, diff) when is_struct(struct) do
     content =
       if Inspect.impl_for(struct) in [Inspect.Any, Inspect.Phoenix.LiveView.Socket] do
-        color = if diff != %{}, do: &red/1, else: &blue/1
-        [black("%"), color.(inspect(module)), black("{...}") | suffix]
+        [
+          black("%", diff != %{}),
+          blue(inspect(module), diff != %{}),
+          black("{...}", diff != %{}) | suffix
+        ]
       else
-        color = if diff != %{}, do: &red/1, else: &black/1
-        [color.(inspect(struct)) | suffix]
+        [black(inspect(struct), diff != %{}) | suffix]
       end
 
     map = Map.from_struct(struct)
     size = map_size(map)
     children = to_key_value_children(map, size, diff)
 
-    color = if diff != %{}, do: &red/1, else: &blue/1
-
     branch_node(
       "struct",
       content,
       children,
-      [black("%"), color.(inspect(module)), black("{")],
-      [black("}") | suffix],
-      diff != %{}
+      [black("%"), blue(inspect(module), diff != %{}), black("{")],
+      [black("}") | suffix]
     )
   end
 
   defp to_node(%{} = map, suffix, diff) when map_size(map) == 0 do
-    color = if diff != %{}, do: &red/1, else: &black/1
-    leaf_node("map", [color.("%{}") | suffix], diff != %{})
+    leaf_node("map", [black("%{}", diff != %{}) | suffix])
   end
 
   defp to_node(map, suffix, diff) when is_map(map) do
@@ -175,31 +157,29 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
     branch_node(
       "map",
-      [black("%{...}") | suffix],
+      [black("%{...}", diff != %{}) | suffix],
       children,
       [black("%{")],
-      [black("}") | suffix],
-      diff != %{}
+      [black("}") | suffix]
     )
   end
 
   defp to_node(other, suffix, diff) do
-    color = if diff != %{}, do: &red/1, else: &black/1
-    leaf_node("other", [color.(inspect(other)) | suffix], diff != %{})
+    leaf_node("other", [black(inspect(other), diff != %{}) | suffix])
   end
 
   defp to_key_value_node({key, value}, suffix, diff) do
     {key_span, sep_span} =
       case to_node(key, [], diff) do
         %TermNode{content: [%DisplayElement{text: ":" <> name} = span]} when is_atom(key) ->
-          {%{span | text: name <> ":"}, black(" ")}
+          {%{span | text: name <> ":"}, black(" ", diff != %{})}
 
         %TermNode{content: [span]} ->
-          {%{span | text: inspect(key, width: :infinity)}, black(" => ")}
+          {%{span | text: inspect(key, width: :infinity)}, black(" => ", diff != %{})}
 
         %TermNode{content: _content} ->
           {%DisplayElement{text: inspect(key, width: :infinity), color: "text-code-1"},
-           black(" => ")}
+           black(" => ", diff != %{})}
       end
 
     case to_node(value, suffix, diff) do
@@ -242,31 +222,35 @@ defmodule LiveDebugger.App.Utils.TermParser do
     end
   end
 
-  defp leaf_node(kind, content, diffed \\ false) do
+  defp leaf_node(kind, content) do
     %TermNode{
       kind: kind,
       content: content,
       children: [],
       expanded_before: nil,
-      expanded_after: nil,
-      diffed: diffed
+      expanded_after: nil
     }
   end
 
-  defp branch_node(kind, content, children, expanded_before, expanded_after, diffed \\ false) do
+  defp branch_node(kind, content, children, expanded_before, expanded_after) do
     %TermNode{
       kind: kind,
       content: content,
       children: children,
       expanded_before: expanded_before,
-      expanded_after: expanded_after,
-      diffed: diffed
+      expanded_after: expanded_after
     }
   end
 
-  defp blue(text), do: %DisplayElement{text: text, color: "text-code-1"}
-  defp black(text), do: %DisplayElement{text: text, color: "text-code-2"}
-  defp magenta(text), do: %DisplayElement{text: text, color: "text-code-3"}
-  defp green(text), do: %DisplayElement{text: text, color: "text-code-4"}
-  defp red(text), do: %DisplayElement{text: text, color: "text-error-text"}
+  defp blue(text, pulse?),
+    do: %DisplayElement{text: text, color: "text-code-1", pulse?: pulse?}
+
+  defp black(text, pulse? \\ false),
+    do: %DisplayElement{text: text, color: "text-code-2", pulse?: pulse?}
+
+  defp magenta(text, pulse?),
+    do: %DisplayElement{text: text, color: "text-code-3", pulse?: pulse?}
+
+  defp green(text, pulse?),
+    do: %DisplayElement{text: text, color: "text-code-4", pulse?: pulse?}
 end

@@ -86,10 +86,16 @@ module.exports = {
           '0%': { opacity: '1', transform: 'translateY(0)' },
           '100%': { opacity: '0', transform: 'translateY(1rem)' },
         },
+        diffPulse: {
+          '0%': { backgroundColor: 'inherit' },
+          '50%': { backgroundColor: 'yellow' },
+          '100%': { backgroundColor: 'inherit' },
+        },
       },
       animation: {
         'fade-out': 'fadeOut 200ms ease-out forwards',
         'fade-out-mobile': 'fadeOutMobile 200ms ease-out forwards',
+        'diff-pulse': 'diffPulse 500ms ease-in-out',
       },
     },
   },
