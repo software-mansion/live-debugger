@@ -87,15 +87,17 @@ module.exports = {
           '100%': { opacity: '0', transform: 'translateY(1rem)' },
         },
         diffPulse: {
-          '0%': { backgroundColor: 'inherit' },
-          '50%': { backgroundColor: 'yellow' },
-          '100%': { backgroundColor: 'inherit' },
+          '0%': {
+            backgroundColor: 'var(--diff-pulse-bg)',
+            color: 'var(--diff-pulse-text)',
+          },
+          '100%': { backgroundColor: '', color: '' },
         },
       },
       animation: {
         'fade-out': 'fadeOut 200ms ease-out forwards',
         'fade-out-mobile': 'fadeOutMobile 200ms ease-out forwards',
-        'diff-pulse': 'diffPulse 500ms ease-in-out',
+        'diff-pulse': 'diffPulse 600ms ease-out',
       },
     },
   },

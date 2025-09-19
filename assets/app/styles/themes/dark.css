@@ -66,16 +66,19 @@
     --error-icon: var(--swm-pink-80);
     --error-text: var(--swm-pink-80);
 
+    /* Info */
+    --info-bg: var(--surface-0-bg);
+    --info-border: var(--default-border);
+    --info-icon: var(--primary-text);
+    --info-text: var(--primary-text);
+
     /* Warning */
     --warning-text: var(--swm-yellow-40);
 
     --search-highlight-bg: var(--swm-yellow-100);
     --search-highlight-text: var(--gray-900);
 
-    /* Info */
-    --info-bg: var(--surface-0-bg);
-    --info-border: var(--default-border);
-    --info-icon: var(--primary-text);
-    --info-text: var(--primary-text);
+    --diff-pulse-bg: var(--swm-sea-blue-60);
+    --diff-pulse-text: var(--gray-900);
   }
 }
