@@ -14,6 +14,9 @@ defmodule LiveDebugger.API.LiveViewDebug do
   @callback list_liveviews() :: [lv()]
   @callback socket(pid()) :: {:ok, Phoenix.LiveView.Socket.t()} | {:error, term()}
   @callback live_components(pid()) :: {:ok, [LvState.component()]} | {:error, term()}
+  @callback process_initial_call(pid :: pid()) :: {:ok, mfa()} | {:error, term()}
+  @callback process_state(pid :: pid()) :: {:ok, term()} | {:error, term()}
+  @callback process_list() :: [pid()]
 
   @spec list_liveviews() :: [lv()]
   def list_liveviews() do
@@ -28,6 +31,18 @@ defmodule LiveDebugger.API.LiveViewDebug do
   @spec live_components(lv_pid :: pid()) :: {:ok, [LvState.component()]} | {:error, term()}
   def live_components(lv_pid) when is_pid(lv_pid) do
     impl().live_components(lv_pid)
+  end
+
+  def process_state(pid) do
+    impl().process_state(pid)
+  end
+
+  def process_list() do
+    impl().process_list()
+  end
+
+  def process_initial_call(pid) do
+    impl().process_initial_call(pid)
   end
 
   @spec liveview_state(lv_pid :: pid()) :: {:ok, LvState.t()} | {:error, term()}
@@ -58,14 +73,12 @@ defmodule LiveDebugger.API.LiveViewDebug do
       @impl true
       defdelegate live_components(pid), to: Phoenix.LiveView.Debug
     else
-      alias LiveDebugger.API.System.Process, as: ProcessAPI
-
       @impl true
       def list_liveviews() do
-        ProcessAPI.list()
+        process_list()
         |> Enum.filter(&liveview?/1)
         |> Enum.map(fn pid ->
-          case ProcessAPI.state(pid) do
+          case process_state(pid) do
             {:ok, %{socket: socket, topic: topic}} ->
               %{
                 pid: pid,
@@ -83,7 +96,7 @@ defmodule LiveDebugger.API.LiveViewDebug do
 
       @impl true
       def socket(pid) do
-        case ProcessAPI.state(pid) do
+        case process_state(pid) do
           {:ok, %{socket: %Phoenix.LiveView.Socket{} = socket}} -> {:ok, socket}
           _ -> {:error, :not_alive_or_not_a_liveview}
         end
@@ -91,7 +104,7 @@ defmodule LiveDebugger.API.LiveViewDebug do
 
       @impl true
       def live_components(pid) do
-        case ProcessAPI.state(pid) do
+        case process_state(pid) do
           {:ok, %{components: {components, _, _}}} ->
             component_info =
               Enum.map(components, fn {cid, {mod, id, assigns, private, _prints}} ->
@@ -113,11 +126,47 @@ defmodule LiveDebugger.API.LiveViewDebug do
 
       @spec liveview?(pid :: pid()) :: boolean()
       defp liveview?(pid) do
-        case ProcessAPI.initial_call(pid) do
+        case process_initial_call(pid) do
           {:ok, {_module, :mount, _arity}} -> true
           _ -> false
         end
       end
+
+      @impl true
+
+      def process_initial_call(pid) do
+        pid
+        |> Process.info([:dictionary])
+        |> case do
+          nil ->
+            {:error, :not_alive}
+
+          result ->
+            case get_in(result, [:dictionary, :"$initial_call"]) do
+              nil -> {:error, :no_initial_call}
+              initial_call -> {:ok, initial_call}
+            end
+        end
+      end
+
+      @impl true
+
+      def process_state(pid) do
+        try do
+          if Process.alive?(pid) do
+            {:ok, :sys.get_state(pid)}
+          else
+            {:error, :not_alive}
+          end
+        catch
+          :exit, reason ->
+            {:error, reason}
+        end
+      end
+
+      @impl true
+
+      def process_list(), do: Process.list()
     end
   end
 end
