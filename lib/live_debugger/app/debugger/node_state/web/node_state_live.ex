@@ -106,7 +106,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   def handle_info(%StateChanged{}, socket) do
     socket
-    |> Hooks.NodeAssigns.assign_async_node_assigns()
+    |> Hooks.NodeAssigns.assign_async_node_assigns(with_diff?: true)
     |> noreply()
   end
 
