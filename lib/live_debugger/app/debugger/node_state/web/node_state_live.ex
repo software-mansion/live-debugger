@@ -10,6 +10,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Debugger.NodeState.Web.Components, as: NodeStateComponents
   alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
+  alias LiveDebugger.App.Debugger.NodeState.Utils, as: NodeStateUtils
 
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
@@ -126,7 +127,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
         {:ok, node_assigns} ->
           diff =
             if calculate_diff? do
-              MapDiff.diff(old_node_assigns, node_assigns)
+              NodeStateUtils.diff(old_node_assigns, node_assigns)
             else
               %{}
             end
@@ -143,43 +144,5 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   defp assign_async_node_assigns(socket, _opts) do
     assign(socket, :node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
-  end
-end
-
-defmodule MapDiff do
-  @doc """
-  Computes a recursive diff between two maps.
-  Returns a map of keys that changed, where
-  leaf values are tuples {old, new}.
-  """
-  def diff(map1, map2) when is_map(map1) and is_map(map2) do
-    all_keys = (Map.keys(map1) ++ Map.keys(map2)) |> Enum.uniq()
-
-    all_keys
-    |> Enum.reduce(%{}, fn key, acc ->
-      v1 = Map.get(map1, key, :__missing__)
-      v2 = Map.get(map2, key, :__missing__)
-
-      cond do
-        v1 == v2 ->
-          acc
-
-        is_map(v1) and is_map(v2) ->
-          nested_diff = diff(v1, v2)
-
-          if nested_diff == %{} do
-            acc
-          else
-            Map.put(acc, key, nested_diff)
-          end
-
-        true ->
-          Map.put(acc, key, true)
-      end
-    end)
-  end
-
-  def diff(_, _) do
-    %{}
   end
 end

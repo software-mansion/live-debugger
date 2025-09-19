@@ -28,7 +28,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
     ~H"""
     <div class="font-code">
       <div class="ml-[2ch]">
-        <.text_items :if={!@has_children?} items={@node.content} />
+        <.text_items :if={!@has_children?} id={@id} items={@node.content} />
       </div>
       <.collapsible
         :if={@has_children?}
@@ -41,10 +41,10 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
         <:label>
           <div class="flex items-center">
             <div class="show-on-open">
-              <.text_items items={@node.expanded_before} />
+              <.text_items id={@id <> "expanded_before"} items={@node.expanded_before} />
             </div>
             <div class="hide-on-open">
-              <.text_items items={@node.content} />
+              <.text_items id={@id <> "content"} items={@node.content} />
             </div>
           </div>
         </:label>
@@ -57,22 +57,24 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
           <% end %>
         </ol>
         <div class="ml-[2ch]">
-          <.text_items items={@node.expanded_after} />
+          <.text_items id={@id <> "expanded_after"} items={@node.expanded_after} />
         </div>
       </.collapsible>
     </div>
     """
   end
 
+  attr(:id, :string, required: true)
   attr(:items, :list, required: true)
 
   defp text_items(assigns) do
     ~H"""
     <div class="flex">
-      <%= for item <- @items do %>
+      <%= for {item, index} <- Enum.with_index(@items) do %>
         <span
-          id={:rand.uniform() |> to_string}
-          phx-hook={if(item.pulse?, do: "DiffPulse")}
+          id={@id <> "-#{index}"}
+          phx-hook="DiffPulse"
+          data-pulse={item.pulse?}
           class={"#{text_item_color_class(item)}"}
         >
           <pre data-text_item="true"><%= item.text %></pre>
