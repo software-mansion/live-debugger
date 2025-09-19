@@ -86,10 +86,18 @@ module.exports = {
           '0%': { opacity: '1', transform: 'translateY(0)' },
           '100%': { opacity: '0', transform: 'translateY(1rem)' },
         },
+        diffPulse: {
+          '0%': {
+            backgroundColor: 'var(--diff-pulse-bg)',
+            color: 'var(--diff-pulse-text)',
+          },
+          '100%': { backgroundColor: '', color: '' },
+        },
       },
       animation: {
         'fade-out': 'fadeOut 200ms ease-out forwards',
         'fade-out-mobile': 'fadeOutMobile 200ms ease-out forwards',
+        'diff-pulse': 'diffPulse 600ms ease-out',
       },
     },
   },

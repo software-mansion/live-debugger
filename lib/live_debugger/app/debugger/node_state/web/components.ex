@@ -25,6 +25,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   end
 
   attr(:assigns, :list, required: true)
+  attr(:diff, :map, default: %{})
   attr(:fullscreen_id, :string, required: true)
 
   def assigns_section(assigns) do
@@ -41,14 +42,17 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         </div>
       </:right_panel>
       <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
-        <ElixirDisplay.term id="assigns-display" node={TermParser.term_to_display_tree(@assigns)} />
+        <ElixirDisplay.term
+          id="assigns-display"
+          node={TermParser.term_to_display_tree(@assigns, @diff)}
+        />
       </div>
     </.section>
     <.fullscreen id={@fullscreen_id} title="Assigns">
       <div class="p-4">
         <ElixirDisplay.term
           id="assigns-display-fullscreen-term"
-          node={TermParser.term_to_display_tree(@assigns)}
+          node={TermParser.term_to_display_tree(@assigns, @diff)}
         />
       </div>
     </.fullscreen>

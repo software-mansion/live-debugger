@@ -76,4 +76,7 @@
 
   --search-highlight-bg: var(--swm-yellow-80);
   --search-highlight-text: var(--slate-900);
+
+  --diff-pulse-bg: var(--swm-sea-blue-60);
+  --diff-pulse-text: var(--slate-900);
 }
