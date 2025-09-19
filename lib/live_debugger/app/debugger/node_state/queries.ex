@@ -9,7 +9,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
   alias LiveDebugger.App.Debugger.Structs.TreeNode
 
   @spec fetch_node_assigns(pid :: pid(), node_id :: TreeNode.id()) ::
-          {:ok, %{node_assigns: map()}} | {:error, term()}
+          {:ok, map()} | {:error, term()}
   def fetch_node_assigns(pid, node_id) when is_pid(node_id) do
     case fetch_node_state(pid) do
       {:ok, %LvState{socket: %{assigns: assigns}}} ->

@@ -17,26 +17,18 @@ defmodule LiveDebugger.App.Debugger.NodeState.Utils do
       v1 = Map.get(map1, key, :__missing__)
       v2 = Map.get(map2, key, :__missing__)
 
-      cond do
-        v1 == v2 ->
-          acc
-
-        is_map(v1) and is_map(v2) ->
-          nested_diff = diff(v1, v2)
-
-          if nested_diff == %{} do
-            acc
-          else
-            Map.put(acc, key, nested_diff)
-          end
-
-        true ->
-          Map.put(acc, key, true)
+      case compare_values(v1, v2) do
+        res when res in [nil, %{}] -> acc
+        res -> Map.put(acc, key, res)
       end
     end)
   end
 
-  def diff(_, _) do
-    %{}
+  defp compare_values(v1, v2) do
+    cond do
+      v1 == v2 -> nil
+      is_map(v1) and is_map(v2) -> diff(v1, v2)
+      true -> true
+    end
   end
 end
