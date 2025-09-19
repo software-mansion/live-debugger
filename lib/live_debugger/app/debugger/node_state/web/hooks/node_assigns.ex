@@ -28,6 +28,30 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> assign_async_node_assigns()
   end
 
+  def assign_async_node_assigns(socket, opts \\ [])
+
+  def assign_async_node_assigns(
+        %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket,
+        opts
+      )
+      when not is_nil(node_id) do
+    if Keyword.get(opts, :with_diff?, false) do
+      socket
+    else
+      assign(socket, :node_assigns, AsyncResult.loading(socket.assigns.node_assigns))
+    end
+    |> start_async(:fetch_node_assigns, fn ->
+      # Small sleep serves here as a debounce mechanism
+      Process.sleep(100)
+      NodeStateQueries.fetch_node_assigns(pid, node_id)
+    end)
+  end
+
+  def assign_async_node_assigns(socket, _opts) do
+    assign(socket, :node_assigns, AsyncResult.failed(%AsyncResult{}, :no_node_id))
+    assign(socket, :node_assigns_diff, AsyncResult.failed(%AsyncResult{}, :no_node_id))
+  end
+
   defp handle_async(:fetch_node_assigns, {:ok, {:ok, node_assigns}}, socket) do
     diff =
       case socket.assigns.node_assigns do
@@ -59,28 +83,4 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   end
 
   defp handle_async(_, _, socket), do: {:cont, socket}
-
-  def assign_async_node_assigns(socket, opts \\ [])
-
-  def assign_async_node_assigns(
-        %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket,
-        opts
-      )
-      when not is_nil(node_id) do
-    if Keyword.get(opts, :with_diff?, false) do
-      socket
-    else
-      assign(socket, :node_assigns, AsyncResult.loading(socket.assigns.node_assigns))
-    end
-    |> start_async(:fetch_node_assigns, fn ->
-      # Small sleep serves here as a debounce mechanism
-      Process.sleep(100)
-      NodeStateQueries.fetch_node_assigns(pid, node_id)
-    end)
-  end
-
-  def assign_async_node_assigns(socket, _opts) do
-    assign(socket, :node_assigns, AsyncResult.failed(%AsyncResult{}, :no_node_id))
-    assign(socket, :node_assigns_diff, AsyncResult.failed(%AsyncResult{}, :no_node_id))
-  end
 end
