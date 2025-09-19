@@ -60,11 +60,13 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp to_node(atom, suffix, diff) when is_atom(atom) do
+    diffed = diff != %{}
+
     span =
       if atom in [nil, true, false] do
-        magenta(inspect(atom), diff != %{})
+        magenta(inspect(atom), diffed)
       else
-        blue(inspect(atom), diff != %{})
+        blue(inspect(atom), diffed)
       end
 
     leaf_node("atom", [span | suffix])
@@ -123,15 +125,17 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp to_node(%module{} = struct, suffix, diff) when is_struct(struct) do
+    diffed = diff != %{}
+
     content =
       if Inspect.impl_for(struct) in [Inspect.Any, Inspect.Phoenix.LiveView.Socket] do
         [
-          black("%", diff != %{}),
-          blue(inspect(module), diff != %{}),
-          black("{...}", diff != %{}) | suffix
+          black("%", diffed),
+          blue(inspect(module), diffed),
+          black("{...}", diffed) | suffix
         ]
       else
-        [black(inspect(struct), diff != %{}) | suffix]
+        [black(inspect(struct), diffed) | suffix]
       end
 
     map = Map.from_struct(struct)
@@ -142,7 +146,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
       "struct",
       content,
       children,
-      [black("%"), blue(inspect(module), diff != %{}), black("{")],
+      [black("%"), blue(inspect(module), diffed), black("{")],
       [black("}") | suffix]
     )
   end
@@ -169,17 +173,19 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp to_key_value_node({key, value}, suffix, diff) do
+    diffed = diff != %{}
+
     {key_span, sep_span} =
       case to_node(key, [], diff) do
         %TermNode{content: [%DisplayElement{text: ":" <> name} = span]} when is_atom(key) ->
-          {%{span | text: name <> ":"}, black(" ", diff != %{})}
+          {%{span | text: name <> ":"}, black(" ", diffed)}
 
         %TermNode{content: [span]} ->
-          {%{span | text: inspect(key, width: :infinity)}, black(" => ", diff != %{})}
+          {%{span | text: inspect(key, width: :infinity)}, black(" => ", diffed)}
 
         %TermNode{content: _content} ->
           {%DisplayElement{text: inspect(key, width: :infinity), color: "text-code-1"},
-           black(" => ", diff != %{})}
+           black(" => ", diffed)}
       end
 
     case to_node(value, suffix, diff) do
