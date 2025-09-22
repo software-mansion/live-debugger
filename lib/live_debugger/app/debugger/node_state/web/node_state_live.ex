@@ -62,6 +62,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     socket
     |> assign(:lv_process, lv_process)
     |> assign(:node_id, node_id)
+    |> assign(:form, to_form(%{"value" => ""}))
     |> assign_async_node_assigns()
     |> ok()
   end
@@ -81,10 +82,26 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
         <NodeStateComponents.assigns_section
           assigns={node_assigns}
           fullscreen_id="assigns-display-fullscreen"
+          assigns_keys={@assigns_keys.result}
+          form={@form.result}
         />
       </.async_result>
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("toggle-assign", params, socket) do
+    assigns_keys =
+      socket.assigns.assigns_keys.result
+      |> Enum.reduce(%{}, fn {key, _}, acc ->
+        Map.put(acc, key, Map.has_key?(params, key))
+      end)
+
+    socket
+    |> assign(:assigns_keys, AsyncResult.ok(assigns_keys))
+    |> assign(:form, AsyncResult.ok(to_form(assigns_keys)))
+    |> noreply()
   end
 
   @impl true
@@ -107,8 +124,25 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
          %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket
        )
        when not is_nil(node_id) do
-    assign_async(socket, :node_assigns, fn ->
-      NodeStateQueries.fetch_node_assigns(pid, node_id)
+    assigns_keys = socket.assigns[:assigns_keys]
+
+    assign_async(socket, [:node_assigns, :form, :assigns_keys], fn ->
+      {:ok, %{node_assigns: node_assigns} = res} =
+        NodeStateQueries.fetch_node_assigns(pid, node_id)
+
+      if assigns_keys == nil do
+        assigns_keys =
+          node_assigns
+          |> Map.keys()
+          |> Enum.map(&{&1 |> to_string(), false})
+          |> Map.new()
+
+        {:ok, Map.put(res, :form, to_form(assigns_keys)) |> Map.put(:assigns_keys, assigns_keys)}
+      else
+        {:ok,
+         Map.put(res, :form, to_form(assigns_keys.result))
+         |> Map.put(:assigns_keys, assigns_keys.result)}
+      end
     end)
   end
 

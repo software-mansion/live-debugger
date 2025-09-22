@@ -26,8 +26,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   attr(:assigns, :list, required: true)
   attr(:fullscreen_id, :string, required: true)
+  attr(:form, Phoenix.HTML.Form, default: nil)
+  attr(:assigns_keys, :map, default: %{})
 
   def assigns_section(assigns) do
+    dbg(assigns.assigns)
+
     ~H"""
     <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
       <:right_panel>
@@ -40,8 +44,31 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           <.fullscreen_button id={@fullscreen_id} />
         </div>
       </:right_panel>
-      <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
-        <ElixirDisplay.term id="assigns-display" node={TermParser.term_to_display_tree(@assigns)} />
+      <div class="relative w-full h-max max-h-full overflow-y-auto">
+        <div class="p-4 border-b border-default-border">
+          <%= for {key, pinned} <- @assigns_keys do %>
+            <ElixirDisplay.term
+              :if={pinned}
+              id="elo"
+              node={
+                TermParser.to_key_value_node(
+                  {key |> String.to_existing_atom(), @assigns[key |> String.to_existing_atom()]},
+                  []
+                )
+              }
+            />
+          <% end %>
+        </div>
+        <div class="p-4">
+          <.form for={@form} phx-change="toggle-assign">
+            <ElixirDisplay.term
+              id="assigns-display"
+              node={TermParser.term_to_display_tree(@assigns)}
+              selectable?={true}
+              form={@form}
+            />
+          </.form>
+        </div>
       </div>
     </.section>
     <.fullscreen id={@fullscreen_id} title="Assigns">

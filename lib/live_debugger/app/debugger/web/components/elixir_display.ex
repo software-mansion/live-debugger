@@ -18,6 +18,8 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   attr(:id, :string, required: true)
   attr(:node, TermNode, required: true)
   attr(:level, :integer, default: 1)
+  attr(:selectable?, :boolean, default: false)
+  attr(:form, Phoenix.HTML.Form, default: nil)
 
   def term(assigns) do
     assigns =
@@ -27,19 +29,30 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
     ~H"""
     <div class="font-code">
-      <div class="ml-[2ch]">
-        <.text_items :if={!@has_children?} items={@node.content} />
+      <div class="ml-[2ch] [&>div>div>input]:hidden hover:[&>div>div>input]:block">
+        <%= if !@has_children? do %>
+          <div class="flex items-center gap-2">
+            <%= if @selectable? and @level == 2 do %>
+              <.checkbox field={@form[@node.key]} />
+            <% end %>
+
+            <.text_items items={@node.content} />
+          </div>
+        <% end %>
       </div>
       <.collapsible
         :if={@has_children?}
         id={@id <> "collapsible"}
         open={@expanded?}
         icon="icon-chevron-right"
-        label_class="max-w-max"
+        label_class="max-w-max [&>div>div>input]:hidden hover:[&>div>div>input]:block"
         chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
       >
         <:label>
-          <div class="flex items-center">
+          <div class="flex items-center gap-2">
+            <%= if @selectable? and @level == 2 do %>
+              <.checkbox field={@form[@node.key]} />
+            <% end %>
             <div class="show-on-open">
               <.text_items items={@node.expanded_before} />
             </div>
@@ -52,7 +65,13 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
         <ol class="m-0 ml-[2ch] block list-none p-0">
           <%= for {child, index} <- Enum.with_index(@node.children) do %>
             <li class="flex flex-col">
-              <.term id={@id <> "-#{index}"} node={child} level={@level + 1} />
+              <.term
+                id={@id <> "-#{index}"}
+                node={child}
+                level={@level + 1}
+                selectable?={@selectable?}
+                form={@form}
+              />
             </li>
           <% end %>
         </ol>

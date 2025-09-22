@@ -24,7 +24,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
     - `expanded_before`: Display elements shown before the node's children when expanded.
     - `expanded_after`: Display elements shown after the node's children when expanded.
     """
-    defstruct [:kind, :children, :content, :expanded_before, :expanded_after]
+    defstruct [:kind, :children, :content, :expanded_before, :expanded_after, :key]
 
     @type t :: %__MODULE__{
             kind: String.t(),
@@ -137,7 +137,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
     leaf_node("other", [black(inspect(other)) | suffix])
   end
 
-  defp to_key_value_node({key, value}, suffix) do
+  def to_key_value_node({key, value}, suffix) do
     {key_span, sep_span} =
       case to_node(key, []) do
         %TermNode{content: [%DisplayElement{text: ":" <> name} = span]} when is_atom(key) ->
@@ -153,13 +153,14 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
     case to_node(value, suffix) do
       %TermNode{content: content, children: []} = node ->
-        %{node | content: [key_span, sep_span | content]}
+        %{node | content: [key_span, sep_span | content], key: key}
 
       %TermNode{content: content, expanded_before: expanded_before} = node ->
         %{
           node
           | content: [key_span, sep_span | content],
-            expanded_before: [key_span, sep_span | expanded_before]
+            expanded_before: [key_span, sep_span | expanded_before],
+            key: key
         }
     end
   end
