@@ -10,19 +10,23 @@ defmodule LiveDebugger.App.Debugger.NodeState.Utils do
   """
   @spec diff(map(), map()) :: map()
   def diff(map1, map2) when is_map(map1) and is_map(map2) do
-    all_keys = (Map.keys(map1) ++ Map.keys(map2)) |> Enum.uniq()
-
-    all_keys
+    (Map.keys(map1) ++ Map.keys(map2))
+    |> Enum.uniq()
     |> Enum.reduce(%{}, fn key, acc ->
-      v1 = Map.get(map1, key, :__missing__)
-      v2 = Map.get(map2, key, :__missing__)
+      result1 = Map.fetch(map1, key)
+      result2 = Map.fetch(map2, key)
 
-      case compare_values(v1, v2) do
-        res when res in [nil, %{}] -> acc
-        res -> Map.put(acc, key, res)
+      case compare(result1, result2) do
+        nil -> acc
+        diff_value -> Map.put(acc, key, diff_value)
       end
     end)
   end
+
+  defp compare(:error, :error), do: nil
+  defp compare(:error, {:ok, _}), do: true
+  defp compare({:ok, _}, :error), do: true
+  defp compare({:ok, v1}, {:ok, v2}), do: compare_values(v1, v2)
 
   defp compare_values(v1, v2) do
     cond do

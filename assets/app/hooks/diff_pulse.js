@@ -16,9 +16,7 @@ const DiffPulse = {
       this.el.removeAttribute('data-pulse');
       this.el.classList.remove('animate-diff-pulse');
 
-      setTimeout(() => {
-        this.el.classList.add('animate-diff-pulse');
-      });
+      setTimeout(() => this.el.classList.add('animate-diff-pulse'));
 
       this.timeout = setTimeout(() => {
         this.el.classList.remove('animate-diff-pulse');
