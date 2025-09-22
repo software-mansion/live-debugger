@@ -19,7 +19,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   attr(:node, TermNode, required: true)
   attr(:level, :integer, default: 1)
   attr(:selectable?, :boolean, default: false)
-  attr(:form, Phoenix.HTML.Form, default: nil)
 
   def term(assigns) do
     assigns =
@@ -28,31 +27,30 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
       |> assign(:has_children?, has_children?(assigns.node))
 
     ~H"""
-    <div class="font-code">
-      <div class="ml-[2ch] [&>div>div>input]:hidden hover:[&>div>div>input]:block">
-        <%= if !@has_children? do %>
-          <div class="flex items-center gap-2">
-            <%= if @selectable? and @level == 2 do %>
-              <.checkbox field={@form[@node.key]} />
-            <% end %>
+    <div class="font-code flex [&>div>button]:hidden hover:[&>div>button]:block">
+      <div :if={@selectable? and @level == 2} class="w-4">
+        <button
+          class="text-button-green-content hover:text-button-green-content-hover"
+          phx-click="pin-assign"
+          phx-value-key={@node.key}
+        >
+          <.icon name="icon-plus" class="h-4 w-4" />
+        </button>
+      </div>
 
-            <.text_items items={@node.content} />
-          </div>
-        <% end %>
+      <div :if={!@has_children?} class="ml-[2ch]">
+        <.text_items items={@node.content} />
       </div>
       <.collapsible
         :if={@has_children?}
         id={@id <> "collapsible"}
         open={@expanded?}
         icon="icon-chevron-right"
-        label_class="max-w-max [&>div>div>input]:hidden hover:[&>div>div>input]:block"
+        label_class="max-w-max"
         chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
       >
         <:label>
-          <div class="flex items-center gap-2">
-            <%= if @selectable? and @level == 2 do %>
-              <.checkbox field={@form[@node.key]} />
-            <% end %>
+          <div class="flex items-center">
             <div class="show-on-open">
               <.text_items items={@node.expanded_before} />
             </div>
@@ -70,7 +68,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
                 node={child}
                 level={@level + 1}
                 selectable?={@selectable?}
-                form={@form}
               />
             </li>
           <% end %>

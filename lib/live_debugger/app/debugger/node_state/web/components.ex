@@ -26,7 +26,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   attr(:assigns, :list, required: true)
   attr(:fullscreen_id, :string, required: true)
-  attr(:form, Phoenix.HTML.Form, default: nil)
   attr(:assigns_keys, :map, default: %{})
 
   def assigns_section(assigns) do
@@ -46,9 +45,20 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       </:right_panel>
       <div class="relative w-full h-max max-h-full overflow-y-auto">
         <div class="p-4 border-b border-default-border">
-          <%= for {key, pinned} <- @assigns_keys do %>
+          <p :if={Enum.all?(@assigns_keys, fn {_, v} -> !v end)} class="text-secondary-text">
+            You are not following any specific assign
+          </p>
+          <div
+            :for={{key, pinned} <- @assigns_keys}
+            :if={pinned}
+            class="flex [&>div>button]:hidden hover:[&>div>button]:block"
+          >
+            <div class="w-4">
+              <button class="text-error-text" phx-click="unpin-assign" phx-value-key={key}>
+                <.icon name="icon-cross" class="h-4 w-4" />
+              </button>
+            </div>
             <ElixirDisplay.term
-              :if={pinned}
               id="elo"
               node={
                 TermParser.to_key_value_node(
@@ -57,21 +67,34 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
                 )
               }
             />
-          <% end %>
+          </div>
         </div>
         <div class="p-4">
-          <.form for={@form} phx-change="toggle-assign">
-            <ElixirDisplay.term
-              id="assigns-display"
-              node={TermParser.term_to_display_tree(@assigns)}
-              selectable?={true}
-              form={@form}
-            />
-          </.form>
+          <ElixirDisplay.term
+            id="assigns-display"
+            node={TermParser.term_to_display_tree(@assigns)}
+            selectable?={true}
+          />
         </div>
       </div>
     </.section>
     <.fullscreen id={@fullscreen_id} title="Assigns">
+      <div class="p-4 border-b border-default-border">
+        <p :if={Enum.all?(@assigns_keys, fn {_, v} -> !v end)} class="text-secondary-text">
+          You are not following any specific assign
+        </p>
+        <div :for={{key, pinned} <- @assigns_keys} :if={pinned}>
+          <ElixirDisplay.term
+            id="elo-fullscreen"
+            node={
+              TermParser.to_key_value_node(
+                {key |> String.to_existing_atom(), @assigns[key |> String.to_existing_atom()]},
+                []
+              )
+            }
+          />
+        </div>
+      </div>
       <div class="p-4">
         <ElixirDisplay.term
           id="assigns-display-fullscreen-term"
