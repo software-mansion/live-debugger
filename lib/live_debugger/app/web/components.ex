@@ -193,7 +193,7 @@ defmodule LiveDebugger.App.Web.Components do
       phx-hook="AutoClearFlash"
       role="alert"
       class={[
-        "fixed left-2 bottom-2 w-80 sm:w-96 z-50 rounded-sm p-4 flex justify-between items-center gap-3",
+        "max-sm:animate-fade-in-mobile sm:animate-fade-in fixed left-2 bottom-2 w-80 sm:w-96 z-50 rounded-sm p-4 flex justify-between items-center gap-3",
         @kind == :error && "bg-error-bg text-error-text border-error-text border",
         @kind == :info &&
           "bg-info-bg text-info-text border-info-border border"

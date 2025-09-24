@@ -92,7 +92,7 @@ defmodule LiveDebugger.App.Settings.Web.Components do
     |> JS.push(value: %{key: key})
     |> JS.hide(
       to: "#{to}",
-      time: 200,
+      time: 100,
       transition: "max-sm:animate-fade-out-mobile sm:animate-fade-out"
     )
   end

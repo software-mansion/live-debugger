@@ -86,10 +86,20 @@ module.exports = {
           '0%': { opacity: '1', transform: 'translateY(0)' },
           '100%': { opacity: '0', transform: 'translateY(1rem)' },
         },
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        fadeInMobile: {
+          '0%': { opacity: '0', transform: 'translateY(1rem)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         'fade-out': 'fadeOut 200ms ease-out forwards',
         'fade-out-mobile': 'fadeOutMobile 200ms ease-out forwards',
+        'fade-in': 'fadeIn 100ms ease-in forwards',
+        'fade-in-mobile': 'fadeInMobile 100ms ease-in forwards',
       },
     },
   },
