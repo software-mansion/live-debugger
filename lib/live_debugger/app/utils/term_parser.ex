@@ -18,16 +18,20 @@ defmodule LiveDebugger.App.Utils.TermParser do
     @moduledoc """
     Represents a node in the display tree.
 
+    - `id`: Unique identifier for the node.
     - `kind`: The type of the node (e.g., "atom", "list", "map").
     - `children`: A list of child nodes.
+    - `display?`: Whether the node should be displayed.
     - `content`: Display elements that represent the content of the node when has no children or not expanded.
     - `expanded_before`: Display elements shown before the node's children when expanded.
     - `expanded_after`: Display elements shown after the node's children when expanded.
     """
-    defstruct [:kind, :children, :content, :expanded_before, :expanded_after]
+    defstruct [:id, :kind, :children, :content, :expanded_before, :expanded_after, display?: true]
 
     @type t :: %__MODULE__{
+            id: String.t(),
             kind: String.t(),
+            display?: boolean(),
             children: [TermNode.t()],
             content: [DisplayElement.t()],
             expanded_before: [DisplayElement.t()] | nil,
@@ -48,15 +52,15 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
   @spec term_to_display_tree(term()) :: TermNode.t()
   def term_to_display_tree(term) do
-    to_node(term, [])
+    to_node(term, [], "root")
   end
 
-  @spec to_node(term(), [DisplayElement.t()]) :: TermNode.t()
-  defp to_node(string, suffix) when is_binary(string) do
-    leaf_node("binary", [green(inspect(string)) | suffix])
+  @spec to_node(term(), [DisplayElement.t()], String.t()) :: TermNode.t()
+  defp to_node(string, suffix, path) when is_binary(string) do
+    leaf_node("binary", [green(inspect(string)) | suffix], path)
   end
 
-  defp to_node(atom, suffix) when is_atom(atom) do
+  defp to_node(atom, suffix, path) when is_atom(atom) do
     span =
       if atom in [nil, true, false] do
         magenta(inspect(atom))
@@ -64,45 +68,60 @@ defmodule LiveDebugger.App.Utils.TermParser do
         blue(inspect(atom))
       end
 
-    leaf_node("atom", [span | suffix])
+    leaf_node("atom", [span | suffix], path)
   end
 
-  defp to_node(number, suffix) when is_number(number) do
-    leaf_node("number", [blue(inspect(number)) | suffix])
+  defp to_node(number, suffix, path) when is_number(number) do
+    leaf_node("number", [blue(inspect(number)) | suffix], path)
   end
 
-  defp to_node({}, suffix) do
-    leaf_node("tuple", [black("{}") | suffix])
+  defp to_node({}, suffix, path) do
+    leaf_node("tuple", [black("{}") | suffix], path)
   end
 
-  defp to_node(tuple, suffix) when is_tuple(tuple) do
+  defp to_node(tuple, suffix, path) when is_tuple(tuple) do
     size = tuple_size(tuple)
-    children = tuple |> Tuple.to_list() |> to_children(size)
-    branch_node("tuple", [black("{...}") | suffix], children, [black("{")], [black("}") | suffix])
+    children = tuple |> Tuple.to_list() |> to_children(size, path)
+
+    branch_node(
+      "tuple",
+      [black("{...}") | suffix],
+      children,
+      [black("{")],
+      [black("}") | suffix],
+      path
+    )
   end
 
-  defp to_node([], suffix) do
-    leaf_node("list", [black("[]") | suffix])
+  defp to_node([], suffix, path) do
+    leaf_node("list", [black("[]") | suffix], path)
   end
 
-  defp to_node(list, suffix) when is_list(list) do
+  defp to_node(list, suffix, path) when is_list(list) do
     size = length(list)
 
     children =
       if Keyword.keyword?(list) do
-        to_key_value_children(list, size)
+        to_key_value_children(list, size, path)
       else
-        to_children(list, size)
+        to_children(list, size, path)
       end
 
-    branch_node("list", [black("[...]") | suffix], children, [black("[")], [black("]") | suffix])
+    branch_node(
+      "list",
+      [black("[...]") | suffix],
+      children,
+      [black("[")],
+      [black("]") | suffix],
+      path
+    )
   end
 
-  defp to_node(%Regex{} = regex, suffix) do
-    leaf_node("regex", [black(inspect(regex)) | suffix])
+  defp to_node(%Regex{} = regex, suffix, path) do
+    leaf_node("regex", [black(inspect(regex)) | suffix], path)
   end
 
-  defp to_node(%module{} = struct, suffix) when is_struct(struct) do
+  defp to_node(%module{} = struct, suffix, path) when is_struct(struct) do
     content =
       if Inspect.impl_for(struct) in [Inspect.Any, Inspect.Phoenix.LiveView.Socket] do
         [black("%"), blue(inspect(module)), black("{...}") | suffix]
@@ -112,34 +131,43 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
     map = Map.from_struct(struct)
     size = map_size(map)
-    children = to_key_value_children(map, size)
+    children = to_key_value_children(map, size, path)
 
     branch_node(
       "struct",
       content,
       children,
       [black("%"), blue(inspect(module)), black("{")],
-      [black("}") | suffix]
+      [black("}") | suffix],
+      path
     )
   end
 
-  defp to_node(%{} = map, suffix) when map_size(map) == 0 do
-    leaf_node("map", [black("%{}") | suffix])
+  defp to_node(%{} = map, suffix, path) when map_size(map) == 0 do
+    leaf_node("map", [black("%{}") | suffix], path)
   end
 
-  defp to_node(map, suffix) when is_map(map) do
+  defp to_node(map, suffix, path) when is_map(map) do
     size = map_size(map)
-    children = map |> Enum.sort() |> to_key_value_children(size)
-    branch_node("map", [black("%{...}") | suffix], children, [black("%{")], [black("}") | suffix])
+    children = map |> Enum.sort() |> to_key_value_children(size, path)
+
+    branch_node(
+      "map",
+      [black("%{...}") | suffix],
+      children,
+      [black("%{")],
+      [black("}") | suffix],
+      path
+    )
   end
 
-  defp to_node(other, suffix) do
-    leaf_node("other", [black(inspect(other)) | suffix])
+  defp to_node(other, suffix, path) do
+    leaf_node("other", [black(inspect(other)) | suffix], path)
   end
 
-  defp to_key_value_node({key, value}, suffix) do
+  defp to_key_value_node({key, value}, suffix, path) do
     {key_span, sep_span} =
-      case to_node(key, []) do
+      case to_node(key, [], "#{path}.key") do
         %TermNode{content: [%DisplayElement{text: ":" <> name} = span]} when is_atom(key) ->
           {%{span | text: name <> ":"}, black(" ")}
 
@@ -151,7 +179,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
            black(" => ")}
       end
 
-    case to_node(value, suffix) do
+    case to_node(value, suffix, path) do
       %TermNode{content: content, children: []} = node ->
         %{node | content: [key_span, sep_span | content]}
 
@@ -164,15 +192,15 @@ defmodule LiveDebugger.App.Utils.TermParser do
     end
   end
 
-  defp to_children(items, container_size) do
+  defp to_children(items, container_size, path) do
     Enum.with_index(items, fn item, index ->
-      to_node(item, suffix(index, container_size))
+      to_node(item, suffix(index, container_size), "#{path}.#{index}")
     end)
   end
 
-  defp to_key_value_children(items, container_size) do
+  defp to_key_value_children(items, container_size, path) do
     Enum.with_index(items, fn item, index ->
-      to_key_value_node(item, suffix(index, container_size))
+      to_key_value_node(item, suffix(index, container_size), "#{path}.#{index}")
     end)
   end
 
@@ -184,8 +212,9 @@ defmodule LiveDebugger.App.Utils.TermParser do
     end
   end
 
-  defp leaf_node(kind, content) do
+  defp leaf_node(kind, content, path) do
     %TermNode{
+      id: path,
       kind: kind,
       content: content,
       children: [],
@@ -194,8 +223,9 @@ defmodule LiveDebugger.App.Utils.TermParser do
     }
   end
 
-  defp branch_node(kind, content, children, expanded_before, expanded_after) do
+  defp branch_node(kind, content, children, expanded_before, expanded_after, path) do
     %TermNode{
+      id: path,
       kind: kind,
       content: content,
       children: children,

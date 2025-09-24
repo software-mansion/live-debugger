@@ -5,7 +5,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
+  alias LiveDebugger.App.Debugger.Web.LiveComponents.OptimizedElixirDisplay
   alias LiveDebugger.App.Utils.TermParser
 
   def loading(assigns) do
@@ -41,12 +41,17 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         </div>
       </:right_panel>
       <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
-        <ElixirDisplay.term id="assigns-display" node={TermParser.term_to_display_tree(@assigns)} />
+        <.live_component
+          module={OptimizedElixirDisplay}
+          id="assigns-display"
+          node={TermParser.term_to_display_tree(@assigns)}
+        />
       </div>
     </.section>
     <.fullscreen id={@fullscreen_id} title="Assigns">
       <div class="p-4">
-        <ElixirDisplay.term
+        <.live_component
+          module={OptimizedElixirDisplay}
           id="assigns-display-fullscreen-term"
           node={TermParser.term_to_display_tree(@assigns)}
         />

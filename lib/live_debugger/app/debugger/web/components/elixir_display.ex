@@ -9,34 +9,40 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   alias LiveDebugger.App.Utils.TermParser.DisplayElement
   alias LiveDebugger.App.Utils.TermParser.TermNode
 
-  @max_auto_expand_size 6
-
   @doc """
   Returns a tree of terms.
   """
 
   attr(:id, :string, required: true)
   attr(:node, TermNode, required: true)
-  attr(:level, :integer, default: 1)
+  attr(:send_event_fn, :any, default: nil)
 
   def term(assigns) do
     assigns =
       assigns
-      |> assign(:expanded?, auto_expand?(assigns.node, assigns.level))
+      |> assign(:open?, open?(assigns.node))
       |> assign(:has_children?, has_children?(assigns.node))
+      |> assign(
+        :send_event,
+        if(is_nil(assigns.send_event_fn),
+          do: %{},
+          else: assigns.send_event_fn.(assigns)
+        )
+      )
 
     ~H"""
-    <div class="font-code">
+    <div :if={@node.display?} class="font-code">
       <div class="ml-[2ch]">
         <.text_items :if={!@has_children?} items={@node.content} />
       </div>
       <.collapsible
         :if={@has_children?}
         id={@id <> "collapsible"}
-        open={@expanded?}
+        open={@open?}
         icon="icon-chevron-right"
         label_class="max-w-max"
         chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
+        {@send_event}
       >
         <:label>
           <div class="flex items-center">
@@ -52,7 +58,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
         <ol class="m-0 ml-[2ch] block list-none p-0">
           <%= for {child, index} <- Enum.with_index(@node.children) do %>
             <li class="flex flex-col">
-              <.term id={@id <> "-#{index}"} node={child} level={@level + 1} />
+              <.term id={@id <> "-#{index}"} node={child} send_event_fn={@send_event_fn} />
             </li>
           <% end %>
         </ol>
@@ -82,15 +88,10 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
     if color, do: "#{color}", else: ""
   end
 
-  defp auto_expand?(%TermNode{}, 1), do: true
-
-  defp auto_expand?(%TermNode{} = node, _level) do
-    node.kind == "tuple" and children_number(node) <= @max_auto_expand_size
+  defp open?(%TermNode{children: children}) do
+    Enum.all?(children, & &1.display?)
   end
 
   defp has_children?(%TermNode{children: []}), do: false
   defp has_children?(%TermNode{}), do: true
-
-  defp children_number(%TermNode{children: nil}), do: 0
-  defp children_number(%TermNode{children: children}), do: length(children)
 end
