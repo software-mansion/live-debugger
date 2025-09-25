@@ -62,6 +62,8 @@ module.exports = {
         'info-icon': 'var(--info-icon)',
         'info-text': 'var(--info-text)',
         'warning-text': 'var(--warning-text)',
+        'diff-added-bg': 'var(--diff-added-bg)',
+        'diff-removed-bg': 'var(--diff-removed-bg)',
       },
       screens: { xs: '380px' },
       fontFamily: {

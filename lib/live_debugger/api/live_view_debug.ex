@@ -2,6 +2,7 @@ defmodule LiveDebugger.API.LiveViewDebug do
   @moduledoc """
   This module provides wrappers for Phoenix LiveView functions that are used for debugging a LiveView processes.
   """
+  alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.Structs.LvState
 
   @type lv() :: %{
@@ -32,9 +33,26 @@ defmodule LiveDebugger.API.LiveViewDebug do
 
   @spec liveview_state(lv_pid :: pid()) :: {:ok, LvState.t()} | {:error, term()}
   def liveview_state(lv_pid) when is_pid(lv_pid) do
-    with {:ok, socket} <- socket(lv_pid),
+    with {:ok, %{assigns: assigns} = socket} <- socket(lv_pid),
          {:ok, components} <- live_components(lv_pid) do
-      {:ok, %LvState{pid: lv_pid, socket: socket, components: components}}
+      assigns_history =
+        StatesStorage.get!(lv_pid)
+        |> case do
+          nil -> []
+          %LvState{assigns_history: history} -> history |> Enum.take(9)
+        end
+        |> case do
+          [^assigns | _] = history -> history
+          history -> [assigns | history]
+        end
+
+      {:ok,
+       %LvState{
+         pid: lv_pid,
+         socket: socket,
+         components: components,
+         assigns_history: assigns_history
+       }}
     end
   end
 

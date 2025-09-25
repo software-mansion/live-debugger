@@ -31,7 +31,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     ~H"""
     <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
       <:right_panel>
-        <div class="flex gap-2">
+        <div class="flex gap-2 ">
+          <.fullscreen_button id="assigns-history" icon="icon-history" />
           <.copy_button
             id="assigns-copy-button"
             variant="icon-button"

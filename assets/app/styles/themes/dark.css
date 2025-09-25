@@ -77,5 +77,8 @@
     --info-border: var(--default-border);
     --info-icon: var(--primary-text);
     --info-text: var(--primary-text);
+
+    --diff-added-bg: #4b8b38;
+    --diff-removed-bg: var(--red-900);
   }
 }

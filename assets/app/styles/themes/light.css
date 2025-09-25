@@ -76,4 +76,7 @@
 
   --search-highlight-bg: var(--swm-yellow-80);
   --search-highlight-text: var(--slate-900);
+
+  --diff-added-bg: var(--swm-green-80);
+  --diff-removed-bg: var(--red-100);
 }

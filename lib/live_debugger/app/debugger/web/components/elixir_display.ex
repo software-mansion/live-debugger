@@ -18,6 +18,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   attr(:id, :string, required: true)
   attr(:node, TermNode, required: true)
   attr(:level, :integer, default: 1)
+  attr(:diff_color, :string, default: "")
 
   def term(assigns) do
     assigns =
@@ -28,7 +29,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
     ~H"""
     <div class="font-code">
       <div class="ml-[2ch]">
-        <.text_items :if={!@has_children?} items={@node.content} />
+        <.text_items :if={!@has_children?} id={@id} items={@node.content} diff_color={@diff_color} />
       </div>
       <.collapsible
         :if={@has_children?}
@@ -41,10 +42,14 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
         <:label>
           <div class="flex items-center">
             <div class="show-on-open">
-              <.text_items items={@node.expanded_before} />
+              <.text_items
+                diff_color={@diff_color}
+                id={@id <> "expanded_before"}
+                items={@node.expanded_before}
+              />
             </div>
             <div class="hide-on-open">
-              <.text_items items={@node.content} />
+              <.text_items diff_color={@diff_color} id={@id <> "content"} items={@node.content} />
             </div>
           </div>
         </:label>
@@ -52,30 +57,43 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
         <ol class="m-0 ml-[2ch] block list-none p-0">
           <%= for {child, index} <- Enum.with_index(@node.children) do %>
             <li class="flex flex-col">
-              <.term id={@id <> "-#{index}"} node={child} level={@level + 1} />
+              <.term diff_color={@diff_color} id={@id <> "-#{index}"} node={child} level={@level + 1} />
             </li>
           <% end %>
         </ol>
         <div class="ml-[2ch]">
-          <.text_items items={@node.expanded_after} />
+          <.text_items
+            diff_color={@diff_color}
+            id={@id <> "expanded_after"}
+            items={@node.expanded_after}
+          />
         </div>
       </.collapsible>
     </div>
     """
   end
 
+  attr(:id, :string, required: true)
   attr(:items, :list, required: true)
+  attr(:diff_color, :string, default: "")
 
   defp text_items(assigns) do
     ~H"""
     <div class="flex">
-      <%= for item <- @items do %>
-        <span class={"#{text_item_color_class(item)}"}>
+      <%= for {item, index} <- Enum.with_index(@items) do %>
+        <span
+          id={@id <> "-#{index}"}
+          class={"#{text_item_color_class(item)} #{text_item_bg_color_class(item, @diff_color)}"}
+        >
           <pre data-text_item="true"><%= item.text %></pre>
         </span>
       <% end %>
     </div>
     """
+  end
+
+  defp text_item_bg_color_class(%DisplayElement{pulse?: pulse?}, color) do
+    if pulse?, do: "bg-#{color}", else: ""
   end
 
   defp text_item_color_class(%DisplayElement{color: color}) do
