@@ -42,7 +42,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch do
           disabled={@disabled?}
           placeholder={@placeholder}
           value={@assign_search_phrase}
-          phx-debounce="100"
+          phx-debounce="150"
           type="text"
           name="search_phrase"
           class="block remove-arrow w-16 sm:w-64 min-w-32 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0 disabled:!text-gray-500 disabled:placeholder-gray-300"
@@ -55,6 +55,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch do
   defp handle_event("search", %{"search_phrase" => search_phrase}, socket) do
     socket
     |> assign(assign_search_phrase: search_phrase)
+    |> push_event("search_in_assigns", %{search_phrase: search_phrase})
     |> halt()
   end
 

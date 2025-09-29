@@ -25,7 +25,6 @@ defmodule LiveDebugger.E2E.AssignsSearchHighlightTest do
     |> assert_has(assigns_entry(key: "counter", value: "0"))
     |> assert_has(fullscreen_button())
     |> click(fullscreen_button())
-    |> take_screenshot()
     |> fill_in(assigns_search_bar_fullscreen(), with: "deep value")
     |> assert_has(css("pre", text: "\"deep value\"", count: 2, visible: true))
   end

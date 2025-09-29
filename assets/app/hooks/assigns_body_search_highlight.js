@@ -20,24 +20,26 @@ function handleHighlight(phrase) {
   }
 
   allRanges = [];
-  document
-    .querySelectorAll('[phx-hook="AssignsBodySearchHighlight"]')
-    .forEach((el) => {
-      if (el.dataset.search_phrase === phrase) {
-        const ranges = findRanges(el, phrase);
-        allRanges.push(...ranges);
-      }
-    });
+  const assignsFullscreenContainer = document.getElementById(
+    'assigns-display-fullscreen-container'
+  );
+  const assignsContainer = document.getElementById('assigns-display-container');
+
+  [assignsContainer, assignsFullscreenContainer].forEach((el) => {
+    if (el && el.dataset.search_phrase === phrase) {
+      const ranges = findRanges(el, phrase);
+      allRanges.push(...ranges);
+    }
+  });
 
   highlightSearchRanges(allRanges);
 }
 
 const AssignsBodySearchHighlight = {
   mounted() {
-    handleHighlight(this.el.dataset.search_phrase);
-  },
-  updated() {
-    handleHighlight(this.el.dataset.search_phrase);
+    this.handleEvent('search_in_assigns', ({ search_phrase }) => {
+      handleHighlight(search_phrase);
+    });
   },
 };
 
