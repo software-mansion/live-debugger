@@ -7,7 +7,6 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.OptimizedElixirDisplay do
   use LiveDebugger.App.Web, :live_component
 
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
-  alias LiveDebugger.App.Utils.TermParser
   alias LiveDebugger.App.Utils.TermParser.TermNode
 
   @impl true
@@ -46,7 +45,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.OptimizedElixirDisplay do
   defp term(assigns) do
     assigns =
       assigns
-      |> assign(:has_children?, TermParser.has_children?(assigns.node))
+      |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
     <div class="font-code" phx-click="toggle_node" phx-value-id={@node.id} phx-target={@myself}>

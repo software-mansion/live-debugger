@@ -6,7 +6,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.App.Utils.TermParser
   alias LiveDebugger.App.Utils.TermParser.TermNode
   alias LiveDebugger.App.Utils.TermParser.DisplayElement
 
@@ -24,7 +23,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
     assigns =
       assigns
       |> assign(:auto_open?, auto_open?(assigns.node, assigns.level))
-      |> assign(:has_children?, TermParser.has_children?(assigns.node))
+      |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
     <div class="font-code">
@@ -87,6 +86,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   defp auto_open?(%TermNode{}, 1), do: true
 
   defp auto_open?(%TermNode{} = node, _level) do
-    node.kind == "tuple" and TermParser.children_number(node) <= @max_auto_expand_size
+    node.kind == "tuple" and TermNode.children_number(node) <= @max_auto_expand_size
   end
 end

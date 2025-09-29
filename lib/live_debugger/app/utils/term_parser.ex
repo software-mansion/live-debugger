@@ -37,6 +37,14 @@ defmodule LiveDebugger.App.Utils.TermParser do
             expanded_before: [DisplayElement.t()] | nil,
             expanded_after: [DisplayElement.t()] | nil
           }
+
+    @spec has_children?(TermNode.t()) :: boolean()
+    def has_children?(%TermNode{children: []}), do: false
+    def has_children?(%TermNode{}), do: true
+
+    @spec children_number(TermNode.t()) :: integer()
+    def children_number(%TermNode{children: nil}), do: 0
+    def children_number(%TermNode{children: children}), do: length(children)
   end
 
   @spec term_to_copy_string(term()) :: String.t()
@@ -49,14 +57,6 @@ defmodule LiveDebugger.App.Utils.TermParser do
     end)
     |> String.replace(~r/#.+?<.*?>/, &"\"#{&1}\"")
   end
-
-  @spec has_children?(TermNode.t()) :: boolean()
-  def has_children?(%TermNode{children: []}), do: false
-  def has_children?(%TermNode{}), do: true
-
-  @spec children_number(TermNode.t()) :: integer()
-  def children_number(%TermNode{children: nil}), do: 0
-  def children_number(%TermNode{children: children}), do: length(children)
 
   @spec term_to_display_tree(term()) :: TermNode.t()
   def term_to_display_tree(term) do
