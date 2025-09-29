@@ -66,7 +66,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   attr(:items, :list, required: true)
 
-  @spec text_items(map()) :: Phoenix.LiveView.Rendered.t()
   def text_items(assigns) do
     ~H"""
     <div class="flex">
