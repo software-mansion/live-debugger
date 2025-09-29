@@ -19,6 +19,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch do
   attr(:placeholder, :string, default: "Search...")
   attr(:disabled?, :boolean, default: false)
   attr(:assign_search_phrase, :string, default: "", doc: "The current search query for assigns")
+  attr(:input_id, :string, default: "", doc: "The ID of the input element")
 
   @impl true
   def render(assigns) do
@@ -37,6 +38,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch do
           ]}
         />
         <input
+          id={@input_id}
           disabled={@disabled?}
           placeholder={@placeholder}
           value={@assign_search_phrase}

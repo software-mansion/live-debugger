@@ -37,6 +37,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           <AssignsSearch.render
             placeholder="Search assigns"
             assign_search_phrase={@assign_search_phrase}
+            input_id="assigns-search-input"
           />
           <.copy_button
             id="assigns-copy-button"
@@ -60,6 +61,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         <AssignsSearch.render
           placeholder="Search assigns"
           assign_search_phrase={@assign_search_phrase}
+          input_id="assigns-search-input-fullscreen"
         />
       </div>
       <div
