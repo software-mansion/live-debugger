@@ -12,7 +12,6 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
 
   setup :verify_on_exit!
 
@@ -23,12 +22,12 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
   end
 
   describe "handle_info/2" do
-    test "with TraceReturned for render with known cid" do
+    test "with TraceCalled for render with known cid" do
       pid = self()
       cid = %Phoenix.LiveComponent.CID{cid: 1}
       state = %{pid => MapSet.new([cid])}
 
-      event = %TraceReturned{
+      event = %TraceCalled{
         trace_id: -1,
         module: TestLV.Component,
         function: :render,
@@ -45,13 +44,13 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
       assert {:noreply, ^state} = ProcessMonitor.handle_info(event, state)
     end
 
-    test "with TraceReturned for render with unknown cid" do
+    test "with TraceCalled for render with unknown cid" do
       pid = self()
       cid1 = %Phoenix.LiveComponent.CID{cid: 1}
       cid2 = %Phoenix.LiveComponent.CID{cid: 2}
       state = %{pid => MapSet.new([cid1])}
 
-      event = %TraceReturned{
+      event = %TraceCalled{
         trace_id: -1,
         module: TestLV.Component,
         function: :render,
@@ -71,13 +70,13 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
       assert new_state == %{pid => MapSet.new([cid1, cid2])}
     end
 
-    test "with TraceReturned for render with unknown pid" do
+    test "with TraceCalled for render with unknown pid" do
       pid1 = :c.pid(0, 11, 0)
       pid2 = :c.pid(0, 12, 0)
       cid1 = %Phoenix.LiveComponent.CID{cid: 1}
       state = %{pid1 => MapSet.new([cid1])}
 
-      event = %TraceReturned{
+      event = %TraceCalled{
         trace_id: -1,
         module: TestLV.Component,
         function: :render,
@@ -106,11 +105,11 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
              }
     end
 
-    test "with TraceReturned for render with nil cid and known pid" do
+    test "with TraceCalled for render with nil cid and known pid" do
       pid = self()
       state = %{pid => MapSet.new()}
 
-      event = %TraceReturned{
+      event = %TraceCalled{
         trace_id: -1,
         module: TestLV,
         function: :render,
@@ -127,12 +126,12 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
       assert {:noreply, ^state} = ProcessMonitor.handle_info(event, state)
     end
 
-    test "with TraceReturned for render with nil cid and unknown pid" do
+    test "with TraceCalled for render with nil cid and unknown pid" do
       pid1 = :c.pid(0, 11, 0)
       pid2 = :c.pid(0, 12, 0)
       state = %{pid1 => MapSet.new()}
 
-      event = %TraceReturned{
+      event = %TraceCalled{
         trace_id: -1,
         module: TestLV,
         function: :render,
