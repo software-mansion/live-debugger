@@ -38,9 +38,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch do
         />
         <input
           disabled={@disabled?}
-          id="assigns-search-input"
           placeholder={@placeholder}
           value={@assign_search_phrase}
+          phx-debounce="100"
           type="text"
           name="search_phrase"
           class="block remove-arrow w-16 sm:w-64 min-w-32 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0 disabled:!text-gray-500 disabled:placeholder-gray-300"
