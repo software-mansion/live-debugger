@@ -23,11 +23,9 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.OptimizedElixirDisplay do
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :send_event_fn, &send_event_fn(&1, assigns.myself))
-
     ~H"""
     <div id={@id}>
-      <.term id={@id} node={@node} />
+      <.term id={@id} node={@node} myself={@myself} />
     </div>
     """
   end
@@ -43,35 +41,42 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.OptimizedElixirDisplay do
 
   attr(:id, :string, required: true)
   attr(:node, TermNode, required: true)
+  attr(:myself, :any, required: true)
 
   defp term(assigns) do
     assigns =
       assigns
-      |> assign(:open?, TermParser.open?(assigns.node))
       |> assign(:has_children?, TermParser.has_children?(assigns.node))
 
     ~H"""
-    <div :if={@node.display?} class="font-code">
+    <div class="font-code" phx-click="toggle_node" phx-value-id={@node.id} phx-target={@myself}>
       <%= if @has_children? do %>
-        <div class="flex items-center">
-          <div class="show-on-open">
-            <ElixirDisplay.text_items items={@node.expanded_before} />
+        <.static_collapsible
+          open={@node.open?}
+          label_class="max-w-max"
+          chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
+          phx-click="toggle_node"
+          phx-value-id={@node.id}
+          phx-target={@myself}
+        >
+          <:label :let={open}>
+            <%= if open do %>
+              <ElixirDisplay.text_items items={@node.expanded_before} />
+            <% else %>
+              <ElixirDisplay.text_items items={@node.content} />
+            <% end %>
+          </:label>
+          <ol class="m-0 ml-[2ch] block list-none p-0">
+            <%= for {child, index} <- Enum.with_index(@node.children) do %>
+              <li class="flex flex-col">
+                <.term id={@id <> "-#{index}"} node={child} myself={@myself} />
+              </li>
+            <% end %>
+          </ol>
+          <div class="ml-[2ch]">
+            <ElixirDisplay.text_items items={@node.expanded_after} />
           </div>
-          <div class="hide-on-open">
-            <ElixirDisplay.text_items items={@node.content} />
-          </div>
-        </div>
-
-        <ol class="m-0 ml-[2ch] block list-none p-0">
-          <%= for {child, index} <- Enum.with_index(@node.children) do %>
-            <li class="flex flex-col">
-              <.term id={@id <> "-#{index}"} node={child} />
-            </li>
-          <% end %>
-        </ol>
-        <div class="ml-[2ch]">
-          <ElixirDisplay.text_items items={@node.expanded_after} />
-        </div>
+        </.static_collapsible>
       <% else %>
         <div class="ml-[2ch]">
           <ElixirDisplay.text_items items={@node.content} />
@@ -81,11 +86,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.OptimizedElixirDisplay do
     """
   end
 
-  defp send_event_fn(assigns, myself) do
-    %{"phx-click" => "toggle_node", "phx-target" => myself, "phx-value-id" => assigns.node.id}
-  end
-
-  defp update_node_children(node, "root"), do: toggle_children_display(node)
+  defp update_node_children(node, "root"), do: %TermNode{node | open?: !node.open?}
 
   defp update_node_children(node, id) do
     ["root" | id_path] = id |> String.split(".")
@@ -96,7 +97,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.OptimizedElixirDisplay do
   end
 
   defp recursively_update_node_children(node, []) when is_struct(node, TermNode) do
-    toggle_children_display(node)
+    %TermNode{node | open?: !node.open?}
   end
 
   defp recursively_update_node_children(node, [id | rest]) when is_struct(node, TermNode) do
@@ -108,12 +109,5 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.OptimizedElixirDisplay do
     updated_children = List.replace_at(node.children, id, child_node)
 
     %TermNode{node | children: updated_children}
-  end
-
-  defp toggle_children_display(node) when is_struct(node, TermNode) do
-    update_children =
-      Enum.map(node.children, fn child -> %TermNode{child | display?: !child.display?} end)
-
-    %TermNode{node | children: update_children}
   end
 end

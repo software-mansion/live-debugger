@@ -26,12 +26,12 @@ defmodule LiveDebugger.App.Utils.TermParser do
     - `expanded_before`: Display elements shown before the node's children when expanded.
     - `expanded_after`: Display elements shown after the node's children when expanded.
     """
-    defstruct [:id, :kind, :children, :content, :expanded_before, :expanded_after, display?: true]
+    defstruct [:id, :kind, :children, :content, :expanded_before, :expanded_after, open?: true]
 
     @type t :: %__MODULE__{
             id: String.t(),
             kind: String.t(),
-            display?: boolean(),
+            open?: boolean(),
             children: [TermNode.t()],
             content: [DisplayElement.t()],
             expanded_before: [DisplayElement.t()] | nil,
@@ -48,11 +48,6 @@ defmodule LiveDebugger.App.Utils.TermParser do
       ":erlang.list_to_pid(~c\"<#{pid}>\")"
     end)
     |> String.replace(~r/#.+?<.*?>/, &"\"#{&1}\"")
-  end
-
-  @spec open?(TermNode.t()) :: boolean()
-  def open?(%TermNode{children: children}) do
-    Enum.all?(children, & &1.display?)
   end
 
   @spec has_children?(TermNode.t()) :: boolean()

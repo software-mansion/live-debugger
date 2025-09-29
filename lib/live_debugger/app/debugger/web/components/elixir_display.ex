@@ -17,7 +17,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   """
 
   attr(:id, :string, required: true)
-  attr(:node, TermParser.TermNode, required: true)
+  attr(:node, TermNode, required: true)
   attr(:level, :integer, default: 1)
 
   def term(assigns) do
@@ -38,7 +38,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
         icon="icon-chevron-right"
         label_class="max-w-max"
         chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
-        {@send_event}
       >
         <:label>
           <div class="flex items-center">
