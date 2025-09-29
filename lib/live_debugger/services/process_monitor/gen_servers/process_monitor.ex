@@ -55,6 +55,13 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
     |> noreply()
   end
 
+  def handle_info(%TraceCalled{function: function, pid: pid, transport_pid: tpid}, state)
+      when not is_map_key(state, pid) and function in [:mount, :handle_params] do
+    state
+    |> ProcessMonitorActions.register_live_view_born!(pid, tpid)
+    |> noreply()
+  end
+
   @impl true
   def handle_info(%TraceReturned{function: :render, pid: pid, cid: cid}, state)
       when is_map_key(state, pid) do
@@ -80,7 +87,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
   end
 
   @impl true
-  def handle_info({:DOWN, _ref, :process, pid, _reason}, state) when is_map_key(state, pid) do
+  def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
     state
     |> ProcessMonitorActions.register_live_view_died!(pid)
     |> noreply()
