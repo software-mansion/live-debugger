@@ -3,6 +3,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
   Actions responsible for saving LiveView process' state.
   """
 
+  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.LiveViewDebug
   alias LiveDebugger.Structs.Trace
@@ -18,6 +19,11 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
     do_save_state!(pid)
   end
 
+  def maybe_save_state!(%Trace{pid: pid, function: function, args: args})
+      when function in [:mount, :handle_params] do
+    do_save_state!(pid, args)
+  end
+
   def maybe_save_state!(%Trace{pid: pid, function: :delete_component, type: :call}) do
     do_save_state!(pid)
   end
@@ -30,5 +36,11 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
       Bus.broadcast_state!(%StateChanged{pid: pid}, pid)
       :ok
     end
+  end
+
+  defp do_save_state!(pid, args) do
+    StatesStorage.save!(%LvState{pid: pid, socket: List.last(args)})
+    Bus.broadcast_state!(%StateChanged{pid: pid}, pid)
+    :ok
   end
 end

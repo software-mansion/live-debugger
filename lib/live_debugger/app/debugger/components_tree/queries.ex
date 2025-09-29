@@ -5,15 +5,20 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Queries do
 
   require Logger
 
+  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.App.Debugger.ComponentsTree.Utils, as: ComponentsTreeUtils
   alias LiveDebugger.App.Debugger.Queries.State, as: StateQueries
 
   @spec fetch_components_tree(pid()) :: {:ok, %{tree: map()}} | {:error, term()}
   def fetch_components_tree(lv_pid) when is_pid(lv_pid) do
-    with {:ok, lv_state} <- StateQueries.get_lv_state(lv_pid),
+    with {:ok, %LvState{components: components} = lv_state} when is_list(components) <-
+           StateQueries.get_lv_state(lv_pid),
          {:ok, tree} <- ComponentsTreeUtils.build_tree(lv_state) do
       {:ok, %{tree: tree}}
     else
+      {:ok, %LvState{components: nil}} ->
+        {:error, :no_components}
+
       error ->
         Logger.error("Failed to build tree: #{inspect(error)}")
         error
