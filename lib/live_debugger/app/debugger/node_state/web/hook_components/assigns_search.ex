@@ -6,7 +6,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch do
 
   use LiveDebugger.App.Web, :hook_component
 
-  @required_assigns [:assign_search_phrase]
+  @required_assigns [:assigns_search_phrase]
 
   @impl true
   def init(socket) do
@@ -18,7 +18,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch do
 
   attr(:placeholder, :string, default: "Search...")
   attr(:disabled?, :boolean, default: false)
-  attr(:assign_search_phrase, :string, default: "", doc: "The current search query for assigns")
+  attr(:assigns_search_phrase, :string, default: "", doc: "The current search query for assigns")
   attr(:input_id, :string, default: "", doc: "The ID of the input element")
 
   @impl true
@@ -41,7 +41,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch do
           id={@input_id}
           disabled={@disabled?}
           placeholder={@placeholder}
-          value={@assign_search_phrase}
+          value={@assigns_search_phrase}
           phx-debounce="150"
           type="text"
           name="search_phrase"
@@ -54,7 +54,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch do
 
   defp handle_event("search", %{"search_phrase" => search_phrase}, socket) do
     socket
-    |> assign(assign_search_phrase: search_phrase)
+    |> assign(assigns_search_phrase: search_phrase)
     |> push_event("search_in_assigns", %{search_phrase: search_phrase})
     |> halt()
   end

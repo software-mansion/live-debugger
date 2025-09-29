@@ -27,7 +27,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   attr(:assigns, :list, required: true)
   attr(:fullscreen_id, :string, required: true)
-  attr(:assign_search_phrase, :string, default: "")
+  attr(:assigns_search_phrase, :string, default: "")
 
   def assigns_section(assigns) do
     ~H"""
@@ -37,7 +37,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           <div class="flex gap-2">
             <AssignsSearch.render
               placeholder="Search assigns"
-              assign_search_phrase={@assign_search_phrase}
+              assigns_search_phrase={@assigns_search_phrase}
               input_id="assigns-search-input"
             />
             <.copy_button
@@ -51,7 +51,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         <div
           id="assigns-display-container"
           class="relative w-full h-max max-h-full p-4 overflow-y-auto"
-          data-search_phrase={@assign_search_phrase}
+          data-search_phrase={@assigns_search_phrase}
         >
           <ElixirDisplay.term id="assigns-display" node={TermParser.term_to_display_tree(@assigns)} />
         </div>
@@ -60,14 +60,14 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         <div class="flex justify-between p-2 border-b border-default-border">
           <AssignsSearch.render
             placeholder="Search assigns"
-            assign_search_phrase={@assign_search_phrase}
+            assigns_search_phrase={@assigns_search_phrase}
             input_id="assigns-search-input-fullscreen"
           />
         </div>
         <div
           id="assigns-display-fullscreen-container"
           class="p-4"
-          data-search_phrase={@assign_search_phrase}
+          data-search_phrase={@assigns_search_phrase}
         >
           <ElixirDisplay.term
             id="assigns-display-fullscreen-term"

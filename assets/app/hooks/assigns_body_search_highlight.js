@@ -1,6 +1,5 @@
 import { findRanges } from '../utils/dom';
 
-let allRanges;
 
 function highlightSearchRanges(allRanges) {
   if (allRanges.length === 0) {
@@ -14,12 +13,11 @@ function highlightSearchRanges(allRanges) {
 
 function handleHighlight(phrase) {
   if (phrase === undefined || phrase === '') {
-    allRanges = [];
     CSS.highlights.clear();
     return;
   }
 
-  allRanges = [];
+  const allRanges = [];
   const assignsFullscreenContainer = document.getElementById(
     'assigns-display-fullscreen-container'
   );

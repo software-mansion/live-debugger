@@ -64,7 +64,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     socket
     |> assign(:lv_process, lv_process)
     |> assign(:node_id, node_id)
-    |> assign(:assign_search_phrase, "")
+    |> assign(:assigns_search_phrase, "")
     |> assign_async_node_assigns()
     |> AssignsSearch.init()
     |> ok()
@@ -85,7 +85,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
         <NodeStateComponents.assigns_section
           assigns={node_assigns}
           fullscreen_id="assigns-display-fullscreen"
-          assign_search_phrase={@assign_search_phrase}
+          assigns_search_phrase={@assigns_search_phrase}
         />
       </.async_result>
     </div>
