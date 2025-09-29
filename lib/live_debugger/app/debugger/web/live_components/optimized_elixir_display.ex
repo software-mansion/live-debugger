@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.OptimizedElixirDisplay do
   use LiveDebugger.App.Web, :live_component
 
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
+  alias LiveDebugger.App.Utils.TermParser
   alias LiveDebugger.App.Utils.TermParser.TermNode
 
   @impl true
@@ -26,7 +27,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.OptimizedElixirDisplay do
 
     ~H"""
     <div id={@id}>
-      <ElixirDisplay.term id={"#{@id}_term"} node={@node} send_event_fn={@send_event_fn} />
+      <.term id={@id} node={@node} />
     </div>
     """
   end
@@ -38,6 +39,46 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.OptimizedElixirDisplay do
     socket
     |> assign(:node, node)
     |> noreply()
+  end
+
+  attr(:id, :string, required: true)
+  attr(:node, TermNode, required: true)
+
+  defp term(assigns) do
+    assigns =
+      assigns
+      |> assign(:open?, TermParser.open?(assigns.node))
+      |> assign(:has_children?, TermParser.has_children?(assigns.node))
+
+    ~H"""
+    <div :if={@node.display?} class="font-code">
+      <%= if @has_children? do %>
+        <div class="flex items-center">
+          <div class="show-on-open">
+            <ElixirDisplay.text_items items={@node.expanded_before} />
+          </div>
+          <div class="hide-on-open">
+            <ElixirDisplay.text_items items={@node.content} />
+          </div>
+        </div>
+
+        <ol class="m-0 ml-[2ch] block list-none p-0">
+          <%= for {child, index} <- Enum.with_index(@node.children) do %>
+            <li class="flex flex-col">
+              <.term id={@id <> "-#{index}"} node={child} />
+            </li>
+          <% end %>
+        </ol>
+        <div class="ml-[2ch]">
+          <ElixirDisplay.text_items items={@node.expanded_after} />
+        </div>
+      <% else %>
+        <div class="ml-[2ch]">
+          <ElixirDisplay.text_items items={@node.content} />
+        </div>
+      <% end %>
+    </div>
+    """
   end
 
   defp send_event_fn(assigns, myself) do

@@ -50,6 +50,19 @@ defmodule LiveDebugger.App.Utils.TermParser do
     |> String.replace(~r/#.+?<.*?>/, &"\"#{&1}\"")
   end
 
+  @spec open?(TermNode.t()) :: boolean()
+  def open?(%TermNode{children: children}) do
+    Enum.all?(children, & &1.display?)
+  end
+
+  @spec has_children?(TermNode.t()) :: boolean()
+  def has_children?(%TermNode{children: []}), do: false
+  def has_children?(%TermNode{}), do: true
+
+  @spec children_number(TermNode.t()) :: integer()
+  def children_number(%TermNode{children: nil}), do: 0
+  def children_number(%TermNode{children: children}), do: length(children)
+
   @spec term_to_display_tree(term()) :: TermNode.t()
   def term_to_display_tree(term) do
     to_node(term, [], "root")
