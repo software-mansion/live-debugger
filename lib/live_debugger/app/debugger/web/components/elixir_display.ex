@@ -52,7 +52,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
         <ol class="m-0 ml-[2ch] block list-none p-0">
           <%= for {child, index} <- Enum.with_index(@node.children) do %>
             <li class="flex flex-col">
-              <.term id={@id <> "-#{index}"} node={child} />
+              <.term id={@id <> "-#{index}"} node={child} level={@level + 1} />
             </li>
           <% end %>
         </ol>

@@ -32,19 +32,19 @@ defmodule LiveDebugger.App.Utils.TermParser do
             id: String.t(),
             kind: String.t(),
             open?: boolean(),
-            children: [TermNode.t()],
+            children: [t()],
             content: [DisplayElement.t()],
             expanded_before: [DisplayElement.t()] | nil,
             expanded_after: [DisplayElement.t()] | nil
           }
 
-    @spec has_children?(TermNode.t()) :: boolean()
-    def has_children?(%TermNode{children: []}), do: false
-    def has_children?(%TermNode{}), do: true
+    @spec has_children?(t()) :: boolean()
+    def has_children?(%__MODULE__{children: []}), do: false
+    def has_children?(%__MODULE__{}), do: true
 
-    @spec children_number(TermNode.t()) :: integer()
-    def children_number(%TermNode{children: nil}), do: 0
-    def children_number(%TermNode{children: children}), do: length(children)
+    @spec children_number(t()) :: integer()
+    def children_number(%__MODULE__{children: nil}), do: 0
+    def children_number(%__MODULE__{children: children}), do: length(children)
   end
 
   @spec term_to_copy_string(term()) :: String.t()
