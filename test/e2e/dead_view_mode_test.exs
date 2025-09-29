@@ -4,6 +4,7 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
   setup_all do
     LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
     LiveDebugger.API.SettingsStorage.save(:dead_view_mode, true)
+    LiveDebugger.API.SettingsStorage.save(:tracing_enabled_on_start, false)
 
     :ok
   end

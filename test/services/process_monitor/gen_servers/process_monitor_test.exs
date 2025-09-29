@@ -251,7 +251,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
       event = {:DOWN, 1, :process, pid2, :normal}
 
       MockBus
-      |> deny(:broadcast_event!, 2)
+      |> expect(:broadcast_event!, fn %LiveViewDied{pid: ^pid2} -> :ok end)
 
       assert {:noreply, ^state} = ProcessMonitor.handle_info(event, state)
     end
