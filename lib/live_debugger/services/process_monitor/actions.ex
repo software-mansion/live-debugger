@@ -35,12 +35,12 @@ defmodule LiveDebugger.Services.ProcessMonitor.Actions do
   def register_live_view_born!(state, pid, transport_pid) do
     Process.monitor(pid)
 
+    Bus.broadcast_event!(%LiveViewBorn{pid: pid, transport_pid: transport_pid})
+
     case LiveViewDebug.live_components(pid) do
       {:ok, components} ->
         node_ids = Enum.map(components, &%Phoenix.LiveComponent.CID{cid: &1.cid})
         new_state = Map.put(state, pid, MapSet.new(node_ids))
-
-        Bus.broadcast_event!(%LiveViewBorn{pid: pid, transport_pid: transport_pid})
 
         new_state
 
