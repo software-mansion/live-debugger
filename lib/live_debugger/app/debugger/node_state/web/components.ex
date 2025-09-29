@@ -31,10 +31,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   def assigns_section(assigns) do
     ~H"""
-    <div
-      id="assigns-section-container"
-      phx-hook="AssignsBodySearchHighlight"
-    >
+    <div id="assigns-section-container" phx-hook="AssignsBodySearchHighlight">
       <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
         <:right_panel>
           <div class="flex gap-2">
