@@ -112,7 +112,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
               />
             </div>
             <div class="flex gap-2 items-center h-8 px-2">
-              <HookComponents.ToggleTracingButton.render tracing_started?={@tracing_started?} />
+              <HookComponents.ToggleTracingButton.render
+                tracing_started?={@tracing_started?}
+                lv_process_alive?={@lv_process.alive?}
+              />
               <%= if not @tracing_started? do %>
                 <HookComponents.RefreshButton.render label_class="hidden @[30rem]/traces:block" />
                 <HookComponents.ClearButton.render label_class="hidden @[30rem]/traces:block" />

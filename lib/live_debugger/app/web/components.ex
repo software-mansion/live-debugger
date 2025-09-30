@@ -92,7 +92,7 @@ defmodule LiveDebugger.App.Web.Components do
     <button
       class={
         [
-          "w-max h-max rounded text-xs font-semibold",
+          "w-max h-max rounded text-xs font-semibold disabled:opacity-50 disabled:pointer-events-none",
           button_color_classes(@variant),
           button_size_classes(@size)
         ] ++
