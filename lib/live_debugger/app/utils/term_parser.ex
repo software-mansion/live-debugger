@@ -196,8 +196,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
     end
   end
 
-  @spec leaf_node(String.t(), TermNode.kind(), [DisplayElement.t()]) :: TermNode.t()
-  defp leaf_node(id_path, kind, content) do
+  defp leaf_node(id_path, kind, content) when is_binary(id_path) and is_atom(kind) do
     %TermNode{
       id: id_path,
       kind: kind,
@@ -208,15 +207,8 @@ defmodule LiveDebugger.App.Utils.TermParser do
     }
   end
 
-  @spec branch_node(
-          String.t(),
-          TermNode.kind(),
-          [DisplayElement.t()],
-          [TermNode.t()],
-          [DisplayElement.t()],
-          [DisplayElement.t()]
-        ) :: TermNode.t()
-  defp branch_node(id_path, kind, content, children, expanded_before, expanded_after) do
+  defp branch_node(id_path, kind, content, children, expanded_before, expanded_after)
+       when is_binary(id_path) and is_atom(kind) do
     %TermNode{
       id: id_path,
       kind: kind,

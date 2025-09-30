@@ -132,4 +132,51 @@ defmodule LiveDebugger.App.Utils.TermDifferTest do
              } = TermDiffer.diff(term1, term2)
     end
   end
+
+  describe "diff_to_id_list/2" do
+    test "returns a list of ids for a diff" do
+      term1 = %{a: 1, b: 2, c: %{d: 3}}
+      term2 = %{a: 1, b: 2, c: %{d: 4}}
+
+      diff = TermDiffer.diff(term1, term2)
+
+      assert TermDiffer.diff_to_id_list(term2, diff) == ["root", "root.2", "root.2.0"]
+    end
+
+    test "works properly with structs" do
+      term1 = %TestStruct1{a: 1, b: 2, c: 3}
+      term2 = %TestStruct1{a: 1, b: 2, c: 4}
+
+      diff = TermDiffer.diff(term1, term2)
+
+      assert TermDiffer.diff_to_id_list(term2, diff) == ["root", "root.2"]
+    end
+
+    test "works properly with tuples" do
+      term1 = {1, 2, 3}
+      term2 = {1, 2, 4}
+
+      diff = TermDiffer.diff(term1, term2)
+
+      assert TermDiffer.diff_to_id_list(term2, diff) == ["root", "root.2"]
+    end
+
+    test "works properly with lists" do
+      term1 = [1, 2, 3]
+      term2 = [1, 2, 4]
+
+      diff = TermDiffer.diff(term1, term2)
+
+      assert TermDiffer.diff_to_id_list(term2, diff) == ["root", "root.2"]
+    end
+
+    test "works properly with maps" do
+      term1 = %{a: 1, c: 3, d: 4}
+      term2 = %{a: 1, b: 2, d: 4}
+
+      diff = TermDiffer.diff(term1, term2)
+
+      assert TermDiffer.diff_to_id_list(term2, diff) == ["root", "root.1"]
+    end
+  end
 end
