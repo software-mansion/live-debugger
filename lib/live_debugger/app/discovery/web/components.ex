@@ -140,7 +140,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
           variant="secondary"
           size="sm"
         >
-          <.icon name="icon-cross" class="w-4 h-4" />
+          <.icon name="icon-trash" class="w-4 h-4" />
         </.button>
       </div>
     </div>
