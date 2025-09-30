@@ -83,7 +83,7 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:variant, :string, default: "primary", values: ["primary", "secondary"])
   attr(:size, :string, default: "md", values: ["md", "sm"])
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
-  attr(:rest, :global, include: ~w(disabled))
+  attr(:rest, :global)
 
   slot(:inner_block, required: true)
 

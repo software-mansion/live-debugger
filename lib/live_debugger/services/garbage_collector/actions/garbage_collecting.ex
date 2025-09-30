@@ -3,7 +3,6 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
   Actions for LiveDebugger.Services.GarbageCollector.
   """
 
-  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.TracesStorage
 
@@ -15,10 +14,8 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
   @watched_table_size 50 * @megabyte_unit
   @non_watched_table_size 5 * @megabyte_unit
 
-  # @spec garbage_collect_traces!(MapSet.t(pid()), MapSet.t(pid())) :: boolean()
-  def garbage_collect_traces!(state, watched_pids, alive_pids) do
-    %{to_remove: to_remove} = state
-
+  @spec garbage_collect_traces!(map(), MapSet.t(pid()), MapSet.t(pid())) :: MapSet.t(pid())
+  def garbage_collect_traces!(%{to_remove: to_remove}, watched_pids, alive_pids) do
     TracesStorage.get_all_tables()
     |> Enum.map(fn {pid, table} ->
       result =
@@ -31,18 +28,11 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
 
       {pid, result}
     end)
-    |> Enum.reduce(MapSet.new(), fn {pid, result}, to_remove ->
-      case result do
-        :to_remove -> MapSet.put(to_remove, pid)
-        _ -> to_remove
-      end
-    end)
+    |> aggregate_results()
   end
 
-  # @spec garbage_collect_states!(MapSet.t(pid()), MapSet.t(pid())) :: boolean()
-  def garbage_collect_states!(state, watched_pids, alive_pids) do
-    %{to_remove: to_remove} = state
-
+  @spec garbage_collect_states!(map(), MapSet.t(pid()), MapSet.t(pid())) :: MapSet.t(pid())
+  def garbage_collect_states!(%{to_remove: to_remove}, watched_pids, alive_pids) do
     StatesStorage.get_all_states()
     |> Enum.map(fn {pid, _} ->
       result =
@@ -54,12 +44,7 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
 
       {pid, result}
     end)
-    |> Enum.reduce(MapSet.new(), fn {pid, result}, to_remove ->
-      case result do
-        :to_remove -> MapSet.put(to_remove, pid)
-        _ -> to_remove
-      end
-    end)
+    |> aggregate_results()
   end
 
   defp watched_or_alive?(pid, watched_pids, alive_pids) do
@@ -88,6 +73,14 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
     StatesStorage.delete!(pid)
     Bus.broadcast_event!(%TableTrimmed{})
     :removed
+  end
+
+  defp aggregate_results(gc_result) do
+    gc_result
+    |> Enum.reduce(MapSet.new(), fn
+      {pid, :to_remove}, acc -> MapSet.put(acc, pid)
+      _, acc -> acc
+    end)
   end
 
   defp max_table_size(:watched), do: @watched_table_size
