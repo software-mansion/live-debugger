@@ -90,9 +90,9 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
     map1_keys = map1 |> Map.keys() |> MapSet.new()
     map2_keys = map2 |> Map.keys() |> MapSet.new()
 
-    keys_del = MapSet.difference(map1_keys, map2_keys)
-    keys_ins = MapSet.difference(map2_keys, map1_keys)
-    keys_diff = MapSet.intersection(map1_keys, map2_keys)
+    keys_del = MapSet.difference(map1_keys, map2_keys) |> MapSet.to_list() |> Enum.sort()
+    keys_ins = MapSet.difference(map2_keys, map1_keys) |> MapSet.to_list() |> Enum.sort()
+    keys_diff = MapSet.intersection(map1_keys, map2_keys) |> MapSet.to_list() |> Enum.sort()
 
     keys_diff_map =
       keys_diff

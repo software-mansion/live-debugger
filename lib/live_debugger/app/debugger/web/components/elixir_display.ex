@@ -85,7 +85,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   defp auto_expand?(%TermNode{}, 1), do: true
 
   defp auto_expand?(%TermNode{} = node, _level) do
-    node.kind == "tuple" and children_number(node) <= @max_auto_expand_size
+    node.kind == :tuple and children_number(node) <= @max_auto_expand_size
   end
 
   defp has_children?(%TermNode{children: []}), do: false
