@@ -7,7 +7,6 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher do
 
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.DebuggerMounted
-  alias LiveDebugger.App.Events.DebuggerTerminated
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
 
@@ -60,7 +59,6 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher do
     {:reply, pids, state}
   end
 
-  @impl true
   def handle_call(:watched_pids, _, state) do
     pids =
       state
@@ -78,22 +76,21 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher do
     |> noreply()
   end
 
-  @impl true
   def handle_info(%LiveViewDied{pid: pid}, state) when is_map_key(state, pid) do
     state
     |> update_live_view_died(pid)
     |> noreply()
   end
 
-  @impl true
   def handle_info(%DebuggerMounted{debugged_pid: debugged_pid, debugger_pid: debugger_pid}, state) do
+    Process.monitor(debugger_pid)
+
     state
     |> add_watcher(debugged_pid, debugger_pid)
     |> noreply()
   end
 
-  @impl true
-  def handle_info(%DebuggerTerminated{debugger_pid: debugger_pid}, state) do
+  def handle_info({:DOWN, _ref, :process, debugger_pid, _reason}, state) do
     state
     |> Enum.find(fn {_, %ProcessInfo{watchers: watchers}} ->
       MapSet.member?(watchers, debugger_pid)
@@ -109,10 +106,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher do
     end
   end
 
-  @impl true
-  def handle_info(_, state) do
-    {:noreply, state}
-  end
+  def handle_info(_, state), do: {:noreply, state}
 
   @spec update_live_view_died(state(), pid()) :: state()
   defp update_live_view_died(state, pid) do

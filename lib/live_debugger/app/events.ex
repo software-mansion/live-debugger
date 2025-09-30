@@ -16,7 +16,6 @@ defmodule LiveDebugger.App.Events do
   defevent(UserRefreshedTrace)
 
   defevent(DebuggerMounted, debugged_pid: pid(), debugger_pid: pid())
-  defevent(DebuggerTerminated, debugger_pid: pid())
 
   defevent(FindSuccessor, lv_process: LvProcess.t())
 end
