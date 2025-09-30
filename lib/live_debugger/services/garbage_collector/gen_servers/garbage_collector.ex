@@ -28,7 +28,8 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
 
     {:ok,
      %{
-       garbage_collection_enabled?: SettingsStorage.get(:garbage_collection)
+       garbage_collection_enabled?: SettingsStorage.get(:garbage_collection),
+       to_remove: MapSet.new()
      }}
   end
 
@@ -37,16 +38,12 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
     watched_pids = TableWatcher.watched_pids()
     alive_pids = TableWatcher.alive_pids()
 
-    traces_collected = GarbageCollectingActions.garbage_collect_traces!(watched_pids, alive_pids)
-    states_collected = GarbageCollectingActions.garbage_collect_states!(watched_pids, alive_pids)
-
-    if traces_collected or states_collected do
-      Bus.broadcast_event!(%GarbageCollected{})
-    end
+    to_remove1 = GarbageCollectingActions.garbage_collect_traces!(state, watched_pids, alive_pids)
+    to_remove2 = GarbageCollectingActions.garbage_collect_states!(state, watched_pids, alive_pids)
 
     loop_garbage_collection()
 
-    {:noreply, state}
+    {:noreply, %{state | to_remove: MapSet.union(to_remove1, to_remove2)}}
   end
 
   # Handle messages related to ETS table transfers from TracesStorage
