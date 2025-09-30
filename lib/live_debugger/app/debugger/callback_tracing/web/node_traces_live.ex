@@ -98,7 +98,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
       <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
         <:right_panel>
           <div class="flex gap-2 items-center">
-            <HookComponents.ToggleTracingButton.render tracing_started?={@tracing_started?} />
+            <HookComponents.ToggleTracingButton.render
+              tracing_started?={@tracing_started?}
+              lv_process_alive?={@lv_process.alive?}
+            />
             <%= if not @tracing_started? do %>
               <HookComponents.RefreshButton.render label_class="hidden @[30rem]/traces:block" />
               <HookComponents.ClearButton.render label_class="hidden @[30rem]/traces:block" />
