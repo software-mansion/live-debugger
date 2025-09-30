@@ -4,6 +4,10 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
   """
 
   defmodule Diff do
+    @moduledoc """
+    Struct for representing a diff between two terms.
+    """
+
     defstruct [:type, ins: [], del: [], diff: nil]
 
     @type type() :: :map | :list | :tuple | :struct | :primitive
@@ -60,8 +64,8 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
       |> List.myers_difference(list2)
       |> Enum.group_by(fn {key, _} -> key end, fn {_, values} -> values end)
 
-    ins_values = Map.get(diffs, :ins, []) |> List.flatten()
-    del_values = Map.get(diffs, :del, []) |> List.flatten()
+    ins_values = diffs |> Map.get(:ins, []) |> List.flatten()
+    del_values = diffs |> Map.get(:del, []) |> List.flatten()
 
     ins_indexes = indexes_from_values(ins_values, list2)
     del_indexes = indexes_from_values(del_values, list1)
@@ -83,17 +87,15 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
   end
 
   defp do_map_index_diff(map1, map2) do
-    map1_keys = Map.keys(map1)
-    map2_keys = Map.keys(map2)
+    map1_keys = map1 |> Map.keys() |> MapSet.new()
+    map2_keys = map2 |> Map.keys() |> MapSet.new()
 
-    key_del = map1_keys -- map2_keys
-    key_ins = map2_keys -- map1_keys
+    keys_del = MapSet.difference(map1_keys, map2_keys)
+    keys_ins = MapSet.difference(map2_keys, map1_keys)
+    keys_diff = MapSet.intersection(map1_keys, map2_keys)
 
-    key_diff =
-      MapSet.intersection(MapSet.new(map1_keys), MapSet.new(map2_keys))
-
-    key_diff_map =
-      key_diff
+    keys_diff_map =
+      keys_diff
       |> Enum.map(fn key ->
         value1 = Map.fetch!(map1, key)
         value2 = Map.fetch!(map2, key)
@@ -108,6 +110,6 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
         diffs -> Enum.into(diffs, %{})
       end
 
-    {key_ins, key_del, key_diff_map}
+    {keys_ins, keys_del, keys_diff_map}
   end
 end
