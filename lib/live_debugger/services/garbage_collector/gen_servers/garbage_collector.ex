@@ -12,7 +12,6 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
     as: GarbageCollectingActions
 
   alias LiveDebugger.Bus
-  alias LiveDebugger.Services.GarbageCollector.Events.GarbageCollected
   alias LiveDebugger.App.Events.UserChangedSettings
 
   @garbage_collect_interval 2000

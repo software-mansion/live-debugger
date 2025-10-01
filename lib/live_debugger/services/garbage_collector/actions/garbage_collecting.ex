@@ -3,7 +3,6 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
   Actions for LiveDebugger.Services.GarbageCollector.
   """
 
-  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.TracesStorage
 

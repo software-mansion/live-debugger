@@ -26,6 +26,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
     end
 
     socket
+    |> assign(dead_liveviews?: true)
     |> assign_async_grouped_lv_processes()
     |> assign_async_dead_grouped_lv_processes()
     |> ok()
@@ -52,13 +53,20 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
           </div>
         </div>
         <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
-          <DiscoveryComponents.header title="Recently Died LiveViews" />
+          <DiscoveryComponents.header title="Recently Died LiveViews" disabled?={!@dead_liveviews?}>
+            <.toggle_switch
+              id="dead-liveviews"
+              checked={@dead_liveviews?}
+              phx-click="toggle-dead-liveviews"
+            />
+          </DiscoveryComponents.header>
 
-          <div class="mt-6">
+          <div :if={@dead_liveviews?} class="mt-6">
             <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
               <:loading><DiscoveryComponents.loading /></:loading>
               <:failed><DiscoveryComponents.failed /></:failed>
               <DiscoveryComponents.live_sessions
+                dead?={true}
                 id="dead-sessions"
                 grouped_lv_processes={dead_grouped_lv_processes}
               />
@@ -75,6 +83,12 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
     socket
     |> assign_async_grouped_lv_processes()
     |> assign_async_dead_grouped_lv_processes()
+    |> noreply()
+  end
+
+  def handle_event("toggle-dead-liveviews", _params, socket) do
+    socket
+    |> update(:dead_liveviews?, &(not &1))
     |> noreply()
   end
 
