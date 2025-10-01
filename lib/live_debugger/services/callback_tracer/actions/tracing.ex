@@ -18,7 +18,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
         raise "Couldn't start tracer: #{inspect(error)}"
     end
 
-    Dbg.process([:c, :timestamp])
     apply_trace_patterns()
 
     if SettingsStorage.get(:tracing_update_on_code_reload) do

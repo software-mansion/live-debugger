@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ToggleTra
 
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
+  alias LiveDebugger.API.System.Dbg
 
   @separator HookComponents.Stream.separator_stream_element()
 
@@ -41,6 +42,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ToggleTra
   end
 
   defp handle_event("switch-tracing", _, socket) do
+    apply_process_pattern(socket)
+
     socket
     |> Hooks.TracingFuse.switch_tracing()
     |> case do
@@ -56,4 +59,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ToggleTra
   end
 
   defp handle_event(_, _, socket), do: {:cont, socket}
+
+  defp apply_process_pattern(%{assigns: %{tracing_started?: false, lv_process: lv_process}}) do
+    :dbg.p(lv_process.pid, [:c, :timestamp]) |> dbg()
+  end
+
+  defp apply_process_pattern(%{assigns: %{tracing_started?: true, lv_process: lv_process}}) do
+    :dbg.p(lv_process.pid, :clear) |> dbg()
+  end
 end
