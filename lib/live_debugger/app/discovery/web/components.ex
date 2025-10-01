@@ -5,17 +5,23 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
 
   use LiveDebugger.App.Web, :component
 
+  alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
   attr(:title, :string, required: true)
+  attr(:disabled?, :boolean, default: false)
+  slot(:inner_block)
 
   def header(assigns) do
     ~H"""
-    <div class="flex items-center justify-between">
-      <.h1><%= @title %></.h1>
-      <.button phx-click="refresh">
+    <div class="flex items-center gap-2">
+      <.h1 class={if(@disabled?, do: "opacity-30")}><%= @title %></.h1>
+      <div class="flex-1">
+        <%= render_slot(@inner_block) %>
+      </div>
+      <.button phx-click="refresh" disabled={@disabled?}>
         <div class="flex items-center gap-2">
           <.icon name="icon-refresh" class="w-4 h-4" />
           <p>Refresh</p>
@@ -42,14 +48,32 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   end
 
   attr(:id, :string, default: "live-sessions")
+  attr(:dead?, :boolean, default: false)
   attr(:grouped_lv_processes, :map, default: %{})
 
   def live_sessions(assigns) do
     ~H"""
     <div id={@id} class="flex flex-col gap-4">
+      <div :if={@dead?} class="p-4 bg-surface-0-bg rounded shadow-custom border border-warning-text">
+        <p class="text-warning-text text-center">
+          <%= if SettingsStorage.get(:garbage_collection) do %>
+            LiveViews listed below are not active anymore and they will be removed in a short time (usually within 2 seconds).
+            If you want to keep them for a longer time you may do so by disabling
+            <b>Garbage Collection</b>
+            in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>. But be aware that this will lead to increased memory usage.
+          <% else %>
+            You have <b>Garbage Collection</b>
+            disabled which means that LiveViews listed below will not be removed automatically.
+            This will lead to increased memory usage. You can enable it
+            in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>.
+          <% end %>
+        </p>
+      </div>
       <%= if Enum.empty?(@grouped_lv_processes)  do %>
         <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
-          <p class="text-secondary-text text-center">No active LiveViews</p>
+          <p class="text-secondary-text text-center">
+            <%= if @dead?, do: "No recently died LiveViews", else: "No active LiveViews" %>
+          </p>
         </div>
       <% else %>
         <.tab_group
