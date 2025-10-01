@@ -5,6 +5,7 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
 
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.TracesStorage
+  alias LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
@@ -14,7 +15,12 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
   @watched_table_size 50 * @megabyte_unit
   @non_watched_table_size 5 * @megabyte_unit
 
-  @spec garbage_collect_traces!(map(), MapSet.t(pid()), MapSet.t(pid())) :: MapSet.t(pid())
+  @doc """
+  Performs garbage collection on traces based on `to_remove`, `watched_pids`, and `alive_pids` sets.
+  Returns a set of PIDs marked for removal in next cycle.
+  """
+  @spec garbage_collect_traces!(GarbageCollector.state(), MapSet.t(pid()), MapSet.t(pid())) ::
+          to_remove :: MapSet.t(pid())
   def garbage_collect_traces!(%{to_remove: to_remove}, watched_pids, alive_pids) do
     TracesStorage.get_all_tables()
     |> Enum.map(fn {pid, table} ->
@@ -31,7 +37,12 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
     |> aggregate_results()
   end
 
-  @spec garbage_collect_states!(map(), MapSet.t(pid()), MapSet.t(pid())) :: MapSet.t(pid())
+  @doc """
+  Performs garbage collection on states based on `to_remove`, `watched_pids`, and `alive_pids` sets.
+  Returns a set of PIDs marked for removal in next cycle.
+  """
+  @spec garbage_collect_states!(GarbageCollector.state(), MapSet.t(pid()), MapSet.t(pid())) ::
+          to_remove :: MapSet.t(pid())
   def garbage_collect_states!(%{to_remove: to_remove}, watched_pids, alive_pids) do
     StatesStorage.get_all_states()
     |> Enum.map(fn {pid, _} ->

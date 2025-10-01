@@ -16,6 +16,11 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
 
   @garbage_collect_interval 2000
 
+  @type state :: %{
+          garbage_collection_enabled?: boolean(),
+          to_remove: MapSet.t(pid())
+        }
+
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
@@ -46,26 +51,20 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
   end
 
   # Handle messages related to ETS table transfers from TracesStorage
-  @impl true
   def handle_info({:"ETS-TRANSFER", _ref, _from, _}, state) do
     {:noreply, state}
   end
 
-  @impl true
   def handle_info(%UserChangedSettings{key: :garbage_collection, value: true}, state) do
     resume_garbage_collection()
     {:noreply, Map.put(state, :garbage_collection_enabled?, true)}
   end
 
-  @impl true
   def handle_info(%UserChangedSettings{key: :garbage_collection, value: false}, state) do
     {:noreply, Map.put(state, :garbage_collection_enabled?, false)}
   end
 
-  @impl true
-  def handle_info(_, state) do
-    {:noreply, state}
-  end
+  def handle_info(_, state), do: {:noreply, state}
 
   defp loop_garbage_collection() do
     Process.send_after(
