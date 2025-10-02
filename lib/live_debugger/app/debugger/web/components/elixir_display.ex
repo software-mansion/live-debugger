@@ -6,8 +6,8 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.App.Utils.TermParser.DisplayElement
   alias LiveDebugger.App.Utils.TermParser.TermNode
+  alias LiveDebugger.App.Utils.TermParser.DisplayElement
 
   @max_auto_expand_size 6
 
@@ -22,8 +22,8 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   def term(assigns) do
     assigns =
       assigns
-      |> assign(:expanded?, auto_expand?(assigns.node, assigns.level))
-      |> assign(:has_children?, has_children?(assigns.node))
+      |> assign(:auto_open?, auto_open?(assigns.node, assigns.level))
+      |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
     <div class="font-code">
@@ -33,7 +33,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
       <.collapsible
         :if={@has_children?}
         id={@id <> "collapsible"}
-        open={@expanded?}
+        open={@auto_open?}
         icon="icon-chevron-right"
         label_class="max-w-max"
         chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
@@ -66,7 +66,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   attr(:items, :list, required: true)
 
-  defp text_items(assigns) do
+  def text_items(assigns) do
     ~H"""
     <div class="flex">
       <%= for item <- @items do %>
@@ -82,15 +82,9 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
     if color, do: "#{color}", else: ""
   end
 
-  defp auto_expand?(%TermNode{}, 1), do: true
+  defp auto_open?(%TermNode{}, 1), do: true
 
-  defp auto_expand?(%TermNode{} = node, _level) do
-    node.kind == "tuple" and children_number(node) <= @max_auto_expand_size
+  defp auto_open?(%TermNode{} = node, _level) do
+    node.kind == "tuple" and TermNode.children_number(node) <= @max_auto_expand_size
   end
-
-  defp has_children?(%TermNode{children: []}), do: false
-  defp has_children?(%TermNode{}), do: true
-
-  defp children_number(%TermNode{children: nil}), do: 0
-  defp children_number(%TermNode{children: children}), do: length(children)
 end
