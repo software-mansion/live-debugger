@@ -44,7 +44,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
       </NavbarComponents.navbar>
       <div class="h-full flex flex-col">
         <div class="h-3/7 overflow-hidden max-lg:p-8 pt-8 lg:w-[60rem] lg:mx-auto">
-          <DiscoveryComponents.header title="Active LiveViews" />
+          <DiscoveryComponents.header title="Active LiveViews" refresh_event="refresh-active" />
 
           <div class="mt-6 max-h-92 overflow-y-auto">
             <.async_result :let={grouped_lv_processes} assign={@grouped_lv_processes}>
@@ -55,7 +55,11 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
           </div>
         </div>
         <div class="h-3/7 max-lg:p-8 pt-8 lg:w-[60rem] lg:mx-auto">
-          <DiscoveryComponents.header title="Recently Died LiveViews" disabled?={!@dead_liveviews?}>
+          <DiscoveryComponents.header
+            title="Recently Died LiveViews"
+            refresh_event="refresh-dead"
+            disabled?={!@dead_liveviews?}
+          >
             <.toggle_switch
               id="dead-liveviews"
               checked={@dead_liveviews?}
@@ -98,9 +102,14 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   end
 
   @impl true
-  def handle_event("refresh", _params, socket) do
+  def handle_event("refresh-active", _params, socket) do
     socket
     |> assign_async_grouped_lv_processes()
+    |> noreply()
+  end
+
+  def handle_event("refresh-dead", _params, socket) do
+    socket
     |> assign_async_dead_grouped_lv_processes()
     |> noreply()
   end
@@ -108,6 +117,14 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   def handle_event("toggle-dead-liveviews", _params, socket) do
     socket
     |> update(:dead_liveviews?, &(not &1))
+    |> case do
+      %{assigns: %{dead_liveviews?: true}} = socket ->
+        socket
+        |> assign_async_dead_grouped_lv_processes()
+
+      socket ->
+        socket
+    end
     |> noreply()
   end
 
@@ -163,11 +180,16 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   end
 
   defp assign_async_dead_grouped_lv_processes(socket) do
-    assign_async(
-      socket,
-      :dead_grouped_lv_processes,
-      &fetch_dead_grouped_lv_processes/0
-    )
+    if socket.assigns.dead_liveviews? do
+      assign_async(
+        socket,
+        :dead_grouped_lv_processes,
+        &fetch_dead_grouped_lv_processes/0,
+        reset: true
+      )
+    else
+      socket
+    end
   end
 
   defp fetch_dead_grouped_lv_processes() do

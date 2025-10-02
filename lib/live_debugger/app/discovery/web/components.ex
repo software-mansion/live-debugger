@@ -11,6 +11,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
   attr(:title, :string, required: true)
+  attr(:refresh_event, :string, required: true)
   attr(:disabled?, :boolean, default: false)
   slot(:inner_block)
 
@@ -21,7 +22,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
       <div class="flex-1">
         <%= render_slot(@inner_block) %>
       </div>
-      <.button phx-click="refresh" disabled={@disabled?}>
+      <.button phx-click={@refresh_event} disabled={@disabled?}>
         <div class="flex items-center gap-2">
           <.icon name="icon-refresh" class="w-4 h-4" />
           <p>Refresh</p>
