@@ -36,7 +36,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         <:right_panel>
           <div class="flex gap-2">
             <AssignsSearch.render
-              placeholder="Search assigns"
               assigns_search_phrase={@assigns_search_phrase}
               input_id="assigns-search-input"
             />
