@@ -5,7 +5,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
 
   use LiveDebugger.App.Web, :live_view
 
-  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Assigns.Filters, as: FiltersAssigns
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents

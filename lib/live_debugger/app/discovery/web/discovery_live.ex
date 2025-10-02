@@ -8,14 +8,11 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
-  alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.Structs.LvState
-  alias LiveDebugger.API.StatesStorage
-  alias LiveDebugger.API.LiveViewDiscovery
   alias LiveDebugger.App.Discovery.Web.Components, as: DiscoveryComponents
   alias LiveDebugger.App.Web.Components.Navbar, as: NavbarComponents
-  alias LiveDebugger.App.Discovery.Queries, as: DiscoveryQueries
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.App.Discovery.Queries, as: DiscoveryQueries
+  alias LiveDebugger.App.Discovery.Actions, as: DiscoveryActions
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
@@ -119,8 +116,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
     |> update(:dead_liveviews?, &(not &1))
     |> case do
       %{assigns: %{dead_liveviews?: true}} = socket ->
-        socket
-        |> assign_async_dead_grouped_lv_processes()
+        assign_async_dead_grouped_lv_processes(socket)
 
       socket ->
         socket
@@ -129,21 +125,10 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   end
 
   def handle_event("remove-lv-process", %{"pid" => string_pid}, socket) do
-    string_pid
-    |> Parsers.string_to_pid()
-    |> case do
-      {:ok, pid} ->
-        StatesStorage.delete!(pid)
+    {:ok, pid} = Parsers.string_to_pid(string_pid)
+    DiscoveryActions.remove_lv_process_state(pid)
 
-        StatesStorage.get_all_states()
-        |> Enum.filter(fn {_, %LvState{socket: socket}} -> socket.root_pid == pid end)
-        |> Enum.each(fn {pid, _} -> StatesStorage.delete!(pid) end)
-
-        socket
-
-      :error ->
-        socket
-    end
+    socket
     |> assign_async_dead_grouped_lv_processes()
     |> noreply()
   end
@@ -184,21 +169,11 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
       assign_async(
         socket,
         :dead_grouped_lv_processes,
-        &fetch_dead_grouped_lv_processes/0,
+        &DiscoveryQueries.fetch_dead_grouped_lv_processes/0,
         reset: true
       )
     else
       socket
     end
-  end
-
-  defp fetch_dead_grouped_lv_processes() do
-    dead_lv_processes =
-      StatesStorage.get_all_states()
-      |> Enum.filter(fn {pid, %LvState{}} -> not Process.alive?(pid) end)
-      |> Enum.map(&elem(&1, 1))
-      |> Enum.map(&(LvProcess.new(&1.pid, &1.socket) |> LvProcess.set_alive(false)))
-
-    {:ok, %{dead_grouped_lv_processes: LiveViewDiscovery.group_lv_processes(dead_lv_processes)}}
   end
 end
