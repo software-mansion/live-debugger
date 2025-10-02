@@ -2,7 +2,13 @@ defmodule LiveDebugger.API.System.Process do
   @moduledoc """
   This module provides wrappers for system functions that queries processes in the current application.
 
-  It is discouraged to use it
+  ## Deprecated
+
+  This module is deprecated and will be removed in a future version.
+  It is only used to support Phoenix LiveView versions prior to 1.1.0.
+  Once the minimum LiveView version is bumped to 1.1.0, this module will be deleted.
+
+  It is discouraged to use it directly.
   It will be entirely moved to `LiveDebugger.API.LiveViewDebug` in the future.
 
   https://github.com/software-mansion/live-debugger/issues/577
@@ -11,21 +17,15 @@ defmodule LiveDebugger.API.System.Process do
   @callback state(pid :: pid()) :: {:ok, term()} | {:error, term()}
   @callback list() :: [pid()]
 
-  @doc """
-  Wrapper for `Process.info/2` with some additional logic that returns the initial call of the process.
-  """
+  @doc deprecated: "This module is deprecated and will be removed in a future version"
   @spec initial_call(pid :: pid()) :: {:ok, mfa()} | {:error, term()}
   def initial_call(pid), do: impl().initial_call(pid)
 
-  @doc """
-  Wrapper for `:sys.get_state/1` with additional error handling that returns the state of the process.
-  """
+  @doc deprecated: "This module is deprecated and will be removed in a future version"
   @spec state(pid :: pid()) :: {:ok, term()} | {:error, term()}
   def state(pid), do: impl().state(pid)
 
-  @doc """
-  Wrapper for `Process.list/0` that returns a list of pids.
-  """
+  @doc deprecated: "This module is deprecated and will be removed in a future version"
   @spec list() :: [pid()]
   def list(), do: impl().list()
 
