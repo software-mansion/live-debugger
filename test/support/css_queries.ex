@@ -39,6 +39,14 @@ defmodule LiveDebugger.Support.CssQueries do
     css("#trace-search-input")
   end
 
+  def assigns_search_bar() do
+    css("#assigns-search-input")
+  end
+
+  def assigns_search_bar_fullscreen() do
+    css("#assigns-search-input-fullscreen")
+  end
+
   def inspect_tooltip_module_text(text) do
     css("div#live-debugger-tooltip div.live-debugger-tooltip-module", text: text)
   end

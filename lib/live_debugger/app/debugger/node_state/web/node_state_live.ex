@@ -11,6 +11,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   alias LiveDebugger.App.Debugger.NodeState.Web.Components, as: NodeStateComponents
   alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
 
+  alias LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch
+
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
@@ -62,7 +64,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     socket
     |> assign(:lv_process, lv_process)
     |> assign(:node_id, node_id)
+    |> assign(:assigns_search_phrase, "")
     |> assign_async_node_assigns()
+    |> AssignsSearch.init()
     |> ok()
   end
 
@@ -81,6 +85,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
         <NodeStateComponents.assigns_section
           assigns={node_assigns}
           fullscreen_id="assigns-display-fullscreen"
+          assigns_search_phrase={@assigns_search_phrase}
         />
       </.async_result>
     </div>

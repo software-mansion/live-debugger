@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Utils.TermParser
+  alias LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch
 
   def loading(assigns) do
     ~H"""
@@ -26,32 +27,54 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   attr(:assigns, :list, required: true)
   attr(:fullscreen_id, :string, required: true)
+  attr(:assigns_search_phrase, :string, default: "")
 
   def assigns_section(assigns) do
     ~H"""
-    <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
-      <:right_panel>
-        <div class="flex gap-2">
-          <.copy_button
-            id="assigns-copy-button"
-            variant="icon-button"
-            value={TermParser.term_to_copy_string(@assigns)}
-          />
-          <.fullscreen_button id={@fullscreen_id} />
+    <div id="assigns-section-container" phx-hook="AssignsBodySearchHighlight">
+      <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
+        <:right_panel>
+          <div class="flex gap-2">
+            <AssignsSearch.render
+              assigns_search_phrase={@assigns_search_phrase}
+              input_id="assigns-search-input"
+            />
+            <.copy_button
+              id="assigns-copy-button"
+              variant="icon-button"
+              value={TermParser.term_to_copy_string(@assigns)}
+            />
+            <.fullscreen_button id={@fullscreen_id} />
+          </div>
+        </:right_panel>
+        <div
+          id="assigns-display-container"
+          class="relative w-full h-max max-h-full p-4 overflow-y-auto"
+          data-search_phrase={@assigns_search_phrase}
+        >
+          <ElixirDisplay.term id="assigns-display" node={TermParser.term_to_display_tree(@assigns)} />
         </div>
-      </:right_panel>
-      <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
-        <ElixirDisplay.term id="assigns-display" node={TermParser.term_to_display_tree(@assigns)} />
-      </div>
-    </.section>
-    <.fullscreen id={@fullscreen_id} title="Assigns">
-      <div class="p-4">
-        <ElixirDisplay.term
-          id="assigns-display-fullscreen-term"
-          node={TermParser.term_to_display_tree(@assigns)}
-        />
-      </div>
-    </.fullscreen>
+      </.section>
+      <.fullscreen id={@fullscreen_id} title="Assigns">
+        <div class="flex justify-between p-2 border-b border-default-border">
+          <AssignsSearch.render
+            placeholder="Search assigns"
+            assigns_search_phrase={@assigns_search_phrase}
+            input_id="assigns-search-input-fullscreen"
+          />
+        </div>
+        <div
+          id="assigns-display-fullscreen-container"
+          class="p-4"
+          data-search_phrase={@assigns_search_phrase}
+        >
+          <ElixirDisplay.term
+            id="assigns-display-fullscreen-term"
+            node={TermParser.term_to_display_tree(@assigns)}
+          />
+        </div>
+      </.fullscreen>
+    </div>
     """
   end
 end
