@@ -54,21 +54,6 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   def live_sessions(assigns) do
     ~H"""
     <div id={@id} class="flex flex-col gap-4">
-      <div :if={@dead?} class="p-4 bg-surface-0-bg rounded shadow-custom border border-warning-text">
-        <p class="text-warning-text text-center">
-          <%= if SettingsStorage.get(:garbage_collection) do %>
-            LiveViews listed below are not active anymore and they will be removed in a short time (usually within 2 seconds).
-            If you want to keep them for a longer time you may do so by disabling
-            <b>Garbage Collection</b>
-            in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>. But be aware that this will lead to increased memory usage.
-          <% else %>
-            You have <b>Garbage Collection</b>
-            disabled which means that LiveViews listed below will not be removed automatically.
-            This will lead to increased memory usage. You can enable it
-            in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>.
-          <% end %>
-        </p>
-      </div>
       <%= if Enum.empty?(@grouped_lv_processes)  do %>
         <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
           <p class="text-secondary-text text-center">

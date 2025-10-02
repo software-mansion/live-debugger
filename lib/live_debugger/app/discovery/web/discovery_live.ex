@@ -5,6 +5,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
   alias LiveDebugger.Structs.LvProcess
@@ -14,6 +15,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   alias LiveDebugger.App.Discovery.Web.Components, as: DiscoveryComponents
   alias LiveDebugger.App.Web.Components.Navbar, as: NavbarComponents
   alias LiveDebugger.App.Discovery.Queries, as: DiscoveryQueries
+  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
@@ -35,16 +37,16 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
+    <div class="h-full flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
       <NavbarComponents.navbar class="flex justify-between">
         <NavbarComponents.live_debugger_logo />
         <NavbarComponents.settings_button return_to={@url} />
       </NavbarComponents.navbar>
-      <div>
-        <div class="min-h-92 flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
+      <div class="h-full flex flex-col">
+        <div class="h-3/7 overflow-hidden max-lg:p-8 pt-8 lg:w-[60rem] lg:mx-auto">
           <DiscoveryComponents.header title="Active LiveViews" />
 
-          <div class="mt-6">
+          <div class="mt-6 max-h-92 overflow-y-auto">
             <.async_result :let={grouped_lv_processes} assign={@grouped_lv_processes}>
               <:loading><DiscoveryComponents.loading /></:loading>
               <:failed><DiscoveryComponents.failed /></:failed>
@@ -52,7 +54,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
             </.async_result>
           </div>
         </div>
-        <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
+        <div class="h-3/7 max-lg:p-8 pt-8 lg:w-[60rem] lg:mx-auto">
           <DiscoveryComponents.header title="Recently Died LiveViews" disabled?={!@dead_liveviews?}>
             <.toggle_switch
               id="dead-liveviews"
@@ -61,16 +63,33 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
             />
           </DiscoveryComponents.header>
 
-          <div :if={@dead_liveviews?} class="mt-6">
-            <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
-              <:loading><DiscoveryComponents.loading /></:loading>
-              <:failed><DiscoveryComponents.failed /></:failed>
-              <DiscoveryComponents.live_sessions
-                dead?={true}
-                id="dead-sessions"
-                grouped_lv_processes={dead_grouped_lv_processes}
-              />
-            </.async_result>
+          <div :if={@dead_liveviews?}>
+            <div class="mt-6 p-4 bg-surface-0-bg rounded shadow-custom border border-warning-text">
+              <p class="text-warning-text text-center">
+                <%= if SettingsStorage.get(:garbage_collection) do %>
+                  LiveViews listed below are not active anymore and they will be removed in a short time (usually within 2 seconds).
+                  If you want to keep them for a longer time you may do so by disabling
+                  <b>Garbage Collection</b>
+                  in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>. But be aware that this will lead to increased memory usage.
+                <% else %>
+                  You have <b>Garbage Collection</b>
+                  disabled which means that LiveViews listed below will not be removed automatically.
+                  This will lead to increased memory usage. You can enable it
+                  in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>.
+                <% end %>
+              </p>
+            </div>
+            <div class="mt-6 max-h-92 overflow-y-auto">
+              <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
+                <:loading><DiscoveryComponents.loading /></:loading>
+                <:failed><DiscoveryComponents.failed /></:failed>
+                <DiscoveryComponents.live_sessions
+                  dead?={true}
+                  id="dead-sessions"
+                  grouped_lv_processes={dead_grouped_lv_processes}
+                />
+              </.async_result>
+            </div>
           </div>
         </div>
       </div>
