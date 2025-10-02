@@ -80,6 +80,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
           :for={{transport_pid, grouped_lv_processes} <- @grouped_lv_processes}
           transport_pid={transport_pid}
           grouped_lv_processes={grouped_lv_processes}
+          dead?={@dead?}
         />
       <% end %>
     </div>
@@ -88,6 +89,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
 
   attr(:transport_pid, :any, required: true)
   attr(:grouped_lv_processes, :list, required: true)
+  attr(:dead?, :boolean, default: false)
 
   def tab_group(assigns) do
     ~H"""
@@ -101,13 +103,13 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
         <.list elements={@grouped_lv_processes}>
           <:item :let={{root_lv_process, lv_processes}}>
             <div class="flex items-center w-full">
-              <.list_element lv_process={root_lv_process} />
+              <.list_element lv_process={root_lv_process} dead?={@dead?} />
             </div>
             <.list elements={lv_processes} item_class="group" class="pr-0">
               <:item :let={lv_process}>
                 <div class="flex items-center w-full">
                   <.nested_indent />
-                  <.list_element lv_process={lv_process} />
+                  <.list_element lv_process={lv_process} dead?={@dead?} />
                 </div>
               </:item>
             </.list>
@@ -130,6 +132,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   end
 
   attr(:lv_process, LvProcess, required: true)
+  attr(:dead?, :boolean, default: false)
 
   defp list_element(assigns) do
     ~H"""
@@ -157,7 +160,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
           />
         </div>
       </.link>
-      <div class="pl-3">
+      <div :if={@dead?} class="pl-3">
         <.button
           phx-click="remove-lv-process"
           phx-value-pid={@lv_process.pid |> Parsers.pid_to_string()}

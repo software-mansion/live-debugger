@@ -5,6 +5,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  alias Phoenix.LiveView.AsyncResult
+  alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Assigns.Filters, as: FiltersAssigns
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
@@ -158,6 +160,16 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
     |> assign(:node_id, node_id)
     |> FiltersAssigns.assign_current_filters()
     |> Hooks.ExistingTraces.assign_async_existing_traces()
+    |> noreply()
+  end
+
+  def handle_info(
+        %DeadViewModeEntered{debugger_pid: pid},
+        %{assigns: %{parent_pid: pid}} = socket
+      ) do
+    socket
+    |> assign(:lv_process, socket.assigns.lv_process |> LvProcess.set_alive(false))
+    |> Hooks.TracingFuse.clear_tracing()
     |> noreply()
   end
 
