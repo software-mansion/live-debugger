@@ -1,6 +1,5 @@
 import { findRanges } from '../utils/dom';
 
-
 function highlightSearchRanges(allRanges) {
   if (allRanges.length === 0) {
     CSS.highlights.clear();
