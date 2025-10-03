@@ -6,6 +6,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.LiveViewDebug
   alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Structs.LvState
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
@@ -16,6 +17,11 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
   @spec maybe_save_state!(Trace.t()) :: :ok
   def maybe_save_state!(%Trace{pid: pid, function: :render, type: :return_from}) do
     do_save_state!(pid)
+  end
+
+  def maybe_save_state!(%Trace{pid: pid, function: function, args: [_, _, socket]})
+      when function in [:mount, :handle_params] do
+    do_save_initial_state!(pid, socket)
   end
 
   def maybe_save_state!(%Trace{pid: pid, function: :delete_component, type: :call}) do
@@ -30,5 +36,11 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
       Bus.broadcast_state!(%StateChanged{pid: pid}, pid)
       :ok
     end
+  end
+
+  defp do_save_initial_state!(pid, socket) do
+    StatesStorage.save!(%LvState{pid: pid, socket: socket})
+    Bus.broadcast_state!(%StateChanged{pid: pid}, pid)
+    :ok
   end
 end

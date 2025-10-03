@@ -5,7 +5,6 @@ defmodule LiveDebugger.Services.GarbageCollector.Events do
 
   use LiveDebugger.Event
 
-  defevent(GarbageCollected)
   defevent(TableDeleted)
   defevent(TableTrimmed)
 end
