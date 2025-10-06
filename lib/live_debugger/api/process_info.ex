@@ -92,7 +92,7 @@ defmodule LiveDebugger.API.ProcessInfo do
     try do
       case :erlang.process_info(pid, item_list()) do
         raw_info when is_list(raw_info) ->
-          {:ok, struct(ProcessInfo, extract_process_info(raw_info, word_size))}
+          {:ok, struct(__MODULE__, extract_process_info(raw_info, word_size))}
 
         _ ->
           {:error, :process_undefined}
