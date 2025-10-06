@@ -116,4 +116,41 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     </div>
     """
   end
+
+  defp assigns_heap_size(assigns) do
+    assigns |> Memory.term_heap_size() |> Memory.bytes_to_pretty_string()
+  end
+
+  defp assigns_serialized_size(assigns) do
+    assigns |> Memory.serialized_term_size() |> Memory.bytes_to_pretty_string()
+  end
+  
+  attr(:streams_state, :map, required: true)
+
+  def streams_section(assigns) do
+    ~H"""
+    <.section
+      :if={@streams_state != %{}}
+      id="streams"
+      class="h-max overflow-y-hidden"
+      title="Streams"
+    >
+      <:right_panel>
+        <div class="flex gap-2">
+          <.copy_button
+            id="streams-copy-button"
+            variant="icon-button"
+            value={TermParser.term_to_copy_string(@streams_state)}
+          />
+        </div>
+      </:right_panel>
+      <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
+        <ElixirDisplay.term
+          id="streams-display"
+          node={TermParser.term_to_display_tree(@streams_state)}
+        />
+      </div>
+    </.section>
+    """
+  end
 end
