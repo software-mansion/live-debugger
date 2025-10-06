@@ -14,6 +14,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.Services.CallbackTracer.Events.StreamUpdated
 
   @doc """
   Renders the `NodeStateLive` as a nested LiveView component.
@@ -64,6 +65,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> assign(:node_id, node_id)
     |> assign(:assigns_search_phrase, "")
     |> Hooks.NodeAssigns.init()
+    |> Hooks.NodeStreams.init()
     |> Hooks.TermNodeToggle.init()
     |> HookComponents.AssignsSearch.init()
     |> ok()
@@ -90,6 +92,16 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
           assigns_search_phrase={@assigns_search_phrase}
         />
       </.async_result>
+
+      <.async_result :let={term_node} assign={@streams_tree}>
+        <:loading>
+          <NodeStateComponents.loading />
+        </:loading>
+        <:failed>
+          <NodeStateComponents.failed />
+        </:failed>
+        <NodeStateComponents.streams_section term_node={term_node} />
+      </.async_result>
     </div>
     """
   end
@@ -105,6 +117,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   def handle_info(%StateChanged{}, socket) do
     socket
     |> Hooks.NodeAssigns.assign_async_node_assigns()
+    |> noreply()
+  end
+
+  def handle_info(%StreamUpdated{streams: streams}, socket) do
+    socket
+    |> Hooks.NodeStreams.assign_async_streams_tree(streams)
     |> noreply()
   end
 

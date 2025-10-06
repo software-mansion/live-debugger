@@ -10,6 +10,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.TermNodeToggle do
   alias Phoenix.LiveView.AsyncResult
 
   @required_assigns [:node_assigns_info]
+  @required_assigns [:streams_tree]
 
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
@@ -19,7 +20,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.TermNodeToggle do
     |> register_hook(:term_node_toggle)
   end
 
-  defp handle_event("toggle_node", %{"id" => id}, socket) do
+  defp handle_event("toggle_node", %{"id" => id, "type" => "assigns"}, socket) do
     node_assigns_info =
       with %AsyncResult{ok?: true, result: {node_assigns, term_node, copy_string}} <-
              socket.assigns.node_assigns_info,
@@ -38,6 +39,26 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.TermNodeToggle do
 
     socket
     |> assign(:node_assigns_info, node_assigns_info)
+    |> halt()
+  end
+
+  defp handle_event("toggle_node", %{"id" => id, "type" => "streams"}, socket) do
+    streams_state =
+      with %AsyncResult{ok?: true, result: term_node} <-
+             socket.assigns.streams_tree,
+           {:ok, updated_term_node} <-
+             TermParser.update_by_id(term_node, id, &%TermNode{&1 | open?: !&1.open?}) do
+        AsyncResult.ok(updated_term_node)
+      else
+        {:error, reason} ->
+          AsyncResult.failed(socket.assigns.streams_tree, reason)
+
+        _ ->
+          socket.assigns.streams_state
+      end
+
+    socket
+    |> assign(:streams_tree, streams_state)
     |> halt()
   end
 
