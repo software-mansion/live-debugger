@@ -8,6 +8,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.App.Debugger.Structs.TreeNode
 
+  alias LiveDebugger.API.TracesStorage
+
+  alias LiveDebugger.App.Debugger.NodeState.StreamUtils
+
   @spec fetch_node_assigns(pid :: pid(), node_id :: TreeNode.id()) ::
           {:ok, map()} | {:error, term()}
   def fetch_node_assigns(pid, node_id) when is_pid(node_id) do
@@ -40,6 +44,28 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
       state -> {:ok, state}
     end
   end
+
+  def fetch_node_streams(pid) do
+    opts =
+      [
+        functions: ["render/1"]
+      ]
+
+    case TracesStorage.get!(pid, opts) do
+      nil ->
+        {:ok, %{streams_state: []}}
+
+      :end_of_table ->
+        {:ok, %{streams_state: []}}
+
+      stream_updates ->
+        StreamUtils.build_initial_stream_diff(stream_updates)
+    end
+  end
+
+  # def update_node_streams(_, stream_updates, current_stream_state_list) do
+  #   # StreamUtils.compute_diff([stream_updates], current_stream_state_list)
+  # end
 
   defp get_component_assigns(components, %Phoenix.LiveComponent.CID{cid: cid}) do
     components

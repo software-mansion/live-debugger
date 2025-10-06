@@ -10,6 +10,18 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.Services.CallbackTracer.Events.StreamUpdated
+
+  def maybe_save_state!(%Trace{
+        pid: pid,
+        function: :render,
+        type: :return_from,
+        args: [%{streams: streams} = arg_map | _]
+      })
+      when is_map(arg_map) and is_map_key(arg_map, :streams) do
+    Bus.broadcast_state!(%StreamUpdated{pid: pid, streams: streams}, pid)
+    do_save_state!(pid)
+  end
 
   @doc """
   It checks if the trace is state changing and if so, it saves the state.
