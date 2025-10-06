@@ -42,4 +42,9 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
   )
 
   defevent(StateChanged, pid: pid())
+
+  defevent(StreamUpdated,
+    pid: pid(),
+    streams: map()
+  )
 end

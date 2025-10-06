@@ -14,6 +14,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.Services.CallbackTracer.Events.StreamUpdated
 
   @doc """
   Renders the `NodeStateLive` as a nested LiveView component.
@@ -63,6 +64,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> assign(:lv_process, lv_process)
     |> assign(:node_id, node_id)
     |> assign_async_node_assigns()
+    |> assign_async_node_streams()
     |> ok()
   end
 
@@ -83,6 +85,16 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
           fullscreen_id="assigns-display-fullscreen"
         />
       </.async_result>
+
+      <.async_result :let={streams_state} assign={@streams_state}>
+        <:loading>
+          <NodeStateComponents.loading />
+        </:loading>
+        <:failed>
+          <NodeStateComponents.failed />
+        </:failed>
+        <NodeStateComponents.streams_section streams_state={streams_state} />
+      </.async_result>
     </div>
     """
   end
@@ -101,6 +113,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> noreply()
   end
 
+  def handle_info(%StreamUpdated{streams: streams}, socket) do
+    socket
+    |> assign_async_node_streams(streams)
+    |> noreply()
+  end
+
   def handle_info(_, socket), do: {:noreply, socket}
 
   defp assign_async_node_assigns(
@@ -114,5 +132,34 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   defp assign_async_node_assigns(socket) do
     assign(socket, :node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
+  end
+
+  defp assign_async_node_streams(
+         %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket
+       )
+       when not is_nil(node_id) do
+    assign_async(socket, :streams_state, fn ->
+      NodeStateQueries.fetch_node_streams(pid)
+    end)
+  end
+
+  defp assign_async_node_streams(socket) do
+    assign(socket, :streams, AsyncResult.failed(%AsyncResult{}, :no_node_id))
+  end
+
+  defp assign_async_node_streams(
+         %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket,
+         updated_streams
+       )
+       when not is_nil(node_id) do
+    case Map.get(socket.assigns, :streams_state, nil) do
+      nil ->
+        assign_async_node_streams(socket)
+
+      current_stream_state ->
+        assign_async(socket, :streams_state, fn ->
+          NodeStateQueries.update_node_streams(pid, updated_streams, current_stream_state)
+        end)
+    end
   end
 end
