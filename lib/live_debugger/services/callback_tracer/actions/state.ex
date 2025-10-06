@@ -19,8 +19,8 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
     do_save_state!(pid)
   end
 
-  def maybe_save_state!(%Trace{pid: pid, function: function, args: [_, _, socket]})
-      when function in [:mount, :handle_params] do
+  def maybe_save_state!(%Trace{pid: pid, function: function, type: type, args: [_, _, socket]})
+      when function in [:mount, :handle_params] and type in [:return_from, :exception_from] do
     do_save_initial_state!(pid, socket)
   end
 
@@ -39,8 +39,14 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
   end
 
   defp do_save_initial_state!(pid, socket) do
-    StatesStorage.save!(%LvState{pid: pid, socket: socket})
-    Bus.broadcast_state!(%StateChanged{pid: pid}, pid)
-    :ok
+    case StatesStorage.get!(pid) do
+      %LvState{} ->
+        :ok
+
+      nil ->
+        StatesStorage.save!(%LvState{pid: pid, socket: socket})
+        Bus.broadcast_state!(%StateChanged{pid: pid}, pid)
+        :ok
+    end
   end
 end
