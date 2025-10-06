@@ -17,22 +17,10 @@ defmodule LiveDebugger.API.ProcessInfo do
           status: :running | :waiting | :suspended | :garbage_collecting,
           # non_neg_integer - Number of messages in the process mailbox
           message_queue_len: non_neg_integer(),
-          # pid - The group leader process
-          group_leader: pid() | nil,
           # :low | :normal | :high | :max - Process priority level
           priority: :low | :normal | :high | :max,
-          # boolean - Whether the process traps exits from linked processes
-          trap_exit: boolean(),
           # non_neg_integer - Number of reductions executed by the process
           reductions: non_neg_integer(),
-          # boolean - Whether last call optimization is enabled
-          last_calls: boolean(),
-          # non_neg_integer - Trace level for the process
-          trace: non_neg_integer(),
-          # [term()] - Sequential trace token for the process
-          sequential_trace_token: [term()],
-          # atom - The error handler module for the process
-          error_handler: atom() | nil,
 
           # [pid()] - List of processes linked to this process
           links: [pid()],
@@ -65,15 +53,9 @@ defmodule LiveDebugger.API.ProcessInfo do
             registered_name: [],
             status: :running,
             message_queue_len: 0,
-            group_leader: nil,
             priority: :normal,
-            trap_exit: false,
             reductions: 0,
-            last_calls: false,
-            trace: 0,
             suspending: [],
-            sequential_trace_token: [],
-            error_handler: nil,
             links: [],
             monitors: [],
             monitored_by: [],
@@ -133,15 +115,9 @@ defmodule LiveDebugger.API.ProcessInfo do
       registered_name: Map.get(info_map, :registered_name, []),
       status: Map.get(info_map, :status, :running),
       message_queue_len: Map.get(info_map, :message_queue_len, 0),
-      group_leader: Map.get(info_map, :group_leader),
       priority: Map.get(info_map, :priority, :normal),
-      trap_exit: Map.get(info_map, :trap_exit, false),
       reductions: Map.get(info_map, :reductions, 0),
-      last_calls: Map.get(info_map, :last_calls, false),
-      trace: Map.get(info_map, :trace, 0),
-      suspending: Map.get(info_map, :suspending, []),
-      sequential_trace_token: Map.get(info_map, :sequential_trace_token, []),
-      error_handler: Map.get(info_map, :error_handler)
+      suspending: Map.get(info_map, :suspending, [])
     }
 
     # Extract scroll boxes information
@@ -170,12 +146,9 @@ defmodule LiveDebugger.API.ProcessInfo do
   defp item_list do
     [
       :current_function,
-      :error_handler,
       :garbage_collection,
-      :group_leader,
       :heap_size,
       :initial_call,
-      :last_calls,
       :links,
       :memory,
       :message_queue_len,
@@ -184,13 +157,10 @@ defmodule LiveDebugger.API.ProcessInfo do
       :priority,
       :reductions,
       :registered_name,
-      :sequential_trace_token,
       :stack_size,
       :status,
       :suspending,
-      :total_heap_size,
-      :trace,
-      :trap_exit
+      :total_heap_size
     ]
   end
 
