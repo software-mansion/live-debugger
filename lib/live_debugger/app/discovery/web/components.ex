@@ -5,9 +5,30 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
 
   use LiveDebugger.App.Web, :component
 
+  alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+
+  def garbage_collection_warning(assigns) do
+    ~H"""
+    <div class="mt-6 p-4 bg-surface-0-bg rounded shadow-custom border border-warning-text">
+      <p class="text-warning-text text-center">
+        <%= if SettingsStorage.get(:garbage_collection) do %>
+          LiveViews listed below are not active anymore and they will be removed in a short time (usually within 2 seconds).
+          If you want to keep them for a longer time you may do so by disabling
+          <b>Garbage Collection</b>
+          in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>. But be aware that this will lead to increased memory usage.
+        <% else %>
+          You have <b>Garbage Collection</b>
+          disabled which means that LiveViews listed below will not be removed automatically.
+          This will lead to increased memory usage. You can enable it
+          in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>.
+        <% end %>
+      </p>
+    </div>
+    """
+  end
 
   attr(:title, :string, required: true)
   attr(:refresh_event, :string, required: true)
@@ -48,16 +69,17 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   end
 
   attr(:id, :string, default: "live-sessions")
-  attr(:dead?, :boolean, default: false)
   attr(:grouped_lv_processes, :map, default: %{})
+  attr(:empty_info, :string, required: true)
+  attr(:remove_event, :string, default: nil)
 
-  def live_sessions(assigns) do
+  def liveview_sessions(assigns) do
     ~H"""
     <div id={@id} class="flex flex-col gap-4">
       <%= if Enum.empty?(@grouped_lv_processes)  do %>
         <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
           <p class="text-secondary-text text-center">
-            <%= if @dead?, do: "No recently died LiveViews", else: "No active LiveViews" %>
+            <%= @empty_info %>
           </p>
         </div>
       <% else %>
@@ -65,7 +87,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
           :for={{transport_pid, grouped_lv_processes} <- @grouped_lv_processes}
           transport_pid={transport_pid}
           grouped_lv_processes={grouped_lv_processes}
-          dead?={@dead?}
+          remove_event={@remove_event}
         />
       <% end %>
     </div>
@@ -74,7 +96,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
 
   attr(:transport_pid, :any, required: true)
   attr(:grouped_lv_processes, :list, required: true)
-  attr(:dead?, :boolean, default: false)
+  attr(:remove_event, :string, default: nil)
 
   def tab_group(assigns) do
     ~H"""
@@ -88,13 +110,13 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
         <.list elements={@grouped_lv_processes}>
           <:item :let={{root_lv_process, lv_processes}}>
             <div class="flex items-center w-full">
-              <.list_element lv_process={root_lv_process} dead?={@dead?} />
+              <.list_element lv_process={root_lv_process} remove_event={@remove_event} />
             </div>
             <.list elements={lv_processes} item_class="group" class="pr-0">
               <:item :let={lv_process}>
                 <div class="flex items-center w-full">
                   <.nested_indent />
-                  <.list_element lv_process={lv_process} dead?={@dead?} />
+                  <.list_element lv_process={lv_process} remove_event={@remove_event} />
                 </div>
               </:item>
             </.list>
@@ -117,7 +139,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   end
 
   attr(:lv_process, LvProcess, required: true)
-  attr(:dead?, :boolean, default: false)
+  attr(:remove_event, :string, default: nil)
 
   defp list_element(assigns) do
     ~H"""
@@ -145,9 +167,9 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
           />
         </div>
       </.link>
-      <div :if={@dead?} class="pl-3">
+      <div :if={@remove_event} class="pl-3">
         <.button
-          phx-click="remove-lv-process"
+          phx-click={@remove_event}
           phx-value-pid={@lv_process.pid |> Parsers.pid_to_string()}
           variant="secondary"
           size="sm"

@@ -5,12 +5,10 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
   use LiveDebugger.App.Web, :live_view
 
-  alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
   alias LiveDebugger.App.Discovery.Web.Components, as: DiscoveryComponents
   alias LiveDebugger.App.Web.Components.Navbar, as: NavbarComponents
-  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebugger.App.Discovery.Queries, as: DiscoveryQueries
   alias LiveDebugger.App.Discovery.Actions, as: DiscoveryActions
 
@@ -47,7 +45,11 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
             <.async_result :let={grouped_lv_processes} assign={@grouped_lv_processes}>
               <:loading><DiscoveryComponents.loading /></:loading>
               <:failed><DiscoveryComponents.failed /></:failed>
-              <DiscoveryComponents.live_sessions grouped_lv_processes={grouped_lv_processes} />
+              <DiscoveryComponents.liveview_sessions
+                id="live-sessions"
+                grouped_lv_processes={grouped_lv_processes}
+                empty_info="No active LiveViews"
+              />
             </.async_result>
           </div>
         </div>
@@ -65,29 +67,17 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
           </DiscoveryComponents.header>
 
           <div :if={@dead_liveviews?}>
-            <div class="mt-6 p-4 bg-surface-0-bg rounded shadow-custom border border-warning-text">
-              <p class="text-warning-text text-center">
-                <%= if SettingsStorage.get(:garbage_collection) do %>
-                  LiveViews listed below are not active anymore and they will be removed in a short time (usually within 2 seconds).
-                  If you want to keep them for a longer time you may do so by disabling
-                  <b>Garbage Collection</b>
-                  in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>. But be aware that this will lead to increased memory usage.
-                <% else %>
-                  You have <b>Garbage Collection</b>
-                  disabled which means that LiveViews listed below will not be removed automatically.
-                  This will lead to increased memory usage. You can enable it
-                  in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>.
-                <% end %>
-              </p>
-            </div>
+            <DiscoveryComponents.garbage_collection_warning />
+
             <div class="mt-6 max-h-92 overflow-y-auto">
               <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
                 <:loading><DiscoveryComponents.loading /></:loading>
                 <:failed><DiscoveryComponents.failed /></:failed>
-                <DiscoveryComponents.live_sessions
-                  dead?={true}
+                <DiscoveryComponents.liveview_sessions
                   id="dead-sessions"
                   grouped_lv_processes={dead_grouped_lv_processes}
+                  empty_info="No recently died LiveViews"
+                  remove_event="remove-lv-state"
                 />
               </.async_result>
             </div>
@@ -124,7 +114,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
     |> noreply()
   end
 
-  def handle_event("remove-lv-process", %{"pid" => string_pid}, socket) do
+  def handle_event("remove-lv-state", %{"pid" => string_pid}, socket) do
     {:ok, pid} = Parsers.string_to_pid(string_pid)
     DiscoveryActions.remove_lv_process_state(pid)
 
