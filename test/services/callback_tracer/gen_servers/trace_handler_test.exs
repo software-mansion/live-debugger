@@ -61,7 +61,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
     test "handles LiveComponent deletion traces" do
       transport_pid = :c.pid(0, 1, 0)
       pid = :c.pid(0, 2, 0)
-      socket = %{id: "123", transport_pid: transport_pid}
+      socket = %{id: "123", transport_pid: transport_pid, view: SomeLiveView}
 
       # create delete trace
       MockAPILiveViewDebug

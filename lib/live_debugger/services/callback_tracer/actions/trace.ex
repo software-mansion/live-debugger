@@ -6,6 +6,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.API.LiveViewDebug
+  alias LiveDebugger.Utils.Modules, as: UtilsModules
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
@@ -43,21 +44,25 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
     pid
     |> LiveViewDebug.socket()
     |> case do
-      {:ok, %{id: socket_id, transport_pid: t_pid}} when is_pid(t_pid) ->
-        trace =
-          Trace.new(
-            n,
-            Phoenix.LiveView.Diff,
-            :delete_component,
-            args,
-            pid,
-            timestamp,
-            socket_id: socket_id,
-            transport_pid: t_pid,
-            cid: %Phoenix.LiveComponent.CID{cid: cid}
-          )
+      {:ok, %{id: socket_id, transport_pid: t_pid, view: view}} when is_pid(t_pid) ->
+        if UtilsModules.debugger_module?(view) do
+          :live_debugger_trace
+        else
+          trace =
+            Trace.new(
+              n,
+              Phoenix.LiveView.Diff,
+              :delete_component,
+              args,
+              pid,
+              timestamp,
+              socket_id: socket_id,
+              transport_pid: t_pid,
+              cid: %Phoenix.LiveComponent.CID{cid: cid}
+            )
 
-        {:ok, trace}
+          {:ok, trace}
+        end
 
       _ ->
         {:error, "Could not get socket"}
