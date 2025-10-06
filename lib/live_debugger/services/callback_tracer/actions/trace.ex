@@ -39,7 +39,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
           pid :: pid(),
           cid :: String.t(),
           timestamp :: :erlang.timestamp()
-        ) :: {:ok, Trace.t()} | {:error, term()}
+        ) :: {:ok, Trace.t()} | :live_debugger_trace | {:error, term()}
   def create_delete_component_trace(n, args, pid, cid, timestamp) do
     pid
     |> LiveViewDebug.socket()
