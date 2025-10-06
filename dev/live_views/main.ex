@@ -29,12 +29,23 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       )
       |> assign(deep_assign: %{b: %{c: %{d: %{e: %{f: %{g: "deep value"}}}}}})
 
+    dbg("mount")
     {:ok, socket}
   end
 
+  def handle_params(params, _url, socket) do
+    dbg("handle_params")
+    {:noreply, socket}
+  end
+
   def render(assigns) do
+    dbg("render")
+
     ~H"""
     <.box title="Main [LiveView]" color="blue">
+      <.link patch="?asd=123">
+        Link
+      </.link>
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
           <.button id="increment-button" phx-click="increment" color="blue">
