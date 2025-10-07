@@ -29,6 +29,17 @@ defmodule LiveDebugger.App.Discovery.Queries do
     {:ok, %{grouped_lv_processes: LiveViewDiscovery.group_lv_processes(lv_processes)}}
   end
 
+  @doc """
+  Fetches all dead LiveView processes grouped by their transport PID.
+  Retrieves states from storage and checks for process aliveness.
+  """
+  @spec fetch_dead_grouped_lv_processes() ::
+          {:ok,
+           %{
+             dead_grouped_lv_processes: %{
+               pid() => %{LvProcess.t() => [LvProcess.t()]}
+             }
+           }}
   def fetch_dead_grouped_lv_processes() do
     dead_lv_processes =
       StatesStorage.get_all_states()

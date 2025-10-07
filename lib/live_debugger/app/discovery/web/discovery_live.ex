@@ -116,7 +116,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
   def handle_event("remove-lv-state", %{"pid" => string_pid}, socket) do
     {:ok, pid} = Parsers.string_to_pid(string_pid)
-    DiscoveryActions.remove_lv_process_state(pid)
+    DiscoveryActions.remove_lv_process_state!(pid)
 
     socket
     |> assign_async_dead_grouped_lv_processes()

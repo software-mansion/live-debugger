@@ -12,8 +12,8 @@ defmodule LiveDebugger.App.Discovery.Actions do
   @doc """
   Removes all LiveView states associated with the given root LiveView PID.
   """
-  @spec remove_lv_process_state(pid()) :: :ok
-  def remove_lv_process_state(pid) when is_pid(pid) do
+  @spec remove_lv_process_state!(pid()) :: :ok
+  def remove_lv_process_state!(pid) when is_pid(pid) do
     StatesStorage.delete!(pid)
 
     StatesStorage.get_all_states()

@@ -3,9 +3,12 @@ defmodule LiveDebugger.App.Discovery.QueriesTest do
 
   import Mox
 
+  alias LiveDebugger.Fakes
+  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Discovery.Queries, as: DiscoveryQueries
   alias LiveDebugger.MockAPILiveViewDiscovery
+  alias LiveDebugger.MockAPIStatesStorage
 
   describe "fetch_grouped_lv_processes/1" do
     test "returns LiveView processes using api" do
@@ -72,6 +75,67 @@ defmodule LiveDebugger.App.Discovery.QueriesTest do
 
       assert {:ok, %{grouped_lv_processes: %{}}} =
                DiscoveryQueries.fetch_grouped_lv_processes()
+    end
+  end
+
+  describe "fetch_dead_grouped_lv_processes/0" do
+    test "returns empty map when no dead LiveViews" do
+      pid = spawn(fn -> Process.sleep(:infinity) end)
+
+      MockAPIStatesStorage
+      |> expect(:get_all_states, fn -> [{pid, %LvState{pid: pid, socket: %{}}}] end)
+
+      MockAPILiveViewDiscovery
+      |> expect(:group_lv_processes, fn [] -> %{} end)
+
+      assert {:ok, %{dead_grouped_lv_processes: %{}}} =
+               DiscoveryQueries.fetch_dead_grouped_lv_processes()
+
+      Process.exit(pid, :kill)
+    end
+
+    test "returns dead LiveView processes using api" do
+      pid = spawn(fn -> :ok end)
+      transport_pid = :c.pid(0, 12, 0)
+
+      socket =
+        Fakes.socket(pid: pid, transport_pid: transport_pid, nested?: false, view: SomeLiveView)
+
+      MockAPIStatesStorage
+      |> expect(:get_all_states, fn -> [{pid, %LvState{pid: pid, socket: socket}}] end)
+
+      MockAPILiveViewDiscovery
+      |> expect(:group_lv_processes, fn
+        [
+          %LvProcess{
+            pid: ^pid,
+            transport_pid: ^transport_pid,
+            alive?: false
+          } = lv_process
+        ] ->
+          %{transport_pid => %{lv_process => []}}
+      end)
+
+      assert {:ok,
+              %{
+                dead_grouped_lv_processes: %{
+                  transport_pid => %{
+                    %LvProcess{
+                      pid: pid,
+                      transport_pid: transport_pid,
+                      alive?: false,
+                      socket_id: socket.id,
+                      root_pid: pid,
+                      parent_pid: nil,
+                      module: socket.view,
+                      nested?: false,
+                      embedded?: false,
+                      debugger?: false
+                    } => []
+                  }
+                }
+              }} ==
+               DiscoveryQueries.fetch_dead_grouped_lv_processes()
     end
   end
 end
