@@ -165,6 +165,30 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   end
 
   #########################################################
+  # Handling websocket traffic traces
+  #
+  # We catch this trace to know when websocket traffic is sent.
+  # It traces transport pid process
+  #########################################################
+
+  def handle_cast({:new_trace, {_, pid, :receive, {:tcp, _port, payload}, _ts}, _n}, state) do
+    payload_size = payload |> IO.iodata_to_binary() |> byte_size()
+    dbg(%{incoming_payload_size: payload_size})
+    {:noreply, state}
+  end
+
+  # ignoring inet_reply confirmation
+  def handle_cast({:new_trace, {_, _pid, :receive, {:inet_reply, _, _, _}, _}, _n}, state) do
+    {:noreply, state}
+  end
+
+  def handle_cast({:new_trace, {_, _pid, :receive, {_action, _port, payload}, _ts}, _n}, state) do
+    payload_size = payload |> IO.iodata_to_binary() |> byte_size()
+    dbg(%{outgoing_payload_size: payload_size})
+    {:noreply, state}
+  end
+
+  #########################################################
   # Handling unknown traces
   #########################################################
 
