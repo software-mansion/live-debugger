@@ -16,16 +16,18 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
   setup :verify_on_exit!
 
   test "init/1" do
-    expect(MockBus, :receive_traces!, fn -> :ok end)
+    MockBus
+    |> expect(:receive_traces!, fn -> :ok end)
+    |> expect(:receive_events!, fn -> :ok end)
 
-    assert {:ok, %{}} = ProcessMonitor.init([])
+    assert {:ok, %{debugged: %{}, debugger: MapSet.new()}} == ProcessMonitor.init([])
   end
 
   describe "handle_info/2" do
     test "with TraceCalled for render with known cid" do
       pid = self()
       cid = %Phoenix.LiveComponent.CID{cid: 1}
-      state = %{pid => MapSet.new([cid])}
+      state = %{debugged: %{pid => MapSet.new([cid])}}
 
       event = %TraceCalled{
         trace_id: -1,
@@ -48,7 +50,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
       pid = self()
       cid1 = %Phoenix.LiveComponent.CID{cid: 1}
       cid2 = %Phoenix.LiveComponent.CID{cid: 2}
-      state = %{pid => MapSet.new([cid1])}
+      state = %{debugged: %{pid => MapSet.new([cid1])}}
 
       event = %TraceCalled{
         trace_id: -1,
@@ -67,14 +69,14 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
       end)
 
       assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
-      assert new_state == %{pid => MapSet.new([cid1, cid2])}
+      assert new_state == %{debugged: %{pid => MapSet.new([cid1, cid2])}}
     end
 
     test "with TraceCalled for render with unknown pid" do
       pid1 = :c.pid(0, 11, 0)
       pid2 = :c.pid(0, 12, 0)
       cid1 = %Phoenix.LiveComponent.CID{cid: 1}
-      state = %{pid1 => MapSet.new([cid1])}
+      state = %{debugged: %{pid1 => MapSet.new([cid1])}}
 
       event = %TraceCalled{
         trace_id: -1,
@@ -96,18 +98,20 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
       assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
 
       assert new_state == %{
-               pid1 => MapSet.new([cid1]),
-               pid2 =>
-                 MapSet.new([
-                   %Phoenix.LiveComponent.CID{cid: 1},
-                   %Phoenix.LiveComponent.CID{cid: 2}
-                 ])
+               debugged: %{
+                 pid1 => MapSet.new([cid1]),
+                 pid2 =>
+                   MapSet.new([
+                     %Phoenix.LiveComponent.CID{cid: 1},
+                     %Phoenix.LiveComponent.CID{cid: 2}
+                   ])
+               }
              }
     end
 
     test "with TraceCalled for render with nil cid and known pid" do
       pid = self()
-      state = %{pid => MapSet.new()}
+      state = %{debugged: %{pid => MapSet.new()}}
 
       event = %TraceCalled{
         trace_id: -1,
@@ -129,7 +133,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
     test "with TraceCalled for render with nil cid and unknown pid" do
       pid1 = :c.pid(0, 11, 0)
       pid2 = :c.pid(0, 12, 0)
-      state = %{pid1 => MapSet.new()}
+      state = %{debugged: %{pid1 => MapSet.new()}}
 
       event = %TraceCalled{
         trace_id: -1,
@@ -151,19 +155,21 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
       assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
 
       assert new_state == %{
-               pid1 => MapSet.new(),
-               pid2 =>
-                 MapSet.new([
-                   %Phoenix.LiveComponent.CID{cid: 1},
-                   %Phoenix.LiveComponent.CID{cid: 2}
-                 ])
+               debugged: %{
+                 pid1 => MapSet.new(),
+                 pid2 =>
+                   MapSet.new([
+                     %Phoenix.LiveComponent.CID{cid: 1},
+                     %Phoenix.LiveComponent.CID{cid: 2}
+                   ])
+               }
              }
     end
 
     test "with TraceCalled for delete_component with known cid" do
       pid = self()
       cid = %Phoenix.LiveComponent.CID{cid: 1}
-      state = %{pid => MapSet.new([cid])}
+      state = %{debugged: %{pid => MapSet.new([cid])}}
 
       event = %TraceCalled{
         trace_id: -1,
@@ -180,7 +186,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
       |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid, pid: ^pid}, ^pid -> :ok end)
 
       assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
-      assert new_state == %{pid => MapSet.new()}
+      assert new_state == %{debugged: %{pid => MapSet.new()}}
     end
 
     test "with TraceCalled for delete_component with unknown cid" do
@@ -210,7 +216,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
       pid1 = :c.pid(0, 11, 0)
       pid2 = :c.pid(0, 12, 0)
       cid = %Phoenix.LiveComponent.CID{cid: 1}
-      state = %{pid1 => MapSet.new([cid])}
+      state = %{debugged: %{pid1 => MapSet.new([cid])}}
 
       event = %TraceCalled{
         trace_id: -1,
@@ -231,7 +237,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
 
     test "with DOWN message for known pid" do
       pid = self()
-      state = %{pid => MapSet.new()}
+      state = %{debugged: %{pid => MapSet.new()}, debugger: MapSet.new()}
 
       event = {:DOWN, 1, :process, pid, :normal}
 
@@ -239,13 +245,13 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
       |> expect(:broadcast_event!, fn %LiveViewDied{pid: ^pid} -> :ok end)
 
       assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
-      assert new_state == %{}
+      assert new_state == %{debugged: %{}, debugger: MapSet.new()}
     end
 
     test "with DOWN message for unknown pid" do
       pid1 = :c.pid(0, 11, 0)
       pid2 = :c.pid(0, 12, 0)
-      state = %{pid1 => MapSet.new()}
+      state = %{debugged: %{pid1 => MapSet.new()}, debugger: MapSet.new()}
 
       event = {:DOWN, 1, :process, pid2, :normal}
 

@@ -9,6 +9,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher do
   alias LiveDebugger.App.Events.DebuggerMounted
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
+  alias LiveDebugger.Services.ProcessMonitor.Events.DebuggerTerminated
 
   import LiveDebugger.Helpers
 
@@ -83,14 +84,12 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher do
   end
 
   def handle_info(%DebuggerMounted{debugged_pid: debugged_pid, debugger_pid: debugger_pid}, state) do
-    Process.monitor(debugger_pid)
-
     state
     |> add_watcher(debugged_pid, debugger_pid)
     |> noreply()
   end
 
-  def handle_info({:DOWN, _ref, :process, debugger_pid, _reason}, state) do
+  def handle_info(%DebuggerTerminated{debugger_pid: debugger_pid}, state) do
     state
     |> Enum.find(fn {_, %ProcessInfo{watchers: watchers}} ->
       MapSet.member?(watchers, debugger_pid)

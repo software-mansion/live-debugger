@@ -28,11 +28,15 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
+  alias LiveDebugger.App.Events.DebuggerMounted
 
   import LiveDebugger.Helpers
 
   @type state :: %{
-          pid() => MapSet.t(CommonTypes.cid())
+          debugged: %{
+            pid() => MapSet.t(CommonTypes.cid())
+          },
+          debugger: MapSet.t(pid())
         }
 
   def start_link(opts \\ []) do
@@ -42,20 +46,21 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
   @impl true
   def init(_opts) do
     Bus.receive_traces!()
+    Bus.receive_events!()
 
-    {:ok, %{}}
+    {:ok, %{debugged: %{}, debugger: MapSet.new()}}
   end
 
   @impl true
   def handle_info(%TraceCalled{function: function, pid: pid, transport_pid: tpid}, state)
-      when not is_map_key(state, pid) and function in [:mount, :handle_params, :render] do
+      when not is_map_key(state.debugged, pid) and function in [:mount, :handle_params, :render] do
     state
     |> ProcessMonitorActions.register_live_view_born!(pid, tpid)
     |> noreply()
   end
 
   def handle_info(%TraceCalled{function: :render, pid: pid, cid: cid}, state)
-      when is_map_key(state, pid) do
+      when is_map_key(state.debugged, pid) do
     state
     |> maybe_register_component_created(pid, cid)
     |> noreply()
@@ -70,15 +75,26 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
         },
         state
       )
-      when is_map_key(state, pid) do
+      when is_map_key(state.debugged, pid) do
     state
     |> maybe_register_component_deleted(pid, cid)
     |> noreply()
   end
 
-  def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
+  def handle_info(%DebuggerMounted{debugger_pid: debugger_pid}, state) do
     state
-    |> ProcessMonitorActions.register_live_view_died!(pid)
+    |> ProcessMonitorActions.register_debugger_mounted(debugger_pid)
+    |> noreply()
+  end
+
+  def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
+    if MapSet.member?(state.debugger, pid) do
+      state
+      |> ProcessMonitorActions.register_debugger_terminated!(pid)
+    else
+      state
+      |> ProcessMonitorActions.register_live_view_died!(pid)
+    end
     |> noreply()
   end
 
@@ -91,7 +107,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
   end
 
   defp maybe_register_component_created(state, pid, cid) do
-    if MapSet.member?(state[pid], cid) do
+    if MapSet.member?(state.debugged[pid], cid) do
       state
     else
       state |> ProcessMonitorActions.register_component_created!(pid, cid)
@@ -99,7 +115,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
   end
 
   defp maybe_register_component_deleted(state, pid, cid) do
-    if MapSet.member?(state[pid], cid) do
+    if MapSet.member?(state.debugged[pid], cid) do
       state |> ProcessMonitorActions.register_component_deleted!(pid, cid)
     else
       Logger.info("Component #{inspect(cid)} not found in state for pid #{inspect(pid)}")
