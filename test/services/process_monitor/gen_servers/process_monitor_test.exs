@@ -3,6 +3,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
 
   import Mox
 
+  alias LiveDebugger.App.Events.DebuggerMounted
   alias LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor
   alias LiveDebugger.MockAPILiveViewDebug
 
@@ -12,6 +13,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
+  alias LiveDebugger.Services.ProcessMonitor.Events.DebuggerTerminated
 
   setup :verify_on_exit!
 
@@ -235,8 +237,32 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
       assert {:noreply, ^state} = ProcessMonitor.handle_info(event, state)
     end
 
-    test "with DOWN message for known pid" do
+    test "with DebuggerMounted" do
+      pid1 = :c.pid(0, 11, 0)
+      pid2 = :c.pid(0, 12, 0)
+      state = %{debugged: %{}, debugger: MapSet.new()}
+
+      event = %DebuggerMounted{debugger_pid: pid1, debugged_pid: pid2}
+
+      assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
+      assert new_state == %{debugged: %{}, debugger: MapSet.new([pid1])}
+    end
+
+    test "with DOWN message for debugger pid" do
       pid = self()
+      state = %{debugged: %{}, debugger: MapSet.new([pid])}
+
+      event = {:DOWN, 1, :process, pid, :normal}
+
+      MockBus
+      |> expect(:broadcast_event!, fn %DebuggerTerminated{debugger_pid: ^pid} -> :ok end)
+
+      assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
+      assert new_state == %{debugged: %{}, debugger: MapSet.new()}
+    end
+
+    test "with DOWN message for debugged pid" do
+      pid = :c.pid(0, 11, 0)
       state = %{debugged: %{pid => MapSet.new()}, debugger: MapSet.new()}
 
       event = {:DOWN, 1, :process, pid, :normal}
@@ -246,19 +272,6 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitorTest do
 
       assert {:noreply, new_state} = ProcessMonitor.handle_info(event, state)
       assert new_state == %{debugged: %{}, debugger: MapSet.new()}
-    end
-
-    test "with DOWN message for unknown pid" do
-      pid1 = :c.pid(0, 11, 0)
-      pid2 = :c.pid(0, 12, 0)
-      state = %{debugged: %{pid1 => MapSet.new()}, debugger: MapSet.new()}
-
-      event = {:DOWN, 1, :process, pid2, :normal}
-
-      MockBus
-      |> expect(:broadcast_event!, fn %LiveViewDied{pid: ^pid2} -> :ok end)
-
-      assert {:noreply, ^state} = ProcessMonitor.handle_info(event, state)
     end
   end
 end

@@ -3,6 +3,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.ActionsTest do
 
   import Mox
 
+  alias LiveDebugger.Services.ProcessMonitor.Events.DebuggerTerminated
   alias LiveDebugger.MockAPILiveViewDebug
   alias LiveDebugger.Services.ProcessMonitor.Actions, as: ProcessMonitorActions
 
@@ -74,5 +75,26 @@ defmodule LiveDebugger.Services.ProcessMonitor.ActionsTest do
     new_state = ProcessMonitorActions.register_live_view_died!(state, pid)
 
     assert new_state == %{debugged: %{}}
+  end
+
+  test "register_debugger_mounted/2" do
+    pid = :c.pid(0, 11, 0)
+    state = %{debugger: MapSet.new()}
+
+    new_state = ProcessMonitorActions.register_debugger_mounted(state, pid)
+
+    assert new_state == %{debugger: MapSet.new([pid])}
+  end
+
+  test "register_debugger_terminated!/2" do
+    pid = :c.pid(0, 11, 0)
+    state = %{debugger: MapSet.new([pid])}
+
+    MockBus
+    |> expect(:broadcast_event!, fn %DebuggerTerminated{debugger_pid: ^pid} -> :ok end)
+
+    new_state = ProcessMonitorActions.register_debugger_terminated!(state, pid)
+
+    assert new_state == %{debugger: MapSet.new()}
   end
 end
