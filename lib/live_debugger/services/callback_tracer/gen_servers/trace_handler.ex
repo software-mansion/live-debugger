@@ -109,6 +109,9 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
            :ok <- TraceActions.publish_trace(trace) do
         :ok
       else
+        :live_debugger_trace ->
+          :ok
+
         {:error, err} ->
           raise "Error while handling trace: #{inspect(err)}"
       end
