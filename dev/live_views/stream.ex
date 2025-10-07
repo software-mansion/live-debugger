@@ -49,11 +49,11 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
   @impl true
   def handle_event("create_item", _params, socket) do
     next_id = socket.assigns.current_id
-    item = %{id: next_id, number: Enum.random(1..100)}
+    item = %{id: next_id, number: 2137}
 
     socket =
       socket
-      |> stream_insert(:items, item, at: -1)
+      |> stream_insert(:items, item, at: 0)
       |> assign(:current_id, next_id + 1)
 
     {:noreply, socket}
@@ -87,7 +87,7 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
 
     socket =
       socket
-      |> stream(:items, items, at: 0)
+      |> stream(:items, items, at: -1)
       |> assign(:current_id, start_id + length(items))
 
     {:noreply, socket}
@@ -100,7 +100,7 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
     if last_id >= 0 do
       socket =
         socket
-        |> stream_delete_by_dom_id(:items, "items-#{last_id}")
+        |> stream_delete(:items, %{id: last_id, number: 2137})
         |> assign(:current_id, last_id)
 
       {:noreply, socket}
