@@ -37,6 +37,9 @@ defmodule LiveDebugger.Services.ProcessMonitor.Actions do
 
     Bus.broadcast_event!(%LiveViewBorn{pid: pid, transport_pid: transport_pid})
 
+    # Only for PoC - it starts tracing diffs when the process is born
+    :dbg.p(pid, [:s])
+
     case LiveViewDebug.live_components(pid) do
       {:ok, components} ->
         node_ids = Enum.map(components, &%Phoenix.LiveComponent.CID{cid: &1.cid})
