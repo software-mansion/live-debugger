@@ -18,6 +18,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
     @moduledoc """
     Represents a node in the display tree.
 
+    - `id`: The id of the node (it represents the path to the node in the tree).
     - `kind`: The type of the node (e.g., :atom, :list, :map).
     - `children`: A list of child nodes.
     - `content`: Display elements that represent the content of the node when has no children or not expanded.
@@ -31,7 +32,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
     @type t :: %__MODULE__{
             id: String.t(),
             kind: kind(),
-            children: [TermNode.t()],
+            children: [t()],
             content: [DisplayElement.t()],
             expanded_before: [DisplayElement.t()] | nil,
             expanded_after: [DisplayElement.t()] | nil
