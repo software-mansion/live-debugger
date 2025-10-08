@@ -120,31 +120,34 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
     list1_with_indexes = Enum.with_index(list1, fn value, index -> {index, value} end)
     list2_with_indexes = Enum.with_index(list2, fn value, index -> {index, value} end)
 
-    diffs = List.myers_difference(list1, list2)
+    myers_diff =
+      List.myers_difference(list1, list2)
+      |> Enum.map(fn {type, values} -> {type, Enum.count(values)} end)
 
-    {_, _, inserts, deletes} =
-      Enum.reduce(diffs, {list1_with_indexes, list2_with_indexes, [], []}, fn {type, values},
-                                                                              {list1_acc,
-                                                                               list2_acc, ins_acc,
-                                                                               del_acc} ->
-        count = Enum.count(values)
+    initial_state =
+      %{
+        list1: list1_with_indexes,
+        list2: list2_with_indexes,
+        inserts: [],
+        deletes: []
+      }
 
-        case type do
-          :eq ->
-            list1_acc = Enum.drop(list1_acc, count)
-            list2_acc = Enum.drop(list2_acc, count)
-            {list1_acc, list2_acc, ins_acc, del_acc}
+    %{inserts: inserts, deletes: deletes} =
+      Enum.reduce(myers_diff, initial_state, fn
+        {:eq, count}, acc ->
+          list1_acc = Enum.drop(acc.list1, count)
+          list2_acc = Enum.drop(acc.list2, count)
+          %{acc | list1: list1_acc, list2: list2_acc}
 
-          :ins ->
-            ins_acc = ins_acc ++ Enum.take(list2_acc, count)
-            list2_acc = Enum.drop(list2_acc, count)
-            {list1_acc, list2_acc, ins_acc, del_acc}
+        {:ins, count}, acc ->
+          inserts = acc.inserts ++ Enum.take(acc.list2, count)
+          list2_acc = Enum.drop(acc.list2, count)
+          %{acc | inserts: inserts, list2: list2_acc}
 
-          :del ->
-            del_acc = del_acc ++ Enum.take(list1_acc, count)
-            list1_acc = Enum.drop(list1_acc, count)
-            {list1_acc, list2_acc, ins_acc, del_acc}
-        end
+        {:del, count}, acc ->
+          deletes = acc.deletes ++ Enum.take(acc.list1, count)
+          list1_acc = Enum.drop(acc.list1, count)
+          %{acc | deletes: deletes, list1: list1_acc}
       end)
 
     {Enum.into(inserts, %{}), Enum.into(deletes, %{})}
