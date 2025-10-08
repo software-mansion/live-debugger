@@ -64,6 +64,13 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
     # We trace it to refresh the components tree
     Dbg.trace_pattern({Phoenix.LiveView.Diff, :delete_component, 2}, [])
 
+    Dbg.trace_pattern(Phoenix.LiveView.Diff, Dbg.flag_to_match_spec(:return_trace))
+
+    CallbackQueries.all_component_functions()
+    |> Enum.each(fn {module, name, arity} ->
+      Dbg.trace_pattern({module, name, arity}, Dbg.flag_to_match_spec(:return_trace))
+    end)
+
     CallbackQueries.all_callbacks()
     |> Enum.each(fn mfa ->
       Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:return_trace))

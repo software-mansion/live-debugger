@@ -40,7 +40,33 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.Callbacks do
         |> Enum.map(fn {callback, arity} -> {module, callback, arity} end)
       end)
 
+    all_deps_modules =
+      ModuleAPI.all()
+      |> Enum.map(fn {module_charlist, _, _} ->
+        module_charlist |> to_string |> String.to_atom()
+      end)
+
     live_view_callbacks_to_trace ++ live_component_callbacks_to_trace
+  end
+
+  def all_component_functions() do
+    all_modules =
+      ModuleAPI.all()
+      |> Enum.map(fn {module_charlist, _, _} ->
+        module_charlist |> to_string |> String.to_atom()
+      end)
+      |> Enum.filter(&ModuleAPI.loaded?/1)
+      |> Enum.reject(&UtilsModules.debugger_module?/1)
+
+    component_functions =
+      all_modules
+      |> Enum.reject(&live_behaviour?(&1, Phoenix.LiveView))
+      |> Enum.reject(&live_behaviour?(&1, Phoenix.LiveComponent))
+      |> Enum.flat_map(&ModuleAPI.get_component_functions_from_module/1)
+
+    # dbg(component_modules)
+
+    component_functions
   end
 
   defp live_behaviour?(module, behaviour) do

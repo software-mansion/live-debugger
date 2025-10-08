@@ -4,6 +4,7 @@ defmodule LiveDebugger.MixProject do
   @version "0.5.0-dev"
 
   def project do
+
     [
       app: :live_debugger,
       version: @version,
@@ -19,7 +20,8 @@ defmodule LiveDebugger.MixProject do
       docs: docs(),
       test_coverage: [
         ignore_modules: [~r/^LiveDebuggerDev\./, DevWeb]
-      ]
+      ],
+      listeners: [Phoenix.CodeReloader]
     ]
   end
 
