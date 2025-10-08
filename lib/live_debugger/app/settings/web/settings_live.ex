@@ -33,7 +33,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   def render(assigns) do
     ~H"""
     <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
-      <NavbarComponents.navbar class="flex">
+      <NavbarComponents.navbar class="flex pl-2">
         <NavbarComponents.return_link return_link={@return_to || RoutesHelper.discovery()} />
         <NavbarComponents.live_debugger_logo />
       </NavbarComponents.navbar>
