@@ -170,9 +170,15 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   # Use :dbg.p(channel_pid, [:s]) to activate
   #########################################################
 
-  def handle_cast({:new_trace, {_, pid, :send, {:socket_push, :text, iodata}, _, _ts}, _}, state) do
-    binary_data = iodata |> IO.iodata_to_binary()
-    dbg({pid, binary_data})
+  def handle_cast({:new_trace, {_, _pid, :send, {:socket_push, :text, iodata}, _, _ts}, _}, state) do
+    message_json = iodata |> IO.iodata_to_binary() |> Jason.decode!()
+
+    diff = get_diff(message_json)
+
+    if not is_nil(diff) do
+      dbg(diff)
+    end
+
     {:noreply, state}
   end
 
@@ -206,4 +212,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   defp calculate_execution_time(return_ts, call_ts) do
     :timer.now_diff(return_ts, call_ts)
   end
+
+  defp get_diff([_, _, _, "diff", payload]), do: payload
+  defp get_diff([_, _, _, _type, %{"response" => %{"diff" => diff}}]), do: diff
+  defp get_diff(_), do: nil
 end
