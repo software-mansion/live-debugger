@@ -154,18 +154,14 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
   end
 
   defp map_diffs(map1, map2) when is_map(map1) and is_map(map2) do
-    ins = map2 |> Enum.filter(fn {key, _} -> not Map.has_key?(map1, key) end) |> Enum.into(%{})
-    del = map1 |> Enum.filter(fn {key, _} -> not Map.has_key?(map2, key) end) |> Enum.into(%{})
+    ins = Map.drop(map2, Map.keys(map1))
+    del = Map.drop(map1, Map.keys(map2))
 
     diff =
-      map1
-      |> Enum.filter(fn {key, _} -> Map.has_key?(map2, key) end)
-      |> Enum.map(fn {key, value} ->
-        diff = diff(value, Map.fetch!(map2, key))
-        {key, diff}
+      Map.intersect(map1, map2, fn _, old_value, new_value ->
+        diff(old_value, new_value)
       end)
-      |> Enum.filter(fn {_, diff} -> diff !== nil end)
-      |> Enum.into(%{})
+      |> Map.reject(fn {_, value} -> is_nil(value) end)
 
     {ins, del, diff}
   end
