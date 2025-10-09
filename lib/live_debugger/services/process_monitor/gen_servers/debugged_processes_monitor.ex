@@ -1,9 +1,8 @@
-defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
+defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonitor do
   @moduledoc """
-  This module is monitoring the status of LiveView processes created by a debugged application
-  and status of the debugger monitoring a LiveView process.
+  This module is monitoring the status of LiveView processes created by a debugged application.
 
-  For this server to function properly two services must be running and sending events:
+  For this server to function properly this service must be running and sending events:
   - `LiveDebugger.Services.CallbackTracer` sending `TraceCalled` event
 
   `LiveViewBorn` event is detected when `TraceCalled` event with functions `:mount`, `:handle_params` or `:render` is received 
@@ -16,8 +15,6 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
 
   `LiveComponentDeleted` event is detected when a `TraceCalled` event with module `Phoenix.LiveView.Diff`
   and function `:delete_component` is received, and the component ID (cid) is in the state.
-
-  `DebuggerTerminated` event is detected when a monitored debugger process sends a `:DOWN` message.
   """
 
   use GenServer
@@ -29,15 +26,11 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebugger.App.Events.DebuggerMounted
 
   import LiveDebugger.Helpers
 
   @type state :: %{
-          debugged: %{
-            pid() => MapSet.t(CommonTypes.cid())
-          },
-          debugger: MapSet.t(pid())
+          pid() => MapSet.t(CommonTypes.cid())
         }
 
   def start_link(opts \\ []) do
@@ -47,21 +40,20 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
   @impl true
   def init(_opts) do
     Bus.receive_traces!()
-    Bus.receive_events!()
 
-    {:ok, %{debugged: %{}, debugger: MapSet.new()}}
+    {:ok, %{}}
   end
 
   @impl true
   def handle_info(%TraceCalled{function: function, pid: pid, transport_pid: tpid}, state)
-      when not is_map_key(state.debugged, pid) and function in [:mount, :handle_params, :render] do
+      when not is_map_key(state, pid) and function in [:mount, :handle_params, :render] do
     state
     |> ProcessMonitorActions.register_live_view_born!(pid, tpid)
     |> noreply()
   end
 
   def handle_info(%TraceCalled{function: :render, pid: pid, cid: cid}, state)
-      when is_map_key(state.debugged, pid) do
+      when is_map_key(state, pid) do
     state
     |> maybe_register_component_created(pid, cid)
     |> noreply()
@@ -76,39 +68,26 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
         },
         state
       )
-      when is_map_key(state.debugged, pid) do
+      when is_map_key(state, pid) do
     state
     |> maybe_register_component_deleted(pid, cid)
     |> noreply()
   end
 
-  def handle_info(%DebuggerMounted{debugger_pid: debugger_pid}, state) do
-    state
-    |> ProcessMonitorActions.register_debugger_mounted(debugger_pid)
-    |> noreply()
-  end
-
   def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
-    if MapSet.member?(state.debugger, pid) do
-      state
-      |> ProcessMonitorActions.register_debugger_terminated!(pid)
-    else
-      state
-      |> ProcessMonitorActions.register_live_view_died!(pid)
-    end
+    state
+    |> ProcessMonitorActions.register_live_view_died!(pid)
     |> noreply()
   end
 
-  def handle_info(_, state) do
-    noreply(state)
-  end
+  def handle_info(_, state), do: {:noreply, state}
 
   defp maybe_register_component_created(state, _pid, nil) do
     state
   end
 
   defp maybe_register_component_created(state, pid, cid) do
-    if MapSet.member?(state.debugged[pid], cid) do
+    if MapSet.member?(state[pid], cid) do
       state
     else
       state |> ProcessMonitorActions.register_component_created!(pid, cid)
@@ -116,7 +95,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
   end
 
   defp maybe_register_component_deleted(state, pid, cid) do
-    if MapSet.member?(state.debugged[pid], cid) do
+    if MapSet.member?(state[pid], cid) do
       state |> ProcessMonitorActions.register_component_deleted!(pid, cid)
     else
       Logger.info("Component #{inspect(cid)} not found in state for pid #{inspect(pid)}")
