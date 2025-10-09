@@ -38,6 +38,10 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
     end
   end
 
+  # This is to save initial socket state in case of LiveView crash before first render in which situation
+  # we won't be able to fetch the state.
+  # It lacks LiveComponents info, but in situation when LiveView crashes before first render,
+  # we are not able to fetch this information.
   defp do_save_initial_state!(pid, socket) do
     case StatesStorage.get!(pid) do
       %LvState{} ->
