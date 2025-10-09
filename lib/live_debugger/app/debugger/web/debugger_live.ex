@@ -19,7 +19,6 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
   alias LiveDebugger.Bus
 
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
-  alias LiveDebugger.App.Events.DebuggerTerminated
 
   @impl true
   def mount(%{"pid" => string_pid}, _session, socket) do
@@ -103,13 +102,6 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   @impl true
   def handle_info(_, socket), do: {:noreply, socket}
-
-  @impl true
-  def terminate(_, _) do
-    Bus.broadcast_event!(%DebuggerTerminated{
-      debugger_pid: self()
-    })
-  end
 
   defp init_debugger(socket, pid) when is_pid(pid) do
     socket

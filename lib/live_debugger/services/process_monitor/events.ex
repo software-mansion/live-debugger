@@ -11,4 +11,5 @@ defmodule LiveDebugger.Services.ProcessMonitor.Events do
   defevent(LiveViewDied, pid: pid())
   defevent(LiveComponentCreated, pid: pid(), cid: CommonTypes.cid())
   defevent(LiveComponentDeleted, pid: pid(), cid: CommonTypes.cid())
+  defevent(DebuggerTerminated, debugger_pid: pid())
 end

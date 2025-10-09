@@ -3,11 +3,11 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcherTest do
 
   import Mox
 
-  alias LiveDebugger.App.Events.DebuggerTerminated
+  alias LiveDebugger.MockBus
   alias LiveDebugger.App.Events.DebuggerMounted
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
-  alias LiveDebugger.MockBus
+  alias LiveDebugger.Services.ProcessMonitor.Events.DebuggerTerminated
 
   alias LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher
   alias LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher.ProcessInfo
@@ -123,7 +123,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcherTest do
       assert {:noreply, %{}} = TableWatcher.handle_info(event, state)
     end
 
-    test "for DebuggerTerminated event" do
+    test "for debugger DebuggerTerminated event" do
       debugged_pid = self()
       debugger_pid = :c.pid(0, 12, 0)
       state = %{debugged_pid => %ProcessInfo{alive?: true, watchers: MapSet.new([debugger_pid])}}
@@ -134,7 +134,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcherTest do
       assert new_state == %{debugged_pid => %ProcessInfo{alive?: true, watchers: MapSet.new()}}
     end
 
-    test "for DebuggerTerminated event when `debugger_pid` is not in the state" do
+    test "for debugger DebuggerTerminated event when `debugger_pid` is not in the state" do
       debugger_pid = :c.pid(0, 12, 0)
       other_debugger_pid = :c.pid(0, 13, 0)
       debugged_pid = :c.pid(0, 14, 0)
