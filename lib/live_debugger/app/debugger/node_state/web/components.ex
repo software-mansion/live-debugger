@@ -90,13 +90,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   end
 
   defp assigns_size_label(assigns) do
-    total = assigns |> Memory.term_total_size() |> Memory.bytes_to_pretty_string()
+    serialized = assigns |> Memory.serialized_term_size() |> Memory.bytes_to_pretty_string()
     heap = assigns |> Memory.term_heap_size() |> Memory.bytes_to_pretty_string()
 
-    if total == heap do
-      "Assigns size: #{total}"
-    else
-      "Assigns size: #{total} total (#{heap} heap)"
-    end
+    "Assigns size: #{heap} heap / #{serialized} serialized"
   end
 end
