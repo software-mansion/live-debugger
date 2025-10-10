@@ -54,9 +54,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           data-search_phrase={@assigns_search_phrase}
         >
           <div class="absolute top-2 right-2 z-10">
-            <div class="text-xs text-secondary-text">
-              <%= assigns_size_label(@assigns) %>
-            </div>
+            <.assigns_size_label assigns={@assigns} id="display-container-size-label" />
           </div>
           <ElixirDisplay.term id="assigns-display" node={TermParser.term_to_display_tree(@assigns)} />
         </div>
@@ -75,9 +73,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           data-search_phrase={@assigns_search_phrase}
         >
           <div class="absolute top-0 right-2 z-10">
-            <div class="text-xs text-secondary-text">
-              <%= assigns_size_label(@assigns) %>
-            </div>
+            <.assigns_size_label assigns={@assigns} id="display-fullscreen-size-label" />
           </div>
           <ElixirDisplay.term
             id="assigns-display-fullscreen-term"
@@ -89,10 +85,39 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     """
   end
 
-  defp assigns_size_label(assigns) do
-    serialized = assigns |> Memory.serialized_term_size() |> Memory.bytes_to_pretty_string()
-    heap = assigns |> Memory.term_heap_size() |> Memory.bytes_to_pretty_string()
+  attr(:id, :string, required: true)
+  attr(:assigns, :list, required: true)
 
-    "Assigns size: #{heap} heap / #{serialized} serialized"
+  def assigns_size_label(assigns) do
+    ~H"""
+    <div class="text-xs text-secondary-text flex gap-1">
+      <span>Assigns size: </span>
+      <.tooltip
+        id={@id <> "-tooltip-heap"}
+        content="Memory used by assigns inside the LiveView process."
+        class="truncate"
+        position="top-center"
+      >
+        <span><%= assigns_heap_size(assigns) %> heap</span>
+      </.tooltip>
+      <span> / </span>
+      <.tooltip
+        id={@id <> "-tooltip-serialized"}
+        content="Size of assigns when encoded for transfer."
+        class="truncate"
+        position="top-center"
+      >
+        <%= assigns_serialized_size(@assigns) %> serialized
+      </.tooltip>
+    </div>
+    """
+  end
+
+  defp assigns_heap_size(assigns) do
+    assigns |> Memory.term_heap_size() |> Memory.bytes_to_pretty_string()
+  end
+
+  defp assigns_serialized_size(assigns) do
+    assigns |> Memory.serialized_term_size() |> Memory.bytes_to_pretty_string()
   end
 end
