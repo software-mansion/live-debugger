@@ -31,4 +31,26 @@ defmodule LiveDebugger.Utils.Memory do
   def term_total_size(term) do
     :erts_debug.flat_size(term) * @wordsize
   end
+
+  @doc """
+  Converts bytes to a human-readable string with SI units (KB, MB, GB).
+  """
+  @spec bytes_to_pretty_string(non_neg_integer()) :: String.t()
+  def bytes_to_pretty_string(n) when n < 1_000, do: "#{n}B"
+
+  def bytes_to_pretty_string(n) when n < 1_000_000 do
+    "#{format_float(n / 1_000, 1)}KB"
+  end
+
+  def bytes_to_pretty_string(n) when n < 1_000_000_000 do
+    "#{format_float(n / 1_000_000, 1)}MB"
+  end
+
+  def bytes_to_pretty_string(n) do
+    "#{format_float(n / 1_000_000_000, 2)}GB"
+  end
+
+  defp format_float(value, decimals) do
+    :erlang.float_to_binary(value, decimals: decimals)
+  end
 end

@@ -8,6 +8,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Utils.TermParser
   alias LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch
+  alias LiveDebugger.Utils.Memory
 
   def loading(assigns) do
     ~H"""
@@ -35,6 +36,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
         <:right_panel>
           <div class="flex gap-2">
+            <div class="text-xs text-primary-text">
+              <%= assigns_size_label(@assigns) %>
+            </div>
             <AssignsSearch.render
               assigns_search_phrase={@assigns_search_phrase}
               input_id="assigns-search-input"
@@ -76,5 +80,16 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       </.fullscreen>
     </div>
     """
+  end
+
+  defp assigns_size_label(assigns) do
+    total = assigns |> Memory.term_total_size() |> Memory.bytes_to_pretty_string()
+    heap = assigns |> Memory.term_heap_size() |> Memory.bytes_to_pretty_string()
+
+    if total == heap do
+      "Assigns size: #{total}"
+    else
+      "Assigns size: #{total} total (#{heap} heap)"
+    end
   end
 end
