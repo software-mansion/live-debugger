@@ -425,7 +425,7 @@ defmodule LiveDebugger.API.TracesStorageTest do
         Enum.reduce(-1..-100//-1, 0, fn id, acc ->
           record = {id, Fakes.trace(id: id, pid: pid)}
           :ets.insert(table, record)
-          acc + Memory.term_size(record)
+          acc + Memory.serialized_term_size(record)
         end)
 
       TracesStorageImpl.trim_table!(table, approx_size * 0.1)
@@ -440,7 +440,7 @@ defmodule LiveDebugger.API.TracesStorageTest do
         Enum.reduce(-1..-100//-1, 0, fn id, acc ->
           record = {id, Fakes.trace(id: id, pid: pid)}
           :ets.insert(table, record)
-          acc + Memory.term_size(record)
+          acc + Memory.serialized_term_size(record)
         end)
 
       TracesStorageImpl.trim_table!(pid, approx_size * 0.1)
