@@ -3,13 +3,13 @@ defmodule LiveDebugger.Utils.MemoryTest do
 
   alias LiveDebugger.Utils.Memory
 
-  describe "term_size/1" do
+  describe "approx_term_size/1" do
     test "returns the size of an elixir term in bytes" do
       term = 1123
-      assert 6 = Memory.term_size(term)
+      assert 6 = Memory.approx_term_size(term)
 
       term = "Hello, World!"
-      assert 19 = Memory.term_size(term)
+      assert 19 = Memory.approx_term_size(term)
     end
   end
 end

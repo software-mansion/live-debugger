@@ -7,8 +7,8 @@ defmodule LiveDebugger.Utils.Memory do
   @doc """
   Returns the approximate size of an elixir term in bytes.
   """
-  @spec term_size(term :: term()) :: non_neg_integer()
-  def term_size(term) do
+  @spec approx_term_size(term :: term()) :: non_neg_integer()
+  def approx_term_size(term) do
     term |> :erlang.term_to_binary() |> byte_size()
   end
 end
