@@ -36,9 +36,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
         <:right_panel>
           <div class="flex gap-2">
-            <div class="text-xs text-primary-text">
-              <%= assigns_size_label(@assigns) %>
-            </div>
             <AssignsSearch.render
               assigns_search_phrase={@assigns_search_phrase}
               input_id="assigns-search-input"
@@ -56,6 +53,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           class="relative w-full h-max max-h-full p-4 overflow-y-auto"
           data-search_phrase={@assigns_search_phrase}
         >
+          <div class="absolute top-2 right-2 z-10">
+            <div class="text-xs text-secondary-text">
+              <%= assigns_size_label(@assigns) %>
+            </div>
+          </div>
           <ElixirDisplay.term id="assigns-display" node={TermParser.term_to_display_tree(@assigns)} />
         </div>
       </.section>
@@ -69,9 +71,14 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         </div>
         <div
           id="assigns-display-fullscreen-container"
-          class="p-4"
+          class="relative p-4"
           data-search_phrase={@assigns_search_phrase}
         >
+          <div class="absolute top-0 right-2 z-10">
+            <div class="text-xs text-secondary-text">
+              <%= assigns_size_label(@assigns) %>
+            </div>
+          </div>
           <ElixirDisplay.term
             id="assigns-display-fullscreen-term"
             node={TermParser.term_to_display_tree(@assigns)}
