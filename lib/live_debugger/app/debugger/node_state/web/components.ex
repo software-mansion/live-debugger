@@ -56,13 +56,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         </div>
       </.section>
       <.fullscreen id={@fullscreen_id} title="Assigns">
-        <div class="flex justify-between p-2 border-b border-default-border">
+        <:search_bar_slot>
           <AssignsSearch.render
-            placeholder="Search assigns"
             assigns_search_phrase={@assigns_search_phrase}
             input_id="assigns-search-input-fullscreen"
           />
-        </div>
+        </:search_bar_slot>
         <div
           id="assigns-display-fullscreen-container"
           class="p-4"
