@@ -1,4 +1,6 @@
 defmodule LiveDebugger.App.Utils.TermDiffer do
+  @primitive_key :live_debugger_primitive_key
+
   @moduledoc """
   Module for getting diffs between two terms.
 
@@ -19,8 +21,8 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
       iex> TermDiffer.diff(1, 2)
       %TermDiffer.Diff{
         type: :primitive,
-        ins: %{primitive: 2},
-        del: %{primitive: 1},
+        ins: %{#{@primitive_key} => 2},
+        del: %{#{@primitive_key} => 1},
       }
 
       iex> TermDiffer.diff([1, 2, 3], [4, 2, 3])
@@ -39,8 +41,8 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
         diff: %{
           c: %TermDiffer.Diff{
             type: :primitive,
-            ins: %{primitive: 4},
-            del: %{primitive: 3},
+            ins: %{#{@primitive_key} => 4},
+            del: %{#{@primitive_key} => 3},
             diff: %{}
           }
         }
@@ -66,6 +68,11 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
   end
 
   @doc """
+  Key for getting values in `ins` and `del` for `primitive` type.
+  """
+  def primitive_key, do: @primitive_key
+
+  @doc """
   Calculates the diff between two terms.
   """
   @spec diff(term(), term()) :: Diff.t() | nil
@@ -88,8 +95,8 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
   def diff(struct1, struct2) when is_struct(struct1) and is_struct(struct2) do
     %Diff{
       type: :primitive,
-      ins: %{primitive: struct2},
-      del: %{primitive: struct1}
+      ins: %{@primitive_key => struct2},
+      del: %{@primitive_key => struct1}
     }
   end
 
@@ -111,8 +118,8 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
   def diff(old_value, new_value) do
     %Diff{
       type: :primitive,
-      ins: %{primitive: new_value},
-      del: %{primitive: old_value}
+      ins: %{@primitive_key => new_value},
+      del: %{@primitive_key => old_value}
     }
   end
 

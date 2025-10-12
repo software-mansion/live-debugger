@@ -1,6 +1,7 @@
 defmodule LiveDebugger.App.Utils.TermDifferTest do
   use ExUnit.Case
 
+  alias LiveDebugger.Fakes
   alias LiveDebugger.App.Utils.TermDiffer
   alias LiveDebugger.App.Utils.TermDiffer.Diff
 
@@ -14,112 +15,66 @@ defmodule LiveDebugger.App.Utils.TermDifferTest do
 
   describe "diff/2" do
     test "returns a diff between two primitive terms" do
-      assert TermDiffer.diff(1, 2) == %Diff{
-               type: :primitive,
-               ins: %{primitive: 2},
-               del: %{primitive: 1},
-               diff: %{}
-             }
+      assert TermDiffer.diff(1, 2) == Fakes.term_diff_primitive(old_value: 1, new_value: 2)
     end
 
     test "returns primitive diff for different data types" do
-      assert TermDiffer.diff(1, %{a: 1}) == %Diff{
-               type: :primitive,
-               ins: %{primitive: %{a: 1}},
-               del: %{primitive: 1},
-               diff: %{}
-             }
+      assert TermDiffer.diff(1, %{a: 1}) ==
+               Fakes.term_diff_primitive(old_value: 1, new_value: %{a: 1})
     end
 
     test "returns a diff between two lists with ins and del" do
-      assert TermDiffer.diff([1, 2, 3, 4], [5, 1, 2, 3]) == %Diff{
-               type: :list,
-               ins: %{0 => 5},
-               del: %{3 => 4},
-               diff: %{}
-             }
+      assert TermDiffer.diff([1, 2, 3, 4], [5, 1, 2, 3]) ==
+               Fakes.term_diff(type: :list, ins: %{0 => 5}, del: %{3 => 4})
     end
 
     test "returns ins and del when element in list changed" do
-      assert TermDiffer.diff([1, 2, 3, 4], [1, 2, 3, 5]) == %Diff{
-               type: :list,
-               ins: %{3 => 5},
-               del: %{3 => 4},
-               diff: %{}
-             }
+      assert TermDiffer.diff([1, 2, 3, 4], [1, 2, 3, 5]) ==
+               Fakes.term_diff(type: :list, ins: %{3 => 5}, del: %{3 => 4})
     end
 
     test "returns a diff between two tuples with different values" do
-      assert TermDiffer.diff({1, 2, 3, 4}, {2, 3, 5}) == %Diff{
-               type: :tuple,
-               ins: %{2 => 5},
-               del: %{3 => 4, 0 => 1},
-               diff: %{}
-             }
+      assert TermDiffer.diff({1, 2, 3, 4}, {2, 3, 5}) ==
+               Fakes.term_diff(type: :tuple, ins: %{2 => 5}, del: %{3 => 4, 0 => 1})
     end
 
     test "returns proper indexes for inserted and deleted values" do
-      assert TermDiffer.diff([1, 2, 3, 4, 5], [1, 1.5, 2, 4, 4.5, 5]) == %Diff{
-               type: :list,
-               ins: %{1 => 1.5, 4 => 4.5},
-               del: %{2 => 3},
-               diff: %{}
-             }
+      assert TermDiffer.diff([1, 2, 3, 4, 5], [1, 1.5, 2, 4, 4.5, 5]) ==
+               Fakes.term_diff(type: :list, ins: %{1 => 1.5, 4 => 4.5}, del: %{2 => 3})
     end
 
     test "returns a diff between two maps with different keys" do
-      assert TermDiffer.diff(%{a: 1, b: 2, c: 4}, %{a: 1, b: 2, d: 4}) == %Diff{
-               type: :map,
-               ins: %{:d => 4},
-               del: %{:c => 4},
-               diff: %{}
-             }
+      assert TermDiffer.diff(%{a: 1, b: 2, c: 4}, %{a: 1, b: 2, d: 4}) ==
+               Fakes.term_diff(type: :map, ins: %{:d => 4}, del: %{:c => 4})
     end
 
     test "returns a diff between two maps with changed values" do
-      assert TermDiffer.diff(%{a: 1, b: 2, c: 4}, %{a: 1, b: 2, c: 5}) == %Diff{
-               type: :map,
-               ins: %{},
-               del: %{},
-               diff: %{
-                 c: %Diff{
-                   type: :primitive,
-                   ins: %{primitive: 5},
-                   del: %{primitive: 4},
-                   diff: %{}
-                 }
-               }
-             }
+      assert TermDiffer.diff(%{a: 1, b: 2, c: 4}, %{a: 1, b: 2, c: 5}) ==
+               Fakes.term_diff(
+                 type: :map,
+                 diff: %{c: Fakes.term_diff_primitive(old_value: 4, new_value: 5)}
+               )
     end
 
     test "returns a diff between two structs with different values" do
       assert TermDiffer.diff(%TestStruct1{a: 1, b: 2, c: 4}, %TestStruct1{a: 1, b: 2, c: 5}) ==
-               %Diff{
+               Fakes.term_diff(
                  type: :struct,
-                 ins: %{},
-                 del: %{},
-                 diff: %{
-                   c: %Diff{
-                     type: :primitive,
-                     ins: %{primitive: 5},
-                     del: %{primitive: 4},
-                     diff: %{}
-                   }
-                 }
-               }
+                 diff: %{c: Fakes.term_diff_primitive(old_value: 4, new_value: 5)}
+               )
     end
 
     test "returns a primitive diff when the structs are not the same" do
       assert TermDiffer.diff(%TestStruct1{a: 1, b: 2, c: 4}, %TestStruct2{a: 1, b: 2, c: 4}) ==
-               %Diff{
-                 type: :primitive,
-                 ins: %{primitive: %TestStruct2{a: 1, b: 2, c: 4}},
-                 del: %{primitive: %TestStruct1{a: 1, b: 2, c: 4}},
-                 diff: %{}
-               }
+               Fakes.term_diff_primitive(
+                 old_value: %TestStruct1{a: 1, b: 2, c: 4},
+                 new_value: %TestStruct2{a: 1, b: 2, c: 4}
+               )
     end
 
     test "works properly with nested data types" do
+      primitive_key = :live_debugger_primitive_key
+
       term1 = %{
         list: [1, 2, 3, 4],
         map: %{a: 1, b: 2, c: 3},
@@ -157,8 +112,8 @@ defmodule LiveDebugger.App.Utils.TermDifferTest do
                  },
                  struct: %Diff{
                    type: :primitive,
-                   ins: %{primitive: nil},
-                   del: %{primitive: %TestStruct1{a: 1, b: 2, c: 3}}
+                   ins: %{^primitive_key => nil},
+                   del: %{^primitive_key => %TestStruct1{a: 1, b: 2, c: 3}}
                  },
                  nested_map: %Diff{
                    type: :map,
