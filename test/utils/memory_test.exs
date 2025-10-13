@@ -49,25 +49,25 @@ defmodule LiveDebugger.Utils.MemoryTest do
     test "formats bytes correctly" do
       assert "0B" = Memory.bytes_to_pretty_string(0)
       assert "1B" = Memory.bytes_to_pretty_string(1)
-      assert "999B" = Memory.bytes_to_pretty_string(999)
+      assert "1023B" = Memory.bytes_to_pretty_string(1023)
     end
 
     test "formats kilobytes correctly" do
-      assert "1.0KB" = Memory.bytes_to_pretty_string(1_000)
-      assert "1.5KB" = Memory.bytes_to_pretty_string(1_500)
-      assert "999.9KB" = Memory.bytes_to_pretty_string(999_900)
+      assert "1.0KB" = Memory.bytes_to_pretty_string(1024)
+      assert "1.5KB" = Memory.bytes_to_pretty_string(1536)
+      assert "1023.0KB" = Memory.bytes_to_pretty_string(1_047_552)
     end
 
     test "formats megabytes correctly" do
-      assert "1.0MB" = Memory.bytes_to_pretty_string(1_000_000)
-      assert "1.5MB" = Memory.bytes_to_pretty_string(1_500_000)
-      assert "999.9MB" = Memory.bytes_to_pretty_string(999_900_000)
+      assert "1.0MB" = Memory.bytes_to_pretty_string(1_048_576)
+      assert "1.5MB" = Memory.bytes_to_pretty_string(1_572_864)
+      assert "1023.0MB" = Memory.bytes_to_pretty_string(1_072_693_248)
     end
 
     test "formats gigabytes correctly" do
-      assert "1.00GB" = Memory.bytes_to_pretty_string(1_000_000_000)
-      assert "1.50GB" = Memory.bytes_to_pretty_string(1_500_000_000)
-      assert "2.34GB" = Memory.bytes_to_pretty_string(2_340_000_000)
+      assert "1.00GB" = Memory.bytes_to_pretty_string(1_073_741_824)
+      assert "1.50GB" = Memory.bytes_to_pretty_string(1_610_612_736)
+      assert "2.34GB" = Memory.bytes_to_pretty_string(2_512_365_404)
     end
   end
 end

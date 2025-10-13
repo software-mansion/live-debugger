@@ -5,6 +5,9 @@ defmodule LiveDebugger.Utils.Memory do
   """
 
   @wordsize :erlang.system_info(:wordsize)
+  @kilobyte 1024
+  @megabyte 1_048_576
+  @gigabyte 1_073_741_824
 
   @doc """
   Returns the size of an elixir term serialized to binary in bytes.
@@ -23,21 +26,21 @@ defmodule LiveDebugger.Utils.Memory do
   end
 
   @doc """
-  Converts bytes to a human-readable string with SI units (KB, MB, GB).
+  Converts bytes to a human-readable string
   """
   @spec bytes_to_pretty_string(non_neg_integer()) :: String.t()
-  def bytes_to_pretty_string(n) when n < 1_000, do: "#{n}B"
+  def bytes_to_pretty_string(n) when n < @kilobyte, do: "#{n}B"
 
-  def bytes_to_pretty_string(n) when n < 1_000_000 do
-    "#{format_float(n / 1_000, 1)}KB"
+  def bytes_to_pretty_string(n) when n < @megabyte do
+    "#{format_float(n / @kilobyte, 1)}KB"
   end
 
-  def bytes_to_pretty_string(n) when n < 1_000_000_000 do
-    "#{format_float(n / 1_000_000, 1)}MB"
+  def bytes_to_pretty_string(n) when n < @gigabyte do
+    "#{format_float(n / @megabyte, 1)}MB"
   end
 
   def bytes_to_pretty_string(n) do
-    "#{format_float(n / 1_000_000_000, 2)}GB"
+    "#{format_float(n / @gigabyte, 2)}GB"
   end
 
   defp format_float(value, decimals) do
