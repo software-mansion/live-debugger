@@ -5,9 +5,28 @@ defmodule LiveDebugger.Utils.Memory do
   """
 
   @wordsize :erlang.system_info(:wordsize)
+
   @kilobyte 1024
   @megabyte 1_048_576
   @gigabyte 1_073_741_824
+
+  @doc """
+  Returns the number of bytes in a kilobyte (1024).
+  """
+  @spec kilobyte() :: non_neg_integer()
+  def kilobyte, do: @kilobyte
+
+  @doc """
+  Returns the number of bytes in a megabyte (1,048,576).
+  """
+  @spec megabyte() :: non_neg_integer()
+  def megabyte, do: @megabyte
+
+  @doc """
+  Returns the number of bytes in a gigabyte (1,073,741,824).
+  """
+  @spec gigabyte() :: non_neg_integer()
+  def gigabyte, do: @gigabyte
 
   @doc """
   Returns the size of an elixir term serialized to binary in bytes.
