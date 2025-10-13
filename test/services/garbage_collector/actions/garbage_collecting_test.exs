@@ -25,6 +25,7 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest d
       alive_pids = MapSet.new([pid2])
       table1 = make_ref()
       table2 = make_ref()
+      state = %{to_remove: MapSet.new()}
 
       max_table_size_watched = 50 * @megabyte_unit
       max_table_size_non_watched = 5 * @megabyte_unit
@@ -39,7 +40,8 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest d
       MockBus
       |> expect(:broadcast_event!, 2, fn %TableTrimmed{} -> :ok end)
 
-      assert true == GarbageCollectingActions.garbage_collect_traces!(watched_pids, alive_pids)
+      assert MapSet.new() ==
+               GarbageCollectingActions.garbage_collect_traces!(state, watched_pids, alive_pids)
     end
 
     test "does not collect garbage if max size not exceeded" do
@@ -49,6 +51,7 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest d
       alive_pids = MapSet.new([pid2])
       table1 = make_ref()
       table2 = make_ref()
+      state = %{to_remove: MapSet.new()}
 
       MockAPITracesStorage
       |> expect(:get_all_tables, fn -> [{pid1, table1}, {pid2, table2}] end)
@@ -59,44 +62,75 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest d
       MockBus
       |> deny(:broadcast_event!, 2)
 
-      assert false == GarbageCollectingActions.garbage_collect_traces!(watched_pids, alive_pids)
+      assert MapSet.new() ==
+               GarbageCollectingActions.garbage_collect_traces!(state, watched_pids, alive_pids)
     end
 
-    test "deletes table if not watched and no alive" do
+    test "marks for removal if not watched and not alive" do
       watched_pids = MapSet.new()
       alive_pids = MapSet.new()
       pid1 = :c.pid(0, 11, 0)
       table1 = make_ref()
+      state = %{to_remove: MapSet.new([])}
+
+      expect(MockAPITracesStorage, :get_all_tables, fn -> [{pid1, table1}] end)
+
+      assert MapSet.new([pid1]) ==
+               GarbageCollectingActions.garbage_collect_traces!(state, watched_pids, alive_pids)
+    end
+
+    test "deletes table if not watched, not alive and marked to remove" do
+      watched_pids = MapSet.new()
+      alive_pids = MapSet.new()
+      pid1 = :c.pid(0, 11, 0)
+      table1 = make_ref()
+      state = %{to_remove: MapSet.new([pid1])}
 
       expect(MockAPITracesStorage, :get_all_tables, fn -> [{pid1, table1}] end)
       expect(MockAPITracesStorage, :delete_table!, fn ^table1 -> :ok end)
       expect(MockBus, :broadcast_event!, fn %TableDeleted{} -> :ok end)
 
-      assert true == GarbageCollectingActions.garbage_collect_traces!(watched_pids, alive_pids)
+      assert MapSet.new() ==
+               GarbageCollectingActions.garbage_collect_traces!(state, watched_pids, alive_pids)
     end
   end
 
   describe "garbage_collect_states!/1" do
-    test "collects garbage for states if pids are not watched and not alive" do
+    test "marks for removal if not watched and not alive" do
       pid1 = :c.pid(0, 12, 0)
       watched_pids = MapSet.new([:c.pid(0, 11, 0)])
       alive_pids = MapSet.new([:c.pid(0, 13, 0)])
+      state = %{to_remove: MapSet.new()}
+
+      MockAPIStatesStorage
+      |> expect(:get_all_states, fn -> [{pid1, :some_state}] end)
+
+      assert MapSet.new([pid1]) ==
+               GarbageCollectingActions.garbage_collect_states!(state, watched_pids, alive_pids)
+    end
+
+    test "deletes states if not watched, not alive and marked for removal " do
+      pid1 = :c.pid(0, 12, 0)
+      watched_pids = MapSet.new([:c.pid(0, 11, 0)])
+      alive_pids = MapSet.new([:c.pid(0, 13, 0)])
+      state = %{to_remove: MapSet.new([pid1])}
 
       MockAPIStatesStorage
       |> expect(:get_all_states, fn -> [{pid1, :some_state}] end)
       |> expect(:delete!, fn ^pid1 -> :ok end)
 
-      MockBus
-      |> expect(:broadcast_event!, fn %TableTrimmed{} -> :ok end)
+      expect(MockBus, :broadcast_event!, fn %TableTrimmed{} -> :ok end)
 
-      assert true == GarbageCollectingActions.garbage_collect_states!(watched_pids, alive_pids)
+      assert MapSet.new() ==
+               GarbageCollectingActions.garbage_collect_states!(state, watched_pids, alive_pids)
     end
 
-    test "does not collect garbage for states if pids are watched or alive" do
+    test "do nothing if pids are watched or alive" do
       pid1 = :c.pid(0, 12, 0)
       pid2 = :c.pid(0, 13, 0)
       watched_pids = MapSet.new([pid1])
       alive_pids = MapSet.new([pid2])
+      state = %{to_remove: MapSet.new()}
 
       MockAPIStatesStorage
       |> expect(:get_all_states, fn -> [{pid1, :some_state}, {pid2, :some_other_state}] end)
@@ -105,7 +139,8 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest d
       MockBus
       |> deny(:broadcast_event!, 1)
 
-      assert false == GarbageCollectingActions.garbage_collect_states!(watched_pids, alive_pids)
+      assert MapSet.new() ==
+               GarbageCollectingActions.garbage_collect_states!(state, watched_pids, alive_pids)
     end
   end
 end

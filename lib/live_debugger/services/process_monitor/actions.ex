@@ -5,7 +5,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.Actions do
 
   alias LiveDebugger.CommonTypes
   alias LiveDebugger.API.LiveViewDebug
-  alias LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor
+  alias LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonitor
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
@@ -13,47 +13,46 @@ defmodule LiveDebugger.Services.ProcessMonitor.Actions do
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
 
-  @spec register_component_created!(ProcessMonitor.state(), pid(), CommonTypes.cid()) ::
-          ProcessMonitor.state()
+  @spec register_component_created!(DebuggedProcessesMonitor.state(), pid(), CommonTypes.cid()) ::
+          DebuggedProcessesMonitor.state()
   def register_component_created!(state, pid, cid) do
-    new_state = Map.update!(state, pid, &MapSet.put(&1, cid))
     Bus.broadcast_event!(%LiveComponentCreated{cid: cid, pid: pid}, pid)
 
-    new_state
+    Map.update!(state, pid, &MapSet.put(&1, cid))
   end
 
-  @spec register_component_deleted!(ProcessMonitor.state(), pid(), CommonTypes.cid()) ::
-          ProcessMonitor.state()
+  @spec register_component_deleted!(DebuggedProcessesMonitor.state(), pid(), CommonTypes.cid()) ::
+          DebuggedProcessesMonitor.state()
   def register_component_deleted!(state, pid, cid) do
-    new_state = Map.update!(state, pid, &MapSet.delete(&1, cid))
     Bus.broadcast_event!(%LiveComponentDeleted{cid: cid, pid: pid}, pid)
 
-    new_state
+    Map.update!(state, pid, &MapSet.delete(&1, cid))
   end
 
-  @spec register_live_view_born!(ProcessMonitor.state(), pid(), pid()) :: ProcessMonitor.state()
+  @spec register_live_view_born!(DebuggedProcessesMonitor.state(), pid(), pid()) ::
+          DebuggedProcessesMonitor.state()
   def register_live_view_born!(state, pid, transport_pid) do
     Process.monitor(pid)
 
     Bus.broadcast_event!(%LiveViewBorn{pid: pid, transport_pid: transport_pid})
 
-    case LiveViewDebug.live_components(pid) do
-      {:ok, components} ->
-        node_ids = Enum.map(components, &%Phoenix.LiveComponent.CID{cid: &1.cid})
-        new_state = Map.put(state, pid, MapSet.new(node_ids))
+    node_ids =
+      LiveViewDebug.live_components(pid)
+      |> case do
+        {:ok, components} -> components
+        _ -> []
+      end
+      |> Enum.map(&%Phoenix.LiveComponent.CID{cid: &1.cid})
+      |> MapSet.new()
 
-        new_state
-
-      _ ->
-        state
-    end
+    Map.put(state, pid, node_ids)
   end
 
-  @spec register_live_view_died!(ProcessMonitor.state(), pid()) :: ProcessMonitor.state()
+  @spec register_live_view_died!(DebuggedProcessesMonitor.state(), pid()) ::
+          DebuggedProcessesMonitor.state()
   def register_live_view_died!(state, pid) do
-    new_state = Map.delete(state, pid)
     Bus.broadcast_event!(%LiveViewDied{pid: pid})
 
-    new_state
+    Map.delete(state, pid)
   end
 end

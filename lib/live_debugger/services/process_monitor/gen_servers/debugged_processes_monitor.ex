@@ -1,18 +1,16 @@
-defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
+defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonitor do
   @moduledoc """
   This module is monitoring the status of LiveView processes created by a debugged application.
 
-  For this server to function properly two services must be running and sending events:
-  - `LiveDebugger.Services.CallbackTracer` sending `TraceCalled` and `TraceReturned` events
-  - `LiveDebugger.Services.ClientCommunicator` sending `ClientConnected` (temporary name)
+  For this server to function properly this service must be running and sending events:
+  - `LiveDebugger.Services.CallbackTracer` sending `TraceCalled` event
 
-  `LiveViewBorn` event is detected in two ways:
-  - When a `TraceReturned` event with function `:render` is received and the process is not already registered
-  - When a LiveView browser client connects via WebSocket, which sends a `ClientConnected` event
+  `LiveViewBorn` event is detected when `TraceCalled` event with functions `:mount`, `:handle_params` or `:render` is received 
+  and the process is not already registered
 
   `LiveViewDied` event is detected when a monitored LiveView process sends a `:DOWN` message.
 
-  `LiveComponentCreated` event is detected when a `TraceReturned` event with function `:render`
+  `LiveComponentCreated` event is detected when a `TraceCalled` event with function `:render`
   is received and the process is already registered, but the component ID (cid) is not in the state.
 
   `LiveComponentDeleted` event is detected when a `TraceCalled` event with module `Phoenix.LiveView.Diff`
@@ -82,9 +80,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.ProcessMonitor do
     |> noreply()
   end
 
-  def handle_info(_, state) do
-    noreply(state)
-  end
+  def handle_info(_, state), do: {:noreply, state}
 
   defp maybe_register_component_created(state, _pid, nil) do
     state
