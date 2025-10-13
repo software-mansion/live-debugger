@@ -437,6 +437,7 @@ defmodule LiveDebugger.App.Web.Components do
   )
 
   slot(:inner_block, required: true)
+  slot(:search_bar_slot)
 
   def fullscreen(assigns) do
     ~H"""
@@ -449,7 +450,10 @@ defmodule LiveDebugger.App.Web.Components do
       ]}
     >
       <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border">
-        <div class="font-semibold text-primary-text text-base"><%= @title %></div>
+        <div class="flex justify-between items-center w-full font-semibold text-primary-text text-base">
+          <%= @title %>
+          <div class="mr-2 font-normal"><%= render_slot(@search_bar_slot) %></div>
+        </div>
         <.icon_button
           id={"#{@id}-close"}
           phx-click={JS.dispatch("close", to: "##{@id}")}
