@@ -16,8 +16,7 @@ defmodule LiveDebugger.Fakes do
   end
 
   def term_diff(opts \\ []) do
-    type = Keyword.get(opts, :type, :list)
-
+    type = Keyword.get(opts, :type, :equal)
     ins = Keyword.get(opts, :ins, %{})
     del = Keyword.get(opts, :del, %{})
     diff = Keyword.get(opts, :diff, %{})

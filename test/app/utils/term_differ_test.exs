@@ -14,6 +14,10 @@ defmodule LiveDebugger.App.Utils.TermDifferTest do
   end
 
   describe "diff/2" do
+    test "returns an equal diff when the terms are the same" do
+      assert TermDiffer.diff(1, 1) == Fakes.term_diff(type: :equal)
+    end
+
     test "returns a diff between two primitive terms" do
       assert TermDiffer.diff(1, 2) == Fakes.term_diff_primitive(old_value: 1, new_value: 2)
     end

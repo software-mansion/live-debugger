@@ -56,7 +56,7 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
 
     defstruct [:type, ins: %{}, del: %{}, diff: %{}]
 
-    @type type() :: :map | :list | :tuple | :struct | :primitive
+    @type type() :: :map | :list | :tuple | :struct | :primitive | :equal
     @type key() :: any()
 
     @type t() :: %__MODULE__{
@@ -75,8 +75,8 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
   @doc """
   Calculates the diff between two terms.
   """
-  @spec diff(term(), term()) :: Diff.t() | nil
-  def diff(term, term), do: nil
+  @spec diff(term(), term()) :: Diff.t()
+  def diff(term, term), do: %Diff{type: :equal}
 
   def diff(list1, list2) when is_list(list1) and is_list(list2) do
     {ins, del} = list_diffs(list1, list2)
@@ -168,7 +168,7 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
       Map.intersect(map1, map2, fn _, old_value, new_value ->
         diff(old_value, new_value)
       end)
-      |> Map.reject(fn {_, value} -> is_nil(value) end)
+      |> Map.reject(fn {_, value} -> match?(%Diff{type: :equal}, value) end)
 
     {ins, del, diff}
   end
