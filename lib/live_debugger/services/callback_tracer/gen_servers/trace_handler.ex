@@ -11,6 +11,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   alias LiveDebugger.Services.CallbackTracer.Actions.Trace, as: TraceActions
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
+  alias LiveDebugger.Services.CallbackTracer.Actions.LvDiff, as: DiffActions
   alias LiveDebugger.Structs.Trace
 
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
@@ -77,12 +78,10 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
     {:noreply, state}
   end
 
-  @impl true
   def handle_cast({:new_trace, {_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _}, _}, state) do
     {:noreply, state}
   end
 
-  @impl true
   def handle_cast({:new_trace, {_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _, _}, _}, state) do
     {:noreply, state}
   end
@@ -97,7 +96,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   #
   #########################################################
 
-  @impl true
   def handle_cast(
         {:new_trace,
          {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, ts}, n},
@@ -130,7 +128,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   #
   #########################################################
 
-  @impl true
   def handle_cast({:new_trace, {_, pid, :call, {module, fun, args}, ts}, n}, state)
       when fun in @allowed_callbacks do
     with {:ok, trace} <- TraceActions.create_trace(n, module, fun, args, pid, ts),
@@ -146,7 +143,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
     end
   end
 
-  @impl true
   def handle_cast({:new_trace, {_, pid, type, {module, fun, _}, _, return_ts}, _n}, state)
       when fun in @allowed_callbacks and type in [:return_from, :exception_from] do
     with trace_key <- {pid, module, fun},
@@ -168,10 +164,25 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   end
 
   #########################################################
+  # Handling diffs tracing
+  #
+  # Use :dbg.p(channel_pid, [:s]) to activate
+  #########################################################
+
+  def handle_cast({:new_trace, {_, pid, :send, {:socket_push, :text, iodata}, _, ts}, n}, state) do
+    DiffActions.maybe_create_diff(n, pid, ts, iodata) |> dbg()
+
+    {:noreply, state}
+  end
+
+  def handle_cast({:new_trace, {_, _pid, :send, _, _, _}, _}, state) do
+    {:noreply, state}
+  end
+
+  #########################################################
   # Handling unknown traces
   #########################################################
 
-  @impl true
   def handle_cast({:new_trace, trace, _n}, state) do
     Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
 
