@@ -34,11 +34,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
           <.nav_icon icon="icon-globe" selected?={@current_view == "global_traces"} />
         </.link>
       </.tooltip>
-      <.tooltip id="lv-diffs-tooltip" position="right" content="LiveView Diffs">
-        <.link patch={RoutesHelper.debugger_lv_diffs(@pid)}>
-          <.nav_icon icon="icon-file-diff" selected?={@current_view == "diffs"} />
-        </.link>
-      </.tooltip>
     </div>
     """
   end
@@ -75,12 +70,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
           label="Global Callbacks"
           selected?={@current_view == "global_traces"}
           phx-click={dropdown_item_click(RoutesHelper.debugger_global_traces(@pid))}
-        />
-        <.dropdown_item
-          icon="icon-file-diff"
-          label="LiveView Diffs"
-          selected?={@current_view == "diffs"}
-          phx-click={dropdown_item_click(RoutesHelper.debugger_lv_diffs(@pid))}
         />
       </div>
     </.live_component>

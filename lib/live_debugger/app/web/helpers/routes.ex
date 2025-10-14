@@ -63,17 +63,6 @@ defmodule LiveDebugger.App.Web.Helpers.Routes do
     ~p"/pid/#{pid}/global_traces"
   end
 
-  @spec debugger_lv_diffs(pid :: pid() | String.t()) :: String.t()
-  def debugger_lv_diffs(pid) when is_pid(pid) do
-    pid
-    |> Parsers.pid_to_string()
-    |> debugger_lv_diffs()
-  end
-
-  def debugger_lv_diffs(pid) when is_binary(pid) do
-    ~p"/pid/#{pid}/diffs"
-  end
-
   @spec error(String.t()) :: String.t()
   def error(error) do
     ~p"/error/#{error}"
