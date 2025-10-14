@@ -5,6 +5,8 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  alias LiveDebugger.App.Events.UserChangedSettings
+  alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
   alias LiveDebugger.App.Discovery.Web.Components, as: DiscoveryComponents
@@ -23,7 +25,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
     end
 
     socket
-    |> assign(dead_liveviews?: true)
+    |> assign(dead_liveviews?: SettingsStorage.get(:dead_liveviews))
     |> assign_async_grouped_lv_processes()
     |> assign_async_dead_grouped_lv_processes()
     |> ok()
@@ -102,14 +104,20 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   end
 
   def handle_event("toggle-dead-liveviews", _params, socket) do
-    socket
-    |> update(:dead_liveviews?, &(not &1))
-    |> case do
-      %{assigns: %{dead_liveviews?: true}} = socket ->
-        assign_async_dead_grouped_lv_processes(socket)
+    new_value = !socket.assigns.dead_liveviews?
 
-      socket ->
+    DiscoveryActions.update_dead_liveviews_setting!(new_value)
+    |> case do
+      {:ok, true} ->
         socket
+        |> assign(dead_liveviews?: true)
+        |> assign_async_dead_grouped_lv_processes()
+
+      {:ok, false} ->
+        assign(socket, dead_liveviews?: false)
+
+      {:error, _reason} ->
+        push_flash(socket, :error, "Failed to update setting")
     end
     |> noreply()
   end
@@ -139,6 +147,16 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
   def handle_info(%TableTrimmed{}, socket) do
     socket
+    |> assign_async_dead_grouped_lv_processes()
+    |> noreply()
+  end
+
+  def handle_info(
+        %UserChangedSettings{key: :dead_liveviews, value: value},
+        socket
+      ) do
+    socket
+    |> assign(dead_liveviews?: value)
     |> assign_async_dead_grouped_lv_processes()
     |> noreply()
   end
