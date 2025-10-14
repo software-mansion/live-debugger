@@ -94,7 +94,6 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             socket={@socket}
             lv_process={lv_process}
           />
-          <Pages.lv_diffs :if={@live_action == :diffs} socket={@socket} lv_process={lv_process} />
         </div>
       </.async_result>
     </div>
