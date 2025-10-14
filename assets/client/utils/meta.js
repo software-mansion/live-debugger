@@ -1,14 +1,39 @@
-export function fetchDebuggedSocketID() {
-  let el;
-  if ((el = document.querySelector('[data-phx-main]'))) {
-    return el.id;
-  }
-  if ((el = document.querySelector('[id^="phx-"]'))) {
-    return el.id;
-  }
-  if ((el = document.querySelector('[data-phx-root-id]'))) {
-    return el.getAttribute('data-phx-root-id');
-  }
+export function fetchDebuggedSocketIDs() {
+  return new Promise((resolve) => {
+    const liveViewElements = document.querySelectorAll('[data-phx-session]');
+    const rootIDs = {};
+    const mainID = document.querySelector('[data-phx-main]')?.id;
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        console.log('mutation');
+
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'data-phx-root-id'
+        ) {
+          rootIDs[mutation.target.id] =
+            mutation.target.getAttribute('data-phx-root-id');
+
+          if (Object.keys(rootIDs).length >= liveViewElements.length) {
+            const rootSocketIDs = new Set(Object.values(rootIDs));
+            rootSocketIDs.delete(mainID);
+
+            observer.disconnect();
+
+            resolve({
+              mainSocketID: mainID,
+              rootSocketIDs: [...rootSocketIDs],
+            });
+          }
+        }
+      });
+    });
+
+    liveViewElements.forEach((el) => {
+      observer.observe(el, { attributes: true });
+    });
+  });
 }
 
 export function getMetaTag() {
