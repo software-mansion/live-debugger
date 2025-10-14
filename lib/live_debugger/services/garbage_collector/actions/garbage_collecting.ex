@@ -10,10 +10,10 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
   alias LiveDebugger.Services.GarbageCollector.Events.TableDeleted
+  alias LiveDebugger.Utils.Memory
 
-  @megabyte_unit 1_048_576
-  @watched_table_size 50 * @megabyte_unit
-  @non_watched_table_size 5 * @megabyte_unit
+  @watched_table_size 50 * Memory.megabyte()
+  @non_watched_table_size 5 * Memory.megabyte()
 
   @doc """
   Performs garbage collection on traces based on `to_remove`, `watched_pids`, and `alive_pids` sets.

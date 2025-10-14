@@ -513,7 +513,7 @@ defmodule LiveDebugger.API.TracesStorage do
     @spec foldl_record_sizes({term(), term()}, non_neg_integer(), non_neg_integer()) ::
             non_neg_integer()
     defp foldl_record_sizes({key, _} = record, acc, max_size) do
-      size = Memory.term_size(record)
+      size = Memory.serialized_term_size(record)
 
       if acc + size > max_size do
         throw({:key, key})
