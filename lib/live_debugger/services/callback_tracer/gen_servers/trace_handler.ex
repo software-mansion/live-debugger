@@ -11,7 +11,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   alias LiveDebugger.Services.CallbackTracer.Actions.Trace, as: TraceActions
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
-  alias LiveDebugger.Services.CallbackTracer.Actions.LvDiff, as: DiffActions
+  alias LiveDebugger.Services.CallbackTracer.Actions.DiffTrace, as: DiffActions
   alias LiveDebugger.Structs.Trace
 
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
