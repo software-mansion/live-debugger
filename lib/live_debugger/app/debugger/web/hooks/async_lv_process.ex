@@ -9,7 +9,6 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
 
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
-  alias LiveDebugger.App.Debugger.Queries.State, as: StateQueries
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebugger.API.LiveViewDiscovery
