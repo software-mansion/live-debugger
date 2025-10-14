@@ -14,7 +14,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       term = "Hello, World!"
 
       expected = %TermNode{
-        kind: "binary",
+        id: "root",
+        kind: :binary,
         children: [],
         content: [%DisplayElement{text: "\"Hello, World!\"", color: "text-code-4"}],
         expanded_before: nil,
@@ -28,7 +29,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       term = :hello
 
       expected = %TermNode{
-        kind: "atom",
+        id: "root",
+        kind: :atom,
         children: [],
         content: [%DisplayElement{text: ":hello", color: "text-code-1"}],
         expanded_before: nil,
@@ -42,7 +44,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       term = 42
 
       expected = %TermNode{
-        kind: "number",
+        id: "root",
+        kind: :number,
         children: [],
         content: [%DisplayElement{text: "42", color: "text-code-1"}],
         expanded_before: nil,
@@ -56,10 +59,12 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       term = {:ok, "Hello"}
 
       expected = %TermNode{
-        kind: "tuple",
+        id: "root",
+        kind: :tuple,
         children: [
           %TermNode{
-            kind: "atom",
+            id: "root.0",
+            kind: :atom,
             children: [],
             content: [
               %DisplayElement{text: ":ok", color: "text-code-1"},
@@ -69,7 +74,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
             expanded_after: nil
           },
           %TermNode{
-            kind: "binary",
+            id: "root.1",
+            kind: :binary,
             children: [],
             content: [%DisplayElement{text: "\"Hello\"", color: "text-code-4"}],
             expanded_before: nil,
@@ -88,7 +94,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       term = {}
 
       expected = %TermNode{
-        kind: "tuple",
+        id: "root",
+        kind: :tuple,
         children: [],
         content: [%DisplayElement{text: "{}", color: "text-code-2"}],
         expanded_before: nil,
@@ -102,10 +109,12 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       term = [1, 2, 3]
 
       expected = %TermNode{
-        kind: "list",
+        id: "root",
+        kind: :list,
         children: [
           %TermNode{
-            kind: "number",
+            id: "root.0",
+            kind: :number,
             children: [],
             content: [
               %DisplayElement{text: "1", color: "text-code-1"},
@@ -115,7 +124,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
             expanded_after: nil
           },
           %TermNode{
-            kind: "number",
+            id: "root.1",
+            kind: :number,
             children: [],
             content: [
               %DisplayElement{text: "2", color: "text-code-1"},
@@ -125,7 +135,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
             expanded_after: nil
           },
           %TermNode{
-            kind: "number",
+            id: "root.2",
+            kind: :number,
             children: [],
             content: [%DisplayElement{text: "3", color: "text-code-1"}],
             expanded_before: nil,
@@ -144,7 +155,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       term = []
 
       expected = %TermNode{
-        kind: "list",
+        id: "root",
+        kind: :list,
         children: [],
         content: [%DisplayElement{text: "[]", color: "text-code-2"}],
         expanded_before: nil,
@@ -158,7 +170,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       term = ~r/hello/
 
       expected = %TermNode{
-        kind: "regex",
+        id: "root",
+        kind: :regex,
         children: [],
         content: [%DisplayElement{text: "~r/hello/", color: "text-code-2"}],
         expanded_before: nil,
@@ -173,7 +186,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
 
       Enum.map(terms, fn term ->
         expected = %TermNode{
-          kind: "atom",
+          id: "root",
+          kind: :atom,
           children: [],
           content: [%DisplayElement{text: inspect(term), color: "text-code-3"}],
           expanded_before: nil,
@@ -188,7 +202,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       term = %{}
 
       expected = %TermNode{
-        kind: "map",
+        id: "root",
+        kind: :map,
         children: [],
         content: [%DisplayElement{text: "%{}", color: "text-code-2"}],
         expanded_before: nil,
@@ -204,10 +219,12 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       "Elixir." <> struct_name = __MODULE__.TestStruct |> Atom.to_string()
 
       expected = %TermNode{
-        kind: "struct",
+        id: "root",
+        kind: :struct,
         children: [
           %TermNode{
-            kind: "binary",
+            id: "root.0",
+            kind: :binary,
             children: [],
             content: [
               %DisplayElement{text: "field1:", color: "text-code-1"},
@@ -219,7 +236,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
             expanded_after: nil
           },
           %TermNode{
-            kind: "number",
+            id: "root.1",
+            kind: :number,
             children: [],
             content: [
               %DisplayElement{text: "field2:", color: "text-code-1"},
@@ -250,9 +268,11 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       {:ok, term} = Date.new(2023, 5, 10)
 
       expected = %TermNode{
+        id: "root",
         children: [
           %TermNode{
-            kind: "atom",
+            id: "root.0",
+            kind: :atom,
             children: [],
             content: [
               %DisplayElement{text: "calendar:", color: "text-code-1"},
@@ -264,7 +284,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
             expanded_after: nil
           },
           %TermNode{
-            kind: "number",
+            id: "root.1",
+            kind: :number,
             children: [],
             content: [
               %DisplayElement{text: "month:", color: "text-code-1"},
@@ -276,7 +297,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
             expanded_after: nil
           },
           %TermNode{
-            kind: "number",
+            id: "root.2",
+            kind: :number,
             children: [],
             content: [
               %DisplayElement{text: "day:", color: "text-code-1"},
@@ -288,7 +310,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
             expanded_after: nil
           },
           %TermNode{
-            kind: "number",
+            id: "root.3",
+            kind: :number,
             children: [],
             content: [
               %DisplayElement{text: "year:", color: "text-code-1"},
@@ -306,7 +329,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
           %DisplayElement{text: "{", color: "text-code-2"}
         ],
         expanded_after: [%DisplayElement{text: "}", color: "text-code-2"}],
-        kind: "struct"
+        kind: :struct
       }
 
       assert TermParser.term_to_display_tree(term) == expected
@@ -320,10 +343,12 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       }
 
       expected = %TermNode{
-        kind: "map",
+        id: "root",
+        kind: :map,
         children: [
           %TermNode{
-            kind: "binary",
+            id: "root.0",
+            kind: :binary,
             children: [],
             content: [
               %DisplayElement{text: "\"key1\"", color: "text-code-4"},
@@ -335,7 +360,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
             expanded_after: nil
           },
           %TermNode{
-            kind: "number",
+            id: "root.1",
+            kind: :number,
             children: [],
             content: [
               %DisplayElement{text: "\"key2\"", color: "text-code-4"},
@@ -347,7 +373,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
             expanded_after: nil
           },
           %TermNode{
-            kind: "atom",
+            id: "root.2",
+            kind: :atom,
             children: [],
             content: [
               %DisplayElement{text: "\"key3\"", color: "text-code-4"},
@@ -373,10 +400,12 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       }
 
       expected = %TermNode{
-        kind: "map",
+        id: "root",
+        kind: :map,
         children: [
           %TermNode{
-            kind: "binary",
+            id: "root.0",
+            kind: :binary,
             children: [],
             content: [
               %DisplayElement{text: "{:ok, ~D[2025-07-08]}", color: "text-code-2"},
@@ -388,7 +417,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
             expanded_after: nil
           },
           %TermNode{
-            kind: "binary",
+            id: "root.1",
+            kind: :binary,
             children: [],
             content: [
               %DisplayElement{text: "%Phoenix.LiveComponent.CID{cid: 1}", color: "text-code-1"},
