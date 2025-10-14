@@ -40,7 +40,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
       "max_unit" => Parsers.time_units() |> List.first()
     }
 
-    %{functions: callbacks, execution_time: execution_time}
+    other_filters = %{
+      "trace_diffs" => false
+    }
+
+    %{functions: callbacks, execution_time: execution_time, other_filters: other_filters}
   end
 
   @doc """
@@ -103,8 +107,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
   @spec count_selected_filters(default_filters :: map(), current_filters :: map()) ::
           integer()
   def count_selected_filters(default_filters, current_filters) do
-    current_flattened_filters = flattened_filters(current_filters, [:min_unit, :max_unit])
-    default_flattened_filters = flattened_filters(default_filters, [:min_unit, :max_unit])
+    current_flattened_filters =
+      flattened_filters(current_filters, [:min_unit, :max_unit, :other_filters])
+
+    default_flattened_filters =
+      flattened_filters(default_filters, [:min_unit, :max_unit, :other_filters])
 
     Enum.count(current_flattened_filters, fn {key, value} ->
       value != Map.get(default_flattened_filters, key)
@@ -139,6 +146,15 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
     %{}
     |> maybe_put_exec_time("exec_time_min", min_time, min_time_unit)
     |> maybe_put_exec_time("exec_time_max", max_time, max_time_unit)
+  end
+
+  @doc """
+  Returns the trace diffs setting from the current filters.
+  It uses the `current_filters` assigns to determine if trace diffs should be enabled.
+  """
+  @spec get_trace_diffs(%{other_filters: map()}) :: boolean()
+  def get_trace_diffs(%{other_filters: %{"trace_diffs" => trace_diffs}}) do
+    trace_diffs
   end
 
   defp maybe_put_exec_time(execution_times, key, value, unit) do
