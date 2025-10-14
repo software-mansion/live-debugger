@@ -9,6 +9,12 @@ defmodule LiveDebugger.Client.Channel do
   @impl true
   def join("client:" <> _debugged_socket_id, _params, socket) do
     Phoenix.PubSub.subscribe(@pubsub_name, "client:*")
+
+    socket.assigns.root_socket_ids
+    |> Enum.each(fn {_, socket_id} ->
+      Phoenix.PubSub.subscribe(@pubsub_name, "client:#{socket_id}")
+    end)
+
     {:ok, socket}
   end
 
