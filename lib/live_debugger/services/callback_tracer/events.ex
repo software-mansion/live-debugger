@@ -7,6 +7,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
 
   alias LiveDebugger.CommonTypes
   alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Structs.DiffTrace
 
   defevent(TraceCalled,
     trace_id: Trace.id(),
@@ -39,6 +40,12 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
     pid: pid(),
     cid: CommonTypes.cid() | nil,
     transport_pid: pid()
+  )
+
+  # TODO: Diff should not be directly passed via event
+  defevent(DiffCreated,
+    diff: DiffTrace.t(),
+    pid: pid()
   )
 
   defevent(StateChanged, pid: pid())

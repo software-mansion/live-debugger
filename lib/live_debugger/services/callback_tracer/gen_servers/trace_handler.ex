@@ -170,9 +170,15 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   #########################################################
 
   def handle_cast({:new_trace, {_, pid, :send, {:socket_push, :text, iodata}, _, ts}, n}, state) do
-    DiffActions.maybe_create_diff(n, pid, ts, iodata) |> dbg()
+    case DiffActions.maybe_create_diff(n, pid, ts, iodata) do
+      {:ok, diff_trace} ->
+        DiffActions.publish_diff(diff_trace)
 
-    {:noreply, state}
+        {:noreply, state}
+
+      {:error, err} ->
+        raise "Error while handling trace: #{inspect(err)}"
+    end
   end
 
   def handle_cast({:new_trace, {_, _pid, :send, _, _, _}, _}, state) do

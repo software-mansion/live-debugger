@@ -4,6 +4,8 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.DiffTrace do
   """
 
   alias LiveDebugger.Structs.DiffTrace
+  alias LiveDebugger.Bus
+  alias LiveDebugger.Services.CallbackTracer.Events.DiffCreated
 
   @doc """
   Creates a non-empty diff from raw diff trace. If diff is empty, returns nil.
@@ -18,6 +20,15 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.DiffTrace do
          diff <- get_diff(message_json) do
       {:ok, DiffTrace.new(n, diff, pid, timestamp, body_size)}
     end
+  end
+
+  @spec publish_diff(DiffTrace.t()) :: :ok | {:error, term()}
+  def publish_diff(%DiffTrace{pid: pid} = diff_trace) do
+    event = %DiffCreated{diff: diff_trace, pid: pid}
+    Bus.broadcast_trace!(event, pid)
+  rescue
+    err ->
+      {:error, err}
   end
 
   defp get_diff([_, _, _, "diff", payload]), do: payload
