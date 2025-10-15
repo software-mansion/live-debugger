@@ -52,12 +52,12 @@ defmodule LiveDebugger.App.Utils.TermParser do
       ...> end)
       {:ok, %TermNode{...}}
   """
-  @spec update_by_id(TermNode.t(), String.t(), (TermNode.t() -> TermNode.ok_error())) ::
+  @spec update_by_id(TermNode.t(), String.t(), (TermNode.t() -> TermNode.t())) ::
           TermNode.ok_error()
   def update_by_id(term_node, path, update_fn)
 
   def update_by_id(term_node, "root", update_fn) do
-    update_fn.(term_node)
+    {:ok, update_fn.(term_node)}
   end
 
   def update_by_id(term_node, "root" <> _ = id, update_fn) do
@@ -90,7 +90,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
       {:error, "Invalid diff or term node: #{inspect(error)}"}
   end
 
-  @spec update_by_path(TermNode.t(), [integer()], (TermNode.t() -> TermNode.ok_error())) ::
+  @spec update_by_path(TermNode.t(), [integer()], (TermNode.t() -> TermNode.t())) ::
           TermNode.ok_error()
   defp update_by_path(term, [index | path], update_fn) do
     with {key, child} <- Enum.at(term.children, index),
@@ -107,11 +107,13 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp update_by_path(term, [], update_fn) do
-    update_fn.(term)
+    {:ok, update_fn.(term)}
   end
 
   @spec update_by_diff!(TermNode.t(), Diff.t(), Keyword.t()) :: TermNode.t()
   defp update_by_diff!(term_node, diff, opts \\ [])
+
+  defp update_by_diff!(term_node, %Diff{type: :equal}, _opts), do: term_node
 
   defp update_by_diff!(_, %Diff{type: :primitive} = diff, opts) do
     term = TermDiffer.primitive_new_value(diff)

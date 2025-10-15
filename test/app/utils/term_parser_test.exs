@@ -4,6 +4,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
   alias LiveDebugger.App.Utils.TermNode
   alias LiveDebugger.App.Utils.TermNode.DisplayElement
   alias LiveDebugger.App.Utils.TermParser
+  alias LiveDebugger.Fakes
 
   defmodule TestStruct do
     defstruct [:field1, :field2]
@@ -66,27 +67,29 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
         kind: :tuple,
         open?: true,
         children: [
-          {0, %TermNode{
-            id: "root.0",
-            kind: :atom,
-            open?: false,
-            children: [],
-            content: [
-              %DisplayElement{text: ":ok", color: "text-code-1"},
-              %DisplayElement{text: ",", color: "text-code-2"}
-            ],
-            expanded_before: [],
-            expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
-          }},
-          {1, %TermNode{
-            id: "root.1",
-            kind: :binary,
-            open?: false,
-            children: [],
-            content: [%DisplayElement{text: "\"Hello\"", color: "text-code-4"}],
-            expanded_before: [],
-            expanded_after: []
-          }}
+          {0,
+           %TermNode{
+             id: "root.0",
+             kind: :atom,
+             open?: false,
+             children: [],
+             content: [
+               %DisplayElement{text: ":ok", color: "text-code-1"},
+               %DisplayElement{text: ",", color: "text-code-2"}
+             ],
+             expanded_before: [],
+             expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
+           }},
+          {1,
+           %TermNode{
+             id: "root.1",
+             kind: :binary,
+             open?: false,
+             children: [],
+             content: [%DisplayElement{text: "\"Hello\"", color: "text-code-4"}],
+             expanded_before: [],
+             expanded_after: []
+           }}
         ],
         content: [%DisplayElement{text: "{...}", color: "text-code-2"}],
         expanded_before: [%DisplayElement{text: "{", color: "text-code-2"}],
@@ -120,39 +123,42 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
         kind: :list,
         open?: true,
         children: [
-          {0, %TermNode{
-            id: "root.0",
-            kind: :number,
-            open?: false,
-            children: [],
-            content: [
-              %DisplayElement{text: "1", color: "text-code-1"},
-              %DisplayElement{text: ",", color: "text-code-2"}
-            ],
-            expanded_before: [],
-            expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
-          }},
-          {1, %TermNode{
-            id: "root.1",
-            kind: :number,
-            open?: false,
-            children: [],
-            content: [
-              %DisplayElement{text: "2", color: "text-code-1"},
-              %DisplayElement{text: ",", color: "text-code-2"}
-            ],
-            expanded_before: [],
-            expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
-          }},
-          {2, %TermNode{
-            id: "root.2",
-            kind: :number,
-            open?: false,
-            children: [],
-            content: [%DisplayElement{text: "3", color: "text-code-1"}],
-            expanded_before: [],
-            expanded_after: []
-          }}
+          {0,
+           %TermNode{
+             id: "root.0",
+             kind: :number,
+             open?: false,
+             children: [],
+             content: [
+               %DisplayElement{text: "1", color: "text-code-1"},
+               %DisplayElement{text: ",", color: "text-code-2"}
+             ],
+             expanded_before: [],
+             expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
+           }},
+          {1,
+           %TermNode{
+             id: "root.1",
+             kind: :number,
+             open?: false,
+             children: [],
+             content: [
+               %DisplayElement{text: "2", color: "text-code-1"},
+               %DisplayElement{text: ",", color: "text-code-2"}
+             ],
+             expanded_before: [],
+             expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
+           }},
+          {2,
+           %TermNode{
+             id: "root.2",
+             kind: :number,
+             open?: false,
+             children: [],
+             content: [%DisplayElement{text: "3", color: "text-code-1"}],
+             expanded_before: [],
+             expanded_after: []
+           }}
         ],
         content: [%DisplayElement{text: "[...]", color: "text-code-2"}],
         expanded_before: [%DisplayElement{text: "[", color: "text-code-2"}],
@@ -388,56 +394,59 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
         kind: :map,
         open?: true,
         children: [
-          {"key1", %TermNode{
-            id: "root.0",
-            kind: :binary,
-            open?: false,
-            children: [],
-            content: [
-              %DisplayElement{text: "\"key1\"", color: "text-code-4"},
-              %DisplayElement{text: " => ", color: "text-code-2"},
-              %DisplayElement{text: "\"value1\"", color: "text-code-4"},
-              %DisplayElement{text: ",", color: "text-code-2"}
-            ],
-            expanded_before: [
-              %DisplayElement{text: "\"key1\"", color: "text-code-4"},
-              %DisplayElement{text: " => ", color: "text-code-2"}
-            ],
-            expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
-          }},
-          {"key2", %TermNode{
-            id: "root.1",
-            kind: :number,
-            open?: false,
-            children: [],
-            content: [
-              %DisplayElement{text: "\"key2\"", color: "text-code-4"},
-              %DisplayElement{text: " => ", color: "text-code-2"},
-              %DisplayElement{text: "42", color: "text-code-1"},
-              %DisplayElement{text: ",", color: "text-code-2"}
-            ],
-            expanded_before: [
-              %DisplayElement{text: "\"key2\"", color: "text-code-4"},
-              %DisplayElement{text: " => ", color: "text-code-2"}
-            ],
-            expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
-          }},
-          {"key3", %TermNode{
-            id: "root.2",
-            kind: :atom,
-            open?: false,
-            children: [],
-            content: [
-              %DisplayElement{text: "\"key3\"", color: "text-code-4"},
-              %DisplayElement{text: " => ", color: "text-code-2"},
-              %DisplayElement{text: ":test", color: "text-code-1"}
-            ],
-            expanded_before: [
-              %DisplayElement{text: "\"key3\"", color: "text-code-4"},
-              %DisplayElement{text: " => ", color: "text-code-2"}
-            ],
-            expanded_after: []
-          }}
+          {"key1",
+           %TermNode{
+             id: "root.0",
+             kind: :binary,
+             open?: false,
+             children: [],
+             content: [
+               %DisplayElement{text: "\"key1\"", color: "text-code-4"},
+               %DisplayElement{text: " => ", color: "text-code-2"},
+               %DisplayElement{text: "\"value1\"", color: "text-code-4"},
+               %DisplayElement{text: ",", color: "text-code-2"}
+             ],
+             expanded_before: [
+               %DisplayElement{text: "\"key1\"", color: "text-code-4"},
+               %DisplayElement{text: " => ", color: "text-code-2"}
+             ],
+             expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
+           }},
+          {"key2",
+           %TermNode{
+             id: "root.1",
+             kind: :number,
+             open?: false,
+             children: [],
+             content: [
+               %DisplayElement{text: "\"key2\"", color: "text-code-4"},
+               %DisplayElement{text: " => ", color: "text-code-2"},
+               %DisplayElement{text: "42", color: "text-code-1"},
+               %DisplayElement{text: ",", color: "text-code-2"}
+             ],
+             expanded_before: [
+               %DisplayElement{text: "\"key2\"", color: "text-code-4"},
+               %DisplayElement{text: " => ", color: "text-code-2"}
+             ],
+             expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
+           }},
+          {"key3",
+           %TermNode{
+             id: "root.2",
+             kind: :atom,
+             open?: false,
+             children: [],
+             content: [
+               %DisplayElement{text: "\"key3\"", color: "text-code-4"},
+               %DisplayElement{text: " => ", color: "text-code-2"},
+               %DisplayElement{text: ":test", color: "text-code-1"}
+             ],
+             expanded_before: [
+               %DisplayElement{text: "\"key3\"", color: "text-code-4"},
+               %DisplayElement{text: " => ", color: "text-code-2"}
+             ],
+             expanded_after: []
+           }}
         ],
         content: [%DisplayElement{text: "%{...}", color: "text-code-2"}],
         expanded_before: [%DisplayElement{text: "%{", color: "text-code-2"}],
@@ -460,39 +469,41 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
         kind: :map,
         open?: true,
         children: [
-          {{:ok, date}, %TermNode{
-            id: "root.0",
-            kind: :binary,
-            open?: false,
-            children: [],
-            content: [
-              %DisplayElement{text: "{:ok, ~D[2025-07-08]}", color: "text-code-2"},
-              %DisplayElement{text: " => ", color: "text-code-2"},
-              %DisplayElement{text: "\"Date\"", color: "text-code-4"},
-              %DisplayElement{text: ",", color: "text-code-2"}
-            ],
-            expanded_before: [
-              %DisplayElement{text: "{:ok, ~D[2025-07-08]}", color: "text-code-2"},
-              %DisplayElement{text: " => ", color: "text-code-2"}
-            ],
-            expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
-          }},
-          {cid, %TermNode{
-            id: "root.1",
-            kind: :binary,
-            open?: false,
-            children: [],
-            content: [
-              %DisplayElement{text: "%Phoenix.LiveComponent.CID{cid: 1}", color: "text-code-1"},
-              %DisplayElement{text: " => ", color: "text-code-2"},
-              %DisplayElement{text: "\"CID\"", color: "text-code-4"}
-            ],
-            expanded_before: [
-              %DisplayElement{text: "%Phoenix.LiveComponent.CID{cid: 1}", color: "text-code-1"},
-              %DisplayElement{text: " => ", color: "text-code-2"}
-            ],
-            expanded_after: []
-          }}
+          {{:ok, date},
+           %TermNode{
+             id: "root.0",
+             kind: :binary,
+             open?: false,
+             children: [],
+             content: [
+               %DisplayElement{text: "{:ok, ~D[2025-07-08]}", color: "text-code-2"},
+               %DisplayElement{text: " => ", color: "text-code-2"},
+               %DisplayElement{text: "\"Date\"", color: "text-code-4"},
+               %DisplayElement{text: ",", color: "text-code-2"}
+             ],
+             expanded_before: [
+               %DisplayElement{text: "{:ok, ~D[2025-07-08]}", color: "text-code-2"},
+               %DisplayElement{text: " => ", color: "text-code-2"}
+             ],
+             expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
+           }},
+          {cid,
+           %TermNode{
+             id: "root.1",
+             kind: :binary,
+             open?: false,
+             children: [],
+             content: [
+               %DisplayElement{text: "%Phoenix.LiveComponent.CID{cid: 1}", color: "text-code-1"},
+               %DisplayElement{text: " => ", color: "text-code-2"},
+               %DisplayElement{text: "\"CID\"", color: "text-code-4"}
+             ],
+             expanded_before: [
+               %DisplayElement{text: "%Phoenix.LiveComponent.CID{cid: 1}", color: "text-code-1"},
+               %DisplayElement{text: " => ", color: "text-code-2"}
+             ],
+             expanded_after: []
+           }}
         ],
         content: [%DisplayElement{text: "%{...}", color: "text-code-2"}],
         expanded_before: [%DisplayElement{text: "%{", color: "text-code-2"}],
@@ -535,5 +546,50 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       assert TermParser.term_to_copy_string(term) ==
                "%{pid: :erlang.list_to_pid(~c\"<0.123.0>\")}"
     end
+  end
+
+  describe "update_by_id/3" do
+    test "updates root node" do
+      term_node = Fakes.term_node(id: "root", open?: true)
+
+      assert {:ok, %TermNode{open?: false}} =
+               TermParser.update_by_id(term_node, "root", &close_term_node/1)
+    end
+
+    test "updates child node" do
+      child = Fakes.term_node(id: "root.0", open?: true)
+      term_node = Fakes.term_node(id: "root", open?: true, children: [{0, child}])
+
+      assert {:ok, %TermNode{open?: true, children: [{0, %TermNode{open?: false}}]}} =
+               TermParser.update_by_id(term_node, "root.0", &close_term_node/1)
+    end
+
+    test "returns error if the term node is not found" do
+      term_node = Fakes.term_node(id: "root", open?: true)
+
+      assert {:error, :child_not_found} =
+               TermParser.update_by_id(term_node, "root.1", &close_term_node/1)
+    end
+  end
+
+  describe "update_by_diff/2" do
+    test "doesn't update if type is equal" do
+    end
+
+    test "updates nested elements" do
+    end
+
+    test "properly adds suffixes" do
+    end
+
+    test "properly opens lists and tuples within default limits" do
+    end
+
+    test "returns error if the term node and diff are not complatible" do
+    end
+  end
+
+  defp close_term_node(term_node) do
+    %TermNode{term_node | open?: false}
   end
 end
