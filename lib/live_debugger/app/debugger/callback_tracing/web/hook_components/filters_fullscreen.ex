@@ -38,7 +38,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
         id={@form_id}
         node_id={@node_id}
         filters={@current_filters}
-        hide_diff_filters?={true}
+        show_diff_filters?={false}
       />
     </.fullscreen>
     """
