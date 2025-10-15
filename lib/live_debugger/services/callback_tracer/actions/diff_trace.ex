@@ -6,6 +6,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.DiffTrace do
   alias LiveDebugger.Structs.DiffTrace
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.DiffCreated
+  alias LiveDebugger.API.TracesStorage
 
   @doc """
   Creates a non-empty diff from raw diff trace. If diff is empty, returns nil.
@@ -22,9 +23,20 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.DiffTrace do
     end
   end
 
-  @spec publish_diff(DiffTrace.t()) :: :ok | {:error, term()}
-  def publish_diff(%DiffTrace{pid: pid} = diff_trace) do
-    event = %DiffCreated{diff: diff_trace, pid: pid}
+  @spec persist_trace(DiffTrace.t()) :: {:ok, reference()} | {:error, term()}
+  def persist_trace(%DiffTrace{pid: pid} = trace) do
+    with ref when is_reference(ref) <- TracesStorage.get_table(pid),
+         true <- TracesStorage.insert!(ref, trace) do
+      {:ok, ref}
+    else
+      _ ->
+        {:error, "Could not persist trace"}
+    end
+  end
+
+  @spec publish_diff(DiffTrace.t(), reference() | nil) :: :ok | {:error, term()}
+  def publish_diff(%DiffTrace{pid: pid} = diff_trace, ref) do
+    event = %DiffCreated{trace_id: diff_trace.id, ets_ref: ref, pid: pid}
     Bus.broadcast_trace!(event, pid)
   rescue
     err ->

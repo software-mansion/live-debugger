@@ -70,7 +70,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
     |> halt()
   end
 
-  defp handle_info(%DiffCreated{diff: diff}, socket) do
+  defp handle_info(%DiffCreated{trace_id: trace_id, ets_ref: table}, socket) do
+    diff = TracesStorage.get_by_id!(table, trace_id)
+
     socket
     |> stream_insert_trace(diff)
     |> halt()
