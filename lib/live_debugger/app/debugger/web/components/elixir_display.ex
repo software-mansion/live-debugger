@@ -9,21 +9,17 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   alias LiveDebugger.App.Utils.TermNode.DisplayElement
   alias LiveDebugger.App.Utils.TermNode
 
-  @max_auto_expand_size 6
-
   @doc """
   Returns a tree of terms.
   """
 
   attr(:id, :string, required: true)
   attr(:node, TermNode, required: true)
-  attr(:level, :integer, default: 1)
 
   def term(assigns) do
     assigns =
       assigns
       |> assign(:id, "#{assigns.id}-#{assigns.node.id}")
-      |> assign(:auto_open?, auto_open?(assigns.node, assigns.level))
       |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
@@ -34,7 +30,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
       <.collapsible
         :if={@has_children?}
         id={@id <> "collapsible"}
-        open={@auto_open?}
+        open={@node.open?}
         icon="icon-chevron-right"
         label_class="max-w-max"
         chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
@@ -52,7 +48,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
         <ol class="m-0 ml-[2ch] block list-none p-0">
           <li :for={{_, child} <- @node.children} class="flex flex-col">
-            <.term id={@id} node={child} level={@level + 1} />
+            <.term id={@id} node={child} />
           </li>
         </ol>
         <div class="ml-[2ch]">
@@ -79,11 +75,5 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   defp text_item_color_class(%DisplayElement{color: color}) do
     if color, do: "#{color}", else: ""
-  end
-
-  defp auto_open?(%TermNode{}, 1), do: true
-
-  defp auto_open?(%TermNode{} = node, _level) do
-    node.kind == :tuple and TermNode.children_number(node) <= @max_auto_expand_size
   end
 end
