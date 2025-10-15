@@ -44,8 +44,8 @@ defmodule LiveDebugger.App.Utils.TermNode do
           open?: boolean(),
           children: [{any(), t()}],
           content: [DisplayElement.t()],
-          expanded_before: [DisplayElement.t()] | nil,
-          expanded_after: [DisplayElement.t()] | nil
+          expanded_before: [DisplayElement.t()],
+          expanded_after: [DisplayElement.t()]
         }
 
   @type ok_error() :: {:ok, t()} | {:error, any()}
