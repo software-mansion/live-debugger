@@ -86,6 +86,7 @@ defmodule LiveDebugger.API.TracesStorage do
     * `:execution_times` - Map specifying minimum and maximum execution time of a callback in microseconds
                         e.g. %{"exec_time_min" => 0, "exec_time_max" => 100}
     * `:search_phrase` - String to filter traces by, performs a case-insensitive substring search on the entire Trace struct
+    * `:trace_diffs` - Boolean flag to include DiffTrace structs in results
   """
   @spec get!(table_identifier(), opts :: keyword()) ::
           {[trace()], continuation()} | :end_of_table
@@ -359,7 +360,14 @@ defmodule LiveDebugger.API.TracesStorage do
 
       traces
       |> Enum.filter(fn trace ->
-        trace.args
+        searchable_content =
+          case trace do
+            %{args: args} -> args
+            %{body: body} -> body
+            _ -> trace
+          end
+
+        searchable_content
         |> inspect(limit: :infinity, structs: false)
         |> String.downcase()
         |> String.contains?(down)
@@ -453,30 +461,61 @@ defmodule LiveDebugger.API.TracesStorage do
 
       execution_times = Keyword.get(opts, :execution_times, %{})
       node_id = Keyword.get(opts, :node_id)
+      trace_diffs = Keyword.get(opts, :trace_diffs, false)
 
-      match_spec(node_id, functions, execution_times)
+      match_spec(node_id, functions, execution_times, trace_diffs)
     end
 
-    defp match_spec(node_id, functions, execution_times) when is_pid(node_id) do
+    defp match_spec(node_id, functions, execution_times, trace_diffs) when is_pid(node_id) do
       [
-        {{:_, %{function: :"$1", execution_time: :"$2", arity: :"$3", pid: node_id, cid: nil}},
-         to_spec(functions, execution_times), [:"$_"]}
+        {{:_,
+          %{
+            __struct__: LiveDebugger.Structs.Trace,
+            function: :"$1",
+            execution_time: :"$2",
+            arity: :"$3",
+            pid: node_id,
+            cid: nil
+          }}, to_spec(functions, execution_times), [:"$_"]}
       ]
+      |> maybe_attach_diff_spec(trace_diffs)
     end
 
-    defp match_spec(%CID{} = node_id, functions, execution_times) do
+    defp match_spec(%CID{} = node_id, functions, execution_times, trace_diffs) do
       [
-        {{:_, %{function: :"$1", execution_time: :"$2", arity: :"$3", cid: node_id}},
-         to_spec(functions, execution_times), [:"$_"]}
+        {{:_,
+          %{
+            __struct__: LiveDebugger.Structs.Trace,
+            function: :"$1",
+            execution_time: :"$2",
+            arity: :"$3",
+            cid: node_id
+          }}, to_spec(functions, execution_times), [:"$_"]}
       ]
+      |> maybe_attach_diff_spec(trace_diffs)
     end
 
-    defp match_spec(nil, functions, execution_times) do
+    defp match_spec(nil, functions, execution_times, trace_diffs) do
       [
-        {{:_, %{function: :"$1", execution_time: :"$2", arity: :"$3"}},
-         to_spec(functions, execution_times), [:"$_"]}
+        {{:_,
+          %{
+            __struct__: LiveDebugger.Structs.Trace,
+            function: :"$1",
+            execution_time: :"$2",
+            arity: :"$3"
+          }}, to_spec(functions, execution_times), [:"$_"]}
       ]
+      |> maybe_attach_diff_spec(trace_diffs)
     end
+
+    defp maybe_attach_diff_spec(trace_spec, true) do
+      trace_spec ++
+        [
+          {{:_, %{__struct__: LiveDebugger.Structs.DiffTrace}}, [], [:"$_"]}
+        ]
+    end
+
+    defp maybe_attach_diff_spec(trace_spec, false), do: trace_spec
 
     defp to_spec(functions, []) do
       [{:andalso, functions_to_spec(functions), {:"/=", :"$2", nil}}]
