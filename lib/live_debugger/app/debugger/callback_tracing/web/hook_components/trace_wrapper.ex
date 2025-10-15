@@ -62,7 +62,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
       class="max-w-full border border-default-border rounded last:mb-4"
       label_class={[
         "font-semibold bg-surface-1-bg p-2 py-3",
-        @trace.type == :exception_from && "border border-error-icon"
+        Map.get(@trace, :type) == :exception_from && "border border-error-icon"
       ]}
       phx-click={if(@render_body?, do: nil, else: "toggle-collapsible")}
       phx-value-trace-id={@trace.id}

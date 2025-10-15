@@ -106,11 +106,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
     |> put_private(:trace_insertion_canceled, true)
   end
 
-  defp stream_insert_trace(socket, %DiffTrace{} = diff) do
+  defp stream_insert_trace(socket, %DiffTrace{} = diff_trace) do
     stream_insert(
       socket,
       :existing_traces,
-      diff,
+      TraceDisplay.from_trace(diff_trace, true),
       at: 0,
       limit: socket.private.live_stream_limit
     )
