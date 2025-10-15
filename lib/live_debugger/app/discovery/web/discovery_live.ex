@@ -40,7 +40,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
         <NavbarComponents.settings_button return_to={@url} />
       </NavbarComponents.navbar>
       <div class="h-full flex flex-col">
-        <div class="h-3/7 overflow-hidden max-lg:p-8 pt-8 lg:w-[60rem] lg:mx-auto">
+        <div class="h-3/7 max-lg:p-8 pt-8 lg:w-[60rem] lg:mx-auto">
           <DiscoveryComponents.header title="Active LiveViews" refresh_event="refresh-active" />
 
           <div class="mt-6 max-h-92 overflow-y-auto">
