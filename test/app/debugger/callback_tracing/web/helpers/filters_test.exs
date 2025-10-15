@@ -68,7 +68,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "exec_time_min" => "",
                  "min_unit" => "µs",
                  "max_unit" => "µs"
-               }
+               },
+               other_filters: %{"trace_diffs" => false}
              }
     end
 
@@ -87,7 +88,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "exec_time_min" => "",
                  "min_unit" => "µs",
                  "max_unit" => "µs"
-               }
+               },
+               other_filters: %{"trace_diffs" => false}
              }
     end
 
@@ -109,7 +111,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "exec_time_min" => "",
                  "min_unit" => "µs",
                  "max_unit" => "µs"
-               }
+               },
+               other_filters: %{"trace_diffs" => false}
              }
     end
   end
