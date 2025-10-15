@@ -237,11 +237,14 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   attr(:id, :string, required: true)
   attr(:size, :integer, required: true)
-  attr(:tooltip, :string, default: "size")
 
   defp memory_info(assigns) do
     ~H"""
-    <.tooltip id={@id <> "-memory-tooltip"} content={@tooltip} class="min-w-11">
+    <.tooltip
+      id={@id <> "-memory-tooltip"}
+      content="Size of the diff sent to browser"
+      class="min-w-11"
+    >
       <span class="text-nowrap">
         <%= Memory.bytes_to_pretty_string(@size) %>
       </span>
@@ -256,7 +259,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   def execution_time_info(assigns) do
     ~H"""
-    <.tooltip id={@id <> "-exec-time-tooltip"} content="execution time" class="min-w-11">
+    <.tooltip
+      id={@id <> "-exec-time-tooltip"}
+      content="Execution time of the callback"
+      class="min-w-11"
+    >
       <span id={@id <> "-exec-time"} class={["text-nowrap", @class]} phx-hook={@phx_hook}>
         <%= Parsers.parse_elapsed_time(@execution_time) %>
       </span>
