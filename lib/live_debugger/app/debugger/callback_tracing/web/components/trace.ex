@@ -245,7 +245,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       content="Size of the diff sent to browser"
       class="min-w-11"
     >
-      <span class="text-nowrap">
+      <span class={["text-nowrap", get_size_warning_class(@size)]}>
         <%= Memory.bytes_to_pretty_string(@size) %>
       </span>
     </.tooltip>
@@ -276,6 +276,15 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       execution_time == nil -> ""
       execution_time > 500_000 -> "text-error-text"
       execution_time > 100_000 -> "text-warning-text"
+      true -> ""
+    end
+  end
+
+  @spec get_size_warning_class(non_neg_integer()) :: String.t()
+  defp get_size_warning_class(size) do
+    cond do
+      size >= Memory.megabyte() -> "text-error-text"
+      size >= 100 * Memory.kilobyte() -> "text-warning-text"
       true -> ""
     end
   end
