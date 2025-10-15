@@ -42,8 +42,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
     transport_pid: pid()
   )
 
-  # TODO: Diff should not be directly passed via event
-  defevent(DiffCreated,
+  defevent(DiffTraceCreated,
     trace_id: DiffTrace.id(),
     ets_ref: reference() | nil,
     pid: pid()

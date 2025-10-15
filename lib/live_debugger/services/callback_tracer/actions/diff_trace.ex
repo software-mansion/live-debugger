@@ -5,7 +5,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.DiffTrace do
 
   alias LiveDebugger.Structs.DiffTrace
   alias LiveDebugger.Bus
-  alias LiveDebugger.Services.CallbackTracer.Events.DiffCreated
+  alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
   alias LiveDebugger.API.TracesStorage
 
   @doc """
@@ -36,7 +36,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.DiffTrace do
 
   @spec publish_diff(DiffTrace.t(), reference() | nil) :: :ok | {:error, term()}
   def publish_diff(%DiffTrace{pid: pid} = diff_trace, ref) do
-    event = %DiffCreated{trace_id: diff_trace.id, ets_ref: ref, pid: pid}
+    event = %DiffTraceCreated{trace_id: diff_trace.id, ets_ref: ref, pid: pid}
     Bus.broadcast_trace!(event, pid)
   rescue
     err ->

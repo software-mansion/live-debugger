@@ -19,7 +19,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
-  alias LiveDebugger.Services.CallbackTracer.Events.DiffCreated
+  alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
   alias LiveDebugger.Structs.DiffTrace
 
   @debounce_timeout_ms 10
@@ -70,7 +70,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
     |> halt()
   end
 
-  defp handle_info(%DiffCreated{trace_id: trace_id, ets_ref: table}, socket) do
+  defp handle_info(%DiffTraceCreated{trace_id: trace_id, ets_ref: table}, socket) do
     diff = TracesStorage.get_by_id!(table, trace_id)
 
     socket
