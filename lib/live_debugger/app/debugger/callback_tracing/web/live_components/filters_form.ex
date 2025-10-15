@@ -122,7 +122,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
               }
             />
             <div class="pb-5">
-              <.checkbox field={@form[:trace_diffs]} label="Trace LiveView diffs" />
+              <.checkbox field={@form[:trace_diffs]} label="Show LiveView diffs sent to browser" />
             </div>
           </div>
 
