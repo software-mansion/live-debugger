@@ -4,6 +4,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   It sends `{:filters_updated, filters}` to the parent LiveView after the form is submitted.
 
   You can use `LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Filters` to render additional
+
+  Diff checkbox is hidden when node_id is passed since diffs are not supported in node traces.
   """
 
   use LiveDebugger.App.Web, :live_component
@@ -111,7 +113,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
             </div>
           </div>
 
-          <div :if={@show_diff_filters?} class="px-4 border-b border-default-border">
+          <div :if={@node_id == nil} class="px-4 border-b border-default-border">
             <FiltersComponents.filters_group_header
               title="Other filters"
               class="pt-2"
