@@ -110,7 +110,11 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
         <.list elements={@grouped_lv_processes}>
           <:item :let={{root_lv_process, lv_processes}}>
             <div class="flex items-center w-full">
-              <.list_element lv_process={root_lv_process} remove_event={@remove_event} />
+              <.list_element
+                :if={root_lv_process}
+                lv_process={root_lv_process}
+                remove_event={@remove_event}
+              />
             </div>
             <.list elements={lv_processes} item_class="group" class="pr-0">
               <:item :let={lv_process}>
