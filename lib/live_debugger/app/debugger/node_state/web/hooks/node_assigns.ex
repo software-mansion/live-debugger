@@ -74,29 +74,26 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
          } =
            socket
        ) do
-    case TermDiffer.diff(old_assigns, node_assigns) do
-      %Diff{type: :equal} ->
-        node_assigns_info = AsyncResult.ok(socket.assigns.node_assigns_info.result)
-        {:halt, assign(socket, :node_assigns_info, node_assigns_info)}
+    node_assigns_info =
+      case TermDiffer.diff(old_assigns, node_assigns) do
+        %Diff{type: :equal} ->
+          AsyncResult.ok(socket.assigns.node_assigns_info.result)
 
-      diff ->
-        copy_string = TermParser.term_to_copy_string(node_assigns)
+        diff ->
+          copy_string = TermParser.term_to_copy_string(node_assigns)
 
-        case TermParser.update_by_diff(old_term_node, diff) do
-          {:ok, term_node} ->
-            socket
-            |> assign(:node_assigns_info, AsyncResult.ok({node_assigns, term_node, copy_string}))
-            |> halt()
+          case TermParser.update_by_diff(old_term_node, diff) do
+            {:ok, term_node} ->
+              AsyncResult.ok({node_assigns, term_node, copy_string})
 
-          {:error, reason} ->
-            socket
-            |> assign(
-              :node_assigns_info,
+            {:error, reason} ->
               AsyncResult.failed(socket.assigns.node_assigns_info, reason)
-            )
-            |> halt()
-        end
-    end
+          end
+      end
+
+    socket
+    |> assign(:node_assigns_info, node_assigns_info)
+    |> halt()
   end
 
   defp handle_async(:fetch_node_assigns, {:ok, {:ok, node_assigns}}, socket) do
