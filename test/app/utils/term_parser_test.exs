@@ -16,6 +16,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       expected = %TermNode{
         id: "root",
         kind: :binary,
+        open?: true,
         children: [],
         content: [%DisplayElement{text: "\"Hello, World!\"", color: "text-code-4"}],
         expanded_before: nil,
@@ -31,6 +32,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       expected = %TermNode{
         id: "root",
         kind: :atom,
+        open?: true,
         children: [],
         content: [%DisplayElement{text: ":hello", color: "text-code-1"}],
         expanded_before: nil,
@@ -46,6 +48,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       expected = %TermNode{
         id: "root",
         kind: :number,
+        open?: true,
         children: [],
         content: [%DisplayElement{text: "42", color: "text-code-1"}],
         expanded_before: nil,
@@ -65,6 +68,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
           %TermNode{
             id: "root.0",
             kind: :atom,
+            open?: true,
             children: [],
             content: [
               %DisplayElement{text: ":ok", color: "text-code-1"},
@@ -76,6 +80,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
           %TermNode{
             id: "root.1",
             kind: :binary,
+            open?: true,
             children: [],
             content: [%DisplayElement{text: "\"Hello\"", color: "text-code-4"}],
             expanded_before: nil,
@@ -96,6 +101,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       expected = %TermNode{
         id: "root",
         kind: :tuple,
+        open?: true,
         children: [],
         content: [%DisplayElement{text: "{}", color: "text-code-2"}],
         expanded_before: nil,
@@ -111,6 +117,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       expected = %TermNode{
         id: "root",
         kind: :list,
+        open?: true,
         children: [
           %TermNode{
             id: "root.0",
@@ -157,6 +164,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       expected = %TermNode{
         id: "root",
         kind: :list,
+        open?: true,
         children: [],
         content: [%DisplayElement{text: "[]", color: "text-code-2"}],
         expanded_before: nil,
@@ -172,6 +180,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       expected = %TermNode{
         id: "root",
         kind: :regex,
+        open?: true,
         children: [],
         content: [%DisplayElement{text: "~r/hello/", color: "text-code-2"}],
         expanded_before: nil,
@@ -188,6 +197,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
         expected = %TermNode{
           id: "root",
           kind: :atom,
+          open?: true,
           children: [],
           content: [%DisplayElement{text: inspect(term), color: "text-code-3"}],
           expanded_before: nil,
@@ -204,6 +214,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       expected = %TermNode{
         id: "root",
         kind: :map,
+        open?: true,
         children: [],
         content: [%DisplayElement{text: "%{}", color: "text-code-2"}],
         expanded_before: nil,
@@ -221,6 +232,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       expected = %TermNode{
         id: "root",
         kind: :struct,
+        open?: true,
         children: [
           %TermNode{
             id: "root.0",
@@ -269,6 +281,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
 
       expected = %TermNode{
         id: "root",
+        kind: :struct,
+        open?: true,
         children: [
           %TermNode{
             id: "root.0",
@@ -345,6 +359,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       expected = %TermNode{
         id: "root",
         kind: :map,
+        open?: true,
         children: [
           %TermNode{
             id: "root.0",
@@ -402,6 +417,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       expected = %TermNode{
         id: "root",
         kind: :map,
+        open?: true,
         children: [
           %TermNode{
             id: "root.0",

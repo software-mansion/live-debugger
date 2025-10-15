@@ -6,12 +6,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   use LiveDebugger.App.Web, :live_view
 
-  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Structs.LvProcess
+  alias LiveDebugger.App.Debugger.NodeState.Web.Hooks
+  alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents
   alias LiveDebugger.App.Debugger.NodeState.Web.Components, as: NodeStateComponents
-  alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
-
-  alias LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch
 
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
@@ -65,8 +63,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> assign(:lv_process, lv_process)
     |> assign(:node_id, node_id)
     |> assign(:assigns_search_phrase, "")
-    |> assign_async_node_assigns()
-    |> AssignsSearch.init()
+    |> Hooks.NodeAssigns.init()
+    |> HookComponents.AssignsDisplay.init()
+    |> HookComponents.AssignsSearch.init()
     |> ok()
   end
 
@@ -74,7 +73,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   def render(assigns) do
     ~H"""
     <div class="flex-1 max-w-full flex flex-col gap-4">
-      <.async_result :let={node_assigns} assign={@node_assigns}>
+      <.async_result :let={{node_assigns, term_node, copy_string}} assign={@node_assigns_info}>
         <:loading>
           <NodeStateComponents.loading />
         </:loading>
@@ -83,6 +82,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
         </:failed>
 
         <NodeStateComponents.assigns_section
+          term_node={term_node}
+          copy_string={copy_string}
           assigns={node_assigns}
           fullscreen_id="assigns-display-fullscreen"
           assigns_search_phrase={@assigns_search_phrase}
@@ -96,28 +97,15 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   def handle_info(%NodeIdParamChanged{node_id: node_id}, socket) do
     socket
     |> assign(:node_id, node_id)
-    |> assign_async_node_assigns()
+    |> Hooks.NodeAssigns.assign_async_node_assigns(reset: true)
     |> noreply()
   end
 
   def handle_info(%StateChanged{}, socket) do
     socket
-    |> assign_async_node_assigns()
+    |> Hooks.NodeAssigns.assign_async_node_assigns()
     |> noreply()
   end
 
   def handle_info(_, socket), do: {:noreply, socket}
-
-  defp assign_async_node_assigns(
-         %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket
-       )
-       when not is_nil(node_id) do
-    assign_async(socket, :node_assigns, fn ->
-      NodeStateQueries.fetch_node_assigns(pid, node_id)
-    end)
-  end
-
-  defp assign_async_node_assigns(socket) do
-    assign(socket, :node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
-  end
 end

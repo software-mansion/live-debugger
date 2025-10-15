@@ -73,6 +73,14 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
   def primitive_key, do: @primitive_key
 
   @doc """
+  Returns the new value for `primitive` type.
+  """
+  @spec primitive_new_value(Diff.t()) :: term()
+  def primitive_new_value(%Diff{type: :primitive, ins: %{@primitive_key => new_value}}) do
+    new_value
+  end
+
+  @doc """
   Calculates the diff between two terms.
   """
   @spec diff(term(), term()) :: Diff.t()
