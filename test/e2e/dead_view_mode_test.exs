@@ -68,7 +68,7 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
 
     debugger
     |> find(global_traces(count: 1))
-    |> assert_has(css("summary.border-error-icon"))
+    |> assert_has(css(".border-error-icon"))
   end
 
   defp global_traces(opts), do: css("#global-traces-stream details", opts)
