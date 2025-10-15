@@ -33,7 +33,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     |> assign(:active_filters, assigns.filters)
     |> assign(:node_id, assigns.node_id)
     |> assign(:disabled?, disabled?)
-    |> assign(:show_diff_filters?, Map.get(assigns, :show_diff_filters?, true))
     |> assign(:revert_button_visible?, revert_button_visible?)
     |> assign(:default_filters, FiltersHelpers.default_filters(assigns.node_id))
     |> assign_form(assigns.filters)
@@ -50,7 +49,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
 
   attr(:disabled?, :boolean, default: false)
   attr(:revert_button_visible?, :boolean, default: false)
-  attr(:show_diff_filters?, :boolean, default: true)
 
   @impl true
   def render(assigns) do
