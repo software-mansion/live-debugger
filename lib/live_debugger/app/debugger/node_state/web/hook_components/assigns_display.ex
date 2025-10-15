@@ -28,7 +28,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsDisplay 
   def render(assigns) do
     ~H"""
     <div id={@id}>
-      <.term id={@id} node={@node} />
+      <.term node={@node} />
     </div>
     """
   end
@@ -58,7 +58,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsDisplay 
   defp handle_event("toggle_node", _, socket), do: {:halt, socket}
   defp handle_event(_, _, socket), do: {:cont, socket}
 
-  attr(:id, :string, required: true)
   attr(:node, TermNode, required: true)
 
   defp term(assigns) do
@@ -85,7 +84,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsDisplay 
           </:label>
           <ol class="m-0 ml-[2ch] block list-none p-0">
             <li :for={{_, child} <- @node.children} class="flex flex-col">
-              <.term id={@id} node={child} />
+              <.term node={child} />
             </li>
           </ol>
           <div class="ml-[2ch]">
