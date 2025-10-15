@@ -6,8 +6,8 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.App.Utils.TermParser.DisplayElement
-  alias LiveDebugger.App.Utils.TermParser.TermNode
+  alias LiveDebugger.App.Utils.TermNode.DisplayElement
+  alias LiveDebugger.App.Utils.TermNode
 
   @max_auto_expand_size 6
 

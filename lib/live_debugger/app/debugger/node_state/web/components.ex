@@ -7,7 +7,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsDisplay
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
-  alias LiveDebugger.App.Utils.TermParser.TermNode
+  alias LiveDebugger.App.Utils.TermNode
   alias LiveDebugger.Utils.Memory
 
   def loading(assigns) do

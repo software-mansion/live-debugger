@@ -7,7 +7,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsDisplay 
   use LiveDebugger.App.Web, :hook_component
 
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
-  alias LiveDebugger.App.Utils.TermParser.TermNode
+  alias LiveDebugger.App.Utils.TermNode
   alias LiveDebugger.App.Utils.TermParser
   alias Phoenix.LiveView.AsyncResult
 
