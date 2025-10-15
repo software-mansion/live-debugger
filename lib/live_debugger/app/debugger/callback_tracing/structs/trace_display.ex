@@ -20,9 +20,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
         }
 
   @spec from_trace(Trace.t() | DiffTrace.t(), boolean()) :: t()
-  def from_trace(trace, from_event? \\ false)
-
-  def from_trace(trace, from_event?) do
+  def from_trace(trace, from_event? \\ false) do
     %__MODULE__{id: trace.id, trace: trace, from_event?: from_event?}
   end
 
