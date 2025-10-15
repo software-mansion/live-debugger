@@ -90,13 +90,15 @@ defmodule LiveDebugger.App.Utils.TermNode do
     %__MODULE__{term_node | content: content, expanded_after: expanded_after}
   end
 
-  @spec remove_suffix(t()) :: t()
-  def remove_suffix(%__MODULE__{content: content, expanded_after: expanded_after} = term_node) do
-    content = content |> Enum.reverse() |> tl() |> Enum.reverse()
-    expanded_after = expanded_after |> Enum.reverse() |> tl() |> Enum.reverse()
+  @spec remove_suffix!(t()) :: t()
+  def remove_suffix!(%__MODULE__{content: [_ | _], expanded_after: [_ | _]} = term_node) do
+    content = term_node.content |> Enum.reverse() |> tl() |> Enum.reverse()
+    expanded_after = term_node.expanded_after |> Enum.reverse() |> tl() |> Enum.reverse()
 
     %__MODULE__{term_node | content: content, expanded_after: expanded_after}
   end
+
+  def remove_suffix!(%__MODULE__{}), do: raise("Term node has no suffix to remove")
 
   @spec add_prefix(t(), [DisplayElement.t()]) :: t()
   def add_prefix(

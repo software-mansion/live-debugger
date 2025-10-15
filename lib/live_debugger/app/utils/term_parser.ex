@@ -213,7 +213,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
           child =
             case {last_child?, has_comma_suffix?(child)} do
               {true, true} ->
-                TermNode.remove_suffix(child)
+                TermNode.remove_suffix!(child)
 
               {false, false} ->
                 TermNode.add_suffix(child, [TermNode.comma_suffix()])
