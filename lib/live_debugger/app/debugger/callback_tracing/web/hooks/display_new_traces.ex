@@ -19,6 +19,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
+  alias LiveDebugger.Services.CallbackTracer.Events.DiffCreated
+  alias LiveDebugger.Structs.DiffTrace
 
   @debounce_timeout_ms 10
 
@@ -68,6 +70,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
     |> halt()
   end
 
+  defp handle_info(%DiffCreated{diff: diff}, socket) do
+    socket
+    |> stream_insert_trace(diff)
+    |> halt()
+  end
+
   defp handle_info({:debounce, _}, socket) when socket.private.trace_insertion_canceled do
     {:halt, socket}
   end
@@ -94,6 +102,16 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
       |> stream_delete(:existing_traces, TraceDisplay.from_trace(trace, true))
     end
     |> put_private(:trace_insertion_canceled, true)
+  end
+
+  defp stream_insert_trace(socket, %DiffTrace{} = diff) do
+    stream_insert(
+      socket,
+      :existing_traces,
+      diff,
+      at: 0,
+      limit: socket.private.live_stream_limit
+    )
   end
 
   defp stream_insert_trace(socket, trace) do

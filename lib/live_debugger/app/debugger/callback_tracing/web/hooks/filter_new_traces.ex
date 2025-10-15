@@ -10,6 +10,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
+  alias LiveDebugger.Services.CallbackTracer.Events.DiffCreated
 
   @required_assigns [
     :current_filters,
@@ -37,6 +38,14 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
 
   defp handle_info(%TraceErrored{} = trace_errored, socket) do
     filter_trace_event(socket, trace_errored)
+  end
+
+  defp handle_info(%DiffCreated{}, socket) do
+    if diff_traces_filter_enabled?(socket) do
+      {:cont, socket}
+    else
+      {:halt, socket}
+    end
   end
 
   defp handle_info(_, socket), do: {:cont, socket}
@@ -80,5 +89,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
         |> String.downcase()
         |> String.contains?(String.downcase(search))
     end
+  end
+
+  defp diff_traces_filter_enabled?(socket) do
+    socket.assigns.current_filters.other_filters["trace_diffs"]
   end
 end
