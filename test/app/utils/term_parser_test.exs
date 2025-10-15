@@ -4,6 +4,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
   alias LiveDebugger.App.Utils.TermNode
   alias LiveDebugger.App.Utils.TermNode.DisplayElement
   alias LiveDebugger.App.Utils.TermParser
+  alias LiveDebugger.App.Utils.TermDiffer
+  alias LiveDebugger.App.Utils.TermDiffer.Diff
   alias LiveDebugger.Fakes
 
   defmodule TestStruct do
@@ -574,18 +576,221 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
 
   describe "update_by_diff/2" do
     test "doesn't update if type is equal" do
+      term = %{a: 1, b: [1, 2, 3]}
+      term_node = TermParser.term_to_display_tree(term)
+
+      diff = %Diff{type: :equal}
+
+      assert {:ok, ^term_node} = TermParser.update_by_diff(term_node, diff)
     end
 
-    test "updates nested elements" do
+    test "updates primitive values" do
+      old_term = "Old Term"
+      new_term = "New Term"
+
+      term_node = %TermNode{content: [%DisplayElement{text: "Old Term", color: "text-code-1"}]}
+
+      diff = TermDiffer.diff(old_term, new_term)
+
+      assert {:ok,
+              %TermNode{content: [%DisplayElement{text: "\"New Term\"", color: "text-code-4"}]}} =
+               TermParser.update_by_diff(term_node, diff)
     end
 
-    test "properly adds suffixes" do
+    test "updates nested elements in maps" do
+      old_term = %{
+        user: %{
+          name: "Alice",
+          settings: %{
+            theme: "light",
+            notifications: true
+          }
+        }
+      }
+
+      new_term = %{
+        user: %{
+          name: "Alice",
+          settings: %{
+            theme: "dark",
+            notifications: false
+          }
+        }
+      }
+
+      term_node = TermParser.term_to_display_tree(old_term)
+      diff = TermDiffer.diff(old_term, new_term)
+
+      assert {:ok, updated_node} = TermParser.update_by_diff(term_node, diff)
+
+      {_, user_node} = Enum.find(updated_node.children, fn {key, _} -> key == :user end)
+      {_, settings_node} = Enum.find(user_node.children, fn {key, _} -> key == :settings end)
+      {_, theme_node} = Enum.find(settings_node.children, fn {key, _} -> key == :theme end)
+
+      assert theme_node.content == [
+               %DisplayElement{text: "theme:", color: "text-code-1"},
+               %DisplayElement{text: " ", color: "text-code-2"},
+               %DisplayElement{text: "\"dark\"", color: "text-code-4"}
+             ]
+    end
+
+    test "handles list insertions and deletions" do
+      old_term = [1, 2, 3]
+      new_term = [0, 2, 3, 4]
+
+      term_node = TermParser.term_to_display_tree(old_term)
+      diff = TermDiffer.diff(old_term, new_term)
+
+      assert {:ok, updated_node} = TermParser.update_by_diff(term_node, diff)
+
+      assert length(updated_node.children) == 4
+
+      assert {0,
+              %TermNode{
+                content: [
+                  %DisplayElement{text: "0", color: "text-code-1"},
+                  %DisplayElement{text: ",", color: "text-code-2"}
+                ]
+              }} = Enum.at(updated_node.children, 0)
+
+      assert {3,
+              %TermNode{
+                content: [
+                  %DisplayElement{text: "4", color: "text-code-1"}
+                ]
+              }} = Enum.at(updated_node.children, 3)
+    end
+
+    test "properly adds and removes comma suffixes" do
+      term_node1 = %{a: 1, b: 2}
+      term_node2 = %{a: 1, b: 2, c: 3}
+
+      term_node = TermParser.term_to_display_tree(term_node1)
+      diff = TermDiffer.diff(term_node1, term_node2)
+
+      assert {:ok, updated_node} = TermParser.update_by_diff(term_node, diff)
+
+      {_, b_node} = Enum.find(updated_node.children, fn {key, _} -> key == :b end)
+      assert List.last(b_node.content) == %DisplayElement{text: ",", color: "text-code-2"}
+      assert List.last(b_node.expanded_after) == %DisplayElement{text: ",", color: "text-code-2"}
+
+      term_node3 = %{a: 1, b: 2}
+      diff = TermDiffer.diff(term_node2, term_node3)
+
+      assert {:ok, final_node} = TermParser.update_by_diff(updated_node, diff)
+
+      {_, b_node} = Enum.find(final_node.children, fn {key, _} -> key == :b end)
+      refute List.last(b_node.content) == %DisplayElement{text: ",", color: "text-code-2"}
+      refute List.last(b_node.expanded_after) == %DisplayElement{text: ",", color: "text-code-2"}
     end
 
     test "properly opens lists and tuples within default limits" do
+      old_term = %{small: [1], large: [1, 2, 3, 4]}
+      new_term = %{small: [1, 2], large: [1, 2, 3, 4, 5]}
+
+      term_node = TermParser.term_to_display_tree(old_term)
+      diff = TermDiffer.diff(old_term, new_term)
+
+      assert {:ok, updated_node} = TermParser.update_by_diff(term_node, diff)
+
+      assert updated_node.open? == true
+
+      assert {_, %TermNode{open?: true}} =
+               Enum.find(updated_node.children, fn {key, _} -> key == :small end)
+
+      assert {_, %TermNode{open?: false}} =
+               Enum.find(updated_node.children, fn {key, _} -> key == :large end)
     end
 
-    test "returns error if the term node and diff are not complatible" do
+    test "handles struct updates" do
+      old_term = %TestStruct{field1: "old", field2: 1}
+      new_term = %TestStruct{field1: "new", field2: 2}
+
+      term_node = TermParser.term_to_display_tree(old_term)
+      diff = TermDiffer.diff(old_term, new_term)
+
+      assert {:ok, updated_node} = TermParser.update_by_diff(term_node, diff)
+
+      {_, field1_node} = Enum.find(updated_node.children, fn {key, _} -> key == :field1 end)
+
+      assert field1_node.content == [
+               %DisplayElement{text: "field1:", color: "text-code-1"},
+               %DisplayElement{text: " ", color: "text-code-2"},
+               %DisplayElement{text: "\"new\"", color: "text-code-4"},
+               %DisplayElement{text: ",", color: "text-code-2"}
+             ]
+
+      {_, field2_node} = Enum.find(updated_node.children, fn {key, _} -> key == :field2 end)
+
+      assert field2_node.content == [
+               %DisplayElement{text: "field2:", color: "text-code-1"},
+               %DisplayElement{text: " ", color: "text-code-2"},
+               %DisplayElement{text: "2", color: "text-code-1"}
+             ]
+    end
+
+    test "handles map key additions and deletions" do
+      old_term = %{"a" => 1, "b" => 2}
+      new_term = %{"b" => 2, "d" => 4}
+
+      term_node = TermParser.term_to_display_tree(old_term)
+      diff = TermDiffer.diff(old_term, new_term)
+
+      assert {:ok, updated_node} = TermParser.update_by_diff(term_node, diff)
+
+      refute Enum.any?(updated_node.children, fn {key, _} -> key == "a" end)
+
+      assert {_, d_node} = Enum.find(updated_node.children, fn {key, _} -> key == "d" end)
+
+      assert d_node.content == [
+               %DisplayElement{text: "\"d\"", color: "text-code-4"},
+               %DisplayElement{text: " => ", color: "text-code-2"},
+               %DisplayElement{text: "4", color: "text-code-1"}
+             ]
+    end
+
+    test "correctly updates node ids" do
+      old_term = %{items: [1, 2], metadata: %{version: 1}}
+      new_term = %{items: [1, 2, 3], metadata: %{version: 2}}
+
+      term_node = TermParser.term_to_display_tree(old_term)
+      diff = TermDiffer.diff(old_term, new_term)
+
+      assert {:ok,
+              %TermNode{
+                id: "root",
+                children: [
+                  {:items,
+                   %TermNode{
+                     id: "root.0",
+                     children: [
+                       {0, %TermNode{id: "root.0.0"}},
+                       {1, %TermNode{id: "root.0.1"}},
+                       {2, %TermNode{id: "root.0.2"}}
+                     ]
+                   }},
+                  {:metadata,
+                   %TermNode{
+                     id: "root.1",
+                     children: [
+                       {:version, %TermNode{id: "root.1.0"}}
+                     ]
+                   }}
+                ]
+              }} = TermParser.update_by_diff(term_node, diff)
+    end
+
+    test "returns error if the term node and diff are not compatible" do
+      invalid_diff = %Diff{
+        type: :map,
+        diff: %{non_existent_key: Fakes.term_diff_primitive()}
+      }
+
+      old_term = :not_a_map
+
+      term_node = TermParser.term_to_display_tree(old_term)
+
+      assert {:error, _} = TermParser.update_by_diff(term_node, invalid_diff)
     end
   end
 

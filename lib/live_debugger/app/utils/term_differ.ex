@@ -54,7 +54,7 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
     Struct for representing a diff between two terms.
     """
 
-    defstruct [:type, ins: %{}, del: %{}, diff: %{}]
+    defstruct type: :equal, ins: %{}, del: %{}, diff: %{}
 
     @type type() :: :map | :list | :tuple | :struct | :primitive | :equal
     @type key() :: any()
