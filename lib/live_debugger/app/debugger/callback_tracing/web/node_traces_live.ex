@@ -116,17 +116,21 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
             existing_traces={@streams.existing_traces}
           >
             <:trace :let={{id, trace_display}}>
-              <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
-                <:label class="grid-cols-[auto_1fr_auto]">
-                  <TraceComponents.callback_name trace={trace_display.trace} />
-                  <TraceComponents.short_trace_content trace={trace_display.trace} />
-                  <TraceComponents.trace_time_info id={id} trace_display={trace_display} />
-                </:label>
+              <%= if match?(%LiveDebugger.Structs.DiffTrace{}, trace_display.trace) do %>
+                <TraceComponents.diff_trace id={id} trace_display={trace_display} />
+              <% else %>
+                <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
+                  <:label class="grid-cols-[auto_1fr_auto]">
+                    <TraceComponents.callback_name trace={trace_display.trace} />
+                    <TraceComponents.short_trace_content trace={trace_display.trace} />
+                    <TraceComponents.trace_time_info id={id} trace_display={trace_display} />
+                  </:label>
 
-                <:body>
-                  <TraceComponents.trace_body id={id} trace={trace_display.trace} />
-                </:body>
-              </HookComponents.TraceWrapper.render>
+                  <:body>
+                    <TraceComponents.trace_body id={id} trace={trace_display.trace} />
+                  </:body>
+                </HookComponents.TraceWrapper.render>
+              <% end %>
             </:trace>
           </HookComponents.Stream.render>
           <HookComponents.LoadMoreButton.render

@@ -11,6 +11,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Utils.TermParser
   alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Structs.DiffTrace
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents
+  alias LiveDebugger.Utils.Memory
 
   @doc """
   Fullscreen modal with trace body.
@@ -93,7 +96,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
     assigns = assign(assigns, :content, Trace.callback_name(assigns.trace))
 
     ~H"""
-    <p class="font-medium text-sm"><%= @content %></p>
+    <.trace_title content={@content} />
     """
   end
 
@@ -115,13 +118,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       )
 
     ~H"""
-    <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
-      <div class="hidden @[30rem]/traces:flex">
-        <p id={if(@id, do: @id <> "-short-content", else: false)} class="hide-on-open mt-0.5" {@rest}>
-          <%= @content %>
-        </p>
-      </div>
-    </div>
+    <.short_content id={@id} content={@content} {@rest} />
     """
   end
 
@@ -134,20 +131,136 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   def trace_time_info(assigns) do
     ~H"""
     <div class="flex text-xs font-normal text-secondary-text align-center">
-      <.tooltip id={@id <> "-timestamp-tooltip"} content="timestamp" class="min-w-24">
-        <%= Parsers.parse_timestamp(@trace_display.trace.timestamp) %>
-      </.tooltip>
+      <.timestamp_info id={@id} timestamp={@trace_display.trace.timestamp} />
       <span class="mx-2 border-r border-default-border"></span>
-      <.tooltip id={@id <> "-exec-time-tooltip"} content="execution time" class="min-w-11">
-        <span
-          id={@id <> "-exec-time"}
-          class={["text-nowrap", get_threshold_class(@trace_display.trace.execution_time)]}
-          phx-hook={if @trace_display.from_event?, do: "TraceExecutionTime"}
-        >
-          <%= Parsers.parse_elapsed_time(@trace_display.trace.execution_time) %>
-        </span>
-      </.tooltip>
+      <.execution_time_info
+        id={@id}
+        execution_time={@trace_display.trace.execution_time}
+        class={get_threshold_class(@trace_display.trace.execution_time)}
+        phx_hook={if @trace_display.from_event?, do: "TraceExecutionTime", else: nil}
+      />
     </div>
+    """
+  end
+
+  @doc """
+  Diff trace component for displaying LiveView diffs.
+  """
+  attr(:id, :string, required: true)
+  attr(:trace_display, TraceDisplay, required: true)
+  attr(:rest, :global)
+
+  def diff_trace(assigns) do
+    assigns =
+      assigns
+      |> assign(
+        diff_content: inspect(assigns.trace_display.trace.body, limit: 10, structs: false)
+      )
+
+    ~H"""
+    <HookComponents.TraceWrapper.render id={@id} trace_display={@trace_display} {@rest}>
+      <:label class="grid-cols-[auto_1fr_auto]">
+        <.trace_title content="Diff sent" class="font-medium text-sm font-bold" />
+        <.short_content id={@id} content={@diff_content} />
+        <div class="flex text-xs font-normal text-secondary-text align-center">
+          <.timestamp_info id={@id} timestamp={@trace_display.trace.timestamp} />
+          <span class="mx-2 border-r border-default-border"></span>
+          <.memory_info id={@id} size={@trace_display.trace.size} />
+        </div>
+      </:label>
+      <:body>
+        <.diff_trace_body id={@id} trace={@trace_display.trace} />
+      </:body>
+    </HookComponents.TraceWrapper.render>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:trace, DiffTrace, required: true)
+  attr(:rest, :global)
+
+  defp diff_trace_body(assigns) do
+    ~H"""
+    <div id={@id <> "-body"} class="flex flex-col gap-4 w-full" {@rest}>
+      <div class="flex flex-col gap-4 w-full [&>div>div>button]:hidden hover:[&>div>div>button]:block">
+        <div class="shrink-0 flex gap-2 items-center h-4">
+          <p class="font-semibold">
+            Diff content
+          </p>
+          <.copy_button id={"#{@id}-diff"} value={TermParser.term_to_copy_string(@trace.body)} />
+        </div>
+        <ElixirDisplay.term
+          id={@id <> "-diff-content"}
+          node={TermParser.term_to_display_tree(@trace.body)}
+          level={1}
+        />
+      </div>
+    </div>
+    """
+  end
+
+  attr(:content, :string, required: true)
+  attr(:class, :string, default: "font-medium text-sm")
+
+  defp trace_title(assigns) do
+    ~H"""
+    <p class={@class}><%= @content %></p>
+    """
+  end
+
+  attr(:id, :string, default: nil)
+  attr(:content, :string, required: true)
+  attr(:rest, :global)
+
+  defp short_content(assigns) do
+    ~H"""
+    <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
+      <div class="hidden @[30rem]/traces:flex">
+        <p id={if(@id, do: @id <> "-short-content", else: false)} class="hide-on-open mt-0.5" {@rest}>
+          <%= @content %>
+        </p>
+      </div>
+    </div>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:timestamp, :integer, required: true)
+
+  defp timestamp_info(assigns) do
+    ~H"""
+    <.tooltip id={@id <> "-timestamp-tooltip"} content="timestamp" class="min-w-24">
+      <%= Parsers.parse_timestamp(@timestamp) %>
+    </.tooltip>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:size, :integer, required: true)
+  attr(:tooltip, :string, default: "size")
+
+  defp memory_info(assigns) do
+    ~H"""
+    <.tooltip id={@id <> "-memory-tooltip"} content={@tooltip} class="min-w-11">
+      <span class="text-nowrap">
+        <%= Memory.bytes_to_pretty_string(@size) %>
+      </span>
+    </.tooltip>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:execution_time, :integer, required: true)
+  attr(:class, :string, default: "")
+  attr(:phx_hook, :string, default: nil)
+
+  def execution_time_info(assigns) do
+    ~H"""
+    <.tooltip id={@id <> "-exec-time-tooltip"} content="execution time" class="min-w-11">
+      <span id={@id <> "-exec-time"} class={["text-nowrap", @class]} phx-hook={@phx_hook}>
+        <%= Parsers.parse_elapsed_time(@execution_time) %>
+      </span>
+    </.tooltip>
     """
   end
 
