@@ -3,21 +3,19 @@ defmodule LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
 
   import Mox
 
+  alias LiveDebugger.Fakes
+  alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.MockAPILiveViewDiscovery
+  alias LiveDebugger.MockClient
   alias LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
   alias LiveDebugger.Services.ClientCommunicator.Queries.LvProcess
   alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.Fakes
-  alias LiveDebugger.MockClient
-  alias LiveDebugger.MockAPILiveViewDiscovery
-  alias LiveDebugger.MockAPILiveViewDebug
 
   setup :verify_on_exit!
 
   describe "init/1" do
     test "properly initializes ClientCommunicator" do
-      MockClient
-      |> expect(:receive_events, fn -> :ok end)
-
+      expect(MockClient, :receive_events, fn -> :ok end)
       assert {:ok, _} = ClientCommunicator.init([])
     end
   end
@@ -47,13 +45,9 @@ defmodule LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
         "type" => "LiveView"
       }
 
-      MockAPILiveViewDiscovery
-      |> expect(:debugged_lv_processes, fn ->
-        [lv_process]
-      end)
+      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn -> [lv_process] end)
 
-      MockClient
-      |> expect(:push_event!, fn ^root_socket_id, "found-node-element", event_payload ->
+      expect(MockClient, :push_event!, fn ^root_socket_id, "found-node-element", event_payload ->
         assert event_payload["module"] == "LiveDebuggerTest.LiveView"
         assert event_payload["type"] == "LiveView"
         assert event_payload["id_key"] == "PID"
@@ -79,18 +73,13 @@ defmodule LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
         "id" => Integer.to_string(cid)
       }
 
-      MockAPILiveViewDiscovery
-      |> expect(:debugged_lv_processes, fn ->
-        [lv_process]
-      end)
+      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn -> [lv_process] end)
 
-      MockAPILiveViewDebug
-      |> expect(:live_components, fn pid when pid == lv_process.pid ->
+      expect(MockAPILiveViewDebug, :live_components, fn pid when pid == lv_process.pid ->
         {:ok, Fakes.live_components()}
       end)
 
-      MockClient
-      |> expect(:push_event!, fn ^root_socket_id, "found-node-element", event_payload ->
+      expect(MockClient, :push_event!, fn ^root_socket_id, "found-node-element", event_payload ->
         assert event_payload["module"] == "LiveDebuggerDev.LiveComponents.ManyAssigns"
         assert event_payload["type"] == "LiveComponent"
         assert event_payload["id_key"] == "CID"
@@ -116,13 +105,9 @@ defmodule LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
         "id" => Integer.to_string(cid)
       }
 
-      MockAPILiveViewDiscovery
-      |> expect(:debugged_lv_processes, fn ->
-        [lv_process]
-      end)
+      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn -> [lv_process] end)
 
-      MockAPILiveViewDebug
-      |> expect(:live_components, fn pid when pid == lv_process.pid ->
+      expect(MockAPILiveViewDebug, :live_components, fn pid when pid == lv_process.pid ->
         {:ok, Fakes.live_components()}
       end)
 
@@ -142,10 +127,7 @@ defmodule LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
         "type" => "LiveView"
       }
 
-      MockAPILiveViewDiscovery
-      |> expect(:debugged_lv_processes, fn ->
-        []
-      end)
+      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn -> [] end)
 
       # No expectation for push_event! since it should not be called when process not found
 

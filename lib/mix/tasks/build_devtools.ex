@@ -1,6 +1,4 @@
 defmodule Mix.Tasks.BuildDevtools do
-  use Mix.Task
-
   @shortdoc "Builds the DevTools extension for Chrome or Firefox"
 
   @moduledoc """
@@ -10,6 +8,8 @@ defmodule Mix.Tasks.BuildDevtools do
       mix build_devtools firefox
       mix build_devtools
   """
+
+  use Mix.Task
 
   @impl true
   def run([]) do
@@ -61,7 +61,9 @@ defmodule Mix.Tasks.BuildDevtools do
 
   defp zip_dir(src_dir, zip_path) do
     files =
-      Path.wildcard(Path.join(src_dir, "**"), match_dot: true)
+      src_dir
+      |> Path.join("**")
+      |> Path.wildcard(match_dot: true)
       |> Enum.filter(&File.regular?/1)
       |> Enum.map(&to_charlist/1)
 

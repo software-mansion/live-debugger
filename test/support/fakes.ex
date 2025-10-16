@@ -86,8 +86,9 @@ defmodule LiveDebugger.Fakes do
       transport_pid: :c.pid(0, 0, 1)
     ]
 
-    Keyword.merge(default, opts)
-    |> Enum.into(%{})
+    default
+    |> Keyword.merge(opts)
+    |> Map.new()
   end
 
   def socket(opts \\ []) do
@@ -108,7 +109,7 @@ defmodule LiveDebugger.Fakes do
     root_pid =
       case Keyword.get(opts, :nested?, nil) do
         false ->
-          if not Keyword.has_key?(opts, :pid), do: raise("pid is required for nested processes")
+          unless Keyword.has_key?(opts, :pid), do: raise("pid is required for nested processes")
           Keyword.get(opts, :pid)
 
         _ ->
@@ -139,7 +140,7 @@ defmodule LiveDebugger.Fakes do
     }
   end
 
-  def live_components() do
+  def live_components do
     [
       %{
         cid: 1,
@@ -245,7 +246,7 @@ defmodule LiveDebugger.Fakes do
     ]
   end
 
-  def live_components_from_liveview_state() do
+  def live_components_from_liveview_state do
     {%{
        1 =>
          {LiveDebuggerDev.LiveComponents.ManyAssigns, "many_assigns",

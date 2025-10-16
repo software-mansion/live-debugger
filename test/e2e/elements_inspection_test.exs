@@ -32,11 +32,9 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     |> click(live_component(2))
     |> refute_has(css("div.live-debugger-inspect-mode"))
 
-    debugger
-    |> assert_has(
-      css("#node-inspector-basic-info-current-node-module",
-        text: "LiveDebuggerDev.LiveComponents.Name"
-      )
+    assert_has(
+      debugger,
+      css("#node-inspector-basic-info-current-node-module", text: "LiveDebuggerDev.LiveComponents.Name")
     )
   end
 
@@ -56,14 +54,9 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     |> click(first_link())
     |> click(switch_inspect_mode_button())
 
-    dev_app1
-    |> assert_has(css("div.live-debugger-inspect-mode"))
-
-    debugger
-    |> click(css("button[phx-click=\"switch-inspect-mode\"]"))
-
-    dev_app1
-    |> refute_has(css("div.live-debugger-inspect-mode"))
+    assert_has(dev_app1, css("div.live-debugger-inspect-mode"))
+    click(debugger, css("button[phx-click=\"switch-inspect-mode\"]"))
+    refute_has(dev_app1, css("div.live-debugger-inspect-mode"))
   end
 
   @sessions 2
@@ -113,29 +106,19 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     |> visit("/")
     |> click(first_link())
 
-    dev_app1
-    |> click(live_component(2))
+    click(dev_app1, live_component(2))
 
-    debugger1
-    |> assert_has(
-      css("#node-inspector-basic-info-current-node-module",
-        text: "LiveDebuggerDev.LiveComponents.Name"
-      )
+    assert_has(
+      debugger1,
+      css("#node-inspector-basic-info-current-node-module", text: "LiveDebuggerDev.LiveComponents.Name")
     )
 
-    debugger2
-    |> assert_has(
-      css("#node-inspector-basic-info-current-node-module",
-        text: "LiveDebuggerDev.LiveComponents.Name"
-      )
+    assert_has(
+      debugger2,
+      css("#node-inspector-basic-info-current-node-module", text: "LiveDebuggerDev.LiveComponents.Name")
     )
 
-    debugger3
-    |> assert_has(
-      css("#node-inspector-basic-info-current-node-module",
-        text: "LiveDebuggerDev.LiveViews.Main"
-      )
-    )
+    assert_has(debugger3, css("#node-inspector-basic-info-current-node-module", text: "LiveDebuggerDev.LiveViews.Main"))
   end
 
   @sessions 2
@@ -154,18 +137,11 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     Process.sleep(200)
 
     dev_app
-    |> click(
-      css("div[data-phx-id=\"m1-embedded_wrapper_inner\"] span", text: "Simple [LiveView]")
-    )
+    |> click(css("div[data-phx-id=\"m1-embedded_wrapper_inner\"] span", text: "Simple [LiveView]"))
     |> refute_has(css("div.live-debugger-inspect-mode"))
 
     Process.sleep(200)
 
-    debugger
-    |> assert_has(
-      css("#node-inspector-basic-info-current-node-module",
-        text: "LiveDebuggerDev.LiveViews.Simple"
-      )
-    )
+    assert_has(debugger, css("#node-inspector-basic-info-current-node-module", text: "LiveDebuggerDev.LiveViews.Simple"))
   end
 end

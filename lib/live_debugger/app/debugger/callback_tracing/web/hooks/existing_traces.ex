@@ -5,11 +5,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.ExistingTraces do
 
   use LiveDebugger.App.Web, :hook
 
-  require Logger
-
   alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
+
+  require Logger
 
   @required_assigns [
     :lv_process,
@@ -79,9 +79,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.ExistingTraces do
   end
 
   defp handle_async(:fetch_existing_traces, {:exit, reason}, socket) do
-    Logger.error(
-      "LiveDebugger encountered unexpected error while fetching existing traces: #{inspect(reason)}"
-    )
+    Logger.error("LiveDebugger encountered unexpected error while fetching existing traces: #{inspect(reason)}")
 
     socket
     |> assign(existing_traces_status: :error)

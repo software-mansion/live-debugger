@@ -10,15 +10,14 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
 
   use LiveDebugger.App.Web, :hook
 
-  alias LiveDebugger.Structs.Trace
   alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
-
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
+  alias LiveDebugger.Structs.Trace
 
   @debounce_timeout_ms 10
 
@@ -84,16 +83,18 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp stream_update_trace(socket, trace) do
-    if matches_execution_time_filter?(socket, trace) do
-      socket
-      |> stream_insert_trace(trace)
-      |> assign(traces_empty?: false)
-    else
-      socket
-      |> Hooks.TracingFuse.decrement_fuse()
-      |> stream_delete(:existing_traces, TraceDisplay.from_trace(trace, true))
-    end
-    |> put_private(:trace_insertion_canceled, true)
+    if_result =
+      if matches_execution_time_filter?(socket, trace) do
+        socket
+        |> stream_insert_trace(trace)
+        |> assign(traces_empty?: false)
+      else
+        socket
+        |> Hooks.TracingFuse.decrement_fuse()
+        |> stream_delete(:existing_traces, TraceDisplay.from_trace(trace, true))
+      end
+
+    put_private(if_result, :trace_insertion_canceled, true)
   end
 
   defp stream_insert_trace(socket, trace) do

@@ -16,8 +16,7 @@ defmodule LiveDebugger.App.Web.Helpers.Hooks do
     socket
   end
 
-  def check_assigns!(%LiveViewSocket{assigns: assigns} = socket, key)
-      when is_atom(key) and is_map_key(assigns, key) do
+  def check_assigns!(%LiveViewSocket{assigns: assigns} = socket, key) when is_atom(key) and is_map_key(assigns, key) do
     socket
   end
 
@@ -30,8 +29,7 @@ defmodule LiveDebugger.App.Web.Helpers.Hooks do
   Raises an error if the key is not found.
   """
   @spec check_stream!(LiveViewSocket.t(), atom()) :: LiveViewSocket.t()
-  def check_stream!(%LiveViewSocket{assigns: %{streams: streams}} = socket, key)
-      when is_map_key(streams, key) do
+  def check_stream!(%LiveViewSocket{assigns: %{streams: streams}} = socket, key) when is_map_key(streams, key) do
     socket
   end
 

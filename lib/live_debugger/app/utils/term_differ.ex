@@ -1,6 +1,4 @@
 defmodule LiveDebugger.App.Utils.TermDiffer do
-  @primitive_key :live_debugger_primitive_key
-
   @moduledoc """
   Module for getting diffs between two terms.
 
@@ -48,6 +46,8 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
         }
       }
   """
+
+  @primitive_key :live_debugger_primitive_key
 
   defmodule Diff do
     @moduledoc """
@@ -128,7 +128,8 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
     list2_with_indexes = Enum.with_index(list2, fn value, index -> {index, value} end)
 
     myers_diff =
-      List.myers_difference(list1, list2)
+      list1
+      |> List.myers_difference(list2)
       |> Enum.map(fn {type, values} -> {type, Enum.count(values)} end)
 
     initial_state =
@@ -157,7 +158,7 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
           %{acc | deletes: deletes, list1: list1_acc}
       end)
 
-    {Enum.into(inserts, %{}), Enum.into(deletes, %{})}
+    {Map.new(inserts), Map.new(deletes)}
   end
 
   defp map_diffs(map1, map2) when is_map(map1) and is_map(map2) do
@@ -165,7 +166,8 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
     del = Map.drop(map1, Map.keys(map2))
 
     diff =
-      Map.intersect(map1, map2, fn _, old_value, new_value ->
+      map1
+      |> Map.intersect(map2, fn _, old_value, new_value ->
         diff(old_value, new_value)
       end)
       |> Map.reject(fn {_, value} -> match?(%Diff{type: :equal}, value) end)

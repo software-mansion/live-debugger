@@ -738,8 +738,7 @@ defmodule LiveDebugger.App.Web.Components do
 
   def input_with_units(assigns) do
     assigns =
-      assigns
-      |> assign(:errors, assigns.value_field.errors)
+      assign(assigns, :errors, assigns.value_field.errors)
 
     ~H"""
     <div class={[

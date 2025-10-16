@@ -4,9 +4,9 @@ defmodule LiveDebugger.App.Debugger.Structs.TreeNode do
   """
 
   alias LiveDebugger.App.Debugger.Structs.TreeNode
-  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.CommonTypes
+  alias LiveDebugger.Structs.LvState
 
   defstruct [
     :id,

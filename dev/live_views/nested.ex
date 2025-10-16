@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.LiveViews.Nested do
+  @moduledoc false
   use DevWeb, :live_view
 
   alias LiveDebuggerDev.LiveViews

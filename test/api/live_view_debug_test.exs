@@ -3,10 +3,10 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
 
   import Mox
 
-  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.API.LiveViewDebug
-  alias LiveDebugger.MockAPILiveViewDebug
   alias LiveDebugger.Fakes
+  alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.Structs.LvState
 
   setup :verify_on_exit!
 
@@ -28,8 +28,7 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
     test "return :error when Socket not available" do
       pid = :c.pid(0, 12, 0)
 
-      MockAPILiveViewDebug
-      |> expect(:socket, fn ^pid -> {:error, :not_alive_or_not_a_liveview} end)
+      expect(MockAPILiveViewDebug, :socket, fn ^pid -> {:error, :not_alive_or_not_a_liveview} end)
 
       assert {:error, :not_alive_or_not_a_liveview} =
                LiveViewDebug.liveview_state(pid)
@@ -49,7 +48,7 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
     end
   end
 
-  if not Code.ensure_loaded?(Phoenix.LiveView.Debug) do
+  unless Code.ensure_loaded?(Phoenix.LiveView.Debug) do
     alias LiveDebugger.MockAPIProcess
 
     describe "list_liveviews/0" do
@@ -97,27 +96,21 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
 
         socket = Fakes.socket()
 
-        MockAPIProcess
-        |> expect(:state, fn ^pid -> {:ok, %{socket: socket}} end)
-
+        expect(MockAPIProcess, :state, fn ^pid -> {:ok, %{socket: socket}} end)
         assert {:ok, ^socket} = LiveViewDebug.Impl.socket(pid)
       end
 
       test "returns :error if process is not a LiveView" do
         pid = :c.pid(0, 12, 0)
 
-        MockAPIProcess
-        |> expect(:state, fn ^pid -> {:ok, %{data: [], socket: %{c: 3}}} end)
-
+        expect(MockAPIProcess, :state, fn ^pid -> {:ok, %{data: [], socket: %{c: 3}}} end)
         assert {:error, :not_alive_or_not_a_liveview} = LiveViewDebug.Impl.socket(pid)
       end
 
       test "returns :error if process is not alive" do
         pid = :c.pid(0, 12, 0)
 
-        MockAPIProcess
-        |> expect(:state, fn ^pid -> {:error, :not_alive} end)
-
+        expect(MockAPIProcess, :state, fn ^pid -> {:error, :not_alive} end)
         assert {:error, :not_alive_or_not_a_liveview} = LiveViewDebug.Impl.socket(pid)
       end
     end
@@ -129,27 +122,21 @@ defmodule LiveDebugger.API.LiveViewDebugTest do
         raw_components = Fakes.live_components_from_liveview_state()
         components = Fakes.live_components()
 
-        MockAPIProcess
-        |> expect(:state, fn ^pid -> {:ok, %{components: raw_components}} end)
-
+        expect(MockAPIProcess, :state, fn ^pid -> {:ok, %{components: raw_components}} end)
         assert {:ok, ^components} = LiveViewDebug.Impl.live_components(pid)
       end
 
       test "returns :error if process is not a LiveView" do
         pid = :c.pid(0, 12, 0)
 
-        MockAPIProcess
-        |> expect(:state, fn ^pid -> {:ok, %{data: []}} end)
-
+        expect(MockAPIProcess, :state, fn ^pid -> {:ok, %{data: []}} end)
         assert {:error, :not_alive_or_not_a_liveview} = LiveViewDebug.Impl.live_components(pid)
       end
 
       test "returns :error if process is not alive" do
         pid = :c.pid(0, 12, 0)
 
-        MockAPIProcess
-        |> expect(:state, fn ^pid -> {:error, :not_alive} end)
-
+        expect(MockAPIProcess, :state, fn ^pid -> {:error, :not_alive} end)
         assert {:error, :not_alive_or_not_a_liveview} = LiveViewDebug.Impl.live_components(pid)
       end
     end

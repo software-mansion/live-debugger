@@ -3,11 +3,10 @@ defmodule LiveDebugger.App.Settings.ActionsTest do
 
   import Mox
 
+  alias LiveDebugger.App.Events.UserChangedSettings
   alias LiveDebugger.App.Settings.Actions, as: SettingsActions
   alias LiveDebugger.MockAPISettingsStorage
-
   alias LiveDebugger.MockBus
-  alias LiveDebugger.App.Events.UserChangedSettings
 
   setup :verify_on_exit!
 
@@ -17,14 +16,8 @@ defmodule LiveDebugger.App.Settings.ActionsTest do
       setting = :dead_view_mode
       value = true
 
-      MockAPISettingsStorage
-      |> expect(:save, fn ^setting, ^value -> :ok end)
-
-      MockBus
-      |> expect(:broadcast_event!, fn %UserChangedSettings{key: ^setting, value: ^value} ->
-        :ok
-      end)
-
+      expect(MockAPISettingsStorage, :save, fn ^setting, ^value -> :ok end)
+      expect(MockBus, :broadcast_event!, fn %UserChangedSettings{key: ^setting, value: ^value} -> :ok end)
       assert {:ok, updated_settings} = SettingsActions.update_settings!(settings, setting, value)
       assert %{dead_view_mode: true, another_setting: true} = updated_settings
     end
@@ -34,9 +27,7 @@ defmodule LiveDebugger.App.Settings.ActionsTest do
       setting = :dead_view_mode
       value = true
 
-      MockAPISettingsStorage
-      |> expect(:save, fn ^setting, ^value -> {:error, :failed} end)
-
+      expect(MockAPISettingsStorage, :save, fn ^setting, ^value -> {:error, :failed} end)
       assert {:error, :failed} = SettingsActions.update_settings!(settings, setting, value)
     end
   end

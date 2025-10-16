@@ -16,7 +16,7 @@ defmodule LiveDebugger.API.LiveViewDebug do
   @callback live_components(pid()) :: {:ok, [LvState.component()]} | {:error, term()}
 
   @spec list_liveviews() :: [lv()]
-  def list_liveviews() do
+  def list_liveviews do
     impl().list_liveviews()
   end
 
@@ -38,7 +38,7 @@ defmodule LiveDebugger.API.LiveViewDebug do
     end
   end
 
-  defp impl() do
+  defp impl do
     Application.get_env(
       :live_debugger,
       :api_live_view_debug,
@@ -61,7 +61,7 @@ defmodule LiveDebugger.API.LiveViewDebug do
       alias LiveDebugger.API.System.Process, as: ProcessAPI
 
       @impl true
-      def list_liveviews() do
+      def list_liveviews do
         ProcessAPI.list()
         |> Enum.filter(&liveview?/1)
         |> Enum.map(fn pid ->

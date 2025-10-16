@@ -6,6 +6,7 @@ defmodule LiveDebugger.BusTest do
   alias LiveDebugger.Bus.Impl, as: BusImpl
 
   defmodule TestEvents do
+    @moduledoc false
     use LiveDebugger.Event
 
     defevent(TestEvent, name: String.t())
@@ -21,8 +22,7 @@ defmodule LiveDebugger.BusTest do
       assert BusImpl.append_bus_tree([]) == [
                %{
                  id: LiveDebugger.Bus.PubSub,
-                 start:
-                   {Phoenix.PubSub.Supervisor, :start_link, [[name: LiveDebugger.Bus.PubSub]]},
+                 start: {Phoenix.PubSub.Supervisor, :start_link, [[name: LiveDebugger.Bus.PubSub]]},
                  type: :supervisor
                }
              ]

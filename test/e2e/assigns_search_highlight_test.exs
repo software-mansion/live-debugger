@@ -5,8 +5,7 @@ defmodule LiveDebugger.E2E.AssignsSearchHighlightTest do
   feature "user can search assigns using the searchbar", %{
     sessions: [dev_app, debugger]
   } do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -31,5 +30,5 @@ defmodule LiveDebugger.E2E.AssignsSearchHighlightTest do
     )
   end
 
-  defp fullscreen_button(), do: css("button[aria-label=\"Icon expand\"]")
+  defp fullscreen_button, do: css("button[aria-label=\"Icon expand\"]")
 end

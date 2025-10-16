@@ -1,7 +1,7 @@
 defmodule LiveDebuggerDev.Helpers do
   @moduledoc false
 
-  def very_long_assigns_map() do
+  def very_long_assigns_map do
     %{
       a: 1,
       b: 2,

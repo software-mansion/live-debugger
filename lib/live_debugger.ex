@@ -23,13 +23,13 @@ defmodule LiveDebugger do
     Supervisor.start_link(children, strategy: :one_for_one, name: LiveDebugger.Supervisor)
   end
 
-  def update_live_debugger_tags() do
+  def update_live_debugger_tags do
     @app_name
     |> Application.get_all_env()
     |> put_live_debugger_tags()
   end
 
-  defp get_children() do
+  defp get_children do
     if LiveDebugger.Env.unit_test?() do
       []
     else
@@ -48,7 +48,7 @@ defmodule LiveDebugger do
     end
   end
 
-  defp default_adapter() do
+  defp default_adapter do
     case Code.ensure_loaded(Bandit.PhoenixAdapter) do
       {:module, _} -> Bandit.PhoenixAdapter
       {:error, _} -> Phoenix.Endpoint.Cowboy2Adapter
@@ -85,7 +85,7 @@ defmodule LiveDebugger do
     port = Keyword.get(config, :port, @default_port)
 
     browser_features? = Keyword.get(config, :browser_features?, true)
-    version = Application.spec(@app_name)[:vsn] |> to_string()
+    version = to_string(Application.spec(@app_name)[:vsn])
 
     live_debugger_url = Keyword.get(config, :external_url, "http://#{ip_string}:#{port}")
     live_debugger_js_url = "#{live_debugger_url}/#{@js_path}"

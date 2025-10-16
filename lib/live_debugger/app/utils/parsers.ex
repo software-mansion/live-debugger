@@ -8,7 +8,7 @@ defmodule LiveDebugger.App.Utils.Parsers do
   @time_units ["µs", "ms", "s"]
 
   @spec time_units() :: [String.t()]
-  def time_units(), do: @time_units
+  def time_units, do: @time_units
 
   @doc """
   Converts time with units to microseconds.

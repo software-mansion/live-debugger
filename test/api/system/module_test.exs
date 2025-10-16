@@ -5,14 +5,17 @@ defmodule LiveDebugger.API.System.ModuleImplTest do
 
   describe "behaviours/1" do
     defmodule TestLiveViewModule do
+      @moduledoc false
       use Phoenix.LiveView
     end
 
     defmodule TestLiveComponentModule do
+      @moduledoc false
       use Phoenix.LiveComponent
     end
 
     defmodule TestNoBehaviourModule do
+      @moduledoc false
     end
 
     test "returns correct behaviours" do
@@ -28,6 +31,7 @@ defmodule LiveDebugger.API.System.ModuleImplTest do
 
   describe "loaded?/1" do
     defmodule TestModule do
+      @moduledoc false
     end
 
     test "returns true if module is loaded" do

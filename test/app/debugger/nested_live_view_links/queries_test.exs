@@ -3,13 +3,12 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.QueriesTest do
 
   import Mox
 
-  alias LiveDebugger.Structs.LvState
-
   alias LiveDebugger.App.Debugger.NestedLiveViewLinks.Queries,
     as: NestedLiveViewLinksQueries
 
-  alias LiveDebugger.MockAPIStatesStorage
   alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.Structs.LvState
 
   setup :verify_on_exit!
 
@@ -18,9 +17,7 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.QueriesTest do
       parent_pid = :c.pid(0, 11, 0)
       child_pid = :c.pid(0, 12, 0)
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^child_pid -> %LvState{socket: %{parent_pid: parent_pid}} end)
-
+      expect(MockAPIStatesStorage, :get!, fn ^child_pid -> %LvState{socket: %{parent_pid: parent_pid}} end)
       assert NestedLiveViewLinksQueries.child_lv_process?(parent_pid, child_pid)
     end
 
@@ -28,12 +25,8 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.QueriesTest do
       parent_pid = :c.pid(0, 11, 0)
       child_pid = :c.pid(0, 12, 0)
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^child_pid -> nil end)
-
-      MockAPILiveViewDebug
-      |> expect(:socket, fn ^child_pid -> {:ok, %{parent_pid: parent_pid}} end)
-
+      expect(MockAPIStatesStorage, :get!, fn ^child_pid -> nil end)
+      expect(MockAPILiveViewDebug, :socket, fn ^child_pid -> {:ok, %{parent_pid: parent_pid}} end)
       assert NestedLiveViewLinksQueries.child_lv_process?(parent_pid, child_pid)
     end
 
@@ -65,12 +58,8 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.QueriesTest do
       parent_pid = :c.pid(0, 12, 0)
       child_pid = :c.pid(0, 13, 0)
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^child_pid -> nil end)
-
-      MockAPILiveViewDebug
-      |> expect(:socket, fn ^child_pid -> {:error, :no_socket} end)
-
+      expect(MockAPIStatesStorage, :get!, fn ^child_pid -> nil end)
+      expect(MockAPILiveViewDebug, :socket, fn ^child_pid -> {:error, :no_socket} end)
       refute NestedLiveViewLinksQueries.child_lv_process?(parent_pid, child_pid)
     end
   end

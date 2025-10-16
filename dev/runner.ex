@@ -1,5 +1,6 @@
 defmodule LiveDebuggerDev.Runner do
-  def run() do
+  @moduledoc false
+  def run do
     # Configures the endpoint
 
     config =
@@ -29,7 +30,7 @@ defmodule LiveDebuggerDev.Runner do
     end)
   end
 
-  defp common_config() do
+  defp common_config do
     [
       url: [host: "localhost"],
       secret_key_base: "Hu4qQN3iKzTV4fJxhorPQlA/osH9fAMtbtjVS58PFgfw3ja5Z18Q/WSNR9wP4OfW",
@@ -41,7 +42,7 @@ defmodule LiveDebuggerDev.Runner do
     ]
   end
 
-  defp dev_only_config() do
+  defp dev_only_config do
     [
       http: [port: System.get_env("PORT") || 4004],
       watchers: [
@@ -62,7 +63,7 @@ defmodule LiveDebuggerDev.Runner do
     ]
   end
 
-  defp test_only_config() do
+  defp test_only_config do
     [
       http: [port: 4005],
       server: true

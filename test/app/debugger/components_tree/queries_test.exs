@@ -3,11 +3,11 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.QueriesTest do
 
   import Mox
 
-  alias LiveDebugger.App.Debugger.Structs.TreeNode
-  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.App.Debugger.ComponentsTree.Queries, as: ComponentsTreeQueries
-  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.Structs.LvState
 
   setup :verify_on_exit!
 
@@ -15,18 +15,11 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.QueriesTest do
     test "returns root TreeNode for valid pid" do
       pid = :c.pid(0, 11, 0)
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid ->
+      expect(MockAPIStatesStorage, :get!, fn ^pid ->
         %LvState{
           pid: pid,
           socket: %{id: "phx-somevalueid", view: LiveDebuggerTest.SomeModuleLive},
-          components: [
-            %{
-              cid: 1,
-              module: LiveDebuggerTest.LiveComponent,
-              children_cids: []
-            }
-          ]
+          components: [%{cid: 1, module: LiveDebuggerTest.LiveComponent, children_cids: []}]
         }
       end)
 
@@ -52,8 +45,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.QueriesTest do
     test "returns root TreeNode for valid pid when state not saved in StatesStorage" do
       pid = :c.pid(0, 11, 0)
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> nil end)
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> nil end)
 
       MockAPILiveViewDebug
       |> expect(:socket, fn ^pid ->

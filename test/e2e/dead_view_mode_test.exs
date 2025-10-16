@@ -13,8 +13,7 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
   feature "dead view mode with navigation and disabled highlighting", %{
     sessions: [dev_app, debugger]
   } do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -22,9 +21,7 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
     |> find(css("#navbar-connected"))
     |> assert_text("Monitored PID")
 
-    dev_app
-    |> execute_script("window.location.reload();")
-
+    execute_script(dev_app, "window.location.reload();")
     Process.sleep(200)
 
     debugger
@@ -53,8 +50,7 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
   feature "traces ended with exception are visible in dead view mode", %{
     sessions: [dev_app, debugger]
   } do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -63,8 +59,7 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
     |> click(clear_traces_button())
     |> click(toggle_tracing_button())
 
-    dev_app
-    |> click(css("button[phx-click=\"crash\"]"))
+    click(dev_app, css("button[phx-click=\"crash\"]"))
 
     debugger
     |> find(global_traces(count: 1))
@@ -73,7 +68,7 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
 
   defp global_traces(opts), do: css("#global-traces-stream details", opts)
 
-  defp global_callback_traces_button(), do: css("button[aria-label=\"Icon globe\"]")
+  defp global_callback_traces_button, do: css("button[aria-label=\"Icon globe\"]")
 
-  defp node_inspector_button(), do: css("button[aria-label=\"Icon info\"]")
+  defp node_inspector_button, do: css("button[aria-label=\"Icon info\"]")
 end

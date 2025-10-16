@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.Components do
+  @moduledoc false
   use Phoenix.Component
 
   @routes [

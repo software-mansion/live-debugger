@@ -31,14 +31,13 @@ defmodule LiveDebugger.MixProject do
     ]
   end
 
-  def cli() do
+  def cli do
     [preferred_envs: [e2e: :test]]
   end
 
   defp elixirc_paths(:dev), do: ["lib", "dev"]
 
-  defp elixirc_paths(:test),
-    do: ["lib", "dev", "test/support"]
+  defp elixirc_paths(:test), do: ["lib", "dev", "test/support"]
 
   defp elixirc_paths(_), do: ["lib"]
 
@@ -92,7 +91,7 @@ defmodule LiveDebugger.MixProject do
     ]
   end
 
-  defp docs() do
+  defp docs do
     [
       main: "welcome",
       logo: "./docs/images/logo.png",

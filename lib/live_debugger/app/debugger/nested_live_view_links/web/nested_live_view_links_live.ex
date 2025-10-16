@@ -5,16 +5,13 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksL
 
   use LiveDebugger.App.Web, :live_view
 
-  alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.API.LiveViewDiscovery
+  alias LiveDebugger.App.Debugger.NestedLiveViewLinks.Queries, as: NestedLiveViewLinksQueries
   alias LiveDebugger.App.Debugger.Web.Components, as: DebuggerComponents
-
-  alias LiveDebugger.App.Debugger.NestedLiveViewLinks.Queries,
-    as: NestedLiveViewLinksQueries
-
   alias LiveDebugger.Bus
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
+  alias LiveDebugger.Structs.LvProcess
 
   @doc """
   Renders the `NestedLiveViewLinksLive` as a nested LiveView component.
@@ -87,21 +84,25 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksL
 
   @impl true
   def handle_info(%LiveViewBorn{pid: pid}, socket) do
-    if NestedLiveViewLinksQueries.child_lv_process?(socket.assigns.lv_process.pid, pid) do
-      assign_async_nested_lv_processes(socket)
-    else
-      socket
-    end
-    |> noreply()
+    if_result =
+      if NestedLiveViewLinksQueries.child_lv_process?(socket.assigns.lv_process.pid, pid) do
+        assign_async_nested_lv_processes(socket)
+      else
+        socket
+      end
+
+    noreply(if_result)
   end
 
   def handle_info(%LiveViewDied{pid: pid}, socket) do
-    if known_child_lv_process?(socket, pid) do
-      assign_async_nested_lv_processes(socket)
-    else
-      socket
-    end
-    |> noreply()
+    if_result =
+      if known_child_lv_process?(socket, pid) do
+        assign_async_nested_lv_processes(socket)
+      else
+        socket
+      end
+
+    noreply(if_result)
   end
 
   def handle_info(_, socket), do: {:noreply, socket}

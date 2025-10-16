@@ -99,7 +99,7 @@ defmodule LiveDebugger.Bus do
   Receive events from general topic: `lvdbg/*`.
   """
   @spec receive_events() :: :ok | {:error, term()}
-  def receive_events() do
+  def receive_events do
     impl().receive_events()
   end
 
@@ -115,7 +115,7 @@ defmodule LiveDebugger.Bus do
   Receive traces from traces topic: `lvdbg/traces/*`.
   """
   @spec receive_traces() :: :ok | {:error, term()}
-  def receive_traces() do
+  def receive_traces do
     impl().receive_traces()
   end
 
@@ -131,7 +131,7 @@ defmodule LiveDebugger.Bus do
   Receive states from states topic: `lvdbg/states/*`.
   """
   @spec receive_states() :: :ok | {:error, term()}
-  def receive_states() do
+  def receive_states do
     impl().receive_states()
   end
 
@@ -147,7 +147,7 @@ defmodule LiveDebugger.Bus do
   Receive events from general topic: `lvdbg/*`. Raises an error if the operation fails.
   """
   @spec receive_events!() :: :ok
-  def receive_events!() do
+  def receive_events! do
     impl().receive_events!()
   end
 
@@ -163,7 +163,7 @@ defmodule LiveDebugger.Bus do
   Receive traces from traces topic: `lvdbg/traces/*`. Raises an error if the operation fails.
   """
   @spec receive_traces!() :: :ok
-  def receive_traces!() do
+  def receive_traces! do
     impl().receive_traces!()
   end
 
@@ -179,7 +179,7 @@ defmodule LiveDebugger.Bus do
   Receive states from states topic: `lvdbg/states/*`. Raises an error if the operation fails.
   """
   @spec receive_states!() :: :ok
-  def receive_states!() do
+  def receive_states! do
     impl().receive_states!()
   end
 
@@ -199,7 +199,7 @@ defmodule LiveDebugger.Bus do
     impl().stop_receiving_traces(pid)
   end
 
-  defp impl() do
+  defp impl do
     Application.get_env(:live_debugger, :bus, __MODULE__.Impl)
   end
 
@@ -250,7 +250,7 @@ defmodule LiveDebugger.Bus do
     end
 
     @impl true
-    def receive_events() do
+    def receive_events do
       Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/*")
     end
 
@@ -260,7 +260,7 @@ defmodule LiveDebugger.Bus do
     end
 
     @impl true
-    def receive_traces() do
+    def receive_traces do
       Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/traces/*")
     end
 
@@ -270,7 +270,7 @@ defmodule LiveDebugger.Bus do
     end
 
     @impl true
-    def receive_states() do
+    def receive_states do
       Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/states/*")
     end
 
@@ -280,7 +280,7 @@ defmodule LiveDebugger.Bus do
     end
 
     @impl true
-    def receive_events!() do
+    def receive_events! do
       case Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/*") do
         :ok -> :ok
         {:error, error} -> raise "Failed to receive events: #{inspect(error)}"
@@ -299,7 +299,7 @@ defmodule LiveDebugger.Bus do
     end
 
     @impl true
-    def receive_traces!() do
+    def receive_traces! do
       case Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/traces/*") do
         :ok -> :ok
         {:error, error} -> raise "Failed to receive traces: #{inspect(error)}"
@@ -323,7 +323,7 @@ defmodule LiveDebugger.Bus do
     end
 
     @impl true
-    def receive_states!() do
+    def receive_states! do
       case Phoenix.PubSub.subscribe(@pubsub_name, "lvdbg/states/*") do
         :ok -> :ok
         {:error, error} -> raise "Failed to receive states: #{inspect(error)}"

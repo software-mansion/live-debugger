@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.LiveComponents.LiveComponentWithVeryVeryLongName do
+  @moduledoc false
   use DevWeb, :live_component
 
   def render(assigns) do

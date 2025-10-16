@@ -3,11 +3,10 @@ defmodule LiveDebugger.Services.ClientCommunicator.Queries.LvProcess do
   Queries for LiveView processes.
   """
 
+  alias LiveDebugger.API.LiveViewDebug
+  alias LiveDebugger.API.LiveViewDiscovery
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Structs.LvState
-
-  alias LiveDebugger.API.LiveViewDiscovery
-  alias LiveDebugger.API.LiveViewDebug
 
   @spec get_by_socket_id(String.t()) :: {:ok, LvProcess.t()} | :not_found
   def get_by_socket_id(socket_id) do

@@ -8,9 +8,9 @@ defmodule LiveDebugger.E2ECase do
     quote do
       use Wallaby.Feature
 
-      import Wallaby.Query
       import LiveDebugger.Support.CssQueries
       import Mox
+      import Wallaby.Query
 
       @moduletag :e2e
 
@@ -19,8 +19,7 @@ defmodule LiveDebugger.E2ECase do
       setup :set_mox_from_context
 
       setup do
-        LiveDebugger.MockIframeCheck
-        |> stub(:on_mount, fn _, _, _, socket ->
+        stub(LiveDebugger.MockIframeCheck, :on_mount, fn _, _, _, socket ->
           {:cont, Phoenix.Component.assign(socket, :in_iframe?, false)}
         end)
 

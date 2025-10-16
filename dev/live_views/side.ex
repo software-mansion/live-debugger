@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.LiveViews.Side do
+  @moduledoc false
   use DevWeb, :live_view
 
   def mount(_params, _session, socket) do

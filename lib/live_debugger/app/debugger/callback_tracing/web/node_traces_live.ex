@@ -6,16 +6,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
   use LiveDebugger.App.Web, :live_view
 
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Assigns.Filters, as: FiltersAssigns
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace, as: TraceComponents
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
-
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace,
-    as: TraceComponents
-
-  alias LiveDebugger.Structs.LvProcess
-
-  alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebugger.Bus
+  alias LiveDebugger.Structs.LvProcess
 
   @live_stream_limit 128
   @page_size 25
@@ -46,16 +42,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
   end
 
   @impl true
-  def mount(
-        _params,
-        %{
-          "parent_pid" => parent_pid,
-          "lv_process" => lv_process,
-          "id" => id,
-          "node_id" => node_id
-        },
-        socket
-      ) do
+  def mount(_params, %{"parent_pid" => parent_pid, "lv_process" => lv_process, "id" => id, "node_id" => node_id}, socket) do
     if connected?(socket) do
       Bus.receive_events!(parent_pid)
     end
@@ -147,10 +134,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
   end
 
   @impl true
-  def handle_info(
-        %NodeIdParamChanged{node_id: node_id, debugger_pid: pid},
-        %{assigns: %{parent_pid: pid}} = socket
-      ) do
+  def handle_info(%NodeIdParamChanged{node_id: node_id, debugger_pid: pid}, %{assigns: %{parent_pid: pid}} = socket) do
     socket
     |> assign(:node_id, node_id)
     |> FiltersAssigns.assign_current_filters()

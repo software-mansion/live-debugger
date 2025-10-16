@@ -9,11 +9,10 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.Queries.Successor do
   @spec find_successor(lv_process :: LvProcess.t(), new_socket_id :: String.t() | nil) ::
           LvProcess.t() | nil
   def find_successor(lv_process, new_socket_id) do
-    with lv_processes <- LiveViewDiscovery.debugged_lv_processes(),
-         nil <- find_successor_by_transport_pid(lv_processes, lv_process) do
+    lv_processes = LiveViewDiscovery.debugged_lv_processes()
+
+    with nil <- find_successor_by_transport_pid(lv_processes, lv_process) do
       find_successor_using_state(lv_processes, new_socket_id)
-    else
-      successor -> successor
     end
   end
 
@@ -49,7 +48,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.Queries.Successor do
   end
 
   defp find_single_process(processes) do
-    if length(processes) == 1, do: List.first(processes), else: nil
+    if length(processes) == 1, do: List.first(processes)
   end
 
   # It finds a successor based on new_socket_id

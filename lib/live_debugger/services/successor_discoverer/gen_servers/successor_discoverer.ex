@@ -28,13 +28,12 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
 
   import LiveDebugger.Helpers
 
-  alias LiveDebugger.Client
-  alias LiveDebugger.Services.SuccessorDiscoverer.Queries.Successor, as: SuccessorQueries
-
-  alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.FindSuccessor
+  alias LiveDebugger.Bus
+  alias LiveDebugger.Client
   alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorFound
   alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorNotFound
+  alias LiveDebugger.Services.SuccessorDiscoverer.Queries.Successor, as: SuccessorQueries
   alias LiveDebugger.Structs.LvProcess
 
   defmodule State do
@@ -66,14 +65,16 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
     window_id = payload["window_id"]
     socket_id = payload["socket_id"]
 
-    if not is_nil(window_id) and not is_nil(socket_id) do
-      state
-      |> put_window_to_socket(window_id, socket_id)
-      |> put_socket_to_window(socket_id, window_id)
-    else
-      state
-    end
-    |> noreply()
+    if_result =
+      if not is_nil(window_id) and not is_nil(socket_id) do
+        state
+        |> put_window_to_socket(window_id, socket_id)
+        |> put_socket_to_window(socket_id, window_id)
+      else
+        state
+      end
+
+    noreply(if_result)
   end
 
   @impl true

@@ -27,9 +27,9 @@ defmodule LiveDebugger.API.System.Process do
 
   @doc deprecated: "This module is deprecated and will be removed in a future version"
   @spec list() :: [pid()]
-  def list(), do: impl().list()
+  def list, do: impl().list()
 
-  defp impl() do
+  defp impl do
     Application.get_env(
       :live_debugger,
       :api_process,
@@ -59,19 +59,17 @@ defmodule LiveDebugger.API.System.Process do
 
     @impl true
     def state(pid) do
-      try do
-        if Process.alive?(pid) do
-          {:ok, :sys.get_state(pid)}
-        else
-          {:error, :not_alive}
-        end
-      catch
-        :exit, reason ->
-          {:error, reason}
+      if Process.alive?(pid) do
+        {:ok, :sys.get_state(pid)}
+      else
+        {:error, :not_alive}
       end
+    catch
+      :exit, reason ->
+        {:error, reason}
     end
 
     @impl true
-    def list(), do: Process.list()
+    def list, do: Process.list()
   end
 end

@@ -3,8 +3,8 @@ defmodule LiveDebugger.App.Debugger.Queries.State do
   Queries for fetching the LiveView state information using the `StatesStorage` and `LiveViewDebug` modules.
   """
 
-  alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.LiveViewDebug
+  alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.Structs.LvState
 
   @spec get_lv_state(pid()) :: {:ok, LvState.t()} | {:error, term()}

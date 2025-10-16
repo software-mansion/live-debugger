@@ -12,7 +12,7 @@ defmodule LiveDebugger.API.System.Module do
   Returns a list of tuples {Module, Filename, Loaded} for all available modules.
   """
   @spec all() :: [{charlist(), charlist(), boolean()}]
-  def all(), do: impl().all()
+  def all, do: impl().all()
 
   @doc """
   Wrapper for Code.ensure_loaded?/1 that returns if a module is loaded.
@@ -26,7 +26,7 @@ defmodule LiveDebugger.API.System.Module do
   @spec behaviours(module :: module()) :: [module()]
   def behaviours(module), do: impl().behaviours(module)
 
-  defp impl() do
+  defp impl do
     Application.get_env(
       :live_debugger,
       :api_module,
@@ -39,7 +39,7 @@ defmodule LiveDebugger.API.System.Module do
     @behaviour LiveDebugger.API.System.Module
 
     @impl true
-    def all() do
+    def all do
       :code.all_available()
     end
 

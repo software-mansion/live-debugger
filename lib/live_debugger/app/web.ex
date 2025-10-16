@@ -6,14 +6,14 @@ defmodule LiveDebugger.App.Web do
       use Phoenix.LiveView,
         layout: {unquote(__MODULE__).Layout, :app}
 
+      import LiveDebugger.Helpers
+      import Phoenix.HTML
+      import unquote(__MODULE__).Components
+      import unquote(__MODULE__).Hooks.Flash, only: [push_flash: 3, push_flash: 4]
+
       on_mount({unquote(__MODULE__).Hooks.Flash, :add_hook})
       on_mount({unquote(__MODULE__).Hooks.URL, :add_hook})
       on_mount({unquote(__MODULE__).Hooks.IframeCheck, :add_hook})
-
-      import Phoenix.HTML
-      import LiveDebugger.Helpers
-      import unquote(__MODULE__).Components
-      import unquote(__MODULE__).Hooks.Flash, only: [push_flash: 3, push_flash: 4]
     end
   end
 
@@ -21,8 +21,8 @@ defmodule LiveDebugger.App.Web do
     quote do
       use Phoenix.LiveComponent
 
-      import Phoenix.HTML
       import LiveDebugger.Helpers
+      import Phoenix.HTML
       import unquote(__MODULE__).Components
       import unquote(__MODULE__).Hooks.Flash, only: [push_flash: 3, push_flash: 4]
     end
@@ -32,33 +32,33 @@ defmodule LiveDebugger.App.Web do
     quote do
       use Phoenix.Component
 
-      import Phoenix.HTML
       import LiveDebugger.Helpers
+      import Phoenix.HTML
       import unquote(__MODULE__).Components
     end
   end
 
   def hook do
     quote do
-      import Phoenix.LiveView
-      import Phoenix.Component
       import LiveDebugger.Helpers
+      import Phoenix.Component
+      import Phoenix.LiveView
       import unquote(__MODULE__).Helpers.Hooks
     end
   end
 
   def hook_component do
     quote do
+      @behaviour unquote(__MODULE__).HookComponent
+
       use Phoenix.Component
 
-      import Phoenix.HTML
       import LiveDebugger.Helpers
-      import unquote(__MODULE__).Components
-      import Phoenix.LiveView
       import Phoenix.Component
+      import Phoenix.HTML
+      import Phoenix.LiveView
+      import unquote(__MODULE__).Components
       import unquote(__MODULE__).Helpers.Hooks
-
-      @behaviour unquote(__MODULE__).HookComponent
     end
   end
 

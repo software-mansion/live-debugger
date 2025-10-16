@@ -1,11 +1,12 @@
 defmodule LiveDebugger.App.Utils.TermParserTest do
   use ExUnit.Case, async: true
 
+  alias LiveDebugger.App.Utils.TermParser
   alias LiveDebugger.App.Utils.TermParser.DisplayElement
   alias LiveDebugger.App.Utils.TermParser.TermNode
-  alias LiveDebugger.App.Utils.TermParser
 
   defmodule TestStruct do
+    @moduledoc false
     defstruct [:field1, :field2]
   end
 
@@ -216,7 +217,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
     test "parses struct without `Inspect.Any` implementation" do
       term = %TestStruct{field1: "value1", field2: 42}
 
-      "Elixir." <> struct_name = __MODULE__.TestStruct |> Atom.to_string()
+      "Elixir." <> struct_name = Atom.to_string(__MODULE__.TestStruct)
 
       expected = %TermNode{
         id: "root",

@@ -3,15 +3,14 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
   This module provides actions for traces.
   """
 
-  alias LiveDebugger.Structs.Trace
-  alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.API.LiveViewDebug
-  alias LiveDebugger.Utils.Modules, as: UtilsModules
-
+  alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
+  alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Utils.Modules, as: UtilsModules
 
   @spec create_trace(
           n :: non_neg_integer(),

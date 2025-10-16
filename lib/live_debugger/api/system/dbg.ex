@@ -68,7 +68,7 @@ defmodule LiveDebugger.API.System.Dbg do
     [{:_, [], [{flag}]}]
   end
 
-  defp impl() do
+  defp impl do
     Application.get_env(
       :live_debugger,
       :api_dbg,

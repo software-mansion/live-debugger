@@ -3,9 +3,9 @@ defmodule LiveDebugger.App.Discovery.QueriesTest do
 
   import Mox
 
-  alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Discovery.Queries, as: DiscoveryQueries
   alias LiveDebugger.MockAPILiveViewDiscovery
+  alias LiveDebugger.Structs.LvProcess
 
   describe "fetch_grouped_lv_processes/1" do
     test "returns LiveView processes using api" do

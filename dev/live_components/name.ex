@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.LiveComponents.Name do
+  @moduledoc false
   use DevWeb, :live_component
 
   def update(assigns, socket) do

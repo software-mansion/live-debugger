@@ -10,7 +10,7 @@ defmodule LiveDebugger.Utils.Callbacks do
   Returns a list of callbacks for LiveViews.
   """
   @spec live_view_callbacks() :: [fa()]
-  def live_view_callbacks() do
+  def live_view_callbacks do
     [
       {:mount, 3},
       {:handle_params, 3},
@@ -28,7 +28,7 @@ defmodule LiveDebugger.Utils.Callbacks do
   Returns a list of callbacks for LiveComponents.
   """
   @spec live_component_callbacks() :: [fa()]
-  def live_component_callbacks() do
+  def live_component_callbacks do
     [
       {:mount, 1},
       {:update, 2},
@@ -43,7 +43,7 @@ defmodule LiveDebugger.Utils.Callbacks do
   Returns a list of all callbacks for LiveViews and LiveComponents.
   """
   @spec all_callbacks() :: [fa()]
-  def all_callbacks() do
+  def all_callbacks do
     [
       {:mount, 3},
       {:mount, 1},

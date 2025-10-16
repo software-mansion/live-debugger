@@ -3,12 +3,11 @@ defmodule LiveDebugger.API.TracesStorageTest do
 
   import Mox
 
-  alias LiveDebugger.Utils.Memory
-  alias LiveDebugger.Fakes
   alias LiveDebugger.API.TracesStorage.Impl, as: TracesStorageImpl
+  alias LiveDebugger.Fakes
+  alias LiveDebugger.Utils.Memory
 
-  @all_functions LiveDebugger.Utils.Callbacks.all_callbacks()
-                 |> Enum.map(fn {function, arity} -> "#{function}/#{arity}" end)
+  @all_functions Enum.map(LiveDebugger.Utils.Callbacks.all_callbacks(), fn {function, arity} -> "#{function}/#{arity}" end)
 
   @processes_table_name :lvdbg_traces_processes
 

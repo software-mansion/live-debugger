@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.LiveViews.Main do
+  @moduledoc false
   use DevWeb, :live_view
 
   alias LiveDebuggerDev.LiveComponents
@@ -119,7 +120,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
     {:noreply, assign(socket, datetime: datetime)}
   end
 
-  defp random_name() do
+  defp random_name do
     Enum.random(["Alice", "Bob", "Charlie", "David", "Eve"])
   end
 end

@@ -6,13 +6,10 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
   use GenServer
 
   alias LiveDebugger.API.SettingsStorage
-  alias LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher
-
-  alias LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting,
-    as: GarbageCollectingActions
-
-  alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserChangedSettings
+  alias LiveDebugger.Bus
+  alias LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting, as: GarbageCollectingActions
+  alias LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher
 
   @garbage_collect_interval 2000
 
@@ -66,7 +63,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
 
   def handle_info(_, state), do: {:noreply, state}
 
-  defp loop_garbage_collection() do
+  defp loop_garbage_collection do
     Process.send_after(
       self(),
       :garbage_collect,
@@ -74,7 +71,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
     )
   end
 
-  defp resume_garbage_collection() do
+  defp resume_garbage_collection do
     send(
       self(),
       :garbage_collect

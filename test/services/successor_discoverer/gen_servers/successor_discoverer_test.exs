@@ -3,17 +3,15 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
 
   import Mox
 
-  alias LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscoverer
-  alias LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscoverer.State
-  alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorFound
-  alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorNotFound
   alias LiveDebugger.App.Events.FindSuccessor
-
-  alias LiveDebugger.Structs.LvProcess
-
+  alias LiveDebugger.MockAPILiveViewDiscovery
   alias LiveDebugger.MockBus
   alias LiveDebugger.MockClient
-  alias LiveDebugger.MockAPILiveViewDiscovery
+  alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorFound
+  alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorNotFound
+  alias LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscoverer
+  alias LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscoverer.State
+  alias LiveDebugger.Structs.LvProcess
 
   setup :verify_on_exit!
 

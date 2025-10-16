@@ -7,11 +7,11 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggerProcessesMonit
 
   use GenServer
 
-  require Logger
-
-  alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.DebuggerMounted
+  alias LiveDebugger.Bus
   alias LiveDebugger.Services.ProcessMonitor.Events.DebuggerTerminated
+
+  require Logger
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)

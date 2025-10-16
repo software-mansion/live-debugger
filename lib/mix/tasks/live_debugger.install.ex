@@ -28,6 +28,10 @@ if Code.ensure_loaded?(Igniter) do
 
     @moduledoc __MODULE__.Docs.long_doc()
 
+    use Igniter.Mix.Task
+
+    alias Igniter.Code.Function
+
     @root_layout_notice """
     Live Debugger:
 
@@ -54,8 +58,6 @@ if Code.ensure_loaded?(Igniter) do
     @script_tag """
         <%= Application.get_env(:live_debugger, :live_debugger_tags) %>
     """
-
-    use Igniter.Mix.Task
 
     @impl Igniter.Mix.Task
     def info(_argv, _composing_task) do
@@ -104,12 +106,12 @@ if Code.ensure_loaded?(Igniter) do
       match?(
         {:ok, _},
         Igniter.Code.Common.move_to(zipper, fn zipper ->
-          Igniter.Code.Function.function_call?(
+          Function.function_call?(
             zipper,
             :plug,
             2
           ) and
-            Igniter.Code.Function.argument_equals?(
+            Function.argument_equals?(
               zipper,
               0,
               :put_secure_browser_headers

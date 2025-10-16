@@ -3,15 +3,15 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest d
 
   import Mox
 
+  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.MockAPITracesStorage
+  alias LiveDebugger.MockBus
+
   alias LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting,
     as: GarbageCollectingActions
 
-  alias LiveDebugger.MockAPITracesStorage
-  alias LiveDebugger.MockAPIStatesStorage
-
-  alias LiveDebugger.MockBus
-  alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
   alias LiveDebugger.Services.GarbageCollector.Events.TableDeleted
+  alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
 
   @megabyte_unit 1_048_576
 
@@ -37,8 +37,7 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest d
       |> expect(:trim_table!, fn ^table1, ^max_table_size_watched -> :ok end)
       |> expect(:trim_table!, fn ^table2, ^max_table_size_non_watched -> :ok end)
 
-      MockBus
-      |> expect(:broadcast_event!, 2, fn %TableTrimmed{} -> :ok end)
+      expect(MockBus, :broadcast_event!, 2, fn %TableTrimmed{} -> :ok end)
 
       assert MapSet.new() ==
                GarbageCollectingActions.garbage_collect_traces!(state, watched_pids, alive_pids)
@@ -59,8 +58,7 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest d
       |> expect(:table_size, fn ^table2 -> 0.5 * @megabyte_unit end)
       |> deny(:trim_table!, 2)
 
-      MockBus
-      |> deny(:broadcast_event!, 2)
+      deny(MockBus, :broadcast_event!, 2)
 
       assert MapSet.new() ==
                GarbageCollectingActions.garbage_collect_traces!(state, watched_pids, alive_pids)
@@ -102,8 +100,7 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest d
       alive_pids = MapSet.new([:c.pid(0, 13, 0)])
       state = %{to_remove: MapSet.new()}
 
-      MockAPIStatesStorage
-      |> expect(:get_all_states, fn -> [{pid1, :some_state}] end)
+      expect(MockAPIStatesStorage, :get_all_states, fn -> [{pid1, :some_state}] end)
 
       assert MapSet.new([pid1]) ==
                GarbageCollectingActions.garbage_collect_states!(state, watched_pids, alive_pids)
@@ -136,8 +133,7 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollectingTest d
       |> expect(:get_all_states, fn -> [{pid1, :some_state}, {pid2, :some_other_state}] end)
       |> deny(:delete!, 1)
 
-      MockBus
-      |> deny(:broadcast_event!, 1)
+      deny(MockBus, :broadcast_event!, 1)
 
       assert MapSet.new() ==
                GarbageCollectingActions.garbage_collect_states!(state, watched_pids, alive_pids)

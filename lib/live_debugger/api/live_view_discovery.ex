@@ -18,7 +18,7 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
   Returns all debugged LvProcesses.
   """
   @spec debugged_lv_processes() :: [LvProcess.t()]
-  def debugged_lv_processes() do
+  def debugged_lv_processes do
     impl().debugged_lv_processes()
   end
 
@@ -34,7 +34,7 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
   Returns all LiveDebugger's LvProcesses.
   """
   @spec debugger_lv_processes() :: [LvProcess.t()]
-  def debugger_lv_processes() do
+  def debugger_lv_processes do
     impl().debugger_lv_processes()
   end
 
@@ -57,7 +57,7 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
   end
 
   @spec lv_processes() :: [LvProcess.t()]
-  def lv_processes() do
+  def lv_processes do
     impl().lv_processes()
   end
 
@@ -66,7 +66,7 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
     impl().children_lv_processes(pid, searched_lv_processes)
   end
 
-  defp impl() do
+  defp impl do
     Application.get_env(
       :live_debugger,
       :api_live_view_discovery,
@@ -79,56 +79,49 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
     @behaviour LiveDebugger.API.LiveViewDiscovery
 
     @impl true
-    def debugged_lv_processes() do
-      lv_processes()
-      |> Enum.reject(& &1.debugger?)
+    def debugged_lv_processes do
+      Enum.reject(lv_processes(), & &1.debugger?)
     end
 
     @impl true
     def debugged_lv_processes(transport_pid) do
-      debugged_lv_processes()
-      |> Enum.filter(&(&1.transport_pid == transport_pid))
+      Enum.filter(debugged_lv_processes(), &(&1.transport_pid == transport_pid))
     end
 
     @impl true
-    def debugger_lv_processes() do
-      lv_processes()
-      |> Enum.filter(& &1.debugger?)
+    def debugger_lv_processes do
+      Enum.filter(lv_processes(), & &1.debugger?)
     end
 
     @impl true
     def lv_process(pid) when is_pid(pid) do
-      debugged_lv_processes()
-      |> Enum.find(&(&1.pid == pid))
+      Enum.find(debugged_lv_processes(), &(&1.pid == pid))
     end
 
     @impl true
     def lv_process(socket_id) when is_binary(socket_id) do
-      debugged_lv_processes()
-      |> Enum.find(&(&1.socket_id == socket_id))
+      Enum.find(debugged_lv_processes(), &(&1.socket_id == socket_id))
     end
 
     @impl true
     def group_lv_processes(lv_processes) do
       lv_processes
       |> Enum.group_by(& &1.transport_pid)
-      |> Enum.map(fn {tpid, grouped_by_tpid} ->
+      |> Map.new(fn {tpid, grouped_by_tpid} ->
         grouped_by_tpid
         |> Enum.group_by(& &1.root_pid)
-        |> Enum.map(fn {rpid, grouped_by_rpid} ->
+        |> Map.new(fn {rpid, grouped_by_rpid} ->
           root_lv_process = Enum.find(grouped_by_rpid, &(&1.root_pid == rpid))
           rest = Enum.reject(grouped_by_rpid, &(&1.pid == rpid))
 
           {root_lv_process, rest}
         end)
-        |> Enum.into(%{})
         |> then(&{tpid, &1})
       end)
-      |> Enum.into(%{})
     end
 
     @impl true
-    def lv_processes() do
+    def lv_processes do
       LiveDebugger.API.LiveViewDebug.list_liveviews()
       |> Enum.reject(&(&1.pid == self()))
       |> Enum.map(fn %{pid: pid} ->

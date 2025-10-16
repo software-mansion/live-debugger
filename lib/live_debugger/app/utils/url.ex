@@ -27,8 +27,7 @@ defmodule LiveDebugger.App.Utils.URL do
 
   @spec upsert_query_param(url :: String.t(), key :: String.t(), value :: String.t()) ::
           String.t()
-  def upsert_query_param(url, key, value)
-      when is_binary(url) and is_binary(key) and is_binary(value) do
+  def upsert_query_param(url, key, value) when is_binary(url) and is_binary(key) and is_binary(value) do
     upsert_query_params(url, %{key => value})
   end
 

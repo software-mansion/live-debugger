@@ -18,7 +18,7 @@ defmodule LiveDebugger.App.Web.Hooks.IframeCheck do
     impl().on_mount(:add_hook, params, session, socket)
   end
 
-  defp impl() do
+  defp impl do
     Application.get_env(
       :live_debugger,
       :iframe_check,
@@ -29,8 +29,8 @@ defmodule LiveDebugger.App.Web.Hooks.IframeCheck do
   defmodule Impl do
     @moduledoc false
 
-    import Phoenix.LiveView
     import Phoenix.Component
+    import Phoenix.LiveView
 
     def on_mount(:add_hook, _params, _session, socket) do
       in_iframe? =

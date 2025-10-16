@@ -220,14 +220,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
 
   defp update_filters(active_filters, params) do
     functions =
-      active_filters.functions
-      |> Enum.reduce(%{}, fn {function, _}, acc ->
+      Enum.reduce(active_filters.functions, %{}, fn {function, _}, acc ->
         Map.put(acc, function, Map.has_key?(params, function))
       end)
 
     execution_time =
-      active_filters.execution_time
-      |> Enum.reduce(%{}, fn {filter, value}, acc ->
+      Enum.reduce(active_filters.execution_time, %{}, fn {filter, value}, acc ->
         Map.put(acc, filter, Map.get(params, filter, value))
       end)
 

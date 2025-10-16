@@ -4,6 +4,7 @@ defmodule LiveDebugger.API.System.ProcessImplTest do
   alias LiveDebugger.API.System.Process.Impl, as: ProcessImpl
 
   defmodule TestServer do
+    @moduledoc false
     use GenServer
 
     def start_link(opts) do

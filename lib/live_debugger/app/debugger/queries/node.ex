@@ -5,9 +5,9 @@ defmodule LiveDebugger.App.Debugger.Queries.Node do
 
   import LiveDebugger.App.Debugger.Structs.TreeNode.Guards
 
-  alias LiveDebugger.Structs.LvState
-  alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Queries.State, as: StateQueries
+  alias LiveDebugger.App.Debugger.Structs.TreeNode
+  alias LiveDebugger.Structs.LvState
 
   @spec get_module_from_id(TreeNode.id(), pid()) :: {:ok, module()} | :error
   def get_module_from_id(node_id, pid) when is_node_id(node_id) do

@@ -19,7 +19,7 @@ defmodule LiveDebugger.API.StatesStorage do
   It should be called when application starts.
   """
   @spec init() :: :ok
-  def init(), do: impl().init()
+  def init, do: impl().init()
 
   @doc """
   Saves `#{LvState}` using `pid` as key.
@@ -44,15 +44,15 @@ defmodule LiveDebugger.API.StatesStorage do
   Retrieves all saved states.
   """
   @spec get_all_states() :: [{pid(), LvState.t()}]
-  def get_all_states(), do: impl().get_all_states()
+  def get_all_states, do: impl().get_all_states()
 
   @doc """
   Retrieves states table reference.
   """
   @spec get_states_table() :: :ets.table()
-  def get_states_table(), do: impl().get_states_table()
+  def get_states_table, do: impl().get_states_table()
 
-  defp impl() do
+  defp impl do
     Application.get_env(
       :live_debugger,
       :api_states_storage,
@@ -67,7 +67,7 @@ defmodule LiveDebugger.API.StatesStorage do
     @table_name :lvdbg_states
 
     @impl true
-    def init() do
+    def init do
       case :ets.whereis(@table_name) do
         :undefined ->
           :ets.new(@table_name, [:ordered_set, :public, :named_table])
@@ -101,9 +101,9 @@ defmodule LiveDebugger.API.StatesStorage do
     end
 
     @impl true
-    def get_all_states(), do: :ets.tab2list(@table_name)
+    def get_all_states, do: :ets.tab2list(@table_name)
 
     @impl true
-    def get_states_table(), do: @table_name
+    def get_states_table, do: @table_name
   end
 end

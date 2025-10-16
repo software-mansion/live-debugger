@@ -5,13 +5,12 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  alias LiveDebugger.App.Discovery.Queries, as: DiscoveryQueries
   alias LiveDebugger.App.Discovery.Web.Components, as: DiscoveryComponents
   alias LiveDebugger.App.Web.Components.Navbar, as: NavbarComponents
-  alias LiveDebugger.App.Discovery.Queries, as: DiscoveryQueries
-
   alias LiveDebugger.Bus
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
 
   @impl true
   def mount(_params, _session, socket) do

@@ -104,8 +104,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
     |> get_trace(string_trace_id)
     |> case do
       nil ->
-        socket
-        |> push_flash(:error, "Trace has been removed.", socket.assigns.parent_pid)
+        push_flash(socket, :error, "Trace has been removed.", socket.assigns.parent_pid)
 
       trace ->
         socket

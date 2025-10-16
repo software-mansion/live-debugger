@@ -2,10 +2,10 @@ defmodule LiveDebugger.Services.ProcessMonitor.Supervisor do
   @moduledoc """
   Supervisor for ProcessMonitor service.
   """
-  alias LiveDebugger.Services.ProcessMonitor.GenServers.DebuggerProcessesMonitor
-  alias LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonitor
-
   use Supervisor
+
+  alias LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonitor
+  alias LiveDebugger.Services.ProcessMonitor.GenServers.DebuggerProcessesMonitor
 
   def start_link(opts \\ []) do
     Supervisor.start_link(__MODULE__, opts, name: __MODULE__)

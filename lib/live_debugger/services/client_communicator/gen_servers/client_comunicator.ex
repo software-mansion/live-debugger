@@ -3,8 +3,8 @@ defmodule LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
 
   use GenServer
 
-  alias LiveDebugger.Client
   alias LiveDebugger.App.Utils.Parsers
+  alias LiveDebugger.Client
   alias LiveDebugger.Services.ClientCommunicator.Queries.LvProcess
 
   def start_link(args \\ []) do
@@ -19,8 +19,7 @@ defmodule LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
 
   @impl true
   def handle_info(
-        {"request-node-element",
-         %{"root_socket_id" => root_socket_id, "socket_id" => socket_id} = payload},
+        {"request-node-element", %{"root_socket_id" => root_socket_id, "socket_id" => socket_id} = payload},
         state
       ) do
     socket_id
@@ -43,11 +42,7 @@ defmodule LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
     send_live_view_info(lv_process, root_socket_id)
   end
 
-  defp process_node_element_request(
-         lv_process,
-         %{"type" => "LiveComponent", "id" => id},
-         root_socket_id
-       ) do
+  defp process_node_element_request(lv_process, %{"type" => "LiveComponent", "id" => id}, root_socket_id) do
     cid = String.to_integer(id)
 
     lv_process

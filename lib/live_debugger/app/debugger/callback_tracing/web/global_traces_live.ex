@@ -19,12 +19,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   use LiveDebugger.App.Web, :live_view
 
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Assigns.Filters, as: FiltersAssigns
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace, as: TraceComponents
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
-
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace,
-    as: TraceComponents
-
   alias LiveDebugger.Structs.LvProcess
 
   @live_stream_limit 128
@@ -54,11 +51,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   end
 
   @impl true
-  def mount(
-        _params,
-        %{"parent_pid" => parent_pid, "lv_process" => lv_process, "id" => id},
-        socket
-      ) do
+  def mount(_params, %{"parent_pid" => parent_pid, "lv_process" => lv_process, "id" => id}, socket) do
     socket
     |> assign(
       id: id,

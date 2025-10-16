@@ -3,10 +3,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.QueriesTest do
 
   import Mox
 
-  alias LiveDebugger.MockAPIStatesStorage
-  alias LiveDebugger.MockAPILiveViewDebug
-  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
+  alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.Structs.LvState
 
   setup :verify_on_exit!
 
@@ -15,9 +15,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.QueriesTest do
       pid = :c.pid(0, 1, 0)
       assigns = %{key: "value"}
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> %LvState{socket: %{assigns: assigns}} end)
-
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> %LvState{socket: %{assigns: assigns}} end)
       assert {:ok, %{node_assigns: ^assigns}} = NodeStateQueries.fetch_node_assigns(pid, pid)
     end
 
@@ -25,8 +23,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.QueriesTest do
       pid = :c.pid(0, 1, 0)
       assigns = %{key: "value"}
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> nil end)
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> nil end)
 
       MockAPILiveViewDebug
       |> expect(:socket, fn ^pid -> {:ok, %{assigns: assigns}} end)
@@ -40,9 +37,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.QueriesTest do
       cid = %Phoenix.LiveComponent.CID{cid: 2}
       assigns = %{key: "value"}
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> %LvState{components: [%{cid: cid.cid, assigns: assigns}]} end)
-
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> %LvState{components: [%{cid: cid.cid, assigns: assigns}]} end)
       assert {:ok, %{node_assigns: ^assigns}} = NodeStateQueries.fetch_node_assigns(pid, cid)
     end
 
@@ -51,8 +46,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.QueriesTest do
       cid = %Phoenix.LiveComponent.CID{cid: 2}
       assigns = %{key: "value"}
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> nil end)
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> nil end)
 
       MockAPILiveViewDebug
       |> expect(:socket, fn ^pid -> {:ok, %{}} end)

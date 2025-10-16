@@ -5,18 +5,17 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
 
   use LiveDebugger.App.Web, :live_view
 
-  alias LiveDebugger.Client
-  alias LiveDebugger.App.Events.UserChangedSettings
   alias LiveDebugger.API.SettingsStorage
+  alias LiveDebugger.App.Events.UserChangedSettings
+  alias LiveDebugger.App.Events.UserRefreshedTrace
   alias LiveDebugger.App.Settings.Actions, as: SettingsActions
   alias LiveDebugger.App.Settings.Web.Components, as: SettingsComponents
   alias LiveDebugger.App.Web.Components.Navbar, as: NavbarComponents
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
-
   alias LiveDebugger.Bus
-  alias LiveDebugger.App.Events.UserRefreshedTrace
+  alias LiveDebugger.Client
 
-  @available_settings SettingsStorage.available_settings() |> Enum.map(&Atom.to_string/1)
+  @available_settings Enum.map(SettingsStorage.available_settings(), &Atom.to_string/1)
 
   @impl true
   def handle_params(params, _url, socket) do
@@ -125,8 +124,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   end
 
   @impl true
-  def handle_event("update", %{"setting" => setting}, socket)
-      when setting in @available_settings do
+  def handle_event("update", %{"setting" => setting}, socket) when setting in @available_settings do
     setting = String.to_existing_atom(setting)
 
     socket.assigns.settings

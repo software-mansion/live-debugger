@@ -1,9 +1,9 @@
 defmodule LiveDebugger.Api.StatesStorageTest do
   use ExUnit.Case, async: true
 
+  alias LiveDebugger.API.StatesStorage.Impl, as: StateStorageImpl
   alias LiveDebugger.Fakes
   alias LiveDebugger.Structs.LvState
-  alias LiveDebugger.API.StatesStorage.Impl, as: StateStorageImpl
 
   @table_name :lvdbg_states
 

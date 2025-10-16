@@ -3,25 +3,20 @@ defmodule LiveDebugger.App.Debugger.Queries.NodeTest do
 
   import Mox
 
-  setup :verify_on_exit!
-
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
-  alias LiveDebugger.Structs.LvState
-  alias LiveDebugger.MockAPIStatesStorage
   alias LiveDebugger.Fakes
+  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.Structs.LvState
+
+  setup :verify_on_exit!
 
   describe "get_module_from_id/2" do
     test "returns the module from the node id when it's a live component" do
       pid = :c.pid(0, 0, 1)
       node_id = %Phoenix.LiveComponent.CID{cid: 2}
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid ->
-        %LvState{
-          pid: pid,
-          socket: Fakes.socket(),
-          components: Fakes.live_components()
-        }
+      expect(MockAPIStatesStorage, :get!, fn ^pid ->
+        %LvState{pid: pid, socket: Fakes.socket(), components: Fakes.live_components()}
       end)
 
       assert {:ok, LiveDebuggerDev.LiveComponents.Send} =
@@ -32,13 +27,8 @@ defmodule LiveDebugger.App.Debugger.Queries.NodeTest do
       pid = :c.pid(0, 0, 1)
       node_id = pid
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid ->
-        %LvState{
-          pid: pid,
-          socket: Fakes.socket(view: SomeLiveView),
-          components: Fakes.live_components()
-        }
+      expect(MockAPIStatesStorage, :get!, fn ^pid ->
+        %LvState{pid: pid, socket: Fakes.socket(view: SomeLiveView), components: Fakes.live_components()}
       end)
 
       assert {:ok, SomeLiveView} = NodeQueries.get_module_from_id(node_id, pid)
@@ -48,8 +38,7 @@ defmodule LiveDebugger.App.Debugger.Queries.NodeTest do
       pid = :c.pid(0, 0, 1)
       node_id = %Phoenix.LiveComponent.CID{cid: 100}
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid ->
+      expect(MockAPIStatesStorage, :get!, fn ^pid ->
         %LvState{pid: pid, socket: Fakes.socket(), components: Fakes.live_components()}
       end)
 

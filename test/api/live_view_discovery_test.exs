@@ -4,9 +4,9 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
   import Mox
 
   alias LiveDebugger.API.LiveViewDiscovery.Impl, as: LiveViewDiscoveryImpl
+  alias LiveDebugger.Fakes
   alias LiveDebugger.MockAPILiveViewDebug
   alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.Fakes
 
   setup :verify_on_exit!
 
@@ -107,8 +107,7 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
       other_module = :"Elixir.SomeLiveView"
       other_socket_id = "phx-other-socket"
 
-      MockAPILiveViewDebug
-      |> expect(:list_liveviews, fn ->
+      expect(MockAPILiveViewDebug, :list_liveviews, fn ->
         [
           Fakes.liveview(pid: searched_live_view_pid, view: searched_module),
           Fakes.liveview(pid: live_view_pid_1, view: other_module),
@@ -118,8 +117,7 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
 
       MockAPILiveViewDebug
       |> expect(:socket, fn ^searched_live_view_pid ->
-        {:ok,
-         Fakes.socket(root_pid: searched_live_view_pid, view: searched_module, id: socket_id)}
+        {:ok, Fakes.socket(root_pid: searched_live_view_pid, view: searched_module, id: socket_id)}
       end)
       |> expect(:socket, 2, fn live_view_pid ->
         {:ok, Fakes.socket(root_pid: live_view_pid, view: other_module, id: other_socket_id)}
@@ -191,8 +189,7 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
       other_module = :"Elixir.SomeLiveView"
       other_socket_id = "phx-other-socket"
 
-      MockAPILiveViewDebug
-      |> expect(:list_liveviews, fn ->
+      expect(MockAPILiveViewDebug, :list_liveviews, fn ->
         [
           Fakes.liveview(pid: searched_live_view_pid, view: searched_module),
           Fakes.liveview(pid: live_view_pid_1, view: other_module),
@@ -233,16 +230,11 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
       live_view_pid_1 = :c.pid(0, 0, 1)
       live_view_pid_2 = :c.pid(0, 0, 2)
 
-      MockAPILiveViewDebug
-      |> expect(:list_liveviews, fn ->
-        [
-          Fakes.liveview(pid: live_view_pid_1),
-          Fakes.liveview(pid: live_view_pid_2)
-        ]
+      expect(MockAPILiveViewDebug, :list_liveviews, fn ->
+        [Fakes.liveview(pid: live_view_pid_1), Fakes.liveview(pid: live_view_pid_2)]
       end)
 
-      MockAPILiveViewDebug
-      |> expect(:socket, 2, fn _ -> {:ok, Fakes.socket()} end)
+      expect(MockAPILiveViewDebug, :socket, 2, fn _ -> {:ok, Fakes.socket()} end)
 
       assert nil ==
                LiveViewDiscoveryImpl.lv_process(searched_live_view_pid)
@@ -255,16 +247,11 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
       live_view_pid_2 = :c.pid(0, 0, 2)
       other_socket_id = "phx-other-socket"
 
-      MockAPILiveViewDebug
-      |> expect(:list_liveviews, fn ->
-        [
-          Fakes.liveview(pid: live_view_pid_1),
-          Fakes.liveview(pid: live_view_pid_2)
-        ]
+      expect(MockAPILiveViewDebug, :list_liveviews, fn ->
+        [Fakes.liveview(pid: live_view_pid_1), Fakes.liveview(pid: live_view_pid_2)]
       end)
 
-      MockAPILiveViewDebug
-      |> expect(:socket, 2, fn _ -> {:ok, Fakes.socket(id: other_socket_id)} end)
+      expect(MockAPILiveViewDebug, :socket, 2, fn _ -> {:ok, Fakes.socket(id: other_socket_id)} end)
 
       assert nil ==
                LiveViewDiscoveryImpl.lv_process(searched_socket_id)
@@ -336,12 +323,8 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
 
     module = :"Elixir.SomeLiveView"
 
-    MockAPILiveViewDebug
-    |> stub(:list_liveviews, fn ->
-      [
-        Fakes.liveview(pid: live_view_pid_1, view: module),
-        Fakes.liveview(pid: live_view_pid_2, view: module)
-      ]
+    stub(MockAPILiveViewDebug, :list_liveviews, fn ->
+      [Fakes.liveview(pid: live_view_pid_1, view: module), Fakes.liveview(pid: live_view_pid_2, view: module)]
     end)
 
     MockAPILiveViewDebug
@@ -366,8 +349,7 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
 
       module = :"Elixir.SomeLiveView"
 
-      MockAPILiveViewDebug
-      |> stub(:list_liveviews, fn ->
+      stub(MockAPILiveViewDebug, :list_liveviews, fn ->
         [
           Fakes.liveview(pid: parent_pid, view: module),
           Fakes.liveview(pid: child_pid_1, view: module),
@@ -375,8 +357,7 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
         ]
       end)
 
-      MockAPILiveViewDebug
-      |> stub(:socket, fn pid ->
+      stub(MockAPILiveViewDebug, :socket, fn pid ->
         if pid == parent_pid do
           {:ok, Fakes.socket(root_pid: parent_pid, view: module, parent_pid: nil)}
         else
@@ -398,8 +379,7 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
 
       module = :"Elixir.SomeLiveView"
 
-      MockAPILiveViewDebug
-      |> stub(:list_liveviews, fn ->
+      stub(MockAPILiveViewDebug, :list_liveviews, fn ->
         [
           Fakes.liveview(pid: parent_pid, view: module),
           Fakes.liveview(pid: child_pid_1, view: module),
@@ -408,17 +388,11 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
         ]
       end)
 
-      MockAPILiveViewDebug
-      |> stub(:socket, fn pid ->
+      stub(MockAPILiveViewDebug, :socket, fn pid ->
         case pid do
-          ^parent_pid ->
-            {:ok, Fakes.socket(root_pid: parent_pid, view: module, parent_pid: nil)}
-
-          ^grandchild_pid ->
-            {:ok, Fakes.socket(root_pid: parent_pid, view: module, parent_pid: child_pid_1)}
-
-          _ ->
-            {:ok, Fakes.socket(root_pid: parent_pid, view: module, parent_pid: parent_pid)}
+          ^parent_pid -> {:ok, Fakes.socket(root_pid: parent_pid, view: module, parent_pid: nil)}
+          ^grandchild_pid -> {:ok, Fakes.socket(root_pid: parent_pid, view: module, parent_pid: child_pid_1)}
+          _ -> {:ok, Fakes.socket(root_pid: parent_pid, view: module, parent_pid: parent_pid)}
         end
       end)
 

@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.LiveViews.EndlessCrashReload do
+  @moduledoc false
   use DevWeb, :live_view
 
   alias Phoenix.LiveView.AsyncResult
