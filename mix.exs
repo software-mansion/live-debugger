@@ -76,17 +76,18 @@ defmodule LiveDebugger.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:phoenix_live_view, "~> 0.20.8 or ~> 1.0"},
-      {:phoenix, "~> 1.7"},
-      {:igniter, "~> 0.5 and >= 0.5.40", optional: true},
       {:bandit, "~> 1.6", only: [:dev, :test]},
-      {:phoenix_live_reload, "~> 1.5", only: :dev},
-      {:esbuild, "~> 0.7", only: :dev},
-      {:tailwind, "~> 0.3", only: :dev},
-      {:mox, "~> 1.2", only: :test},
-      {:phx_new, "~> 1.7", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:esbuild, "~> 0.7", only: :dev},
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
+      {:igniter, "~> 0.5 and >= 0.5.40", optional: true},
+      {:mox, "~> 1.2", only: :test},
+      {:phoenix, "~> 1.7"},
+      {:phoenix_live_reload, "~> 1.5", only: :dev},
+      {:phoenix_live_view, "~> 0.20.8 or ~> 1.0"},
+      {:phx_new, "~> 1.7", only: :test},
+      {:styler, "~> 0.9", only: [:dev, :test], runtime: false},
+      {:tailwind, "~> 0.3", only: :dev},
       {:wallaby, "~> 0.30", runtime: false, only: :test}
     ]
   end
