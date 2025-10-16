@@ -66,12 +66,20 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
     dev_app
     |> click(css("button[phx-click=\"crash\"]"))
 
+    Process.sleep(200)
+
     debugger
-    |> find(global_traces(count: 1))
-    |> assert_has(css(".border-error-icon"))
+    |> take_screenshot()
+
+    debugger
+    |> assert_has(global_traces_with_error(count: 1))
   end
 
   defp global_traces(opts), do: css("#global-traces-stream details", opts)
+
+  defp global_traces_with_error(opts) do
+    css("#global-traces-stream details.border-error-icon", opts)
+  end
 
   defp global_callback_traces_button(), do: css("button[aria-label=\"Icon globe\"]")
 
