@@ -131,6 +131,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                     :if={diff_trace?(trace_display.trace)}
                     id={id}
                     trace_display={trace_display}
+                    search_phrase={@trace_search_phrase}
                   />
 
                   <HookComponents.TraceWrapper.render

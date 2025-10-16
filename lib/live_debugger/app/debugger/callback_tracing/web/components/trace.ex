@@ -148,6 +148,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   """
   attr(:id, :string, required: true)
   attr(:trace_display, TraceDisplay, required: true)
+  attr(:search_phrase, :string, required: true)
   attr(:rest, :global)
 
   def diff_trace(assigns) do
@@ -161,7 +162,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
     <HookComponents.TraceWrapper.render id={@id} trace_display={@trace_display} {@rest}>
       <:label class="grid-cols-[auto_1fr_auto]">
         <.trace_title content="Diff sent" class="font-medium text-sm font-bold" />
-        <.short_content id={@id} content={@diff_content} />
+        <.short_content
+          id={@id}
+          content={@diff_content}
+          phx-hook="TraceLabelSearchHighlight"
+          data-search_phrase={@search_phrase}
+        />
         <div class="flex text-xs font-normal text-secondary-text align-center">
           <.timestamp_info id={@id} timestamp={@trace_display.trace.timestamp} />
           <span class="mx-2 border-r border-default-border"></span>
@@ -169,7 +175,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         </div>
       </:label>
       <:body>
-        <.diff_trace_body id={@id} trace={@trace_display.trace} />
+        <.diff_trace_body
+          id={@id}
+          trace={@trace_display.trace}
+          phx-hook="TraceLabelSearchHighlight"
+          data-search_phrase={@search_phrase}
+        />
       </:body>
     </HookComponents.TraceWrapper.render>
     """
