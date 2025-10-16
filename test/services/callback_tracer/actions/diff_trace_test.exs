@@ -20,7 +20,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.DiffTraceTest do
 
       assert {:ok, result} = DiffTrace.maybe_create_diff(n, pid, timestamp, iodata)
 
-      assert %DiffTraceStruct{id: ^n, pid: ^pid, body: %{"some" => "diff content"}, size: 38} =
+      assert %DiffTraceStruct{id: ^n, pid: ^pid, body: %{"some" => "diff content"}, size: 23} =
                result
     end
 

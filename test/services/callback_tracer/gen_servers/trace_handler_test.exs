@@ -351,7 +351,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
       MockAPITracesStorage
       |> expect(:get_table, fn ^pid -> ref end)
       |> expect(:insert!, fn ^ref, diff_trace ->
-        assert %DiffTrace{id: ^n, pid: ^pid, body: %{"updated" => "content"}} = diff_trace
+        assert %DiffTrace{id: ^n, pid: ^pid, body: %{"diff" => %{"updated" => "content"}}} =
+                 diff_trace
 
         true
       end)
