@@ -19,16 +19,33 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   Fullscreen modal with trace body.
   """
   attr(:id, :string, required: true)
-  attr(:trace, Trace, required: true)
+  attr(:trace, :map, required: true)
   attr(:rest, :global)
 
   def trace_fullscreen(assigns) do
-    assigns = assign(assigns, :callback_name, Trace.callback_name(assigns.trace))
+    callback_name =
+      case assigns.trace do
+        %Trace{} -> Trace.callback_name(assigns.trace)
+        %DiffTrace{} -> "Diff sent"
+      end
+
+    assigns = assign(assigns, :callback_name, callback_name)
 
     ~H"""
     <.fullscreen id={@id} title={@callback_name}>
       <div class="p-4 flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden">
-        <.trace_body id={@id <> "-fullscreen"} trace={@trace} {@rest} />
+        <.trace_body
+          :if={not match?(%DiffTrace{}, assigns.trace)}
+          id={@id <> "-fullscreen"}
+          trace={@trace}
+          {@rest}
+        />
+        <.diff_trace_body
+          :if={match?(%DiffTrace{}, assigns.trace)}
+          id={@id <> "-fullscreen"}
+          trace={@trace}
+          {@rest}
+        />
       </div>
     </.fullscreen>
     """
