@@ -181,6 +181,51 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     |> assert_has(traces(count: 1))
   end
 
+  @sessions 2
+  feature "user can enable diff tracing and see diff traces", %{
+    sessions: [dev_app, debugger]
+  } do
+    dev_app
+    |> visit(@dev_app_url)
+
+    Process.sleep(200)
+
+    # Resizing since in smaller screens the apply button is not visible
+    debugger
+    |> resize_window(1920, 1080)
+    |> visit("/")
+    |> click(first_link())
+    |> click(global_callback_traces_button())
+    |> assert_has(title(text: "Global Callback Traces"))
+    |> click(clear_traces_button())
+    |> assert_has(traces(count: 0))
+    |> assert_has(no_traces_info())
+
+    Process.sleep(100)
+
+    debugger
+    |> assert_has(filters_sidebar())
+    |> click(trace_diffs_checkbox())
+
+    Process.sleep(200)
+
+    debugger
+    |> click(apply_button())
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(css("button#increment-button"))
+
+    Process.sleep(200)
+
+    debugger
+    |> click(toggle_tracing_button())
+    |> assert_has(traces(count: 3))
+    |> assert_has(trace_name(text: "handle_event/3", count: 1))
+    |> assert_has(trace_name(text: "render/1", count: 1))
+    |> assert_has(trace_name(text: "Diff sent", count: 1))
+  end
+
   defp traces(opts), do: css("#global-traces-stream details", opts)
 
   defp trace_name(opts), do: css("#global-traces-stream details p.font-medium", opts)
@@ -190,4 +235,10 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
   defp global_callback_traces_button(), do: css("button[aria-label=\"Icon globe\"]")
 
   defp open_fullscreen_trace_button(), do: css("button[phx-click=\"open-trace\"]")
+
+  defp trace_diffs_checkbox(), do: css("#filters-sidebar-form #filters-sidebar-form_trace_diffs")
+
+  defp apply_button(), do: css("#filters-sidebar-form button[type=\"submit\"]", text: "Apply")
+
+  defp filters_sidebar(), do: css("#filters-sidebar")
 end
