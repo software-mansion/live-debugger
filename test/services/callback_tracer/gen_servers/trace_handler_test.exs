@@ -412,7 +412,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
     test "raises error when diff trace creation fails" do
       pid = :c.pid(0, 5, 0)
       n = -5
-      ts = {1753, 174_270, 1060_820}
+      ts = {1753, 174_270, 1_060_820}
       invalid_iodata = "invalid json"
 
       trace = {:new_trace, {pid, pid, :send, {:socket_push, :text, invalid_iodata}, pid, ts}, n}
@@ -425,7 +425,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
     test "raises error when diff trace persistence fails" do
       pid = :c.pid(0, 6, 0)
       n = -6
-      ts = {1753, 174_270, 1160_820}
+      ts = {1753, 174_270, 1_160_820}
       iodata = Jason.encode!([1, 2, 3, "diff", %{some: "content"}])
 
       MockAPITracesStorage
@@ -441,7 +441,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
     test "raises error when diff trace publishing fails" do
       pid = :c.pid(0, 7, 0)
       n = -7
-      ts = {1753, 174_270, 1260_820}
+      ts = {1753, 174_270, 1_260_820}
       iodata = Jason.encode!([1, 2, 3, "diff", %{some: "content"}])
       ref = make_ref()
 
