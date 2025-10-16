@@ -178,7 +178,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         <.diff_trace_body
           id={@id}
           trace={@trace_display.trace}
-          phx-hook="TraceLabelSearchHighlight"
+          phx-hook="TraceBodySearchHighlight"
           data-search_phrase={@search_phrase}
         />
       </:body>
