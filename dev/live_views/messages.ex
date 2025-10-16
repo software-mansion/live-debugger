@@ -2,7 +2,7 @@ defmodule LiveDebuggerDev.LiveViews.Messages do
   use DevWeb, :live_view
 
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, :big_message, nil)}
+    {:ok, assign(socket, :message, nil)}
   end
 
   def render(assigns) do
@@ -11,19 +11,24 @@ defmodule LiveDebuggerDev.LiveViews.Messages do
       <div>
         <.button phx-click="big-message" color="purple">Send big message</.button>
         <p>Big message:</p>
-        <pre><%= inspect(@big_message) %></pre>
+        <pre><%= inspect(@message) %></pre>
       </div>
     </.box>
     """
   end
 
   def handle_event("big-message", _, socket) do
-    send(self(), very_big_message())
+    if socket.assigns.message do
+      send(self(), nil)
+    else
+      send(self(), very_big_message())
+    end
+
     {:noreply, socket}
   end
 
-  def handle_info(big_message, socket) do
-    {:noreply, assign(socket, :big_message, big_message)}
+  def handle_info(message, socket) do
+    {:noreply, assign(socket, :message, message)}
   end
 
   defp very_big_message() do
