@@ -311,8 +311,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   @spec get_size_warning_class(non_neg_integer()) :: String.t()
   defp get_size_warning_class(size) do
     cond do
-      size >= 0.5 * Memory.megabyte() -> "text-error-text"
-      size >= 1.0 * Memory.kilobyte() -> "text-warning-text"
+      size >= 1.0 * Memory.megabyte() -> "text-error-text"
+      size >= 0.4 * Memory.megabyte() -> "text-warning-text"
       true -> ""
     end
   end
