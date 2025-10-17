@@ -68,7 +68,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "exec_time_min" => "",
                  "min_unit" => "µs",
                  "max_unit" => "µs"
-               }
+               },
+               other_filters: %{"trace_diffs" => false}
              }
     end
 
@@ -87,7 +88,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "exec_time_min" => "",
                  "min_unit" => "µs",
                  "max_unit" => "µs"
-               }
+               },
+               other_filters: %{"trace_diffs" => false}
              }
     end
 
@@ -109,7 +111,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "exec_time_min" => "",
                  "min_unit" => "µs",
                  "max_unit" => "µs"
-               }
+               },
+               other_filters: %{"trace_diffs" => false}
              }
     end
   end
@@ -235,7 +238,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
         exec_time_max: "",
         min_unit: "ms",
         max_unit: "ms"
-      }
+      },
+      other_filters: %{"trace_diffs" => false}
     }
 
     default_filters = %{
@@ -247,10 +251,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
         exec_time_max: "",
         min_unit: "ms",
         max_unit: "ms"
-      }
+      },
+      other_filters: %{"trace_diffs" => true}
     }
 
-    assert FiltersHelpers.count_selected_filters(default_filters, current_filters) == 2
+    assert FiltersHelpers.count_selected_filters(default_filters, current_filters) == 3
   end
 
   test "get_active_functions/1 returns currently active functions from filters" do
@@ -309,6 +314,16 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
       }
 
       assert %{"exec_time_min" => 140} = FiltersHelpers.get_execution_times(filters)
+    end
+  end
+
+  describe "get_trace_diffs/1" do
+    test "returns true if trace diffs are enabled" do
+      filters = %{
+        other_filters: %{"trace_diffs" => true}
+      }
+
+      assert FiltersHelpers.get_trace_diffs(filters) == true
     end
   end
 end

@@ -52,6 +52,13 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
     :ok
   end
 
+  @spec start_outgoing_messages_tracing(pid()) :: :ok
+  def start_outgoing_messages_tracing(pid) do
+    Dbg.process(pid, [:s])
+
+    :ok
+  end
+
   defp apply_trace_patterns() do
     # This is not a callback created by user
     # We trace it to refresh the components tree

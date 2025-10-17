@@ -71,6 +71,8 @@
   --info-icon: var(--primary-text);
   --info-text: var(--primary-text);
 
+  --diff-border: var(--swm-brand-additional);
+
   /* Warning */
   --warning-text: #9a7e00;
 

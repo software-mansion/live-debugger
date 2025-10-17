@@ -18,6 +18,13 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplayTest do
     assert %TraceDisplay{trace: ^trace, from_event?: true, render_body?: false} = trace_display
   end
 
+  test "from_trace/2 creates a TraceDisplay struct with proper from_event? value for DiffTrace" do
+    trace = Fakes.diff_trace()
+    trace_display = TraceDisplay.from_trace(trace, true)
+
+    assert %TraceDisplay{trace: ^trace, from_event?: true, render_body?: false} = trace_display
+  end
+
   test "render_body/1 sets render_body? to true" do
     trace_display = %TraceDisplay{trace: Fakes.trace(), from_event?: false, render_body?: false}
     updated_trace_display = TraceDisplay.render_body(trace_display)

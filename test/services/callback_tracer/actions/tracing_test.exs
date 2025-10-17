@@ -135,4 +135,17 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       assert :ok = TracingActions.refresh_tracing()
     end
   end
+
+  describe "start_outgoing_messages_tracing/1" do
+    test "starts outgoing messages tracing for a process" do
+      pid = :c.pid(0, 1, 0)
+
+      MockAPIDbg
+      |> expect(:process, fn ^pid, [:s] -> :ok end)
+
+      result = TracingActions.start_outgoing_messages_tracing(pid)
+
+      assert :ok = result
+    end
+  end
 end

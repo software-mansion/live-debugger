@@ -18,6 +18,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
   alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
+  alias LiveDebugger.Structs.DiffTrace
 
   describe "handle_cast/2" do
     test "handles proper recompilation traces" do
@@ -308,6 +310,156 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
 
       result = TraceHandler.handle_cast(malformed_trace, %{})
       assert {:noreply, %{}} = result
+    end
+
+    test "handles diff trace successfully" do
+      pid = :c.pid(0, 1, 0)
+      n = -1
+      ts = {1753, 174_270, 660_820}
+      iodata = Jason.encode!([1, 2, 3, "diff", %{some: "diff content"}])
+      ref = make_ref()
+
+      MockAPITracesStorage
+      |> expect(:get_table, fn ^pid -> ref end)
+      |> expect(:insert!, fn ^ref, diff_trace ->
+        assert %DiffTrace{id: ^n, pid: ^pid, body: %{"some" => "diff content"}} = diff_trace
+
+        true
+      end)
+
+      MockBus
+      |> expect(:broadcast_trace!, fn diff, ^pid ->
+        assert %DiffTraceCreated{trace_id: ^n, ets_ref: ^ref, pid: ^pid} = diff
+
+        :ok
+      end)
+
+      trace = {:new_trace, {pid, pid, :send, {:socket_push, :text, iodata}, pid, ts}, n}
+
+      result = TraceHandler.handle_cast(trace, %{})
+      assert {:noreply, %{}} = result
+    end
+
+    test "handles diff trace with response diff format" do
+      pid = :c.pid(0, 2, 0)
+      n = -2
+      ts = {1753, 174_270, 760_820}
+      response_diff = %{"response" => %{"diff" => %{updated: "content"}}}
+      iodata = Jason.encode!([1, 2, 3, "other_type", response_diff])
+      ref = make_ref()
+
+      MockAPITracesStorage
+      |> expect(:get_table, fn ^pid -> ref end)
+      |> expect(:insert!, fn ^ref, diff_trace ->
+        assert %DiffTrace{id: ^n, pid: ^pid, body: %{"diff" => %{"updated" => "content"}}} =
+                 diff_trace
+
+        true
+      end)
+
+      MockBus
+      |> expect(:broadcast_trace!, fn diff, ^pid ->
+        assert %DiffTraceCreated{trace_id: ^n, ets_ref: ^ref, pid: ^pid} = diff
+
+        :ok
+      end)
+
+      trace = {:new_trace, {pid, pid, :send, {:socket_push, :text, iodata}, pid, ts}, n}
+
+      result = TraceHandler.handle_cast(trace, %{})
+      assert {:noreply, %{}} = result
+    end
+
+    test "handles diff trace with empty diff" do
+      pid = :c.pid(0, 3, 0)
+      n = -3
+      ts = {1753, 174_270, 860_820}
+      iodata = Jason.encode!([1, 2, 3, "other_type", %{no_diff: "here"}])
+      ref = make_ref()
+
+      MockAPITracesStorage
+      |> expect(:get_table, fn ^pid -> ref end)
+      |> expect(:insert!, fn ^ref, diff_trace ->
+        assert %DiffTrace{id: ^n, pid: ^pid, body: %{}} = diff_trace
+
+        true
+      end)
+
+      MockBus
+      |> expect(:broadcast_trace!, fn diff, ^pid ->
+        assert %DiffTraceCreated{trace_id: ^n, ets_ref: ^ref, pid: ^pid} = diff
+
+        :ok
+      end)
+
+      trace = {:new_trace, {pid, pid, :send, {:socket_push, :text, iodata}, pid, ts}, n}
+
+      result = TraceHandler.handle_cast(trace, %{})
+      assert {:noreply, %{}} = result
+    end
+
+    test "ignores other send traces" do
+      pid = :c.pid(0, 4, 0)
+      n = -4
+      ts = {1753, 174_270, 960_820}
+      iodata = "some other message"
+
+      trace = {:new_trace, {pid, pid, :send, {:other_message, :text, iodata}, pid, ts}, n}
+
+      result = TraceHandler.handle_cast(trace, %{})
+      assert {:noreply, %{}} = result
+    end
+
+    test "raises error when diff trace creation fails" do
+      pid = :c.pid(0, 5, 0)
+      n = -5
+      ts = {1753, 174_270, 1_060_820}
+      invalid_iodata = "invalid json"
+
+      trace = {:new_trace, {pid, pid, :send, {:socket_push, :text, invalid_iodata}, pid, ts}, n}
+
+      assert_raise RuntimeError, fn ->
+        TraceHandler.handle_cast(trace, %{})
+      end
+    end
+
+    test "raises error when diff trace persistence fails" do
+      pid = :c.pid(0, 6, 0)
+      n = -6
+      ts = {1753, 174_270, 1_160_820}
+      iodata = Jason.encode!([1, 2, 3, "diff", %{some: "content"}])
+
+      MockAPITracesStorage
+      |> expect(:get_table, fn ^pid -> nil end)
+
+      trace = {:new_trace, {pid, pid, :send, {:socket_push, :text, iodata}, pid, ts}, n}
+
+      assert_raise RuntimeError, fn ->
+        TraceHandler.handle_cast(trace, %{})
+      end
+    end
+
+    test "raises error when diff trace publishing fails" do
+      pid = :c.pid(0, 7, 0)
+      n = -7
+      ts = {1753, 174_270, 1_260_820}
+      iodata = Jason.encode!([1, 2, 3, "diff", %{some: "content"}])
+      ref = make_ref()
+
+      MockAPITracesStorage
+      |> expect(:get_table, fn ^pid -> ref end)
+      |> expect(:insert!, fn ^ref, _diff_trace -> true end)
+
+      MockBus
+      |> expect(:broadcast_trace!, fn %DiffTraceCreated{}, ^pid ->
+        raise %RuntimeError{message: "Broadcast failed"}
+      end)
+
+      trace = {:new_trace, {pid, pid, :send, {:socket_push, :text, iodata}, pid, ts}, n}
+
+      assert_raise RuntimeError, fn ->
+        TraceHandler.handle_cast(trace, %{})
+      end
     end
   end
 end

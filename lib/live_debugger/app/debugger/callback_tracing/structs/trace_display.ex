@@ -8,18 +8,19 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   """
 
   alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Structs.DiffTrace
 
   defstruct [:id, :trace, :from_event?, :counter, render_body?: false]
 
   @type t() :: %__MODULE__{
           id: Trace.id(),
-          trace: Trace.t(),
+          trace: Trace.t() | DiffTrace.t(),
           from_event?: boolean(),
           render_body?: boolean()
         }
 
-  @spec from_trace(Trace.t(), from_event? :: boolean()) :: t()
-  def from_trace(%Trace{} = trace, from_event? \\ false) do
+  @spec from_trace(Trace.t() | DiffTrace.t(), boolean()) :: t()
+  def from_trace(trace, from_event? \\ false) do
     %__MODULE__{id: trace.id, trace: trace, from_event?: from_event?}
   end
 

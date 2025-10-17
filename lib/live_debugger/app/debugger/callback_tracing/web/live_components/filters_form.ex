@@ -4,6 +4,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   It sends `{:filters_updated, filters}` to the parent LiveView after the form is submitted.
 
   You can use `LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Filters` to render additional
+
+  Diff checkbox is hidden when node_id is passed since diffs are not supported in node traces.
   """
 
   use LiveDebugger.App.Web, :live_component
@@ -109,6 +111,21 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
             </div>
           </div>
 
+          <div :if={@node_id == nil} class="px-4 border-b border-default-border">
+            <FiltersComponents.filters_group_header
+              title="Other filters"
+              class="pt-2"
+              group_name={:other_filters}
+              target={@myself}
+              group_changed?={
+                FiltersHelpers.group_changed?(@form.params, @default_filters, :other_filters)
+              }
+            />
+            <div class="pb-5">
+              <.checkbox field={@form[:trace_diffs]} label="Show LiveView diffs sent to browser" />
+            </div>
+          </div>
+
           <div class="flex pt-4 pb-2 px-4 items-center justify-between pr-3">
             <div class="flex gap-2 items-center h-10">
               <%= if FiltersHelpers.filters_changed?(@form.params, @active_filters) do %>
@@ -198,10 +215,15 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     |> noreply()
   end
 
-  defp assign_form(socket, %{functions: functions, execution_time: execution_time}) do
+  defp assign_form(socket, %{
+         functions: functions,
+         execution_time: execution_time,
+         other_filters: other_filters
+       }) do
     form =
       functions
       |> Map.merge(execution_time)
+      |> Map.merge(other_filters)
       |> to_form(id: socket.assigns.id)
 
     assign(socket, :form, form)
@@ -231,9 +253,19 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
         Map.put(acc, filter, Map.get(params, filter, value))
       end)
 
+    other_filters =
+      active_filters.other_filters
+      |> Enum.reduce(%{}, fn {filter, _}, acc ->
+        Map.put(acc, filter, Map.has_key?(params, filter))
+      end)
+
     case FiltersHelpers.validate_execution_time_params(execution_time) do
-      :ok -> {:ok, %{functions: functions, execution_time: execution_time}}
-      {:error, errors} -> {:error, errors}
+      :ok ->
+        {:ok,
+         %{functions: functions, execution_time: execution_time, other_filters: other_filters}}
+
+      {:error, errors} ->
+        {:error, errors}
     end
   end
 end

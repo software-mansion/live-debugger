@@ -72,6 +72,8 @@
     --search-highlight-bg: var(--swm-yellow-100);
     --search-highlight-text: var(--gray-900);
 
+    --diff-border: var(--swm-brand-additional);
+
     /* Info */
     --info-bg: var(--surface-0-bg);
     --info-border: var(--default-border);
