@@ -8,13 +8,21 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.LiveComponents.AssignsSize do
   alias LiveDebugger.Utils.Memory
   alias Phoenix.LiveView.AsyncResult
 
+  @assigns_size_events [:assigns_size_1, :assigns_size_2]
+
+  @impl true
+  def mount(socket) do
+    socket
+    |> assign(:assigns_sizes, AsyncResult.loading())
+    |> ok()
+  end
+
   @impl true
   def update(%{assigns: assigns, id: id}, socket) do
     socket
-    |> assign(assigns: assigns)
-    |> assign(:assigns_sizes, AsyncResult.loading())
-    |> start_async(:assigns_size, fn -> calculate_assigns_size(assigns) end)
     |> assign(:id, id)
+    |> assign(assigns: assigns)
+    |> assign_size_async(assigns)
     |> ok()
   end
 
@@ -53,16 +61,27 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.LiveComponents.AssignsSize do
   end
 
   @impl true
-  def handle_async(:assigns_size, {:ok, assigns_sizes}, socket) do
+  def handle_async(ev, {:ok, assigns_sizes}, socket) when ev in @assigns_size_events do
     socket
     |> assign(:assigns_sizes, AsyncResult.ok(assigns_sizes))
     |> noreply()
   end
 
-  def handle_async(:assigns_size, {:exit, {reason, _}}, socket) do
+  def handle_async(ev, {:exit, {reason, _}}, socket) when ev in @assigns_size_events do
     socket
     |> assign(:assigns_sizes, AsyncResult.failed(%AsyncResult{}, reason))
     |> noreply()
+  end
+
+  # If one async task is already running, we start the second async task
+  # If both async tasks are running, we start the second async task
+  defp assign_size_async(%{private: %{live_async: %{assigns_size_1: _}}} = socket, assigns) do
+    start_async(socket, :assigns_size_2, fn -> calculate_assigns_size(assigns) end)
+  end
+
+  # If assigns are not calculated, we start the first async task
+  defp assign_size_async(socket, assigns) do
+    start_async(socket, :assigns_size_1, fn -> calculate_assigns_size(assigns) end)
   end
 
   defp calculate_assigns_size(assigns) do
