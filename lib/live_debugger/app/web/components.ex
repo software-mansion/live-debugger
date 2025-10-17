@@ -83,7 +83,7 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:variant, :string, default: "primary", values: ["primary", "secondary"])
   attr(:size, :string, default: "md", values: ["md", "sm"])
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
-  attr(:rest, :global)
+  attr(:rest, :global, include: ~w(disabled))
 
   slot(:inner_block, required: true)
 
@@ -92,7 +92,7 @@ defmodule LiveDebugger.App.Web.Components do
     <button
       class={
         [
-          "w-max h-max rounded text-xs font-semibold",
+          "w-max h-max rounded text-xs font-semibold disabled:opacity-50 disabled:pointer-events-none",
           button_color_classes(@variant),
           button_size_classes(@size)
         ] ++

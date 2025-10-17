@@ -5,17 +5,44 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
 
   use LiveDebugger.App.Web, :component
 
+  alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
+  def garbage_collection_warning(assigns) do
+    ~H"""
+    <div class="mt-6 p-4 bg-surface-0-bg rounded shadow-custom border border-warning-text">
+      <p class="text-warning-text text-center">
+        <%= if SettingsStorage.get(:garbage_collection) do %>
+          LiveViews listed below are not active anymore and they will be removed in a short time (usually within 2 seconds).
+          If you want to keep them for a longer time you may do so by disabling
+          <b>Garbage Collection</b>
+          in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>. But be aware that this will lead to increased memory usage.
+        <% else %>
+          You have <b>Garbage Collection</b>
+          disabled which means that LiveViews listed below will not be removed automatically.
+          This will lead to increased memory usage. You can enable it
+          in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>.
+        <% end %>
+      </p>
+    </div>
+    """
+  end
+
   attr(:title, :string, required: true)
+  attr(:refresh_event, :string, required: true)
+  attr(:disabled?, :boolean, default: false)
+  slot(:inner_block)
 
   def header(assigns) do
     ~H"""
-    <div class="flex items-center justify-between">
-      <.h1><%= @title %></.h1>
-      <.button phx-click="refresh">
+    <div class="flex items-center gap-2">
+      <.h1 class={if(@disabled?, do: "opacity-30")}><%= @title %></.h1>
+      <div class="flex-1">
+        <%= render_slot(@inner_block) %>
+      </div>
+      <.button phx-click={@refresh_event} disabled={@disabled?}>
         <div class="flex items-center gap-2">
           <.icon name="icon-refresh" class="w-4 h-4" />
           <p>Refresh</p>
@@ -41,20 +68,26 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
     """
   end
 
+  attr(:id, :string, default: "live-sessions")
   attr(:grouped_lv_processes, :map, default: %{})
+  attr(:empty_info, :string, required: true)
+  attr(:remove_event, :string, default: nil)
 
-  def live_sessions(assigns) do
+  def liveview_sessions(assigns) do
     ~H"""
-    <div id="live-sessions" class="flex flex-col gap-4">
+    <div id={@id} class="flex flex-col gap-4">
       <%= if Enum.empty?(@grouped_lv_processes)  do %>
         <div class="p-4 bg-surface-0-bg rounded shadow-custom border border-default-border">
-          <p class="text-secondary-text text-center">No active LiveViews</p>
+          <p class="text-secondary-text text-center">
+            <%= @empty_info %>
+          </p>
         </div>
       <% else %>
         <.tab_group
           :for={{transport_pid, grouped_lv_processes} <- @grouped_lv_processes}
           transport_pid={transport_pid}
           grouped_lv_processes={grouped_lv_processes}
+          remove_event={@remove_event}
         />
       <% end %>
     </div>
@@ -63,6 +96,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
 
   attr(:transport_pid, :any, required: true)
   attr(:grouped_lv_processes, :list, required: true)
+  attr(:remove_event, :string, default: nil)
 
   def tab_group(assigns) do
     ~H"""
@@ -76,13 +110,17 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
         <.list elements={@grouped_lv_processes}>
           <:item :let={{root_lv_process, lv_processes}}>
             <div class="flex items-center w-full">
-              <.list_element lv_process={root_lv_process} />
+              <.list_element
+                :if={root_lv_process}
+                lv_process={root_lv_process}
+                remove_event={@remove_event}
+              />
             </div>
-            <.list elements={lv_processes} item_class="group">
+            <.list elements={lv_processes} item_class="group" class="pr-0">
               <:item :let={lv_process}>
                 <div class="flex items-center w-full">
                   <.nested_indent />
-                  <.list_element lv_process={lv_process} />
+                  <.list_element lv_process={lv_process} remove_event={@remove_event} />
                 </div>
               </:item>
             </.list>
@@ -105,32 +143,45 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   end
 
   attr(:lv_process, LvProcess, required: true)
+  attr(:remove_event, :string, default: nil)
 
   defp list_element(assigns) do
     ~H"""
-    <.link
-      navigate={RoutesHelper.debugger_node_inspector(@lv_process.pid)}
-      class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm live-view-link"
-    >
-      <div class="flex flex-col gap-1">
-        <div class="text-link-primary flex items-center gap-1">
-          <.icon :if={not @lv_process.nested?} name="icon-liveview" class="w-4 h-4" />
-          <p class={if(not @lv_process.nested?, do: "font-medium")}>
-            <%= Parsers.module_to_string(@lv_process.module) %>
+    <div class="flex w-full items-center">
+      <.link
+        navigate={RoutesHelper.debugger_node_inspector(@lv_process.pid)}
+        class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm live-view-link"
+      >
+        <div class="flex flex-col gap-1">
+          <div class="text-link-primary flex items-center gap-1">
+            <.icon :if={not @lv_process.nested?} name="icon-liveview" class="w-4 h-4" />
+            <p class={if(not @lv_process.nested?, do: "font-medium")}>
+              <%= Parsers.module_to_string(@lv_process.module) %>
+            </p>
+          </div>
+          <p class="text-secondary-text">
+            <%= Parsers.pid_to_string(@lv_process.pid) %> &middot; <%= @lv_process.socket_id %>
           </p>
         </div>
-        <p class="text-secondary-text">
-          <%= Parsers.pid_to_string(@lv_process.pid) %> &middot; <%= @lv_process.socket_id %>
-        </p>
+        <div>
+          <.badge
+            :if={@lv_process.embedded? and not @lv_process.nested?}
+            text="Embedded"
+            icon="icon-code"
+          />
+        </div>
+      </.link>
+      <div :if={@remove_event} class="pl-3">
+        <.button
+          phx-click={@remove_event}
+          phx-value-pid={@lv_process.pid |> Parsers.pid_to_string()}
+          variant="secondary"
+          size="sm"
+        >
+          <.icon name="icon-cross" class="w-4 h-4" />
+        </.button>
       </div>
-      <div>
-        <.badge
-          :if={@lv_process.embedded? and not @lv_process.nested?}
-          text="Embedded"
-          icon="icon-code"
-        />
-      </div>
-    </.link>
+    </div>
     """
   end
 end

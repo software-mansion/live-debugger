@@ -116,7 +116,7 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
         grouped_by_tpid
         |> Enum.group_by(& &1.root_pid)
         |> Enum.map(fn {rpid, grouped_by_rpid} ->
-          root_lv_process = Enum.find(grouped_by_rpid, &(&1.root_pid == rpid))
+          root_lv_process = Enum.find(grouped_by_rpid, &(&1.pid == rpid))
           rest = Enum.reject(grouped_by_rpid, &(&1.pid == rpid))
 
           {root_lv_process, rest}

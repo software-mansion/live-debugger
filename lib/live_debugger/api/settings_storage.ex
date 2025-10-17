@@ -4,7 +4,8 @@ defmodule LiveDebugger.API.SettingsStorage do
     :tracing_update_on_code_reload,
     :garbage_collection,
     :debug_button,
-    :tracing_enabled_on_start
+    :tracing_enabled_on_start,
+    :dead_liveviews
   ]
 
   @moduledoc """
@@ -79,7 +80,8 @@ defmodule LiveDebugger.API.SettingsStorage do
       tracing_update_on_code_reload: false,
       garbage_collection: true,
       debug_button: true,
-      tracing_enabled_on_start: true
+      tracing_enabled_on_start: true,
+      dead_liveviews: false
     }
 
     @table_name :lvdbg_settings

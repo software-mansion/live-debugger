@@ -39,7 +39,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.TracingFuse do
       |> attach_hook(:tracing_fuse, :handle_info, &handle_info/2)
       |> register_hook(:tracing_fuse)
 
-    if SettingsStorage.get(:tracing_enabled_on_start) do
+    if SettingsStorage.get(:tracing_enabled_on_start) and socket.assigns.lv_process.alive? do
       start_tracing(socket)
     else
       socket
@@ -169,7 +169,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.TracingFuse do
     |> put_private(:fuse, %{count: 0, start_time: now()})
   end
 
-  defp clear_tracing(socket) do
+  def clear_tracing(socket) do
     if Phoenix.LiveView.connected?(socket) && socket.assigns[:lv_process] &&
          not socket.private.trace_callback_running? do
       Bus.stop_receiving_traces(socket.assigns.lv_process.pid)
