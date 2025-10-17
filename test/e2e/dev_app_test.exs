@@ -27,7 +27,7 @@ defmodule LiveDebugger.E2E.DevAppTest do
 
     session
     |> visit(dev_path("/embedded_in_controller"))
-    |> assert_has(css("main > div > span", text: "Nested Live Views [LiveView]"))
+    |> assert_has(css("main > div > span", text: "Nested Live Views [LiveView]", count: 2))
   end
 
   defp dev_path(path), do: @dev_app_url <> path
