@@ -6,10 +6,8 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.App.Utils.TermParser.DisplayElement
-  alias LiveDebugger.App.Utils.TermParser.TermNode
-
-  @max_auto_expand_size 6
+  alias LiveDebugger.App.Utils.TermNode.DisplayElement
+  alias LiveDebugger.App.Utils.TermNode
 
   @doc """
   Returns a tree of terms.
@@ -17,13 +15,12 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   attr(:id, :string, required: true)
   attr(:node, TermNode, required: true)
-  attr(:level, :integer, default: 1)
 
   def term(assigns) do
     assigns =
       assigns
-      |> assign(:expanded?, auto_expand?(assigns.node, assigns.level))
-      |> assign(:has_children?, has_children?(assigns.node))
+      |> assign(:id, "#{assigns.id}-#{assigns.node.id}")
+      |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
     <div class="font-code">
@@ -33,7 +30,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
       <.collapsible
         :if={@has_children?}
         id={@id <> "collapsible"}
-        open={@expanded?}
+        open={@node.open?}
         icon="icon-chevron-right"
         label_class="max-w-max"
         chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
@@ -50,16 +47,56 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
         </:label>
 
         <ol class="m-0 ml-[2ch] block list-none p-0">
-          <%= for {child, index} <- Enum.with_index(@node.children) do %>
-            <li class="flex flex-col">
-              <.term id={@id <> "-#{index}"} node={child} level={@level + 1} />
-            </li>
-          <% end %>
+          <li :for={{_, child} <- @node.children} class="flex flex-col">
+            <.term id={@id} node={child} />
+          </li>
         </ol>
         <div class="ml-[2ch]">
           <.text_items items={@node.expanded_after} />
         </div>
       </.collapsible>
+    </div>
+    """
+  end
+
+  attr(:node, TermNode, required: true)
+
+  def static_term(assigns) do
+    assigns =
+      assigns
+      |> assign(:has_children?, TermNode.has_children?(assigns.node))
+
+    ~H"""
+    <div class="font-code" phx-click="toggle_node" phx-value-id={@node.id}>
+      <%= if @has_children? do %>
+        <.static_collapsible
+          open={@node.open?}
+          label_class="max-w-max"
+          chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
+          phx-click="toggle_node"
+          phx-value-id={@node.id}
+        >
+          <:label :let={open}>
+            <%= if open do %>
+              <.text_items items={@node.expanded_before} />
+            <% else %>
+              <.text_items items={@node.content} />
+            <% end %>
+          </:label>
+          <ol class="m-0 ml-[2ch] block list-none p-0">
+            <li :for={{_, child} <- @node.children} class="flex flex-col">
+              <.static_term node={child} />
+            </li>
+          </ol>
+          <div class="ml-[2ch]">
+            <.text_items items={@node.expanded_after} />
+          </div>
+        </.static_collapsible>
+      <% else %>
+        <div class="ml-[2ch]">
+          <.text_items items={@node.content} />
+        </div>
+      <% end %>
     </div>
     """
   end
@@ -81,16 +118,4 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   defp text_item_color_class(%DisplayElement{color: color}) do
     if color, do: "#{color}", else: ""
   end
-
-  defp auto_expand?(%TermNode{}, 1), do: true
-
-  defp auto_expand?(%TermNode{} = node, _level) do
-    node.kind == :tuple and children_number(node) <= @max_auto_expand_size
-  end
-
-  defp has_children?(%TermNode{children: []}), do: false
-  defp has_children?(%TermNode{}), do: true
-
-  defp children_number(%TermNode{children: nil}), do: 0
-  defp children_number(%TermNode{children: children}), do: length(children)
 end

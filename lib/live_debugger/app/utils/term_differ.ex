@@ -54,7 +54,7 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
     Struct for representing a diff between two terms.
     """
 
-    defstruct [:type, ins: %{}, del: %{}, diff: %{}]
+    defstruct type: :equal, ins: %{}, del: %{}, diff: %{}
 
     @type type() :: :map | :list | :tuple | :struct | :primitive | :equal
     @type key() :: any()
@@ -71,6 +71,14 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
   Key for getting values in `ins` and `del` for `primitive` type.
   """
   def primitive_key, do: @primitive_key
+
+  @doc """
+  Returns the new value for `primitive` type.
+  """
+  @spec primitive_new_value(Diff.t()) :: term()
+  def primitive_new_value(%Diff{type: :primitive, ins: %{@primitive_key => new_value}}) do
+    new_value
+  end
 
   @doc """
   Calculates the diff between two terms.
