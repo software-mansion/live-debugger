@@ -59,9 +59,51 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
     """
   end
 
+  attr(:node, TermNode, required: true)
+
+  def static_term(assigns) do
+    assigns =
+      assigns
+      |> assign(:has_children?, TermNode.has_children?(assigns.node))
+
+    ~H"""
+    <div class="font-code" phx-click="toggle_node" phx-value-id={@node.id}>
+      <%= if @has_children? do %>
+        <.static_collapsible
+          open={@node.open?}
+          label_class="max-w-max"
+          chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
+          phx-click="toggle_node"
+          phx-value-id={@node.id}
+        >
+          <:label :let={open}>
+            <%= if open do %>
+              <.text_items items={@node.expanded_before} />
+            <% else %>
+              <.text_items items={@node.content} />
+            <% end %>
+          </:label>
+          <ol class="m-0 ml-[2ch] block list-none p-0">
+            <li :for={{_, child} <- @node.children} class="flex flex-col">
+              <.static_term node={child} />
+            </li>
+          </ol>
+          <div class="ml-[2ch]">
+            <.text_items items={@node.expanded_after} />
+          </div>
+        </.static_collapsible>
+      <% else %>
+        <div class="ml-[2ch]">
+          <.text_items items={@node.content} />
+        </div>
+      <% end %>
+    </div>
+    """
+  end
+
   attr(:items, :list, required: true)
 
-  def text_items(assigns) do
+  defp text_items(assigns) do
     ~H"""
     <div class="flex">
       <%= for item <- @items do %>

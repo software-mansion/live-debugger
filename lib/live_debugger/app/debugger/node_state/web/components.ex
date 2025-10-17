@@ -5,7 +5,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsDisplay
+  alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
   alias LiveDebugger.App.Utils.TermNode
   alias LiveDebugger.Utils.Memory
@@ -54,7 +54,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           <div class="absolute top-2 right-2 z-10">
             <.assigns_size_label assigns={@assigns} id="display-container-size-label" />
           </div>
-          <AssignsDisplay.render id="assigns-display" node={@term_node} />
+          <ElixirDisplay.static_term node={@term_node} />
         </div>
       </.section>
       <.fullscreen id={@fullscreen_id} title="Assigns">
@@ -72,7 +72,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           <div class="absolute top-0 right-2 z-10">
             <.assigns_size_label assigns={@assigns} id="display-fullscreen-size-label" />
           </div>
-          <AssignsDisplay.render id="assigns-display-fullscreen-term" node={@term_node} />
+          <ElixirDisplay.static_term node={@term_node} />
         </div>
       </.fullscreen>
     </div>

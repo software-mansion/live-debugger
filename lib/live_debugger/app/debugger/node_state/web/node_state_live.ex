@@ -64,7 +64,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> assign(:node_id, node_id)
     |> assign(:assigns_search_phrase, "")
     |> Hooks.NodeAssigns.init()
-    |> HookComponents.AssignsDisplay.init()
+    |> Hooks.TermNodeToggle.init()
     |> HookComponents.AssignsSearch.init()
     |> ok()
   end
