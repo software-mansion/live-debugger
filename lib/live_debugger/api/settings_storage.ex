@@ -1,12 +1,4 @@
 defmodule LiveDebugger.API.SettingsStorage do
-  @available_settings [
-    :dead_view_mode,
-    :tracing_update_on_code_reload,
-    :garbage_collection,
-    :debug_button,
-    :tracing_enabled_on_start
-  ]
-
   @moduledoc """
   API for managing settings storage. In order to properly use invoke `init/0` at the start of application.
   It uses Erlang's DETS (Disk Erlang Term Storage).
@@ -16,6 +8,14 @@ defmodule LiveDebugger.API.SettingsStorage do
 
   Available settings are: `#{Enum.join(@available_settings, ", ")}`.
   """
+
+  @available_settings [
+    :dead_view_mode,
+    :tracing_update_on_code_reload,
+    :garbage_collection,
+    :debug_button,
+    :tracing_enabled_on_start
+  ]
 
   @callback init() :: :ok
   @callback save(atom(), any()) :: :ok | {:error, term()}
@@ -27,7 +27,7 @@ defmodule LiveDebugger.API.SettingsStorage do
   It should be called when application starts.
   """
   @spec init() :: :ok
-  def init(), do: impl().init()
+  def init, do: impl().init()
 
   @doc """
   Saves a setting into the storage.
@@ -50,7 +50,7 @@ defmodule LiveDebugger.API.SettingsStorage do
   Gets all settings from the storage.
   """
   @spec get_all() :: map()
-  def get_all() do
+  def get_all do
     impl().get_all()
   end
 
@@ -58,9 +58,9 @@ defmodule LiveDebugger.API.SettingsStorage do
   List of available settings
   """
   @spec available_settings() :: [atom()]
-  def available_settings(), do: @available_settings
+  def available_settings, do: @available_settings
 
-  defp impl() do
+  defp impl do
     Application.get_env(
       :live_debugger,
       :api_settings_storage,
@@ -70,9 +70,9 @@ defmodule LiveDebugger.API.SettingsStorage do
 
   defmodule Impl do
     @moduledoc false
-    alias LiveDebugger.API.SettingsStorage
-
     @behaviour SettingsStorage
+
+    alias LiveDebugger.API.SettingsStorage
 
     @default_settings %{
       dead_view_mode: true,
@@ -86,7 +86,7 @@ defmodule LiveDebugger.API.SettingsStorage do
     @filename "live_debugger_saved_settings"
 
     @impl true
-    def init() do
+    def init do
       {:ok, _} =
         :dets.open_file(@table_name,
           auto_save: :timer.seconds(1),
@@ -94,9 +94,7 @@ defmodule LiveDebugger.API.SettingsStorage do
         )
 
       # Populate `:dets` with startup values
-      get_all()
-      |> Enum.each(fn {setting, value} -> save(setting, value) end)
-
+      Enum.each(get_all(), fn {setting, value} -> save(setting, value) end)
       :ok
     end
 
@@ -111,12 +109,8 @@ defmodule LiveDebugger.API.SettingsStorage do
     end
 
     @impl true
-    def get_all() do
-      SettingsStorage.available_settings()
-      |> Enum.map(fn setting ->
-        {setting, fetch_setting(setting)}
-      end)
-      |> Enum.into(%{})
+    def get_all do
+      Map.new(SettingsStorage.available_settings(), fn setting -> {setting, fetch_setting(setting)} end)
     end
 
     defp fetch_setting(setting) do
@@ -135,7 +129,7 @@ defmodule LiveDebugger.API.SettingsStorage do
       end
     end
 
-    defp file_path() do
+    defp file_path do
       :live_debugger
       |> Application.app_dir(@filename)
       |> String.to_charlist()

@@ -7,11 +7,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.LoadMoreB
 
   use LiveDebugger.App.Web, :hook_component
 
-  require Logger
-
   alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
+
+  require Logger
 
   @required_assigns [:lv_process, :traces_continuation, :current_filters, :node_id]
 
@@ -104,9 +104,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.LoadMoreB
   end
 
   defp handle_async(:load_more_existing_traces, {:exit, reason}, socket) do
-    Logger.error(
-      "LiveDebugger encountered unexpected error while loading more existing traces: #{inspect(reason)}"
-    )
+    Logger.error("LiveDebugger encountered unexpected error while loading more existing traces: #{inspect(reason)}")
 
     socket
     |> assign(traces_continuation: :error)

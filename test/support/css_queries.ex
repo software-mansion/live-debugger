@@ -7,43 +7,43 @@ defmodule LiveDebugger.Support.CssQueries do
 
   def toggle_tracing_button(opts \\ []), do: css("button[phx-click=\"switch-tracing\"]", opts)
 
-  def refresh_history_button(), do: css("button[phx-click=\"refresh-history\"]")
+  def refresh_history_button, do: css("button[phx-click=\"refresh-history\"]")
 
-  def clear_traces_button(), do: css("button[phx-click=\"clear-traces\"]")
+  def clear_traces_button, do: css("button[phx-click=\"clear-traces\"]")
 
-  def settings_button(), do: css("navbar a#settings-button")
+  def settings_button, do: css("navbar a#settings-button")
 
-  def return_button(), do: css("navbar a#return-button")
+  def return_button, do: css("navbar a#return-button")
 
   def title(text: text), do: css("h1", text: text)
 
   def live_sessions(count: count), do: css("#live-sessions > div", count: count)
 
-  def refresh_button(), do: css("button[phx-click=\"refresh\"]")
+  def refresh_button, do: css("button[phx-click=\"refresh\"]")
 
-  def first_link(), do: css("#live-sessions a.live-view-link", count: 1)
+  def first_link, do: css("#live-sessions a.live-view-link", count: 1)
 
   def live_component(id), do: css("div[data-phx-component=\"#{id}\"]")
 
-  def switch_inspect_mode_button(), do: css("button[phx-click=\"switch-inspect-mode\"]")
+  def switch_inspect_mode_button, do: css("button[phx-click=\"switch-inspect-mode\"]")
 
-  def no_traces_info() do
+  def no_traces_info do
     css("#global-traces-stream-empty", text: "No traces have been recorded yet.")
   end
 
-  def sidebar_basic_info() do
+  def sidebar_basic_info do
     css("#node-inspector-basic-info")
   end
 
-  def search_bar() do
+  def search_bar do
     css("#trace-search-input")
   end
 
-  def assigns_search_bar() do
+  def assigns_search_bar do
     css("#assigns-search-input")
   end
 
-  def assigns_search_bar_fullscreen() do
+  def assigns_search_bar_fullscreen do
     css("#assigns-search-input-fullscreen")
   end
 

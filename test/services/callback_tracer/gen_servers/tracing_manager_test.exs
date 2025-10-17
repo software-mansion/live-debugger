@@ -3,14 +3,13 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
 
   import Mox
 
-  alias LiveDebugger.MockBus
+  alias LiveDebugger.App.Events.UserChangedSettings
+  alias LiveDebugger.App.Events.UserRefreshedTrace
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIModule
   alias LiveDebugger.MockAPISettingsStorage
+  alias LiveDebugger.MockBus
   alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
-
-  alias LiveDebugger.App.Events.UserChangedSettings
-  alias LiveDebugger.App.Events.UserRefreshedTrace
 
   setup :verify_on_exit!
 

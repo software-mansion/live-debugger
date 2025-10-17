@@ -1,13 +1,14 @@
 defmodule DevWeb do
+  @moduledoc false
   def live_view do
     quote do
       use Phoenix.LiveView,
         layout: {LiveDebuggerDev.Layout, :app}
 
-      import LiveDebuggerDev.Components
-      import Phoenix.HTML
       import DevWeb.Helpers
+      import LiveDebuggerDev.Components
       import LiveDebuggerDev.Helpers
+      import Phoenix.HTML
     end
   end
 
@@ -15,10 +16,10 @@ defmodule DevWeb do
     quote do
       use Phoenix.LiveComponent
 
-      import LiveDebuggerDev.Components
-      import Phoenix.HTML
       import DevWeb.Helpers
+      import LiveDebuggerDev.Components
       import LiveDebuggerDev.Helpers
+      import Phoenix.HTML
     end
   end
 
@@ -27,6 +28,7 @@ defmodule DevWeb do
   end
 
   defmodule Helpers do
+    @moduledoc false
     def ok(socket), do: {:ok, socket}
     def noreply(socket), do: {:noreply, socket}
   end

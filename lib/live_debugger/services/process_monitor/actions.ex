@@ -3,15 +3,14 @@ defmodule LiveDebugger.Services.ProcessMonitor.Actions do
   This module provides actions for the ProcessMonitor service
   """
 
-  alias LiveDebugger.CommonTypes
   alias LiveDebugger.API.LiveViewDebug
-  alias LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonitor
-
   alias LiveDebugger.Bus
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
+  alias LiveDebugger.CommonTypes
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
+  alias LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonitor
 
   @spec register_component_created!(DebuggedProcessesMonitor.state(), pid(), CommonTypes.cid()) ::
           DebuggedProcessesMonitor.state()
@@ -37,13 +36,13 @@ defmodule LiveDebugger.Services.ProcessMonitor.Actions do
     Bus.broadcast_event!(%LiveViewBorn{pid: pid, transport_pid: transport_pid})
 
     node_ids =
-      LiveViewDebug.live_components(pid)
+      pid
+      |> LiveViewDebug.live_components()
       |> case do
         {:ok, components} -> components
         _ -> []
       end
-      |> Enum.map(&%Phoenix.LiveComponent.CID{cid: &1.cid})
-      |> MapSet.new()
+      |> MapSet.new(&%Phoenix.LiveComponent.CID{cid: &1.cid})
 
     Map.put(state, pid, node_ids)
   end

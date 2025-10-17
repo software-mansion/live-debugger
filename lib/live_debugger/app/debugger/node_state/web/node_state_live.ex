@@ -6,16 +6,14 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   use LiveDebugger.App.Web, :live_view
 
-  alias Phoenix.LiveView.AsyncResult
-  alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.App.Debugger.NodeState.Web.Components, as: NodeStateComponents
-  alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
-
-  alias LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch
-
-  alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
+  alias LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch
+  alias LiveDebugger.App.Debugger.NodeState.Web.Components, as: NodeStateComponents
+  alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.Structs.LvProcess
+  alias Phoenix.LiveView.AsyncResult
 
   @doc """
   Renders the `NodeStateLive` as a nested LiveView component.
@@ -108,9 +106,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   def handle_info(_, socket), do: {:noreply, socket}
 
-  defp assign_async_node_assigns(
-         %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket
-       )
+  defp assign_async_node_assigns(%{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket)
        when not is_nil(node_id) do
     assign_async(socket, :node_assigns, fn ->
       NodeStateQueries.fetch_node_assigns(pid, node_id)

@@ -1,10 +1,10 @@
 defmodule LiveDebugger.App.Debugger.ComponentsTree.UtilsTest do
   use ExUnit.Case, async: true
 
+  alias LiveDebugger.App.Debugger.ComponentsTree.Utils, as: ComponentsTreeUtils
+  alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.Fakes
   alias LiveDebugger.Structs.LvState
-  alias LiveDebugger.App.Debugger.Structs.TreeNode
-  alias LiveDebugger.App.Debugger.ComponentsTree.Utils, as: ComponentsTreeUtils
 
   describe "build_tree/1" do
     test "creates a tree with TreeNode elements from the LiveView state" do

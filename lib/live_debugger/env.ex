@@ -15,18 +15,18 @@ defmodule LiveDebugger.Env do
                      LiveDebugger.Bus.PubSub
                    )
 
-  def endpoint_pubsub_name(), do: @endpoint_pubsub_name
-  def bus_pubsub_name(), do: @bus_pubsub_name
+  def endpoint_pubsub_name, do: @endpoint_pubsub_name
+  def bus_pubsub_name, do: @bus_pubsub_name
 
   if Mix.env() == :dev do
-    def dev?(), do: true
+    def dev?, do: true
   else
-    def dev?(), do: false
+    def dev?, do: false
   end
 
   if Mix.env() == :test do
-    def unit_test?(), do: not Application.get_env(:live_debugger, :e2e?, false)
+    def unit_test?, do: not Application.get_env(:live_debugger, :e2e?, false)
   else
-    def unit_test?(), do: false
+    def unit_test?, do: false
   end
 end

@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.LiveViews.Embedded do
+  @moduledoc false
   use Phoenix.LiveView, layout: {LiveDebuggerDev.Layout, :embedded}
 
   import LiveDebuggerDev.Components

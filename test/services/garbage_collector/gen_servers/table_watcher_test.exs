@@ -3,14 +3,13 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcherTest do
 
   import Mox
 
-  alias LiveDebugger.MockBus
   alias LiveDebugger.App.Events.DebuggerMounted
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
-  alias LiveDebugger.Services.ProcessMonitor.Events.DebuggerTerminated
-
+  alias LiveDebugger.MockBus
   alias LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher
   alias LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher.ProcessInfo
+  alias LiveDebugger.Services.ProcessMonitor.Events.DebuggerTerminated
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
 
   test "init/1" do
     expect(MockBus, :receive_events!, fn -> :ok end)

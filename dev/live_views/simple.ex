@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.LiveViews.Simple do
+  @moduledoc false
   use DevWeb, :live_view
 
   attr(:socket, Phoenix.LiveView.Socket, required: true)

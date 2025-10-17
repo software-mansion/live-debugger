@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.LiveComponents.Conditional do
+  @moduledoc false
   use DevWeb, :live_component
 
   def mount(socket) do

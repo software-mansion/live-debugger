@@ -4,13 +4,12 @@ defmodule LiveDebugger.Services.ProcessMonitor.ActionsTest do
   import Mox
 
   alias LiveDebugger.MockAPILiveViewDebug
-  alias LiveDebugger.Services.ProcessMonitor.Actions, as: ProcessMonitorActions
-
   alias LiveDebugger.MockBus
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
+  alias LiveDebugger.Services.ProcessMonitor.Actions, as: ProcessMonitorActions
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
 
   setup :verify_on_exit!
 
@@ -19,9 +18,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.ActionsTest do
     cid = %Phoenix.LiveComponent.CID{cid: 1}
     state = %{pid => MapSet.new()}
 
-    MockBus
-    |> expect(:broadcast_event!, fn %LiveComponentCreated{cid: ^cid}, ^pid -> :ok end)
-
+    expect(MockBus, :broadcast_event!, fn %LiveComponentCreated{cid: ^cid}, ^pid -> :ok end)
     new_state = ProcessMonitorActions.register_component_created!(state, pid, cid)
 
     assert new_state == %{pid => MapSet.new([cid])}
@@ -32,9 +29,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.ActionsTest do
     cid = %Phoenix.LiveComponent.CID{cid: 1}
     state = %{pid => MapSet.new([cid])}
 
-    MockBus
-    |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid}, ^pid -> :ok end)
-
+    expect(MockBus, :broadcast_event!, fn %LiveComponentDeleted{cid: ^cid}, ^pid -> :ok end)
     new_state = ProcessMonitorActions.register_component_deleted!(state, pid, cid)
 
     assert new_state == %{pid => MapSet.new([])}
@@ -45,12 +40,8 @@ defmodule LiveDebugger.Services.ProcessMonitor.ActionsTest do
     transport_pid = :c.pid(0, 12, 0)
     state = %{}
 
-    MockBus
-    |> expect(:broadcast_event!, fn %LiveViewBorn{pid: ^pid} -> :ok end)
-
-    MockAPILiveViewDebug
-    |> expect(:live_components, fn ^pid -> {:ok, [%{cid: 1}, %{cid: 2}]} end)
-
+    expect(MockBus, :broadcast_event!, fn %LiveViewBorn{pid: ^pid} -> :ok end)
+    expect(MockAPILiveViewDebug, :live_components, fn ^pid -> {:ok, [%{cid: 1}, %{cid: 2}]} end)
     new_state = ProcessMonitorActions.register_live_view_born!(state, pid, transport_pid)
 
     assert new_state == %{
@@ -66,9 +57,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.ActionsTest do
     pid = self()
     state = %{pid => MapSet.new()}
 
-    MockBus
-    |> expect(:broadcast_event!, fn %LiveViewDied{pid: ^pid} -> :ok end)
-
+    expect(MockBus, :broadcast_event!, fn %LiveViewDied{pid: ^pid} -> :ok end)
     new_state = ProcessMonitorActions.register_live_view_died!(state, pid)
 
     assert new_state == %{}

@@ -22,8 +22,7 @@ defmodule LiveDebugger.App.Web.Hooks.Flash do
           message :: String.t()
         ) ::
           Phoenix.LiveView.Socket.t()
-  def push_flash(socket, key, message)
-      when is_binary(message) and key in [:error, :info] do
+  def push_flash(socket, key, message) when is_binary(message) and key in [:error, :info] do
     push_flash(socket, key, message, self())
   end
 
@@ -34,8 +33,7 @@ defmodule LiveDebugger.App.Web.Hooks.Flash do
           pid :: pid()
         ) ::
           Phoenix.LiveView.Socket.t()
-  def push_flash(socket, key, message, pid)
-      when is_pid(pid) and is_binary(message) and key in [:error, :info] do
+  def push_flash(socket, key, message, pid) when is_pid(pid) and is_binary(message) and key in [:error, :info] do
     send(pid, {:put_flash, key, message})
 
     socket

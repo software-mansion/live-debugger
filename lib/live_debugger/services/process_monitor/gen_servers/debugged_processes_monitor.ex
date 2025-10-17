@@ -19,15 +19,14 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   use GenServer
 
-  require Logger
-
-  alias LiveDebugger.CommonTypes
-  alias LiveDebugger.Services.ProcessMonitor.Actions, as: ProcessMonitorActions
+  import LiveDebugger.Helpers
 
   alias LiveDebugger.Bus
+  alias LiveDebugger.CommonTypes
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
+  alias LiveDebugger.Services.ProcessMonitor.Actions, as: ProcessMonitorActions
 
-  import LiveDebugger.Helpers
+  require Logger
 
   @type state :: %{
           pid() => MapSet.t(CommonTypes.cid())
@@ -52,22 +51,13 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
     |> noreply()
   end
 
-  def handle_info(%TraceCalled{function: :render, pid: pid, cid: cid}, state)
-      when is_map_key(state, pid) do
+  def handle_info(%TraceCalled{function: :render, pid: pid, cid: cid}, state) when is_map_key(state, pid) do
     state
     |> maybe_register_component_created(pid, cid)
     |> noreply()
   end
 
-  def handle_info(
-        %TraceCalled{
-          module: Phoenix.LiveView.Diff,
-          function: :delete_component,
-          pid: pid,
-          cid: cid
-        },
-        state
-      )
+  def handle_info(%TraceCalled{module: Phoenix.LiveView.Diff, function: :delete_component, pid: pid, cid: cid}, state)
       when is_map_key(state, pid) do
     state
     |> maybe_register_component_deleted(pid, cid)
@@ -90,13 +80,13 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
     if MapSet.member?(state[pid], cid) do
       state
     else
-      state |> ProcessMonitorActions.register_component_created!(pid, cid)
+      ProcessMonitorActions.register_component_created!(state, pid, cid)
     end
   end
 
   defp maybe_register_component_deleted(state, pid, cid) do
     if MapSet.member?(state[pid], cid) do
-      state |> ProcessMonitorActions.register_component_deleted!(pid, cid)
+      ProcessMonitorActions.register_component_deleted!(state, pid, cid)
     else
       Logger.info("Component #{inspect(cid)} not found in state for pid #{inspect(pid)}")
       state

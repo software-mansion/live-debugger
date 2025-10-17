@@ -5,15 +5,15 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
 
   use LiveDebugger.App.Web, :component
 
-  alias Phoenix.LiveView.Socket, as: LiveViewSocket
-  alias Phoenix.LiveView.JS
   alias LiveDebugger.App.Debugger.CallbackTracing.Web, as: CallbackTracingWeb
-  alias LiveDebugger.App.Debugger.Web.LiveComponents.NodeInspectorSidebar
-  alias LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo
   alias LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive
-  alias LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive
   alias LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksLive
+  alias LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive
+  alias LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo
+  alias LiveDebugger.App.Debugger.Web.LiveComponents.NodeInspectorSidebar
   alias LiveDebugger.Structs.LvProcess
+  alias Phoenix.LiveView.JS
+  alias Phoenix.LiveView.Socket, as: LiveViewSocket
 
   @node_inspector_sidebar_id "node-inspector-sidebar"
   @global_traces_id "global-traces"
@@ -94,7 +94,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
     end
   end
 
-  def close_node_inspector_sidebar() do
+  def close_node_inspector_sidebar do
     Phoenix.LiveView.send_update(NodeInspectorSidebar,
       id: @node_inspector_sidebar_id,
       hidden?: true

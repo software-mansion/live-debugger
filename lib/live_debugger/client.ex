@@ -48,7 +48,7 @@ defmodule LiveDebugger.Client do
   Events are in form of tuple `{event :: String.t(), payload :: map()}`.
   """
   @spec receive_events() :: :ok | {:error, term()}
-  def receive_events() do
+  def receive_events do
     impl().receive_events()
   end
 
@@ -73,7 +73,7 @@ defmodule LiveDebugger.Client do
     end
 
     @impl true
-    def receive_events() do
+    def receive_events do
       Phoenix.PubSub.subscribe(@pubsub_name, "client:receive")
     end
   end

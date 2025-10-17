@@ -5,11 +5,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay
-  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Utils.TermParser
+  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebugger.Structs.Trace
 
   @doc """
@@ -104,8 +104,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   def short_trace_content(assigns) do
     assigns =
-      assigns
-      |> assign(
+      assign(assigns,
         content:
           Enum.map_join(
             assigns.trace.args,

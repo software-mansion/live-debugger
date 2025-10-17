@@ -53,7 +53,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.Stream do
   end
 
   @spec separator_stream_element() :: %{id: String.t()}
-  def separator_stream_element() do
+  def separator_stream_element do
     %{id: "separator"}
   end
 

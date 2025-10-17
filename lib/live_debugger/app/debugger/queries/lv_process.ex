@@ -3,10 +3,10 @@ defmodule LiveDebugger.App.Debugger.Queries.LvProcess do
   Queries for fetching the LvProcess.
   """
 
-  @retries_timeouts [50, 100, 200]
-
   alias LiveDebugger.App.Debugger.Queries.State, as: StateQueries
   alias LiveDebugger.Structs.LvProcess
+
+  @retries_timeouts [50, 100, 200]
 
   @doc """
   Same as `get_lv_process/1` but it uses timeout and retries to fetch the LvProcess.

@@ -3,22 +3,20 @@ defmodule LiveDebugger.App.Debugger.Queries.StateTest do
 
   import Mox
 
-  setup :verify_on_exit!
-
   alias LiveDebugger.App.Debugger.Queries.State, as: StateQueries
-  alias LiveDebugger.Structs.LvState
-  alias LiveDebugger.MockAPIStatesStorage
-  alias LiveDebugger.MockAPILiveViewDebug
   alias LiveDebugger.Fakes
+  alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.Structs.LvState
+
+  setup :verify_on_exit!
 
   describe "get_lv_state/1" do
     test "returns the LV state when it's in the StatesStorage" do
       pid = :c.pid(0, 0, 1)
       state = %LvState{pid: pid}
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> state end)
-
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> state end)
       assert {:ok, ^state} = StateQueries.get_lv_state(pid)
     end
 
@@ -27,8 +25,7 @@ defmodule LiveDebugger.App.Debugger.Queries.StateTest do
       socket = Fakes.socket()
       components = Fakes.live_components()
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> nil end)
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> nil end)
 
       MockAPILiveViewDebug
       |> expect(:socket, fn ^pid -> {:ok, socket} end)
@@ -44,9 +41,7 @@ defmodule LiveDebugger.App.Debugger.Queries.StateTest do
       pid = :c.pid(0, 0, 1)
       socket = Fakes.socket()
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> %LvState{pid: pid, socket: socket} end)
-
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> %LvState{pid: pid, socket: socket} end)
       assert {:ok, ^socket} = StateQueries.get_socket(pid)
     end
 
@@ -54,12 +49,8 @@ defmodule LiveDebugger.App.Debugger.Queries.StateTest do
       pid = :c.pid(0, 0, 1)
       socket = Fakes.socket()
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> nil end)
-
-      MockAPILiveViewDebug
-      |> expect(:socket, fn ^pid -> {:ok, socket} end)
-
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> nil end)
+      expect(MockAPILiveViewDebug, :socket, fn ^pid -> {:ok, socket} end)
       assert {:ok, ^socket} = StateQueries.get_socket(pid)
     end
   end

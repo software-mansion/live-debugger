@@ -75,8 +75,9 @@ defmodule LiveDebugger.Event do
   """
   defmacro __using__(_) do
     quote do
-      require LiveDebugger.Event
       import LiveDebugger.Event
+
+      require LiveDebugger.Event
     end
   end
 

@@ -3,10 +3,10 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
 
   import Mox
 
-  alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIModule
   alias LiveDebugger.MockAPISettingsStorage
+  alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
 
   setup :verify_on_exit!
 
@@ -46,8 +46,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
     end
 
     test "raises error when tracer fails to start" do
-      MockAPIDbg
-      |> expect(:tracer, fn {_handler, 0} -> {:error, :already_started} end)
+      expect(MockAPIDbg, :tracer, fn {_handler, 0} -> {:error, :already_started} end)
 
       assert_raise RuntimeError, "Couldn't start tracer: :already_started", fn ->
         TracingActions.setup_tracing!()
@@ -77,24 +76,20 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       assert :ok = TracingActions.setup_tracing!()
 
       # Verify process is linked
-      assert Process.info(self(), :links) |> elem(1) |> Enum.member?(tracer_pid)
+      assert self() |> Process.info(:links) |> elem(1) |> Enum.member?(tracer_pid)
     end
   end
 
   describe "start_tracing_recompile_pattern/0" do
     test "starts tracing for Mix.Tasks.Compile.Elixir" do
-      MockAPIDbg
-      |> expect(:trace_pattern, fn {Mix.Tasks.Compile.Elixir, :run, 1}, _flag -> :ok end)
-
+      expect(MockAPIDbg, :trace_pattern, fn {Mix.Tasks.Compile.Elixir, :run, 1}, _flag -> :ok end)
       assert :ok = TracingActions.start_tracing_recompile_pattern()
     end
   end
 
   describe "stop_tracing_recompile_pattern/0" do
     test "stops tracing for Mix.Tasks.Compile.Elixir" do
-      MockAPIDbg
-      |> expect(:clear_trace_pattern, fn {Mix.Tasks.Compile.Elixir, :run, 1} -> :ok end)
-
+      expect(MockAPIDbg, :clear_trace_pattern, fn {Mix.Tasks.Compile.Elixir, :run, 1} -> :ok end)
       assert :ok = TracingActions.stop_tracing_recompile_pattern()
     end
   end
@@ -112,9 +107,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
     end
 
     test "handles empty callbacks list" do
-      MockAPIModule
-      |> expect(:all, fn -> [] end)
-
+      expect(MockAPIModule, :all, fn -> [] end)
       expect(MockAPIDbg, :trace_pattern, 1, fn _, _ -> :ok end)
 
       assert :ok = TracingActions.refresh_tracing()

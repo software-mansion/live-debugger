@@ -3,10 +3,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
   Queries for `LiveDebugger.App.Debugger.NodeState` context.
   """
 
-  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.API.LiveViewDebug
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.App.Debugger.Structs.TreeNode
+  alias LiveDebugger.Structs.LvState
 
   @spec fetch_node_assigns(pid :: pid(), node_id :: TreeNode.id()) ::
           {:ok, %{node_assigns: map()}} | {:error, term()}

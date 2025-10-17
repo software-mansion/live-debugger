@@ -3,28 +3,27 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
 
   import Mox
 
+  alias LiveDebugger.Fakes
+  alias LiveDebugger.MockAPIDbg
+  alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.MockAPIModule
+  alias LiveDebugger.MockAPIStatesStorage
+  alias LiveDebugger.MockAPITracesStorage
+  alias LiveDebugger.MockBus
+  alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
+  alias LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler
+
   setup :verify_on_exit!
   setup :set_mox_from_context
-
-  alias LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler
-  alias LiveDebugger.MockAPIDbg
-  alias LiveDebugger.MockAPIModule
-  alias LiveDebugger.MockAPILiveViewDebug
-  alias LiveDebugger.MockBus
-  alias LiveDebugger.MockAPITracesStorage
-  alias LiveDebugger.MockAPIStatesStorage
-  alias LiveDebugger.Fakes
-  alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
-  alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
-  alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
 
   describe "handle_cast/2" do
     test "handles proper recompilation traces" do
       pid = :c.pid(0, 1, 0)
 
-      MockAPIDbg
-      |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
+      expect(MockAPIDbg, :trace_pattern, 19, fn _, _ -> :ok end)
 
       MockAPIModule
       |> expect(:all, fn -> [{~c"Debugged.TestModule", ~c"delete_component", true}] end)
@@ -33,8 +32,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
 
       trace =
         {:new_trace,
-         {:trace_ts, pid, :return_from, {Mix.Tasks.Compile.Elixir, :run, 1}, {:ok, []},
-          {1753, 174_270, 660_820}}, -1}
+         {:trace_ts, pid, :return_from, {Mix.Tasks.Compile.Elixir, :run, 1}, {:ok, []}, {1753, 174_270, 660_820}}, -1}
 
       assert TraceHandler.handle_cast(trace, nil) == {:noreply, nil}
 
@@ -45,14 +43,11 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
       pid = :c.pid(0, 1, 0)
 
       trace1 =
-        {:new_trace,
-         {:trace_ts, pid, :call, {Mix.Tasks.Compile.Elixir, :run, 1}, {1753, 174_270, 660_820}},
-         -1}
+        {:new_trace, {:trace_ts, pid, :call, {Mix.Tasks.Compile.Elixir, :run, 1}, {1753, 174_270, 660_820}}, -1}
 
       trace2 =
         {:new_trace,
-         {:trace_ts, pid, :return_from, {Mix.Tasks.Compile.Elixir, :run, 1}, {:error, []},
-          {1753, 174_270, 660_820}}, -1}
+         {:trace_ts, pid, :return_from, {Mix.Tasks.Compile.Elixir, :run, 1}, {:error, []}, {1753, 174_270, 660_820}}, -1}
 
       assert TraceHandler.handle_cast(trace1, %{}) == {:noreply, %{}}
       assert TraceHandler.handle_cast(trace2, %{}) == {:noreply, %{}}
@@ -64,26 +59,20 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
       socket = %{id: "123", transport_pid: transport_pid, view: SomeLiveView}
 
       # create delete trace
-      MockAPILiveViewDebug
-      |> expect(:socket, fn ^pid -> {:ok, socket} end)
+      expect(MockAPILiveViewDebug, :socket, fn ^pid -> {:ok, socket} end)
 
       # save state
       MockAPILiveViewDebug
       |> expect(:socket, fn ^pid -> {:ok, socket} end)
       |> expect(:live_components, fn ^pid -> {:ok, []} end)
 
-      MockAPIStatesStorage
-      |> expect(:save!, fn _ -> true end)
+      expect(MockAPIStatesStorage, :save!, fn _ -> true end)
 
       # broadcast state
-      MockBus
-      |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid ->
-        :ok
-      end)
+      expect(MockBus, :broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid -> :ok end)
 
       # broadcast trace
-      MockBus
-      |> expect(:broadcast_trace!, fn arg1, ^pid ->
+      expect(MockBus, :broadcast_trace!, fn arg1, ^pid ->
         assert %TraceCalled{
                  trace_id: -1,
                  ets_ref: nil,
@@ -98,8 +87,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
 
       trace =
         {:new_trace,
-         {:trace_ts, pid, :call, {Phoenix.LiveView.Diff, :delete_component, [15, %{}]},
-          {1753, 176_335, 405_037}}, -1}
+         {:trace_ts, pid, :call, {Phoenix.LiveView.Diff, :delete_component, [15, %{}]}, {1753, 176_335, 405_037}}, -1}
 
       assert TraceHandler.handle_cast(trace, nil) == {:noreply, nil}
 
@@ -119,16 +107,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
       |> expect(:get_table, fn ^pid -> ref end)
       |> expect(:insert!, fn ^ref, _trace -> true end)
 
-      MockBus
-      |> expect(:broadcast_trace!, fn arg1, ^pid ->
-        assert %TraceCalled{
-                 trace_id: ^n,
-                 ets_ref: ^ref,
-                 module: ^module,
-                 function: ^fun,
-                 pid: ^pid,
-                 cid: nil
-               } = arg1
+      expect(MockBus, :broadcast_trace!, fn arg1, ^pid ->
+        assert %TraceCalled{trace_id: ^n, ets_ref: ^ref, module: ^module, function: ^fun, pid: ^pid, cid: nil} = arg1
 
         :ok
       end)
@@ -173,15 +153,9 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
 
       state = %{{pid, module, fun} => {ref, trace, call_ts}}
 
-      MockAPITracesStorage
-      |> expect(:insert!, fn ^ref, updated_trace ->
-        assert %LiveDebugger.Structs.Trace{
-                 id: 1,
-                 module: ^module,
-                 function: ^fun,
-                 pid: ^pid,
-                 type: :return_from
-               } = updated_trace
+      expect(MockAPITracesStorage, :insert!, fn ^ref, updated_trace ->
+        assert %LiveDebugger.Structs.Trace{id: 1, module: ^module, function: ^fun, pid: ^pid, type: :return_from} =
+                 updated_trace
 
         true
       end)
@@ -191,25 +165,13 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
       |> expect(:socket, fn ^pid -> {:ok, Fakes.socket()} end)
       |> expect(:live_components, fn ^pid -> {:ok, []} end)
 
-      MockAPIStatesStorage
-      |> expect(:save!, fn _ -> true end)
+      expect(MockAPIStatesStorage, :save!, fn _ -> true end)
 
       # broadcast state
-      MockBus
-      |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid ->
-        :ok
-      end)
+      expect(MockBus, :broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid -> :ok end)
 
-      MockBus
-      |> expect(:broadcast_trace!, fn arg1, ^pid ->
-        assert %TraceReturned{
-                 trace_id: 1,
-                 ets_ref: ^ref,
-                 module: ^module,
-                 function: ^fun,
-                 pid: ^pid,
-                 cid: nil
-               } = arg1
+      expect(MockBus, :broadcast_trace!, fn arg1, ^pid ->
+        assert %TraceReturned{trace_id: 1, ets_ref: ^ref, module: ^module, function: ^fun, pid: ^pid, cid: nil} = arg1
 
         :ok
       end)
@@ -240,29 +202,15 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
 
       state = %{{pid, module, fun} => {ref, trace, call_ts}}
 
-      MockAPITracesStorage
-      |> expect(:insert!, fn ^ref, updated_trace ->
-        assert %LiveDebugger.Structs.Trace{
-                 id: 1,
-                 module: ^module,
-                 function: ^fun,
-                 pid: ^pid,
-                 type: :exception_from
-               } = updated_trace
+      expect(MockAPITracesStorage, :insert!, fn ^ref, updated_trace ->
+        assert %LiveDebugger.Structs.Trace{id: 1, module: ^module, function: ^fun, pid: ^pid, type: :exception_from} =
+                 updated_trace
 
         true
       end)
 
-      MockBus
-      |> expect(:broadcast_trace!, fn arg1, ^pid ->
-        assert %TraceErrored{
-                 trace_id: 1,
-                 ets_ref: ^ref,
-                 module: ^module,
-                 function: ^fun,
-                 pid: ^pid,
-                 cid: nil
-               } = arg1
+      expect(MockBus, :broadcast_trace!, fn arg1, ^pid ->
+        assert %TraceErrored{trace_id: 1, ets_ref: ^ref, module: ^module, function: ^fun, pid: ^pid, cid: nil} = arg1
 
         :ok
       end)

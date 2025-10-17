@@ -5,9 +5,9 @@ defmodule LiveDebugger.App.Debugger.Web.Components do
 
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.Structs.LvProcess
 
   attr(:lv_process, LvProcess, required: true)
   attr(:id, :string, required: true)

@@ -3,8 +3,8 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
 
   import Mox
 
-  alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks
   alias LiveDebugger.MockAPIModule
+  alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks
 
   describe "all_callbacks/0" do
     test "returns a list of all callbacks" do
@@ -48,9 +48,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
     end
 
     test "returns empty list when no modules are available" do
-      MockAPIModule
-      |> expect(:all, fn -> [] end)
-
+      expect(MockAPIModule, :all, fn -> [] end)
       assert Callbacks.all_callbacks() == []
     end
 

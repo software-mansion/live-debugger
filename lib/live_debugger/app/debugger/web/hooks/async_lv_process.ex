@@ -3,18 +3,17 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
   Hooks for asynchronous LVProcess assignment.
   """
 
-  require Logger
-
   use LiveDebugger.App.Web, :hook
 
-  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
   alias LiveDebugger.App.Debugger.Queries.State, as: StateQueries
-  alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
-
-  alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.DebuggerMounted
+  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.Bus
+  alias LiveDebugger.Structs.LvProcess
+  alias Phoenix.LiveView.AsyncResult
+
+  require Logger
 
   @spec init(Phoenix.LiveView.Socket.t(), pid()) :: Phoenix.LiveView.Socket.t()
   def init(socket, pid) do
@@ -26,21 +25,23 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
   end
 
   defp handle_async(:lv_process, {:ok, {%LvProcess{} = lv_process, root_socket_id}}, socket) do
-    if Process.alive?(lv_process.pid) do
-      Bus.broadcast_event!(%DebuggerMounted{
-        debugger_pid: self(),
-        debugged_pid: lv_process.pid
-      })
+    if_result =
+      if Process.alive?(lv_process.pid) do
+        Bus.broadcast_event!(%DebuggerMounted{
+          debugger_pid: self(),
+          debugged_pid: lv_process.pid
+        })
 
-      socket
-      |> assign(:lv_process, AsyncResult.ok(lv_process))
-      |> assign(:root_socket_id, root_socket_id)
-    else
-      socket
-      |> put_flash(:error, "LiveView process died")
-      |> push_navigate(to: RoutesHelper.discovery())
-    end
-    |> halt()
+        socket
+        |> assign(:lv_process, AsyncResult.ok(lv_process))
+        |> assign(:root_socket_id, root_socket_id)
+      else
+        socket
+        |> put_flash(:error, "LiveView process died")
+        |> push_navigate(to: RoutesHelper.discovery())
+      end
+
+    halt(if_result)
   end
 
   defp handle_async(:lv_process, {:ok, nil}, socket) do
@@ -57,9 +58,7 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
   end
 
   defp handle_async(:lv_process, {:exit, reason}, socket) do
-    Logger.error(
-      "LiveDebugger encountered unexpected error while fetching information for process: #{inspect(reason)}"
-    )
+    Logger.error("LiveDebugger encountered unexpected error while fetching information for process: #{inspect(reason)}")
 
     socket
     |> push_navigate(to: RoutesHelper.error("unexpected_error"))

@@ -7,19 +7,18 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
 
   use LiveDebugger.App.Web, :hook_component
 
-  alias Phoenix.LiveView.AsyncResult
-  alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.API.SettingsStorage
+  alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
+  alias LiveDebugger.App.Events.FindSuccessor
+  alias LiveDebugger.App.Events.UserChangedSettings
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
-
   alias LiveDebugger.Bus
-  alias LiveDebugger.App.Events.FindSuccessor
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
   alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorFound
   alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorNotFound
-  alias LiveDebugger.App.Events.UserChangedSettings
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
-  alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
+  alias LiveDebugger.Structs.LvProcess
+  alias Phoenix.LiveView.AsyncResult
 
   @impl true
   def init(socket) do
@@ -121,10 +120,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
     |> halt()
   end
 
-  defp handle_info(
-         %SuccessorNotFound{socket_id: socket_id},
-         %{private: %{old_socket_id: socket_id}} = socket
-       ) do
+  defp handle_info(%SuccessorNotFound{socket_id: socket_id}, %{private: %{old_socket_id: socket_id}} = socket) do
     socket
     |> put_flash(:error, "New process couldn't be found")
     |> push_navigate(to: RoutesHelper.discovery())

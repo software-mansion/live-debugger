@@ -3,34 +3,28 @@ defmodule LiveDebugger.App.Debugger.Queries.LvProcessTest do
 
   import Mox
 
-  setup :verify_on_exit!
-
-  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
-  alias LiveDebugger.MockAPIStatesStorage
-  alias LiveDebugger.MockAPILiveViewDebug
   alias LiveDebugger.Fakes
+  alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.MockAPIStatesStorage
   alias LiveDebugger.Structs.LvProcess
+  alias LiveDebugger.Structs.LvState
+
+  setup :verify_on_exit!
 
   describe "get_lv_process/1" do
     test "returns LvProcess when found" do
       pid = :c.pid(0, 0, 1)
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> %LvState{pid: pid, socket: Fakes.socket(), components: []} end)
-
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> %LvState{pid: pid, socket: Fakes.socket(), components: []} end)
       assert %LvProcess{pid: ^pid} = LvProcessQueries.get_lv_process(pid)
     end
 
     test "uses LiveViewDebug when not in StatesStorage" do
       pid = :c.pid(0, 0, 1)
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> nil end)
-
-      MockAPILiveViewDebug
-      |> expect(:socket, fn ^pid -> {:ok, Fakes.socket()} end)
-
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> nil end)
+      expect(MockAPILiveViewDebug, :socket, fn ^pid -> {:ok, Fakes.socket()} end)
       assert %LvProcess{pid: ^pid} = LvProcessQueries.get_lv_process(pid)
     end
   end
@@ -39,33 +33,23 @@ defmodule LiveDebugger.App.Debugger.Queries.LvProcessTest do
     test "returns nil after 3 tries" do
       pid = :c.pid(0, 0, 1)
 
-      MockAPIStatesStorage
-      |> expect(:get!, 3, fn ^pid -> nil end)
-
-      MockAPILiveViewDebug
-      |> expect(:socket, 3, fn ^pid -> {:error, :not_found} end)
-
+      expect(MockAPIStatesStorage, :get!, 3, fn ^pid -> nil end)
+      expect(MockAPILiveViewDebug, :socket, 3, fn ^pid -> {:error, :not_found} end)
       assert nil == LvProcessQueries.get_lv_process_with_retries(pid)
     end
 
     test "returns LvProcess when found" do
       pid = :c.pid(0, 0, 1)
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> %LvState{pid: pid, socket: Fakes.socket(), components: []} end)
-
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> %LvState{pid: pid, socket: Fakes.socket(), components: []} end)
       assert %LvProcess{pid: ^pid} = LvProcessQueries.get_lv_process_with_retries(pid)
     end
 
     test "uses LiveViewDebug when not in StatesStorage" do
       pid = :c.pid(0, 0, 1)
 
-      MockAPIStatesStorage
-      |> expect(:get!, fn ^pid -> nil end)
-
-      MockAPILiveViewDebug
-      |> expect(:socket, fn ^pid -> {:ok, Fakes.socket()} end)
-
+      expect(MockAPIStatesStorage, :get!, fn ^pid -> nil end)
+      expect(MockAPILiveViewDebug, :socket, fn ^pid -> {:ok, Fakes.socket()} end)
       assert %LvProcess{pid: ^pid} = LvProcessQueries.get_lv_process_with_retries(pid)
     end
   end

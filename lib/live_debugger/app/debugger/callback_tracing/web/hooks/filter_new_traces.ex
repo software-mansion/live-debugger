@@ -6,10 +6,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
   use LiveDebugger.App.Web, :hook
 
   alias LiveDebugger.API.TracesStorage
-
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
 
   @required_assigns [
     :current_filters,
@@ -74,7 +73,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
         true
 
       search ->
-        TracesStorage.get_by_id!(ets_ref, trace_id)
+        ets_ref
+        |> TracesStorage.get_by_id!(trace_id)
         |> Map.get(:args)
         |> inspect(limit: :infinity, structs: false)
         |> String.downcase()

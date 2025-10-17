@@ -3,10 +3,10 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Queries do
   Queries for `LiveDebugger.App.Debugger.ComponentsTree` context.
   """
 
-  require Logger
-
   alias LiveDebugger.App.Debugger.ComponentsTree.Utils, as: ComponentsTreeUtils
   alias LiveDebugger.App.Debugger.Queries.State, as: StateQueries
+
+  require Logger
 
   @spec fetch_components_tree(pid()) :: {:ok, %{tree: map()}} | {:error, term()}
   def fetch_components_tree(lv_pid) when is_pid(lv_pid) do

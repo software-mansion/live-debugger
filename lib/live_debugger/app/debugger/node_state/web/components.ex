@@ -5,9 +5,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   use LiveDebugger.App.Web, :component
 
+  alias LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Utils.TermParser
-  alias LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch
   alias LiveDebugger.Utils.Memory
 
   def loading(assigns) do

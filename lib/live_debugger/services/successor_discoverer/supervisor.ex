@@ -4,6 +4,7 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.Supervisor do
   """
 
   use Supervisor
+
   alias LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscoverer
 
   def start_link(opts \\ []) do

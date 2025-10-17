@@ -12,9 +12,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
   feature "user can trace callbacks globally", %{
     sessions: [dev_app, debugger]
   } do
-    dev_app
-    |> visit(@dev_app_url)
-
+    visit(dev_app, @dev_app_url)
     Process.sleep(200)
 
     debugger
@@ -28,9 +26,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     |> assert_has(no_traces_info())
     |> click(toggle_tracing_button())
 
-    dev_app
-    |> click(css("button#send-button"))
-
+    click(dev_app, css("button#send-button"))
     Process.sleep(200)
 
     debugger
@@ -45,9 +41,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     |> assert_has(traces(count: 0))
     |> assert_has(no_traces_info())
 
-    dev_app
-    |> click(css("button#increment-button"))
-
+    click(dev_app, css("button#increment-button"))
     Process.sleep(200)
 
     debugger
@@ -61,8 +55,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
   feature "user can go to specific node from global callbacks", %{
     sessions: [dev_app, debugger]
   } do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -72,8 +65,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     |> click(clear_traces_button())
     |> click(toggle_tracing_button())
 
-    dev_app
-    |> click(css("button#send-button"))
+    click(dev_app, css("button#send-button"))
 
     debugger
     |> find(trace_module(text: "LiveDebuggerDev.LiveViews.Main", count: 2))
@@ -100,9 +92,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
   feature "user can search for callbacks using the searchbar", %{
     sessions: [dev_app, debugger]
   } do
-    dev_app
-    |> visit(@dev_app_url)
-
+    visit(dev_app, @dev_app_url)
     Process.sleep(200)
 
     debugger
@@ -113,21 +103,17 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     |> assert_has(traces(count: 25))
     |> click(toggle_tracing_button())
 
-    dev_app
-    |> click(button("send-button"))
-
+    click(dev_app, button("send-button"))
     Process.sleep(200)
 
-    debugger
-    |> click(toggle_tracing_button())
+    click(debugger, toggle_tracing_button())
 
     debugger
     |> fill_in(search_bar(), with: ":new_datetime")
     |> find(traces(count: 1), fn trace -> assert_text(trace, ":new_datetime") end)
     |> click(clear_traces_button())
 
-    dev_app
-    |> click(button("increment-button"))
+    click(dev_app, button("increment-button"))
 
     [render_trace, handle_event_trace] =
       debugger
@@ -158,9 +144,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
   feature "incoming traces are filtered by search phrase", %{
     sessions: [dev_app, debugger]
   } do
-    dev_app
-    |> visit(@dev_app_url)
-
+    visit(dev_app, @dev_app_url)
     Process.sleep(200)
 
     debugger
@@ -172,13 +156,10 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     |> fill_in(search_bar(), with: ":new_datetime")
     |> click(toggle_tracing_button())
 
-    dev_app
-    |> click(button("send-button"))
-
+    click(dev_app, button("send-button"))
     Process.sleep(200)
 
-    debugger
-    |> assert_has(traces(count: 1))
+    assert_has(debugger, traces(count: 1))
   end
 
   defp traces(opts), do: css("#global-traces-stream details", opts)
@@ -187,7 +168,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
 
   defp trace_module(opts), do: css("#global-traces-stream details div.col-span-3", opts)
 
-  defp global_callback_traces_button(), do: css("button[aria-label=\"Icon globe\"]")
+  defp global_callback_traces_button, do: css("button[aria-label=\"Icon globe\"]")
 
-  defp open_fullscreen_trace_button(), do: css("button[phx-click=\"open-trace\"]")
+  defp open_fullscreen_trace_button, do: css("button[phx-click=\"open-trace\"]")
 end

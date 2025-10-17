@@ -7,18 +7,16 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   use LiveDebugger.App.Web, :live_view
 
-  alias LiveDebugger.App.Debugger.Web.Hooks
-  alias LiveDebugger.App.Debugger.Web.HookComponents
+  alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
   alias LiveDebugger.App.Debugger.Web.Components.Pages
-  alias LiveDebugger.App.Web.Components.Navbar
   alias LiveDebugger.App.Debugger.Web.HookComponents
-  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.App.Debugger.Web.Hooks
   alias LiveDebugger.App.Utils.Parsers
-  alias LiveDebugger.App.Debugger.Structs.TreeNode
+  alias LiveDebugger.App.Web.Components.Navbar
+  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebugger.Bus
-
-  alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
 
   @impl true
   def mount(%{"pid" => string_pid}, _session, socket) do

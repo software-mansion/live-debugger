@@ -24,8 +24,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
     |> assert_has(enable_debug_button_checkbox(selected: false))
     |> assert_has(enable_tracing_enabled_on_start_checkbox(selected: false))
 
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     # Check dead view mode toggle
 
@@ -34,16 +33,11 @@ defmodule LiveDebugger.E2E.SettingsTest do
     |> click(first_link())
     |> assert_text("Monitored PID")
 
-    dev_app
-    |> click(link("Side"))
-
+    click(dev_app, link("Side"))
     Process.sleep(200)
 
-    debugger1
-    |> assert_text("Monitored PID")
-
-    dev_app
-    |> visit(@dev_app_url)
+    assert_text(debugger1, "Monitored PID")
+    visit(dev_app, @dev_app_url)
 
     debugger1
     |> visit("/settings")
@@ -51,9 +45,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
     |> click(enable_dead_view_mode_toggle())
     |> assert_has(enable_dead_view_mode_checkbox(selected: true))
 
-    debugger2
-    |> assert_has(enable_dead_view_mode_checkbox(selected: true))
-
+    assert_has(debugger2, enable_dead_view_mode_checkbox(selected: true))
     assert(check_dets_for_setting(:dead_view_mode))
 
     debugger1
@@ -61,9 +53,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
     |> click(first_link())
     |> assert_text("Monitored PID")
 
-    dev_app
-    |> click(link("Side"))
-
+    click(dev_app, link("Side"))
     Process.sleep(200)
 
     debugger1
@@ -80,8 +70,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     assert(check_dets_for_setting(:tracing_update_on_code_reload))
 
-    debugger2
-    |> assert_has(enable_tracing_update_on_reload_checkbox(selected: true))
+    assert_has(debugger2, enable_tracing_update_on_reload_checkbox(selected: true))
 
     # Check garbage collector toggle
 
@@ -93,8 +82,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     assert(check_dets_for_setting(:garbage_collection))
 
-    debugger2
-    |> assert_has(enable_garbage_collector_checkbox(selected: true))
+    assert_has(debugger2, enable_garbage_collector_checkbox(selected: true))
 
     # Check debug button toggle
 
@@ -110,17 +98,14 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     assert(check_dets_for_setting(:debug_button))
 
-    debugger2
-    |> assert_has(enable_debug_button_checkbox(selected: true))
+    assert_has(debugger2, enable_debug_button_checkbox(selected: true))
 
     dev_app
     |> assert_has(css("#live-debugger-debug-button"))
     |> execute_script("window.location.reload();")
     |> assert_has(css("#live-debugger-debug-button"))
 
-    debugger1
-    |> click(enable_debug_button_toggle())
-
+    click(debugger1, enable_debug_button_toggle())
     refute(check_dets_for_setting(:debug_button))
 
     dev_app
@@ -129,8 +114,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
     |> refute_has(css("#live-debugger-debug-button"))
 
     # Check debug button toggle
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger1
     |> visit("/")
@@ -138,8 +122,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
     |> assert_has(toggle_tracing_button(text: "Start"))
     |> assert_has(traces(count: 2))
 
-    dev_app
-    |> click(button("increment-button"))
+    click(dev_app, button("increment-button"))
 
     debugger1
     |> assert_has(traces(count: 2))
@@ -150,19 +133,15 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     assert(check_dets_for_setting(:tracing_enabled_on_start))
 
-    debugger2
-    |> assert_has(enable_tracing_enabled_on_start_checkbox(selected: true))
+    assert_has(debugger2, enable_tracing_enabled_on_start_checkbox(selected: true))
 
     debugger1
     |> click(return_button())
     |> assert_has(toggle_tracing_button(text: "Stop"))
     |> assert_has(traces(count: 4))
 
-    dev_app
-    |> click(button("increment-button"))
-
-    debugger1
-    |> assert_has(traces(count: 6))
+    click(dev_app, button("increment-button"))
+    assert_has(debugger1, traces(count: 6))
   end
 
   defp check_dets_for_setting(setting) do
@@ -174,7 +153,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
   defp traces(opts), do: css("#traces-list-stream details", opts)
 
-  defp enable_dead_view_mode_toggle() do
+  defp enable_dead_view_mode_toggle do
     css("label:has(input[phx-value-setting=\"dead_view_mode\"])")
   end
 
@@ -182,7 +161,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
     css("input[phx-value-setting=\"dead_view_mode\"]", opts)
   end
 
-  defp enable_tracing_update_on_reload_toggle() do
+  defp enable_tracing_update_on_reload_toggle do
     css("label:has(input[phx-value-setting=\"tracing_update_on_code_reload\"])")
   end
 
@@ -190,7 +169,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
     css("input[phx-value-setting=\"tracing_update_on_code_reload\"]", opts)
   end
 
-  defp enable_garbage_collector_toggle() do
+  defp enable_garbage_collector_toggle do
     css("label:has(input[phx-value-setting=\"garbage_collection\"])")
   end
 
@@ -198,7 +177,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
     css("input[phx-value-setting=\"garbage_collection\"]", opts)
   end
 
-  defp enable_debug_button_toggle() do
+  defp enable_debug_button_toggle do
     css("label:has(input[phx-value-setting=\"debug_button\"])")
   end
 
@@ -206,7 +185,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
     css("input[phx-value-setting=\"debug_button\"]", opts)
   end
 
-  defp enable_tracing_enabled_on_start_toggle() do
+  defp enable_tracing_enabled_on_start_toggle do
     css("label:has(input[phx-value-setting=\"tracing_enabled_on_start\"])")
   end
 

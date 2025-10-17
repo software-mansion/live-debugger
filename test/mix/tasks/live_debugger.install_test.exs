@@ -1,9 +1,9 @@
 defmodule Mix.Tasks.LiveDebugger.InstallTest do
   use ExUnit.Case
 
-  @moduletag :igniter
-
   import Igniter.Test
+
+  @moduletag :igniter
 
   test "installation does not cause any errors on a new phoenix project" do
     phx_test_project()

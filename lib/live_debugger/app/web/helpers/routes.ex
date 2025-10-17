@@ -12,7 +12,7 @@ defmodule LiveDebugger.App.Web.Helpers.Routes do
   alias LiveDebugger.CommonTypes
 
   @spec discovery() :: String.t()
-  def discovery() do
+  def discovery do
     ~p"/"
   end
 

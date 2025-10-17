@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.LiveComponents.Send do
+  @moduledoc false
   use DevWeb, :live_component
 
   slot(:inner_block)

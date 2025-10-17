@@ -3,8 +3,8 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Utils do
   Utility functions for the Components Tree.
   """
 
-  alias LiveDebugger.Structs.LvState
   alias LiveDebugger.App.Debugger.Structs.TreeNode
+  alias LiveDebugger.Structs.LvState
 
   @max_node_number 20
 
@@ -61,9 +61,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Utils do
   end
 
   defp get_base_parent_cids_mapping(components) do
-    components
-    |> Enum.map(fn %{cid: cid} -> {cid, nil} end)
-    |> Enum.into(%{})
+    Map.new(components, fn %{cid: cid} -> {cid, nil} end)
   end
 
   defp fill_parent_cids_mapping(base_parent_cids_mapping, components) do
@@ -86,9 +84,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Utils do
         nil
 
       {children_cids, components_cids_map} ->
-        children_cids
-        |> Enum.map(fn cid -> {cid, tree_merge(components_cids_map, cid)} end)
-        |> Enum.into(%{})
+        Map.new(children_cids, fn cid -> {cid, tree_merge(components_cids_map, cid)} end)
     end
   end
 
@@ -96,8 +92,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Utils do
 
   defp add_children(parent_element, children_cids_map, live_components) do
     tree_node =
-      Enum.reduce(children_cids_map, parent_element, fn {cid, children_cids_map},
-                                                        parent_element ->
+      Enum.reduce(children_cids_map, parent_element, fn {cid, children_cids_map}, parent_element ->
         child =
           live_components
           |> Enum.find(fn element -> element.id.cid == cid end)

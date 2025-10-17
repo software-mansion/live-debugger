@@ -4,9 +4,9 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
   """
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.App.Web.LiveComponents.LiveDropdown
-  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebugger.App.Utils.URL
+  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.App.Web.LiveComponents.LiveDropdown
   alias Phoenix.LiveView.JS
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")

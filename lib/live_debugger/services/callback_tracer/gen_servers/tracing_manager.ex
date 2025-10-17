@@ -5,10 +5,9 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   use GenServer
 
-  alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserChangedSettings
   alias LiveDebugger.App.Events.UserRefreshedTrace
-
+  alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
 
   @tracing_setup_delay Application.compile_env(:live_debugger, :tracing_setup_delay, 0)
@@ -20,7 +19,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   @doc """
   Checks if GenServer has been loaded
   """
-  def ping!() do
+  def ping! do
     GenServer.call(__MODULE__, :ping)
   end
 

@@ -5,20 +5,20 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
 
   use LiveDebugger.App.Web, :live_view
 
-  require Logger
-
-  alias LiveDebugger.Client
-  alias LiveDebugger.App.Utils.URL
-  alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.App.Debugger.ComponentsTree.Web.Components, as: TreeComponents
-  alias LiveDebugger.App.Debugger.ComponentsTree.Utils, as: ComponentsTreeUtils
   alias LiveDebugger.App.Debugger.ComponentsTree.Queries, as: ComponentsTreeQueries
-  alias LiveDebugger.App.Utils.Parsers
-  alias LiveDebugger.Bus
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
-  alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebugger.App.Debugger.ComponentsTree.Utils, as: ComponentsTreeUtils
+  alias LiveDebugger.App.Debugger.ComponentsTree.Web.Components, as: TreeComponents
   alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
+  alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebugger.App.Utils.Parsers
+  alias LiveDebugger.App.Utils.URL
+  alias LiveDebugger.Bus
+  alias LiveDebugger.Client
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
+  alias LiveDebugger.Structs.LvProcess
+
+  require Logger
 
   @doc """
   Renders the `ComponentsTreeLive` as a nested LiveView component.
@@ -133,37 +133,25 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
   end
 
   @impl true
-  def handle_info(
-        %LiveComponentCreated{pid: pid},
-        %{assigns: %{lv_process: %{pid: pid}}} = socket
-      ) do
+  def handle_info(%LiveComponentCreated{pid: pid}, %{assigns: %{lv_process: %{pid: pid}}} = socket) do
     socket
     |> assign_async_tree()
     |> noreply()
   end
 
-  def handle_info(
-        %LiveComponentDeleted{pid: pid},
-        %{assigns: %{lv_process: %{pid: pid}}} = socket
-      ) do
+  def handle_info(%LiveComponentDeleted{pid: pid}, %{assigns: %{lv_process: %{pid: pid}}} = socket) do
     socket
     |> assign_async_tree()
     |> noreply()
   end
 
-  def handle_info(
-        %NodeIdParamChanged{node_id: node_id, debugger_pid: pid},
-        %{assigns: %{parent_pid: pid}} = socket
-      ) do
+  def handle_info(%NodeIdParamChanged{node_id: node_id, debugger_pid: pid}, %{assigns: %{parent_pid: pid}} = socket) do
     socket
     |> assign(node_id: node_id)
     |> noreply()
   end
 
-  def handle_info(
-        %DeadViewModeEntered{debugger_pid: pid},
-        %{assigns: %{parent_pid: pid}} = socket
-      ) do
+  def handle_info(%DeadViewModeEntered{debugger_pid: pid}, %{assigns: %{parent_pid: pid}} = socket) do
     socket
     |> assign(highlight_disabled?: true)
     |> assign(highlight?: false)
@@ -175,10 +163,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     assign_async(socket, [:tree], fn -> ComponentsTreeQueries.fetch_components_tree(pid) end)
   end
 
-  defp highlight_element(
-         %{assigns: %{highlight_disabled?: false, highlight?: true}} = socket,
-         params
-       ) do
+  defp highlight_element(%{assigns: %{highlight_disabled?: false, highlight?: true}} = socket, params) do
     payload = %{
       attr: params["search-attribute"],
       val: params["search-value"],

@@ -4,8 +4,8 @@ defmodule LiveDebugger.App.Web.Hooks.URL do
   It is triggered on handle_params callback.
   """
 
-  import Phoenix.LiveView
   import Phoenix.Component
+  import Phoenix.LiveView
 
   alias LiveDebugger.App.Utils.URL
 

@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.Layout do
+  @moduledoc false
   use Phoenix.Component
 
   import LiveDebuggerDev.Components

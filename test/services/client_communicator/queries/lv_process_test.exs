@@ -3,11 +3,11 @@ defmodule LiveDebugger.Services.ClientCommunicator.Queries.LvProcessTest do
 
   import Mox
 
+  alias LiveDebugger.Fakes
+  alias LiveDebugger.MockAPILiveViewDebug
+  alias LiveDebugger.MockAPILiveViewDiscovery
   alias LiveDebugger.Services.ClientCommunicator.Queries.LvProcess, as: LvProcessQueries
   alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.Fakes
-  alias LiveDebugger.MockAPILiveViewDiscovery
-  alias LiveDebugger.MockAPILiveViewDebug
 
   setup :verify_on_exit!
 
@@ -27,11 +27,7 @@ defmodule LiveDebugger.Services.ClientCommunicator.Queries.LvProcessTest do
         module: LiveDebuggerTest.OtherLiveView
       }
 
-      MockAPILiveViewDiscovery
-      |> expect(:debugged_lv_processes, fn ->
-        [lv_process, other_lv_process]
-      end)
-
+      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn -> [lv_process, other_lv_process] end)
       assert {:ok, ^lv_process} = LvProcessQueries.get_by_socket_id(socket_id)
     end
 
@@ -44,22 +40,14 @@ defmodule LiveDebugger.Services.ClientCommunicator.Queries.LvProcessTest do
         module: LiveDebuggerTest.LiveView
       }
 
-      MockAPILiveViewDiscovery
-      |> expect(:debugged_lv_processes, fn ->
-        [lv_process]
-      end)
-
+      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn -> [lv_process] end)
       assert :not_found = LvProcessQueries.get_by_socket_id(socket_id)
     end
 
     test "returns :not_found when no processes exist" do
       socket_id = "phx-any-socket"
 
-      MockAPILiveViewDiscovery
-      |> expect(:debugged_lv_processes, fn ->
-        []
-      end)
-
+      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn -> [] end)
       assert :not_found = LvProcessQueries.get_by_socket_id(socket_id)
     end
 
@@ -78,11 +66,7 @@ defmodule LiveDebugger.Services.ClientCommunicator.Queries.LvProcessTest do
         module: LiveDebuggerTest.OtherLiveView
       }
 
-      MockAPILiveViewDiscovery
-      |> expect(:debugged_lv_processes, fn ->
-        [lv_process_1, lv_process_2]
-      end)
-
+      expect(MockAPILiveViewDiscovery, :debugged_lv_processes, fn -> [lv_process_1, lv_process_2] end)
       assert :not_found = LvProcessQueries.get_by_socket_id(socket_id)
     end
   end
@@ -98,11 +82,7 @@ defmodule LiveDebugger.Services.ClientCommunicator.Queries.LvProcessTest do
       components = Fakes.live_components()
       expected_component = Enum.find(components, fn component -> component.cid == cid end)
 
-      MockAPILiveViewDebug
-      |> expect(:live_components, fn pid when pid == lv_process.pid ->
-        {:ok, components}
-      end)
-
+      expect(MockAPILiveViewDebug, :live_components, fn pid when pid == lv_process.pid -> {:ok, components} end)
       assert {:ok, ^expected_component} = LvProcessQueries.get_live_component(lv_process, cid)
     end
 
@@ -115,11 +95,7 @@ defmodule LiveDebugger.Services.ClientCommunicator.Queries.LvProcessTest do
       cid = 999
       components = Fakes.live_components()
 
-      MockAPILiveViewDebug
-      |> expect(:live_components, fn pid when pid == lv_process.pid ->
-        {:ok, components}
-      end)
-
+      expect(MockAPILiveViewDebug, :live_components, fn pid when pid == lv_process.pid -> {:ok, components} end)
       assert :not_found = LvProcessQueries.get_live_component(lv_process, cid)
     end
 
@@ -131,11 +107,7 @@ defmodule LiveDebugger.Services.ClientCommunicator.Queries.LvProcessTest do
 
       cid = 1
 
-      MockAPILiveViewDebug
-      |> expect(:live_components, fn pid when pid == lv_process.pid ->
-        {:ok, []}
-      end)
-
+      expect(MockAPILiveViewDebug, :live_components, fn pid when pid == lv_process.pid -> {:ok, []} end)
       assert :not_found = LvProcessQueries.get_live_component(lv_process, cid)
     end
   end

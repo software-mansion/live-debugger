@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.LiveComponents.Crash do
+  @moduledoc false
   use DevWeb, :live_component
 
   def render(assigns) do

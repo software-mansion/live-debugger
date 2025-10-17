@@ -16,18 +16,14 @@ defmodule LiveDebugger.App.Controllers.SocketDiscoveryController do
     |> filter_by_socket_id(socket_id)
     |> case do
       [lv_process] ->
-        conn
-        |> Phoenix.Controller.redirect(
-          to: RoutesHelper.debugger_node_inspector(lv_process.pid, node_id)
-        )
+        Phoenix.Controller.redirect(conn, to: RoutesHelper.debugger_node_inspector(lv_process.pid, node_id))
 
       result ->
         Logger.error(
           "Could not find single LiveView process for socket_id: #{socket_id}, node_id: #{node_id}, root_id: #{root_id}, result: #{inspect(result)}"
         )
 
-        conn
-        |> Phoenix.Controller.redirect(to: RoutesHelper.error("multiple_live_views"))
+        Phoenix.Controller.redirect(conn, to: RoutesHelper.error("multiple_live_views"))
     end
   end
 

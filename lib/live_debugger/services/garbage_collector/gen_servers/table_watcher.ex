@@ -5,13 +5,13 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher do
 
   use GenServer
 
-  alias LiveDebugger.Bus
+  import LiveDebugger.Helpers
+
   alias LiveDebugger.App.Events.DebuggerMounted
+  alias LiveDebugger.Bus
+  alias LiveDebugger.Services.ProcessMonitor.Events.DebuggerTerminated
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
-  alias LiveDebugger.Services.ProcessMonitor.Events.DebuggerTerminated
-
-  import LiveDebugger.Helpers
 
   defmodule ProcessInfo do
     @moduledoc """
@@ -40,12 +40,12 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher do
   end
 
   @spec alive_pids() :: MapSet.t(pid())
-  def alive_pids() do
+  def alive_pids do
     GenServer.call(__MODULE__, :alive_pids)
   end
 
   @spec watched_pids() :: MapSet.t(pid())
-  def watched_pids() do
+  def watched_pids do
     GenServer.call(__MODULE__, :watched_pids)
   end
 
@@ -55,7 +55,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher do
       state
       |> Map.filter(fn {_pid, %ProcessInfo{alive?: alive?}} -> alive? end)
       |> Map.keys()
-      |> Enum.into(MapSet.new())
+      |> MapSet.new()
 
     {:reply, pids, state}
   end
@@ -65,7 +65,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher do
       state
       |> Map.filter(fn {_pid, %ProcessInfo{watchers: watchers}} -> not Enum.empty?(watchers) end)
       |> Map.keys()
-      |> Enum.into(MapSet.new())
+      |> MapSet.new()
 
     {:reply, pids, state}
   end
@@ -114,7 +114,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcher do
       new_state
     else
       _ ->
-        state |> Map.update!(pid, &%{&1 | alive?: false})
+        Map.update!(state, pid, &%{&1 | alive?: false})
     end
   end
 

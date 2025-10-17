@@ -1,15 +1,17 @@
 defmodule LiveDebugger.App.Utils.TermDifferTest do
   use ExUnit.Case
 
-  alias LiveDebugger.Fakes
   alias LiveDebugger.App.Utils.TermDiffer
   alias LiveDebugger.App.Utils.TermDiffer.Diff
+  alias LiveDebugger.Fakes
 
   defmodule TestStruct1 do
+    @moduledoc false
     defstruct [:a, :b, :c]
   end
 
   defmodule TestStruct2 do
+    @moduledoc false
     defstruct [:a, :b, :c]
   end
 

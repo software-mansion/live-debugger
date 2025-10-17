@@ -5,11 +5,10 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
 
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.TracesStorage
-  alias LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector
-
   alias LiveDebugger.Bus
-  alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
   alias LiveDebugger.Services.GarbageCollector.Events.TableDeleted
+  alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
+  alias LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector
   alias LiveDebugger.Utils.Memory
 
   @watched_table_size 50 * Memory.megabyte()
@@ -87,8 +86,7 @@ defmodule LiveDebugger.Services.GarbageCollector.Actions.GarbageCollecting do
   end
 
   defp aggregate_results(gc_result) do
-    gc_result
-    |> Enum.reduce(MapSet.new(), fn
+    Enum.reduce(gc_result, MapSet.new(), fn
       {pid, :to_remove}, acc -> MapSet.put(acc, pid)
       _, acc -> acc
     end)

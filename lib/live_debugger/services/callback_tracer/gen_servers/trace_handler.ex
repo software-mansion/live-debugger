@@ -5,13 +5,13 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   use GenServer
 
-  require Logger
-
-  alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
+  alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
   alias LiveDebugger.Services.CallbackTracer.Actions.Trace, as: TraceActions
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
-  alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
   alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
+
+  require Logger
 
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
 
@@ -65,10 +65,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   #########################################################
 
   @impl true
-  def handle_cast(
-        {:new_trace, {_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, _n},
-        state
-      ) do
+  def handle_cast({:new_trace, {_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, _n}, state) do
     Task.start(fn ->
       Process.sleep(100)
       TracingActions.refresh_tracing()
@@ -98,11 +95,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   #########################################################
 
   @impl true
-  def handle_cast(
-        {:new_trace,
-         {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, ts}, n},
-        state
-      ) do
+  def handle_cast({:new_trace, {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, ts}, n}, state) do
     Task.start(fn ->
       with {:ok, trace} <- TraceActions.create_delete_component_trace(n, args, pid, cid, ts),
            :ok <- StateActions.maybe_save_state!(trace),
@@ -131,8 +124,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   #########################################################
 
   @impl true
-  def handle_cast({:new_trace, {_, pid, :call, {module, fun, args}, ts}, n}, state)
-      when fun in @allowed_callbacks do
+  def handle_cast({:new_trace, {_, pid, :call, {module, fun, args}, ts}, n}, state) when fun in @allowed_callbacks do
     with {:ok, trace} <- TraceActions.create_trace(n, module, fun, args, pid, ts),
          {:ok, ref} <- TraceActions.persist_trace(trace),
          :ok <- TraceActions.publish_trace(trace, ref) do
@@ -149,13 +141,14 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   @impl true
   def handle_cast({:new_trace, {_, pid, type, {module, fun, _}, _, return_ts}, _n}, state)
       when fun in @allowed_callbacks and type in [:return_from, :exception_from] do
-    with trace_key <- {pid, module, fun},
-         {ref, trace, ts} <- get_trace_record(state, trace_key),
-         execution_time <- calculate_execution_time(return_ts, ts),
-         params <- %{execution_time: execution_time, type: type},
+    trace_key = {pid, module, fun}
+
+    with {ref, trace, ts} <- get_trace_record(state, trace_key),
+         execution_time = calculate_execution_time(return_ts, ts),
+         params = %{execution_time: execution_time, type: type},
          {:ok, updated_trace} <- TraceActions.update_trace(trace, params),
          {:ok, ref} <- TraceActions.persist_trace(updated_trace, ref),
-         _ <- StateActions.maybe_save_state!(updated_trace),
+         StateActions.maybe_save_state!(updated_trace),
          :ok <- TraceActions.publish_trace(updated_trace, ref) do
       {:noreply, delete_trace_record(state, trace_key)}
     else

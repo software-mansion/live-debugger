@@ -10,11 +10,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.TracingFuse do
   alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Hooks.Flash
-
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
 
   @required_assigns [
     :lv_process,
@@ -91,8 +90,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.TracingFuse do
     end
   end
 
-  defp handle_info(%TraceReturned{}, socket)
-       when socket.private.trace_callback_running? do
+  defp handle_info(%TraceReturned{}, socket) when socket.private.trace_callback_running? do
     socket
     |> put_private(:trace_callback_running?, false)
     |> maybe_disable_tracing_after_update()
@@ -110,10 +108,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.TracingFuse do
 
   defp push_tracing_stopped_flash(socket) do
     limit = @trace_limit_per_period
-    period = @time_period |> Parsers.parse_elapsed_time()
+    period = Parsers.parse_elapsed_time(@time_period)
 
-    socket
-    |> Flash.push_flash(
+    Flash.push_flash(
+      socket,
       :error,
       "Callback tracer stopped: Too many callbacks in a short time. Current limit is #{limit} callbacks in #{period}.",
       socket.assigns.parent_pid
@@ -180,7 +178,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.TracingFuse do
     |> put_private(:fuse, nil)
   end
 
-  defp now() do
+  defp now do
     :os.system_time(:microsecond)
   end
 end

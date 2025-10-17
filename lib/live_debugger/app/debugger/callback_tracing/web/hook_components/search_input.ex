@@ -7,7 +7,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.SearchInp
   use LiveDebugger.App.Web, :hook_component
 
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
-
   alias LiveDebugger.App.Debugger.Components
 
   @required_assigns [:trace_search_phrase]

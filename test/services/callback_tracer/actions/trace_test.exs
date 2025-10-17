@@ -1,14 +1,15 @@
 defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebugger.Services.CallbackTracer.Actions.Trace
-  alias LiveDebugger.Structs.Trace, as: TraceStruct
-  alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
-  alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
+  import Mox
+
   alias LiveDebugger.MockAPITracesStorage
   alias LiveDebugger.MockBus
-  import Mox
+  alias LiveDebugger.Services.CallbackTracer.Actions.Trace
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
+  alias LiveDebugger.Structs.Trace, as: TraceStruct
 
   setup :verify_on_exit!
 
@@ -77,8 +78,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
     test "persists trace with provided table reference" do
       table_ref = make_ref()
 
-      MockAPITracesStorage
-      |> expect(:insert!, fn ^table_ref, _ -> true end)
+      expect(MockAPITracesStorage, :insert!, fn ^table_ref, _ -> true end)
 
       trace = %TraceStruct{
         id: 1,
@@ -98,8 +98,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
       pid = :c.pid(0, 1, 0)
       table_ref = make_ref()
 
-      MockBus
-      |> expect(:broadcast_trace!, fn arg1, ^pid ->
+      expect(MockBus, :broadcast_trace!, fn arg1, ^pid ->
         assert %TraceCalled{
                  trace_id: 1,
                  ets_ref: ^table_ref,
@@ -131,8 +130,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
       pid = :c.pid(0, 1, 0)
       table_ref = make_ref()
 
-      MockBus
-      |> expect(:broadcast_trace!, fn arg1, ^pid ->
+      expect(MockBus, :broadcast_trace!, fn arg1, ^pid ->
         assert %TraceReturned{
                  trace_id: 2,
                  ets_ref: ^table_ref,
@@ -164,8 +162,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
       pid = :c.pid(0, 1, 0)
       table_ref = make_ref()
 
-      MockBus
-      |> expect(:broadcast_trace!, fn arg1, ^pid ->
+      expect(MockBus, :broadcast_trace!, fn arg1, ^pid ->
         assert %TraceErrored{
                  trace_id: 3,
                  ets_ref: ^table_ref,
@@ -198,8 +195,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
       pid = :c.pid(0, 1, 0)
       table_ref = make_ref()
 
-      MockBus
-      |> expect(:broadcast_trace!, fn arg1, ^pid ->
+      expect(MockBus, :broadcast_trace!, fn arg1, ^pid ->
         assert %TraceCalled{
                  trace_id: 4,
                  ets_ref: ^table_ref,

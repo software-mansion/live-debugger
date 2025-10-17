@@ -3,13 +3,12 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
   Actions responsible for saving LiveView process' state.
   """
 
-  alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.LiveViewDebug
-  alias LiveDebugger.Structs.Trace
-  alias LiveDebugger.Structs.LvState
-
+  alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.Structs.LvState
+  alias LiveDebugger.Structs.Trace
 
   @doc """
   It checks if the trace is state changing and if so, it saves the state.

@@ -1,4 +1,5 @@
 defmodule LiveDebuggerDev.LiveComponents.Wrapper do
+  @moduledoc false
   use DevWeb, :live_component
 
   slot(:inner_block)

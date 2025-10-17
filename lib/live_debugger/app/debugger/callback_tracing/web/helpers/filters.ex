@@ -5,9 +5,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
 
   import LiveDebugger.App.Debugger.Structs.TreeNode.Guards
 
-  alias LiveDebugger.Utils.Callbacks, as: CallbacksUtils
-  alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Debugger.Structs.TreeNode
+  alias LiveDebugger.App.Utils.Parsers
+  alias LiveDebugger.Utils.Callbacks, as: CallbacksUtils
 
   @doc """
   Returns a list of formatted callbacks for the given node id.
@@ -36,8 +36,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
     execution_time = %{
       "exec_time_max" => "",
       "exec_time_min" => "",
-      "min_unit" => Parsers.time_units() |> List.first(),
-      "max_unit" => Parsers.time_units() |> List.first()
+      "min_unit" => List.first(Parsers.time_units()),
+      "max_unit" => List.first(Parsers.time_units())
     }
 
     %{functions: callbacks, execution_time: execution_time}
@@ -47,8 +47,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
   Check if form's `params` and given `filters` have any differences in the given `group_name` group.
   """
   @spec group_changed?(params :: map(), filters :: map(), group_name :: atom()) :: boolean()
-  def group_changed?(params, filters, group_name)
-      when is_map(params) and is_map_key(filters, group_name) do
+  def group_changed?(params, filters, group_name) when is_map(params) and is_map_key(filters, group_name) do
     group_filters = Map.fetch!(filters, group_name)
 
     Enum.any?(group_filters, fn {key, value} ->
@@ -162,7 +161,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
     filters
     |> Enum.flat_map(fn {_group, value} -> value end)
     |> Enum.reject(fn {key, _value} -> key in exclude_keys end)
-    |> Enum.into(%{})
+    |> Map.new()
   end
 
   defp parse_callback({function, arity}) do
@@ -177,18 +176,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
     end
   end
 
-  defp validate_execution_time_min_is_less_than_max([], min_time, max_time, _, _)
-       when min_time == "" or max_time == "" do
+  defp validate_execution_time_min_is_less_than_max([], min_time, max_time, _, _) when min_time == "" or max_time == "" do
     []
   end
 
-  defp validate_execution_time_min_is_less_than_max(
-         [],
-         min_time,
-         max_time,
-         min_time_unit,
-         max_time_unit
-       ) do
+  defp validate_execution_time_min_is_less_than_max([], min_time, max_time, min_time_unit, max_time_unit) do
     min_time_value = apply_unit_factor(min_time, min_time_unit)
     max_time_value = apply_unit_factor(max_time, max_time_unit)
 

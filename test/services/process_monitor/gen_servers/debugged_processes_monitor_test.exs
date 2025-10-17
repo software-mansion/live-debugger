@@ -3,15 +3,14 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   import Mox
 
-  alias LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonitor
   alias LiveDebugger.MockAPILiveViewDebug
-
   alias LiveDebugger.MockBus
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
-  alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
+  alias LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonitor
 
   setup :verify_on_exit!
 
@@ -38,9 +37,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
         transport_pid: nil
       }
 
-      MockBus
-      |> deny(:broadcast_event!, 2)
-
+      deny(MockBus, :broadcast_event!, 2)
       assert {:noreply, ^state} = DebuggedProcessesMonitor.handle_info(event, state)
     end
 
@@ -61,11 +58,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
         transport_pid: nil
       }
 
-      MockBus
-      |> expect(:broadcast_event!, fn %LiveComponentCreated{cid: ^cid2, pid: ^pid}, ^pid ->
-        :ok
-      end)
-
+      expect(MockBus, :broadcast_event!, fn %LiveComponentCreated{cid: ^cid2, pid: ^pid}, ^pid -> :ok end)
       assert {:noreply, new_state} = DebuggedProcessesMonitor.handle_info(event, state)
       assert new_state == %{pid => MapSet.new([cid1, cid2])}
     end
@@ -87,12 +80,8 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
         transport_pid: nil
       }
 
-      MockBus
-      |> expect(:broadcast_event!, fn %LiveViewBorn{pid: ^pid2} -> :ok end)
-
-      MockAPILiveViewDebug
-      |> expect(:live_components, fn ^pid2 -> {:ok, [%{cid: 1}, %{cid: 2}]} end)
-
+      expect(MockBus, :broadcast_event!, fn %LiveViewBorn{pid: ^pid2} -> :ok end)
+      expect(MockAPILiveViewDebug, :live_components, fn ^pid2 -> {:ok, [%{cid: 1}, %{cid: 2}]} end)
       assert {:noreply, new_state} = DebuggedProcessesMonitor.handle_info(event, state)
 
       assert new_state == %{
@@ -120,9 +109,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
         transport_pid: nil
       }
 
-      MockBus
-      |> deny(:broadcast_event!, 2)
-
+      deny(MockBus, :broadcast_event!, 2)
       assert {:noreply, ^state} = DebuggedProcessesMonitor.handle_info(event, state)
     end
 
@@ -142,12 +129,8 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
         transport_pid: nil
       }
 
-      MockBus
-      |> expect(:broadcast_event!, fn %LiveViewBorn{pid: ^pid2} -> :ok end)
-
-      MockAPILiveViewDebug
-      |> expect(:live_components, fn ^pid2 -> {:ok, [%{cid: 1}, %{cid: 2}]} end)
-
+      expect(MockBus, :broadcast_event!, fn %LiveViewBorn{pid: ^pid2} -> :ok end)
+      expect(MockAPILiveViewDebug, :live_components, fn ^pid2 -> {:ok, [%{cid: 1}, %{cid: 2}]} end)
       assert {:noreply, new_state} = DebuggedProcessesMonitor.handle_info(event, state)
 
       assert new_state == %{
@@ -176,9 +159,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
         transport_pid: nil
       }
 
-      MockBus
-      |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid, pid: ^pid}, ^pid -> :ok end)
-
+      expect(MockBus, :broadcast_event!, fn %LiveComponentDeleted{cid: ^cid, pid: ^pid}, ^pid -> :ok end)
       assert {:noreply, new_state} = DebuggedProcessesMonitor.handle_info(event, state)
       assert new_state == %{pid => MapSet.new()}
     end
@@ -200,9 +181,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
         transport_pid: nil
       }
 
-      MockBus
-      |> deny(:broadcast_event!, 2)
-
+      deny(MockBus, :broadcast_event!, 2)
       assert {:noreply, ^state} = DebuggedProcessesMonitor.handle_info(event, state)
     end
 
@@ -223,9 +202,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
         transport_pid: nil
       }
 
-      MockBus
-      |> deny(:broadcast_event!, 2)
-
+      deny(MockBus, :broadcast_event!, 2)
       assert {:noreply, ^state} = DebuggedProcessesMonitor.handle_info(event, state)
     end
 
@@ -235,9 +212,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
       event = {:DOWN, 1, :process, pid, :normal}
 
-      MockBus
-      |> expect(:broadcast_event!, fn %LiveViewDied{pid: ^pid} -> :ok end)
-
+      expect(MockBus, :broadcast_event!, fn %LiveViewDied{pid: ^pid} -> :ok end)
       assert {:noreply, new_state} = DebuggedProcessesMonitor.handle_info(event, state)
       assert new_state == %{}
     end

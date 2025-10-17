@@ -83,11 +83,7 @@ defmodule LiveDebugger.Structs.Trace do
   Checks if the trace is a delete live component trace.
   """
   @spec live_component_delete?(t()) :: boolean()
-  def live_component_delete?(%__MODULE__{
-        module: Phoenix.LiveView.Diff,
-        function: :delete_component,
-        arity: 2
-      }) do
+  def live_component_delete?(%__MODULE__{module: Phoenix.LiveView.Diff, function: :delete_component, arity: 2}) do
     true
   end
 

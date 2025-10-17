@@ -12,8 +12,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   feature "user can see traces of executed callbacks and updated assigns", %{
     sessions: [dev_app, debugger]
   } do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -52,8 +51,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     |> click(clear_traces_button())
 
     # Callback traces have proper execution times displayed
-    dev_app
-    |> click(button("slow-increment-button"))
+    click(dev_app, button("slow-increment-button"))
 
     debugger
     |> click(refresh_history_button())
@@ -69,12 +67,8 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
            |> Element.text()
            |> String.match?(~r"^40\d ms$")
 
-    debugger
-    |> click(toggle_tracing_button())
-
-    dev_app
-    |> click(button("very-slow-increment-button"))
-
+    click(debugger, toggle_tracing_button())
+    click(dev_app, button("very-slow-increment-button"))
     Process.sleep(1105)
 
     debugger
@@ -87,8 +81,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   feature "settings button exists and redirects works as expected", %{
     sessions: [dev_app, debugger]
   } do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -106,8 +99,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   feature "return button redirects to active live views dashboard", %{
     sessions: [dev_app, debugger]
   } do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -121,8 +113,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   feature "user can change nodes using node tree and see their assigns and callback traces", %{
     sessions: [dev_app, debugger]
   } do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -137,8 +128,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     |> assert_has(traces(count: 2))
     |> click(toggle_tracing_button())
 
-    dev_app
-    |> click(button("conditional-button"))
+    click(dev_app, button("conditional-button"))
 
     debugger
     |> assert_has(many_assigns_15_node_button())
@@ -152,8 +142,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can filter traces by callback name", %{sessions: [dev_app, debugger]} do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -253,9 +242,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     Process.sleep(405)
 
-    dev_app
-    |> click(button("very-slow-increment-button"))
-
+    click(dev_app, button("very-slow-increment-button"))
     Process.sleep(1105)
 
     debugger
@@ -280,8 +267,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     |> Element.text()
     |> String.match?(~r"^40\d ms$")
 
-    debugger
-    |> click(toggle_tracing_button())
+    click(debugger, toggle_tracing_button())
 
     dev_app
     |> click(button("increment-button"))
@@ -292,7 +278,8 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     debugger
     |> find(traces(count: 2))
     |> Enum.each(fn trace ->
-      find(trace, css("span.text-warning-text"))
+      trace
+      |> find(css("span.text-warning-text"))
       |> Element.text()
       |> String.match?(~r"^40\d ms$")
     end)
@@ -300,8 +287,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can filter traces by names and execution time", %{sessions: [dev_app, debugger]} do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -408,8 +394,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can inspect arguments of executed callback", %{sessions: [dev_app, debugger]} do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -421,8 +406,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     |> click(button("send-button"))
 
     [render3_trace, send_trace, render2_trace, increment_trace, render1_trace, _] =
-      debugger
-      |> find(traces(count: 6))
+      find(debugger, traces(count: 6))
 
     render1_trace
     |> click(css("summary"))
@@ -454,8 +438,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   feature "when user navigates in debugged app, it causes dead view mode", %{
     sessions: [dev_app, debugger]
   } do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -463,18 +446,14 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     |> find(sidebar_basic_info())
     |> assert_text("LiveDebuggerDev.LiveViews.Main")
 
-    dev_app
-    |> click(link("Side"))
-
+    click(dev_app, link("Side"))
     Process.sleep(500)
 
     debugger
     |> find(css("#navbar-connected"))
     |> assert_text("Disconnected")
 
-    debugger
-    |> click(css("button", text: "Continue"))
-
+    click(debugger, css("button", text: "Continue"))
     Process.sleep(1000)
 
     debugger
@@ -484,8 +463,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can copy values", %{sessions: [dev_app, debugger]} do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -516,8 +494,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   @sessions 2
   feature "user can highlight nodes", %{sessions: [dev_app, debugger]} do
-    dev_app
-    |> visit(@dev_app_url)
+    visit(dev_app, @dev_app_url)
 
     debugger
     |> visit("/")
@@ -542,7 +519,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     end
     |> Enum.zip(callback_names)
     |> Enum.each(fn {trace, callback_name} ->
-      trace |> assert_text(callback_name)
+      assert_text(trace, callback_name)
     end)
 
     session
@@ -563,36 +540,36 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   defp traces(opts), do: css("#traces-list-stream details", opts)
 
-  defp filters_button(), do: css("button[phx-click=\"open-filters\"]")
+  defp filters_button, do: css("button[phx-click=\"open-filters\"]")
 
-  defp reset_button(), do: css("button[phx-click=\"reset\"]")
+  defp reset_button, do: css("button[phx-click=\"reset\"]")
 
-  defp reset_filters_button(), do: css("button[phx-click=\"reset-filters\"]")
+  defp reset_filters_button, do: css("button[phx-click=\"reset-filters\"]")
 
-  defp name_component_2_node_button() do
+  defp name_component_2_node_button do
     css("#button-tree-node-2-components-tree")
   end
 
-  defp conditional_component_5_node_button() do
+  defp conditional_component_5_node_button do
     css("#button-tree-node-5-components-tree")
   end
 
-  defp conditional_component_6_node_button() do
+  defp conditional_component_6_node_button do
     css("#button-tree-node-6-components-tree")
   end
 
-  defp many_assigns_15_node_button() do
+  defp many_assigns_15_node_button do
     css("#button-tree-node-15-components-tree")
   end
 
   defp reset_group_button(group) do
-    css("button[phx-click=\"reset-group\"][phx-value-group=\"#{group}\"]")
+    css(~s(button[phx-click="reset-group"][phx-value-group="#{group}"]))
   end
 
   # The toggle_switch component uses a hidden checkbox input with class "sr-only" (screen reader only).
   # Wallaby cannot click on hidden elements, so we need to click on the visible label element
   # that contains the checkbox instead of the checkbox itself.
-  defp highlight_switch() do
+  defp highlight_switch do
     xpath("//label[.//input[@id='highlight-switch']]")
   end
 end

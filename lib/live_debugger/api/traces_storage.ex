@@ -4,8 +4,8 @@ defmodule LiveDebugger.API.TracesStorage do
   It uses Erlang's ETS (Erlang Term Storage).
   """
 
-  alias LiveDebugger.Structs.Trace
   alias LiveDebugger.CommonTypes
+  alias LiveDebugger.Structs.Trace
 
   @typedoc """
   Pid is used to store mapping to table references.
@@ -36,7 +36,7 @@ defmodule LiveDebugger.API.TracesStorage do
   It should be called when application starts.
   """
   @spec init() :: :ok
-  def init(), do: impl().init()
+  def init, do: impl().init()
 
   @doc """
   Inserts a new trace into the storage.
@@ -65,8 +65,7 @@ defmodule LiveDebugger.API.TracesStorage do
     * `trace_id` - Id of a trace stored in a table.
   """
   @spec get_by_id!(table_identifier(), trace_id :: integer()) :: Trace.t() | nil
-  def get_by_id!(table_id, trace_id)
-      when is_table_identifier(table_id) and is_integer(trace_id) do
+  def get_by_id!(table_id, trace_id) when is_table_identifier(table_id) and is_integer(trace_id) do
     impl().get_by_id!(table_id, trace_id)
   end
 
@@ -130,7 +129,7 @@ defmodule LiveDebugger.API.TracesStorage do
   Returns all table references
   """
   @spec get_all_tables() :: [{ets_table_id(), reference()}]
-  def get_all_tables() do
+  def get_all_tables do
     impl().get_all_tables()
   end
 
@@ -142,7 +141,7 @@ defmodule LiveDebugger.API.TracesStorage do
     impl().table_size(table_id)
   end
 
-  defp impl() do
+  defp impl do
     Application.get_env(
       :live_debugger,
       :api_traces_storage,
@@ -154,10 +153,10 @@ defmodule LiveDebugger.API.TracesStorage do
     @moduledoc false
     @behaviour LiveDebugger.API.TracesStorage
 
+    alias LiveDebugger.API.TracesStorage
     alias LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector
     alias LiveDebugger.Utils.Memory
     alias Phoenix.LiveComponent.CID
-    alias LiveDebugger.API.TracesStorage
 
     @default_limit 100
     @traces_table_name :lvdbg_traces
@@ -169,7 +168,7 @@ defmodule LiveDebugger.API.TracesStorage do
     @type table_identifier() :: TracesStorage.table_identifier()
 
     @impl true
-    def init() do
+    def init do
       :ets.new(@processes_table_name, [:named_table, :public, :ordered_set])
 
       :ok
@@ -184,8 +183,7 @@ defmodule LiveDebugger.API.TracesStorage do
 
     @impl true
     def insert!(table_ref, %Trace{id: id} = trace) do
-      table_ref
-      |> :ets.insert({id, trace})
+      :ets.insert(table_ref, {id, trace})
     end
 
     @impl true
@@ -285,7 +283,7 @@ defmodule LiveDebugger.API.TracesStorage do
     end
 
     @impl true
-    def get_all_tables() do
+    def get_all_tables do
       :ets.tab2list(@processes_table_name)
     end
 
@@ -383,7 +381,7 @@ defmodule LiveDebugger.API.TracesStorage do
     defp limit_response({traces, :searched_without_limit}, limit) do
       if length(traces) > limit do
         traces = Enum.slice(traces, 0, limit)
-        last_id = List.last(traces) |> Map.get(:id)
+        last_id = traces |> List.last() |> Map.get(:id)
         {traces, {:last_id, last_id}}
       else
         {traces, :end_of_table}
@@ -441,7 +439,8 @@ defmodule LiveDebugger.API.TracesStorage do
 
     defp get_match_spec_from_opts(opts) do
       functions =
-        Keyword.get(opts, :functions, [])
+        opts
+        |> Keyword.get(:functions, [])
         |> Enum.map(&String.split(&1, "/"))
         |> Enum.map(fn [function, arity] ->
           {String.to_existing_atom(function), String.to_integer(arity)}
@@ -462,15 +461,14 @@ defmodule LiveDebugger.API.TracesStorage do
 
     defp match_spec(%CID{} = node_id, functions, execution_times) do
       [
-        {{:_, %{function: :"$1", execution_time: :"$2", arity: :"$3", cid: node_id}},
-         to_spec(functions, execution_times), [:"$_"]}
+        {{:_, %{function: :"$1", execution_time: :"$2", arity: :"$3", cid: node_id}}, to_spec(functions, execution_times),
+         [:"$_"]}
       ]
     end
 
     defp match_spec(nil, functions, execution_times) do
       [
-        {{:_, %{function: :"$1", execution_time: :"$2", arity: :"$3"}},
-         to_spec(functions, execution_times), [:"$_"]}
+        {{:_, %{function: :"$1", execution_time: :"$2", arity: :"$3"}}, to_spec(functions, execution_times), [:"$_"]}
       ]
     end
 
@@ -480,8 +478,7 @@ defmodule LiveDebugger.API.TracesStorage do
 
     defp to_spec(functions, execution_times) do
       [
-        {:andalso,
-         {:andalso, functions_to_spec(functions), execution_times_to_spec(execution_times)},
+        {:andalso, {:andalso, functions_to_spec(functions), execution_times_to_spec(execution_times)},
          {:"/=", :"$2", nil}}
       ]
     end

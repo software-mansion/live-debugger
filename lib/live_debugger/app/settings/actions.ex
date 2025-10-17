@@ -4,9 +4,8 @@ defmodule LiveDebugger.App.Settings.Actions do
   """
 
   alias LiveDebugger.API.SettingsStorage
-
-  alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserChangedSettings
+  alias LiveDebugger.Bus
 
   @spec update_settings!(
           settings :: %{atom() => any()},
