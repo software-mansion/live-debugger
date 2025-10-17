@@ -110,8 +110,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
         open?: true,
         children: [],
         content: [%DisplayElement{text: "{}", color: "text-code-2"}],
-        expanded_before: [],
-        expanded_after: []
+        expanded_before: [%DisplayElement{text: "{", color: "text-code-2"}],
+        expanded_after: [%DisplayElement{text: "}", color: "text-code-2"}]
       }
 
       assert TermParser.term_to_display_tree(term) == expected
@@ -179,8 +179,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
         open?: true,
         children: [],
         content: [%DisplayElement{text: "[]", color: "text-code-2"}],
-        expanded_before: [],
-        expanded_after: []
+        expanded_before: [%DisplayElement{text: "[", color: "text-code-2"}],
+        expanded_after: [%DisplayElement{text: "]", color: "text-code-2"}]
       }
 
       assert TermParser.term_to_display_tree(term) == expected
@@ -229,8 +229,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
         open?: true,
         children: [],
         content: [%DisplayElement{text: "%{}", color: "text-code-2"}],
-        expanded_before: [],
-        expanded_after: []
+        expanded_before: [%DisplayElement{text: "%{", color: "text-code-2"}],
+        expanded_after: [%DisplayElement{text: "}", color: "text-code-2"}]
       }
 
       assert TermParser.term_to_display_tree(term) == expected

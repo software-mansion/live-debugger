@@ -251,7 +251,11 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp to_node({}) do
-    TermNode.new(:tuple, [DisplayElement.black("{}")])
+    TermNode.new(:tuple, [DisplayElement.black("{}")],
+      open?: false,
+      expanded_before: [DisplayElement.black("{")],
+      expanded_after: [DisplayElement.black("}")]
+    )
   end
 
   defp to_node(tuple) when is_tuple(tuple) do
@@ -265,7 +269,11 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp to_node([]) do
-    TermNode.new(:list, [DisplayElement.black("[]")])
+    TermNode.new(:list, [DisplayElement.black("[]")],
+      open?: false,
+      expanded_before: [DisplayElement.black("[")],
+      expanded_after: [DisplayElement.black("]")]
+    )
   end
 
   defp to_node(list) when is_list(list) do
@@ -319,7 +327,10 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp to_node(%{} = map) when map_size(map) == 0 do
-    TermNode.new(:map, [DisplayElement.black("%{}")])
+    TermNode.new(:map, [DisplayElement.black("%{}")],
+      expanded_before: [DisplayElement.black("%{")],
+      expanded_after: [DisplayElement.black("}")]
+    )
   end
 
   defp to_node(map) when is_map(map) do
