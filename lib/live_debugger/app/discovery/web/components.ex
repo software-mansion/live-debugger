@@ -33,6 +33,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   attr(:title, :string, required: true)
   attr(:refresh_event, :string, required: true)
   attr(:disabled?, :boolean, default: false)
+  attr(:target, :any, default: nil)
   slot(:inner_block)
 
   def header(assigns) do
@@ -42,7 +43,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
       <div class="flex-1">
         <%= render_slot(@inner_block) %>
       </div>
-      <.button phx-click={@refresh_event} disabled={@disabled?}>
+      <.button phx-click={@refresh_event} disabled={@disabled?} phx-target={@target}>
         <div class="flex items-center gap-2">
           <.icon name="icon-refresh" class="w-4 h-4" />
           <p>Refresh</p>
@@ -72,6 +73,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   attr(:grouped_lv_processes, :map, default: %{})
   attr(:empty_info, :string, required: true)
   attr(:remove_event, :string, default: nil)
+  attr(:target, :any, default: nil)
 
   def liveview_sessions(assigns) do
     ~H"""
@@ -88,6 +90,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
           transport_pid={transport_pid}
           grouped_lv_processes={grouped_lv_processes}
           remove_event={@remove_event}
+          target={@target}
         />
       <% end %>
     </div>
@@ -97,6 +100,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   attr(:transport_pid, :any, required: true)
   attr(:grouped_lv_processes, :list, required: true)
   attr(:remove_event, :string, default: nil)
+  attr(:target, :any, default: nil)
 
   def tab_group(assigns) do
     ~H"""
@@ -114,13 +118,18 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
                 :if={root_lv_process}
                 lv_process={root_lv_process}
                 remove_event={@remove_event}
+                target={@target}
               />
             </div>
             <.list elements={lv_processes} item_class="group" class="pr-0">
               <:item :let={lv_process}>
                 <div class="flex items-center w-full">
                   <.nested_indent />
-                  <.list_element lv_process={lv_process} remove_event={@remove_event} />
+                  <.list_element
+                    lv_process={lv_process}
+                    remove_event={@remove_event}
+                    target={@target}
+                  />
                 </div>
               </:item>
             </.list>
@@ -144,6 +153,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
 
   attr(:lv_process, LvProcess, required: true)
   attr(:remove_event, :string, default: nil)
+  attr(:target, :any, default: nil)
 
   defp list_element(assigns) do
     ~H"""
@@ -175,6 +185,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
         <.button
           phx-click={@remove_event}
           phx-value-pid={@lv_process.pid |> Parsers.pid_to_string()}
+          phx-target={@target}
           variant="secondary"
           size="sm"
         >
