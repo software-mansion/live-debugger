@@ -65,6 +65,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> assign(:lv_process, lv_process)
     |> assign(:node_id, node_id)
     |> assign(:assigns_search_phrase, "")
+    |> assign(:node_assigns, AsyncResult.loading())
     |> assign_async_node_assigns()
     |> AssignsSearch.init()
     |> ok()
@@ -108,12 +109,31 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   def handle_info(_, socket), do: {:noreply, socket}
 
+  @impl true
+  def handle_async(:node_assigns, {:ok, node_assigns}, socket) do
+    socket
+    |> assign(:node_assigns, AsyncResult.ok(node_assigns))
+    |> noreply()
+  end
+
+  def handle_async(:node_assigns, {:exit, reason}, socket) do
+    socket
+    |> assign(:node_assigns, AsyncResult.failed(%AsyncResult{}, reason))
+    |> noreply()
+  end
+
   defp assign_async_node_assigns(
          %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket
        )
        when not is_nil(node_id) do
-    assign_async(socket, :node_assigns, fn ->
-      NodeStateQueries.fetch_node_assigns(pid, node_id)
+    start_async(socket, :node_assigns, fn ->
+      case NodeStateQueries.fetch_node_assigns(pid, node_id) do
+        {:ok, %{node_assigns: node_assigns}} ->
+          node_assigns
+
+        {:error, reason} ->
+          raise reason
+      end
     end)
   end
 
