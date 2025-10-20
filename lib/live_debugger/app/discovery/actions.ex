@@ -25,15 +25,19 @@ defmodule LiveDebugger.App.Discovery.Actions do
     Bus.broadcast_event!(%TableTrimmed{})
   end
 
-  @spec update_dead_liveviews_setting!(boolean()) :: {:ok, boolean()} | {:error, term()}
-  def update_dead_liveviews_setting!(new_value) when is_boolean(new_value) do
+  @spec update_dead_liveviews_setting(boolean()) :: {:ok, boolean()} | {:error, term()}
+  def update_dead_liveviews_setting(new_value) when is_boolean(new_value) do
     case SettingsStorage.save(:dead_liveviews, new_value) do
       :ok ->
-        Bus.broadcast_event!(%UserChangedSettings{
-          key: :dead_liveviews,
-          value: new_value,
-          from: self()
-        })
+        try do
+          Bus.broadcast_event!(%UserChangedSettings{
+            key: :dead_liveviews,
+            value: new_value,
+            from: self()
+          })
+        rescue
+          _ -> :ok
+        end
 
         {:ok, new_value}
 

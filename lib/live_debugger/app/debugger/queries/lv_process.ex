@@ -23,7 +23,8 @@ defmodule LiveDebugger.App.Debugger.Queries.LvProcess do
         nil
 
       {:ok, socket} ->
-        LvProcess.new(pid, socket)
+        pid
+        |> LvProcess.new(socket)
         |> LvProcess.set_alive(Process.alive?(pid))
     end
   end

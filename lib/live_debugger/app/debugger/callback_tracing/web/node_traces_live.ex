@@ -168,7 +168,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
       ) do
     socket
     |> assign(:lv_process, socket.assigns.lv_process |> LvProcess.set_alive(false))
-    |> Hooks.TracingFuse.clear_tracing()
+    |> Hooks.TracingFuse.disable_tracing()
     |> noreply()
   end
 

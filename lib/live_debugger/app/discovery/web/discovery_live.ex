@@ -106,7 +106,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   def handle_event("toggle-dead-liveviews", _params, socket) do
     new_value = !socket.assigns.dead_liveviews?
 
-    DiscoveryActions.update_dead_liveviews_setting!(new_value)
+    DiscoveryActions.update_dead_liveviews_setting(new_value)
     |> case do
       {:ok, true} ->
         socket

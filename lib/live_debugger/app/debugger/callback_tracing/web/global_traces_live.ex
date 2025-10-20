@@ -27,6 +27,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
 
   alias LiveDebugger.Structs.LvProcess
 
+  alias LiveDebugger.Bus
+  alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
+
   @live_stream_limit 128
   @page_size 25
 
@@ -59,6 +62,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
         %{"parent_pid" => parent_pid, "lv_process" => lv_process, "id" => id},
         socket
       ) do
+    if connected?(socket) do
+      Bus.receive_events!(parent_pid)
+    end
+
     socket
     |> assign(
       id: id,
@@ -177,5 +184,16 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
       tracing_started?={@tracing_started?}
     />
     """
+  end
+
+  @impl true
+  def handle_info(
+        %DeadViewModeEntered{debugger_pid: pid},
+        %{assigns: %{parent_pid: pid}} = socket
+      ) do
+    socket
+    |> assign(:lv_process, socket.assigns.lv_process |> LvProcess.set_alive(false))
+    |> Hooks.TracingFuse.disable_tracing()
+    |> noreply()
   end
 end
