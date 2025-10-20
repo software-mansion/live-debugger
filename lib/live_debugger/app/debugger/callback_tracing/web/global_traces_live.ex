@@ -196,4 +196,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
     |> Hooks.TracingFuse.disable_tracing()
     |> noreply()
   end
+
+  def handle_info(_, socket), do: {:noreply, socket}
 end
