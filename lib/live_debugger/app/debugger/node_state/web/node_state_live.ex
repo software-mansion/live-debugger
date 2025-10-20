@@ -131,8 +131,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   end
 
   def handle_async(ev, {:ok, assigns_sizes}, socket) when ev in @assigns_size_events do
-    dbg(ev)
-
     socket
     |> assign(:assigns_sizes, AsyncResult.ok(assigns_sizes))
     |> noreply()
@@ -165,6 +163,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   # If one async task is already running, we start the second async task
   # If both async tasks are running, we start the second async task
+  # It stops already running second async tasks and start a new one
   defp assign_size_async(%{private: %{live_async: %{assigns_size_1: _}}} = socket, assigns) do
     start_async(socket, :assigns_size_2, fn -> calculate_assigns_size(assigns) end)
   end
@@ -175,7 +174,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   end
 
   defp calculate_assigns_size(assigns) do
-    Process.sleep(5000)
     %{heap_size: assigns_heap_size(assigns), serialized_size: assigns_serialized_size(assigns)}
   end
 
