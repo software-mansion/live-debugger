@@ -65,6 +65,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> assign(:node_id, node_id)
     |> assign(:assigns_search_phrase, "")
     |> Hooks.NodeAssigns.init()
+    |> Hooks.NodeStreams.init()
     |> Hooks.TermNodeToggle.init()
     |> HookComponents.AssignsSearch.init()
     |> ok()
@@ -92,14 +93,14 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
         />
       </.async_result>
 
-      <.async_result :let={streams_state} assign={@streams_state}>
+      <.async_result :let={term_node} assign={@streams_state}>
         <:loading>
           <NodeStateComponents.loading />
         </:loading>
         <:failed>
           <NodeStateComponents.failed />
         </:failed>
-        <NodeStateComponents.streams_section streams_state={streams_state} />
+        <NodeStateComponents.streams_section term_node={term_node} />
       </.async_result>
     </div>
     """
@@ -121,7 +122,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   def handle_info(%StreamUpdated{streams: streams}, socket) do
     socket
-    |> assign_async_node_streams(streams)
+    |> Hooks.NodeAssigns.assign_async_node_streams(streams)
     |> noreply()
   end
 

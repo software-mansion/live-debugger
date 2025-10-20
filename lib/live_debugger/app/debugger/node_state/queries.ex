@@ -51,15 +51,19 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
         functions: ["render/1"]
       ]
 
+    # dbg(TracesStorage.get!(pid, opts))
+
     case TracesStorage.get!(pid, opts) do
       nil ->
         {:ok, %{streams_state: []}}
 
       :end_of_table ->
-        {:ok, %{streams_state: {}}}
+        {:ok, %{streams_state: []}}
 
-      state ->
-        StreamUtils.extract_streams_state_from_render_traces(state)
+      stream_updates ->
+        StreamUtils.calculate_initial_diff(stream_updates)
+        # to musi zwracac %Diff{}
+        # StreamUtils.extract_streams_state_from_render_traces(stream_updates)
     end
   end
 
@@ -68,6 +72,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
         result: current_stream_state
       }) do
     StreamUtils.apply_stream_updates([stream_updates], current_stream_state)
+    # StreamUtils.calculate_diff(stream_updates,current_stream_state)
   end
 
   def update_node_streams(pid, _, _) do
