@@ -50,7 +50,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.LiveComponents.AssignsSize do
           <span><%= assigns_sizes.serialized_size %> serialized</span>
         </.tooltip>
         <:loading>
-          <.spinner size="sm" />
+          <span class="animate-pulse"> loading... </span>
         </:loading>
         <:failed>
           <span class="text-red-700"> error </span>
