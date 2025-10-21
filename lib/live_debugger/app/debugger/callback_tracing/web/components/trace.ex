@@ -70,11 +70,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
             </p>
             <.copy_button id={"#{@id}-arg-#{index}"} value={TermParser.term_to_copy_string(args)} />
           </div>
-          <ElixirDisplay.term
-            id={@id <> "-#{index}"}
-            node={TermParser.term_to_display_tree(args)}
-            level={1}
-          />
+          <ElixirDisplay.term id={@id <> "-#{index}"} node={TermParser.term_to_display_tree(args)} />
         </div>
       <% end %>
     </div>

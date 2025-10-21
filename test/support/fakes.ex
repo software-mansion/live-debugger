@@ -3,6 +3,51 @@ defmodule LiveDebugger.Fakes do
   Fake complex structures
   """
 
+  def display_element(opts \\ []) do
+    %LiveDebugger.App.Utils.TermNode.DisplayElement{
+      text: Keyword.get(opts, :text, "text"),
+      color: Keyword.get(opts, :color, "text-code-1")
+    }
+  end
+
+  def term_node(opts \\ []) do
+    %LiveDebugger.App.Utils.TermNode{
+      id: Keyword.get(opts, :id, "indexed"),
+      kind: Keyword.get(opts, :kind, :atom),
+      content: Keyword.get(opts, :content, [display_element()]),
+      children: Keyword.get(opts, :children, []),
+      expanded_before: Keyword.get(opts, :expanded_before, []),
+      expanded_after: Keyword.get(opts, :expanded_after, []),
+      open?: Keyword.get(opts, :open?, false)
+    }
+  end
+
+  def term_diff_primitive(opts \\ []) do
+    old_value = Keyword.get(opts, :old_value, 1)
+    new_value = Keyword.get(opts, :new_value, 2)
+
+    %LiveDebugger.App.Utils.TermDiffer.Diff{
+      type: :primitive,
+      ins: %{live_debugger_primitive_key: new_value},
+      del: %{live_debugger_primitive_key: old_value},
+      diff: %{}
+    }
+  end
+
+  def term_diff(opts \\ []) do
+    type = Keyword.get(opts, :type, :equal)
+    ins = Keyword.get(opts, :ins, %{})
+    del = Keyword.get(opts, :del, %{})
+    diff = Keyword.get(opts, :diff, %{})
+
+    %LiveDebugger.App.Utils.TermDiffer.Diff{
+      type: type,
+      ins: ins,
+      del: del,
+      diff: diff
+    }
+  end
+
   def tree_node_live_view(opts \\ []) do
     default = [
       id: :c.pid(0, 123, 0),

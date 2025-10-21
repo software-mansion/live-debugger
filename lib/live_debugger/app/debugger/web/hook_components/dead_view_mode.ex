@@ -114,10 +114,10 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
 
   defp handle_info(
          %SuccessorFound{new_lv_process: new_lv_process, old_socket_id: old_socket_id},
-         %{private: %{old_socket_id: old_socket_id}} = socket
+         %{private: %{old_socket_id: old_socket_id}, assigns: %{live_action: action}} = socket
        ) do
     socket
-    |> redirect(to: RoutesHelper.debugger_node_inspector(new_lv_process.pid))
+    |> redirect(to: RoutesHelper.debugger(new_lv_process.pid, action))
     |> halt()
   end
 
