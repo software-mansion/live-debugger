@@ -41,7 +41,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.SearchInp
     socket
     |> assign(trace_search_phrase: search_phrase)
     |> Hooks.ExistingTraces.assign_async_existing_traces()
-    |> push_event("collapse-all-traces", %{})
     |> halt()
   end
 

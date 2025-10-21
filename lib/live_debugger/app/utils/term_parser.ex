@@ -377,10 +377,20 @@ defmodule LiveDebugger.App.Utils.TermParser do
     Enum.map(items, &to_key_value_node/1)
   end
 
-  defp default_open_settings(term_node) do
+  def default_open_settings(term_node) do
     term_node
+    |> close_all()
     |> open_first_element()
     |> open_small_lists_and_tuples()
+  end
+
+  defp close_all(%TermNode{children: children} = term_node) do
+    children =
+      Enum.map(children, fn {key, child} ->
+        {key, close_all(child)}
+      end)
+
+    %TermNode{term_node | open?: false, children: children}
   end
 
   defp open_first_element(%TermNode{} = term_node) do

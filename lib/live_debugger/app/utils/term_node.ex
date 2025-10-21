@@ -11,6 +11,7 @@ defmodule LiveDebugger.App.Utils.TermNode do
   - `expanded_before`: Display elements shown before the node's children when expanded.
   - `expanded_after`: Display elements shown after the node's children when expanded.
   """
+  alias LiveDebugger.App.Utils.TermParser
 
   defmodule DisplayElement do
     @moduledoc false
@@ -138,5 +139,46 @@ defmodule LiveDebugger.App.Utils.TermNode do
       _ ->
         {:error, :child_not_found}
     end
+  end
+
+  def open_with_search_phrase(%__MODULE__{} = term_node, "") do
+    term_node
+    |> TermParser.default_open_settings()
+  end
+
+  def open_with_search_phrase(%__MODULE__{} = term_node, search_phrase) do
+    text = extract_text(term_node)
+
+    if String.contains?(text, search_phrase) do
+      updated_children =
+        term_node.children
+        |> Enum.map(fn {key, child} ->
+          {key, open_with_search_phrase(child, search_phrase)}
+        end)
+
+      %__MODULE__{term_node | open?: true, children: updated_children}
+    else
+      term_node
+      # |> TermParser.default_open_settings()
+    end
+  end
+
+  def extract_text(%__MODULE__{} = term_node) do
+    term_node
+    |> get_display_elements()
+    |> Enum.map(& &1.text)
+    |> Enum.join("")
+  end
+
+  def get_display_elements(%__MODULE__{children: [], content: content}) do
+    content
+  end
+
+  def get_display_elements(%__MODULE__{} = term_node) do
+    children_display_elements =
+      term_node.children
+      |> Enum.flat_map(fn {_, child} -> get_display_elements(child) end)
+
+    term_node.expanded_before ++ children_display_elements ++ term_node.expanded_after
   end
 end
