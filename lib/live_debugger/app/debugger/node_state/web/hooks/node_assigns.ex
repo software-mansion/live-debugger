@@ -1,6 +1,6 @@
 defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   @moduledoc """
-  This hook is responsible for fetching assigns of specific node.
+  This hook is responsible for fetching assigns of specific node and calculating their size.
   """
 
   use LiveDebugger.App.Web, :hook
