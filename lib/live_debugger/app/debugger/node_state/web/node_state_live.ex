@@ -14,9 +14,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
-  alias LiveDebugger.Utils.Memory
 
-  @assigns_size_events [:assigns_size_1, :assigns_size_2]
+  # @assigns_size_events [:assigns_size_1, :assigns_size_2]
 
   @doc """
   Renders the `NodeStateLive` as a nested LiveView component.
@@ -66,10 +65,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> assign(:lv_process, lv_process)
     |> assign(:node_id, node_id)
     |> assign(:assigns_search_phrase, "")
-    |> assign(:node_assigns, AsyncResult.loading())
-    |> assign(:assigns_sizes, AsyncResult.loading())
-    |> assign_async_node_assigns()
-    |> AssignsSearch.init()
     |> Hooks.NodeAssigns.init()
     |> Hooks.TermNodeToggle.init()
     |> HookComponents.AssignsSearch.init()
@@ -93,7 +88,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
           copy_string={copy_string}
           assigns={node_assigns}
           fullscreen_id="assigns-display-fullscreen"
-          assigns_sizes={@assigns_sizes}
+          assigns_sizes={AsyncResult.ok(%{heap_size: "100 bytes", serialized_size: "100 bytes"})}
           assigns_search_phrase={@assigns_search_phrase}
         />
       </.async_result>
@@ -105,9 +100,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   def handle_info(%NodeIdParamChanged{node_id: node_id}, socket) do
     socket
     |> assign(:node_id, node_id)
-    |> assign(:assigns_sizes, AsyncResult.loading())
-    |> assign(:node_assigns, AsyncResult.loading())
-    |> assign_async_node_assigns()
     |> Hooks.NodeAssigns.assign_async_node_assigns(reset: true)
     |> noreply()
   end
@@ -120,72 +112,72 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   def handle_info(_, socket), do: {:noreply, socket}
 
-  @impl true
-  def handle_async(:node_assigns, {:ok, node_assigns}, socket) do
-    socket
-    |> assign(:node_assigns, AsyncResult.ok(node_assigns))
-    |> assign_size_async(node_assigns)
-    |> noreply()
-  end
+  # @impl true
+  # def handle_async(:node_assigns, {:ok, node_assigns}, socket) do
+  #   socket
+  #   |> assign(:node_assigns, AsyncResult.ok(node_assigns))
+  #   |> assign_size_async(node_assigns)
+  #   |> noreply()
+  # end
 
-  def handle_async(:node_assigns, {:exit, reason}, socket) do
-    socket
-    |> assign(:node_assigns, AsyncResult.failed(%AsyncResult{}, reason))
-    |> noreply()
-  end
+  # def handle_async(:node_assigns, {:exit, reason}, socket) do
+  #   socket
+  #   |> assign(:node_assigns, AsyncResult.failed(%AsyncResult{}, reason))
+  #   |> noreply()
+  # end
 
-  def handle_async(ev, {:ok, assigns_sizes}, socket) when ev in @assigns_size_events do
-    socket
-    |> assign(:assigns_sizes, AsyncResult.ok(assigns_sizes))
-    |> noreply()
-  end
+  # def handle_async(ev, {:ok, assigns_sizes}, socket) when ev in @assigns_size_events do
+  #   socket
+  #   |> assign(:assigns_sizes, AsyncResult.ok(assigns_sizes))
+  #   |> noreply()
+  # end
 
-  def handle_async(ev, {:exit, {reason, _}}, socket) when ev in @assigns_size_events do
-    socket
-    |> assign(:assigns_sizes, AsyncResult.failed(%AsyncResult{}, reason))
-    |> noreply()
-  end
+  # def handle_async(ev, {:exit, {reason, _}}, socket) when ev in @assigns_size_events do
+  #   socket
+  #   |> assign(:assigns_sizes, AsyncResult.failed(%AsyncResult{}, reason))
+  #   |> noreply()
+  # end
 
-  defp assign_async_node_assigns(
-         %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket
-       )
-       when not is_nil(node_id) do
-    start_async(socket, :node_assigns, fn ->
-      case NodeStateQueries.fetch_node_assigns(pid, node_id) do
-        {:ok, %{node_assigns: node_assigns}} ->
-          node_assigns
+  # defp assign_async_node_assigns(
+  #        %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket
+  #      )
+  #      when not is_nil(node_id) do
+  #   start_async(socket, :node_assigns, fn ->
+  #     case NodeStateQueries.fetch_node_assigns(pid, node_id) do
+  #       {:ok, %{node_assigns: node_assigns}} ->
+  #         node_assigns
 
-        {:error, reason} ->
-          raise reason
-      end
-    end)
-  end
+  #       {:error, reason} ->
+  #         raise reason
+  #     end
+  #   end)
+  # end
 
-  defp assign_async_node_assigns(socket) do
-    assign(socket, :node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
-  end
+  # defp assign_async_node_assigns(socket) do
+  #   assign(socket, :node, AsyncResult.failed(%AsyncResult{}, :no_node_id))
+  # end
 
-  # If one async task is already running, we start the second async task
-  # If both async tasks are running, we start the second async task
-  # It stops already running second async tasks and start a new one
-  defp assign_size_async(%{private: %{live_async: %{assigns_size_1: _}}} = socket, assigns) do
-    start_async(socket, :assigns_size_2, fn -> calculate_assigns_size(assigns) end)
-  end
+  # # If one async task is already running, we start the second async task
+  # # If both async tasks are running, we start the second async task
+  # # It stops already running second async tasks and start a new one
+  # defp assign_size_async(%{private: %{live_async: %{assigns_size_1: _}}} = socket, assigns) do
+  #   start_async(socket, :assigns_size_2, fn -> calculate_assigns_size(assigns) end)
+  # end
 
-  # If assigns are not calculated, we start the first async task
-  defp assign_size_async(socket, assigns) do
-    start_async(socket, :assigns_size_1, fn -> calculate_assigns_size(assigns) end)
-  end
+  # # If assigns are not calculated, we start the first async task
+  # defp assign_size_async(socket, assigns) do
+  #   start_async(socket, :assigns_size_1, fn -> calculate_assigns_size(assigns) end)
+  # end
 
-  defp calculate_assigns_size(assigns) do
-    %{heap_size: assigns_heap_size(assigns), serialized_size: assigns_serialized_size(assigns)}
-  end
+  # defp calculate_assigns_size(assigns) do
+  #   %{heap_size: assigns_heap_size(assigns), serialized_size: assigns_serialized_size(assigns)}
+  # end
 
-  defp assigns_heap_size(assigns) do
-    assigns |> Memory.term_heap_size() |> Memory.bytes_to_pretty_string()
-  end
+  # defp assigns_heap_size(assigns) do
+  #   assigns |> Memory.term_heap_size() |> Memory.bytes_to_pretty_string()
+  # end
 
-  defp assigns_serialized_size(assigns) do
-    assigns |> Memory.serialized_term_size() |> Memory.bytes_to_pretty_string()
-  end
+  # defp assigns_serialized_size(assigns) do
+  #   assigns |> Memory.serialized_term_size() |> Memory.bytes_to_pretty_string()
+  # end
 end
