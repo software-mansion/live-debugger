@@ -158,7 +158,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   end
 
   defp calculate_assigns_size(assigns) do
-    Process.sleep(2000)
     %{heap_size: assigns_heap_size(assigns), serialized_size: assigns_serialized_size(assigns)}
   end
 

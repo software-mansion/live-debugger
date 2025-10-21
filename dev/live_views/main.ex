@@ -3,7 +3,10 @@ defmodule LiveDebuggerDev.LiveViews.Main do
 
   alias LiveDebuggerDev.LiveComponents
 
-  @long_text "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+  @long_text """
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+  """
 
   def mount(_params, _session, socket) do
     socket =
