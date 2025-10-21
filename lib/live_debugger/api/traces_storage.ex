@@ -168,11 +168,10 @@ defmodule LiveDebugger.API.TracesStorage do
     @traces_table_name :lvdbg_traces
     @processes_table_name :lvdbg_traces_processes
 
-    @type ets_elem() :: {integer(), trace()}
+    @type ets_elem() :: {integer(), TracesStorage.trace()}
     @type continuation() :: TracesStorage.continuation()
     @type ets_table_id() :: TracesStorage.ets_table_id()
     @type table_identifier() :: TracesStorage.table_identifier()
-    @type trace() :: Trace.t() | DiffTrace.t()
 
     @impl true
     def init() do
@@ -349,10 +348,10 @@ defmodule LiveDebugger.API.TracesStorage do
 
     # Applies simple case-sensitive substring search on entire struct
     @spec filter_by_search(
-            {[trace()], continuation() | :searched_without_limit} | :end_of_table,
+            {[TracesStorage.trace()], continuation() | :searched_without_limit} | :end_of_table,
             String.t()
           ) ::
-            {[trace()], continuation() | :searched_without_limit} | :end_of_table
+            {[TracesStorage.trace()], continuation() | :searched_without_limit} | :end_of_table
     defp filter_by_search(:end_of_table, _phrase), do: :end_of_table
     defp filter_by_search({traces, cont}, ""), do: {traces, cont}
 
@@ -380,17 +379,20 @@ defmodule LiveDebugger.API.TracesStorage do
     end
 
     # Formats the continuation token and handles end-of-table marker.
-    @spec format_response({[trace()], continuation() | :searched_without_limit} | :end_of_table) ::
-            {[trace()], continuation() | :searched_without_limit} | :end_of_table
+    @spec format_response(
+            {[TracesStorage.trace()], continuation() | :searched_without_limit}
+            | :end_of_table
+          ) ::
+            {[TracesStorage.trace()], continuation() | :searched_without_limit} | :end_of_table
     defp format_response(:end_of_table), do: :end_of_table
     defp format_response({traces, :"$end_of_table"}), do: {traces, :end_of_table}
     defp format_response({traces, cont}), do: {traces, cont}
 
     @spec limit_response(
-            {[trace()], :searched_without_limit} | :end_of_table,
+            {[TracesStorage.trace()], :searched_without_limit} | :end_of_table,
             limit :: pos_integer()
           ) ::
-            {[trace()], continuation()} | :end_of_table
+            {[TracesStorage.trace()], continuation()} | :end_of_table
     defp limit_response(:end_of_table, _), do: :end_of_table
 
     defp limit_response({traces, :searched_without_limit}, limit) do
