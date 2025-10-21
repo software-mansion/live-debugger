@@ -6,8 +6,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   use LiveDebugger.App.Web, :component
 
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
-  alias LiveDebugger.App.Utils.TermParser
-  alias LiveDebugger.App.Debugger.NodeState.Web.AssignsSearch
+  alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
+  alias LiveDebugger.App.Utils.TermNode
+  alias LiveDebugger.Utils.Memory
   alias Phoenix.LiveView.AsyncResult
 
   def loading(assigns) do
@@ -27,6 +28,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   end
 
   attr(:assigns, :list, required: true)
+  attr(:term_node, TermNode, required: true)
+  attr(:copy_string, :string, required: true)
   attr(:fullscreen_id, :string, required: true)
   attr(:assigns_sizes, AsyncResult, required: true)
   attr(:assigns_search_phrase, :string, default: "")
@@ -41,11 +44,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
               assigns_search_phrase={@assigns_search_phrase}
               input_id="assigns-search-input"
             />
-            <.copy_button
-              id="assigns-copy-button"
-              variant="icon-button"
-              value={TermParser.term_to_copy_string(@assigns)}
-            />
+            <.copy_button id="assigns-copy-button" variant="icon-button" value={@copy_string} />
             <.fullscreen_button id={@fullscreen_id} />
           </div>
         </:right_panel>
@@ -55,7 +54,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           data-search_phrase={@assigns_search_phrase}
         >
           <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
-          <ElixirDisplay.term id="assigns-display" node={TermParser.term_to_display_tree(@assigns)} />
+          <ElixirDisplay.static_term node={@term_node} />
         </div>
       </.section>
       <.fullscreen id={@fullscreen_id} title="Assigns">
@@ -71,10 +70,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           data-search_phrase={@assigns_search_phrase}
         >
           <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
-          <ElixirDisplay.term
-            id="assigns-display-fullscreen-term"
-            node={TermParser.term_to_display_tree(@assigns)}
-          />
+          <ElixirDisplay.static_term node={@term_node} />
         </div>
       </.fullscreen>
     </div>

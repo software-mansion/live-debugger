@@ -13,10 +13,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set up Elixir
-        uses: erlef/setup-beam@v1.18.0
+        uses: erlef/setup-beam@v1.20.4
         with:
-          elixir-version: "1.17.3"
-          otp-version: "27.1.2"
+          elixir-version: "1.19.1"
+          otp-version: "28.1.1"
 
       - name: Cache Mix
         uses: actions/cache@v4
