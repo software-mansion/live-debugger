@@ -466,10 +466,12 @@ defmodule LiveDebugger.API.TracesStorage do
       node_id = Keyword.get(opts, :node_id)
       trace_diffs = Keyword.get(opts, :trace_diffs, false)
 
-      match_spec(node_id, functions, execution_times, trace_diffs)
+      node_id
+      |> match_spec(functions, execution_times)
+      |> maybe_attach_diff_spec(trace_diffs)
     end
 
-    defp match_spec(node_id, functions, execution_times, trace_diffs) when is_pid(node_id) do
+    defp match_spec(node_id, functions, execution_times) when is_pid(node_id) do
       [
         {{:_,
           %{
@@ -481,10 +483,9 @@ defmodule LiveDebugger.API.TracesStorage do
             cid: nil
           }}, to_spec(functions, execution_times), [:"$_"]}
       ]
-      |> maybe_attach_diff_spec(trace_diffs)
     end
 
-    defp match_spec(%CID{} = node_id, functions, execution_times, trace_diffs) do
+    defp match_spec(%CID{} = node_id, functions, execution_times) do
       [
         {{:_,
           %{
@@ -495,10 +496,9 @@ defmodule LiveDebugger.API.TracesStorage do
             cid: node_id
           }}, to_spec(functions, execution_times), [:"$_"]}
       ]
-      |> maybe_attach_diff_spec(trace_diffs)
     end
 
-    defp match_spec(nil, functions, execution_times, trace_diffs) do
+    defp match_spec(nil, functions, execution_times) do
       [
         {{:_,
           %{
@@ -508,7 +508,6 @@ defmodule LiveDebugger.API.TracesStorage do
             arity: :"$3"
           }}, to_spec(functions, execution_times), [:"$_"]}
       ]
-      |> maybe_attach_diff_spec(trace_diffs)
     end
 
     defp maybe_attach_diff_spec(trace_spec, true) do
