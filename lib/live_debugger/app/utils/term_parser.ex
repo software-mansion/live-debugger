@@ -92,7 +92,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
   @spec update_by_path(TermNode.t(), [integer()], (TermNode.t() -> TermNode.t())) ::
           TermNode.ok_error()
-  defp update_by_path(term, [index | path], update_fn) do
+  defp update_by_path(%TermNode{} = term, [index | path], update_fn) do
     with {key, child} <- Enum.at(term.children, index),
          {:ok, updated_child} <- update_by_path(child, path, update_fn) do
       children = List.replace_at(term.children, index, {key, updated_child})
@@ -155,7 +155,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp term_node_reduce_list_ins(term_node, ins) do
-    Enum.reduce(ins, term_node, fn {index, term}, term_node_acc ->
+    Enum.reduce(ins, term_node, fn {index, term}, %TermNode{} = term_node_acc ->
       children = List.insert_at(term_node_acc.children, index, {index, to_node(term)})
       %TermNode{term_node_acc | children: children}
     end)
@@ -165,7 +165,8 @@ defmodule LiveDebugger.App.Utils.TermParser do
     child_keys = term_node.children |> Enum.map(fn {key, _} -> key end)
 
     {term_node_acc, _} =
-      Enum.reduce(ins, {term_node, child_keys}, fn {key, term}, {term_node_acc, child_keys} ->
+      Enum.reduce(ins, {term_node, child_keys}, fn {key, term},
+                                                   {%TermNode{} = term_node_acc, child_keys} ->
         child_keys = Enum.sort(child_keys ++ [key])
         index = Enum.find_index(child_keys, &(&1 == key))
 
@@ -382,7 +383,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
     |> open_small_lists_and_tuples()
   end
 
-  defp open_first_element(term_node) when is_struct(term_node, TermNode) do
+  defp open_first_element(%TermNode{} = term_node) do
     %TermNode{term_node | open?: true}
   end
 
