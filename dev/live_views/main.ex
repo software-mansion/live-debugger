@@ -61,7 +61,8 @@ defmodule LiveDebuggerDev.LiveViews.Main do
           <.button id="large-assign-increment-button" phx-click="large-assign-increment" color="blue">
             Large Assign Increment
           </.button>
-          <span class="text-xl"><%= @large_assign %></span>
+          <span class="text-xl"><%= String.length(@large_assign) %></span>
+          <span class="hidden"><%= @large_assign %></span>
         </div>
         <div class="flex items-center gap-1">
           <.button id="update-button" phx-click="change_name" color="red">
