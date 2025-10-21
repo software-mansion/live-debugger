@@ -8,7 +8,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
   alias LiveDebugger.App.Utils.TermNode
-  alias LiveDebugger.Utils.Memory
   alias Phoenix.LiveView.AsyncResult
 
   def loading(assigns) do
