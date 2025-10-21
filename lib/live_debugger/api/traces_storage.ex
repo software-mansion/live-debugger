@@ -33,6 +33,7 @@ defmodule LiveDebugger.API.TracesStorage do
   @callback table_size(table_identifier()) :: non_neg_integer()
 
   defguard is_table_identifier(id) when is_pid(id) or is_reference(id)
+  defguard is_trace(trace) when is_struct(trace, Trace) or is_struct(trace, DiffTrace)
 
   @doc """
   Initializes ets table.
@@ -47,7 +48,7 @@ defmodule LiveDebugger.API.TracesStorage do
   It stores the trace in table associated with `pid` given in `Trace` struct.
   """
   @spec insert(trace()) :: true
-  def insert(trace) do
+  def insert(trace) when is_trace(trace) do
     impl().insert(trace)
   end
 
@@ -57,7 +58,7 @@ defmodule LiveDebugger.API.TracesStorage do
   In order to use it properly you have to store the reference returned by `get_table/1`.
   """
   @spec insert!(table_ref :: reference(), trace()) :: true
-  def insert!(table_ref, trace) when is_reference(table_ref) do
+  def insert!(table_ref, trace) when is_reference(table_ref) and is_trace(trace) do
     impl().insert!(table_ref, trace)
   end
 
