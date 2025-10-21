@@ -44,7 +44,7 @@ defmodule LiveDebugger.API.System.Dbg do
   Enables tracing for a specific process.
   """
   @spec process(pid(), flags :: list()) :: {:ok, term()} | {:error, term()}
-  def process(pid, flags) when is_list(flags) do
+  def process(pid, flags) when is_list(flags) and is_pid(pid) do
     impl().process(pid, flags)
   end
 
