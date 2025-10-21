@@ -3,12 +3,15 @@ defmodule LiveDebuggerDev.LiveViews.Main do
 
   alias LiveDebuggerDev.LiveComponents
 
+  @long_text "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+
   def mount(_params, _session, socket) do
     socket =
       socket
       |> assign(counter: 0)
       |> assign(counter_slow: 0)
       |> assign(counter_very_slow: 0)
+      |> assign(large_assign: "")
       |> assign(datetime: nil)
       |> assign(name: random_name())
       |> assign(pid: self())
@@ -23,10 +26,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
           DateTime.utc_now() => "DateTime"
         }
       )
-      |> assign(
-        long_assign:
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-      )
+      |> assign(long_assign: @long_text)
       |> assign(deep_assign: %{b: %{c: %{d: %{e: %{f: %{g: "deep value"}}}}}})
 
     {:ok, socket}
@@ -53,6 +53,12 @@ defmodule LiveDebuggerDev.LiveViews.Main do
             Very Slow Increment
           </.button>
           <span class="text-xl"><%= @counter_very_slow %></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <.button id="large-assign-increment-button" phx-click="large-assign-increment" color="blue">
+            Large Assign Increment
+          </.button>
+          <span class="text-xl"><%= @large_assign %></span>
         </div>
         <div class="flex items-center gap-1">
           <.button id="update-button" phx-click="change_name" color="red">
@@ -109,6 +115,10 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   def handle_event("very-slow-increment", _, socket) do
     Process.sleep(1100)
     {:noreply, update(socket, :counter_very_slow, &(&1 + 1))}
+  end
+
+  def handle_event("large-assign-increment", _, socket) do
+    {:noreply, assign(socket, large_assign: socket.assigns.large_assign <> @long_text)}
   end
 
   def handle_event("change_name", _, socket) do
