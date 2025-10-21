@@ -1,6 +1,8 @@
 defmodule LiveDebugger.E2E.AssignsSearchHighlightTest do
   use LiveDebugger.E2ECase
 
+  # This should be uncommented after https://github.com/software-mansion/live-debugger/issues/807
+  #
   # @sessions 2
   # feature "user can search assigns using the searchbar", %{
   #   sessions: [dev_app, debugger]
