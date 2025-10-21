@@ -37,10 +37,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
   #         Phoenix.LiveView.Socket.t()
   # def assign_async_node_assigns(socket, opts \\ [])
 
-  defp assign_async_node_streams(
-         %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket
-       )
-       when not is_nil(node_id) do
+  def assign_async_node_streams(%{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket)
+      when not is_nil(node_id) do
     socket
     |> start_async(:fetch_node_streams, fn ->
       # to musi zwrocic diffa zebranego z wszydtkich render tracow
@@ -48,24 +46,23 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
     end)
   end
 
-  defp assign_async_node_streams(socket) do
+  def assign_async_node_streams(socket) do
     assign(socket, :streams, AsyncResult.failed(%AsyncResult{}, :no_node_id))
   end
 
-  defp assign_async_node_streams(
-         %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket,
-         updated_streams
-       )
-       when not is_nil(node_id) do
-    case Map.get(socket.assigns, :streams_state, nil) do
+  def assign_async_node_streams(
+        %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket,
+        updated_streams
+      )
+      when not is_nil(node_id) do
+    case Map.get(socket.assigns, :streams_state_list, nil) do
       nil ->
         assign_async_node_streams(socket)
 
-      _ ->
+      current_streams_state ->
         socket
         |> start_async(:fetch_node_streams, fn ->
-          # to musi zwrocic diffa z updated streams
-          NodeStateQueries.update_node_streams(pid, updated_streams)
+          NodeStateQueries.update_node_streams(pid, updated_streams, current_streams_state)
         end)
     end
   end
@@ -73,31 +70,21 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
   defp handle_async(
          :fetch_node_streams,
          # tu zwraca diffaa
-         {:ok, {:ok, streams_diff}},
+         {:ok, streams_diff},
          %{
            assigns: %{
-             node_streams: %AsyncResult{ok?: true, result: {old_term_node}}
+             streams_state: %AsyncResult{ok?: true, result: old_term_node}
            }
          } =
            socket
        ) do
-    # tu nie ma tego bo zwracam difffaf
-
     streams_state =
-      case streams_diff do
-        %Diff{type: :equal} ->
-          AsyncResult.ok(socket.assigns.streams_state.result)
+      case TermParser.update_by_diff(old_term_node, streams_diff) do
+        {:ok, term_node} ->
+          AsyncResult.ok(term_node)
 
-        diff ->
-          # copy_string = TermParser.term_to_copy_string(node_assigns)
-
-          case TermParser.update_by_diff(old_term_node, diff) do
-            {:ok, term_node} ->
-              AsyncResult.ok({term_node})
-
-            {:error, reason} ->
-              AsyncResult.failed(socket.assigns.streams_state, reason)
-          end
+        {:error, reason} ->
+          AsyncResult.failed(socket.assigns.streams_state, reason)
       end
 
     socket
@@ -107,11 +94,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
 
   defp handle_async(
          :fetch_node_streams,
-         {:ok, {initial_term_node, streams_diff}},
+         {:ok, {initial_term_node, streams_diff,streams_state_list}},
          socket
        ) do
     # tu nie ma tego bo zwracam difffaf
-    dbg({initial_term_node, streams_diff})
 
     streams_state =
       case TermParser.update_by_diff(initial_term_node, streams_diff) do
@@ -124,6 +110,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
 
     socket
     |> assign(:streams_state, streams_state)
+    |> assign(:streams_state_list, streams_state_list)
     |> halt()
   end
 

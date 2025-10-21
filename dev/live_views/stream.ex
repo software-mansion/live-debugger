@@ -23,6 +23,7 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
         <button phx-click="insert_many">📦 Insert Many</button>
         <button phx-click="delete_item">🗑️ Delete Last</button>
         <button phx-click="create_another_item">🌟 Create Another Item</button>
+        <button phx-click="insert_at_index">Insert At Index</button>
       </div>
 
       <hr />
@@ -68,7 +69,7 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
 
       socket =
         socket
-        |> stream_insert(:items, updated_item, at: -1, update_only: true)
+        |> stream_insert(:items, updated_item, update_only: true)
 
       {:noreply, socket}
     else
@@ -87,15 +88,28 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
 
     socket =
       socket
-      |> stream(:items, items, at: -1)
+      |> stream(:items, items, at: 0)
       |> assign(:current_id, start_id + length(items))
 
     {:noreply, socket}
   end
 
   @impl true
+  def handle_event("insert_at_index", _params, socket) do
+    next_id = socket.assigns.current_id
+    item = %{id: next_id, number: 2137}
+
+    socket =
+      socket
+      |> stream_insert(:items, item, at: 4)
+      |> assign(:current_id, next_id + 1)
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("delete_item", _params, socket) do
-    last_id = socket.assigns.current_id - 1
+    last_id = socket.assigns.current_id - 3
 
     if last_id >= 0 do
       socket =

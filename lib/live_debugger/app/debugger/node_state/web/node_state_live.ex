@@ -122,7 +122,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   def handle_info(%StreamUpdated{streams: streams}, socket) do
     socket
-    |> Hooks.NodeAssigns.assign_async_node_streams(streams)
+    |> Hooks.NodeStreams.assign_async_node_streams(streams)
     |> noreply()
   end
 

@@ -57,8 +57,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           class="relative w-full h-max max-h-full p-4 overflow-y-auto"
           data-search_phrase={@assigns_search_phrase}
         >
-          <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
-          <ElixirDisplay.static_term node={@term_node} />
+          <div class="absolute top-2 right-2 z-10">
+            <.assigns_size_label assigns={@assigns} id="display-container-size-label" />
+          </div>
+          <ElixirDisplay.static_term node={@term_node} type={:assigns} />
         </div>
       </.section>
       <.fullscreen id={@fullscreen_id} title="Assigns">
@@ -73,8 +75,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           class="relative p-4"
           data-search_phrase={@assigns_search_phrase}
         >
-          <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
-          <ElixirDisplay.static_term node={@term_node} />
+          <div class="absolute top-0 right-2 z-10">
+            <.assigns_size_label assigns={@assigns} id="display-fullscreen-size-label" />
+          </div>
+          <ElixirDisplay.static_term node={@term_node} type={:assigns} />
         </div>
       </.fullscreen>
     </div>
@@ -122,13 +126,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   def streams_section(assigns) do
     ~H"""
     <.section
-      :if={@term_node != %{}}
       id="streams"
       class="h-max overflow-y-hidden"
       title="Streams"
     >
       <div class="relative w-full h-max max-h-full p-4 overflow-y-auto">
-        <ElixirDisplay.static_term node={@term_node} />
+        <ElixirDisplay.static_term node={@term_node} type={:streams} />
       </div>
     </.section>
     """
