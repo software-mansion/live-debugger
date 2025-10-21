@@ -156,7 +156,7 @@ defmodule LiveDebugger.App.Utils.TermNodeTest do
 
       updated_content = [Fakes.display_element(text: "updated")]
 
-      update_function = fn child -> %TermNode{child | content: updated_content} end
+      update_function = fn %TermNode{} = child -> %TermNode{child | content: updated_content} end
 
       assert {:ok, %TermNode{children: [{0, %TermNode{content: ^updated_content}}]}} =
                TermNode.update_child(term_node, 0, update_function)

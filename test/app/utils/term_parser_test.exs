@@ -794,7 +794,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
     end
   end
 
-  defp close_term_node(term_node) do
+  defp close_term_node(%TermNode{} = term_node) do
     %TermNode{term_node | open?: false}
   end
 end
