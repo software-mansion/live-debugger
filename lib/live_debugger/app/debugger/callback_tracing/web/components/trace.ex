@@ -216,7 +216,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         <ElixirDisplay.term
           id={@id <> "-diff-content"}
           node={TermParser.term_to_display_tree(@trace.body)}
-          level={1}
         />
       </div>
     </div>
