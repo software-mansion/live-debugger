@@ -133,6 +133,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                         trace_display={trace_display}
                         search_phrase={@trace_search_phrase}
                         short_content_full?={true}
+                        show_subtitle?={true}
                       />
                     </:label>
 

@@ -17,6 +17,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   attr(:id, :string, required: true)
   attr(:trace_display, TraceDisplay, required: true)
+  attr(:show_subtitle?, :boolean, default: false)
   attr(:search_phrase, :string, default: nil)
   attr(:short_content_full?, :boolean, default: false)
 
@@ -28,7 +29,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
     ~H"""
     <div id={@id} class="w-[90%] grow grid items-center gap-x-3 ml-2 grid-cols-[auto_1fr_auto]">
       <.trace_subtitle
-        :if={not is_nil(@trace_display.subtitle)}
+        :if={@show_subtitle? and not is_nil(@trace_display.subtitle)}
         id={@id <> "-subtitle"}
         subtitle={@trace_display.subtitle}
         subtitle_link={@trace_display.subtitle_link}
