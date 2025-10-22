@@ -18,7 +18,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
 
   @type state :: %{
           garbage_collection_enabled?: boolean(),
-          to_remove: MapSet.t(pid())
+          to_remove: %{pid() => non_neg_integer()}
         }
 
   def start_link(opts \\ []) do
@@ -33,7 +33,7 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
     {:ok,
      %{
        garbage_collection_enabled?: SettingsStorage.get(:garbage_collection),
-       to_remove: MapSet.new()
+       to_remove: %{}
      }}
   end
 
@@ -47,7 +47,9 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.GarbageCollector do
 
     loop_garbage_collection()
 
-    {:noreply, %{state | to_remove: MapSet.union(to_remove1, to_remove2)}}
+    to_remove = Map.intersect(to_remove1, to_remove2, fn _, cnt1, cnt2 -> min(cnt1, cnt2) end)
+
+    {:noreply, %{state | to_remove: to_remove}}
   end
 
   # Handle messages related to ETS table transfers from TracesStorage
