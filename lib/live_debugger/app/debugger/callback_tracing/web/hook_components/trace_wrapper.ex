@@ -99,7 +99,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
 
       trace ->
         socket
-        |> assign(displayed_trace: trace)
+        |> assign(displayed_trace: TraceDisplay.from_trace(trace))
         |> push_event("trace-fullscreen-open", %{})
     end
     |> halt()
