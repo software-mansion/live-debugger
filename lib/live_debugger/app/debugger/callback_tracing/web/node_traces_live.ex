@@ -116,6 +116,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
           >
             <:trace :let={{id, trace_display}}>
               <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
+                # Chce zrobic tak ze nie mamy kompozycji tutaj, tylko wrzucamy jeden trace component
                 <:label class="grid-cols-[auto_1fr_auto]">
                   <.trace_title trace_display={trace_display} />
                   <.trace_short_content trace_display={trace_display} />
@@ -134,12 +135,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
                 </:label>
 
                 <:body>
-                  <.trace_body
-                    id={id}
-                    trace_display={trace_display}
-                    phx-hook="TraceBodySearchHighlight"
-                    data-search_phrase={@trace_search_phrase}
-                  />
+                  <.trace_body id={id} trace_display={trace_display} />
                 </:body>
               </HookComponents.TraceWrapper.render>
             </:trace>
