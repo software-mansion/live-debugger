@@ -8,7 +8,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
   alias LiveDebugger.App.Utils.TermNode
-  alias LiveDebugger.Utils.Memory
+  alias Phoenix.LiveView.AsyncResult
 
   def loading(assigns) do
     ~H"""
@@ -30,6 +30,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:term_node, TermNode, required: true)
   attr(:copy_string, :string, required: true)
   attr(:fullscreen_id, :string, required: true)
+  attr(:assigns_sizes, AsyncResult, required: true)
   attr(:assigns_search_phrase, :string, default: "")
 
   def assigns_section(assigns) do
@@ -51,9 +52,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           class="relative w-full h-max max-h-full p-4 overflow-y-auto"
           data-search_phrase={@assigns_search_phrase}
         >
-          <div class="absolute top-2 right-2 z-10">
-            <.assigns_size_label assigns={@assigns} id="display-container-size-label" />
-          </div>
+          <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
           <ElixirDisplay.static_term node={@term_node} />
         </div>
       </.section>
@@ -69,9 +68,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           class="relative p-4"
           data-search_phrase={@assigns_search_phrase}
         >
-          <div class="absolute top-0 right-2 z-10">
-            <.assigns_size_label assigns={@assigns} id="display-fullscreen-size-label" />
-          </div>
+          <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
           <ElixirDisplay.static_term node={@term_node} />
         </div>
       </.fullscreen>
@@ -79,39 +76,39 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     """
   end
 
+  attr(:assigns_sizes, AsyncResult, required: true)
   attr(:id, :string, required: true)
-  attr(:assigns, :list, required: true)
 
-  def assigns_size_label(assigns) do
+  def assigns_sizes_section(assigns) do
     ~H"""
-    <div class="text-xs text-secondary-text flex gap-1">
+    <div class="absolute top-2 right-2 z-10 text-xs text-secondary-text flex gap-1">
       <span>Assigns size: </span>
-      <.tooltip
-        id={@id <> "-tooltip-heap"}
-        content="Memory used by assigns inside the LiveView process."
-        class="truncate"
-        position="top-center"
-      >
-        <span><%= assigns_heap_size(assigns) %> heap</span>
-      </.tooltip>
-      <span> / </span>
-      <.tooltip
-        id={@id <> "-tooltip-serialized"}
-        content="Size of assigns when encoded for transfer."
-        class="truncate"
-        position="top-center"
-      >
-        <%= assigns_serialized_size(@assigns) %> serialized
-      </.tooltip>
+      <.async_result :let={assigns_sizes} assign={@assigns_sizes}>
+        <.tooltip
+          id={@id <> "-tooltip-heap"}
+          content="Memory used by assigns inside the LiveView process."
+          class="truncate"
+          position="top-center"
+        >
+          <span><%= assigns_sizes.heap_size %> heap</span>
+        </.tooltip>
+        <span> / </span>
+        <.tooltip
+          id={@id <> "-tooltip-serialized"}
+          content="Size of assigns when encoded for transfer."
+          class="truncate"
+          position="top-center"
+        >
+          <span><%= assigns_sizes.serialized_size %> serialized</span>
+        </.tooltip>
+        <:loading>
+          <span class="animate-pulse"> loading... </span>
+        </:loading>
+        <:failed>
+          <span class="text-red-700"> error </span>
+        </:failed>
+      </.async_result>
     </div>
     """
-  end
-
-  defp assigns_heap_size(assigns) do
-    assigns |> Memory.term_heap_size() |> Memory.bytes_to_pretty_string()
-  end
-
-  defp assigns_serialized_size(assigns) do
-    assigns |> Memory.serialized_term_size() |> Memory.bytes_to_pretty_string()
   end
 end

@@ -86,6 +86,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
           copy_string={copy_string}
           assigns={node_assigns}
           fullscreen_id="assigns-display-fullscreen"
+          assigns_sizes={@assigns_sizes}
           assigns_search_phrase={@assigns_search_phrase}
         />
       </.async_result>
