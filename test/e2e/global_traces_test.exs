@@ -200,16 +200,10 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     |> click(clear_traces_button())
     |> assert_has(traces(count: 0))
     |> assert_has(no_traces_info())
-
-    Process.sleep(100)
-
-    debugger
     |> assert_has(filters_sidebar())
-    |> click(trace_diffs_checkbox())
-
-    Process.sleep(200)
 
     debugger
+    |> click(trace_diffs_checkbox())
     |> click(apply_button())
     |> click(toggle_tracing_button())
 
