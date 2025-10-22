@@ -6,7 +6,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch d
 
   use LiveDebugger.App.Web, :hook_component
 
-  alias LiveDebugger.App.Debugger.NodeState.Web.Hooks, as: Hooks
   alias LiveDebugger.App.Debugger.Components
 
   @required_assigns [:assigns_search_phrase]
@@ -40,8 +39,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch d
   defp handle_event("search", %{"search_phrase" => search_phrase}, socket) do
     socket
     |> assign(assigns_search_phrase: search_phrase)
-    |> Hooks.NodeAssigns.update_with_search_phrase()
-    |> push_event("search_in_assigns", %{search_phrase: search_phrase})
     |> halt()
   end
 

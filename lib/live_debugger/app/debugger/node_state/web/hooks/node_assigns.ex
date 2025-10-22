@@ -5,7 +5,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
 
   use LiveDebugger.App.Web, :hook
 
-  alias LiveDebugger.App.Utils.TermNode
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
   alias LiveDebugger.App.Utils.TermDiffer
@@ -14,8 +13,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
 
   @required_assigns [
     :node_id,
-    :lv_process,
-    :assigns_search_phrase
+    :lv_process
   ]
 
   @doc """
@@ -29,19 +27,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> register_hook(:node_assigns)
     |> assign(:node_assigns_info, AsyncResult.loading())
     |> assign_async_node_assigns()
-  end
-
-  def update_with_search_phrase(socket) do
-    {node_assigns, term_node, copy_string} = socket.assigns.node_assigns_info.result
-
-    term_node =
-      term_node
-      |> TermNode.open_with_search_phrase(socket.assigns.assigns_search_phrase)
-
-    node_assigns_info = AsyncResult.ok({node_assigns, term_node, copy_string})
-
-    socket
-    |> assign(:node_assigns_info, node_assigns_info)
   end
 
   @doc """
@@ -60,8 +45,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
         opts
       )
       when not is_nil(node_id) do
-    dbg(:assign)
-
     node_assigns_info =
       if Keyword.get(opts, :reset, false) do
         AsyncResult.loading()
@@ -94,23 +77,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     node_assigns_info =
       case TermDiffer.diff(old_assigns, node_assigns) do
         %Diff{type: :equal} ->
-          {node_assigns, term_node, copy_string} = socket.assigns.node_assigns_info.result
-
-          # term_node =
-          #   term_node
-          #   |> TermNode.open_with_search_phrase(socket.assigns.assigns_search_phrase)
-
-          AsyncResult.ok({node_assigns, term_node, copy_string})
+          AsyncResult.ok(socket.assigns.node_assigns_info.result)
 
         diff ->
           copy_string = TermParser.term_to_copy_string(node_assigns)
 
           case TermParser.update_by_diff(old_term_node, diff) do
             {:ok, term_node} ->
-              # term_node =
-              #   term_node
-              #   |> TermNode.open_with_search_phrase(socket.assigns.assigns_search_phrase)
-
               AsyncResult.ok({node_assigns, term_node, copy_string})
 
             {:error, reason} ->
@@ -124,11 +97,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   end
 
   defp handle_async(:fetch_node_assigns, {:ok, {:ok, node_assigns}}, socket) do
-    term_node =
-      TermParser.term_to_display_tree(node_assigns)
-
-    # |> TermNode.open_with_search_phrase(socket.assigns.assigns_search_phrase)
-
+    term_node = TermParser.term_to_display_tree(node_assigns)
     copy_string = TermParser.term_to_copy_string(node_assigns)
 
     socket

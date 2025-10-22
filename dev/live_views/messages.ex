@@ -34,7 +34,7 @@ defmodule LiveDebuggerDev.LiveViews.Messages do
     {:noreply, socket}
   end
 
-  def very_big_message() do
+  defp very_big_message() do
     part = %{
       list: [1, 2, 3, 4],
       map: %{a: 1, b: 2},

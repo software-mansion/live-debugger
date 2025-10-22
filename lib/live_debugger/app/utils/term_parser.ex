@@ -8,8 +8,6 @@ defmodule LiveDebugger.App.Utils.TermParser do
   alias LiveDebugger.App.Utils.TermNode.DisplayElement
   alias LiveDebugger.App.Utils.TermNode
 
-  @list_and_tuple_open_limit 3
-
   @doc """
   Convert term into infinite string which can be copied to IEx console.
   """
@@ -38,7 +36,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
     |> to_node()
     |> index_term_node()
     |> update_comma_suffixes()
-    |> default_open_settings()
+    |> TermNode.open_with_default_settings()
   end
 
   @doc """
@@ -375,49 +373,6 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
   defp to_key_value_children(items) when is_list(items) do
     Enum.map(items, &to_key_value_node/1)
-  end
-
-  def default_open_settings(term_node) do
-    term_node
-    |> close_all()
-    |> open_first_element()
-    |> open_small_lists_and_tuples()
-  end
-
-  defp close_all(%TermNode{children: children} = term_node) do
-    children =
-      Enum.map(children, fn {key, child} ->
-        {key, close_all(child)}
-      end)
-
-    %TermNode{term_node | open?: false, children: children}
-  end
-
-  defp open_first_element(%TermNode{} = term_node) do
-    %TermNode{term_node | open?: true}
-  end
-
-  defp open_small_lists_and_tuples(%TermNode{kind: kind, children: children} = term_node)
-       when kind in [:list, :tuple] do
-    children =
-      Enum.map(children, fn {key, child} ->
-        {key, open_small_lists_and_tuples(child)}
-      end)
-
-    if length(children) < @list_and_tuple_open_limit do
-      %TermNode{term_node | open?: true, children: children}
-    else
-      %TermNode{term_node | children: children}
-    end
-  end
-
-  defp open_small_lists_and_tuples(%TermNode{children: children} = term_node) do
-    children =
-      Enum.map(children, fn {key, child} ->
-        {key, open_small_lists_and_tuples(child)}
-      end)
-
-    %TermNode{term_node | children: children}
   end
 
   defp has_comma_suffix?(%TermNode{content: content, expanded_after: expanded_after}) do
