@@ -187,7 +187,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       <span
         id={@id <> "-value"}
         class={["text-nowrap", get_threshold_class(@execution_time)]}
-        phx-hook={if @from_event? |> dbg(), do: "TraceExecutionTime", else: nil}
+        phx-hook={if @from_event?, do: "TraceExecutionTime", else: nil}
       >
         <%= Parsers.parse_elapsed_time(@execution_time) %>
       </span>
