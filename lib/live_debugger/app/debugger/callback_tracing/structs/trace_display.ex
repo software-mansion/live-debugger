@@ -9,40 +9,36 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
 
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.DiffTrace
-  alias LiveDebugger.CommonTypes
 
   defstruct [
     :id,
     :from_event?,
     :render_body?,
-    :module,
-    :title,
-    :body,
-    :timestamp,
-    :side_info,
     :type,
-    :pid,
-    :cid
+    :title,
+    :subtitle,
+    :subtitle_link,
+    :body,
+    :side_section_left,
+    :side_section_right
   ]
 
   @type type() :: :normal | :diff | :error
-  @type side_info() :: {:execution_time, non_neg_integer() | nil} | {:size, non_neg_integer()}
+  @type side_section_left() :: {:timestamp, non_neg_integer()}
+  @type side_section_right() ::
+          {:execution_time, non_neg_integer() | nil} | {:size, non_neg_integer()}
 
   @type t() :: %__MODULE__{
-          # Helper stuff for rendering in stream
           id: Trace.id(),
           from_event?: boolean(),
           render_body?: boolean(),
-
-          # Data for rendering in UI
-          module: String.t() | nil,
-          title: String.t(),
-          body: list(term()),
-          timestamp: non_neg_integer(),
-          side_info: side_info(),
           type: type(),
-          pid: pid(),
-          cid: CommonTypes.cid() | nil
+          title: String.t(),
+          subtitle: String.t() | nil,
+          subtitle_link: String.t() | nil,
+          body: list(term()),
+          side_section_left: side_section_left(),
+          side_section_right: side_section_right()
         }
 
   @spec from_trace(Trace.t() | DiffTrace.t(), boolean()) :: t()
@@ -51,14 +47,13 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
       id: trace.id,
       from_event?: from_event?,
       render_body?: false,
-      module: "Test module",
-      title: "Test title",
-      body: [{"Arg 1 (render/1)", %{"test" => "test"}}],
-      timestamp: 1_761_118_075,
-      side_info: get_side_info(trace),
       type: get_type(trace),
-      pid: trace.pid,
-      cid: trace.cid
+      title: "Test title",
+      subtitle: "Test module",
+      subtitle_link: RoutesHelper.debugger_node_inspector(trace.pid, trace.cid),
+      body: [{"Arg 1 (render/1)", %{"test" => "test"}}],
+      side_section_left: {:timestamp, 1_761_118_075},
+      side_section_right: {:execution_time, 1_761_118_075}
     }
   end
 
@@ -76,14 +71,4 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   defp get_type(%{type: :exception_from}), do: :error
   defp get_type(%LiveDebugger.Structs.DiffTrace{}), do: :diff
   defp get_type(_), do: :normal
-
-  defp get_side_info(%LiveDebugger.Structs.DiffTrace{size: size}) do
-    {:size, size}
-  end
-
-  defp get_side_info(%LiveDebugger.Structs.Trace{execution_time: execution_time}) do
-    {:execution_time, execution_time}
-  end
-
-  defp get_side_info(_), do: nil
 end
