@@ -69,9 +69,6 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
     Process.sleep(200)
 
     debugger
-    |> take_screenshot()
-
-    debugger
     |> assert_has(global_traces_with_error(count: 1))
   end
 

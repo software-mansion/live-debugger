@@ -232,7 +232,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
 
     debugger
     |> click(open_fullscreen_trace_button())
-    |> take_screenshot()
     |> assert_has(css("#trace-fullscreen"))
     |> assert_has(css("#trace-fullscreen pre", text: "\"diff\"", count: 1, visible: true))
     |> click(button("trace-fullscreen-close"))
