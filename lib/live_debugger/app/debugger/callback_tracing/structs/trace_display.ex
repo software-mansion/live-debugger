@@ -51,12 +51,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
       render_body?: false,
       type: get_type(trace),
       title: get_title(trace),
-      # TODO: module + CID if LiveComponent
       subtitle: get_subtitle(trace),
-      subtitle_link: RoutesHelper.debugger_node_inspector(trace.pid, trace.cid),
-      body: [{"Arg 1 (render/1)", %{"test" => "test"}}],
-      side_section_left: {:timestamp, 1_761_118_075},
-      side_section_right: {:execution_time, 1_761_118_075}
+      subtitle_link: get_subtitle_link(trace),
+      body: get_body(trace),
+      side_section_left: get_side_section_left(trace),
+      side_section_right: get_side_section_right(trace)
     }
   end
 
@@ -86,4 +85,30 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   end
 
   defp get_subtitle(%DiffTrace{}), do: nil
+
+  defp get_subtitle_link(%Trace{pid: pid, cid: cid}) do
+    RoutesHelper.debugger_node_inspector(pid, cid)
+  end
+
+  defp get_subtitle_link(%DiffTrace{}), do: nil
+
+  defp get_body(%Trace{args: args} = trace) do
+    Enum.with_index(args, fn arg, index ->
+      {"Arg #{index} (#{Trace.arg_name(trace, index)})", arg}
+    end)
+  end
+
+  defp get_body(%DiffTrace{body: body}), do: [{"Diff content", body}]
+
+  defp get_side_section_left(%{timestamp: timestamp}) do
+    {:timestamp, timestamp}
+  end
+
+  defp get_side_section_right(%Trace{execution_time: execution_time}) do
+    {:execution_time, execution_time}
+  end
+
+  defp get_side_section_right(%DiffTrace{size: size}) do
+    {:size, size}
+  end
 end
