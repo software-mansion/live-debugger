@@ -46,7 +46,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.ExistingTraces do
         functions: FiltersHelpers.get_active_functions(socket.assigns.current_filters),
         execution_times: FiltersHelpers.get_execution_times(socket.assigns.current_filters),
         node_id: Map.get(socket.assigns, :node_id),
-        search_phrase: Map.get(socket.assigns, :trace_search_phrase, "")
+        search_phrase: Map.get(socket.assigns, :trace_search_phrase, ""),
+        trace_diffs: FiltersHelpers.get_trace_diffs(socket.assigns.current_filters)
       ]
 
     socket

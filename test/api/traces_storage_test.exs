@@ -30,7 +30,7 @@ defmodule LiveDebugger.API.TracesStorageTest do
     Map.put(context, :table, table)
   end
 
-  test "insert!/1", %{pid: pid, table: table} do
+  test "insert!/1 with Trace", %{pid: pid, table: table} do
     trace = Fakes.trace(id: 1, function: :render, pid: pid)
 
     assert true == TracesStorageImpl.insert!(table, trace)
@@ -43,7 +43,20 @@ defmodule LiveDebugger.API.TracesStorageTest do
     end
   end
 
-  test "insert/1", %{pid: pid} do
+  test "insert!/1 with DiffTrace", %{pid: pid, table: table} do
+    diff_trace = Fakes.diff_trace(id: -1, pid: pid, body: %{diff: "content"})
+
+    assert true == TracesStorageImpl.insert!(table, diff_trace)
+    assert [{diff_trace.id, diff_trace}] == :ets.lookup(table, diff_trace.id)
+
+    :ets.delete(table)
+
+    assert_raise ArgumentError, fn ->
+      TracesStorageImpl.insert!(table, diff_trace)
+    end
+  end
+
+  test "insert/1 with Trace", %{pid: pid} do
     trace1 = Fakes.trace(id: 1, function: :render, pid: pid)
     trace2 = Fakes.trace(id: 2, function: :handle_info, pid: pid)
 
@@ -58,7 +71,22 @@ defmodule LiveDebugger.API.TracesStorageTest do
     assert [{trace1.id, trace1}, {trace2.id, trace2}] == :ets.tab2list(table)
   end
 
-  test "get_by_id!/2", %{pid: pid, table: table} do
+  test "insert/1 with DiffTrace", %{pid: pid} do
+    diff_trace1 = Fakes.diff_trace(id: 1, pid: pid, body: %{diff1: "content"})
+    diff_trace2 = Fakes.diff_trace(id: 2, pid: pid, body: %{diff2: "content"})
+
+    assert [] = :ets.tab2list(@processes_table_name)
+
+    assert true == TracesStorageImpl.insert(diff_trace1)
+    assert [{^pid, table}] = :ets.tab2list(@processes_table_name)
+    assert [{diff_trace1.id, diff_trace1}] == :ets.tab2list(table)
+
+    assert true == TracesStorageImpl.insert(diff_trace2)
+    assert [{^pid, table}] = :ets.tab2list(@processes_table_name)
+    assert [{diff_trace1.id, diff_trace1}, {diff_trace2.id, diff_trace2}] == :ets.tab2list(table)
+  end
+
+  test "get_by_id!/2 with Trace", %{pid: pid, table: table} do
     trace1 = Fakes.trace(id: 1, function: :handle_info, pid: pid)
     trace2 = Fakes.trace(id: 2, function: :render, pid: pid)
 
@@ -81,6 +109,29 @@ defmodule LiveDebugger.API.TracesStorageTest do
     end
   end
 
+  test "get_by_id!/2 with DiffTrace", %{pid: pid, table: table} do
+    diff_trace1 = Fakes.diff_trace(id: 1, pid: pid, body: %{diff1: "content"})
+    diff_trace2 = Fakes.diff_trace(id: 2, pid: pid, body: %{diff2: "content"})
+
+    :ets.insert(@processes_table_name, {pid, table})
+    :ets.insert(table, {diff_trace1.id, diff_trace1})
+    :ets.insert(table, {diff_trace2.id, diff_trace2})
+
+    assert diff_trace1 == TracesStorageImpl.get_by_id!(pid, diff_trace1.id)
+    assert diff_trace2 == TracesStorageImpl.get_by_id!(pid, diff_trace2.id)
+
+    assert diff_trace1 == TracesStorageImpl.get_by_id!(table, diff_trace1.id)
+    assert diff_trace2 == TracesStorageImpl.get_by_id!(table, diff_trace2.id)
+
+    assert nil == TracesStorageImpl.get_by_id!(pid, -99)
+
+    :ets.delete(table)
+
+    assert_raise ArgumentError, fn ->
+      TracesStorageImpl.get_by_id!(table, diff_trace1.id)
+    end
+  end
+
   describe "get!/2" do
     test "returns traces with default limit", %{pid: pid, table: table} do
       trace1 = Fakes.trace(id: 1, function: :handle_info, arity: 2, pid: pid)
@@ -95,6 +146,17 @@ defmodule LiveDebugger.API.TracesStorageTest do
 
       assert {[^trace1, ^trace2], _} =
                TracesStorageImpl.get!(table, functions: @all_functions)
+    end
+
+    test "ignores DiffTrace by default", %{pid: pid, table: table} do
+      diff_trace1 = Fakes.diff_trace(id: 3, pid: pid, body: %{diff: "content"})
+      diff_trace2 = Fakes.diff_trace(id: 4, pid: pid, body: %{diff: "content"})
+
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {diff_trace1.id, diff_trace1})
+      :ets.insert(table, {diff_trace2.id, diff_trace2})
+
+      assert :end_of_table = TracesStorageImpl.get!(table, functions: @all_functions)
     end
 
     test "returns traces with limit and continuation", %{pid: pid, table: table} do
@@ -334,25 +396,33 @@ defmodule LiveDebugger.API.TracesStorageTest do
       trace2 = Fakes.trace(id: 2, pid: pid, args: [%{note: "phrase"}])
       trace3 = Fakes.trace(id: 3, pid: pid, args: [%{note: ""}])
       trace4 = Fakes.trace(id: 4, pid: pid, args: [%{note: "phrase"}])
+      diff_trace1 = Fakes.diff_trace(id: 5, pid: pid, body: %{diff: "phrase"})
 
       :ets.insert(@processes_table_name, {pid, table})
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
       :ets.insert(table, {trace3.id, trace3})
       :ets.insert(table, {trace4.id, trace4})
+      :ets.insert(table, {diff_trace1.id, diff_trace1})
 
       {traces1, cont} =
-        TracesStorageImpl.get!(pid, limit: 2, functions: @all_functions, search_phrase: "phrase")
+        TracesStorageImpl.get!(pid,
+          limit: 2,
+          functions: @all_functions,
+          search_phrase: "phrase",
+          trace_diffs: true
+        )
 
       {traces2, cont} =
         TracesStorageImpl.get!(pid,
           cont: cont,
           functions: @all_functions,
-          search_phrase: "phrase"
+          search_phrase: "phrase",
+          trace_diffs: true
         )
 
       assert [trace1, trace2] == traces1
-      assert [trace4] == traces2
+      assert [trace4, diff_trace1] == traces2
       assert cont == :end_of_table
     end
   end
@@ -397,12 +467,15 @@ defmodule LiveDebugger.API.TracesStorageTest do
 
       trace1 = Fakes.trace(id: 1, function: :handle_info, arity: 2, pid: pid)
       trace2 = Fakes.trace(id: 2, function: :render, arity: 1, pid: pid, cid: cid)
+      diff_trace1 = Fakes.diff_trace(id: 3, pid: pid, body: %{diff: "content"})
 
       :ets.insert(@processes_table_name, {pid, table})
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
+      :ets.insert(table, {diff_trace1.id, diff_trace1})
 
-      assert [{trace1.id, trace1}, {trace2.id, trace2}] == :ets.tab2list(table)
+      assert [{trace1.id, trace1}, {trace2.id, trace2}, {diff_trace1.id, diff_trace1}] ==
+               :ets.tab2list(table)
 
       TracesStorageImpl.clear!(pid)
 

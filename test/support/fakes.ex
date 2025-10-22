@@ -97,6 +97,19 @@ defmodule LiveDebugger.Fakes do
     Kernel.struct!(LiveDebugger.Structs.Trace, fields)
   end
 
+  def diff_trace(opts \\ []) do
+    default = [
+      id: -1,
+      body: %{some: "diff content"},
+      pid: :c.pid(0, 1, 0),
+      timestamp: :erlang.timestamp(),
+      size: 100
+    ]
+
+    fields = Keyword.merge(default, opts)
+    Kernel.struct!(LiveDebugger.Structs.DiffTrace, fields)
+  end
+
   def liveview(opts \\ []) do
     default = [
       pid: :c.pid(0, 0, 2),

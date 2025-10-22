@@ -30,8 +30,8 @@ defmodule LiveDebuggerDev.LiveViews.Messages do
     |> noreply()
   end
 
-  def handle_info(_, socket) do
-    {:noreply, socket}
+  def handle_info(message, socket) do
+    {:noreply, assign(socket, :message, message)}
   end
 
   defp very_big_message() do
