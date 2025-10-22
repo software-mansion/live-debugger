@@ -1,14 +1,53 @@
-export function fetchDebuggedSocketID() {
-  let el;
-  if ((el = document.querySelector('[data-phx-main]'))) {
-    return el.id;
-  }
-  if ((el = document.querySelector('[id^="phx-"]'))) {
-    return el.id;
-  }
-  if ((el = document.querySelector('[data-phx-root-id]'))) {
-    return el.getAttribute('data-phx-root-id');
-  }
+export function fetchDebuggedSocketIDs() {
+  return new Promise((resolve) => {
+    const liveViewElements = document.querySelectorAll('[data-phx-session]');
+    const rootIDsMapping = {};
+    const mainID = document.querySelector('[data-phx-main]')?.id;
+
+    const handleMutation = (mutation) => {
+      if (!isRootIDAttributeChanged(mutation)) return;
+
+      registerRootID(rootIDsMapping, mutation.target);
+
+      if (isAllRootIDsRegistered(rootIDsMapping, liveViewElements)) {
+        observer.disconnect();
+
+        resolve({
+          mainSocketID: mainID,
+          rootSocketIDs: getRootSocketIDs(rootIDsMapping, mainID),
+        });
+      }
+    };
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(handleMutation);
+    });
+
+    liveViewElements.forEach((el) => {
+      observer.observe(el, { attributes: true });
+    });
+  });
+}
+
+function isRootIDAttributeChanged(mutation) {
+  return (
+    mutation.type === 'attributes' &&
+    mutation.attributeName === 'data-phx-root-id'
+  );
+}
+
+function registerRootID(rootIDs, target) {
+  rootIDs[target.id] = target.getAttribute('data-phx-root-id');
+}
+
+function isAllRootIDsRegistered(rootIDs, liveViewElements) {
+  return Object.keys(rootIDs).length >= liveViewElements.length;
+}
+
+function getRootSocketIDs(rootIDs, mainID) {
+  const rootSocketIDs = new Set(Object.values(rootIDs));
+  rootSocketIDs.delete(mainID);
+  return [...rootSocketIDs];
 }
 
 export function getMetaTag() {

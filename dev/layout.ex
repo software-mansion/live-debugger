@@ -81,12 +81,14 @@ defmodule LiveDebuggerDev.Layout do
   end
 
   def render("embedded.html", assigns) do
+    assigns = assign(assigns, v: Map.get(assigns, :socket, assigns[:conn]))
+
     ~H"""
     <main class="p-5">
       <.navbar />
       <.box title="Embedded Live View [LiveView]" color="purple">
-        <%= live_render(@socket, LiveDebuggerDev.LiveViews.Nested,
-          id: "embedded_with_nested",
+        <%= live_render(@v, LiveDebuggerDev.LiveViews.Nested,
+          id: "phx-embedded_with_nested",
           session: %{"id" => "embedded_with_nested"},
           sticky: true
         ) %>

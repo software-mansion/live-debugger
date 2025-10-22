@@ -9,9 +9,9 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
 
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
-  alias LiveDebugger.App.Debugger.Queries.State, as: StateQueries
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.API.LiveViewDiscovery
 
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.DebuggerMounted
@@ -78,16 +78,32 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
     end
   end
 
-  defp get_root_socket_id(lv_process) when lv_process.root_pid == lv_process.pid do
+  defp get_root_socket_id(%LvProcess{embedded?: false, nested?: false} = lv_process) do
     {:ok, lv_process.socket_id}
+  end
+
+  defp get_root_socket_id(%LvProcess{embedded?: true, nested?: false} = lv_process) do
+    case find_root_lv_process_over_transport_pid(lv_process.transport_pid) do
+      %LvProcess{socket_id: socket_id} -> {:ok, socket_id}
+      _ -> {:ok, lv_process.socket_id}
+    end
   end
 
   defp get_root_socket_id(lv_process) do
     lv_process.root_pid
-    |> StateQueries.get_socket()
+    |> LvProcessQueries.get_lv_process()
     |> case do
-      {:ok, %{id: socket_id}} -> {:ok, socket_id}
+      %LvProcess{embedded?: false} = lv_process -> {:ok, lv_process.socket_id}
+      %LvProcess{embedded?: true, nested?: false} = lv_process -> get_root_socket_id(lv_process)
       _ -> {:error, :root_socket_id_not_found}
     end
+  end
+
+  defp find_root_lv_process_over_transport_pid(transport_pid) do
+    LiveViewDiscovery.debugged_lv_processes()
+    |> Enum.find(fn
+      %LvProcess{transport_pid: ^transport_pid, embedded?: false, nested?: false} -> true
+      _ -> false
+    end)
   end
 end

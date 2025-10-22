@@ -10,27 +10,37 @@ import initTooltip from './components/tooltip/tooltip';
 import {
   getMetaTag,
   fetchLiveDebuggerBaseURL,
-  fetchDebuggedSocketID,
+  fetchDebuggedSocketIDs,
   isDebugButtonEnabled,
   isHighlightingEnabled,
 } from './utils/meta';
 
-window.document.addEventListener('DOMContentLoaded', function () {
+window.document.addEventListener('DOMContentLoaded', async () => {
   const metaTag = getMetaTag();
   const baseURL = fetchLiveDebuggerBaseURL(metaTag);
-  const socketID = fetchDebuggedSocketID();
+  let { mainSocketID, rootSocketIDs } = await fetchDebuggedSocketIDs();
 
-  const sessionURL = `${baseURL}/redirect/${socketID}`;
+  if (!mainSocketID) {
+    [mainSocketID, ...rootSocketIDs] = rootSocketIDs;
+  } else {
+    rootSocketIDs = [];
+  }
 
-  if (socketID) {
-    const { debugChannel } = initDebugSocket(baseURL, socketID);
+  if (mainSocketID) {
+    const sessionURL = `${baseURL}/redirect/${mainSocketID}`;
+
+    const { debugChannel } = initDebugSocket(
+      baseURL,
+      mainSocketID,
+      rootSocketIDs
+    );
 
     debugChannel.on('ping', (resp) => {
       console.log('Received ping', resp);
       debugChannel.push('pong', resp);
     });
 
-    initElementInspection({ baseURL, debugChannel, socketID });
+    initElementInspection({ baseURL, debugChannel, socketID: mainSocketID });
     initTooltip();
 
     if (isDebugButtonEnabled(metaTag)) {
