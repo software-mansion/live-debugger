@@ -10,6 +10,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.DiffTrace
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.App.Utils.Parsers
 
   defstruct [
     :id,
@@ -49,9 +50,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
       from_event?: from_event?,
       render_body?: false,
       type: get_type(trace),
-      title: "Test title",
+      title: get_title(trace),
       # TODO: module + CID if LiveComponent
-      subtitle: "Test module",
+      subtitle: get_subtitle(trace),
       subtitle_link: RoutesHelper.debugger_node_inspector(trace.pid, trace.cid),
       body: [{"Arg 1 (render/1)", %{"test" => "test"}}],
       side_section_left: {:timestamp, 1_761_118_075},
@@ -73,4 +74,19 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   defp get_type(%{type: :exception_from}), do: :error
   defp get_type(%LiveDebugger.Structs.DiffTrace{}), do: :diff
   defp get_type(_), do: :normal
+
+  defp get_title(%Trace{} = trace) do
+    Trace.callback_name(trace)
+  end
+
+  defp get_title(%DiffTrace{}), do: "Diff sent"
+
+  defp get_subtitle(%Trace{module: module, cid: cid}) do
+    module_string = Parsers.module_to_string(module)
+    cid_string = if cid, do: " (#{cid})", else: ""
+
+    module_string <> cid_string
+  end
+
+  defp get_subtitle(%DiffTrace{}), do: nil
 end
