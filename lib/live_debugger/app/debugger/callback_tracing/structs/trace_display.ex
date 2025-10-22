@@ -9,6 +9,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
 
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.DiffTrace
+  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
   defstruct [
     :id,
@@ -36,7 +37,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
           title: String.t(),
           subtitle: String.t() | nil,
           subtitle_link: String.t() | nil,
-          body: list(term()),
+          body: list({String.t(), term()}),
           side_section_left: side_section_left(),
           side_section_right: side_section_right()
         }
@@ -49,6 +50,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
       render_body?: false,
       type: get_type(trace),
       title: "Test title",
+      # TODO: module + CID if LiveComponent
       subtitle: "Test module",
       subtitle_link: RoutesHelper.debugger_node_inspector(trace.pid, trace.cid),
       body: [{"Arg 1 (render/1)", %{"test" => "test"}}],

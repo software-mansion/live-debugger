@@ -127,35 +127,18 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
               >
                 <:trace :let={{id, trace_display}}>
                   <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
-                    <:label class="grid-cols-[auto_1fr_auto]">
-                      <.trace_module id={id} trace_display={trace_display} class="col-span-3" />
-                      <.trace_title trace_display={trace_display} />
-                      <.trace_short_content
-                        id={id}
+                    <:label>
+                      <.trace_label
+                        id={id <> "-label"}
                         trace_display={trace_display}
-                        full={true}
-                        phx-hook="TraceLabelSearchHighlight"
-                        data-search_phrase={@trace_search_phrase}
+                        search_phrase={@trace_search_phrase}
+                        short_content_full?={true}
                       />
-                      <.trace_side_section>
-                        <:left_section>
-                          <.trace_timestamp_info id={id} timestamp={trace_display.timestamp} />
-                        </:left_section>
-                        <:right_section>
-                          <.trace_execution_time_info
-                            id={id}
-                            execution_time={trace_display.side_info |> elem(1)}
-                            phx_hook={
-                              if trace_display.from_event?, do: "TraceExecutionTime", else: nil
-                            }
-                          />
-                        </:right_section>
-                      </.trace_side_section>
                     </:label>
 
                     <:body>
                       <.trace_body
-                        id={id}
+                        id={id <> "-body"}
                         trace_display={trace_display}
                         phx-hook="TraceBodySearchHighlight"
                         data-search_phrase={@trace_search_phrase}
@@ -171,7 +154,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
               <.trace_fullscreen
                 :if={@displayed_trace}
                 id="trace-fullscreen"
-                trace_display={@displayed_trace}
+                displayed_trace={@displayed_trace}
                 phx-hook="TraceBodySearchHighlight"
                 data-search_phrase={@trace_search_phrase}
               />

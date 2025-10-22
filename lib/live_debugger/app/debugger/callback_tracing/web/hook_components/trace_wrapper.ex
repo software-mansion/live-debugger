@@ -40,10 +40,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
   attr(:trace_display, TraceDisplay, required: true)
 
   slot(:body, required: true)
-
-  slot :label, required: true do
-    attr(:class, :string, doc: "Additional class for label")
-  end
+  slot(:label, required: true)
 
   @impl true
   def render(assigns) do
@@ -58,13 +55,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
       phx-value-trace-id={@trace_display.id}
     >
       <:label>
-        <div
-          :for={label <- @label}
-          id={@id <> "-label"}
-          class={["w-[90%] grow grid items-center gap-x-3 ml-2" | List.wrap(label[:class])]}
-        >
-          <%= render_slot(label) %>
-        </div>
+        <%= render_slot(@label) %>
       </:label>
       <div class="relative">
         <div :if={@trace_display.render_body?} class="absolute right-0 top-0 z-10">

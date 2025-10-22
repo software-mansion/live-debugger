@@ -116,22 +116,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
           >
             <:trace :let={{id, trace_display}}>
               <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
-                # Chce zrobic tak ze nie mamy kompozycji tutaj, tylko wrzucamy jeden trace component
-                <:label class="grid-cols-[auto_1fr_auto]">
-                  <.trace_title trace_display={trace_display} />
-                  <.trace_short_content trace_display={trace_display} />
-                  <.trace_side_section>
-                    <:left_section>
-                      <.trace_timestamp_info id={id} timestamp={trace_display.timestamp} />
-                    </:left_section>
-                    <:right_section>
-                      <.trace_execution_time_info
-                        id={id}
-                        execution_time={trace_display.side_info |> elem(1)}
-                        phx_hook={if trace_display.from_event?, do: "TraceExecutionTime", else: nil}
-                      />
-                    </:right_section>
-                  </.trace_side_section>
+                <:label>
+                  <.trace_label id={id <> "-label"} trace_display={trace_display} />
                 </:label>
 
                 <:body>
@@ -151,7 +137,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
       <.trace_fullscreen
         :if={@displayed_trace}
         id="trace-fullscreen"
-        trace_display={@displayed_trace}
+        displayed_trace={@displayed_trace}
       />
     </div>
     """
