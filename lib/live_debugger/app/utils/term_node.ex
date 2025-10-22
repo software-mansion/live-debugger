@@ -157,7 +157,7 @@ defmodule LiveDebugger.App.Utils.TermNode do
   def open_with_search_phrase(%__MODULE__{} = term_node, search_phrase) do
     text = extract_text(term_node)
 
-    if String.contains?(text, search_phrase) do
+    if text =~ ~r/#{Regex.escape(search_phrase)}/i do
       updated_children =
         term_node.children
         |> Enum.map(fn {key, child} ->
