@@ -121,7 +121,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
                 </:label>
 
                 <:body>
-                  <.trace_body id={id} trace_display={trace_display} />
+                  <.trace_body id={id <> "-body"} trace_display={trace_display} />
                 </:body>
               </HookComponents.TraceWrapper.render>
             </:trace>
