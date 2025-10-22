@@ -10,7 +10,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.DiffTrace
 
-  defstruct [:id, :trace, :from_event?, :counter, render_body?: false]
+  defstruct [:id, :trace, :from_event?, render_body?: false]
 
   @type t() :: %__MODULE__{
           id: Trace.id(),
