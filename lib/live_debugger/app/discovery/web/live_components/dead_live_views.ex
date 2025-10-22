@@ -44,7 +44,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
     ~H"""
     <div id={@id} class="h-3/7 max-lg:p-8 pt-8 lg:w-[60rem] lg:mx-auto">
       <DiscoveryComponents.header
-        title="Recently Died LiveViews"
+        title="Dead LiveViews"
         refresh_event="refresh-dead"
         disabled?={!@dead_liveviews?}
         target={@myself}
@@ -58,7 +58,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
       </DiscoveryComponents.header>
 
       <div :if={@dead_liveviews?}>
-        <DiscoveryComponents.garbage_collection_warning />
+        <DiscoveryComponents.garbage_collection_info />
 
         <div class="mt-6 max-h-92 overflow-y-auto">
           <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
@@ -67,7 +67,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
             <DiscoveryComponents.liveview_sessions
               id="dead-sessions"
               grouped_lv_processes={dead_grouped_lv_processes}
-              empty_info="No recently died LiveViews"
+              empty_info="No dead LiveViews"
               remove_event="remove-lv-state"
               target={@myself}
             />

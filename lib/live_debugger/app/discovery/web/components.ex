@@ -10,22 +10,30 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
-  def garbage_collection_warning(assigns) do
+  def garbage_collection_info(assigns) do
+    assigns =
+      assign(assigns, garbage_collection_enabled?: SettingsStorage.get(:garbage_collection))
+
     ~H"""
-    <div class="mt-6 p-4 bg-surface-0-bg rounded shadow-custom border border-warning-text">
-      <p class="text-warning-text text-center">
-        <%= if SettingsStorage.get(:garbage_collection) do %>
-          LiveViews listed below are not active anymore and they will be removed in a short time (usually within 2 seconds).
-          If you want to keep them for a longer time you may do so by disabling
-          <b>Garbage Collection</b>
-          in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>. But be aware that this will lead to increased memory usage.
+    <div class={[
+      "mt-6 p-4 bg-surface-0-bg rounded shadow-custom border flex justify-center",
+      if(@garbage_collection_enabled?, do: "border-info-text", else: "border-warning-text")
+    ]}>
+      <div class="text-center max-w-[40rem]">
+        <%= if @garbage_collection_enabled? do %>
+          <p class="text-info-text">
+            You have <b>Garbage Collection enabled</b>
+            which means that LiveViews listed below will be removed automatically.
+            You can disable this behaviour in <.settings_link />.
+          </p>
         <% else %>
-          You have <b>Garbage Collection</b>
-          disabled which means that LiveViews listed below will not be removed automatically.
-          This will lead to increased memory usage. You can enable it
-          in <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">settings</.link>.
+          <p class="text-warning-text">
+            You have <b>Garbage Collection disabled</b>
+            which means that LiveViews listed below will not be removed automatically.
+            This will lead to increased memory usage. You can enable it in <.settings_link />.
+          </p>
         <% end %>
-      </p>
+      </div>
     </div>
     """
   end
@@ -189,10 +197,18 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
           variant="secondary"
           size="sm"
         >
-          <.icon name="icon-cross" class="w-4 h-4" />
+          <.icon name="icon-trash" class="w-4 h-4" />
         </.button>
       </div>
     </div>
+    """
+  end
+
+  defp settings_link(assigns) do
+    ~H"""
+    <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">
+      settings
+    </.link>
     """
   end
 end
