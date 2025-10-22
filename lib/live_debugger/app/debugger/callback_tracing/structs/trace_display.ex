@@ -75,10 +75,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   defp get_type(%LiveDebugger.Structs.DiffTrace{}), do: :diff
   defp get_type(_), do: :normal
 
-  defp get_title(%Trace{} = trace) do
-    Trace.callback_name(trace)
-  end
-
+  defp get_title(%Trace{} = trace), do: Trace.callback_name(trace)
   defp get_title(%DiffTrace{}), do: "Diff sent"
 
   defp get_subtitle(%Trace{module: module, cid: cid}) do
