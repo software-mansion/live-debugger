@@ -22,10 +22,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
 
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace,
-    as: TraceComponents
-
   alias LiveDebugger.Structs.LvProcess
+
+  import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace
 
   @live_stream_limit 128
   @page_size 25
@@ -127,35 +126,37 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                 existing_traces={@streams.existing_traces}
               >
                 <:trace :let={{id, trace_display}}>
-                  <TraceComponents.diff_trace
-                    :if={diff_trace?(trace_display.trace)}
-                    id={id}
-                    trace_display={trace_display}
-                    search_phrase={@trace_search_phrase}
-                  />
-
-                  <HookComponents.TraceWrapper.render
-                    :if={not diff_trace?(trace_display.trace)}
-                    id={id}
-                    trace_display={trace_display}
-                  >
+                  <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
                     <:label class="grid-cols-[auto_1fr_auto]">
-                      <TraceComponents.module id={id} trace={trace_display.trace} class="col-span-3" />
-                      <TraceComponents.callback_name trace={trace_display.trace} />
-                      <TraceComponents.short_trace_content
+                      <.trace_module id={id} trace_display={trace_display} class="col-span-3" />
+                      <.trace_title trace_display={trace_display} />
+                      <.trace_short_content
                         id={id}
-                        trace={trace_display.trace}
+                        trace_display={trace_display}
                         full={true}
                         phx-hook="TraceLabelSearchHighlight"
                         data-search_phrase={@trace_search_phrase}
                       />
-                      <TraceComponents.trace_time_info id={id} trace_display={trace_display} />
+                      <.trace_side_section>
+                        <:left_section>
+                          <.trace_timestamp_info id={id} timestamp={trace_display.timestamp} />
+                        </:left_section>
+                        <:right_section>
+                          <.trace_execution_time_info
+                            id={id}
+                            execution_time={trace_display.side_info |> elem(1)}
+                            phx_hook={
+                              if trace_display.from_event?, do: "TraceExecutionTime", else: nil
+                            }
+                          />
+                        </:right_section>
+                      </.trace_side_section>
                     </:label>
 
                     <:body>
-                      <TraceComponents.trace_body
+                      <.trace_body
                         id={id}
-                        trace={trace_display.trace}
+                        trace_display={trace_display}
                         phx-hook="TraceBodySearchHighlight"
                         data-search_phrase={@trace_search_phrase}
                       />
@@ -167,10 +168,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                 :if={not @tracing_started? and not @traces_empty?}
                 traces_continuation={@traces_continuation}
               />
-              <TraceComponents.trace_fullscreen
+              <.trace_fullscreen
                 :if={@displayed_trace}
                 id="trace-fullscreen"
-                trace={@displayed_trace}
+                trace_display={@displayed_trace}
                 phx-hook="TraceBodySearchHighlight"
                 data-search_phrase={@trace_search_phrase}
               />
@@ -186,7 +187,4 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
     />
     """
   end
-
-  defp diff_trace?(%LiveDebugger.Structs.DiffTrace{}), do: true
-  defp diff_trace?(_), do: false
 end
