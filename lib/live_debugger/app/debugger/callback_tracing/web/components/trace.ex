@@ -23,7 +23,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   def trace_label(assigns) do
     short_content = TraceDisplay.short_content(assigns.trace_display, assigns.short_content_full?)
-
     assigns = assign(assigns, :short_content, short_content)
 
     ~H"""
@@ -86,7 +85,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   @doc """
   Displays the fullscreen of the trace.
   """
-
   attr(:id, :string, required: true)
   attr(:displayed_trace, TraceDisplay, required: true)
   attr(:rest, :global)
@@ -189,7 +187,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       <span
         id={@id <> "-value"}
         class={["text-nowrap", get_threshold_class(@execution_time)]}
-        phx_hook={if @from_event?, do: "TraceExecutionTime", else: nil}
+        phx-hook={if @from_event? |> dbg(), do: "TraceExecutionTime", else: nil}
       >
         <%= Parsers.parse_elapsed_time(@execution_time) %>
       </span>
