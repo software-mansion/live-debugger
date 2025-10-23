@@ -137,7 +137,18 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                 existing_traces={@streams.existing_traces}
               >
                 <:trace :let={{id, trace_display}}>
-                  <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
+                  <TraceComponents.diff_trace
+                    :if={diff_trace?(trace_display.trace)}
+                    id={id}
+                    trace_display={trace_display}
+                    search_phrase={@trace_search_phrase}
+                  />
+
+                  <HookComponents.TraceWrapper.render
+                    :if={not diff_trace?(trace_display.trace)}
+                    id={id}
+                    trace_display={trace_display}
+                  >
                     <:label class="grid-cols-[auto_1fr_auto]">
                       <TraceComponents.module id={id} trace={trace_display.trace} class="col-span-3" />
                       <TraceComponents.callback_name trace={trace_display.trace} />
@@ -198,4 +209,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   end
 
   def handle_info(_, socket), do: {:noreply, socket}
+
+  defp diff_trace?(%LiveDebugger.Structs.DiffTrace{}), do: true
+  defp diff_trace?(_), do: false
 end

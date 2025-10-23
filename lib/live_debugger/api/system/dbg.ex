@@ -17,6 +17,7 @@ defmodule LiveDebugger.API.System.Dbg do
 
   @callback tracer(handler :: handler_spec()) :: {:ok, pid()} | {:error, term()}
   @callback process(flags :: list()) :: {:ok, term()} | {:error, term()}
+  @callback process(pid(), flags :: list()) :: {:ok, term()} | {:error, term()}
   @callback trace_pattern(module() | mfa(), match_spec :: term()) ::
               {:ok, term()} | {:error, term()}
   @callback clear_trace_pattern(module() | mfa()) :: {:ok, term()} | {:error, term()}
@@ -35,8 +36,16 @@ defmodule LiveDebugger.API.System.Dbg do
   For list of supported flags, see `:dbg.p/2`.
   """
   @spec process(flags :: list()) :: {:ok, term()} | {:error, term()}
-  def process(flags \\ []) when is_list(flags) do
+  def process(flags) when is_list(flags) do
     impl().process(flags)
+  end
+
+  @doc """
+  Enables tracing for a specific process.
+  """
+  @spec process(pid(), flags :: list()) :: {:ok, term()} | {:error, term()}
+  def process(pid, flags) when is_list(flags) and is_pid(pid) do
+    impl().process(pid, flags)
   end
 
   @doc """
@@ -88,6 +97,11 @@ defmodule LiveDebugger.API.System.Dbg do
     @impl true
     def process(flags) do
       :dbg.p(:all, flags)
+    end
+
+    @impl true
+    def process(pid, flags) do
+      :dbg.p(pid, flags)
     end
 
     @impl true

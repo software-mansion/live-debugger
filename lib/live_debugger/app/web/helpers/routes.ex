@@ -16,6 +16,10 @@ defmodule LiveDebugger.App.Web.Helpers.Routes do
     ~p"/"
   end
 
+  @spec debugger(pid :: pid() | String.t(), live_action :: atom()) :: String.t()
+  def debugger(pid, :node_inspector), do: debugger_node_inspector(pid)
+  def debugger(pid, :global_traces), do: debugger_global_traces(pid)
+
   @spec debugger_node_inspector(
           pid :: pid() | String.t(),
           cid :: CommonTypes.cid() | String.t() | nil

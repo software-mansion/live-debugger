@@ -1,44 +1,16 @@
 defmodule LiveDebugger.App.Utils.TermParser do
   @moduledoc """
-  This module provides functions to parse terms into display tree.
-  Based on [Kino.Tree](https://github.com/livebook-dev/kino/blob/main/lib/kino/tree.ex)
+  This module provides functions to parse elixir terms.
   """
 
-  defmodule DisplayElement do
-    @moduledoc false
-    defstruct [:text, color: nil]
+  alias LiveDebugger.App.Utils.TermDiffer.Diff
+  alias LiveDebugger.App.Utils.TermDiffer
+  alias LiveDebugger.App.Utils.TermNode.DisplayElement
+  alias LiveDebugger.App.Utils.TermNode
 
-    @type t :: %__MODULE__{
-            text: String.t(),
-            color: String.t() | nil
-          }
-  end
-
-  defmodule TermNode do
-    @moduledoc """
-    Represents a node in the display tree.
-
-    - `id`: The id of the node (it represents the path to the node in the tree).
-    - `kind`: The type of the node (e.g., :atom, :list, :map).
-    - `children`: A list of child nodes.
-    - `content`: Display elements that represent the content of the node when has no children or not expanded.
-    - `expanded_before`: Display elements shown before the node's children when expanded.
-    - `expanded_after`: Display elements shown after the node's children when expanded.
-    """
-    defstruct [:id, :kind, :children, :content, :expanded_before, :expanded_after]
-
-    @type kind() :: :atom | :binary | :number | :tuple | :list | :map | :struct | :regex | :other
-
-    @type t :: %__MODULE__{
-            id: String.t(),
-            kind: kind(),
-            children: [t()],
-            content: [DisplayElement.t()],
-            expanded_before: [DisplayElement.t()] | nil,
-            expanded_after: [DisplayElement.t()] | nil
-          }
-  end
-
+  @doc """
+  Convert term into infinite string which can be copied to IEx console.
+  """
   @spec term_to_copy_string(term()) :: String.t()
   def term_to_copy_string(term) do
     term
@@ -50,178 +22,372 @@ defmodule LiveDebugger.App.Utils.TermParser do
     |> String.replace(~r/#.+?<.*?>/, &"\"#{&1}\"")
   end
 
+  @doc """
+  It creates a TermNode tree ready for display.
+
+  It includes:
+  - Indexing the tree
+  - Adding comma suffixes
+  - Opening proper elements
+  """
   @spec term_to_display_tree(term()) :: TermNode.t()
   def term_to_display_tree(term) do
-    to_node(term, [], "root")
+    term
+    |> to_node()
+    |> index_term_node()
+    |> update_comma_suffixes()
+    |> TermNode.open_with_default_settings()
   end
 
-  @spec to_node(term(), [DisplayElement.t()], String.t()) :: TermNode.t()
-  defp to_node(string, suffix, id_path) when is_binary(string) do
-    leaf_node(id_path, :binary, [green(inspect(string)) | suffix])
+  @doc """
+  Updates the term node by id.
+
+  ## Examples
+
+      iex> term_node = TermParser.term_to_display_tree(term)
+      iex> update_by_id(term_node, "root.0", fn term_node ->
+      ...>   %{term_node | content: [DisplayElement.blue("new value")]}
+      ...> end)
+      {:ok, %TermNode{...}}
+  """
+  @spec update_by_id(TermNode.t(), String.t(), (TermNode.t() -> TermNode.t())) ::
+          TermNode.ok_error()
+  def update_by_id(term_node, path, update_fn)
+
+  def update_by_id(term_node, "root", update_fn) do
+    {:ok, update_fn.(term_node)}
   end
 
-  defp to_node(atom, suffix, id_path) when is_atom(atom) do
-    span =
-      if atom in [nil, true, false] do
-        magenta(inspect(atom))
-      else
-        blue(inspect(atom))
-      end
-
-    leaf_node(id_path, :atom, [span | suffix])
+  def update_by_id(term_node, "root" <> _ = id, update_fn) do
+    ["root" | string_path] = String.split(id, ".")
+    path = string_path |> Enum.map(&String.to_integer/1)
+    update_by_path(term_node, path, update_fn)
   end
 
-  defp to_node(number, suffix, id_path) when is_number(number) do
-    leaf_node(id_path, :number, [blue(inspect(number)) | suffix])
+  @doc """
+  Updates the term node using calculated term #{Diff}.
+
+  ## Examples
+
+      iex> term_node = TermParser.term_to_display_tree(term)
+      iex> diff = TermDiffer.diff(term, new_term)
+      iex> update_by_diff(term_node, diff)
+      {:ok, %TermNode{...}}
+  """
+  @spec update_by_diff(TermNode.t(), Diff.t()) :: TermNode.ok_error()
+  def update_by_diff(term_node, diff) do
+    term_node =
+      term_node
+      |> update_by_diff!(diff)
+      |> index_term_node()
+      |> update_comma_suffixes()
+
+    {:ok, term_node}
+  rescue
+    error ->
+      {:error, "Invalid diff or term node: #{inspect(error)}"}
   end
 
-  defp to_node({}, suffix, id_path) do
-    leaf_node(id_path, :tuple, [black("{}") | suffix])
+  @spec update_by_path(TermNode.t(), [integer()], (TermNode.t() -> TermNode.t())) ::
+          TermNode.ok_error()
+  defp update_by_path(%TermNode{} = term, [index | path], update_fn) do
+    with {key, child} <- Enum.at(term.children, index),
+         {:ok, updated_child} <- update_by_path(child, path, update_fn) do
+      children = List.replace_at(term.children, index, {key, updated_child})
+      {:ok, %TermNode{term | children: children}}
+    else
+      nil ->
+        {:error, :child_not_found}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
-  defp to_node(tuple, suffix, id_path) when is_tuple(tuple) do
-    size = tuple_size(tuple)
-    children = tuple |> Tuple.to_list() |> to_children(size, id_path)
-
-    branch_node(id_path, :tuple, [black("{...}") | suffix], children, [black("{")], [
-      black("}") | suffix
-    ])
+  defp update_by_path(term, [], update_fn) do
+    {:ok, update_fn.(term)}
   end
 
-  defp to_node([], suffix, id_path) do
-    leaf_node(id_path, :list, [black("[]") | suffix])
+  @spec update_by_diff!(TermNode.t(), Diff.t(), Keyword.t()) :: TermNode.t()
+  defp update_by_diff!(term_node, diff, opts \\ [])
+
+  defp update_by_diff!(term_node, %Diff{type: :equal}, _opts), do: term_node
+
+  defp update_by_diff!(_, %Diff{type: :primitive} = diff, opts) do
+    term = TermDiffer.primitive_new_value(diff)
+
+    case Keyword.get(opts, :key, nil) do
+      nil ->
+        to_node(term)
+
+      key ->
+        {key, term}
+        |> to_key_value_node()
+        |> elem(1)
+    end
   end
 
-  defp to_node(list, suffix, id_path) when is_list(list) do
-    size = length(list)
+  defp update_by_diff!(term_node, %Diff{type: type, ins: ins, del: del}, _opts)
+       when type in [:list, :tuple] do
+    term_node
+    |> term_node_reduce_del(del)
+    |> term_node_reduce_list_ins(ins)
+  end
+
+  defp update_by_diff!(term_node, %Diff{type: :struct, diff: diff}, _opts) do
+    term_node_reduce_diff!(term_node, diff)
+  end
+
+  defp update_by_diff!(term_node, %Diff{type: :map, ins: ins, del: del, diff: diff}, _opts) do
+    term_node
+    |> term_node_reduce_del(del)
+    |> term_node_reduce_map_ins(ins)
+    |> term_node_reduce_diff!(diff)
+  end
+
+  defp term_node_reduce_del(term_node, del) do
+    Enum.reduce(del, term_node, fn {key, _}, term_node_acc ->
+      {:ok, term_node_acc} = TermNode.remove_child(term_node_acc, key)
+      term_node_acc
+    end)
+  end
+
+  defp term_node_reduce_list_ins(term_node, ins) do
+    Enum.reduce(ins, term_node, fn {index, term}, %TermNode{} = term_node_acc ->
+      children = List.insert_at(term_node_acc.children, index, {index, to_node(term)})
+      %TermNode{term_node_acc | children: children}
+    end)
+  end
+
+  defp term_node_reduce_map_ins(term_node, ins) do
+    child_keys = term_node.children |> Enum.map(fn {key, _} -> key end)
+
+    {term_node_acc, _} =
+      Enum.reduce(ins, {term_node, child_keys}, fn {key, term},
+                                                   {%TermNode{} = term_node_acc, child_keys} ->
+        child_keys = Enum.sort(child_keys ++ [key])
+        index = Enum.find_index(child_keys, &(&1 == key))
+
+        children = List.insert_at(term_node_acc.children, index, to_key_value_node({key, term}))
+        {%TermNode{term_node_acc | children: children}, child_keys}
+      end)
+
+    term_node_acc
+  end
+
+  defp term_node_reduce_diff!(term_node, diff) do
+    Enum.reduce(diff, term_node, fn {key, child_diff}, term_node_acc ->
+      {:ok, term_node_acc} =
+        TermNode.update_child(term_node_acc, key, fn child ->
+          update_by_diff!(child, child_diff, key: key)
+        end)
+
+      term_node_acc
+    end)
+  end
+
+  @spec index_term_node(TermNode.t()) :: TermNode.t()
+  defp index_term_node(%TermNode{children: children} = term_node, id_path \\ "root") do
+    new_children =
+      children
+      |> Enum.with_index()
+      |> Enum.map(fn {{key, child}, idx} ->
+        {key, index_term_node(child, "#{id_path}.#{idx}")}
+      end)
+
+    %TermNode{term_node | children: new_children, id: id_path}
+  end
+
+  @spec update_comma_suffixes(TermNode.t()) :: TermNode.t()
+  defp update_comma_suffixes(%TermNode{children: []} = term_node), do: term_node
+
+  defp update_comma_suffixes(%TermNode{children: children} = term_node) do
+    size = length(children)
 
     children =
-      if Keyword.keyword?(list) do
-        to_key_value_children(list, size, id_path)
-      else
-        to_children(list, size, id_path)
-      end
+      Enum.with_index(children, fn
+        {key, child}, index ->
+          child = update_comma_suffixes(child)
 
-    branch_node(id_path, :list, [black("[...]") | suffix], children, [black("[")], [
-      black("]") | suffix
-    ])
+          last_child? = index == size - 1
+
+          child =
+            case {last_child?, has_comma_suffix?(child)} do
+              {true, true} ->
+                TermNode.remove_suffix!(child)
+
+              {false, false} ->
+                TermNode.add_suffix(child, [TermNode.comma_suffix()])
+
+              _ ->
+                child
+            end
+
+          {key, child}
+      end)
+
+    %TermNode{term_node | children: children}
   end
 
-  defp to_node(%Regex{} = regex, suffix, id_path) do
-    leaf_node(id_path, :regex, [black(inspect(regex)) | suffix])
+  @spec to_node(term()) :: TermNode.t()
+  defp to_node(string) when is_binary(string) do
+    TermNode.new(:binary, [DisplayElement.green(inspect(string))])
   end
 
-  defp to_node(%module{} = struct, suffix, id_path) when is_struct(struct) do
-    content =
-      if Inspect.impl_for(struct) in [Inspect.Any, Inspect.Phoenix.LiveView.Socket] do
-        [black("%"), blue(inspect(module)), black("{...}") | suffix]
+  defp to_node(atom) when is_atom(atom) do
+    span =
+      if atom in [nil, true, false] do
+        DisplayElement.magenta(inspect(atom))
       else
-        [black(inspect(struct)) | suffix]
+        DisplayElement.blue(inspect(atom))
       end
 
-    map = Map.from_struct(struct)
-    size = map_size(map)
-    children = to_key_value_children(map, size, id_path)
+    TermNode.new(:atom, [span])
+  end
 
-    branch_node(
-      id_path,
-      :struct,
-      content,
-      children,
-      [black("%"), blue(inspect(module)), black("{")],
-      [black("}") | suffix]
+  defp to_node(number) when is_number(number) do
+    TermNode.new(:number, [DisplayElement.blue(inspect(number))])
+  end
+
+  defp to_node({}) do
+    TermNode.new(:tuple, [DisplayElement.black("{}")],
+      open?: false,
+      expanded_before: [DisplayElement.black("{")],
+      expanded_after: [DisplayElement.black("}")]
     )
   end
 
-  defp to_node(%{} = map, suffix, id_path) when map_size(map) == 0 do
-    leaf_node(id_path, :map, [black("%{}") | suffix])
+  defp to_node(tuple) when is_tuple(tuple) do
+    children = tuple |> Tuple.to_list() |> to_children()
+
+    TermNode.new(:tuple, [DisplayElement.black("{...}")],
+      children: children,
+      expanded_before: [DisplayElement.black("{")],
+      expanded_after: [DisplayElement.black("}")]
+    )
   end
 
-  defp to_node(map, suffix, id_path) when is_map(map) do
-    size = map_size(map)
-    children = map |> Enum.sort() |> to_key_value_children(size, id_path)
-
-    branch_node(id_path, :map, [black("%{...}") | suffix], children, [black("%{")], [
-      black("}") | suffix
-    ])
+  defp to_node([]) do
+    TermNode.new(:list, [DisplayElement.black("[]")],
+      open?: false,
+      expanded_before: [DisplayElement.black("[")],
+      expanded_after: [DisplayElement.black("]")]
+    )
   end
 
-  defp to_node(other, suffix, id_path) do
-    leaf_node(id_path, :other, [black(inspect(other)) | suffix])
+  defp to_node(list) when is_list(list) do
+    children =
+      if Keyword.keyword?(list) do
+        to_key_value_children(list)
+      else
+        to_children(list)
+      end
+
+    TermNode.new(:list, [DisplayElement.black("[...]")],
+      children: children,
+      expanded_before: [DisplayElement.black("[")],
+      expanded_after: [DisplayElement.black("]")]
+    )
   end
 
-  defp to_key_value_node({key, value}, suffix, id_path) do
+  defp to_node(%Regex{} = regex) do
+    TermNode.new(:regex, [DisplayElement.black(inspect(regex))])
+  end
+
+  defp to_node(%module{} = struct) when is_struct(struct) do
+    content =
+      if Inspect.impl_for(struct) in [Inspect.Any, Inspect.Phoenix.LiveView.Socket] do
+        [
+          DisplayElement.black("%"),
+          DisplayElement.blue(inspect(module)),
+          DisplayElement.black("{...}")
+        ]
+      else
+        [DisplayElement.black(inspect(struct))]
+      end
+
+    children =
+      struct
+      |> Map.from_struct()
+      |> Map.to_list()
+      |> to_key_value_children()
+
+    TermNode.new(
+      :struct,
+      content,
+      children: children,
+      expanded_before: [
+        DisplayElement.black("%"),
+        DisplayElement.blue(inspect(module)),
+        DisplayElement.black("{")
+      ],
+      expanded_after: [DisplayElement.black("}")]
+    )
+  end
+
+  defp to_node(%{} = map) when map_size(map) == 0 do
+    TermNode.new(:map, [DisplayElement.black("%{}")],
+      expanded_before: [DisplayElement.black("%{")],
+      expanded_after: [DisplayElement.black("}")]
+    )
+  end
+
+  defp to_node(map) when is_map(map) do
+    children = map |> Enum.sort() |> to_key_value_children()
+
+    TermNode.new(:map, [DisplayElement.black("%{...}")],
+      children: children,
+      expanded_before: [DisplayElement.black("%{")],
+      expanded_after: [DisplayElement.black("}")]
+    )
+  end
+
+  defp to_node(other) do
+    TermNode.new(:other, [DisplayElement.black(inspect(other))])
+  end
+
+  defp to_key_value_node({key, value}) do
     {key_span, sep_span} =
-      case to_node(key, [], "not_used_id_path") do
+      case to_node(key) do
         %TermNode{content: [%DisplayElement{text: ":" <> name} = span]} when is_atom(key) ->
-          {%{span | text: name <> ":"}, black(" ")}
+          {%{span | text: name <> ":"}, DisplayElement.black(" ")}
 
         %TermNode{content: [span]} ->
-          {%{span | text: inspect(key, width: :infinity)}, black(" => ")}
+          {%{span | text: inspect(key, width: :infinity)}, DisplayElement.black(" => ")}
 
         %TermNode{content: _content} ->
           {%DisplayElement{text: inspect(key, width: :infinity), color: "text-code-1"},
-           black(" => ")}
+           DisplayElement.black(" => ")}
       end
 
-    case to_node(value, suffix, id_path) do
-      %TermNode{content: content, children: []} = node ->
-        %TermNode{node | content: [key_span, sep_span | content]}
+    node = value |> to_node() |> TermNode.add_prefix([key_span, sep_span])
 
-      %TermNode{content: content, expanded_before: expanded_before} = node ->
-        %TermNode{
-          node
-          | content: [key_span, sep_span | content],
-            expanded_before: [key_span, sep_span | expanded_before]
-        }
-    end
+    {key, node}
   end
 
-  defp to_children(items, container_size, id_path) do
+  defp to_children(items) when is_list(items) do
     Enum.with_index(items, fn item, index ->
-      to_node(item, suffix(index, container_size), "#{id_path}.#{index}")
+      {index, to_node(item)}
     end)
   end
 
-  defp to_key_value_children(items, container_size, id_path) do
-    Enum.with_index(items, fn item, index ->
-      to_key_value_node(item, suffix(index, container_size), "#{id_path}.#{index}")
-    end)
+  defp to_key_value_children(items) when is_list(items) do
+    Enum.map(items, &to_key_value_node/1)
   end
 
-  defp suffix(index, container_size) do
-    if index != container_size - 1 do
-      [black(",")]
-    else
-      []
-    end
+  defp has_comma_suffix?(%TermNode{content: content, expanded_after: expanded_after}) do
+    content? = last_item_equal?(content, TermNode.comma_suffix())
+    expanded_after? = last_item_equal?(expanded_after, TermNode.comma_suffix())
+
+    if content? != expanded_after?,
+      do: raise("Content and expanded_after must have the same comma suffix")
+
+    content?
   end
 
-  defp leaf_node(id_path, kind, content) when is_binary(id_path) and is_atom(kind) do
-    %TermNode{
-      id: id_path,
-      kind: kind,
-      content: content,
-      children: [],
-      expanded_before: nil,
-      expanded_after: nil
-    }
+  defp last_item_equal?([_ | _] = items, item) do
+    items |> Enum.reverse() |> hd() |> Kernel.==(item)
   end
 
-  defp branch_node(id_path, kind, content, children, expanded_before, expanded_after)
-       when is_binary(id_path) and is_atom(kind) do
-    %TermNode{
-      id: id_path,
-      kind: kind,
-      content: content,
-      children: children,
-      expanded_before: expanded_before,
-      expanded_after: expanded_after
-    }
-  end
-
-  defp blue(text), do: %DisplayElement{text: text, color: "text-code-1"}
-  defp black(text), do: %DisplayElement{text: text, color: "text-code-2"}
-  defp magenta(text), do: %DisplayElement{text: text, color: "text-code-3"}
-  defp green(text), do: %DisplayElement{text: text, color: "text-code-4"}
+  defp last_item_equal?([], _), do: false
 end

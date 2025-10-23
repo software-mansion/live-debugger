@@ -6,8 +6,12 @@ defmodule LiveDebugger.Client.Socket do
   channel("client:*", LiveDebugger.Client.Channel)
 
   @impl true
-  def connect(%{"socketID" => socket_id}, socket) do
-    socket = assign(socket, :debugged_socket_id, socket_id)
+  def connect(%{"socketID" => socket_id} = params, socket) do
+    socket =
+      socket
+      |> assign(:debugged_socket_id, socket_id)
+      |> assign(:root_socket_ids, params["rootSocketIDs"] || %{})
+
     {:ok, socket}
   end
 

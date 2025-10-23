@@ -11,6 +11,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
 
   alias LiveDebugger.App.Events.UserChangedSettings
   alias LiveDebugger.App.Events.UserRefreshedTrace
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
 
   setup :verify_on_exit!
 
@@ -73,6 +74,18 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
       expect(MockAPIDbg, :trace_pattern, 19, fn _, _ -> :ok end)
 
       event = %UserRefreshedTrace{}
+
+      assert {:noreply, []} = TracingManager.handle_info(event, [])
+    end
+
+    test "handles LiveViewBorn event" do
+      pid = :c.pid(0, 1, 0)
+      transport_pid = :c.pid(0, 2, 0)
+
+      MockAPIDbg
+      |> expect(:process, fn ^pid, [:s] -> :ok end)
+
+      event = %LiveViewBorn{pid: pid, transport_pid: transport_pid}
 
       assert {:noreply, []} = TracingManager.handle_info(event, [])
     end

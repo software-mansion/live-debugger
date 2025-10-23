@@ -61,6 +61,7 @@ module.exports = {
         'info-border': 'var(--info-border)',
         'info-icon': 'var(--info-icon)',
         'info-text': 'var(--info-text)',
+        'diff-border': 'var(--diff-border)',
         'warning-text': 'var(--warning-text)',
       },
       screens: { xs: '380px' },

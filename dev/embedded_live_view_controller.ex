@@ -1,5 +1,5 @@
 defmodule LiveDebuggerDev.EmbeddedLiveViewController do
-  use Phoenix.Controller, layouts: [html: {LiveDebuggerDev.Layout, :app}]
+  use Phoenix.Controller, layouts: [html: {LiveDebuggerDev.Layout, :embedded}]
 
   import Phoenix.LiveView.Controller
 

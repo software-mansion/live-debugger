@@ -3,6 +3,25 @@ defmodule LiveDebugger.Fakes do
   Fake complex structures
   """
 
+  def display_element(opts \\ []) do
+    %LiveDebugger.App.Utils.TermNode.DisplayElement{
+      text: Keyword.get(opts, :text, "text"),
+      color: Keyword.get(opts, :color, "text-code-1")
+    }
+  end
+
+  def term_node(opts \\ []) do
+    %LiveDebugger.App.Utils.TermNode{
+      id: Keyword.get(opts, :id, "indexed"),
+      kind: Keyword.get(opts, :kind, :atom),
+      content: Keyword.get(opts, :content, [display_element()]),
+      children: Keyword.get(opts, :children, []),
+      expanded_before: Keyword.get(opts, :expanded_before, []),
+      expanded_after: Keyword.get(opts, :expanded_after, []),
+      open?: Keyword.get(opts, :open?, false)
+    }
+  end
+
   def term_diff_primitive(opts \\ []) do
     old_value = Keyword.get(opts, :old_value, 1)
     new_value = Keyword.get(opts, :new_value, 2)
@@ -76,6 +95,19 @@ defmodule LiveDebugger.Fakes do
     fields = Keyword.merge(default, opts)
 
     Kernel.struct!(LiveDebugger.Structs.Trace, fields)
+  end
+
+  def diff_trace(opts \\ []) do
+    default = [
+      id: -1,
+      body: %{some: "diff content"},
+      pid: :c.pid(0, 1, 0),
+      timestamp: :erlang.timestamp(),
+      size: 100
+    ]
+
+    fields = Keyword.merge(default, opts)
+    Kernel.struct!(LiveDebugger.Structs.DiffTrace, fields)
   end
 
   def liveview(opts \\ []) do
