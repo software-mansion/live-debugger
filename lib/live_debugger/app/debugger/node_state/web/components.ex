@@ -58,7 +58,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           data-search_phrase={@assigns_search_phrase}
         >
           <div class="absolute top-2 right-2 z-10">
-            <.assigns_size_label assigns={@assigns} id="display-container-size-label" />
+          <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
           </div>
           <ElixirDisplay.static_term node={@term_node} type={:assigns} />
         </div>
@@ -76,7 +76,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           data-search_phrase={@assigns_search_phrase}
         >
           <div class="absolute top-0 right-2 z-10">
-            <.assigns_size_label assigns={@assigns} id="display-fullscreen-size-label" />
+          <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
           </div>
           <ElixirDisplay.static_term node={@term_node} type={:assigns} />
         </div>
