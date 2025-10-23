@@ -22,11 +22,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ToggleTra
   end
 
   attr(:tracing_started?, :boolean, required: true)
+  attr(:lv_process_alive?, :boolean, default: true)
 
   @impl true
   def render(assigns) do
     ~H"""
-    <.button phx-click="switch-tracing" class="flex gap-2" size="sm">
+    <.button phx-click="switch-tracing" class="flex gap-2" size="sm" disabled={!@lv_process_alive?}>
       <div class="flex gap-1.5 items-center w-12">
         <%= if @tracing_started? do %>
           <.icon name="icon-stop" class="w-4 h-4" />

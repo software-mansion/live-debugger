@@ -21,10 +21,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Assigns.Filters, as: FiltersAssigns
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
-
   alias LiveDebugger.Structs.LvProcess
+  alias LiveDebugger.Bus
+  alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
 
   import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace
+
 
   @live_stream_limit 128
   @page_size 25
@@ -58,6 +60,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
         %{"parent_pid" => parent_pid, "lv_process" => lv_process, "id" => id},
         socket
       ) do
+    if connected?(socket) do
+      Bus.receive_events!(parent_pid)
+    end
+
     socket
     |> assign(
       id: id,
@@ -111,7 +117,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
               />
             </div>
             <div class="flex gap-2 items-center h-8 px-2">
-              <HookComponents.ToggleTracingButton.render tracing_started?={@tracing_started?} />
+              <HookComponents.ToggleTracingButton.render
+                tracing_started?={@tracing_started?}
+                lv_process_alive?={@lv_process.alive?}
+              />
               <%= if not @tracing_started? do %>
                 <HookComponents.RefreshButton.render label_class="hidden @[30rem]/traces:block" />
                 <HookComponents.ClearButton.render label_class="hidden @[30rem]/traces:block" />
@@ -171,4 +180,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
     />
     """
   end
+
+  @impl true
+  def handle_info(
+        %DeadViewModeEntered{debugger_pid: pid},
+        %{assigns: %{parent_pid: pid}} = socket
+      ) do
+    socket
+    |> assign(:lv_process, socket.assigns.lv_process |> LvProcess.set_alive(false))
+    |> Hooks.TracingFuse.disable_tracing()
+    |> noreply()
+  end
+
+  def handle_info(_, socket), do: {:noreply, socket}
 end

@@ -34,6 +34,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:assigns_search_phrase, :string, default: "")
 
   def assigns_section(assigns) do
+    opened_term_node =
+      TermNode.open_with_search_phrase(assigns.term_node, assigns.assigns_search_phrase)
+
+    assigns = assign(assigns, term_node: opened_term_node)
+
     ~H"""
     <div id="assigns-section-container" phx-hook="AssignsBodySearchHighlight">
       <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">

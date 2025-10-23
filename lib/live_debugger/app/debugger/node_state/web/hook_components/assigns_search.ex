@@ -39,7 +39,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch d
   defp handle_event("search", %{"search_phrase" => search_phrase}, socket) do
     socket
     |> assign(assigns_search_phrase: search_phrase)
-    |> push_event("search_in_assigns", %{search_phrase: search_phrase})
     |> halt()
   end
 
