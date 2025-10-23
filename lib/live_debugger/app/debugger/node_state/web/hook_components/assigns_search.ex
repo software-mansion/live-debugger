@@ -6,7 +6,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch d
 
   use LiveDebugger.App.Web, :hook_component
 
+  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Debugger.Components
+  alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
 
   @required_assigns [:assigns_search_phrase]
 

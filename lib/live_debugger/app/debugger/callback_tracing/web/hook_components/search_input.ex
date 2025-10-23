@@ -24,6 +24,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.SearchInp
   attr(:placeholder, :string, default: "Search...")
   attr(:disabled?, :boolean, default: false)
   attr(:trace_search_phrase, :string, default: "", doc: "The current search query for traces")
+  attr(:class, :string, default: "", doc: "Additional CSS classes for the input element")
 
   @impl true
   def render(assigns) do
@@ -32,7 +33,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.SearchInp
       disabled?={@disabled?}
       search_phrase={@trace_search_phrase}
       input_id="trace-search-input"
-      debounce={1}
+      debounce={250}
+      class={@class}
     />
     """
   end
