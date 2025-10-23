@@ -5,7 +5,6 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
   def mount(_params, _session, socket) do
     socket =
       socket
-      # konfiguracja streamów z custom dom_id
       |> stream_configure(:items, dom_id: &"item-#{&1.id}")
       |> stream_configure(:another_items, dom_id: &"another-#{&1.id}")
       |> assign(:current_id, 0)
@@ -20,54 +19,46 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
   @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      <h1>🧠 LiveView Stream Playground</h1>
+    <.box title="Items Stream options">
+      <.button phx-click="create_item">Create Item</.button>
+      <.button phx-click="update_item">Update Last Item</.button>
+      <.button phx-click="insert_many">Insert Many (Reverse Order)</.button>
+      <.button phx-click="insert_at_index">Insert At Index 4</.button>
+      <.button phx-click="delete_item">Delete Last</.button>
+      <.button phx-click="reset_items">Reset Stream</.button>
+      <.button phx-click="limit_stream">Limit Stream (5)</.button>
+      <.button phx-click="async_load">Async Load Items</.button>
+      <.button phx-click="delete_both_last">Delete Last From Both Streams</.button>
+    </.box>
 
-      <.box title="Items Stream">
-        <.button phx-click="create_item">➕ Create Item</.button>
-        <.button phx-click="update_item">♻️ Update Last Item</.button>
-        <.button phx-click="insert_many">📦 Insert Many (Reverse Order)</.button>
-        <.button phx-click="insert_at_index">Insert At Index 4</.button>
-        <.button phx-click="delete_item">🗑️ Delete Last</.button>
-        <.button phx-click="reset_items">🚿 Reset Stream</.button>
-        <.button phx-click="limit_stream">🎯 Limit Stream (5)</.button>
-        <.button phx-click="async_load">⚡ Async Load Items</.button>
-      </.box>
+    <hr />
 
-      <hr />
-
-      <h2>Items Stream:</h2>
+    <.box title="Items Stream">
       <ul id="item-list" phx-update="stream">
-        <li id="empty-items" class="only:li text-gray-500 italic">No items found</li>
         <li :for={{id, item} <- @streams.items} id={id}>
           <strong>ID:</strong> {item.id}, <strong>Number:</strong> {item.number}
-          <button phx-click="delete_by_dom_id" phx-value-id={id}>❌</button>
+          <button phx-click="delete_by_dom_id" phx-value-id={id}>X</button>
         </li>
       </ul>
+    </.box>
 
-      <hr />
+    <hr />
 
-      <h2>Another Items Stream (custom dom_id + at: -1):</h2>
-      <button phx-click="create_another_item">🌟 Create Another Item</button>
+    <.box title="Another Items stream options">
+      <.button phx-click="create_another_item">Create Another Item</.button>
+    </.box>
 
+    <.box title="Another Items Stream">
       <ul id="another-items-list" phx-update="stream">
-        <li id="empty-another" class="only:li text-gray-500 italic">Nothing here yet</li>
         <li :for={{id, item} <- @streams.another_items} id={id}>
-          ✅ <strong>{item.id}</strong> → {item.number}
+          <strong>{item.id}</strong> ->{item.number}
         </li>
       </ul>
+    </.box>
 
-      <hr />
-      <%= if @async_loaded? do %>
-        <p style="color: green;">✅ Async items loaded!</p>
-      <% else %>
-        <p style="color: gray;">(click ⚡ Async Load Items to see async streaming)</p>
-      <% end %>
-    </div>
+    <hr />
     """
   end
-
-  # === BASIC OPERATIONS ===
 
   @impl true
   def handle_event("create_item", _params, socket) do
@@ -145,14 +136,12 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
     end
   end
 
-  # === DELETE BY DOM ID ===
   @impl true
   def handle_event("delete_by_dom_id", %{"id" => dom_id}, socket) do
     socket = stream_delete_by_dom_id(socket, :items, dom_id)
     {:noreply, socket}
   end
 
-  # === RESET ===
   @impl true
   def handle_event("reset_items", _params, socket) do
     socket =
@@ -163,7 +152,6 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
     {:noreply, socket}
   end
 
-  # === LIMIT STREAM ===
   @impl true
   def handle_event("limit_stream", _params, socket) do
     next_id = socket.assigns.current_id
@@ -177,7 +165,6 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
     {:noreply, socket}
   end
 
-  # === ANOTHER STREAM ===
   @impl true
   def handle_event("create_another_item", _params, socket) do
     next_id = socket.assigns.another_items_id
@@ -191,7 +178,6 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
     {:noreply, socket}
   end
 
-  # === ASYNC STREAM ===
   @impl true
   def handle_event("async_load", _params, socket) do
     socket =
@@ -209,5 +195,32 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
   @impl true
   def handle_info({:async_result, :items, {:ok, _}}, socket) do
     {:noreply, assign(socket, :async_loaded?, true)}
+  end
+
+  @impl true
+  def handle_event("delete_both_last", _params, socket) do
+    last_item_id = socket.assigns.current_id - 1
+    last_another_id = socket.assigns.another_items_id - 1
+
+    socket =
+      socket
+      |> then(fn s ->
+        if last_item_id >= 0 do
+          stream_delete(s, :items, %{id: last_item_id})
+        else
+          s
+        end
+      end)
+      |> then(fn s ->
+        if last_another_id >= 0 do
+          stream_delete(s, :another_items, %{id: last_another_id})
+        else
+          s
+        end
+      end)
+      |> assign(:current_id, max(last_item_id, 0))
+      |> assign(:another_items_id, max(last_another_id, 0))
+
+    {:noreply, socket}
   end
 end
