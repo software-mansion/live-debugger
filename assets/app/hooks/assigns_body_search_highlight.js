@@ -10,12 +10,7 @@ function highlightSearchRanges(allRanges) {
   CSS.highlights.set('search-highlight', highlight);
 }
 
-function handleHighlight(phrase) {
-  if (phrase === undefined || phrase === '') {
-    CSS.highlights.clear();
-    return;
-  }
-
+function handleHighlight() {
   const allRanges = [];
   const assignsFullscreenContainer = document.getElementById(
     'assigns-display-fullscreen-container'
@@ -23,7 +18,8 @@ function handleHighlight(phrase) {
   const assignsContainer = document.getElementById('assigns-display-container');
 
   [assignsContainer, assignsFullscreenContainer].forEach((el) => {
-    if (el && el.dataset.search_phrase === phrase) {
+    const phrase = el.dataset.search_phrase;
+    if (el && phrase && phrase !== '') {
       const ranges = findRanges(el, phrase);
       allRanges.push(...ranges);
     }
@@ -34,9 +30,10 @@ function handleHighlight(phrase) {
 
 const AssignsBodySearchHighlight = {
   mounted() {
-    this.handleEvent('search_in_assigns', ({ search_phrase }) => {
-      handleHighlight(search_phrase);
-    });
+    handleHighlight();
+  },
+  updated() {
+    handleHighlight();
   },
 };
 

@@ -12,6 +12,24 @@ defmodule LiveDebugger.App.Utils.TermNode do
   - `expanded_after`: Display elements shown after the node's children when expanded.
   """
 
+  @list_and_tuple_open_limit 3
+
+  defstruct [:id, :kind, :children, :content, :expanded_before, :expanded_after, open?: false]
+
+  @type kind() :: :atom | :binary | :number | :tuple | :list | :map | :struct | :regex | :other
+
+  @type t :: %__MODULE__{
+          id: String.t(),
+          kind: kind(),
+          open?: boolean(),
+          children: [{any(), t()}],
+          content: [DisplayElement.t()],
+          expanded_before: [DisplayElement.t()],
+          expanded_after: [DisplayElement.t()]
+        }
+
+  @type ok_error() :: {:ok, t()} | {:error, any()}
+
   defmodule DisplayElement do
     @moduledoc false
     defstruct [:text, color: nil]
@@ -33,22 +51,6 @@ defmodule LiveDebugger.App.Utils.TermNode do
     @spec green(String.t()) :: t()
     def green(text), do: %__MODULE__{text: text, color: "text-code-4"}
   end
-
-  defstruct [:id, :kind, :children, :content, :expanded_before, :expanded_after, open?: false]
-
-  @type kind() :: :atom | :binary | :number | :tuple | :list | :map | :struct | :regex | :other
-
-  @type t :: %__MODULE__{
-          id: String.t(),
-          kind: kind(),
-          open?: boolean(),
-          children: [{any(), t()}],
-          content: [DisplayElement.t()],
-          expanded_before: [DisplayElement.t()],
-          expanded_after: [DisplayElement.t()]
-        }
-
-  @type ok_error() :: {:ok, t()} | {:error, any()}
 
   @spec new(kind(), [DisplayElement.t()], Keyword.t()) :: t()
   def new(kind, content, args \\ []) do
@@ -138,5 +140,78 @@ defmodule LiveDebugger.App.Utils.TermNode do
       _ ->
         {:error, :child_not_found}
     end
+  end
+
+  @spec open_with_default_settings(t()) :: t()
+  def open_with_default_settings(term_node) do
+    term_node
+    |> open_first_element()
+    |> open_small_lists_and_tuples()
+  end
+
+  @spec open_with_search_phrase(t(), String.t()) :: t()
+  def open_with_search_phrase(%__MODULE__{} = term_node, "") do
+    term_node
+  end
+
+  def open_with_search_phrase(%__MODULE__{} = term_node, search_phrase) do
+    text = extract_text(term_node)
+
+    if text =~ ~r/#{Regex.escape(search_phrase)}/i do
+      updated_children =
+        term_node.children
+        |> Enum.map(fn {key, child} ->
+          {key, open_with_search_phrase(child, search_phrase)}
+        end)
+
+      %__MODULE__{term_node | open?: true, children: updated_children}
+    else
+      term_node
+    end
+  end
+
+  defp open_first_element(%__MODULE__{} = term_node) do
+    %__MODULE__{term_node | open?: true}
+  end
+
+  defp open_small_lists_and_tuples(%__MODULE__{kind: kind, children: children} = term_node)
+       when kind in [:list, :tuple] do
+    children =
+      Enum.map(children, fn {key, child} ->
+        {key, open_small_lists_and_tuples(child)}
+      end)
+
+    if length(children) < @list_and_tuple_open_limit do
+      %__MODULE__{term_node | open?: true, children: children}
+    else
+      %__MODULE__{term_node | children: children}
+    end
+  end
+
+  defp open_small_lists_and_tuples(%__MODULE__{children: children} = term_node) do
+    children =
+      Enum.map(children, fn {key, child} ->
+        {key, open_small_lists_and_tuples(child)}
+      end)
+
+    %__MODULE__{term_node | children: children}
+  end
+
+  defp extract_text(%__MODULE__{} = term_node) do
+    term_node
+    |> get_display_elements()
+    |> Enum.map_join(& &1.text)
+  end
+
+  defp get_display_elements(%__MODULE__{children: [], content: content}) do
+    content
+  end
+
+  defp get_display_elements(%__MODULE__{} = term_node) do
+    children_display_elements =
+      term_node.children
+      |> Enum.flat_map(fn {_, child} -> get_display_elements(child) end)
+
+    term_node.expanded_before ++ children_display_elements ++ term_node.expanded_after
   end
 end
