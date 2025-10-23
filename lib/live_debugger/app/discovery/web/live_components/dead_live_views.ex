@@ -42,7 +42,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id} class="h-3/7 max-lg:p-8 pt-8 lg:w-[60rem] lg:mx-auto">
+    <div id={@id} class="h-3/7 max-lg:p-8 py-8 lg:w-[60rem] lg:mx-auto">
       <DiscoveryComponents.header
         title="Dead LiveViews"
         refresh_event="refresh-dead"
@@ -60,7 +60,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
       <div :if={@dead_liveviews?}>
         <DiscoveryComponents.garbage_collection_info />
 
-        <div class="mt-6 max-h-92 overflow-y-auto">
+        <div class="mt-6 max-h-72 lg:max-h-100 overflow-y-auto">
           <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
             <:loading><DiscoveryComponents.loading /></:loading>
             <:failed><DiscoveryComponents.failed /></:failed>

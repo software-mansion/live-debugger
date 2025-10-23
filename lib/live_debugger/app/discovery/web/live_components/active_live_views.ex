@@ -25,14 +25,14 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.ActiveLiveViews do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id} class="h-3/7 max-lg:p-8 pt-8 lg:w-[60rem] lg:mx-auto">
+    <div id={@id} class="h-3/7 min-h-92 lg:min-h-120 max-lg:p-8 pt-8 lg:w-[60rem] lg:mx-auto">
       <DiscoveryComponents.header
         title="Active LiveViews"
         refresh_event="refresh-active"
         target={@myself}
       />
 
-      <div class="mt-6 max-h-92 overflow-y-auto">
+      <div class="mt-6 max-h-72 lg:max-h-100 overflow-y-auto">
         <.async_result :let={grouped_lv_processes} assign={@grouped_lv_processes}>
           <:loading><DiscoveryComponents.loading /></:loading>
           <:failed><DiscoveryComponents.failed /></:failed>
