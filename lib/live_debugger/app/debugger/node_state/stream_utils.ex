@@ -1,92 +1,191 @@
 defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
   @moduledoc """
-  Utility functions for handling Phoenix LiveView stream updates and extracting stream state from render traces.
+  Utilities for extracting and computing Phoenix LiveView stream diffs and state
+  from render traces.
   """
+
   alias LiveDebugger.App.Utils.TermDiffer
   alias LiveDebugger.App.Utils.TermDiffer.Diff
   alias LiveDebugger.App.Utils.TermParser
 
-  @empty_diff %Diff{
-    type: :map,
-    ins: %{},
-    del: %{},
-    diff: %{}
-  }
+  @empty_diff %Diff{type: :map, ins: %{}, del: %{}, diff: %{}}
 
-  def calculate_initial_diff({stream_updates, _}) do
-    streams_data =
-      stream_updates
-      |> Enum.sort_by(& &1.timestamp, :desc)
-      |> Enum.flat_map(& &1.args)
-      |> Enum.map(&Map.get(&1, :streams, []))
-      |> Enum.reject(&Enum.empty?/1)
+  @doc """
+  Given a tuple of render traces, compute the base stream diff and stream state.
+  """
+  def build_initial_stream_diff({stream_updates, _trace}) do
+    stream_traces = extract_stream_traces(stream_updates)
+    base_stream_state = infer_base_stream_state(stream_traces)
 
-    initial_state = initialize_stream_state(streams_data)
-    initial_diff = TermDiffer.diff(%{}, initial_state)
+    base_diff = TermDiffer.diff(%{}, base_stream_state)
 
-    {_, initial_term} =
-      TermParser.update_by_diff(TermParser.term_to_display_tree(%{}), initial_diff)
+    {_, initial_term_tree} =
+      TermParser.update_by_diff(
+        TermParser.term_to_display_tree(%{}),
+        base_diff
+      )
 
-    {inserts, deletes} = apply_stream_updates(streams_data, initial_state)
+    {inserts, deletes} = collect_all_updates(stream_traces)
+    deletes = ensure_delete_keys_present(inserts, deletes)
 
-    deletes = maybe_fill_deletes(inserts, deletes)
+    computed_lists = reconstruct_stream_lists(inserts, deletes)
+    stream_state = build_stream_state_map(computed_lists)
+    final_diff = build_diff_from_computed_lists(computed_lists)
 
-    inserts_diff =
-      Enum.reduce(inserts, %{}, fn {key, value}, acc ->
-        Map.put(acc, key, generate_stream_diff(value))
-      end)
-
-    merged =
-      Map.merge(inserts_diff, deletes, fn _key, inserts, deletes ->
-        {inserts, deletes}
-      end)
-
-    cleaned =
-      Enum.map(merged, fn {key, {inserts, deletes}} ->
-        inverted = Enum.reverse(inserts)
-
-        cleaned =
-          Enum.reduce(deletes, inverted, fn dom_id, acc ->
-            List.keydelete(acc, dom_id, 0)
-          end)
-
-        {key, cleaned}
-      end)
-
-    initial_diff =
-      Enum.reduce(cleaned, @empty_diff, fn {group_key, list}, acc ->
-        ins_map =
-          Enum.into(list, %{}, fn {_, val} ->
-            {val.id, val}
-          end)
-
-        list_diff = %Diff{
-          type: :list,
-          ins: ins_map,
-          del: %{},
-          diff: %{}
-        }
-
-        updated_diff = Map.put(acc.diff, group_key, list_diff)
-        %{acc | diff: updated_diff}
-      end)
-
-    streams_state =
-      Enum.map(cleaned, fn {k, v} ->
-        {k, Enum.with_index(v, fn {dom_id, _}, index -> {dom_id, index} end)}
-      end)
-
-    dbg(streams_state)
-    {initial_term, initial_diff, streams_state}
+    {initial_term_tree, final_diff, Map.to_list(stream_state)}
   end
 
-  defp maybe_fill_deletes(inserts, deletes) do
-    Enum.reduce(Map.keys(inserts), deletes, fn key, acc ->
-      Map.put_new(acc, key, [])
+  @doc """
+  Computes the stream diff between updates and the current stream state.
+  """
+  def compute_diff(stream_updates, current_stream_state) do
+    dbg(stream_updates)
+    dbg(current_stream_state)
+
+    inserts = collect_updates_by_type(stream_updates, :inserts)
+    deletes = collect_updates_by_type(stream_updates, :deletes)
+
+    
+    #ddac porowananie dla wszystkich czy jakis nowy nie doszedl
+    current_stream_state =
+      if current_stream_state == [] do
+        infer_initial_state_from_updates(stream_updates)
+      else
+        current_stream_state
+      end
+
+    # reset_map =
+    #   Enum.map(stream_updates, fn {stream_name, %Phoenix.LiveView.LiveStream{} = stream} ->
+    #     {
+    #       if stream.reset? do
+    #         # componute reset map (instead of delete and reset current state)
+    #       else
+    #         stream
+    #       end
+    #     }
+    #   end)
+
+    # {reset_map, current_stream_state} =
+    #   stream_updates
+    #   |> Enum.map(fn {stream_name, %Phoenix.LiveView.LiveStream{} = stream} ->
+    #     Enum.map()
+    #   end)
+    #   |> Enum.reject(&is_nil/1)
+    #   |> Enum.into(%{})
+
+    {diffs, new_stream_state} =
+      Enum.reduce(current_stream_state, {%{}, %{}}, fn {stream_name, current_items},
+                                                       {diff_acc, state_acc} ->
+        update =
+          compute_stream_diff_update(
+            Map.get(inserts, stream_name, []),
+            Map.get(deletes, stream_name, []),
+            current_items
+          )
+
+        diff_entry = %Diff{type: :list, ins: update.ins, del: update.del, diff: %{}}
+
+        {
+          Map.put(diff_acc, stream_name, diff_entry),
+          Map.put(state_acc, stream_name, update.next_state)
+        }
+      end)
+
+    final_diff = Map.put(@empty_diff, :diff, diffs)
+    dbg(final_diff)
+    dbg(new_stream_state)
+
+    {final_diff, new_stream_state}
+  end
+
+  @doc """
+  Aggregates all stream inserts and deletes from a list of stream traces.
+  """
+  defp collect_all_updates(stream_traces) do
+    inserts = collect_updates_by_type(stream_traces, :inserts)
+    deletes = collect_updates_by_type(stream_traces, :deletes)
+    {inserts, deletes}
+  end
+
+  # Internal helpers
+
+  defp extract_stream_traces(stream_updates) do
+    stream_updates
+    |> Enum.sort_by(& &1.timestamp, :desc)
+    |> Enum.flat_map(& &1.args)
+    |> Enum.map(&Map.get(&1, :streams, []))
+    |> Enum.reject(&Enum.empty?/1)
+  end
+
+  defp infer_base_stream_state([]), do: %{}
+
+  defp infer_base_stream_state([first_trace | _]) do
+    first_trace
+    |> Enum.filter(fn {_, val} -> match?(%Phoenix.LiveView.LiveStream{}, val) end)
+    |> Map.new(fn {key, _val} -> {key, []} end)
+  end
+
+  defp infer_initial_state_from_updates(updates) do
+    updates
+    |> Enum.flat_map(fn update ->
+      update
+      |> Enum.filter(fn {_key, val} -> match?(%Phoenix.LiveView.LiveStream{}, val) end)
+      |> Enum.map(fn {key, _} -> {key, []} end)
+    end)
+    |> Map.new()
+  end
+
+  defp ensure_delete_keys_present(inserts, deletes) do
+    Enum.reduce(Map.keys(inserts), deletes, fn stream_name, acc ->
+      Map.put_new(acc, stream_name, [])
     end)
   end
 
-  defp generate_stream_diff(inserts) do
+  defp collect_updates_by_type(update_list, type)
+       when type in [:inserts, :deletes] do
+    update_list
+    |> Enum.flat_map(&flatten_stream_updates(&1, type))
+    |> Enum.reduce(%{}, fn {stream_name, updates}, acc ->
+      Map.update(acc, stream_name, updates, &(&1 ++ updates))
+    end)
+  end
+
+  defp flatten_stream_updates(stream_entry, type) do
+    Enum.flat_map(stream_entry, fn
+      {stream_name, %Phoenix.LiveView.LiveStream{} = stream} ->
+        updates =
+          case type do
+            :inserts -> stream.inserts
+            :deletes -> stream.deletes
+          end
+
+        if updates != [] do
+          [{stream_name, updates}]
+        else
+          []
+        end
+
+      _ ->
+        []
+    end)
+  end
+
+  defp reconstruct_stream_lists(inserts, deletes) do
+    inserts
+    |> Enum.map(fn {stream_name, stream_inserts} ->
+      list = build_stream_list_from_inserts(stream_inserts)
+      deleted_ids = Map.get(deletes, stream_name, [])
+
+      cleaned =
+        Enum.reduce(deleted_ids, list, fn dom_id, acc ->
+          List.keydelete(acc, dom_id, 0)
+        end)
+
+      {stream_name, cleaned}
+    end)
+  end
+
+  defp build_stream_list_from_inserts(inserts) do
     Enum.reduce(Enum.reverse(inserts), [], fn {dom_id, index, element, _, updated?}, acc ->
       if updated? do
         List.keyreplace(acc, dom_id, 0, {dom_id, element})
@@ -96,223 +195,89 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
     end)
   end
 
-  # defp generate_stream_update_diff(inserts,deletes,stream_state) do
+  defp build_stream_state_map(list_map) do
+    list_map
+    |> Enum.map(fn {stream_name, list} ->
+      stream_state =
+        Enum.with_index(list, fn {dom_id, _val}, idx ->
+          {dom_id, idx}
+        end)
 
-  #   merged =
-  #     Map.merge(inserts, deletes, fn _key, inserts, deletes ->
-  #       {Enum.reverse(inserts), deletes}
-  #     end)
-  #   Enum.reduce(merged, {}, fn {ins,del}, acc ->
-  #    # {dom_id, index, element, _, updated?}
-  #    Enum.reduce(ins, [], fn {dom_id, index, element, _, updated?}, acc ->
-  #     if updated? do
-  #       List.keyreplace(acc, dom_id, 0, {dom_id, element})
-  #     else
-  #       List.insert_at(acc, index, {dom_id, element})
-  #     end
-  #   end, [])
+      {stream_name, stream_state}
+    end)
+    |> Map.new()
+  end
 
-  #   end)
-  # end
+  defp build_diff_from_computed_lists(list_map) do
+    diff_map =
+      Enum.reduce(list_map, %{}, fn {stream_name, list}, acc ->
+        inserts =
+          Enum.into(list, %{}, fn {_, val} -> {val.id, val} end)
 
-  defp generate_stream_update_diff(inserts, deletes, current_state) do
-    # === Usuń elementy z state ===
+        list_diff = %Diff{type: :list, ins: inserts, del: %{}, diff: %{}}
+        Map.put(acc, stream_name, list_diff)
+      end)
+
+    Map.put(@empty_diff, :diff, diff_map)
+  end
+
+  defp compute_stream_diff_update(inserts, deletes, current_state) do
     deleted_ids = MapSet.new(deletes)
 
-    cleaned =
-      Enum.reject(current_state, fn {dom_id, _index} ->
-        dom_id in deleted_ids
-      end)
+    cleaned_state =
+      Enum.reject(current_state, fn {dom_id, _} -> dom_id in deleted_ids end)
 
-    reindexed_cleaned =
-      cleaned
+    reindexed_state =
+      cleaned_state
       |> Enum.with_index()
-      |> Enum.map(fn {{dom_id, _old_index}, new_index} ->
-        {dom_id, new_index}
-      end)
+      |> Enum.map(fn {{dom_id, _}, idx} -> {dom_id, idx} end)
 
-    # === Tworzenie mapy del: %{index => :deleted} ===
-    del_map =
+    deleted_map =
       deletes
       |> Enum.map(fn dom_id ->
         case List.keyfind(current_state, dom_id, 0) do
-          {^dom_id, index} -> {index, :deleted}
+          {^dom_id, idx} -> {idx, :deleted}
           _ -> nil
         end
       end)
       |> Enum.reject(&is_nil/1)
       |> Enum.into(%{})
 
-    # === Tworzenie mapy ins i aktualizacja listy ===
-    {ins_map, update_del_map, updated_list} =
-      Enum.reduce(inserts, {%{}, %{}, reindexed_cleaned}, fn
-        {dom_id, index, value, _, true}, {ins_acc, del_acc, list_acc} ->
+    {insert_ops, updated_del_map, updated_state} =
+      Enum.reduce(inserts, {[], %{}, reindexed_state}, fn
+        {dom_id, index, value, _, true}, {ins_acc, del_acc, state_acc} ->
           {_, original_index} = List.keyfind(current_state, dom_id, 0)
-          {_, new_index} = List.keyfind(reindexed_cleaned, dom_id, 0)
 
-          delete_entry =
+          updated_del =
             if original_index, do: Map.put(del_acc, original_index, :deleted), else: del_acc
 
-          insert_entry =
-            if new_index, do: Map.put(ins_acc, new_index, value), else: ins_acc
+          updated_ins = List.insert_at(ins_acc, index, {index, value})
+          new_state = List.keyreplace(state_acc, dom_id, 0, {dom_id, index})
 
-          state_entry =
-            if new_index,
-              do: List.keyreplace(list_acc, dom_id, 0, {dom_id, index}),
-              else: list_acc
+          {updated_ins, updated_del, new_state}
 
+        {dom_id, index, value, _, false}, {ins_acc, del_acc, state_acc} ->
           {
-            insert_entry,
-            delete_entry,
-            state_entry
-          }
-
-        {dom_id, index, value, _, false}, {ins_acc, del_acc, list_acc} ->
-          {
-            Map.put(ins_acc, index, value),
+            List.insert_at(ins_acc, index, {index, value}),
             del_acc,
-            List.insert_at(list_acc, index, {dom_id, index})
+            List.insert_at(state_acc, index, {dom_id, index})
           }
       end)
 
-    final_del_map = Map.merge(del_map, update_del_map)
+    ins_map =
+      insert_ops
+      |> Enum.with_index(fn {_idx, val}, idx -> {idx, val} end)
+      |> Map.new()
 
-    reindexed_updated_list =
-      updated_list
+    next_state =
+      updated_state
       |> Enum.with_index()
-      |> Enum.map(fn {{dom_id, _old_index}, new_index} ->
-        {dom_id, new_index}
-      end)
+      |> Enum.map(fn {{dom_id, _}, idx} -> {dom_id, idx} end)
 
     %{
       ins: ins_map,
-      del: final_del_map,
-      updated_state: reindexed_updated_list
+      del: Map.merge(deleted_map, updated_del_map),
+      next_state: next_state
     }
   end
-
-  defp initialize_stream_state([]), do: %{}
-
-  defp initialize_stream_state([first_trace | _]) do
-    first_trace
-    |> Enum.filter(fn {_, v} -> match?(%Phoenix.LiveView.LiveStream{}, v) end)
-    |> Map.new(fn {name, _} -> {name, []} end)
-  end
-
-  def calculate_diff(stream_updates, current_stream_state_list) do
-    # dbg(stream_updates)
-    dbg(current_stream_state_list)
-
-    inserts = collect_updates(stream_updates, :inserts)
-    deletes = collect_updates(stream_updates, :deletes)
-
-    {diffs, updated_stream_state} =
-      Enum.reduce(current_stream_state_list, {%{}, %{}}, fn {key, value}, {diff_acc, state_acc} ->
-        diff =
-          generate_stream_update_diff(Map.get(inserts, key, []), Map.get(deletes, key, []), value)
-
-        {
-          Map.put(diff_acc, key, %{ins: diff.ins, del: diff.del}),
-          Map.put(state_acc, key, diff.updated_state)
-        }
-      end)
-
-    dbg(diffs)
-    dbg(updated_stream_state)
-    # dbg(inserts_diff)
-    # dbg(deletes)
-
-    # final_diff =
-    #   Enum.reduce(inserts_diff, @empty_diff, fn {group_key, list}, acc ->
-    #     ins_map =
-    #       Enum.into(list, %{}, fn {_, val, index} ->
-    #         if(index == 0) do
-    #           {val.id, val}
-    #         else
-    #           max_item_id =
-    #             Enum.max_by(Keyword.get(current_stream_state_list, group_key), fn {_dom_id, id} ->
-    #               id
-    #             end)
-
-    #           if max_item_id < index do
-    #             {val.id, val}
-    #           else
-    #             {index, val}
-    #           end
-    #         end
-    #       end)
-
-    #     del_map =
-    #       deletes
-    #       |> Map.get(group_key, [])
-    #       |> Enum.into(%{}, fn dom_id ->
-    #         Keyword.get(current_stream_state_list, group_key)
-    #         |> List.keyfind!(dom_id, 0)
-    #         |> Enum.map(fn _, index -> {index, :deleted} end)
-    #       end)
-
-    #     list_diff = %LiveDebugger.App.Utils.TermDiffer.Diff{
-    #       type: :list,
-    #       ins: ins_map,
-    #       del: del_map,
-    #       diff: %{}
-    #     }
-
-    #     updated_diff = Map.put(acc.diff, group_key, list_diff)
-    #     %{acc | diff: updated_diff}
-    #   end)
-
-    # Enum.each(deletes, fn)
-
-    # dbg(final_diff)
-
-    # final_diff
-    # # Add handling deletions in initial render
-  end
-
-  @doc """
-  Applies all stream updates to the initial state and returns the final result.
-  """
-  def apply_stream_updates(stream_data, initial_state) do
-    # Collect all inserts and deletes across the stream data
-    inserts_by_stream = collect_updates(stream_data, :inserts)
-    #
-    deletes_by_stream = collect_updates(stream_data, :deletes)
-    {inserts_by_stream, deletes_by_stream}
-  end
-
-  defp collect_updates(stream_data, update_type) when update_type in [:inserts, :deletes] do
-    stream_data
-    |> Enum.flat_map(fn stream ->
-      extract_updates_from_stream(stream, update_type)
-    end)
-    |> Enum.reduce(%{}, fn {name, updates}, acc ->
-      Map.update(acc, name, updates, &(&1 ++ updates))
-    end)
-  end
-
-  defp extract_updates_from_stream(stream, update_type) do
-    Enum.flat_map(stream, fn stream_entry ->
-      extract_update_entry(stream_entry, update_type)
-    end)
-  end
-
-  defp extract_update_entry({name, %Phoenix.LiveView.LiveStream{}} = stream_entry, update_type) do
-    case extract_update_data(stream_entry, update_type) do
-      {^name, updates} when updates != [] -> [{name, updates}]
-      _ -> []
-    end
-  end
-
-  defp extract_update_entry(_, _) do
-    []
-  end
-
-  defp extract_update_data({name, %Phoenix.LiveView.LiveStream{inserts: inserts}}, :inserts),
-    do: {name, inserts}
-
-  defp extract_update_data({name, %Phoenix.LiveView.LiveStream{deletes: deletes}}, :deletes),
-    do: {name, deletes}
-
-  defp extract_update_data(_, _), do: {nil, []}
 end

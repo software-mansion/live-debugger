@@ -51,8 +51,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
         functions: ["render/1"]
       ]
 
-    # dbg(TracesStorage.get!(pid, opts))
-
     case TracesStorage.get!(pid, opts) do
       nil ->
         {:ok, %{streams_state: []}}
@@ -61,14 +59,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
         {:ok, %{streams_state: []}}
 
       stream_updates ->
-        StreamUtils.calculate_initial_diff(stream_updates)
-        # to musi zwracac %Diff{}
-        # StreamUtils.extract_streams_state_from_render_traces(stream_updates)
+        StreamUtils.build_initial_stream_diff(stream_updates)
     end
   end
 
   def update_node_streams(_, stream_updates, current_stream_state_list) do
-    StreamUtils.calculate_diff([stream_updates],current_stream_state_list)
+    StreamUtils.compute_diff([stream_updates], current_stream_state_list)
   end
 
   defp get_component_assigns(components, %Phoenix.LiveComponent.CID{cid: cid}) do

@@ -93,7 +93,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
         />
       </.async_result>
 
-      <.async_result :let={term_node} assign={@streams_state}>
+      <.async_result :let={term_node} assign={@streams_tree}>
         <:loading>
           <NodeStateComponents.loading />
         </:loading>
@@ -122,7 +122,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   def handle_info(%StreamUpdated{streams: streams}, socket) do
     socket
-    |> Hooks.NodeStreams.assign_async_node_streams(streams)
+    |> Hooks.NodeStreams.assign_async_streams_tree(streams)
     |> noreply()
   end
 
