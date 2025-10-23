@@ -19,8 +19,13 @@ defmodule LiveDebugger.App.Debugger.Queries.LvProcess do
   @spec get_lv_process(pid()) :: LvProcess.t() | nil
   def get_lv_process(pid) when is_pid(pid) do
     case StateQueries.get_socket(pid) do
-      {:error, _} -> nil
-      {:ok, socket} -> LvProcess.new(pid, socket)
+      {:error, _} ->
+        nil
+
+      {:ok, socket} ->
+        pid
+        |> LvProcess.new(socket)
+        |> LvProcess.set_alive(Process.alive?(pid))
     end
   end
 

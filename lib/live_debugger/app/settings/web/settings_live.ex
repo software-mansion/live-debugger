@@ -75,7 +75,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
             <SettingsComponents.settings_switch
               id="garbage-collection-switch"
               label="Garbage Collection"
-              description="With garbage collection enabled, LiveDebugger will remove old data to free up memory."
+              description="When enabled, LiveDebugger will remove old data to free up memory. Disabling this option will lead to increased memory usage."
               checked={@settings[:garbage_collection]}
               phx-click="update"
               phx-value-setting="garbage_collection"
