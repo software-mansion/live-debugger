@@ -10,6 +10,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Utils.TermParser
   alias LiveDebugger.Utils.Memory
+  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
   @doc """
   Displays the label of the trace with a polymorphic composition.
@@ -31,7 +32,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         :if={@show_subtitle? and not is_nil(@trace_display.subtitle)}
         id={@id <> "-subtitle"}
         subtitle={@trace_display.subtitle}
-        subtitle_link={@trace_display.subtitle_link}
+        subtitle_link_data={@trace_display.subtitle_link_data}
       />
       <.trace_title title={@trace_display.title} />
       <.trace_short_content
@@ -101,13 +102,18 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   attr(:id, :string, required: true)
   attr(:subtitle, :string, required: true)
-  attr(:subtitle_link, :string, default: nil)
+  attr(:subtitle_link_data, :map, default: nil)
 
   defp trace_subtitle(assigns) do
     ~H"""
     <div class="text-primary text-2xs font-normal truncate col-span-3">
       <.tooltip id={@id <> "-tooltip"} content="See in Node Inspector" class="w-max">
-        <.link class="block hover:underline" patch={@subtitle_link}>
+        <.link
+          class="block hover:underline"
+          patch={
+            RoutesHelper.debugger_node_inspector(@subtitle_link_data.pid, @subtitle_link_data.cid)
+          }
+        >
           <%= @subtitle %>
         </.link>
       </.tooltip>

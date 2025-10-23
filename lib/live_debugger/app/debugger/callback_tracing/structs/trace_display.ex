@@ -9,8 +9,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
 
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.DiffTrace
-  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebugger.App.Utils.Parsers
+  alias LiveDebugger.CommonTypes
 
   defstruct [
     :id,
@@ -19,7 +19,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
     :type,
     :title,
     :subtitle,
-    :subtitle_link,
+    :subtitle_link_data,
     :body,
     :side_section_left,
     :side_section_right
@@ -37,7 +37,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
           type: type(),
           title: String.t(),
           subtitle: String.t() | nil,
-          subtitle_link: String.t() | nil,
+          subtitle_link_data: %{pid: pid(), cid: CommonTypes.cid()} | nil,
           body: list({String.t(), term()}),
           side_section_left: side_section_left(),
           side_section_right: side_section_right()
@@ -52,7 +52,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
       type: get_type(trace),
       title: get_title(trace),
       subtitle: get_subtitle(trace),
-      subtitle_link: get_subtitle_link(trace),
+      subtitle_link_data: get_subtitle_link(trace),
       body: get_body(trace),
       side_section_left: get_side_section_left(trace),
       side_section_right: get_side_section_right(trace)
@@ -87,7 +87,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   defp get_subtitle(%DiffTrace{}), do: nil
 
   defp get_subtitle_link(%Trace{pid: pid, cid: cid}) do
-    RoutesHelper.debugger_node_inspector(pid, cid)
+    %{pid: pid, cid: cid}
   end
 
   defp get_subtitle_link(%DiffTrace{}), do: nil
