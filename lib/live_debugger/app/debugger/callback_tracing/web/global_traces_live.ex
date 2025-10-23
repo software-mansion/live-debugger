@@ -18,15 +18,14 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace
+
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Assigns.Filters, as: FiltersAssigns
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
-
-  import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace
-
 
   @live_stream_limit 128
   @page_size 25
