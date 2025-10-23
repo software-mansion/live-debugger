@@ -40,50 +40,34 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
   attr(:trace_display, TraceDisplay, required: true)
 
   slot(:body, required: true)
-
-  slot :label, required: true do
-    attr(:class, :string, doc: "Additional class for label")
-  end
+  slot(:label, required: true)
 
   @impl true
   def render(assigns) do
-    assigns =
-      assign(
-        assigns,
-        render_body?: assigns.trace_display.render_body?,
-        trace: assigns.trace_display.trace
-      )
-
     ~H"""
     <.collapsible
       id={@id}
       icon="icon-chevron-right"
       chevron_class="w-5 h-5 text-accent-icon"
-      class={["max-w-full border rounded last:mb-4", border_color_class(@trace)]}
+      class={["max-w-full border rounded last:mb-4", border_color_class(@trace_display)]}
       label_class="font-semibold bg-surface-1-bg p-2 py-3 rounded"
-      phx-click={if(@render_body?, do: nil, else: "toggle-collapsible")}
-      phx-value-trace-id={@trace.id}
+      phx-click={if(@trace_display.render_body?, do: nil, else: "toggle-collapsible")}
+      phx-value-trace-id={@trace_display.id}
     >
       <:label>
-        <div
-          :for={label <- @label}
-          id={@id <> "-label"}
-          class={["w-[90%] grow grid items-center gap-x-3 ml-2" | List.wrap(label[:class])]}
-        >
-          <%= render_slot(label) %>
-        </div>
+        <%= render_slot(@label) %>
       </:label>
       <div class="relative">
-        <div :if={@render_body?} class="absolute right-0 top-0 z-10">
+        <div :if={@trace_display.render_body?} class="absolute right-0 top-0 z-10">
           <.fullscreen_button
             id={"trace-fullscreen-#{@id}"}
             class="m-2"
             phx-click="open-trace"
-            phx-value-trace-id={@trace.id}
+            phx-value-trace-id={@trace_display.id}
           />
         </div>
         <div class="overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
-          <%= if @render_body? do %>
+          <%= if @trace_display.render_body? do %>
             <%= render_slot(@body) %>
           <% else %>
             <div class="w-full flex items-center justify-center">
@@ -106,7 +90,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
 
       trace ->
         socket
-        |> assign(displayed_trace: trace)
+        |> assign(displayed_trace: TraceDisplay.from_trace(trace))
         |> push_event("trace-fullscreen-open", %{})
     end
     |> halt()
@@ -157,7 +141,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
     )
   end
 
-  defp border_color_class(%{type: :exception_from}), do: "border-error-icon"
-  defp border_color_class(%LiveDebugger.Structs.DiffTrace{}), do: "border-diff-border"
-  defp border_color_class(_), do: "border-default-border"
+  defp border_color_class(%{type: :error}), do: "border-error-icon"
+  defp border_color_class(%{type: :diff}), do: "border-diff-border"
+  defp border_color_class(%{type: :normal}), do: "border-default-border"
 end

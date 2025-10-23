@@ -10,13 +10,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
 
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace,
-    as: TraceComponents
-
   alias LiveDebugger.Structs.LvProcess
 
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
+
+  import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace
 
   @live_stream_limit 128
   @page_size 25
@@ -121,14 +120,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
           >
             <:trace :let={{id, trace_display}}>
               <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
-                <:label class="grid-cols-[auto_1fr_auto]">
-                  <TraceComponents.callback_name trace={trace_display.trace} />
-                  <TraceComponents.short_trace_content trace={trace_display.trace} />
-                  <TraceComponents.trace_time_info id={id} trace_display={trace_display} />
+                <:label>
+                  <.trace_label id={id <> "-label"} trace_display={trace_display} />
                 </:label>
 
                 <:body>
-                  <TraceComponents.trace_body id={id} trace={trace_display.trace} />
+                  <.trace_body id={id <> "-body"} trace_display={trace_display} />
                 </:body>
               </HookComponents.TraceWrapper.render>
             </:trace>
@@ -141,10 +138,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
       </.section>
 
       <HookComponents.FiltersFullscreen.render node_id={@node_id} current_filters={@current_filters} />
-      <TraceComponents.trace_fullscreen
+      <.trace_fullscreen
         :if={@displayed_trace}
         id="trace-fullscreen"
-        trace={@displayed_trace}
+        displayed_trace={@displayed_trace}
       />
     </div>
     """
