@@ -23,6 +23,7 @@ defmodule LiveDebugger.E2E.DeadLiveViewsTest do
     |> refute_has(css("#dead-sessions"))
     |> click(enable_dead_liveviews_toggle())
     |> assert_text(css("#dead-sessions"), "No dead LiveViews")
+    |> take_screenshot()
 
     dev_app
     |> visit(@dev_app_url <> "/side")
