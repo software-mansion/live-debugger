@@ -104,17 +104,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
             <HookComponents.SearchInput.render
               disabled?={@tracing_started?}
               trace_search_phrase={@trace_search_phrase}
-              class="h-7!"
+              class="h-7! w-full! @[47rem]/traces:w-64!"
             />
             <HookComponents.ToggleTracingButton.render
               tracing_started?={@tracing_started?}
               lv_process_alive?={@lv_process.alive?}
             />
             <%= if not @tracing_started? do %>
-              <HookComponents.RefreshButton.render label_class="hidden @[30rem]/traces:block" />
-              <HookComponents.ClearButton.render label_class="hidden @[30rem]/traces:block" />
+              <HookComponents.RefreshButton.render label_class="hidden @[40rem]/traces:block" />
+              <HookComponents.ClearButton.render label_class="hidden @[40rem]/traces:block" />
               <HookComponents.FiltersFullscreen.filters_button
-                label_class="hidden @[30rem]/traces:block"
+                label_class="hidden @[40rem]/traces:block"
                 current_filters={@current_filters}
               />
             <% end %>

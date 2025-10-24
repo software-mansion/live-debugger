@@ -14,6 +14,7 @@ defmodule LiveDebugger.App.Debugger.Components do
   def search_bar(assigns) do
     ~H"""
     <div class={[
+      "sm:w-64 w-32",
       "flex shrink items-center rounded-[7px] outline outline-1 -outline-offset-1",
       "has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2",
       "outline-default-border has-[input:focus-within]:outline-ui-accent",
@@ -35,7 +36,7 @@ defmodule LiveDebugger.App.Debugger.Components do
           phx-debounce={@debounce}
           type="text"
           name="search_phrase"
-          class="block remove-arrow w-16 sm:w-64 min-w-32 bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0 disabled:!text-gray-500 disabled:placeholder-gray-300"
+          class="block w-full remove-arrow bg-surface-0-bg border-none py-2.5 pl-2 pr-3 text-xs text-primary-text placeholder:text-ui-muted focus:ring-0 disabled:!text-gray-500 disabled:placeholder-gray-300"
         />
       </form>
     </div>
