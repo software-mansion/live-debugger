@@ -1,7 +1,7 @@
-export function highlightSearchRanges(ranges) {
-  let highlight = CSS.highlights.get('search-highlight');
+export function highlightSearchRanges(highlightName, ranges, reset = false) {
+  let highlight = CSS.highlights.get(highlightName);
 
-  if (highlight) {
+  if (highlight && !reset) {
     const old_valid_ranges = highlight
       .values()
       .filter(({ collapsed }) => !collapsed);
@@ -10,7 +10,7 @@ export function highlightSearchRanges(ranges) {
   }
 
   highlight = new Highlight(...ranges);
-  CSS.highlights.set('search-highlight', highlight);
+  CSS.highlights.set(highlightName, highlight);
 }
 
 export function findRanges(root, search) {

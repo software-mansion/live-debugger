@@ -45,7 +45,7 @@ function handleHighlight(phrase, element) {
   const phraseRegexp = new RegExp(RegExp.escape(phrase), 'gi');
   const traceContentRanges = constructRanges(element, phraseRegexp);
 
-  highlightSearchRanges(traceContentRanges);
+  highlightSearchRanges('traces-search-highlight', traceContentRanges);
 }
 
 const TraceLabelSearchHighlight = {
