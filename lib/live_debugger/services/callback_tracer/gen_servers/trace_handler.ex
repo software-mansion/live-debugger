@@ -8,7 +8,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   require Logger
 
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
-  alias LiveDebugger.Services.CallbackTracer.Actions.Trace, as: TraceActions
+  alias LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace, as: TraceActions
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
   alias LiveDebugger.Services.CallbackTracer.Actions.DiffTrace, as: DiffActions

@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
+defmodule LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace do
   @moduledoc """
   This module provides actions for traces.
   """
