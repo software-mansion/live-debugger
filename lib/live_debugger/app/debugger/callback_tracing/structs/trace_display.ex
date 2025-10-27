@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   * `render_body?` - whether to render the body of the trace
   """
 
+  alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.Trace.FunctionTrace
   alias LiveDebugger.Structs.Trace.DiffTrace
   alias LiveDebugger.App.Utils.Parsers
@@ -31,7 +32,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
           {:execution_time, non_neg_integer() | nil} | {:size, non_neg_integer()}
 
   @type t() :: %__MODULE__{
-          id: FunctionTrace.id(),
+          id: Trace.id(),
           from_event?: boolean(),
           render_body?: boolean(),
           type: type(),
@@ -43,7 +44,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
           side_section_right: side_section_right()
         }
 
-  @spec from_trace(FunctionTrace.t() | DiffTrace.t(), boolean()) :: t()
+  @spec from_trace(Trace.t(), boolean()) :: t()
   def from_trace(trace, from_event? \\ false) do
     %__MODULE__{
       id: trace.id,

@@ -6,11 +6,10 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
   use LiveDebugger.Event
 
   alias LiveDebugger.CommonTypes
-  alias LiveDebugger.Structs.Trace.FunctionTrace
-  alias LiveDebugger.Structs.Trace.DiffTrace
+  alias LiveDebugger.Structs.Trace
 
   defevent(TraceCalled,
-    trace_id: FunctionTrace.id(),
+    trace_id: Trace.id(),
     ets_ref: reference() | nil,
     module: module(),
     function: atom(),
@@ -21,7 +20,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
   )
 
   defevent(TraceReturned,
-    trace_id: FunctionTrace.id(),
+    trace_id: Trace.id(),
     ets_ref: reference() | nil,
     module: module(),
     function: atom(),
@@ -32,7 +31,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
   )
 
   defevent(TraceErrored,
-    trace_id: FunctionTrace.id(),
+    trace_id: Trace.id(),
     ets_ref: reference() | nil,
     module: module(),
     function: atom(),
@@ -43,7 +42,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
   )
 
   defevent(DiffTraceCreated,
-    trace_id: DiffTrace.id(),
+    trace_id: Trace.id(),
     ets_ref: reference() | nil,
     pid: pid()
   )
