@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Structs.DiffTrace do
+defmodule LiveDebugger.Structs.Trace.DiffTrace do
   @moduledoc """
   This module provides a struct to represent a LiveView diff that is sent to the client.
 

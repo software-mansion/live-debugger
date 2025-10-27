@@ -8,7 +8,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   """
 
   alias LiveDebugger.Structs.Trace.FunctionTrace
-  alias LiveDebugger.Structs.DiffTrace
+  alias LiveDebugger.Structs.Trace.DiffTrace
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.CommonTypes
 
@@ -71,7 +71,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   end
 
   defp get_type(%{type: :exception_from}), do: :error
-  defp get_type(%LiveDebugger.Structs.DiffTrace{}), do: :diff
+  defp get_type(%LiveDebugger.Structs.Trace.DiffTrace{}), do: :diff
   defp get_type(_), do: :normal
 
   defp get_title(%FunctionTrace{} = trace), do: FunctionTrace.callback_name(trace)

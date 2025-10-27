@@ -107,7 +107,7 @@ defmodule LiveDebugger.Fakes do
     ]
 
     fields = Keyword.merge(default, opts)
-    Kernel.struct!(LiveDebugger.Structs.DiffTrace, fields)
+    Kernel.struct!(LiveDebugger.Structs.Trace.DiffTrace, fields)
   end
 
   def liveview(opts \\ []) do

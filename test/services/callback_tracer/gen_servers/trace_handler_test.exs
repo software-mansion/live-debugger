@@ -19,7 +19,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
   alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
-  alias LiveDebugger.Structs.DiffTrace
+  alias LiveDebugger.Structs.Trace.DiffTrace
 
   describe "handle_cast/2" do
     test "handles proper recompilation traces" do

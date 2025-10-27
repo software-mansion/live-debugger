@@ -5,7 +5,7 @@ defmodule LiveDebugger.API.TracesStorage do
   """
 
   alias LiveDebugger.Structs.Trace.FunctionTrace
-  alias LiveDebugger.Structs.DiffTrace
+  alias LiveDebugger.Structs.Trace.DiffTrace
   alias LiveDebugger.CommonTypes
 
   @type trace() :: FunctionTrace.t() | DiffTrace.t()
@@ -513,7 +513,7 @@ defmodule LiveDebugger.API.TracesStorage do
     defp maybe_attach_diff_spec(trace_spec, true) do
       trace_spec ++
         [
-          {{:_, %{__struct__: LiveDebugger.Structs.DiffTrace}}, [], [:"$_"]}
+          {{:_, %{__struct__: LiveDebugger.Structs.Trace.DiffTrace}}, [], [:"$_"]}
         ]
     end
 

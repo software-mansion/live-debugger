@@ -2,7 +2,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.DiffTraceTest do
   use ExUnit.Case, async: true
 
   alias LiveDebugger.Services.CallbackTracer.Actions.DiffTrace
-  alias LiveDebugger.Structs.DiffTrace, as: DiffTraceStruct
+  alias LiveDebugger.Structs.Trace.DiffTrace, as: DiffTraceStruct
   alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
   alias LiveDebugger.MockAPITracesStorage
   alias LiveDebugger.MockBus

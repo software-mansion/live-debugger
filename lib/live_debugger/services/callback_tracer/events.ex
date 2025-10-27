@@ -7,7 +7,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
 
   alias LiveDebugger.CommonTypes
   alias LiveDebugger.Structs.Trace.FunctionTrace
-  alias LiveDebugger.Structs.DiffTrace
+  alias LiveDebugger.Structs.Trace.DiffTrace
 
   defevent(TraceCalled,
     trace_id: FunctionTrace.id(),
