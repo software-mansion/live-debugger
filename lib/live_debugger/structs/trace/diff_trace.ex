@@ -11,9 +11,9 @@ defmodule LiveDebugger.Structs.Trace.DiffTrace do
 
   defstruct [
     :id,
-    :body,
     :pid,
     :timestamp,
+    :body,
     :size
   ]
 

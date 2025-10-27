@@ -15,15 +15,15 @@ defmodule LiveDebugger.Structs.Trace.FunctionTrace do
 
   defstruct [
     :id,
+    :pid,
+    :timestamp,
     :module,
     :function,
     :arity,
     :args,
     :socket_id,
     :transport_pid,
-    :pid,
     :cid,
-    :timestamp,
     :execution_time,
     :type
   ]
