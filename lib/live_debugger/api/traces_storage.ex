@@ -7,7 +7,7 @@ defmodule LiveDebugger.API.TracesStorage do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.CommonTypes
 
-  import Trace, only: [is_trace: 1]
+  import Trace, only: [is_trace: 1, is_trace_id: 1]
 
   @typedoc """
   Pid is used to store mapping to table references.
@@ -68,7 +68,7 @@ defmodule LiveDebugger.API.TracesStorage do
   """
   @spec get_by_id!(table_identifier(), trace_id :: Trace.id()) :: Trace.t() | nil
   def get_by_id!(table_id, trace_id)
-      when is_table_identifier(table_id) and is_integer(trace_id) do
+      when is_table_identifier(table_id) and is_trace_id(trace_id) do
     impl().get_by_id!(table_id, trace_id)
   end
 

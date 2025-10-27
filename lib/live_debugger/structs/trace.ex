@@ -19,4 +19,5 @@ defmodule LiveDebugger.Structs.Trace do
   @type id() :: neg_integer() | 0
 
   defguard is_trace(trace) when is_struct(trace, FunctionTrace) or is_struct(trace, DiffTrace)
+  defguard is_trace_id(trace_id) when is_integer(trace_id) and trace_id <= 0
 end
