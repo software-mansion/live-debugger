@@ -165,7 +165,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
       return_ts = {1753, 174_270, 760_820}
       ref = make_ref()
 
-      trace = %LiveDebugger.Structs.Trace{
+      trace = %LiveDebugger.Structs.Trace.FunctionTrace{
         id: 1,
         module: module,
         function: fun,
@@ -177,7 +177,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
 
       MockAPITracesStorage
       |> expect(:insert!, fn ^ref, updated_trace ->
-        assert %LiveDebugger.Structs.Trace{
+        assert %LiveDebugger.Structs.Trace.FunctionTrace{
                  id: 1,
                  module: ^module,
                  function: ^fun,
@@ -232,7 +232,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
       return_ts = {1753, 174_270, 760_820}
       ref = make_ref()
 
-      trace = %LiveDebugger.Structs.Trace{
+      trace = %LiveDebugger.Structs.Trace.FunctionTrace{
         id: 1,
         module: module,
         function: fun,
@@ -244,7 +244,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
 
       MockAPITracesStorage
       |> expect(:insert!, fn ^ref, updated_trace ->
-        assert %LiveDebugger.Structs.Trace{
+        assert %LiveDebugger.Structs.Trace.FunctionTrace{
                  id: 1,
                  module: ^module,
                  function: ^fun,

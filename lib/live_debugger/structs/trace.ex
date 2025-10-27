@@ -1,4 +1,4 @@
-defmodule LiveDebugger.Structs.Trace do
+defmodule LiveDebugger.Structs.Trace.FunctionTrace do
   @moduledoc """
   This module provides a struct to represent a trace.
 

@@ -4,11 +4,11 @@ defmodule LiveDebugger.API.TracesStorage do
   It uses Erlang's ETS (Erlang Term Storage).
   """
 
-  alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Structs.Trace.FunctionTrace
   alias LiveDebugger.Structs.DiffTrace
   alias LiveDebugger.CommonTypes
 
-  @type trace() :: Trace.t() | DiffTrace.t()
+  @type trace() :: FunctionTrace.t() | DiffTrace.t()
 
   @typedoc """
   Pid is used to store mapping to table references.
@@ -20,11 +20,11 @@ defmodule LiveDebugger.API.TracesStorage do
   @type table_identifier() :: ets_table_id() | reference()
 
   @callback init() :: :ok
-  @callback insert(Trace.t()) :: true
+  @callback insert(FunctionTrace.t()) :: true
   @callback insert!(table_ref :: reference(), trace()) :: true
-  @callback get_by_id!(table_identifier(), trace_id :: integer()) :: Trace.t() | nil
+  @callback get_by_id!(table_identifier(), trace_id :: integer()) :: FunctionTrace.t() | nil
   @callback get!(table_identifier(), opts :: keyword()) ::
-              {[Trace.t()], continuation()} | :end_of_table
+              {[FunctionTrace.t()], continuation()} | :end_of_table
   @callback clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
   @callback get_table(ets_table_id()) :: reference()
   @callback trim_table!(table_identifier(), max_size :: non_neg_integer()) :: true
@@ -33,7 +33,7 @@ defmodule LiveDebugger.API.TracesStorage do
   @callback table_size(table_identifier()) :: non_neg_integer()
 
   defguard is_table_identifier(id) when is_pid(id) or is_reference(id)
-  defguard is_trace(trace) when is_struct(trace, Trace) or is_struct(trace, DiffTrace)
+  defguard is_trace(trace) when is_struct(trace, FunctionTrace) or is_struct(trace, DiffTrace)
 
   @doc """
   Initializes ets table.
@@ -45,7 +45,7 @@ defmodule LiveDebugger.API.TracesStorage do
   @doc """
   Inserts a new trace into the storage.
   It has worse performance then `insert/2` as it has to perform lookup for reference.
-  It stores the trace in table associated with `pid` given in `Trace` struct.
+  It stores the trace in table associated with `pid` given in `FunctionTrace` struct.
   """
   @spec insert(trace()) :: true
   def insert(trace) when is_trace(trace) do
@@ -475,7 +475,7 @@ defmodule LiveDebugger.API.TracesStorage do
       [
         {{:_,
           %{
-            __struct__: LiveDebugger.Structs.Trace,
+            __struct__: LiveDebugger.Structs.Trace.FunctionTrace,
             function: :"$1",
             execution_time: :"$2",
             arity: :"$3",
@@ -489,7 +489,7 @@ defmodule LiveDebugger.API.TracesStorage do
       [
         {{:_,
           %{
-            __struct__: LiveDebugger.Structs.Trace,
+            __struct__: LiveDebugger.Structs.Trace.FunctionTrace,
             function: :"$1",
             execution_time: :"$2",
             arity: :"$3",
@@ -502,7 +502,7 @@ defmodule LiveDebugger.API.TracesStorage do
       [
         {{:_,
           %{
-            __struct__: LiveDebugger.Structs.Trace,
+            __struct__: LiveDebugger.Structs.Trace.FunctionTrace,
             function: :"$1",
             execution_time: :"$2",
             arity: :"$3"

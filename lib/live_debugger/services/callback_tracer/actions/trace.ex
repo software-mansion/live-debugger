@@ -3,7 +3,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
   This module provides actions for traces.
   """
 
-  alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Structs.Trace.FunctionTrace
   alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.API.LiveViewDebug
   alias LiveDebugger.Utils.Modules, as: UtilsModules
@@ -20,9 +20,9 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
           args :: list(),
           pid :: pid(),
           timestamp :: :erlang.timestamp()
-        ) :: {:ok, Trace.t()} | {:error, term()}
+        ) :: {:ok, FunctionTrace.t()} | {:error, term()}
   def create_trace(n, module, fun, args, pid, timestamp) do
-    trace = Trace.new(n, module, fun, args, pid, timestamp)
+    trace = FunctionTrace.new(n, module, fun, args, pid, timestamp)
 
     case trace.transport_pid do
       nil ->
@@ -39,7 +39,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
           pid :: pid(),
           cid :: String.t(),
           timestamp :: :erlang.timestamp()
-        ) :: {:ok, Trace.t()} | :live_debugger_trace | {:error, term()}
+        ) :: {:ok, FunctionTrace.t()} | :live_debugger_trace | {:error, term()}
   def create_delete_component_trace(n, args, pid, cid, timestamp) do
     pid
     |> LiveViewDebug.socket()
@@ -49,7 +49,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
           :live_debugger_trace
         else
           trace =
-            Trace.new(
+            FunctionTrace.new(
               n,
               Phoenix.LiveView.Diff,
               :delete_component,
@@ -69,13 +69,13 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
     end
   end
 
-  @spec update_trace(Trace.t(), map()) :: {:ok, Trace.t()}
-  def update_trace(%Trace{} = trace, params) do
+  @spec update_trace(FunctionTrace.t(), map()) :: {:ok, FunctionTrace.t()}
+  def update_trace(%FunctionTrace{} = trace, params) do
     {:ok, Map.merge(trace, params)}
   end
 
-  @spec persist_trace(Trace.t()) :: {:ok, reference()} | {:error, term()}
-  def persist_trace(%Trace{pid: pid} = trace) do
+  @spec persist_trace(FunctionTrace.t()) :: {:ok, reference()} | {:error, term()}
+  def persist_trace(%FunctionTrace{pid: pid} = trace) do
     with ref when is_reference(ref) <- TracesStorage.get_table(pid),
          true <- TracesStorage.insert!(ref, trace) do
       {:ok, ref}
@@ -85,15 +85,15 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
     end
   end
 
-  @spec persist_trace(Trace.t(), reference()) :: {:ok, reference()}
-  def persist_trace(%Trace{} = trace, ref) do
+  @spec persist_trace(FunctionTrace.t(), reference()) :: {:ok, reference()}
+  def persist_trace(%FunctionTrace{} = trace, ref) do
     TracesStorage.insert!(ref, trace)
 
     {:ok, ref}
   end
 
-  @spec publish_trace(Trace.t(), reference() | nil) :: :ok | {:error, term()}
-  def publish_trace(%Trace{pid: pid} = trace, ref \\ nil) do
+  @spec publish_trace(FunctionTrace.t(), reference() | nil) :: :ok | {:error, term()}
+  def publish_trace(%FunctionTrace{pid: pid} = trace, ref \\ nil) do
     trace
     |> get_event(ref)
     |> Bus.broadcast_trace!(pid)
@@ -102,7 +102,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
       {:error, err}
   end
 
-  defp get_event(%Trace{type: :call} = trace, ref) do
+  defp get_event(%FunctionTrace{type: :call} = trace, ref) do
     %TraceCalled{
       trace_id: trace.id,
       ets_ref: ref,
@@ -115,7 +115,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
     }
   end
 
-  defp get_event(%Trace{type: :return_from} = trace, ref) do
+  defp get_event(%FunctionTrace{type: :return_from} = trace, ref) do
     %TraceReturned{
       trace_id: trace.id,
       ets_ref: ref,
@@ -128,7 +128,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Trace do
     }
   end
 
-  defp get_event(%Trace{type: :exception_from} = trace, ref) do
+  defp get_event(%FunctionTrace{type: :exception_from} = trace, ref) do
     %TraceErrored{
       trace_id: trace.id,
       ets_ref: ref,

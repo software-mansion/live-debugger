@@ -10,7 +10,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
 
   use LiveDebugger.App.Web, :hook
 
-  alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Structs.Trace.FunctionTrace
   alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
@@ -115,7 +115,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
     )
   end
 
-  defp matches_execution_time_filter?(socket, %Trace{execution_time: execution_time}) do
+  defp matches_execution_time_filter?(socket, %FunctionTrace{execution_time: execution_time}) do
     execution_time_limits = FiltersHelpers.get_execution_times(socket.assigns.current_filters)
 
     min_time = Map.get(execution_time_limits, "exec_time_min", 0)

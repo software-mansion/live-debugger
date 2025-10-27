@@ -2,7 +2,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
   use ExUnit.Case, async: true
 
   alias LiveDebugger.Services.CallbackTracer.Actions.Trace
-  alias LiveDebugger.Structs.Trace, as: TraceStruct
+  alias LiveDebugger.Structs.Trace.FunctionTrace, as: TraceStruct
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored

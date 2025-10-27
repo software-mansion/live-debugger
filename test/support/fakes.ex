@@ -94,7 +94,7 @@ defmodule LiveDebugger.Fakes do
 
     fields = Keyword.merge(default, opts)
 
-    Kernel.struct!(LiveDebugger.Structs.Trace, fields)
+    Kernel.struct!(LiveDebugger.Structs.Trace.FunctionTrace, fields)
   end
 
   def diff_trace(opts \\ []) do
