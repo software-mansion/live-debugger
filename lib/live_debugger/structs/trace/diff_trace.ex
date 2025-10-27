@@ -3,11 +3,13 @@ defmodule LiveDebugger.Structs.Trace.DiffTrace do
   This module provides a struct to represent a LiveView diff that is sent to the client.
 
   * `id` - unique id of the diff
-  * `body` - body of the diff
   * `pid` - pid of the LiveView
   * `timestamp` - timestamp of the diff
+  * `body` - body of the diff
   * `size` - size of the diff in bytes
   """
+
+  alias LiveDebugger.Structs.Trace
 
   defstruct [
     :id,
@@ -17,20 +19,18 @@ defmodule LiveDebugger.Structs.Trace.DiffTrace do
     :size
   ]
 
-  @type id() :: neg_integer() | 0
-
   @type t() :: %__MODULE__{
-          id: id(),
-          body: map(),
+          id: Trace.id(),
           pid: pid(),
           timestamp: non_neg_integer(),
+          body: map(),
           size: non_neg_integer()
         }
 
   @doc """
   Creates a new LiveView diff struct.
   """
-  @spec new(id(), map(), pid(), :erlang.timestamp(), non_neg_integer()) :: t()
+  @spec new(Trace.id(), map(), pid(), :erlang.timestamp(), non_neg_integer()) :: t()
   def new(id, body, pid, timestamp, size) do
     %__MODULE__{
       id: id,
