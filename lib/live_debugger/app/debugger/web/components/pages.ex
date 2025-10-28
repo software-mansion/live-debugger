@@ -8,6 +8,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   alias Phoenix.LiveView.Socket, as: LiveViewSocket
   alias Phoenix.LiveView.JS
   alias LiveDebugger.App.Debugger.CallbackTracing.Web, as: CallbackTracingWeb
+  alias LiveDebugger.App.Debugger.Resources.Web.ResourcesLive
   alias LiveDebugger.App.Debugger.Web.LiveComponents.NodeInspectorSidebar
   alias LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo
   alias LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive
@@ -94,12 +95,12 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
     assigns = assign(assigns, :id, @resources_id)
 
     ~H"""
-    <div id={@id} class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
-      <div class="text-center text-gray-500">
-        <h2 class="text-2xl font-semibold mb-4">Resources</h2>
-        <p>This page is empty.</p>
-      </div>
-    </div>
+    <ResourcesLive.live_render
+      id={@id}
+      class="flex overflow-hidden w-full"
+      socket={@socket}
+      lv_process={@lv_process}
+    />
     """
   end
 
