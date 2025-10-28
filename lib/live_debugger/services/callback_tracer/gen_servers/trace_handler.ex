@@ -184,6 +184,19 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
     {:noreply, state}
   end
 
+  def handle_cast({:new_trace, {_, pid, :call, {module, fun, args}, ts}, n}, state) do
+    dbg({pid, module, fun, args, ts, n, state})
+    {:noreply, state}
+  end
+
+  def handle_cast(
+        {:new_trace, {_, pid, :return_from, {module, fun, args}, returned, ts}, n},
+        state
+      ) do
+    dbg({pid, module, fun, args, returned, ts, n, state})
+    {:noreply, state}
+  end
+
   #########################################################
   # Handling unknown traces
   #########################################################
