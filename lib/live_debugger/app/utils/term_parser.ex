@@ -81,6 +81,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
       |> update_by_diff!(diff)
       |> index_term_node()
       |> update_comma_suffixes()
+      |> TermNode.set_pulse(false, recursive: false)
 
     {:ok, term_node}
   rescue
@@ -125,6 +126,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
         |> to_key_value_node()
         |> elem(1)
     end
+    |> TermNode.set_pulse(true, recursive: true)
   end
 
   defp update_by_diff!(term_node, %Diff{type: type, ins: ins, del: del}, _opts)
@@ -132,6 +134,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
     term_node
     |> term_node_reduce_del(del)
     |> term_node_reduce_list_ins(ins)
+    |> TermNode.set_pulse(true, recursive: false)
   end
 
   defp update_by_diff!(term_node, %Diff{type: :struct, diff: diff}, _opts) do
@@ -154,7 +157,13 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
   defp term_node_reduce_list_ins(term_node, ins) do
     Enum.reduce(ins, term_node, fn {index, term}, %TermNode{} = term_node_acc ->
-      children = List.insert_at(term_node_acc.children, index, {index, to_node(term)})
+      children =
+        List.insert_at(
+          term_node_acc.children,
+          index,
+          {index, term |> to_node() |> TermNode.set_pulse(true, recursive: true)}
+        )
+
       %TermNode{term_node_acc | children: children}
     end)
   end
@@ -168,7 +177,15 @@ defmodule LiveDebugger.App.Utils.TermParser do
         child_keys = Enum.sort(child_keys ++ [key])
         index = Enum.find_index(child_keys, &(&1 == key))
 
-        children = List.insert_at(term_node_acc.children, index, to_key_value_node({key, term}))
+        {key, node} = to_key_value_node({key, term})
+
+        children =
+          List.insert_at(
+            term_node_acc.children,
+            index,
+            {key, TermNode.set_pulse(node, true, recursive: true)}
+          )
+
         {%TermNode{term_node_acc | children: children}, child_keys}
       end)
 
@@ -176,14 +193,19 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp term_node_reduce_diff!(term_node, diff) do
-    Enum.reduce(diff, term_node, fn {key, child_diff}, term_node_acc ->
-      {:ok, term_node_acc} =
-        TermNode.update_child(term_node_acc, key, fn child ->
-          update_by_diff!(child, child_diff, key: key)
-        end)
+    if Enum.empty?(diff) do
+      term_node
+    else
+      Enum.reduce(diff, term_node, fn {key, child_diff}, term_node_acc ->
+        {:ok, term_node_acc} =
+          TermNode.update_child(term_node_acc, key, fn child ->
+            update_by_diff!(child, child_diff, key: key)
+          end)
 
-      term_node_acc
-    end)
+        term_node_acc
+      end)
+      |> TermNode.set_pulse(true, recursive: false)
+    end
   end
 
   @spec index_term_node(TermNode.t()) :: TermNode.t()
@@ -376,8 +398,16 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp has_comma_suffix?(%TermNode{content: content, expanded_after: expanded_after}) do
-    content? = last_item_equal?(content, TermNode.comma_suffix())
-    expanded_after? = last_item_equal?(expanded_after, TermNode.comma_suffix())
+    content? =
+      last_item_equal?(content, TermNode.comma_suffix()) ||
+        last_item_equal?(content, TermNode.comma_suffix() |> DisplayElement.set_pulse(true))
+
+    expanded_after? =
+      last_item_equal?(expanded_after, TermNode.comma_suffix()) ||
+        last_item_equal?(
+          expanded_after,
+          TermNode.comma_suffix() |> DisplayElement.set_pulse(true)
+        )
 
     if content? != expanded_after?,
       do: raise("Content and expanded_after must have the same comma suffix")

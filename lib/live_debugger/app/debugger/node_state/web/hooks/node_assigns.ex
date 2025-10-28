@@ -10,6 +10,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   alias LiveDebugger.App.Utils.TermDiffer
   alias LiveDebugger.App.Utils.TermDiffer.Diff
   alias LiveDebugger.App.Utils.TermParser
+  alias LiveDebugger.App.Utils.TermNode
   alias LiveDebugger.Utils.Memory
 
   @required_assigns [
@@ -67,6 +68,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> assign(:node_assigns_info, node_assigns_info)
     |> assign(:assigns_sizes, assigns_sizes)
     |> start_async(:fetch_node_assigns, fn ->
+      Process.sleep(100)
       NodeStateQueries.fetch_node_assigns(pid, node_id)
     end)
   end
@@ -89,12 +91,19 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     node_assigns_info =
       case TermDiffer.diff(old_assigns, node_assigns) do
         %Diff{type: :equal} ->
-          AsyncResult.ok(socket.assigns.node_assigns_info.result)
+          {node_assigns, term_node, copy_string} = socket.assigns.node_assigns_info.result
+
+          term_node = TermNode.set_pulse(term_node, false, recursive: true)
+
+          AsyncResult.ok({node_assigns, term_node, copy_string})
 
         diff ->
           copy_string = TermParser.term_to_copy_string(node_assigns)
 
-          case TermParser.update_by_diff(old_term_node, diff) do
+          old_term_node
+          |> TermNode.set_pulse(false, recursive: true)
+          |> TermParser.update_by_diff(diff)
+          |> case do
             {:ok, term_node} ->
               AsyncResult.ok({node_assigns, term_node, copy_string})
 
