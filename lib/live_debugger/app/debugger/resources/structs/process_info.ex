@@ -46,13 +46,10 @@ defmodule LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo do
     struct(__MODULE__, extract_process_info(process_info_keyword_list))
   end
 
-  # Helper function to extract and format process information
   @spec extract_process_info(keyword()) :: map()
   defp extract_process_info(process_info_keyword_list) do
-    # Convert raw info to a map for easier access
     info_map = Enum.into(process_info_keyword_list, %{})
 
-    # Extract overview information
     overview = %{
       initial_call: Map.get(info_map, :initial_call),
       current_function: Map.get(info_map, :current_function),
@@ -64,7 +61,6 @@ defmodule LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo do
       suspending: Map.get(info_map, :suspending, [])
     }
 
-    # Extract memory and GC information
     memory_gc = %{
       memory: Map.get(info_map, :memory, 0),
       total_heap_size: words_to_bytes(Map.get(info_map, :total_heap_size, 0), @word_size),
@@ -72,11 +68,9 @@ defmodule LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo do
       stack_size: words_to_bytes(Map.get(info_map, :stack_size, 0), @word_size)
     }
 
-    # Merge all sections
     Map.merge(overview, memory_gc)
   end
 
-  # Convert word size to bytes
   @spec words_to_bytes(term(), pos_integer()) :: non_neg_integer()
   defp words_to_bytes(nil, _word_size), do: 0
 
