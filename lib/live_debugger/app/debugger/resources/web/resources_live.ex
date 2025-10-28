@@ -8,6 +8,8 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
+  alias LiveDebugger.App.Debugger.Resources.Actions.ProcessInfo, as: ProcessInfoActions
+  alias LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo
 
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:id, :string, required: true)
@@ -43,11 +45,10 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
     end
 
     socket
-    |> assign(
-      id: id,
-      parent_pid: parent_pid,
-      lv_process: lv_process
-    )
+    |> assign(id: id)
+    |> assign(parent_pid: parent_pid)
+    |> assign(lv_process: lv_process)
+    |> assign_async_process_info()
     |> ok()
   end
 
@@ -62,13 +63,28 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
             This view will display resource information for the debugged LiveView
           </span>
         </div>
-        <div class="@container/resources w-full min-w-[20rem] flex flex-col pt-2 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
-          <div class="flex flex-1 overflow-auto rounded-sm bg-surface-0-bg p-4">
-            <div class="w-full h-full flex flex-col gap-4 items-center justify-center text-secondary-text">
-              <p>This page is empty.</p>
+        <.section
+          title="Process Information"
+          id="process-info"
+          inner_class="mx-0 my-4 px-4"
+          class="flex-1"
+        >
+          <:right_panel>
+            Refresh time here
+          </:right_panel>
+          <.async_result :let={process_info} assign={@process_info}>
+            <:loading>
+              <p>Loading...</p>
+            </:loading>
+            <:failed>
+              <p>Failed to fetch process information</p>
+            </:failed>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+              <.process_info process_info={process_info} />
+              <.process_info_chart process_info={process_info} />
             </div>
-          </div>
-        </div>
+          </.async_result>
+        </.section>
       </div>
     </div>
     """
@@ -85,4 +101,56 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   end
 
   def handle_info(_, socket), do: {:noreply, socket}
+
+  attr(:process_info, ProcessInfo, required: true)
+
+  defp process_info(assigns) do
+    ~H"""
+    <div class="flex flex-col gap-2">
+      <%= for {key, value} <- prepare_data(@process_info) do %>
+        <div class="flex gap-1">
+          <span class="font-medium"><%= display_key(key) %></span>
+          <span><%= inspect(value) %></span>
+        </div>
+      <% end %>
+    </div>
+    """
+  end
+
+  attr(:process_info, ProcessInfo, required: true)
+
+  defp process_info_chart(assigns) do
+    ~H"""
+    <div>
+      Chart here
+    </div>
+    """
+  end
+
+  defp assign_async_process_info(socket) do
+    pid = socket.assigns.lv_process.pid
+
+    socket
+    |> assign_async(:process_info, fn ->
+      case ProcessInfoActions.get_info(pid) do
+        {:ok, process_info} -> {:ok, %{process_info: process_info}}
+        {:error, reason} -> {:error, reason}
+      end
+    end)
+  end
+
+  defp prepare_data(process_info) do
+    process_info
+    |> Map.from_struct()
+    |> Map.to_list()
+  end
+
+  defp display_key(key) do
+    key
+    |> to_string()
+    |> String.replace(":", " ")
+    |> String.split("_")
+    |> Enum.map(&String.capitalize/1)
+    |> Enum.join(" ")
+  end
 end
