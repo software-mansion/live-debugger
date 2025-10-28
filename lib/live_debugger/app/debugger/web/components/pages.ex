@@ -17,6 +17,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
 
   @node_inspector_sidebar_id "node-inspector-sidebar"
   @global_traces_id "global-traces"
+  @resources_id "resources"
 
   attr(:socket, LiveViewSocket, required: true)
   attr(:lv_process, LvProcess, required: true)
@@ -86,11 +87,28 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
     """
   end
 
+  attr(:socket, LiveViewSocket, required: true)
+  attr(:lv_process, LvProcess, required: true)
+
+  def resources(assigns) do
+    assigns = assign(assigns, :id, @resources_id)
+
+    ~H"""
+    <div id={@id} class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
+      <div class="text-center text-gray-500">
+        <h2 class="text-2xl font-semibold mb-4">Resources</h2>
+        <p>This page is empty.</p>
+      </div>
+    </div>
+    """
+  end
+
   @spec get_open_sidebar_js(live_action :: atom()) :: JS.t()
   def get_open_sidebar_js(live_action) when is_atom(live_action) do
     case live_action do
       :node_inspector -> JS.push("open-sidebar", target: "##{@node_inspector_sidebar_id}")
       :global_traces -> JS.push("open-sidebar", target: "##{@global_traces_id}")
+      :resources -> JS.push("open-sidebar", target: "##{@resources_id}")
     end
   end
 
