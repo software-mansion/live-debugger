@@ -26,7 +26,7 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
       <.button phx-click="insert_at_index">Insert At Index 4</.button>
       <.button phx-click="delete_item">Delete Last</.button>
       <.button phx-click="reset_items">Reset Stream</.button>
-      <.button phx-click="limit_stream">Limit Stream (5)</.button>
+      <%!-- <.button phx-click="limit_stream">Limit Stream (5)</.button> --%>
       <.button phx-click="async_load">Async Load Items</.button>
       <.button phx-click="delete_both_last">Delete Last From Both Streams</.button>
     </.box>
@@ -193,11 +193,6 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
   end
 
   @impl true
-  def handle_info({:async_result, :items, {:ok, _}}, socket) do
-    {:noreply, assign(socket, :async_loaded?, true)}
-  end
-
-  @impl true
   def handle_event("delete_both_last", _params, socket) do
     last_item_id = socket.assigns.current_id - 1
     last_another_id = socket.assigns.another_items_id - 1
@@ -222,5 +217,10 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
       |> assign(:another_items_id, max(last_another_id, 0))
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:async_result, :items, {:ok, _}}, socket) do
+    {:noreply, assign(socket, :async_loaded?, true)}
   end
 end

@@ -60,7 +60,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   end
 
   attr(:node, TermNode, required: true)
-  attr(:type, :atom, required: true, values: [:assigns, :streams])
 
   def static_term(assigns) do
     assigns =
@@ -68,7 +67,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
       |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
-    <div class="font-code" phx-click="toggle_node" phx-value-id={@node.id} phx-value-type={@type}>
+    <div class="font-code" phx-click="toggle_node" phx-value-id={@node.id}>
       <%= if @has_children? do %>
         <.static_collapsible
           open={@node.open?}
@@ -76,7 +75,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
           chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
           phx-click="toggle_node"
           phx-value-id={@node.id}
-          phx-value-type={@type}
         >
           <:label :let={open}>
             <%= if open do %>
@@ -87,7 +85,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
           </:label>
           <ol class="m-0 ml-[2ch] block list-none p-0">
             <li :for={{_, child} <- @node.children} class="flex flex-col">
-              <.static_term node={child} type={@type} />
+              <.static_term node={child} />
             </li>
           </ol>
           <div class="ml-[2ch]">

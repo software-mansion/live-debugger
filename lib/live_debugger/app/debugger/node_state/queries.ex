@@ -63,9 +63,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
     end
   end
 
-  # def update_node_streams(_, stream_updates, current_stream_state_list) do
-  #   # StreamUtils.compute_diff([stream_updates], current_stream_state_list)
-  # end
+  def update_node_streams(_, stream_updates) do
+    StreamUtils.compute_diff([stream_updates])
+  end
 
   defp get_component_assigns(components, %Phoenix.LiveComponent.CID{cid: cid}) do
     components
