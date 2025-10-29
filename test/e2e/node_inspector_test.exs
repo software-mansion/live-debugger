@@ -533,6 +533,90 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     |> assert_has(inspect_tooltip_value_text("2"))
   end
 
+  @sessions 2
+  feature "user can search for callbacks using the searchbar", %{
+    sessions: [dev_app, debugger]
+  } do
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(traces(count: 2))
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(button("send-button"))
+
+    debugger
+    |> click(toggle_tracing_button())
+
+    debugger
+    |> fill_in(search_bar(), with: ":new_datetime")
+
+    Process.sleep(250)
+
+    debugger
+    |> find(traces(count: 1), fn trace -> assert_text(trace, ":new_datetime") end)
+    |> click(clear_traces_button())
+
+    dev_app
+    |> click(button("increment-button"))
+
+    debugger
+    |> fill_in(search_bar(), with: "deep value")
+
+    Process.sleep(250)
+
+    [render_trace, handle_event_trace] = debugger |> find(traces(count: 2))
+
+    render_trace
+    |> click(css("summary"))
+    |> assert_has(css("pre", text: "\"deep value\"", count: 2, visible: true))
+    |> click(open_fullscreen_trace_button())
+
+    debugger
+    |> find(css("#trace-fullscreen"))
+    |> assert_has(css("pre", text: "\"deep value\"", count: 2, visible: true))
+    |> click(button("trace-fullscreen-close"))
+
+    handle_event_trace
+    |> click(css("summary"))
+    |> assert_has(css("pre", text: "\"deep value\"", count: 1, visible: true))
+    |> click(open_fullscreen_trace_button())
+
+    debugger
+    |> find(css("#trace-fullscreen"))
+    |> assert_has(css("pre", text: "\"deep value\"", count: 1, visible: true))
+  end
+
+  @sessions 2
+  feature "incoming traces are filtered by search phrase", %{
+    sessions: [dev_app, debugger]
+  } do
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(traces(count: 2))
+    |> fill_in(search_bar(), with: ":new_datetime")
+
+    Process.sleep(250)
+
+    debugger
+    |> assert_has(traces(count: 0))
+    |> click(toggle_tracing_button())
+
+    dev_app
+    |> click(button("send-button"))
+
+    debugger
+    |> assert_has(traces(count: 1))
+  end
+
   defp assert_traces(session, count, callback_names) do
     session
     |> find(traces(count: count))
@@ -588,6 +672,8 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   defp reset_group_button(group) do
     css("button[phx-click=\"reset-group\"][phx-value-group=\"#{group}\"]")
   end
+
+  defp open_fullscreen_trace_button(), do: css("button[phx-click=\"open-trace\"]")
 
   # The toggle_switch component uses a hidden checkbox input with class "sr-only" (screen reader only).
   # Wallaby cannot click on hidden elements, so we need to click on the visible label element

@@ -15,8 +15,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     dev_app
     |> visit(@dev_app_url)
 
-    Process.sleep(200)
-
     debugger
     |> visit("/")
     |> click(first_link())
@@ -30,8 +28,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
 
     dev_app
     |> click(css("button#send-button"))
-
-    Process.sleep(200)
 
     debugger
     |> click(toggle_tracing_button())
@@ -47,8 +43,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
 
     dev_app
     |> click(css("button#increment-button"))
-
-    Process.sleep(200)
 
     debugger
     |> click(refresh_history_button())
@@ -103,8 +97,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     dev_app
     |> visit(@dev_app_url)
 
-    Process.sleep(200)
-
     debugger
     |> visit("/")
     |> click(first_link())
@@ -116,23 +108,27 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     dev_app
     |> click(button("send-button"))
 
-    Process.sleep(200)
-
     debugger
     |> click(toggle_tracing_button())
 
     debugger
     |> fill_in(search_bar(), with: ":new_datetime")
+
+    Process.sleep(250)
+
+    debugger
     |> find(traces(count: 1), fn trace -> assert_text(trace, ":new_datetime") end)
     |> click(clear_traces_button())
 
     dev_app
     |> click(button("increment-button"))
 
-    [render_trace, handle_event_trace] =
-      debugger
-      |> fill_in(search_bar(), with: "deep value")
-      |> find(traces(count: 2))
+    debugger
+    |> fill_in(search_bar(), with: "deep value")
+
+    Process.sleep(250)
+
+    [render_trace, handle_event_trace] = debugger |> find(traces(count: 2))
 
     render_trace
     |> click(css("summary"))
@@ -161,8 +157,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     dev_app
     |> visit(@dev_app_url)
 
-    Process.sleep(200)
-
     debugger
     |> visit("/")
     |> click(first_link())
@@ -175,8 +169,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     dev_app
     |> click(button("send-button"))
 
-    Process.sleep(200)
-
     debugger
     |> assert_has(traces(count: 1))
   end
@@ -187,8 +179,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
   } do
     dev_app
     |> visit(@dev_app_url)
-
-    Process.sleep(200)
 
     # Resizing since in smaller screens the apply button is not visible
     debugger
@@ -209,8 +199,6 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
 
     dev_app
     |> click(css("button#increment-button"))
-
-    Process.sleep(200)
 
     debugger
     |> click(toggle_tracing_button())
