@@ -2,7 +2,8 @@ import Chart from 'chart.js/auto';
 
 const ChartHook = {
   mounted() {
-    this.handleEvent('update-chart', ({ value, key }) => {
+    this.handleEvent('update-chart', (data) => {
+      console.log('update-chart', data);
       const now = new Date();
       const timeString = now.toLocaleTimeString('en-US', {
         hour: '2-digit',
@@ -11,12 +12,23 @@ const ChartHook = {
         hour12: false,
       });
 
+      const memory = Number(data.memory);
+      const totalHeapSize = Number(data.total_heap_size);
+      const heapSize = Number(data.heap_size);
+      const stackSize = Number(data.stack_size);
+
       this.chart.data.labels.push(timeString);
-      this.chart.data.datasets[0].data.push(Number(value));
+      this.chart.data.datasets[0].data.push(Number(memory));
+      this.chart.data.datasets[1].data.push(Number(totalHeapSize));
+      this.chart.data.datasets[2].data.push(Number(heapSize));
+      this.chart.data.datasets[3].data.push(Number(stackSize));
 
       if (this.chart.data.labels.length > 50) {
         this.chart.data.labels.shift();
         this.chart.data.datasets[0].data.shift();
+        this.chart.data.datasets[1].data.shift();
+        this.chart.data.datasets[2].data.shift();
+        this.chart.data.datasets[3].data.shift();
       }
 
       this.chart.update('none');
@@ -37,11 +49,30 @@ const ChartHook = {
             borderColor: code4,
             data: [],
           },
+          {
+            label: 'Total Heap Size',
+            backgroundColor: code4,
+            borderColor: code4,
+            data: [],
+          },
+          {
+            label: 'Heap Size',
+            backgroundColor: code4,
+            borderColor: code4,
+            data: [],
+          },
+          {
+            label: 'Stack Size',
+            backgroundColor: code4,
+            borderColor: code4,
+            data: [],
+          },
         ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: false,
         plugins: {
           legend: {
             labels: {

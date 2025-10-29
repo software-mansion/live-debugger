@@ -14,7 +14,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   alias LiveDebugger.App.Debugger.Resources.Actions.ProcessInfo, as: ProcessInfoActions
   alias LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo
   alias LiveDebugger.Utils.Memory
-  alias LiveDebugger.App.Debugger.Resources.Components
+  alias LiveDebugger.App.Debugger.Resources.Components.Chart
 
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:id, :string, required: true)
@@ -106,7 +106,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
             </:failed>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
               <.process_info process_info={process_info} />
-              <Components.chart id="process-info-chart" process_info={process_info} />
+              <Chart.render id="process-info-chart" />
             </div>
           </.async_result>
         </.section>
@@ -121,10 +121,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
 
     socket
     |> assign(process_info: AsyncResult.ok(socket.assigns.process_info, process_info))
-    |> push_event("update-chart", %{
-      value: Map.get(process_info, :memory),
-      key: :memory
-    })
+    |> Chart.append_new_data(process_info)
     |> noreply()
   end
 
