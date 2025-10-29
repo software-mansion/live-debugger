@@ -51,8 +51,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
       chevron_class="w-5 h-5 text-accent-icon"
       class={["max-w-full border rounded last:mb-4", border_color_class(@trace_display)]}
       label_class="font-semibold bg-surface-1-bg p-2 py-3 rounded"
-      phx-click={if(@trace_display.render_body?, do: nil, else: "toggle-collapsible")}
+      phx-click="toggle-collapsible"
       phx-value-trace-id={@trace_display.id}
+      phx-value-render-body={@trace_display.render_body?}
     >
       <:label>
         <%= render_slot(@label) %>
@@ -96,7 +97,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
     |> halt()
   end
 
-  defp handle_event("toggle-collapsible", %{"trace-id" => string_trace_id}, socket) do
+  defp handle_event("toggle-collapsible", %{"trace-id" => string_trace_id} = params, socket) do
+    render_body? = Map.has_key?(params, "render-body")
+
     socket
     |> get_trace(string_trace_id)
     |> case do
@@ -105,7 +108,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
         socket
 
       trace ->
-        stream_insert_trace(socket, trace)
+        stream_insert_trace(socket, trace, !render_body?)
     end
     |> halt()
   end
@@ -133,11 +136,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
     )
   end
 
-  defp stream_insert_trace(socket, trace) do
+  defp stream_insert_trace(socket, trace, render_body?) do
     stream_insert(
       socket,
       :existing_traces,
-      trace |> TraceDisplay.from_trace() |> TraceDisplay.render_body()
+      trace |> TraceDisplay.from_trace() |> TraceDisplay.render_body(render_body?)
     )
   end
 
