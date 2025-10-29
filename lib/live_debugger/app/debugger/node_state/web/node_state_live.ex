@@ -112,8 +112,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
             </li>
           </ul>
         <% end %>
-
-        <%!-- <NodeStateComponents.streams_section term_node={term_node} /> --%>
       </.async_result>
     </div>
     """
@@ -135,8 +133,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   def handle_info(%StreamUpdated{streams: streams}, socket) do
     socket
-    |> Hooks.NodeStreams.assign_async_streams_tree(streams)
+    |> Hooks.NodeStreams.assign_async_streams(streams)
     |> noreply()
+  end
+
+  def handle_info({:delete_stream_entry, name, dom_id, _}, socket) do
+    dbg("Deleting #{dom_id}")
+    {:noreply, Phoenix.LiveView.stream_delete_by_dom_id(socket, name, dom_id)}
   end
 
   def handle_info(_, socket), do: {:noreply, socket}
