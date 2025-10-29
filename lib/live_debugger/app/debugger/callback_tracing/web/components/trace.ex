@@ -62,11 +62,16 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   """
   attr(:id, :string, required: true)
   attr(:trace_display, TraceDisplay, required: true)
-  attr(:rest, :global)
+  attr(:search_phrase, :string, required: true)
 
   def trace_body(assigns) do
     ~H"""
-    <div id={@id} class="flex flex-col gap-4 w-full" {@rest}>
+    <div
+      id={@id}
+      class="flex flex-col gap-4 w-full"
+      phx-hook="TraceBodySearchHighlight"
+      data-search_phrase={@search_phrase}
+    >
       <%= for {{label, content}, index} <- Enum.with_index(@trace_display.body) do %>
         <div :if={index > 0} class="border-t border-default-border w-full"></div>
         <div class="flex flex-col gap-4 w-full [&>div>div>button]:hidden hover:[&>div>div>button]:block">
@@ -88,13 +93,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   """
   attr(:id, :string, required: true)
   attr(:displayed_trace, TraceDisplay, required: true)
-  attr(:rest, :global)
+  attr(:search_phrase, :string, required: true)
 
   def trace_fullscreen(assigns) do
     ~H"""
     <.fullscreen id={@id} title={@displayed_trace.title}>
       <div class="p-4 flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden">
-        <.trace_body id={@id <> "-fullscreen"} trace_display={@displayed_trace} {@rest} />
+        <.trace_body
+          id={@id <> "-fullscreen"}
+          trace_display={@displayed_trace}
+          search_phrase={@search_phrase}
+        />
       </div>
     </.fullscreen>
     """
