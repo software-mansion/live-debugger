@@ -11,7 +11,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
     stream_traces = extract_stream_traces(stream_updates)
     stream_names = get_stream_names_map(stream_traces)
 
-    fun_list = collect_updates(stream_traces)
+    fun_list = collect_updates_for_initial_stream(stream_traces, stream_names)
     config_list = collect_config(stream_traces)
 
     dbg(fun_list)
@@ -52,6 +52,58 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
     update_list
   end
 
+  defp collect_updates_for_initial_stream(update_list, stream_names) do
+    update_map =
+      Enum.reduce(update_list, %{}, fn update, acc ->
+        process_update(acc, update, stream_names)
+      end)
+
+    fun_list =
+      update_map
+      |> Enum.flat_map(&flatten_stream_initial_updates/1)
+
+    dbg(fun_list)
+    fun_list
+  end
+
+  defp process_update(acc, update, stream_names) do
+    Enum.reduce(stream_names, acc, fn key, acc_inner ->
+      update_stream_if_present(acc_inner, update, key)
+    end)
+  end
+
+  defp update_stream_if_present(acc, update, key) do
+    case Map.get(update, key) do
+      %Phoenix.LiveView.LiveStream{} = stream ->
+        Map.update(acc, key, [], fn current ->
+          apply_stream_update(current, stream)
+        end)
+
+      _ ->
+        acc
+    end
+  end
+
+  defp apply_stream_update(_current, %Phoenix.LiveView.LiveStream{reset?: true}) do
+    []
+  end
+
+  defp apply_stream_update(current, %Phoenix.LiveView.LiveStream{
+         inserts: inserts,
+         deletes: deletes
+       }) do
+    current =
+      Enum.reduce(inserts, current, fn
+        {dom_id, at, data, limit, updated?}, acc ->
+          [{dom_id, at, data, limit, updated?} | acc]
+
+        _, acc ->
+          acc
+      end)
+
+    Enum.reject(current, fn {dom_id, _at, _data, _limit, _updated?} -> dom_id in deletes end)
+  end
+
   defp collect_config(update_list) do
     update_list =
       update_list
@@ -64,13 +116,18 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
     update_list
   end
 
-  def map_stream_entry_to_stream_function(%Phoenix.LiveView.LiveStream{
-        name: name,
-        inserts: inserts,
-        deletes: deletes,
-        reset?: reset?,
-        consumable?: _consumable?
-      }) do
+  defp map_initial_stream_entry_to_stream_function(stream_name, inserts) do
+    []
+    |> maybe_add_inserts(Enum.reverse(inserts), stream_name)
+  end
+
+  defp map_stream_entry_to_stream_function(%Phoenix.LiveView.LiveStream{
+         name: name,
+         inserts: inserts,
+         deletes: deletes,
+         reset?: reset?,
+         consumable?: _consumable?
+       }) do
     []
     |> maybe_add_reset(reset?, name)
     # Reverse to preserve the order of inserts
@@ -132,11 +189,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
   defp create_delete_functions(deletes, name) do
     Enum.map(deletes, fn dom_id ->
       fn socket ->
-        # Problem with same_id because ids are reused and element is updated and then deleted
-        Process.send_after(self(), {:delete_stream_entry, name, dom_id, socket}, 1)
-        socket
+        Phoenix.LiveView.stream_delete_by_dom_id(socket, name, dom_id)
       end
     end)
+  end
+
+  defp flatten_stream_initial_updates({stream_name, inserts}) do
+    map_initial_stream_entry_to_stream_function(stream_name, inserts)
   end
 
   defp flatten_stream_updates(stream_entry) do
