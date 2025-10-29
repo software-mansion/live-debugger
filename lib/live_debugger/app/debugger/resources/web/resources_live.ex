@@ -5,6 +5,9 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  require Logger
+
+  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
@@ -32,6 +35,8 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   )a
 
   @memory_keys ~w(memory total_heap_size heap_size stack_size)a
+
+  @refresh_interval 1000
 
   def live_render(assigns) do
     session = %{
@@ -66,6 +71,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
     |> assign(parent_pid: parent_pid)
     |> assign(lv_process: lv_process)
     |> assign(keys_order: @keys_order)
+    |> assign(process_info: AsyncResult.loading())
     |> assign_async_process_info()
     |> ok()
   end
@@ -109,12 +115,35 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   end
 
   @impl true
+  def handle_async(:process_info, {:ok, process_info}, socket) do
+    Process.send_after(self(), :refresh_process_info, @refresh_interval)
+
+    socket
+    |> assign(process_info: AsyncResult.ok(socket.assigns.process_info, process_info))
+    |> noreply()
+  end
+
+  def handle_async(:process_info, {:exit, reason}, socket) do
+    Logger.error("Failed to fetch process information: #{inspect(reason)}")
+
+    socket
+    |> assign(process_info: AsyncResult.failed(socket.assigns.process_info, reason))
+    |> noreply()
+  end
+
+  @impl true
   def handle_info(
         %DeadViewModeEntered{debugger_pid: pid},
         %{assigns: %{parent_pid: pid}} = socket
       ) do
     socket
     |> assign(:lv_process, socket.assigns.lv_process |> LvProcess.set_alive(false))
+    |> noreply()
+  end
+
+  def handle_info(:refresh_process_info, socket) do
+    socket
+    |> assign_async_process_info()
     |> noreply()
   end
 
@@ -153,10 +182,10 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
     pid = socket.assigns.lv_process.pid
 
     socket
-    |> assign_async(:process_info, fn ->
+    |> start_async(:process_info, fn ->
       case ProcessInfoActions.get_info(pid) do
-        {:ok, process_info} -> {:ok, %{process_info: process_info}}
-        {:error, reason} -> {:error, reason}
+        {:ok, process_info} -> process_info
+        {:error, reason} -> raise reason
       end
     end)
   end
