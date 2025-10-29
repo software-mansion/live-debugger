@@ -88,11 +88,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
 
   defp get_subtitle(%DiffTrace{}), do: nil
 
-  defp get_subtitle_link(%FunctionTrace{pid: pid, cid: cid}) do
+  defp get_subtitle_link_data(%FunctionTrace{pid: pid, cid: cid}) do
     %{pid: pid, cid: cid}
   end
 
-  defp get_subtitle_link(%DiffTrace{}), do: nil
+  defp get_subtitle_link_data(%DiffTrace{}), do: nil
 
   defp get_body(%FunctionTrace{args: args} = trace) do
     Enum.with_index(args, fn arg, index ->
