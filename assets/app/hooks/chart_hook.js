@@ -43,6 +43,8 @@ const ChartHook = {
         ],
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         plugins: {
           legend: {
             labels: {

@@ -13,13 +13,15 @@ defmodule LiveDebugger.App.Debugger.Resources.Components do
 
   def chart(assigns) do
     ~H"""
-    <canvas
-      id={@id}
-      phx-hook="ChartHook"
-      data-process-info-value={Map.get(@process_info, @selected_key)}
-      data-process-info-key={@selected_key}
-    >
-    </canvas>
+    <div class="min-h-[30vh] lg:min-h-default">
+      <canvas
+        id={@id}
+        phx-hook="ChartHook"
+        data-process-info-value={Map.get(@process_info, @selected_key)}
+        data-process-info-key={@selected_key}
+      >
+      </canvas>
+    </div>
     """
   end
 end
