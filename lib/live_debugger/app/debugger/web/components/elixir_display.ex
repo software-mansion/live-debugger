@@ -67,7 +67,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
       |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
-    <div class="font-code" phx-click="toggle_node" phx-value-id={@node.id}>
+    <div class="font-code">
       <%= if @has_children? do %>
         <.static_collapsible
           open={@node.open?}
