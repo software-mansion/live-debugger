@@ -106,7 +106,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
             </:failed>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
               <.process_info process_info={process_info} />
-              <Components.chart id="process-info-chart" />
+              <Components.chart id="process-info-chart" process_info={process_info} />
             </div>
           </.async_result>
         </.section>
