@@ -15,7 +15,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.StateTest do
 
   describe "maybe_save_state!/1" do
     test "does nothing when trace is not a state changing trace" do
-      trace = %LiveDebugger.Structs.Trace{
+      trace = %LiveDebugger.Structs.Trace.FunctionTrace{
         id: 1,
         module: TestModule,
         function: :handle_event,
@@ -29,7 +29,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.StateTest do
     test "saves state and sends event when process is alive" do
       pid = :c.pid(0, 1, 0)
 
-      trace = %LiveDebugger.Structs.Trace{
+      trace = %LiveDebugger.Structs.Trace.FunctionTrace{
         id: 1,
         module: TestModule,
         function: :render,
@@ -61,7 +61,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.StateTest do
     test "returns error when process is not alive" do
       pid = :c.pid(0, 1, 0)
 
-      trace = %LiveDebugger.Structs.Trace{
+      trace = %LiveDebugger.Structs.Trace.FunctionTrace{
         id: 1,
         module: TestModule,
         function: :render,

@@ -3,7 +3,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.DiffTrace do
   This module provides actions for LiveView diffs.
   """
 
-  alias LiveDebugger.Structs.DiffTrace
+  alias LiveDebugger.Structs.Trace.DiffTrace
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
   alias LiveDebugger.API.TracesStorage

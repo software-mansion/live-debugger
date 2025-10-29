@@ -8,7 +8,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   """
 
   alias LiveDebugger.Structs.Trace
-  alias LiveDebugger.Structs.DiffTrace
+  alias LiveDebugger.Structs.Trace.FunctionTrace
+  alias LiveDebugger.Structs.Trace.DiffTrace
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.CommonTypes
 
@@ -43,7 +44,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
           side_section_right: side_section_right()
         }
 
-  @spec from_trace(Trace.t() | DiffTrace.t(), boolean()) :: t()
+  @spec from_trace(Trace.t(), boolean()) :: t()
   def from_trace(trace, from_event? \\ false) do
     %__MODULE__{
       id: trace.id,
@@ -72,13 +73,13 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   end
 
   defp get_type(%{type: :exception_from}), do: :error
-  defp get_type(%LiveDebugger.Structs.DiffTrace{}), do: :diff
+  defp get_type(%DiffTrace{}), do: :diff
   defp get_type(_), do: :normal
 
-  defp get_title(%Trace{} = trace), do: Trace.callback_name(trace)
+  defp get_title(%FunctionTrace{} = trace), do: FunctionTrace.callback_name(trace)
   defp get_title(%DiffTrace{}), do: "Diff sent"
 
-  defp get_subtitle(%Trace{module: module, cid: cid}) do
+  defp get_subtitle(%FunctionTrace{module: module, cid: cid}) do
     module_string = Parsers.module_to_string(module)
     cid_string = if cid, do: " (#{cid})", else: ""
 
@@ -87,15 +88,15 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
 
   defp get_subtitle(%DiffTrace{}), do: nil
 
-  defp get_subtitle_link_data(%Trace{pid: pid, cid: cid}) do
+  defp get_subtitle_link_data(%FunctionTrace{pid: pid, cid: cid}) do
     %{pid: pid, cid: cid}
   end
 
   defp get_subtitle_link_data(%DiffTrace{}), do: nil
 
-  defp get_body(%Trace{args: args} = trace) do
+  defp get_body(%FunctionTrace{args: args} = trace) do
     Enum.with_index(args, fn arg, index ->
-      {"Arg #{index} (#{Trace.arg_name(trace, index)})", arg}
+      {"Arg #{index} (#{FunctionTrace.arg_name(trace, index)})", arg}
     end)
   end
 
@@ -105,7 +106,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
     {:timestamp, timestamp}
   end
 
-  defp get_side_section_right(%Trace{execution_time: execution_time}) do
+  defp get_side_section_right(%FunctionTrace{execution_time: execution_time}) do
     {:execution_time, execution_time}
   end
 
