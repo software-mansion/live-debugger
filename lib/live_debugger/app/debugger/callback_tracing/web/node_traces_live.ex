@@ -128,11 +128,21 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
             <:trace :let={{id, trace_display}}>
               <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
                 <:label>
-                  <.trace_label id={id <> "-label"} trace_display={trace_display} />
+                  <.trace_label
+                    id={id <> "-label"}
+                    trace_display={trace_display}
+                    search_phrase={@trace_search_phrase}
+                    short_content_full?={true}
+                  />
                 </:label>
 
                 <:body>
-                  <.trace_body id={id <> "-body"} trace_display={trace_display} />
+                  <.trace_body
+                    id={id <> "-body"}
+                    trace_display={trace_display}
+                    phx-hook="TraceBodySearchHighlight"
+                    data-search_phrase={@trace_search_phrase}
+                  />
                 </:body>
               </HookComponents.TraceWrapper.render>
             </:trace>
@@ -149,6 +159,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
         :if={@displayed_trace}
         id="trace-fullscreen"
         displayed_trace={@displayed_trace}
+        phx-hook="TraceBodySearchHighlight"
+        data-search_phrase={@trace_search_phrase}
       />
     </div>
     """
