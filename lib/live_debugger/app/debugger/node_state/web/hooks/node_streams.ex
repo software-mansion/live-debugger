@@ -63,13 +63,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
          {:ok, {fun_list, config_list, stream_names}},
          socket
        ) do
-    socket =
-      socket
-      |> apply_stream_transformations(config_list)
-      |> assign_stream_names(stream_names)
-      |> apply_stream_transformations(fun_list)
-      |> assign(:stream_names, AsyncResult.ok(stream_names))
-      |> halt()
+    socket
+    |> apply_stream_transformations(config_list)
+    |> assign_stream_names(stream_names)
+    |> apply_stream_transformations(fun_list)
+    |> assign(:stream_names, AsyncResult.ok(stream_names))
+    |> halt()
   end
 
   defp handle_async(

@@ -9,7 +9,7 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
       |> stream_configure(:another_items, dom_id: &"another-#{&1.id}")
       |> assign(:current_id, 0)
       |> assign(:another_items_id, 0)
-      |> assign(:async_loaded?, false)
+      # |> assign(:async_loaded?, false)
       |> stream(:items, [])
       |> stream(:another_items, [])
 
@@ -26,8 +26,8 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
       <.button phx-click="insert_at_index">Insert At Index 4</.button>
       <.button phx-click="delete_item">Delete Last</.button>
       <.button phx-click="reset_items">Reset Stream</.button>
-      <%!-- <.button phx-click="limit_stream">Limit Stream (5)</.button> --%>
-      <.button phx-click="async_load">Async Load Items</.button>
+      <.button phx-click="limit_stream">Limit Stream (5)</.button>
+      <%!-- <.button phx-click="async_load">Async Load Items</.button> --%>
       <.button phx-click="delete_both_last">Delete Last From Both Streams</.button>
     </.box>
 
@@ -178,19 +178,24 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
     {:noreply, socket}
   end
 
-  @impl true
-  def handle_event("async_load", _params, socket) do
-    socket =
-      socket
-      |> assign(:async_loaded?, false)
-      |> stream_async(:items, fn ->
-        Process.sleep(1000)
-        items = Enum.map(0..9, fn i -> %{id: i, number: Enum.random(1..500)} end)
-        {:ok, items, reset: true}
-      end)
+  # @impl true
+  # def handle_event("async_load", _params, socket) do
+  #   socket =
+  #     socket
+  #     |> assign(:async_loaded?, false)
+  #     |> stream_async(:items, fn ->
+  #       Process.sleep(1000)
+  #       items = Enum.map(0..9, fn i -> %{id: i, number: Enum.random(1..500)} end)
+  #       {:ok, items, reset: true}
+  #     end)
 
-    {:noreply, socket}
-  end
+  #   {:noreply, socket}
+  # end
+
+  # @impl true
+  # def handle_info({:async_result, :items, {:ok, _}}, socket) do
+  #   {:noreply, assign(socket, :async_loaded?, true)}
+  # end
 
   @impl true
   def handle_event("delete_both_last", _params, socket) do
@@ -217,10 +222,5 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
       |> assign(:another_items_id, max(last_another_id, 0))
 
     {:noreply, socket}
-  end
-
-  @impl true
-  def handle_info({:async_result, :items, {:ok, _}}, socket) do
-    {:noreply, assign(socket, :async_loaded?, true)}
   end
 end
