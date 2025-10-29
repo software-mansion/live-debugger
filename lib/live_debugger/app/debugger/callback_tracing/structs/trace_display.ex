@@ -73,7 +73,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   end
 
   defp get_type(%{type: :exception_from}), do: :error
-  defp get_type(%LiveDebugger.Structs.Trace.DiffTrace{}), do: :diff
+  defp get_type(%DiffTrace{}), do: :diff
   defp get_type(_), do: :normal
 
   defp get_title(%FunctionTrace{} = trace), do: FunctionTrace.callback_name(trace)
