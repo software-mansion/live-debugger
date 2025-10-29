@@ -5,22 +5,12 @@ defmodule LiveDebugger.App.Debugger.Resources.Components do
 
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo
-
   attr(:id, :string, required: true)
-  attr(:process_info, ProcessInfo, required: true)
-  attr(:selected_key, :atom, default: :memory)
 
   def chart(assigns) do
     ~H"""
-    <div class="min-h-[30vh] lg:min-h-default">
-      <canvas
-        id={@id}
-        phx-hook="ChartHook"
-        data-process-info-value={Map.get(@process_info, @selected_key)}
-        data-process-info-key={@selected_key}
-      >
-      </canvas>
+    <div class="min-h-[30vh] lg:min-h-default" phx-update="ignore" id={"#{@id}-wrapper"}>
+      <canvas id={@id} phx-hook="ChartHook"></canvas>
     </div>
     """
   end

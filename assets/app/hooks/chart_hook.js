@@ -1,29 +1,26 @@
 import Chart from 'chart.js/auto';
 
 const ChartHook = {
-  updated() {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
-
-    this.chart.data.labels.push(timeString);
-    this.chart.data.datasets[0].data.push(
-      Number(this.el.dataset.processInfoValue)
-    );
-
-    if (this.chart.data.labels.length > 50) {
-      this.chart.data.labels.shift();
-      this.chart.data.datasets[0].data.shift();
-    }
-
-    this.chart.update('none');
-  },
-
   mounted() {
+    this.handleEvent('update-chart', ({ value, key }) => {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      });
+
+      this.chart.data.labels.push(timeString);
+      this.chart.data.datasets[0].data.push(Number(value));
+
+      if (this.chart.data.labels.length > 50) {
+        this.chart.data.labels.shift();
+        this.chart.data.datasets[0].data.shift();
+      }
+
+      this.chart.update('none');
+    });
     const style = getComputedStyle(document.documentElement);
     const code4 = style.getPropertyValue('--code-4').trim();
     const primaryText = style.getPropertyValue('--primary-text').trim();

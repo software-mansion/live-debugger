@@ -121,6 +121,10 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
 
     socket
     |> assign(process_info: AsyncResult.ok(socket.assigns.process_info, process_info))
+    |> push_event("update-chart", %{
+      value: Map.get(process_info, :memory),
+      key: :memory
+    })
     |> noreply()
   end
 
