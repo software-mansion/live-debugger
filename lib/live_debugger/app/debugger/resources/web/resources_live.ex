@@ -155,16 +155,16 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
     assigns = assign(assigns, keys_order: @keys_order)
 
     ~H"""
-    <table>
+    <div>
       <%= for key <- @keys_order do %>
-        <tr>
-          <td class="font-medium py-1"><%= display_key(key) %>:</td>
-          <td class={"font-code #{value_color_class(key)} py-1"}>
+        <div class="flex py-1">
+          <span class="font-medium w-36 flex-shrink-0"><%= display_key(key) %>:</span>
+          <span class={"font-code #{value_color_class(key)} truncate"}>
             <%= @process_info |> Map.get(key) |> display_value(key) %>
-          </td>
-        </tr>
+          </span>
+        </div>
       <% end %>
-    </table>
+    </div>
     """
   end
 
