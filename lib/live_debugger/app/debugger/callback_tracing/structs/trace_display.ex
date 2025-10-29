@@ -52,7 +52,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
       type: get_type(trace),
       title: get_title(trace),
       subtitle: get_subtitle(trace),
-      subtitle_link_data: get_subtitle_link(trace),
+      subtitle_link_data: get_subtitle_link_data(trace),
       body: get_body(trace),
       side_section_left: get_side_section_left(trace),
       side_section_right: get_side_section_right(trace)
@@ -64,6 +64,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
     Map.put(trace, :render_body?, true)
   end
 
+  @spec short_content(t(), boolean()) :: String.t()
   def short_content(trace_display, full? \\ false) do
     trace_display.body
     |> Enum.map(fn {_label, content} -> content end)
@@ -86,11 +87,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
 
   defp get_subtitle(%DiffTrace{}), do: nil
 
-  defp get_subtitle_link(%Trace{pid: pid, cid: cid}) do
+  defp get_subtitle_link_data(%Trace{pid: pid, cid: cid}) do
     %{pid: pid, cid: cid}
   end
 
-  defp get_subtitle_link(%DiffTrace{}), do: nil
+  defp get_subtitle_link_data(%DiffTrace{}), do: nil
 
   defp get_body(%Trace{args: args} = trace) do
     Enum.with_index(args, fn arg, index ->
