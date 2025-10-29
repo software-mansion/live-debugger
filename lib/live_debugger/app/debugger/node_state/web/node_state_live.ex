@@ -137,10 +137,5 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> noreply()
   end
 
-  def handle_info({:delete_stream_entry, name, dom_id, _}, socket) do
-    dbg("Deleting #{dom_id}")
-    {:noreply, Phoenix.LiveView.stream_delete_by_dom_id(socket, name, dom_id)}
-  end
-
   def handle_info(_, socket), do: {:noreply, socket}
 end
