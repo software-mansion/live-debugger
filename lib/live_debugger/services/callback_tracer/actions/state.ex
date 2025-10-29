@@ -12,7 +12,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
   alias LiveDebugger.Services.CallbackTracer.Events.StreamUpdated
 
-  def maybe_save_state!(%Trace{
+  def maybe_save_state!(%FunctionTrace{
         pid: pid,
         function: :render,
         type: :return_from,
