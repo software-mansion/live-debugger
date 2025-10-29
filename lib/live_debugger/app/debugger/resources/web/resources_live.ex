@@ -14,6 +14,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   alias LiveDebugger.App.Debugger.Resources.Actions.ProcessInfo, as: ProcessInfoActions
   alias LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo
   alias LiveDebugger.Utils.Memory
+  alias LiveDebugger.App.Debugger.Resources.Components
 
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:id, :string, required: true)
@@ -105,7 +106,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
             </:failed>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
               <.process_info process_info={process_info} />
-              <.process_info_chart process_info={process_info} />
+              <Components.chart id="process-info-chart" />
             </div>
           </.async_result>
         </.section>
@@ -164,16 +165,6 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
           </span>
         </div>
       <% end %>
-    </div>
-    """
-  end
-
-  attr(:process_info, ProcessInfo, required: true)
-
-  defp process_info_chart(assigns) do
-    ~H"""
-    <div>
-      Chart here
     </div>
     """
   end
