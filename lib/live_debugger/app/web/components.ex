@@ -809,6 +809,34 @@ defmodule LiveDebugger.App.Web.Components do
     """
   end
 
+  @doc """
+  Renders a radio button component.
+  """
+  attr(:name, :string, required: true)
+  attr(:value, :string, required: true)
+  attr(:label, :string, required: true)
+  attr(:checked, :boolean, default: false)
+
+  attr(:class, :string, default: "", doc: "Additional classes to add to the radio button")
+
+  def radio_button(assigns) do
+    ~H"""
+    <label class={[
+      "flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-surface-1-bg transition-colors"
+      | List.wrap(@class)
+    ]}>
+      <input
+        type="radio"
+        name={@name}
+        value={@value}
+        checked={@checked}
+        class="w-4 h-4 appearance-none rounded-full border-2 border-default-border bg-white cursor-pointer checked:border-ui-accent checked:bg-white relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:rounded-full before:bg-transparent checked:before:bg-ui-accent"
+      />
+      <span class="text-xs"><%= @label %></span>
+    </label>
+    """
+  end
+
   defp button_color_classes(variant) do
     case variant do
       "primary" ->
