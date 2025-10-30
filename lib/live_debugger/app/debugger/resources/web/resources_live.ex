@@ -162,7 +162,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   def handle_event("change-refresh-interval", %{"refresh-select" => value}, socket) do
     refresh_interval = String.to_integer(value)
 
-    LiveDropdown.close("navigation-bar-dropdown")
+    LiveDropdown.close("refresh-select")
 
     socket
     |> assign(refresh_interval: refresh_interval)
