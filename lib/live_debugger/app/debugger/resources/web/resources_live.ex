@@ -66,12 +66,6 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
     ~H"""
     <div class="grow p-8 overflow-y-auto scrollbar-main">
       <div class="w-full min-w-[25rem] max-w-screen-2xl mx-auto">
-        <div class="flex flex-col gap-1.5 pb-6 px-0.5">
-          <.h1>Resources</.h1>
-          <span class="text-secondary-text">
-            This view will display resource information for the debugged LiveView
-          </span>
-        </div>
         <.section
           title="Process Information"
           id="process-info"
@@ -102,7 +96,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
             </:failed>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-2 w-full">
               <Components.process_info process_info={process_info} />
-              <Chart.render id="process-info-chart" class="min-h-[36vh]" />
+              <Chart.render id="process-info-chart" class="min-h-[44vh] lg:min-h-[36h]" />
             </div>
           </.async_result>
         </.section>
