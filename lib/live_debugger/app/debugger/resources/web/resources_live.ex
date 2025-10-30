@@ -16,6 +16,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   alias LiveDebugger.Utils.Memory
   alias LiveDebugger.App.Debugger.Resources.Components.Chart
   alias LiveDebugger.App.Debugger.Resources.Components
+  alias LiveDebugger.App.Web.LiveComponents.LiveDropdown
 
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:id, :string, required: true)
@@ -38,7 +39,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
 
   @memory_keys ~w(memory total_heap_size heap_size stack_size)a
 
-  @default_refresh_interval 1000
+  @default_refresh_interval 5000
 
   def live_render(assigns) do
     session = %{
@@ -160,6 +161,8 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   @impl true
   def handle_event("change-refresh-interval", %{"refresh-select" => value}, socket) do
     refresh_interval = String.to_integer(value)
+
+    LiveDropdown.close("navigation-bar-dropdown")
 
     socket
     |> assign(refresh_interval: refresh_interval)

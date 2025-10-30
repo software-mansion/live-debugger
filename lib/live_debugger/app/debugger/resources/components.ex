@@ -34,7 +34,17 @@ defmodule LiveDebugger.App.Debugger.Resources.Components do
       direction={:bottom_left}
     >
       <:button>
-        <.nav_icon icon="icon-menu-hamburger" />
+        <button
+          aria-label="Refresh Rate"
+          class={[
+            "border border-default-border rounded-md p-2 text-accent-text flex items-center gap-1"
+          ]}
+        >
+          <.icon name="icon-stopwatch" class="h-4 w-4" />
+          <span class="text-xs font-semibold">
+            Refresh Rate (<%= (@selected_interval / 1000) |> Kernel.round() %> s)
+          </span>
+        </button>
       </:button>
       <div class="min-w-44 flex flex-col p-2 gap-1">
         <.form for={%{}} phx-change="change-refresh-interval">
