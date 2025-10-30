@@ -27,6 +27,7 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
       <.button phx-click="delete_item">Delete Last</.button>
       <.button phx-click="reset_items">Reset Stream</.button>
       <.button phx-click="limit_stream">Limit Stream (5)</.button>
+      <.button phx-click="add_new_stream">Add new stream</.button>
       <%!-- <.button phx-click="async_load">Async Load Items</.button> --%>
       <.button phx-click="delete_both_last">Delete Last From Both Streams</.button>
     </.box>
@@ -220,6 +221,16 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
       end)
       |> assign(:current_id, max(last_item_id, 0))
       |> assign(:another_items_id, max(last_another_id, 0))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("add_new_stream", _params, socket) do
+    socket =
+      socket
+      |> stream_configure(:new_items, dom_id: &"new-#{&1.id}")
+      |> stream(:new_items, [])
 
     {:noreply, socket}
   end
