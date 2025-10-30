@@ -73,7 +73,6 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
     |> assign(id: id)
     |> assign(parent_pid: parent_pid)
     |> assign(lv_process: lv_process)
-    |> assign(keys_order: @keys_order)
     |> assign(refresh_interval: @default_refresh_interval)
     |> assign(process_info: AsyncResult.loading())
     |> assign_async_process_info()
@@ -106,10 +105,18 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
           </:right_panel>
           <.async_result :let={process_info} assign={@process_info}>
             <:loading>
-              <p>Loading...</p>
+              <div class="flex h-[36vh] w-full items-center justify-center">
+                <.spinner size="xl" />
+              </div>
             </:loading>
             <:failed>
-              <p>Failed to fetch process information</p>
+              <.alert
+                with_icon={true}
+                heading="Error while loading process information"
+                class="w-full"
+              >
+                Check logs for more information.
+              </.alert>
             </:failed>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-2 w-full">
               <.process_info process_info={process_info} />
