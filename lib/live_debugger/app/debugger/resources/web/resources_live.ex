@@ -73,6 +73,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
     |> assign(parent_pid: parent_pid)
     |> assign(lv_process: lv_process)
     |> assign(keys_order: @keys_order)
+    |> assign(refresh_interval: @refresh_interval)
     |> assign(process_info: AsyncResult.loading())
     |> assign_async_process_info()
     |> ok()
@@ -96,7 +97,11 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
           class="flex-1"
         >
           <:right_panel>
-            <Components.refresh_select id="refresh-select" name="refresh-select" />
+            <Components.refresh_select
+              id="refresh-select"
+              name="refresh-select"
+              selected_interval={@refresh_interval}
+            />
           </:right_panel>
           <.async_result :let={process_info} assign={@process_info}>
             <:loading>
@@ -151,6 +156,16 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   end
 
   def handle_info(_, socket), do: {:noreply, socket}
+
+  @impl true
+  def handle_event("change_refresh_interval", %{"refresh-select" => value}, socket) do
+    refresh_interval = String.to_integer(value)
+    dbg(refresh_interval)
+
+    socket
+    |> assign(refresh_interval: refresh_interval)
+    |> noreply()
+  end
 
   attr(:process_info, ProcessInfo, required: true)
 

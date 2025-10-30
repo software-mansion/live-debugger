@@ -18,6 +18,11 @@ defmodule LiveDebugger.App.Debugger.Resources.Components do
   attr(:name, :string, required: true)
   attr(:class, :string, default: "", doc: "Additional classes to add to the dropdown container")
 
+  attr(:selected_interval, :integer,
+    required: true,
+    doc: "Currently selected refresh interval in milliseconds"
+  )
+
   def refresh_select(assigns) do
     assigns = assign(assigns, :options, @refresh_intervals)
 
@@ -32,19 +37,15 @@ defmodule LiveDebugger.App.Debugger.Resources.Components do
         <.nav_icon icon="icon-menu-hamburger" />
       </:button>
       <div class="min-w-44 flex flex-col p-2 gap-1">
-        <label
-          :for={{label, value} <- @options}
-          class="flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-surface-1-bg transition-colors"
-        >
-          <input
-            type="radio"
+        <.form for={%{}} phx-change="change_refresh_interval">
+          <.radio_button
+            :for={{label, value} <- @options}
             name={@name}
             value={value}
-            checked={value == 1000}
-            class="w-4 h-4 text-ui-accent border border-default-border"
+            label={label}
+            checked={value == @selected_interval}
           />
-          <span class="text-xs"><%= label %></span>
-        </label>
+        </.form>
       </div>
     </.live_component>
     """
