@@ -11,7 +11,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
-  alias LiveDebugger.App.Debugger.Resources.Actions.ProcessInfo, as: ProcessInfoActions
+  alias LiveDebugger.App.Debugger.Resources.Queries.ProcessInfo, as: ProcessInfoQueries
   alias LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo
   alias LiveDebugger.Utils.Memory
   alias LiveDebugger.App.Debugger.Resources.Components.Chart
@@ -193,7 +193,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
 
     socket
     |> start_async(:process_info, fn ->
-      case ProcessInfoActions.get_info(pid) do
+      case ProcessInfoQueries.get_info(pid) do
         {:ok, process_info} -> process_info
         {:error, reason} -> raise reason
       end

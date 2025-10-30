@@ -1,4 +1,4 @@
-defmodule LiveDebugger.App.Debugger.Resources.Actions.ProcessInfo do
+defmodule LiveDebugger.App.Debugger.Resources.Queries.ProcessInfo do
   @moduledoc """
   This module provides actions for process information.
   """
