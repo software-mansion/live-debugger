@@ -1,6 +1,9 @@
 defmodule LiveDebugger.App.Debugger.Resources.Components.Chart do
   @moduledoc """
-  Set of components for displaying resources information.
+  This module delivers a chart component for displaying resources information.
+  Chart uses the `ChartHook` that uses the "Chart.js" library to render the chart.
+
+  You can use the `append_new_data/2` function to append new data to the chart dynamically.
   """
 
   use LiveDebugger.App.Web, :component
