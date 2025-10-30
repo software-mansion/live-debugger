@@ -16,12 +16,16 @@ const ChartHook = {
       const totalHeapSize = Number(data.total_heap_size);
       const heapSize = Number(data.heap_size);
       const stackSize = Number(data.stack_size);
+      const reductions = Number(data.reductions);
+      const messageQueueLen = Number(data.message_queue_len);
 
       this.chart.data.labels.push(timeString);
-      this.chart.data.datasets[0].data.push(Number(memory));
-      this.chart.data.datasets[1].data.push(Number(totalHeapSize));
-      this.chart.data.datasets[2].data.push(Number(heapSize));
-      this.chart.data.datasets[3].data.push(Number(stackSize));
+      this.chart.data.datasets[0].data.push(memory);
+      this.chart.data.datasets[1].data.push(totalHeapSize);
+      this.chart.data.datasets[2].data.push(heapSize);
+      this.chart.data.datasets[3].data.push(stackSize);
+      this.chart.data.datasets[4].data.push(reductions);
+      this.chart.data.datasets[5].data.push(messageQueueLen);
 
       if (this.chart.data.labels.length > 50) {
         this.chart.data.labels.shift();
@@ -29,6 +33,8 @@ const ChartHook = {
         this.chart.data.datasets[1].data.shift();
         this.chart.data.datasets[2].data.shift();
         this.chart.data.datasets[3].data.shift();
+        this.chart.data.datasets[4].data.shift();
+        this.chart.data.datasets[5].data.shift();
       }
 
       this.chart.update('none');
@@ -45,26 +51,43 @@ const ChartHook = {
         datasets: [
           {
             label: 'Memory',
-            backgroundColor: code4,
-            borderColor: code4,
+            backgroundColor: 'blue',
+            borderColor: 'blue',
             data: [],
           },
           {
             label: 'Total Heap Size',
-            backgroundColor: code4,
-            borderColor: code4,
+            backgroundColor: 'red',
+            borderColor: 'red',
+            hidden: true,
             data: [],
           },
           {
             label: 'Heap Size',
-            backgroundColor: code4,
-            borderColor: code4,
+            backgroundColor: 'green',
+            borderColor: 'green',
+            hidden: true,
             data: [],
           },
           {
             label: 'Stack Size',
-            backgroundColor: code4,
-            borderColor: code4,
+            backgroundColor: 'orange',
+            borderColor: 'orange',
+            hidden: true,
+            data: [],
+          },
+          {
+            label: 'Reductions',
+            backgroundColor: 'purple',
+            borderColor: 'purple',
+            hidden: true,
+            data: [],
+          },
+          {
+            label: 'Message Queue Length',
+            backgroundColor: 'cyan',
+            borderColor: 'cyan',
+            hidden: true,
             data: [],
           },
         ],

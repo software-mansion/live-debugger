@@ -21,7 +21,16 @@ defmodule LiveDebugger.App.Debugger.Resources.Components.Chart do
 
   @spec append_new_data(Socket.t(), %ProcessInfo{}) :: Socket.t()
   def append_new_data(socket, %ProcessInfo{} = process_info) do
-    data = Map.take(process_info, [:memory, :total_heap_size, :heap_size, :stack_size])
+    data =
+      Map.take(process_info, [
+        :memory,
+        :total_heap_size,
+        :heap_size,
+        :stack_size,
+        :reductions,
+        :message_queue_len
+      ])
+
     Phoenix.LiveView.push_event(socket, "update-chart", data)
   end
 end
