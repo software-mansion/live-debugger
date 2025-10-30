@@ -42,11 +42,12 @@ defmodule LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo do
             heap_size: 0,
             stack_size: 0
 
+  @spec new(process_info_keyword_list :: keyword()) :: t()
   def new(process_info_keyword_list) when is_list(process_info_keyword_list) do
     struct(__MODULE__, extract_process_info(process_info_keyword_list))
   end
 
-  @spec extract_process_info(keyword()) :: map()
+  @spec extract_process_info(process_info_keyword_list :: keyword()) :: map()
   defp extract_process_info(process_info_keyword_list) do
     info_map = Enum.into(process_info_keyword_list, %{})
 
@@ -71,7 +72,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo do
     Map.merge(overview, memory_gc)
   end
 
-  @spec words_to_bytes(term(), pos_integer()) :: non_neg_integer()
+  @spec words_to_bytes(non_neg_integer() | nil, pos_integer()) :: non_neg_integer()
   defp words_to_bytes(nil, _word_size), do: 0
 
   defp words_to_bytes(size, word_size) when is_integer(size) do
