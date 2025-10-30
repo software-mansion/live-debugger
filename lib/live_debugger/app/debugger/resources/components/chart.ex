@@ -8,6 +8,8 @@ defmodule LiveDebugger.App.Debugger.Resources.Components.Chart do
   alias LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo
   alias Phoenix.LiveView.Socket
 
+  @keys_to_display ~w(memory total_heap_size heap_size stack_size reductions message_queue_len)a
+
   attr(:id, :string, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the container")
 
@@ -21,15 +23,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Components.Chart do
 
   @spec append_new_data(Socket.t(), %ProcessInfo{}) :: Socket.t()
   def append_new_data(socket, %ProcessInfo{} = process_info) do
-    data =
-      Map.take(process_info, [
-        :memory,
-        :total_heap_size,
-        :heap_size,
-        :stack_size,
-        :reductions,
-        :message_queue_len
-      ])
+    data = Map.take(process_info, @keys_to_display)
 
     Phoenix.LiveView.push_event(socket, "update-chart", data)
   end
