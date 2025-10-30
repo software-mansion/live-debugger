@@ -14,14 +14,14 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
     fun_list = collect_updates_for_initial_stream(stream_traces, stream_names)
     config_list = collect_config(stream_traces)
 
-    dbg(fun_list)
-
     {fun_list, config_list, stream_names}
   end
 
   def compute_diff(stream_updates) do
     stream_names = get_stream_names_map(stream_updates)
     fun_list = collect_updates(stream_updates)
+    config_list = collect_config(stream_updates)
+
     {fun_list, stream_names}
   end
 
@@ -148,7 +148,16 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
   defp maybe_add_config(functions, nil, _name), do: functions
 
   defp maybe_add_config(functions, [dom_id: fun], name) do
-    functions ++ [fn socket -> Phoenix.LiveView.stream_configure(socket, name, dom_id: fun) end]
+    functions ++
+      [
+        fn socket ->
+          try do
+            Phoenix.LiveView.stream_configure(socket, name, dom_id: fun)
+          rescue
+            _ -> socket
+          end
+        end
+      ]
   end
 
   defp maybe_add_reset(functions, true, name) do
