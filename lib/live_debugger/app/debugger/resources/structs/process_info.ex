@@ -4,27 +4,27 @@ defmodule LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo do
   """
 
   @type t :: %__MODULE__{
-          # {module, function, arity} - The initial function call that started the process
+          # The initial function call that started the process
           initial_call: {module(), atom(), non_neg_integer()} | nil,
-          # {module, function, arity} - The current function being executed
+          # The current function being executed
           current_function: {module(), atom(), non_neg_integer()} | nil,
-          # atom | [] - The registered name of the process, or [] if not registered
+          # The registered name of the process, or [] if not registered
           registered_name: atom() | [],
-          # :running | :waiting | :suspended | :garbage_collecting - Current process status
+          # Current process status
           status: :running | :waiting | :suspended | :garbage_collecting,
-          # non_neg_integer - Number of messages in the process mailbox
+          # Number of messages in the process mailbox
           message_queue_len: non_neg_integer(),
-          # :low | :normal | :high | :max - Process priority level
+          # Process priority level
           priority: :low | :normal | :high | :max,
-          # non_neg_integer - Number of reductions executed by the process
+          # Number of reductions executed by the process
           reductions: non_neg_integer(),
-          # non_neg_integer (bytes) - Total memory used by the process
+          # Total memory used by the process
           memory: non_neg_integer(),
-          # non_neg_integer (bytes) - Total heap size in bytes
+          # Total heap size in bytes
           total_heap_size: non_neg_integer(),
-          # non_neg_integer (bytes) - Heap size in bytes
+          # Heap size in bytes
           heap_size: non_neg_integer(),
-          # non_neg_integer (bytes) - Stack size in bytes
+          # Stack size in bytes
           stack_size: non_neg_integer()
         }
 
