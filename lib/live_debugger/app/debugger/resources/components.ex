@@ -10,8 +10,8 @@ defmodule LiveDebugger.App.Debugger.Resources.Components do
   @refresh_intervals [
     {"1 second", 1000},
     {"5 seconds", 5000},
-    {"15 seconds", 15000},
-    {"30 seconds", 30000}
+    {"15 seconds", 15_000},
+    {"30 seconds", 30_000}
   ]
 
   @keys_order ~w(
@@ -104,8 +104,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Components do
     |> to_string()
     |> String.replace(":", " ")
     |> String.split("_")
-    |> Enum.map(&String.capitalize/1)
-    |> Enum.join(" ")
+    |> Enum.map_join(" ", &String.capitalize/1)
   end
 
   defp value_color_class(:message_queue_len), do: "text-code-1"

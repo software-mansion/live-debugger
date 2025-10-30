@@ -24,7 +24,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Components.Chart do
     """
   end
 
-  @spec append_new_data(Socket.t(), %ProcessInfo{}) :: Socket.t()
+  @spec append_new_data(Socket.t(), ProcessInfo.t()) :: Socket.t()
   def append_new_data(socket, %ProcessInfo{} = process_info) do
     data = Map.take(process_info, @keys_to_display)
 
