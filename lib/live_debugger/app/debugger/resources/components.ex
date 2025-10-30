@@ -71,7 +71,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Components do
     <div>
       <%= for key <- @keys_order do %>
         <div class="flex py-1">
-          <span class="font-medium w-36 flex-shrink-0"><%= display_key(key) %>:</span>
+          <span class="font-medium w-40 flex-shrink-0"><%= display_key(key) %>:</span>
           <span class={"font-code #{value_color_class(key)} truncate"}>
             <%= @process_info |> Map.get(key) |> display_value(key) %>
           </span>
@@ -98,6 +98,8 @@ defmodule LiveDebugger.App.Debugger.Resources.Components do
     </button>
     """
   end
+
+  defp display_key(:message_queue_len), do: "Message Queue Length"
 
   defp display_key(key) do
     key
