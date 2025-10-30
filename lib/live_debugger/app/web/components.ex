@@ -830,7 +830,7 @@ defmodule LiveDebugger.App.Web.Components do
         name={@name}
         value={@value}
         checked={@checked}
-        class="w-4 h-4 appearance-none rounded-full border-2 border-default-border bg-white cursor-pointer checked:border-ui-accent checked:bg-white relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:rounded-full before:bg-transparent checked:before:bg-ui-accent"
+        class="w-4 h-4 appearance-none rounded-full border-1 border-default-border bg-white cursor-pointer checked:border-ui-accent checked:bg-white relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:rounded-full before:bg-transparent checked:before:bg-ui-accent"
       />
       <span class="text-xs"><%= @label %></span>
     </label>
