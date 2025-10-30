@@ -1,6 +1,6 @@
 defmodule LiveDebugger.App.Debugger.Resources.Queries.ProcessInfo do
   @moduledoc """
-  This module provides actions for process information.
+  This module provides queries for process information.
   """
 
   alias LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo
