@@ -9,10 +9,11 @@ defmodule LiveDebugger.App.Debugger.Resources.Components.Chart do
   alias Phoenix.LiveView.Socket
 
   attr(:id, :string, required: true)
+  attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def render(assigns) do
     ~H"""
-    <div class="min-h-[30vh] lg:min-h-default" phx-update="ignore" id={"#{@id}-wrapper"}>
+    <div class={@class} phx-update="ignore" id={"#{@id}-wrapper"}>
       <canvas id={@id} phx-hook="ChartHook"></canvas>
     </div>
     """
