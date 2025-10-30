@@ -104,9 +104,9 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
             <:failed>
               <p>Failed to fetch process information</p>
             </:failed>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-2 w-full">
               <.process_info process_info={process_info} />
-              <Chart.render id="process-info-chart" class="min-h-[35vh]" />
+              <Chart.render id="process-info-chart" class="min-h-[36vh]" />
             </div>
           </.async_result>
         </.section>
