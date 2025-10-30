@@ -1,46 +1,40 @@
 import Chart from 'chart.js/auto';
 
+const MAX_DATA_POINTS = 50;
+
+const DATASET_CONFIG = [
+  { key: 'memory', label: 'Memory', color: 'blue', hidden: false },
+  {
+    key: 'total_heap_size',
+    label: 'Total Heap Size',
+    color: 'red',
+    hidden: true,
+  },
+  { key: 'heap_size', label: 'Heap Size', color: 'green', hidden: true },
+  { key: 'stack_size', label: 'Stack Size', color: 'orange', hidden: true },
+  { key: 'reductions', label: 'Reductions', color: 'purple', hidden: true },
+  {
+    key: 'message_queue_len',
+    label: 'Message Queue Length',
+    color: 'cyan',
+    hidden: true,
+  },
+];
+
 const ChartHook = {
   mounted() {
+    this.initializeChart();
+    this.setupEventHandlers();
+  },
+
+  setupEventHandlers() {
     this.handleEvent('update-chart', (data) => {
-      console.log('update-chart', data);
-      const now = new Date();
-      const timeString = now.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false,
-      });
-
-      const memory = Number(data.memory);
-      const totalHeapSize = Number(data.total_heap_size);
-      const heapSize = Number(data.heap_size);
-      const stackSize = Number(data.stack_size);
-      const reductions = Number(data.reductions);
-      const messageQueueLen = Number(data.message_queue_len);
-
-      this.chart.data.labels.push(timeString);
-      this.chart.data.datasets[0].data.push(memory);
-      this.chart.data.datasets[1].data.push(totalHeapSize);
-      this.chart.data.datasets[2].data.push(heapSize);
-      this.chart.data.datasets[3].data.push(stackSize);
-      this.chart.data.datasets[4].data.push(reductions);
-      this.chart.data.datasets[5].data.push(messageQueueLen);
-
-      if (this.chart.data.labels.length > 50) {
-        this.chart.data.labels.shift();
-        this.chart.data.datasets[0].data.shift();
-        this.chart.data.datasets[1].data.shift();
-        this.chart.data.datasets[2].data.shift();
-        this.chart.data.datasets[3].data.shift();
-        this.chart.data.datasets[4].data.shift();
-        this.chart.data.datasets[5].data.shift();
-      }
-
-      this.chart.update('none');
+      this.updateChartData(data);
     });
+  },
+
+  initializeChart() {
     const style = getComputedStyle(document.documentElement);
-    const code4 = style.getPropertyValue('--code-4').trim();
     const primaryText = style.getPropertyValue('--primary-text').trim();
     const defaultBorder = style.getPropertyValue('--default-border').trim();
 
@@ -48,82 +42,75 @@ const ChartHook = {
       type: 'line',
       data: {
         labels: [],
-        datasets: [
-          {
-            label: 'Memory',
-            backgroundColor: 'blue',
-            borderColor: 'blue',
-            data: [],
-          },
-          {
-            label: 'Total Heap Size',
-            backgroundColor: 'red',
-            borderColor: 'red',
-            hidden: true,
-            data: [],
-          },
-          {
-            label: 'Heap Size',
-            backgroundColor: 'green',
-            borderColor: 'green',
-            hidden: true,
-            data: [],
-          },
-          {
-            label: 'Stack Size',
-            backgroundColor: 'orange',
-            borderColor: 'orange',
-            hidden: true,
-            data: [],
-          },
-          {
-            label: 'Reductions',
-            backgroundColor: 'purple',
-            borderColor: 'purple',
-            hidden: true,
-            data: [],
-          },
-          {
-            label: 'Message Queue Length',
-            backgroundColor: 'cyan',
-            borderColor: 'cyan',
-            hidden: true,
-            data: [],
-          },
-        ],
+        datasets: this.createDatasets(),
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        plugins: {
-          legend: {
-            labels: {
-              color: primaryText,
-            },
-          },
-        },
-        scales: {
-          x: {
-            ticks: {
-              color: primaryText,
-            },
-            grid: {
-              color: defaultBorder,
-            },
-          },
-          y: {
-            ticks: {
-              color: primaryText,
-            },
-            grid: {
-              color: defaultBorder,
-            },
-            beginAtZero: true,
-          },
-        },
-      },
+      options: this.createChartOptions(primaryText, defaultBorder),
     });
+  },
+
+  createDatasets() {
+    return DATASET_CONFIG.map(({ label, color, hidden }) => ({
+      label,
+      backgroundColor: color,
+      borderColor: color,
+      hidden,
+      data: [],
+    }));
+  },
+
+  createChartOptions(primaryText, defaultBorder) {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: false,
+      plugins: {
+        legend: {
+          labels: {
+            color: primaryText,
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: { color: primaryText },
+          grid: { color: defaultBorder },
+        },
+        y: {
+          ticks: { color: primaryText },
+          grid: { color: defaultBorder },
+          beginAtZero: true,
+        },
+      },
+    };
+  },
+
+  updateChartData(data) {
+    const timeString = this.formatTimestamp();
+    this.chart.data.labels.push(timeString);
+
+    DATASET_CONFIG.forEach(({ key }, index) => {
+      const value = Number(data[key]);
+      this.chart.data.datasets[index].data.push(value);
+    });
+
+    this.trimOldDataIfNeeded();
+    this.chart.update('none');
+  },
+
+  formatTimestamp() {
+    return new Date().toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+  },
+
+  trimOldDataIfNeeded() {
+    if (this.chart.data.labels.length > MAX_DATA_POINTS) {
+      this.chart.data.labels.shift();
+      this.chart.data.datasets.forEach((dataset) => dataset.data.shift());
+    }
   },
 };
 
