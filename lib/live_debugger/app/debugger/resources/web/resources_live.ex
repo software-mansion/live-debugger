@@ -15,6 +15,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   alias LiveDebugger.App.Debugger.Resources.Structs.ProcessInfo
   alias LiveDebugger.Utils.Memory
   alias LiveDebugger.App.Debugger.Resources.Components.Chart
+  alias LiveDebugger.App.Debugger.Resources.Components
 
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:id, :string, required: true)
@@ -95,7 +96,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
           class="flex-1"
         >
           <:right_panel>
-            Refresh time here
+            <Components.refresh_select id="refresh-select" name="refresh-select" />
           </:right_panel>
           <.async_result :let={process_info} assign={@process_info}>
             <:loading>
