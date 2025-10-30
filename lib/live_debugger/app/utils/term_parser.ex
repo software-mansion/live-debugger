@@ -193,9 +193,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp term_node_reduce_diff!(term_node, diff) do
-    if Enum.empty?(diff) do
-      term_node
-    else
+    term_node =
       Enum.reduce(diff, term_node, fn {key, child_diff}, term_node_acc ->
         {:ok, term_node_acc} =
           TermNode.update_child(term_node_acc, key, fn child ->
@@ -204,7 +202,11 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
         term_node_acc
       end)
-      |> TermNode.set_pulse(true, recursive: false)
+
+    if Enum.empty?(diff) do
+      term_node
+    else
+      term_node |> TermNode.set_pulse(true, recursive: false)
     end
   end
 
@@ -398,16 +400,15 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp has_comma_suffix?(%TermNode{content: content, expanded_after: expanded_after}) do
+    comma_suffix = TermNode.comma_suffix()
+
     content? =
-      last_item_equal?(content, TermNode.comma_suffix()) ||
-        last_item_equal?(content, TermNode.comma_suffix() |> DisplayElement.set_pulse(true))
+      last_item_equal?(content, comma_suffix) ||
+        last_item_equal?(content, comma_suffix |> DisplayElement.set_pulse(true))
 
     expanded_after? =
-      last_item_equal?(expanded_after, TermNode.comma_suffix()) ||
-        last_item_equal?(
-          expanded_after,
-          TermNode.comma_suffix() |> DisplayElement.set_pulse(true)
-        )
+      last_item_equal?(expanded_after, comma_suffix) ||
+        last_item_equal?(expanded_after, comma_suffix |> DisplayElement.set_pulse(true))
 
     if content? != expanded_after?,
       do: raise("Content and expanded_after must have the same comma suffix")

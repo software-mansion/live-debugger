@@ -70,6 +70,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> assign(:node_assigns_info, node_assigns_info)
     |> assign(:assigns_sizes, assigns_sizes)
     |> start_async(:fetch_node_assigns, fn ->
+      # Small sleep serves here as a debounce mechanism
       Process.sleep(100)
       NodeStateQueries.fetch_node_assigns(pid, node_id)
     end)
@@ -91,8 +92,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
          {:ok, {:ok, node_assigns}},
          %{assigns: %{node_assigns_info: %AsyncResult{ok?: true}}} = socket
        ) do
-    %{assigns: %{node_assigns_info: %AsyncResult{result: {old_assigns, old_term_node, _}}}} =
-      maybe_clear_term_node_pulse(socket)
+    socket = maybe_clear_term_node_pulse(socket)
+    %AsyncResult{result: {old_assigns, old_term_node, _}} = socket.assigns.node_assigns_info
 
     node_assigns_info =
       case TermDiffer.diff(old_assigns, node_assigns) do
@@ -180,16 +181,16 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   end
 
   defp maybe_clear_term_node_pulse(%{private: %{pulse_cleared?: false}} = socket) do
-    with %AsyncResult{ok?: true, result: {node_assigns, term_node, copy_string}} <-
-           socket.assigns.node_assigns_info do
-      term_node = TermNode.set_pulse(term_node, false, recursive: true)
-      node_assigns_info = AsyncResult.ok({node_assigns, term_node, copy_string})
+    case socket.assigns.node_assigns_info do
+      %AsyncResult{ok?: true, result: {node_assigns, term_node, copy_string}} ->
+        term_node = TermNode.set_pulse(term_node, false, recursive: true)
 
-      socket
-      |> put_private(:pulse_cleared?, true)
-      |> assign(:node_assigns_info, node_assigns_info)
-    else
-      _ -> socket
+        socket
+        |> put_private(:pulse_cleared?, true)
+        |> assign(:node_assigns_info, AsyncResult.ok({node_assigns, term_node, copy_string}))
+
+      _ ->
+        socket
     end
   end
 end

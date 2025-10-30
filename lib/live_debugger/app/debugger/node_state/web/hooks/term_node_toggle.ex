@@ -24,8 +24,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.TermNodeToggle do
       with %AsyncResult{ok?: true, result: {node_assigns, term_node, copy_string}} <-
              socket.assigns.node_assigns_info,
            {:ok, updated_term_node} <-
-             term_node
-             |> TermParser.update_by_id(id, fn %TermNode{} = node ->
+             TermParser.update_by_id(term_node, id, fn %TermNode{} = node ->
                %TermNode{node | open?: !node.open?}
              end) do
         AsyncResult.ok({node_assigns, updated_term_node, copy_string})
