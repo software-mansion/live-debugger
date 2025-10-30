@@ -119,6 +119,7 @@ const ChartHook = {
             grid: {
               color: defaultBorder,
             },
+            beginAtZero: true,
           },
         },
       },
