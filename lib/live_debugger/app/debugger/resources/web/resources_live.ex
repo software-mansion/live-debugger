@@ -18,11 +18,6 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   alias LiveDebugger.App.Debugger.Resources.Components
   alias LiveDebugger.App.Web.LiveComponents.LiveDropdown
 
-  attr(:socket, Phoenix.LiveView.Socket, required: true)
-  attr(:id, :string, required: true)
-  attr(:lv_process, LvProcess, required: true)
-  attr(:class, :string, default: "", doc: "CSS class for the container")
-
   @keys_order ~w(
     initial_call
     current_function
@@ -40,6 +35,11 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   @memory_keys ~w(memory total_heap_size heap_size stack_size)a
 
   @default_refresh_interval 5000
+
+  attr(:socket, Phoenix.LiveView.Socket, required: true)
+  attr(:id, :string, required: true)
+  attr(:lv_process, LvProcess, required: true)
+  attr(:class, :string, default: "", doc: "CSS class for the container")
 
   def live_render(assigns) do
     session = %{
