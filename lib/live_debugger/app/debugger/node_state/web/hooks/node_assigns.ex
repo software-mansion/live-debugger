@@ -28,9 +28,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     socket
     |> check_assigns!(@required_assigns)
     |> attach_hook(:node_assigns, :handle_async, &handle_async/3)
+    |> attach_hook(:node_assigns, :handle_event, &handle_event/3)
     |> register_hook(:node_assigns)
     |> assign(:node_assigns_info, AsyncResult.loading())
     |> assign(:assigns_sizes, AsyncResult.loading())
+    |> put_private(:pulse_cleared?, true)
     |> assign_async_node_assigns()
   end
 
@@ -78,41 +80,36 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> assign(:node_assigns_info, AsyncResult.failed(%AsyncResult{}, :no_node_id))
   end
 
+  defp handle_event(_, _, socket) do
+    socket
+    |> maybe_clear_term_node_pulse()
+    |> cont()
+  end
+
   defp handle_async(
          :fetch_node_assigns,
          {:ok, {:ok, node_assigns}},
-         %{
-           assigns: %{
-             node_assigns_info: %AsyncResult{ok?: true, result: {old_assigns, old_term_node, _}}
-           }
-         } =
-           socket
+         %{assigns: %{node_assigns_info: %AsyncResult{ok?: true}}} = socket
        ) do
+    %{assigns: %{node_assigns_info: %AsyncResult{result: {old_assigns, old_term_node, _}}}} =
+      maybe_clear_term_node_pulse(socket)
+
     node_assigns_info =
       case TermDiffer.diff(old_assigns, node_assigns) do
         %Diff{type: :equal} ->
-          {node_assigns, term_node, copy_string} = socket.assigns.node_assigns_info.result
-
-          term_node = TermNode.set_pulse(term_node, false, recursive: true)
-
-          AsyncResult.ok({node_assigns, term_node, copy_string})
+          AsyncResult.ok(socket.assigns.node_assigns_info.result)
 
         diff ->
           copy_string = TermParser.term_to_copy_string(node_assigns)
 
-          old_term_node
-          |> TermNode.set_pulse(false, recursive: true)
-          |> TermParser.update_by_diff(diff)
-          |> case do
-            {:ok, term_node} ->
-              AsyncResult.ok({node_assigns, term_node, copy_string})
-
-            {:error, reason} ->
-              AsyncResult.failed(socket.assigns.node_assigns_info, reason)
+          case TermParser.update_by_diff(old_term_node, diff) do
+            {:ok, term_node} -> AsyncResult.ok({node_assigns, term_node, copy_string})
+            {:error, reason} -> AsyncResult.failed(socket.assigns.node_assigns_info, reason)
           end
       end
 
     socket
+    |> put_private(:pulse_cleared?, false)
     |> assign(:node_assigns_info, node_assigns_info)
     |> assign_size_async(node_assigns)
     |> halt()
@@ -176,5 +173,23 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
 
   defp assigns_serialized_size(assigns) do
     assigns |> Memory.serialized_term_size() |> Memory.bytes_to_pretty_string()
+  end
+
+  defp maybe_clear_term_node_pulse(%{private: %{pulse_cleared?: true}} = socket) do
+    socket
+  end
+
+  defp maybe_clear_term_node_pulse(%{private: %{pulse_cleared?: false}} = socket) do
+    with %AsyncResult{ok?: true, result: {node_assigns, term_node, copy_string}} <-
+           socket.assigns.node_assigns_info do
+      term_node = TermNode.set_pulse(term_node, false, recursive: true)
+      node_assigns_info = AsyncResult.ok({node_assigns, term_node, copy_string})
+
+      socket
+      |> put_private(:pulse_cleared?, true)
+      |> assign(:node_assigns_info, node_assigns_info)
+    else
+      _ -> socket
+    end
   end
 end

@@ -1,8 +1,6 @@
 const DiffPulse = {
   mounted() {
-    console.log('mounted');
     if (this.el.hasAttribute('data-pulse')) {
-      console.log('mounted');
       this.el.removeAttribute('data-pulse');
 
       this.el.classList.add('animate-diff-pulse');
@@ -14,7 +12,6 @@ const DiffPulse = {
   },
   updated() {
     if (this.el.hasAttribute('data-pulse')) {
-      console.log('updated', this.el.textContent);
       clearTimeout(this.timeout);
       this.el.removeAttribute('data-pulse');
       this.el.classList.remove('animate-diff-pulse');
@@ -23,11 +20,10 @@ const DiffPulse = {
 
       this.timeout = setTimeout(() => {
         this.el.classList.remove('animate-diff-pulse');
-      }, 1500);
+      }, 500);
     }
   },
   destroyed() {
-    console.log('destroyed');
     clearTimeout(this.timeout);
   },
 };

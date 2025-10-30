@@ -6,6 +6,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Debugger.NodeState.Web.Hooks
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents

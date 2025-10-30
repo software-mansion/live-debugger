@@ -25,7 +25,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.TermNodeToggle do
              socket.assigns.node_assigns_info,
            {:ok, updated_term_node} <-
              term_node
-             |> TermNode.set_pulse(false, recursive: true)
              |> TermParser.update_by_id(id, fn %TermNode{} = node ->
                %TermNode{node | open?: !node.open?}
              end) do
