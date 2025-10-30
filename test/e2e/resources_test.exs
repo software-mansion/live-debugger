@@ -27,14 +27,14 @@ defmodule LiveDebugger.E2E.ResourcesTest do
     |> click(refresh_select_button())
     |> assert_has(refresh_radio_button(1000, false))
     |> assert_has(refresh_radio_button(5000, true))
-    |> assert_has(refresh_radio_button(15000, false))
-    |> assert_has(refresh_radio_button(30000, false))
+    |> assert_has(refresh_radio_button(15_000, false))
+    |> assert_has(refresh_radio_button(30_000, false))
     |> click(refresh_radio_button(1000))
     |> assert_has(refresh_select_button("Refresh Rate (1 s)"))
     |> click(refresh_select_button())
     |> assert_has(refresh_radio_button(1000, true))
     |> assert_has(refresh_radio_button(5000, false))
-    |> assert_has(refresh_radio_button(15000, false))
+    |> assert_has(refresh_radio_button(15_000, false))
   end
 
   defp resources_tab() do
