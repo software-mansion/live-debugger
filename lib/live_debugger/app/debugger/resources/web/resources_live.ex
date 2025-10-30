@@ -38,7 +38,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
 
   @memory_keys ~w(memory total_heap_size heap_size stack_size)a
 
-  @refresh_interval 1000
+  @default_refresh_interval 1000
 
   def live_render(assigns) do
     session = %{
@@ -73,7 +73,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
     |> assign(parent_pid: parent_pid)
     |> assign(lv_process: lv_process)
     |> assign(keys_order: @keys_order)
-    |> assign(refresh_interval: @refresh_interval)
+    |> assign(refresh_interval: @default_refresh_interval)
     |> assign(process_info: AsyncResult.loading())
     |> assign_async_process_info()
     |> ok()
@@ -123,7 +123,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
 
   @impl true
   def handle_async(:process_info, {:ok, process_info}, socket) do
-    Process.send_after(self(), :refresh_process_info, @refresh_interval)
+    Process.send_after(self(), :refresh_process_info, socket.assigns.refresh_interval)
 
     socket
     |> assign(process_info: AsyncResult.ok(socket.assigns.process_info, process_info))
@@ -158,9 +158,8 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   def handle_info(_, socket), do: {:noreply, socket}
 
   @impl true
-  def handle_event("change_refresh_interval", %{"refresh-select" => value}, socket) do
+  def handle_event("change-refresh-interval", %{"refresh-select" => value}, socket) do
     refresh_interval = String.to_integer(value)
-    dbg(refresh_interval)
 
     socket
     |> assign(refresh_interval: refresh_interval)

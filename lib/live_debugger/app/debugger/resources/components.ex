@@ -37,7 +37,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Components do
         <.nav_icon icon="icon-menu-hamburger" />
       </:button>
       <div class="min-w-44 flex flex-col p-2 gap-1">
-        <.form for={%{}} phx-change="change_refresh_interval">
+        <.form for={%{}} phx-change="change-refresh-interval">
           <.radio_button
             :for={{label, value} <- @options}
             name={@name}
