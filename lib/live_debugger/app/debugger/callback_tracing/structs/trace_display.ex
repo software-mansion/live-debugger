@@ -60,9 +60,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
     }
   end
 
-  @spec render_body(t()) :: t()
-  def render_body(%__MODULE__{} = trace) do
-    Map.put(trace, :render_body?, true)
+  @spec render_body(t(), boolean()) :: t()
+  def render_body(%__MODULE__{} = trace, value? \\ true) do
+    Map.put(trace, :render_body?, value?)
   end
 
   @spec short_content(t(), boolean()) :: String.t()
