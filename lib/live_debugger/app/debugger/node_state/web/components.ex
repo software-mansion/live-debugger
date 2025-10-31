@@ -74,7 +74,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           data-search_phrase={@assigns_search_phrase}
         >
           <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
-          <ElixirDisplay.static_term node={@term_node} />
+          <ElixirDisplay.static_term id="fullscreen-" node={@term_node} />
         </div>
       </.fullscreen>
     </div>
