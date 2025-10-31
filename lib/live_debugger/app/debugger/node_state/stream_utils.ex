@@ -22,7 +22,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
     fun_list = collect_updates(stream_updates)
     config_list = collect_config(stream_updates)
 
-    {fun_list, stream_names}
+    {fun_list, config_list, stream_names}
   end
 
   defp extract_stream_traces(stream_updates) do

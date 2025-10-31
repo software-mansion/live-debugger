@@ -9,6 +9,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
   alias LiveDebugger.App.Utils.TermNode
   alias Phoenix.LiveView.AsyncResult
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.StreamsDisplay
+
+  alias LiveDebugger.App.Utils.TermParser
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.StreamNameWrapper
 
   def loading(assigns) do
     ~H"""
@@ -118,6 +122,110 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         </:failed>
       </.async_result>
     </div>
+    """
+  end
+
+  attr(:stream_names, :list, required: true)
+  attr(:existing_streams, :map, required: true)
+
+  def stream_section(assigns) do
+    ~H"""
+    <div id="streams_section-container">
+      <.section id="streams" class="h-max overflow-y-hidden" title="Streams">
+        <div
+          id="streams-display-container"
+          class="relative w-full h-max max-h-full p-4 overflow-y-auto"
+        >
+          <.collapsible
+            id="streams-collapsible"
+            icon="icon-chevron-right"
+          >
+            <:label>
+              Show streams
+            </:label>
+            <div
+              :for={stream_name <- @stream_names}
+              id={"#{stream_name}-display"}
+            >
+              <.stream_name_wrapper
+                id={"#{stream_name}-collapsible"}
+                stream_name={stream_name}
+                existing_stream={Map.get(@existing_streams, stream_name, [])}
+              >
+                <:label>
+                  {stream_name}
+                </:label>
+              </.stream_name_wrapper>
+            </div>
+          </.collapsible>
+        </div>
+      </.section>
+    </div>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:stream_name, :atom, required: true)
+  attr(:existing_stream, Phoenix.LiveView.LiveStream, required: true)
+
+  slot(:label, required: true)
+
+  def stream_name_wrapper(assigns) do
+    ~H"""
+    <.collapsible
+      id={@id}
+      icon="icon-chevron-right"
+      chevron_class="w-5 h-5 text-accent-icon"
+      class="max-w-full border rounded last:mb-4 border-default-border"
+      label_class="font-semibold bg-surface-1-bg p-2 py-3 rounded"
+    >
+      <:label>
+        <%= render_slot(@label) %>
+      </:label>
+      <div class="relative">
+        <div class="overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
+          <div id={"#{@stream_name}-stream"} phx-update="stream" class="flex flex-col gap-2">
+            <%= for {dom_id, stream_element} <-@existing_stream do %>
+              <div id={dom_id}>
+                <.stream_element_wrapper id={"#{dom_id}-collapsible"}>
+                  <:label>
+                    {inspect(dom_id, limit: 10)}
+                  </:label>
+                  <:body>
+                    <ElixirDisplay.term
+                      id={"#{dom_id}-term"}
+                      node={TermParser.term_to_display_tree(stream_element)}
+                    />
+                  </:body>
+                </.stream_element_wrapper>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </.collapsible>
+    """
+  end
+
+  attr(:id, :string, required: true)
+
+  slot(:label, required: true)
+  slot(:body, required: true)
+
+  def stream_element_wrapper(assigns) do
+    ~H"""
+    <.collapsible
+      id={@id}
+      icon="icon-chevron-right"
+      chevron_class="w-5 h-5 text-accent-icon"
+      class="max-w-full border rounded last:mb-1 border-default-border"
+      label_class="font-semibold bg-surface-1-bg p-1 py-1 rounded"
+    >
+      <:label>
+        <%= render_slot(@label) %>
+      </:label>
+      <%= render_slot(@body) %>
+    </.collapsible>
     """
   end
 end

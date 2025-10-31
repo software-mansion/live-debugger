@@ -6,6 +6,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.StreamsDisplay
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.StreamNameWrapper
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Debugger.NodeState.Web.Hooks
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents
@@ -68,6 +70,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> Hooks.NodeStreams.init()
     |> Hooks.TermNodeToggle.init()
     |> HookComponents.AssignsSearch.init()
+    |> LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.StreamNameWrapper.init()
     |> ok()
   end
 
@@ -93,29 +96,25 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
         />
       </.async_result>
 
-      <.async_result :let={streams_names} assign={@stream_names}>
+      <.async_result :let={stream_names} assign={@stream_names}>
         <:loading>
           <NodeStateComponents.loading />
         </:loading>
         <:failed>
           <NodeStateComponents.failed />
         </:failed>
-        loaded {inspect(streams_names)}
-        <%= for stream_name <- streams_names do %>
-          <h3>{stream_name}</h3>
-          <ul
-            id={"#{stream_name}-list"}
-            phx-update="stream"
-          >
-            <li :for={{id, item} <- Map.get(@streams, stream_name)} id={id}>
-              <%= inspect(item) %>
-            </li>
-          </ul>
-        <% end %>
+
+        <NodeStateComponents.stream_section
+          :if={Map.has_key?(assigns, :streams) and stream_names != []}
+          stream_names={stream_names}
+          existing_streams={@streams}
+        />
       </.async_result>
     </div>
     """
   end
+
+  defp handle_event(_, _, socket), do: {:cont, socket}
 
   @impl true
   def handle_info(%NodeIdParamChanged{node_id: node_id}, socket) do

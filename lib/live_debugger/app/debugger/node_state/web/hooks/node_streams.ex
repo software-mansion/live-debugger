@@ -61,19 +61,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
   defp handle_async(
          :fetch_node_streams,
          {:ok, {fun_list, config_list, stream_names}},
-         socket
-       ) do
-    socket
-    |> apply_stream_transformations(config_list)
-    |> assign_stream_names(stream_names)
-    |> apply_stream_transformations(fun_list)
-    |> assign(:stream_names, AsyncResult.ok(stream_names))
-    |> halt()
-  end
-
-  defp handle_async(
-         :fetch_node_streams,
-         {:ok, {fun_list, stream_names}},
          %{
            assigns: %{
              stream_names: %AsyncResult{ok?: true, result: current_stream_names}
@@ -81,9 +68,22 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
          } = socket
        ) do
     new_stream_names = Enum.reject(stream_names, &(&1 in current_stream_names))
-
     socket
+    |> apply_stream_transformations(config_list)
     |> assign_stream_names(new_stream_names)
+    |> apply_stream_transformations(fun_list)
+    |> assign(:stream_names, AsyncResult.ok(stream_names))
+    |> halt()
+  end
+
+  defp handle_async(
+         :fetch_node_streams,
+         {:ok, {fun_list, config_list, stream_names}},
+         socket
+       ) do
+    socket
+    |> apply_stream_transformations(config_list)
+    |> assign_stream_names(stream_names)
     |> apply_stream_transformations(fun_list)
     |> assign(:stream_names, AsyncResult.ok(stream_names))
     |> halt()
