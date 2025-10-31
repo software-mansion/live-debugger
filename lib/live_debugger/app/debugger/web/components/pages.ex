@@ -8,6 +8,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   alias Phoenix.LiveView.Socket, as: LiveViewSocket
   alias Phoenix.LiveView.JS
   alias LiveDebugger.App.Debugger.CallbackTracing.Web, as: CallbackTracingWeb
+  alias LiveDebugger.App.Debugger.Resources.Web.ResourcesLive
   alias LiveDebugger.App.Debugger.Web.LiveComponents.NodeInspectorSidebar
   alias LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo
   alias LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive
@@ -17,6 +18,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
 
   @node_inspector_sidebar_id "node-inspector-sidebar"
   @global_traces_id "global-traces"
+  @resources_id "resources"
 
   attr(:socket, LiveViewSocket, required: true)
   attr(:lv_process, LvProcess, required: true)
@@ -86,11 +88,28 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
     """
   end
 
+  attr(:socket, LiveViewSocket, required: true)
+  attr(:lv_process, LvProcess, required: true)
+
+  def resources(assigns) do
+    assigns = assign(assigns, :id, @resources_id)
+
+    ~H"""
+    <ResourcesLive.live_render
+      id={@id}
+      class="flex overflow-hidden w-full"
+      socket={@socket}
+      lv_process={@lv_process}
+    />
+    """
+  end
+
   @spec get_open_sidebar_js(live_action :: atom()) :: JS.t()
   def get_open_sidebar_js(live_action) when is_atom(live_action) do
     case live_action do
       :node_inspector -> JS.push("open-sidebar", target: "##{@node_inspector_sidebar_id}")
       :global_traces -> JS.push("open-sidebar", target: "##{@global_traces_id}")
+      :resources -> JS.push("open-sidebar", target: "##{@resources_id}")
     end
   end
 

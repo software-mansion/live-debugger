@@ -1,9 +1,10 @@
 {
   "dependencies": {
     "@alpinejs/collapse": "^3.14.7",
-    "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.10",
     "alpinejs": "^3.14.7",
+    "chart.js": "^4.5.1",
     "phoenix": "^1.7.17",
     "phoenix_html": "^3.3.4",
     "phoenix_live_view": "^1.0.0"
