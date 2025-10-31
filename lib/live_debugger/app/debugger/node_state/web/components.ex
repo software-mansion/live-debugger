@@ -57,7 +57,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           class="relative w-full h-max max-h-full p-4 overflow-y-auto"
           data-search_phrase={@assigns_search_phrase}
         >
-          <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
+          <div class="absolute top-2 right-2 z-10">
+            <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
+          </div>
           <ElixirDisplay.static_term node={@term_node} />
         </div>
       </.section>
@@ -73,7 +75,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           class="relative p-4"
           data-search_phrase={@assigns_search_phrase}
         >
-          <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
+          <div class="absolute top-0 right-2 z-10">
+            <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
+          </div>
           <ElixirDisplay.static_term node={@term_node} />
         </div>
       </.fullscreen>
