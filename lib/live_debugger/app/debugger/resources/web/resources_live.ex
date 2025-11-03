@@ -85,13 +85,22 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
                 <.spinner size="xl" />
               </div>
             </:loading>
-            <:failed>
+            <:failed :let={error_type}>
+              <.alert
+                with_icon={true}
+                heading="Debugged LiveView process is not alive"
+                class="w-full"
+                :if={error_type == :error}
+              >
+              You can use continue button to find its successor.
+              </.alert>
               <.alert
                 with_icon={true}
                 heading="Error while loading process information"
                 class="w-full"
+                :if={error_type == :exit}
               >
-                Check logs for more information.
+              Check logs for more details.
               </.alert>
             </:failed>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-2 w-full">
@@ -106,7 +115,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
   end
 
   @impl true
-  def handle_async(:process_info, {:ok, process_info}, socket) do
+  def handle_async(:process_info, {:ok, {:ok, process_info}}, socket) do
     Process.send_after(self(), :refresh_process_info, socket.assigns.refresh_interval)
 
     socket
@@ -115,11 +124,17 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
     |> noreply()
   end
 
+  def handle_async(:process_info, {:ok, {:error, _reason}}, socket) do
+    socket
+    |> assign(process_info: AsyncResult.failed(socket.assigns.process_info, :error))
+    |> noreply()
+  end
+
   def handle_async(:process_info, {:exit, reason}, socket) do
     Logger.error("Failed to fetch process information: #{inspect(reason)}")
 
     socket
-    |> assign(process_info: AsyncResult.failed(socket.assigns.process_info, reason))
+    |> assign(process_info: AsyncResult.failed(socket.assigns.process_info, :exit))
     |> noreply()
   end
 
@@ -157,10 +172,7 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
 
     socket
     |> start_async(:process_info, fn ->
-      case ProcessInfoQueries.get_info(pid) do
-        {:ok, process_info} -> process_info
-        {:error, reason} -> raise reason
-      end
+      ProcessInfoQueries.get_info(pid)
     end)
   end
 end
