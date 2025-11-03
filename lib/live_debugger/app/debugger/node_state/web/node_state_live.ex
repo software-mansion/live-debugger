@@ -70,7 +70,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> Hooks.NodeStreams.init()
     |> Hooks.TermNodeToggle.init()
     |> HookComponents.AssignsSearch.init()
-    |> LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.StreamNameWrapper.init()
     |> ok()
   end
 

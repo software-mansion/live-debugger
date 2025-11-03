@@ -132,32 +132,27 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     ~H"""
     <div id="streams_section-container">
       <.section id="streams" class="h-max overflow-y-hidden" title="Streams">
+        <:right_panel>
+          <.streams_info_tooltip id="stream-info" />
+        </:right_panel>
         <div
           id="streams-display-container"
           class="relative w-full h-max max-h-full p-4 overflow-y-auto"
         >
-          <.collapsible
-            id="streams-collapsible"
-            icon="icon-chevron-right"
+          <div
+            :for={stream_name <- @stream_names}
+            id={"#{stream_name}-display"}
           >
-            <:label>
-              Show streams
-            </:label>
-            <div
-              :for={stream_name <- @stream_names}
-              id={"#{stream_name}-display"}
+            <.stream_name_wrapper
+              id={"#{stream_name}-collapsible"}
+              stream_name={stream_name}
+              existing_stream={Map.get(@existing_streams, stream_name, [])}
             >
-              <.stream_name_wrapper
-                id={"#{stream_name}-collapsible"}
-                stream_name={stream_name}
-                existing_stream={Map.get(@existing_streams, stream_name, [])}
-              >
-                <:label>
-                  {stream_name}
-                </:label>
-              </.stream_name_wrapper>
-            </div>
-          </.collapsible>
+              <:label>
+                {stream_name}
+              </:label>
+            </.stream_name_wrapper>
+          </div>
         </div>
       </.section>
     </div>
@@ -189,13 +184,24 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
               <div id={dom_id}>
                 <.stream_element_wrapper id={"#{dom_id}-collapsible"}>
                   <:label>
-                    {inspect(dom_id, limit: 10)}
+                    <%= inspect(dom_id, limit: 10) %>
+
+                    <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate pl-2">
+                      <p
+                        id={dom_id <> "-short-content"}
+                        class="hide-on-open mt-0.5"
+                      >
+                        <%= inspect(stream_element, limit: 50) %>
+                      </p>
+                    </div>
                   </:label>
                   <:body>
-                    <ElixirDisplay.term
-                      id={"#{dom_id}-term"}
-                      node={TermParser.term_to_display_tree(stream_element)}
-                    />
+                    <div class="p-2">
+                      <ElixirDisplay.term
+                        id={"#{dom_id}-term"}
+                        node={TermParser.term_to_display_tree(stream_element)}
+                      />
+                    </div>
                   </:body>
                 </.stream_element_wrapper>
               </div>
@@ -226,6 +232,20 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       </:label>
       <%= render_slot(@body) %>
     </.collapsible>
+    """
+  end
+
+  attr(:id, :string, required: true)
+
+  def streams_info_tooltip(assigns) do
+    ~H"""
+    <.tooltip
+      id={@id <> "-tooltip"}
+      content="Streams are built from render traces. You won’t be able to reconstruct the entire stream if those traces are garbage collected."
+      position="top-center"
+    >
+      <.icon name="icon-info" class="w-4 h-4" />
+    </.tooltip>
     """
   end
 end
