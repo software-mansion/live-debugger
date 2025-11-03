@@ -19,14 +19,16 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
   def render(assigns) do
     ~H"""
     <.box title="Items Stream options">
-      <.button phx-click="create_item">Create Item</.button>
-      <.button phx-click="update_item">Update Last Item</.button>
-      <.button phx-click="insert_many">Insert Many (Reverse Order)</.button>
-      <.button phx-click="insert_at_index">Insert At Index 4</.button>
-      <.button phx-click="delete_item">Delete Last</.button>
-      <.button phx-click="reset_items">Reset Stream</.button>
-      <.button phx-click="add_new_stream">Add new stream</.button>
-      <.button phx-click="delete_both_last">Delete Last From Both Streams</.button>
+      <.button id="create-item" phx-click="create_item">Create Item</.button>
+      <.button id="update-item" phx-click="update_item">Update Last Item</.button>
+      <.button id="insert-many" phx-click="insert_many">Insert Many (Reverse Order)</.button>
+      <.button id="insert-at-index" phx-click="insert_at_index">Insert At Index 4</.button>
+      <.button id="delete-item" phx-click="delete_item">Delete Last</.button>
+      <.button id="reset-items" phx-click="reset_items">Reset Stream</.button>
+      <.button id="add-new-stream" phx-click="add_new_stream">Add new stream</.button>
+      <.button id="delete-both-last" phx-click="delete_both_last">
+        Delete Last From Both Streams
+      </.button>
     </.box>
 
     <hr />
