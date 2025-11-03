@@ -18,7 +18,7 @@ Designed to enhance your development experience LiveDebugger gives you:
 - :flashlight: Highlighting components in debugged apps
 - :telescope: Inspecting elements on the page
 
-https://github.com/user-attachments/assets/a09d440c-4217-4597-b30e-f8b911a9094a
+https://github.com/user-attachments/assets/317ab6ad-f9ac-48db-a010-dda5a7a23fd5
 
 ## Getting started
 
