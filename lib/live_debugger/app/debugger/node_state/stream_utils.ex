@@ -1,13 +1,10 @@
 defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
   @moduledoc """
-  Utilities for extracting Phoenix LiveView stream diffs and state
-  from render traces.
+  Utilities for extracting Phoenix.LiveView.Stream diffs
+  from render traces and mapping them into a list of functions.
   """
 
-  @doc """
-  Given a tuple of render traces, compute the base stream diff and stream state.
-  """
-  def build_initial_stream_diff({stream_updates, _trace}) do
+  def get_initial_stream_functions({stream_updates, _trace}) do
     stream_traces = extract_stream_traces(stream_updates)
     stream_names = get_stream_names_map(stream_traces)
 
@@ -17,7 +14,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
     {fun_list, config_list, stream_names}
   end
 
-  def compute_diff(stream_updates) do
+  def get_stream_functions_from_updates(stream_updates) do
     stream_names = get_stream_names_map(stream_updates)
     fun_list = collect_updates(stream_updates)
     config_list = collect_config(stream_updates)

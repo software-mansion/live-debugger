@@ -59,12 +59,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
         {:ok, %{streams_state: []}}
 
       stream_updates ->
-        StreamUtils.build_initial_stream_diff(stream_updates)
+        StreamUtils.get_initial_stream_functions(stream_updates)
     end
   end
 
   def update_node_streams(_, stream_updates) do
-    StreamUtils.compute_diff([stream_updates])
+    StreamUtils.get_stream_functions_from_updates([stream_updates])
   end
 
   defp get_component_assigns(components, %Phoenix.LiveComponent.CID{cid: cid}) do

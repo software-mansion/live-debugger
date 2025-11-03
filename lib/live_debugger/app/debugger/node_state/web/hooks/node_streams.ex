@@ -68,6 +68,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
          } = socket
        ) do
     new_stream_names = Enum.reject(stream_names, &(&1 in current_stream_names))
+
     socket
     |> apply_stream_transformations(config_list)
     |> assign_stream_names(new_stream_names)
