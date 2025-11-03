@@ -90,6 +90,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
     |> halt()
   end
 
+  defp handle_async(:fetch_node_streams, {:ok, {:error, reason}}, socket) do
+    socket
+    |> assign(:stream_names, AsyncResult.failed(socket.assigns.stream_names, reason))
+    |> halt()
+  end
+
   defp handle_async(_, _, socket), do: {:cont, socket}
 
   defp assign_stream_names(socket, stream_names) do

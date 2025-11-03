@@ -28,7 +28,7 @@ defmodule LiveDebugger.App.Utils.StreamUtilsTest do
 
       assert is_list(fun_list)
       assert is_list(config_list)
-      assert length(fun_list) == 0
+      assert fun_list == []
       assert stream_names == [:items]
     end
 
@@ -95,45 +95,7 @@ defmodule LiveDebugger.App.Utils.StreamUtilsTest do
       assert String.contains?(name, "maybe_add_config")
       assert dom_id_function == (&DummyStream.dummy_stream_config_function/1)
 
-      assert length(fun_list) == 0
-      assert stream_names == [:items]
-    end
-
-    test "returns correct funs with reset" do
-      stream = %Phoenix.LiveView.LiveStream{
-        name: :items,
-        inserts: [],
-        deletes: [],
-        reset?: true,
-        consumable?: false
-      }
-
-      {fun_list, config_list, stream_names} =
-        StreamUtils.get_initial_stream_functions(
-          {[
-             %{
-               timestamp: 1,
-               args: [
-                 %{
-                   streams: %{
-                     items: stream,
-                     __configured__: %{}
-                   }
-                 }
-               ]
-             }
-           ], nil}
-        )
-
-      assert is_list(fun_list)
-      assert is_list(config_list)
-
-      {module, name} = extract_info_from_diff_fun(Enum.at(fun_list, 0))
-
-      assert module == LiveDebugger.App.Debugger.NodeState.StreamUtils
-      assert String.contains?(name, "maybe_add_reset")
-
-      assert length(fun_list) == 0
+      assert fun_list == []
       assert stream_names == [:items]
     end
   end
@@ -192,6 +154,37 @@ defmodule LiveDebugger.App.Utils.StreamUtilsTest do
 
       assert length(fun_list) == 2
       assert stream_names == [:things]
+    end
+
+    test "returns correct funs with reset diff" do
+      stream = %Phoenix.LiveView.LiveStream{
+        name: :items,
+        inserts: [],
+        deletes: [],
+        reset?: true,
+        consumable?: false
+      }
+
+      updates = [
+        %{
+          items: stream,
+          __configured__: %{}
+        }
+      ]
+
+      {fun_list, config_list, stream_names} =
+        StreamUtils.get_stream_functions_from_updates(updates)
+
+      assert is_list(fun_list)
+      assert is_list(config_list)
+
+      {module, name} = extract_info_from_diff_fun(Enum.at(fun_list, 0))
+
+      assert module == LiveDebugger.App.Debugger.NodeState.StreamUtils
+      assert String.contains?(name, "maybe_add_reset")
+
+      assert length(fun_list) == 1
+      assert stream_names == [:items]
     end
   end
 

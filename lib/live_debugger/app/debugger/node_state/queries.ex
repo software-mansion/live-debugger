@@ -52,11 +52,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
       ]
 
     case TracesStorage.get!(pid, opts) do
-      nil ->
-        {:ok, %{streams_state: []}}
-
       :end_of_table ->
-        {:ok, %{streams_state: []}}
+        {:error, "No render traces found"}
 
       stream_updates ->
         StreamUtils.get_initial_stream_functions(stream_updates)
