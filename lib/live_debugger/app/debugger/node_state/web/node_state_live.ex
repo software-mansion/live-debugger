@@ -73,7 +73,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   def render(assigns) do
     ~H"""
     <div class="flex-1 max-w-full flex flex-col gap-4">
-      <.async_result :let={{node_assigns, term_node, copy_string}} assign={@node_assigns_info}>
+      <.async_result :let={{_node_assigns, term_node, copy_string}} assign={@node_assigns_info}>
         <:loading>
           <NodeStateComponents.loading />
         </:loading>
@@ -84,7 +84,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
         <NodeStateComponents.assigns_section
           term_node={term_node}
           copy_string={copy_string}
-          assigns={node_assigns}
           fullscreen_id="assigns-display-fullscreen"
           assigns_sizes={@assigns_sizes}
           selected_assigns={@selected_assigns}

@@ -249,6 +249,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
           field1: %TermNode{
             id: "root.0",
             kind: :binary,
+            key: :field1,
             open?: false,
             children: [],
             content: [
@@ -266,6 +267,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
           field2: %TermNode{
             id: "root.1",
             kind: :number,
+            key: :field2,
             open?: false,
             children: [],
             content: [
@@ -307,6 +309,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
           calendar: %TermNode{
             id: "root.0",
             kind: :atom,
+            key: :calendar,
             open?: false,
             children: [],
             content: [
@@ -324,6 +327,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
           month: %TermNode{
             id: "root.1",
             kind: :number,
+            key: :month,
             open?: false,
             children: [],
             content: [
@@ -341,6 +345,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
           day: %TermNode{
             id: "root.2",
             kind: :number,
+            key: :day,
             open?: false,
             children: [],
             content: [
@@ -358,6 +363,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
           year: %TermNode{
             id: "root.3",
             kind: :number,
+            key: :year,
             open?: false,
             children: [],
             content: [
@@ -400,6 +406,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
            %TermNode{
              id: "root.0",
              kind: :binary,
+             key: "key1",
              open?: false,
              children: [],
              content: [
@@ -418,6 +425,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
            %TermNode{
              id: "root.1",
              kind: :number,
+             key: "key2",
              open?: false,
              children: [],
              content: [
@@ -436,6 +444,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
            %TermNode{
              id: "root.2",
              kind: :atom,
+             key: "key3",
              open?: false,
              children: [],
              content: [
@@ -475,6 +484,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
            %TermNode{
              id: "root.0",
              kind: :binary,
+             key: {:ok, date},
              open?: false,
              children: [],
              content: [
@@ -493,6 +503,7 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
            %TermNode{
              id: "root.1",
              kind: :binary,
+             key: cid,
              open?: false,
              children: [],
              content: [

@@ -70,7 +70,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
     ~H"""
     <div class="font-code flex [&>div>button]:hidden hover:[&>div>button]:block">
-      <div :if={@selectable_level == @level} class="w-4">
+      <div :if={@selectable_level == @level and is_atom(@node.key)} class="w-4">
         <button
           class="text-button-green-content hover:text-button-green-content-hover"
           phx-click="pin-assign"
