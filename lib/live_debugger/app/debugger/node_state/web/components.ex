@@ -62,7 +62,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           </div>
           <div class="p-4 relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
-            <ElixirDisplay.static_term node={@term_node} selectable?={true} />
+            <ElixirDisplay.static_term node={@term_node} selectable_level={1} />
           </div>
         </div>
       </.section>
@@ -73,13 +73,14 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
             input_id="assigns-search-input-fullscreen"
           />
         </:search_bar_slot>
-        <div
-          id="assigns-display-fullscreen-container"
-          class="relative p-4"
-          data-search_phrase={@assigns_search_phrase}
-        >
-          <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
-          <ElixirDisplay.static_term node={@term_node} />
+        <div id="assigns-display-fullscreen-container" data-search_phrase={@assigns_search_phrase}>
+          <div class="p-4 border-b border-default-border">
+            <.selected_assigns_section term_node={@term_node} selected_assigns={@selected_assigns} />
+          </div>
+          <div class="p-4 relative">
+            <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
+            <ElixirDisplay.static_term node={@term_node} selectable_level={1} />
+          </div>
         </div>
       </.fullscreen>
     </div>
