@@ -9,10 +9,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
   alias LiveDebugger.App.Utils.TermNode
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.StreamsDisplay
 
   alias LiveDebugger.App.Utils.TermParser
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.StreamNameWrapper
 
   def loading(assigns) do
     ~H"""
@@ -182,27 +180,24 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           <div id={"#{@stream_name}-stream"} phx-update="stream" class="flex flex-col gap-2">
             <%= for {dom_id, stream_element} <-@existing_stream do %>
               <div id={dom_id}>
-                <.stream_element_wrapper id={"#{dom_id}-collapsible"}>
+                <.stream_element_wrapper
+                  id={"#{dom_id}-collapsible"}
+                  dom_id={dom_id}
+                  stream_element={stream_element}
+                >
                   <:label>
-                    <%= inspect(dom_id, limit: 10) %>
-
-                    <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate pl-2">
+                    <p class="font-semibold whitespace-nowrap break-keep grow-0 shrink-0">
+                      <%= dom_id %>
+                    </p>
+                    <div class="grow min-w-0 text-secondary-text font-code font-normal text-3xs truncate pl-2">
                       <p
                         id={dom_id <> "-short-content"}
-                        class="hide-on-open mt-0.5"
+                        class="hide-on-open mt-0.5 overflow-hidden whitespace-nowrap"
                       >
-                        <%= inspect(stream_element, limit: 50) %>
+                        <%= inspect(stream_element) %>
                       </p>
                     </div>
                   </:label>
-                  <:body>
-                    <div class="p-2">
-                      <ElixirDisplay.term
-                        id={"#{dom_id}-term"}
-                        node={TermParser.term_to_display_tree(stream_element)}
-                      />
-                    </div>
-                  </:body>
                 </.stream_element_wrapper>
               </div>
             <% end %>
@@ -214,9 +209,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   end
 
   attr(:id, :string, required: true)
+  attr(:stream_element, :any, required: true)
+  attr(:dom_id, :string, required: true)
 
   slot(:label, required: true)
-  slot(:body, required: true)
 
   def stream_element_wrapper(assigns) do
     ~H"""
@@ -230,7 +226,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       <:label>
         <%= render_slot(@label) %>
       </:label>
-      <%= render_slot(@body) %>
+      <div class="flex flex-col gap-4 w-full overflow-auto p-2">
+        <ElixirDisplay.term
+          id={"#{@dom_id}-term"}
+          node={TermParser.term_to_display_tree(@stream_element)}
+        />
+      </div>
     </.collapsible>
     """
   end

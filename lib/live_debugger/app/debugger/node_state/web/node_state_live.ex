@@ -6,8 +6,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   use LiveDebugger.App.Web, :live_view
 
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.StreamsDisplay
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.StreamNameWrapper
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Debugger.NodeState.Web.Hooks
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents
