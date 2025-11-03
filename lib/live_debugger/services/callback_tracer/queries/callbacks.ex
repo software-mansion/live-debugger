@@ -40,11 +40,11 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.Callbacks do
         |> Enum.map(fn {callback, arity} -> {module, callback, arity} end)
       end)
 
-    all_deps_modules =
-      ModuleAPI.all()
-      |> Enum.map(fn {module_charlist, _, _} ->
-        module_charlist |> to_string |> String.to_atom()
-      end)
+    # all_deps_modules =
+    #   ModuleAPI.all()
+    #   |> Enum.map(fn {module_charlist, _, _} ->
+    #     module_charlist |> to_string |> String.to_atom()
+    #   end)
 
     live_view_callbacks_to_trace ++ live_component_callbacks_to_trace
   end
