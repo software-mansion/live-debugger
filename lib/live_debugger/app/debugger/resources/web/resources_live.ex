@@ -87,20 +87,20 @@ defmodule LiveDebugger.App.Debugger.Resources.Web.ResourcesLive do
             </:loading>
             <:failed :let={error_type}>
               <.alert
+                :if={error_type == :error}
                 with_icon={true}
                 heading="Debugged LiveView process is not alive"
                 class="w-full"
-                :if={error_type == :error}
               >
-              You can use continue button to find its successor.
+                You can use continue button to find its successor.
               </.alert>
               <.alert
+                :if={error_type == :exit}
                 with_icon={true}
                 heading="Error while loading process information"
                 class="w-full"
-                :if={error_type == :exit}
               >
-              Check logs for more details.
+                Check logs for more details.
               </.alert>
             </:failed>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-2 w-full">
