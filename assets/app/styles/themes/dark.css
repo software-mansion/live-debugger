@@ -44,6 +44,9 @@
     --button-secondary-content: var(--gray-200);
     --button-secondary-content-hover: var(--gray-200);
 
+    /* Other Button */
+    --button-green-content: var(--swm-green-100);
+
     /* Tooltip */
     --tooltip-text: var(--gray-900);
     --tooltip-bg: var(--swm-sea-blue-60);

@@ -43,6 +43,9 @@
   --button-secondary-content: var(--swm-brand);
   --button-secondary-content-hover: var(--swm-brand);
 
+  /* Other Button */
+  --button-green-content: var(--swm-green-100);
+
   /* Tooltip */
   --tooltip-text: var(--neutrals-white);
   --tooltip-bg: var(--swm-brand);

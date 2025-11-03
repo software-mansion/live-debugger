@@ -30,6 +30,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> register_hook(:node_assigns)
     |> assign(:node_assigns_info, AsyncResult.loading())
     |> assign(:assigns_sizes, AsyncResult.loading())
+    |> assign(:selected_assigns, %{})
     |> assign_async_node_assigns()
   end
 
@@ -81,7 +82,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
          {:ok, {:ok, node_assigns}},
          %{
            assigns: %{
-             node_assigns_info: %AsyncResult{ok?: true, result: {old_assigns, old_term_node, _}}
+             node_assigns_info: %AsyncResult{ok?: true, result: {old_assigns, old_term_node, _}},
+             selected_assigns: selected_assigns
            }
          } =
            socket
@@ -103,8 +105,15 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
           end
       end
 
+    selected_assigns =
+      selected_assigns
+      |> Map.merge(Map.keys(node_assigns) |> Map.new(&{to_string(&1), false}), fn _, v1, _ ->
+        v1
+      end)
+
     socket
     |> assign(:node_assigns_info, node_assigns_info)
+    |> assign(:selected_assigns, selected_assigns)
     |> assign_size_async(node_assigns)
     |> halt()
   end
@@ -112,9 +121,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   defp handle_async(:fetch_node_assigns, {:ok, {:ok, node_assigns}}, socket) do
     term_node = TermParser.term_to_display_tree(node_assigns)
     copy_string = TermParser.term_to_copy_string(node_assigns)
+    selected_assigns = Map.keys(node_assigns) |> Map.new(&{to_string(&1), false})
 
     socket
     |> assign(:node_assigns_info, AsyncResult.ok({node_assigns, term_node, copy_string}))
+    |> assign(:selected_assigns, selected_assigns)
     |> assign_size_async(node_assigns)
     |> halt()
   end

@@ -60,6 +60,8 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   end
 
   attr(:node, TermNode, required: true)
+  attr(:selectable?, :boolean, default: false)
+  attr(:level, :integer, default: 0)
 
   def static_term(assigns) do
     assigns =
@@ -67,7 +69,16 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
       |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
-    <div class="font-code">
+    <div class="font-code flex [&>div>button]:hidden hover:[&>div>button]:block">
+      <div :if={@selectable? and @level == 1} class="w-4">
+        <button
+          class="text-button-green-content hover:text-button-green-content-hover"
+          phx-click="pin-assign"
+          phx-value-key={@node.key}
+        >
+          <.icon name="icon-plus" class="h-4 w-4" />
+        </button>
+      </div>
       <%= if @has_children? do %>
         <.static_collapsible
           open={@node.open?}
@@ -85,7 +96,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
           </:label>
           <ol class="m-0 ml-[2ch] block list-none p-0">
             <li :for={{_, child} <- @node.children} class="flex flex-col">
-              <.static_term node={child} />
+              <.static_term node={child} selectable?={@selectable?} level={@level + 1} />
             </li>
           </ol>
           <div class="ml-[2ch]">
