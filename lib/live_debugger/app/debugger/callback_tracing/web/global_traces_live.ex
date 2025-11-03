@@ -18,15 +18,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace
+
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Assigns.Filters, as: FiltersAssigns
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
-
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace,
-    as: TraceComponents
-
   alias LiveDebugger.Structs.LvProcess
-
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
 
@@ -137,37 +134,22 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                 existing_traces={@streams.existing_traces}
               >
                 <:trace :let={{id, trace_display}}>
-                  <TraceComponents.diff_trace
-                    :if={diff_trace?(trace_display.trace)}
-                    id={id}
-                    trace_display={trace_display}
-                    search_phrase={@trace_search_phrase}
-                  />
-
-                  <HookComponents.TraceWrapper.render
-                    :if={not diff_trace?(trace_display.trace)}
-                    id={id}
-                    trace_display={trace_display}
-                  >
-                    <:label class="grid-cols-[auto_1fr_auto]">
-                      <TraceComponents.module id={id} trace={trace_display.trace} class="col-span-3" />
-                      <TraceComponents.callback_name trace={trace_display.trace} />
-                      <TraceComponents.short_trace_content
-                        id={id}
-                        trace={trace_display.trace}
-                        full={true}
-                        phx-hook="TraceLabelSearchHighlight"
-                        data-search_phrase={@trace_search_phrase}
+                  <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
+                    <:label>
+                      <.trace_label
+                        id={id <> "-label"}
+                        trace_display={trace_display}
+                        search_phrase={@trace_search_phrase}
+                        short_content_full?={true}
+                        show_subtitle?={true}
                       />
-                      <TraceComponents.trace_time_info id={id} trace_display={trace_display} />
                     </:label>
 
                     <:body>
-                      <TraceComponents.trace_body
-                        id={id}
-                        trace={trace_display.trace}
-                        phx-hook="TraceBodySearchHighlight"
-                        data-search_phrase={@trace_search_phrase}
+                      <.trace_body
+                        id={id <> "-body"}
+                        trace_display={trace_display}
+                        search_phrase={@trace_search_phrase}
                       />
                     </:body>
                   </HookComponents.TraceWrapper.render>
@@ -177,12 +159,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                 :if={not @tracing_started? and not @traces_empty?}
                 traces_continuation={@traces_continuation}
               />
-              <TraceComponents.trace_fullscreen
+              <.trace_fullscreen
                 :if={@displayed_trace}
                 id="trace-fullscreen"
-                trace={@displayed_trace}
-                phx-hook="TraceBodySearchHighlight"
-                data-search_phrase={@trace_search_phrase}
+                displayed_trace={@displayed_trace}
+                search_phrase={@trace_search_phrase}
               />
             </div>
           </div>
@@ -209,7 +190,4 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   end
 
   def handle_info(_, socket), do: {:noreply, socket}
-
-  defp diff_trace?(%LiveDebugger.Structs.DiffTrace{}), do: true
-  defp diff_trace?(_), do: false
 end
