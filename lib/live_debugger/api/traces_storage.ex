@@ -5,10 +5,9 @@ defmodule LiveDebugger.API.TracesStorage do
   """
 
   alias LiveDebugger.Structs.Trace
-  alias LiveDebugger.Structs.DiffTrace
   alias LiveDebugger.CommonTypes
 
-  @type trace() :: Trace.t() | DiffTrace.t()
+  import Trace, only: [is_trace: 1, is_trace_id: 1]
 
   @typedoc """
   Pid is used to store mapping to table references.
@@ -21,8 +20,8 @@ defmodule LiveDebugger.API.TracesStorage do
 
   @callback init() :: :ok
   @callback insert(Trace.t()) :: true
-  @callback insert!(table_ref :: reference(), trace()) :: true
-  @callback get_by_id!(table_identifier(), trace_id :: integer()) :: Trace.t() | nil
+  @callback insert!(table_ref :: reference(), Trace.t()) :: true
+  @callback get_by_id!(table_identifier(), trace_id :: Trace.id()) :: Trace.t() | nil
   @callback get!(table_identifier(), opts :: keyword()) ::
               {[Trace.t()], continuation()} | :end_of_table
   @callback clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
@@ -33,7 +32,6 @@ defmodule LiveDebugger.API.TracesStorage do
   @callback table_size(table_identifier()) :: non_neg_integer()
 
   defguard is_table_identifier(id) when is_pid(id) or is_reference(id)
-  defguard is_trace(trace) when is_struct(trace, Trace) or is_struct(trace, DiffTrace)
 
   @doc """
   Initializes ets table.
@@ -45,9 +43,9 @@ defmodule LiveDebugger.API.TracesStorage do
   @doc """
   Inserts a new trace into the storage.
   It has worse performance then `insert/2` as it has to perform lookup for reference.
-  It stores the trace in table associated with `pid` given in `Trace` struct.
+  It stores the trace in table associated with `pid` given in trace struct.
   """
-  @spec insert(trace()) :: true
+  @spec insert(Trace.t()) :: true
   def insert(trace) when is_trace(trace) do
     impl().insert(trace)
   end
@@ -57,7 +55,7 @@ defmodule LiveDebugger.API.TracesStorage do
   It has better performance then `insert/1` as it does not perform lookup for reference.
   In order to use it properly you have to store the reference returned by `get_table/1`.
   """
-  @spec insert!(table_ref :: reference(), trace()) :: true
+  @spec insert!(table_ref :: reference(), Trace.t()) :: true
   def insert!(table_ref, trace) when is_reference(table_ref) and is_trace(trace) do
     impl().insert!(table_ref, trace)
   end
@@ -68,9 +66,9 @@ defmodule LiveDebugger.API.TracesStorage do
     * `table_id` - PID or reference to an existing table. Using reference increases performance as it skips lookup step.
     * `trace_id` - Id of a trace stored in a table.
   """
-  @spec get_by_id!(table_identifier(), trace_id :: integer()) :: trace() | nil
+  @spec get_by_id!(table_identifier(), trace_id :: Trace.id()) :: Trace.t() | nil
   def get_by_id!(table_id, trace_id)
-      when is_table_identifier(table_id) and is_integer(trace_id) do
+      when is_table_identifier(table_id) and is_trace_id(trace_id) do
     impl().get_by_id!(table_id, trace_id)
   end
 
@@ -90,7 +88,7 @@ defmodule LiveDebugger.API.TracesStorage do
     * `:trace_diffs` - Boolean flag to include DiffTrace structs in results
   """
   @spec get!(table_identifier(), opts :: keyword()) ::
-          {[trace()], continuation()} | :end_of_table
+          {[Trace.t()], continuation()} | :end_of_table
   def get!(table_id, opts \\ []) when is_table_identifier(table_id) and is_list(opts) do
     impl().get!(table_id, opts)
   end
@@ -168,7 +166,7 @@ defmodule LiveDebugger.API.TracesStorage do
     @traces_table_name :lvdbg_traces
     @processes_table_name :lvdbg_traces_processes
 
-    @type ets_elem() :: {integer(), TracesStorage.trace()}
+    @type ets_elem() :: {integer(), Trace.t()}
     @type continuation() :: TracesStorage.continuation()
     @type ets_table_id() :: TracesStorage.ets_table_id()
     @type table_identifier() :: TracesStorage.table_identifier()
@@ -348,10 +346,10 @@ defmodule LiveDebugger.API.TracesStorage do
 
     # Applies simple case-sensitive substring search on entire struct
     @spec filter_by_search(
-            {[TracesStorage.trace()], continuation() | :searched_without_limit} | :end_of_table,
+            {[Trace.t()], continuation() | :searched_without_limit} | :end_of_table,
             String.t()
           ) ::
-            {[TracesStorage.trace()], continuation() | :searched_without_limit} | :end_of_table
+            {[Trace.t()], continuation() | :searched_without_limit} | :end_of_table
     defp filter_by_search(:end_of_table, _phrase), do: :end_of_table
     defp filter_by_search({traces, cont}, ""), do: {traces, cont}
 
@@ -380,19 +378,19 @@ defmodule LiveDebugger.API.TracesStorage do
 
     # Formats the continuation token and handles end-of-table marker.
     @spec format_response(
-            {[TracesStorage.trace()], continuation() | :searched_without_limit}
+            {[Trace.t()], continuation() | :searched_without_limit}
             | :end_of_table
           ) ::
-            {[TracesStorage.trace()], continuation() | :searched_without_limit} | :end_of_table
+            {[Trace.t()], continuation() | :searched_without_limit} | :end_of_table
     defp format_response(:end_of_table), do: :end_of_table
     defp format_response({traces, :"$end_of_table"}), do: {traces, :end_of_table}
     defp format_response({traces, cont}), do: {traces, cont}
 
     @spec limit_response(
-            {[TracesStorage.trace()], :searched_without_limit} | :end_of_table,
+            {[Trace.t()], :searched_without_limit} | :end_of_table,
             limit :: pos_integer()
           ) ::
-            {[TracesStorage.trace()], continuation()} | :end_of_table
+            {[Trace.t()], continuation()} | :end_of_table
     defp limit_response(:end_of_table, _), do: :end_of_table
 
     defp limit_response({traces, :searched_without_limit}, limit) do
@@ -475,7 +473,7 @@ defmodule LiveDebugger.API.TracesStorage do
       [
         {{:_,
           %{
-            __struct__: LiveDebugger.Structs.Trace,
+            __struct__: LiveDebugger.Structs.Trace.FunctionTrace,
             function: :"$1",
             execution_time: :"$2",
             arity: :"$3",
@@ -489,7 +487,7 @@ defmodule LiveDebugger.API.TracesStorage do
       [
         {{:_,
           %{
-            __struct__: LiveDebugger.Structs.Trace,
+            __struct__: LiveDebugger.Structs.Trace.FunctionTrace,
             function: :"$1",
             execution_time: :"$2",
             arity: :"$3",
@@ -502,7 +500,7 @@ defmodule LiveDebugger.API.TracesStorage do
       [
         {{:_,
           %{
-            __struct__: LiveDebugger.Structs.Trace,
+            __struct__: LiveDebugger.Structs.Trace.FunctionTrace,
             function: :"$1",
             execution_time: :"$2",
             arity: :"$3"
@@ -513,7 +511,7 @@ defmodule LiveDebugger.API.TracesStorage do
     defp maybe_attach_diff_spec(trace_spec, true) do
       trace_spec ++
         [
-          {{:_, %{__struct__: LiveDebugger.Structs.DiffTrace}}, [], [:"$_"]}
+          {{:_, %{__struct__: LiveDebugger.Structs.Trace.DiffTrace}}, [], [:"$_"]}
         ]
     end
 

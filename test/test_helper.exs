@@ -21,6 +21,9 @@ else
   Mox.defmock(LiveDebugger.MockAPIProcess, for: LiveDebugger.API.System.Process)
   Application.put_env(:live_debugger, :api_process, LiveDebugger.MockAPIProcess)
 
+  Mox.defmock(LiveDebugger.MockAPIProcessInfo, for: LiveDebugger.API.System.ProcessInfo)
+  Application.put_env(:live_debugger, :api_process_info, LiveDebugger.MockAPIProcessInfo)
+
   Mox.defmock(LiveDebugger.MockAPILiveViewDebug,
     for: LiveDebugger.API.LiveViewDebug
   )

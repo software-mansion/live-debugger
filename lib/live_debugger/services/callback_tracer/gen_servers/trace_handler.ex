@@ -8,11 +8,11 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   require Logger
 
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
-  alias LiveDebugger.Services.CallbackTracer.Actions.Trace, as: TraceActions
+  alias LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace, as: TraceActions
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
   alias LiveDebugger.Services.CallbackTracer.Actions.DiffTrace, as: DiffActions
-  alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Structs.Trace.FunctionTrace
 
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
 
@@ -24,7 +24,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   We are storing this tuple in the state of this GenServer to calculate execution time of callbacks.
   """
-  @type trace_record :: {reference(), Trace.t(), non_neg_integer()}
+  @type trace_record :: {reference(), FunctionTrace.t(), non_neg_integer()}
 
   @typedoc """
   Trace key is a tuple of:

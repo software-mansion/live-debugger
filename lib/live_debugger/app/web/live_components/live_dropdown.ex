@@ -24,6 +24,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.LiveDropdown do
     |> assign(:class, assigns[:class] || "")
     |> assign(:button, assigns.button)
     |> assign(:inner_block, assigns.inner_block)
+    |> assign(:direction, assigns[:direction] || :bottom_right)
     |> ok()
   end
 
@@ -35,6 +36,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.LiveDropdown do
     |> assign(:button, assigns.button)
     |> assign(:inner_block, assigns.inner_block)
     |> assign(:open, assigns[:open] || false)
+    |> assign(:direction, assigns[:direction] || :bottom_right)
     |> assign(:mounted?, true)
     |> ok()
   end
@@ -42,6 +44,11 @@ defmodule LiveDebugger.App.Web.LiveComponents.LiveDropdown do
   attr(:id, :string, required: true)
   attr(:open, :boolean, required: true, doc: "Whether the dropdown is open")
   attr(:class, :string, default: "", doc: "Additional classes to add to the dropdown container")
+
+  attr(:direction, :atom,
+    default: :bottom_right,
+    doc: "Direction of the dropdown: :bottom_left or :bottom_right"
+  )
 
   slot(:button, required: true)
   slot(:inner_block, required: true)
@@ -57,7 +64,10 @@ defmodule LiveDebugger.App.Web.LiveComponents.LiveDropdown do
       <div
         :if={@open}
         id={@id <> "-content"}
-        class="absolute bg-surface-0-bg rounded border border-default-border mt-1 z-50 left-0"
+        class={[
+          "absolute bg-surface-0-bg rounded border border-default-border mt-1 z-50",
+          dropdown_position_class(@direction)
+        ]}
       >
         <%= render_slot(@inner_block) %>
       </div>
@@ -74,4 +84,8 @@ defmodule LiveDebugger.App.Web.LiveComponents.LiveDropdown do
   def handle_event("close", _, socket) do
     {:noreply, assign(socket, :open, false)}
   end
+
+  defp dropdown_position_class(:bottom_left), do: "right-0"
+  defp dropdown_position_class(:bottom_right), do: "left-0"
+  defp dropdown_position_class(_), do: "left-0"
 end

@@ -94,6 +94,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             socket={@socket}
             lv_process={lv_process}
           />
+          <Pages.resources :if={@live_action == :resources} socket={@socket} lv_process={lv_process} />
         </div>
       </.async_result>
     </div>

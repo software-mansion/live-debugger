@@ -1,8 +1,8 @@
-defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
+defmodule LiveDebugger.Services.CallbackTracer.Actions.FunctionTraceTest do
   use ExUnit.Case, async: true
 
-  alias LiveDebugger.Services.CallbackTracer.Actions.Trace
-  alias LiveDebugger.Structs.Trace, as: TraceStruct
+  alias LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace
+  alias LiveDebugger.Structs.Trace.FunctionTrace, as: TraceStruct
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
@@ -21,7 +21,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
       pid = :c.pid(0, 2, 0)
       timestamp = {1000, 100, 1000}
 
-      result = Trace.create_trace(n, module, fun, args, pid, timestamp)
+      result = FunctionTrace.create_trace(n, module, fun, args, pid, timestamp)
 
       assert {:ok, %TraceStruct{} = trace} = result
       assert trace.id == n
@@ -42,7 +42,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
       pid = self()
       timestamp = {1000, 100, 1000}
 
-      result = Trace.create_trace(n, module, fun, args, pid, timestamp)
+      result = FunctionTrace.create_trace(n, module, fun, args, pid, timestamp)
 
       assert {:error, "Transport PID is nil"} = result
     end
@@ -62,7 +62,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
 
       update_params = %{execution_time: 100, type: :return_from}
 
-      result = Trace.update_trace(original_trace, update_params)
+      result = FunctionTrace.update_trace(original_trace, update_params)
 
       assert {:ok, %TraceStruct{} = updated_trace} = result
       assert updated_trace.id == 1
@@ -89,7 +89,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
         type: :call
       }
 
-      assert {:ok, ^table_ref} = Trace.persist_trace(trace, table_ref)
+      assert {:ok, ^table_ref} = FunctionTrace.persist_trace(trace, table_ref)
     end
   end
 
@@ -122,7 +122,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
         cid: nil
       }
 
-      result = Trace.publish_trace(trace, table_ref)
+      result = FunctionTrace.publish_trace(trace, table_ref)
 
       assert :ok = result
     end
@@ -155,7 +155,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
         cid: nil
       }
 
-      result = Trace.publish_trace(trace, table_ref)
+      result = FunctionTrace.publish_trace(trace, table_ref)
 
       assert :ok = result
     end
@@ -188,7 +188,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
         cid: nil
       }
 
-      result = Trace.publish_trace(trace, table_ref)
+      result = FunctionTrace.publish_trace(trace, table_ref)
 
       assert :ok = result
     end
@@ -222,7 +222,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TraceTest do
         cid: cid
       }
 
-      result = Trace.publish_trace(trace, table_ref)
+      result = FunctionTrace.publish_trace(trace, table_ref)
 
       assert :ok = result
     end

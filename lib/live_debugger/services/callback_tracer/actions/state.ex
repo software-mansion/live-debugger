@@ -5,7 +5,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
 
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.LiveViewDebug
-  alias LiveDebugger.Structs.Trace
+  alias LiveDebugger.Structs.Trace.FunctionTrace
   alias LiveDebugger.Structs.LvState
 
   alias LiveDebugger.Bus
@@ -14,17 +14,22 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
   @doc """
   It checks if the trace is state changing and if so, it saves the state.
   """
-  @spec maybe_save_state!(Trace.t()) :: :ok
-  def maybe_save_state!(%Trace{pid: pid, function: :render, type: :return_from}) do
+  @spec maybe_save_state!(FunctionTrace.t()) :: :ok
+  def maybe_save_state!(%FunctionTrace{pid: pid, function: :render, type: :return_from}) do
     do_save_state!(pid)
   end
 
-  def maybe_save_state!(%Trace{pid: pid, function: function, type: type, args: [_, _, socket]})
+  def maybe_save_state!(%FunctionTrace{
+        pid: pid,
+        function: function,
+        type: type,
+        args: [_, _, socket]
+      })
       when function in [:mount, :handle_params] and type in [:return_from, :exception_from] do
     do_save_initial_state!(pid, socket)
   end
 
-  def maybe_save_state!(%Trace{pid: pid, function: :delete_component, type: :call}) do
+  def maybe_save_state!(%FunctionTrace{pid: pid, function: :delete_component, type: :call}) do
     do_save_state!(pid)
   end
 
