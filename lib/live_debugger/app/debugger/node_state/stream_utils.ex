@@ -45,7 +45,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
       update_list
       |> Enum.flat_map(&flatten_stream_updates(&1))
 
-    dbg(update_list)
     update_list
   end
 
@@ -59,7 +58,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
       update_map
       |> Enum.flat_map(&flatten_stream_initial_updates/1)
 
-    dbg(fun_list)
     fun_list
   end
 
@@ -72,7 +70,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
   defp update_stream_if_present(acc, update, key) do
     case Map.get(update, key) do
       %Phoenix.LiveView.LiveStream{} = stream ->
-        Map.update(acc, key, [], fn current ->
+        Map.update(acc, key, apply_stream_update([], stream), fn current ->
           apply_stream_update(current, stream)
         end)
 
@@ -109,7 +107,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
       |> Enum.take(1)
       |> List.flatten()
 
-    dbg(update_list)
     update_list
   end
 
@@ -205,8 +202,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
   end
 
   defp flatten_stream_updates(stream_entry) do
-    dbg(stream_entry)
-
     Enum.flat_map(stream_entry, fn
       {_stream_name, %Phoenix.LiveView.LiveStream{} = stream} ->
         map_stream_entry_to_stream_function(stream)
