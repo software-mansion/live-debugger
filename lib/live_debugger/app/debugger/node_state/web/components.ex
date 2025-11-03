@@ -137,10 +137,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           id="streams-display-container"
           class="relative w-full h-max max-h-full p-4 overflow-y-auto"
         >
-          <div
-            :for={stream_name <- @stream_names}
-            id={"#{stream_name}-display"}
-          >
+          <div :for={stream_name <- @stream_names} id={"#{stream_name}-display"}>
             <.stream_name_wrapper
               id={"#{stream_name}-collapsible"}
               stream_name={stream_name}
