@@ -1,10 +1,9 @@
-name: Live-debugger landing page build check
+name: Live-debugger landing page publish
 on:
-    pull_request:
+    push:
         paths:
-            - ".github/workflows/landing-build-check.yml"
+            - ".github/workflows/landing-publish.yml"
             - landing/**
-    merge_group:
         branches:
             - main
     workflow_dispatch:
