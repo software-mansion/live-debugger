@@ -45,7 +45,7 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
     <hr />
 
     <.box title="Another Items stream options">
-      <.button phx-click="create_another_item">Create Another Item</.button>
+      <.button id="create-another-item" phx-click="create_another_item">Create Another Item</.button>
     </.box>
 
     <.box title="Another Items Stream">

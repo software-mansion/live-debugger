@@ -172,27 +172,25 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         <div class="overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
           <div id={"#{@stream_name}-stream"} phx-update="stream" class="flex flex-col gap-2">
             <%= for {dom_id, stream_element} <-@existing_stream do %>
-              <div id={dom_id}>
-                <.stream_element_wrapper
-                  id={"#{dom_id}-collapsible"}
-                  dom_id={dom_id}
-                  stream_element={stream_element}
-                >
-                  <:label>
-                    <p class="font-semibold whitespace-nowrap break-keep grow-0 shrink-0">
-                      <%= dom_id %>
+              <.stream_element_wrapper
+                id={dom_id}
+                dom_id={dom_id}
+                stream_element={stream_element}
+              >
+                <:label>
+                  <p class="font-semibold whitespace-nowrap break-keep grow-0 shrink-0">
+                    <%= dom_id %>
+                  </p>
+                  <div class="grow min-w-0 text-secondary-text font-code font-normal text-3xs truncate pl-2">
+                    <p
+                      id={dom_id <> "-short-content"}
+                      class="hide-on-open mt-0.5 overflow-hidden whitespace-nowrap"
+                    >
+                      <%= inspect(stream_element) %>
                     </p>
-                    <div class="grow min-w-0 text-secondary-text font-code font-normal text-3xs truncate pl-2">
-                      <p
-                        id={dom_id <> "-short-content"}
-                        class="hide-on-open mt-0.5 overflow-hidden whitespace-nowrap"
-                      >
-                        <%= inspect(stream_element) %>
-                      </p>
-                    </div>
-                  </:label>
-                </.stream_element_wrapper>
-              </div>
+                  </div>
+                </:label>
+              </.stream_element_wrapper>
             <% end %>
           </div>
         </div>
