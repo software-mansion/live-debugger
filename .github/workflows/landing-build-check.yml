@@ -24,9 +24,9 @@ jobs:
               with:
                   cache: "npm"
                   cache-dependency-path: landing/package-lock.json
-            - name: Install monorepo node dependencies
+            - name: Install node dependencies
               working-directory: landing
               run: npm install
-            - name: Build Reanimated docs
+            - name: Build landing page
               working-directory: landing
-              run: npm build
+              run: npm run build
