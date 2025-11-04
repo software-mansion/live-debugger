@@ -5,7 +5,7 @@ LiveDebugger is a browser-based tool for debugging applications written in [Phoe
 Designed to enhance your development experience LiveDebugger gives you:
 
 - See your LiveComponents tree
-- Inspect assigns
+- View assigns
 - Trace and filter callback executions
 - Inspect elements
 

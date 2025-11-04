@@ -12,10 +12,10 @@ LiveDebugger is a browser-based tool for debugging applications written in [Phoe
 
 Designed to enhance your development experience LiveDebugger gives you:
 
-- See your LiveComponents tree
-- Inspect assigns
-- Trace and filter callback executions
-- Inspect elements
+- 🌳 See your LiveComponents tree
+- 🔍 View assigns
+- 🔗 Trace and filter callback executions
+- 🔦 Inspect elements
 
 Check out our comprehensive [Features Overview](https://hexdocs.pm/live_debugger/features.html) to explore all capabilities in detail.
 
