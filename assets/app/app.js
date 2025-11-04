@@ -13,6 +13,7 @@ import CopyButton from './hooks/copy_button';
 import TraceBodySearchHighlight from './hooks/trace_body_search_highlight';
 import TraceLabelSearchHighlight from './hooks/trace_label_search_highlight';
 import AssignsBodySearchHighlight from './hooks/assigns_body_search_highlight';
+import ChartHook from './hooks/chart_hook';
 
 import topbar from './vendor/topbar';
 
@@ -38,6 +39,7 @@ function createHooks() {
     TraceBodySearchHighlight,
     TraceLabelSearchHighlight,
     AssignsBodySearchHighlight,
+    ChartHook,
   };
 }
 

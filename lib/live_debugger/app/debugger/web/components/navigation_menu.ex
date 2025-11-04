@@ -34,6 +34,11 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
           <.nav_icon icon="icon-globe" selected?={@current_view == "global_traces"} />
         </.link>
       </.tooltip>
+      <.tooltip id="resources-tooltip" position="right" content="Resources">
+        <.link patch={RoutesHelper.debugger_resources(@pid)}>
+          <.nav_icon icon="icon-chart-line" selected?={@current_view == "resources"} />
+        </.link>
+      </.tooltip>
     </div>
     """
   end
@@ -70,6 +75,12 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
           label="Global Callbacks"
           selected?={@current_view == "global_traces"}
           phx-click={dropdown_item_click(RoutesHelper.debugger_global_traces(@pid))}
+        />
+        <.dropdown_item
+          icon="icon-chart-line"
+          label="Resources"
+          selected?={@current_view == "resources"}
+          phx-click={dropdown_item_click(RoutesHelper.debugger_resources(@pid))}
         />
       </div>
     </.live_component>

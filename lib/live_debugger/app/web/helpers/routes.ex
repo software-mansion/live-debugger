@@ -19,6 +19,7 @@ defmodule LiveDebugger.App.Web.Helpers.Routes do
   @spec debugger(pid :: pid() | String.t(), live_action :: atom()) :: String.t()
   def debugger(pid, :node_inspector), do: debugger_node_inspector(pid)
   def debugger(pid, :global_traces), do: debugger_global_traces(pid)
+  def debugger(pid, :resources), do: debugger_resources(pid)
 
   @spec debugger_node_inspector(
           pid :: pid() | String.t(),
@@ -65,6 +66,17 @@ defmodule LiveDebugger.App.Web.Helpers.Routes do
 
   def debugger_global_traces(pid) when is_binary(pid) do
     ~p"/pid/#{pid}/global_traces"
+  end
+
+  @spec debugger_resources(pid :: pid() | String.t()) :: String.t()
+  def debugger_resources(pid) when is_pid(pid) do
+    pid
+    |> Parsers.pid_to_string()
+    |> debugger_resources()
+  end
+
+  def debugger_resources(pid) when is_binary(pid) do
+    ~p"/pid/#{pid}/resources"
   end
 
   @spec error(String.t()) :: String.t()
