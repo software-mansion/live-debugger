@@ -109,9 +109,6 @@ defmodule LiveDebugger.MixProject do
         "docs/elements_inspection.md": [title: "Elements Inspection"]
       ],
       groups_for_extras: [
-        Configuration: [
-          "docs/config.md"
-        ],
         Features: [
           "docs/features.md",
           "docs/assigns_inspection.md",
