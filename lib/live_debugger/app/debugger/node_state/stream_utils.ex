@@ -188,14 +188,19 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
           )
         end
 
-      # https://hexdocs.pm/phoenix_live_view/1.0.17/Phoenix.LiveView.html#stream_insert/4
-      # In phoenix 1.0.17 insert doesn't have update option
+      # This cases are for old LiveView versions
       {_dom_id, at, element, limit} ->
         fn socket ->
           Phoenix.LiveView.stream_insert(socket, name, element,
             at: at,
             limit: limit
           )
+        end
+
+      # For LiveView < 1.0
+      {_dom_id, at, element} ->
+        fn socket ->
+          Phoenix.LiveView.stream_insert(socket, name, element, at: at)
         end
     end)
   end
