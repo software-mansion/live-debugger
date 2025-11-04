@@ -1,15 +1,16 @@
 name: Live-debugger landing page build check
 on:
-    push:
+    pull_request:
+        paths:
+            - ".github/workflows/landing-build-check.yml"
+            - landing/**
+    merge_group:
         branches:
             - main
-        paths:
-            - ".github/workflows/landing-publish.yml"
-            - landing/**
     workflow_dispatch:
 
 jobs:
-    live-debugger-landing-build-check:
+    live-debugger-landing-publish:
         if: github.repository == 'software-mansion/live-debugger'
         runs-on: ubuntu-latest
         steps:
