@@ -57,10 +57,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           class="w-full h-max max-h-full overflow-y-auto"
           data-search_phrase={@assigns_search_phrase}
         >
-          <div class="p-4 border-b border-default-border">
+          <div id="pinned-assigns" class="p-4 border-b border-default-border">
             <.selected_assigns_section term_node={@term_node} selected_assigns={@selected_assigns} />
           </div>
-          <div class="p-4 relative">
+          <div id="all-assigns" class="p-4 relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
             <ElixirDisplay.static_term node={@term_node} selectable_level={1} />
           </div>
