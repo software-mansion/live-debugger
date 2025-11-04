@@ -1,0 +1,35 @@
+name: Live-debugger landing page build check
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - ".github/workflows/landing-publish.yml"
+            - landing/**
+    workflow_dispatch:
+
+jobs:
+    live-debugger-landing-build-check:
+        if: github.repository == 'software-mansion/live-debugger'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check out
+              uses: actions/checkout@v4
+              with:
+                  submodules: "true"
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  cache: "npm"
+            - name: Install monorepo node dependencies
+              working-directory: landing
+              run: npm install
+            - name: Build Reanimated docs
+              working-directory: landing
+              run: npm build
+            - name: Publish generated content to GitHub Pages
+              uses: JamesIves/github-pages-deploy-action@releases/v3
+              with:
+                  FOLDER: landing/dist
+                  BRANCH: gh-pages
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
