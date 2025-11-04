@@ -99,6 +99,7 @@ defmodule LiveDebugger.MixProject do
       extras: [
         "CHANGELOG.md",
         "docs/welcome.md": [title: "Welcome to LiveDebugger"],
+        "docs/features.md": [title: "Features Overview"],
         "docs/config.md": [title: "Configuration"],
         "docs/components_tree.md": [title: "Components Tree"],
         "docs/assigns_inspection.md": [title: "Assigns Inspection"],
@@ -112,6 +113,7 @@ defmodule LiveDebugger.MixProject do
           "docs/config.md"
         ],
         Features: [
+          "docs/features.md",
           "docs/assigns_inspection.md",
           "docs/components_tree.md",
           "docs/callback_tracing.md",
