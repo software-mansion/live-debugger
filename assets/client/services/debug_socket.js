@@ -1,10 +1,10 @@
 import pushWindowInitialized from './window_identifier';
 
-export default function initDebugSocket(baseURL, socketID) {
+export default function initDebugSocket(baseURL, socketID, rootSocketIDs) {
   const websocketURL = baseURL.replace(/^http/, 'ws') + '/client';
 
   const debugSocket = new window.Phoenix.Socket(websocketURL, {
-    params: { socketID },
+    params: { socketID, rootSocketIDs },
   });
 
   debugSocket.connect();

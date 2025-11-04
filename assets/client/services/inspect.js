@@ -209,13 +209,16 @@ function pushRemoveTooltipEvent() {
 function getClosestElementInfo(target) {
   const liveViewElement = target.closest('[data-phx-session]');
   const componentElement = target.closest('[data-phx-component]');
-  const rootElement = document.querySelector('[data-phx-main]');
+
+  if (!liveViewElement) return null;
+
+  const rootElementId = liveViewElement.getAttribute('data-phx-root-id');
 
   if (componentElement && liveViewElement.contains(componentElement)) {
     return {
       element: componentElement,
       type: 'LiveComponent',
-      phxRootId: rootElement.id,
+      phxRootId: rootElementId,
       phxId: liveViewElement.id,
     };
   }
@@ -223,7 +226,7 @@ function getClosestElementInfo(target) {
   return {
     element: liveViewElement,
     type: 'LiveView',
-    phxRootId: rootElement.id,
+    phxRootId: rootElementId,
     phxId: liveViewElement.id,
   };
 }
