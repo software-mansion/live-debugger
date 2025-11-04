@@ -36,7 +36,7 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
     <.box title="Items Stream">
       <ul id="item-list" phx-update="stream">
         <li :for={{id, item} <- @streams.items} id={id}>
-          <strong>ID:</strong> {item.id}, <strong>Number:</strong> {item.number}
+          <strong>ID:</strong> <%= item.id %>, <strong>Number:</strong> <%= item.number %>
           <button phx-click="delete_by_dom_id" phx-value-id={id}>X</button>
         </li>
       </ul>
@@ -51,7 +51,7 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
     <.box title="Another Items Stream">
       <ul id="another-items-list" phx-update="stream">
         <li :for={{id, item} <- @streams.another_items} id={id}>
-          <strong>{item.id}</strong> ->{item.number}
+          <strong><%= item.id %></strong> -><%= item.number %>
         </li>
       </ul>
     </.box>
