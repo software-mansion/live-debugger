@@ -15,8 +15,6 @@ Inspect the current state of assigns for any LiveView or LiveComponent in your a
 - Expandable/collapsible complex data structures
 - Immediate feedback on user interactions
 
----
-
 ### [Callback Tracing](callback_tracing.md)
 
 See how functions in your LiveView application are being called with comprehensive tracing capabilities. Monitor all LiveView and LiveComponent callbacks with detailed execution information including timing, arguments, and execution flow.
@@ -28,8 +26,6 @@ See how functions in your LiveView application are being called with comprehensi
 - Copy callback arguments for terminal processing
 - Support for all Phoenix.LiveView and Phoenix.LiveComponent callbacks
 
----
-
 ### [Components Highlighting](components_highlighting.md)
 
 Visually identify and locate components rendered in your current debugged LiveView. Hover over component names in the tree to highlight their corresponding DOM elements in your application.
@@ -40,8 +36,6 @@ Visually identify and locate components rendered in your current debugged LiveVi
 - Hover-to-highlight functionality
 - Non-intrusive visual feedback
 
----
-
 ### [Components Tree](components_tree.md)
 
 Examine how LiveComponents are arranged in your debugged LiveView. The tree automatically updates when state changes, showing the complete hierarchy from LiveView root to all nested LiveComponents with their CIDs.
@@ -51,8 +45,6 @@ Examine how LiveComponents are arranged in your debugged LiveView. The tree auto
 - Discover you application structure
 - Real-time tree updates on state changes
 - View nested LiveView relationships
-
----
 
 ### [DeadView Mode](dead_view_mode.md)
 
@@ -66,8 +58,6 @@ Debug the state of your application after redirecting or encountering a crash. T
 - Continue to successor LiveView after debugging
 - Status indicator showing alive/dead state
 
----
-
 ### [Elements Inspection](elements_inspection.md)
 
 Inspect LiveViews and LiveComponents directly from the rendered page by selecting elements with your mouse.
@@ -79,8 +69,6 @@ Inspect LiveViews and LiveComponents directly from the rendered page by selectin
 - Click to inspect node
 - Highlight elements during selection
 - Works in both standalone and DevTools extension modes
-
----
 
 ## Browser Features
 
