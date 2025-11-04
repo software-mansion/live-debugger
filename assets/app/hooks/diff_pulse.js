@@ -1,3 +1,7 @@
+// This hook is resonsible for adding a pulse animation to an element
+// whenever its updated and it has the data-pulse attribute set.
+// Somewhat convoluted logic aims to reset the animation if update is triggered
+// before previous animation is complete.
 const DiffPulse = {
   mounted() {
     if (this.el.hasAttribute('data-pulse')) {
