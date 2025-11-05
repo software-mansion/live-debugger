@@ -42,7 +42,7 @@ Examine how LiveComponents are arranged in your debugged LiveView. The tree auto
 
 **Key capabilities:**
 
-- Discover you application structure
+- Discover your application's structure
 - Real-time tree updates on state changes
 - View nested LiveView relationships
 
