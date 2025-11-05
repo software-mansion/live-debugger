@@ -303,8 +303,8 @@ defmodule LiveDebugger.App.Web.Components do
       ]}
     >
       <div class="pl-4 flex items-center h-12 p-2 border-b border-default-border">
-        <div class="flex justify-between items-center w-full">
-          <div class="font-medium text-sm"><%= @title %></div>
+        <div class="flex justify-between items-center w-full gap-2">
+          <div class="font-medium text-sm min-w-26"><%= @title %></div>
           <div class="w-max">
             <%= render_slot(@right_panel) %>
           </div>
@@ -806,6 +806,34 @@ defmodule LiveDebugger.App.Web.Components do
         </select>
       </div>
     </div>
+    """
+  end
+
+  @doc """
+  Renders a radio button component.
+  """
+  attr(:name, :string, required: true)
+  attr(:value, :string, required: true)
+  attr(:label, :string, required: true)
+  attr(:checked, :boolean, default: false)
+
+  attr(:class, :string, default: "", doc: "Additional classes to add to the radio button")
+
+  def radio_button(assigns) do
+    ~H"""
+    <label class={[
+      "flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-surface-1-bg transition-colors"
+      | List.wrap(@class)
+    ]}>
+      <input
+        type="radio"
+        name={@name}
+        value={@value}
+        checked={@checked}
+        class="w-4 h-4 appearance-none rounded-full border-1 border-default-border bg-white cursor-pointer checked:border-ui-accent checked:bg-white relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-2 before:h-2 before:rounded-full before:bg-transparent checked:before:bg-ui-accent"
+      />
+      <span class="text-xs"><%= @label %></span>
+    </label>
     """
   end
 

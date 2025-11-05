@@ -8,14 +8,14 @@ const TraceBodySearchHighlight = {
     if (phrase === undefined || phrase === '') return;
 
     const ranges = findRanges(this.el, phrase);
-    highlightSearchRanges(ranges);
+    highlightSearchRanges('traces-search-highlight', ranges);
   },
   updated() {
     const phrase = this.el.dataset.search_phrase;
     if (phrase === undefined || phrase === '') return;
 
     const ranges = findRanges(this.el, phrase);
-    highlightSearchRanges(ranges);
+    highlightSearchRanges('traces-search-highlight', ranges);
   },
 };
 
