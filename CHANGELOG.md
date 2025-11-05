@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.3 (2025-11-05)
+
+### Bug fixes
+  * Fix highlighting with embedded LiveViews [#797](https://github.com/software-mansion/live-debugger/pull/797)
+
+### Enhancements
+  * Route to same page after redirect to new process [#803](https://github.com/software-mansion/live-debugger/pull/803)
+  * Add features page to docs [#829](https://github.com/software-mansion/live-debugger/pull/829)
+
 ## 0.4.2 (2025-10-09)
 
 ### Bug fixes
