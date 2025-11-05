@@ -31,7 +31,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:fullscreen_id, :string, required: true)
   attr(:assigns_sizes, AsyncResult, required: true)
   attr(:assigns_search_phrase, :string, default: "")
-  attr(:selected_assigns, :map, default: %{})
+  attr(:pinned_assigns, :map, default: %{})
 
   def assigns_section(assigns) do
     opened_term_node =
@@ -58,7 +58,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           data-search_phrase={@assigns_search_phrase}
         >
           <div id="pinned-assigns" class="p-4 border-b border-default-border">
-            <.selected_assigns_section term_node={@term_node} selected_assigns={@selected_assigns} />
+            <.pinned_assigns_section term_node={@term_node} pinned_assigns={@pinned_assigns} />
           </div>
           <div id="all-assigns" class="p-4 relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
@@ -75,7 +75,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         </:search_bar_slot>
         <div id="assigns-display-fullscreen-container" data-search_phrase={@assigns_search_phrase}>
           <div class="p-4 border-b border-default-border">
-            <.selected_assigns_section term_node={@term_node} selected_assigns={@selected_assigns} />
+            <.pinned_assigns_section term_node={@term_node} pinned_assigns={@pinned_assigns} />
           </div>
           <div class="p-4 relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
@@ -88,15 +88,15 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   end
 
   attr(:term_node, TermNode, required: true)
-  attr(:selected_assigns, :map, required: true)
+  attr(:pinned_assigns, :map, required: true)
 
-  defp selected_assigns_section(assigns) do
+  defp pinned_assigns_section(assigns) do
     ~H"""
-    <p :if={Enum.all?(@selected_assigns, fn {_, v} -> !v end)} class="text-secondary-text">
+    <p :if={Enum.all?(@pinned_assigns, fn {_, v} -> !v end)} class="text-secondary-text">
       You have no pinned assigns.
     </p>
     <div
-      :for={{key, pinned} <- @selected_assigns}
+      :for={{key, pinned} <- @pinned_assigns}
       :if={pinned}
       class="flex min-h-4.5 [&>div>button]:hidden hover:[&>div>button]:block"
     >

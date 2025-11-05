@@ -86,7 +86,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
           copy_string={copy_string}
           fullscreen_id="assigns-display-fullscreen"
           assigns_sizes={@assigns_sizes}
-          selected_assigns={@selected_assigns}
+          pinned_assigns={@pinned_assigns}
           assigns_search_phrase={@assigns_search_phrase}
         />
       </.async_result>
@@ -96,18 +96,18 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   @impl true
   def handle_event("pin-assign", %{"key" => key}, socket) do
-    selected_assigns = %{socket.assigns.selected_assigns | key => true}
+    pinned_assigns = %{socket.assigns.pinned_assigns | key => true}
 
     socket
-    |> assign(:selected_assigns, selected_assigns)
+    |> assign(:pinned_assigns, pinned_assigns)
     |> noreply()
   end
 
   def handle_event("unpin-assign", %{"key" => key}, socket) do
-    selected_assigns = %{socket.assigns.selected_assigns | key => false}
+    pinned_assigns = %{socket.assigns.pinned_assigns | key => false}
 
     socket
-    |> assign(:selected_assigns, selected_assigns)
+    |> assign(:pinned_assigns, pinned_assigns)
     |> noreply()
   end
 

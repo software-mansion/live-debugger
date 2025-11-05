@@ -30,7 +30,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> register_hook(:node_assigns)
     |> assign(:node_assigns_info, AsyncResult.loading())
     |> assign(:assigns_sizes, AsyncResult.loading())
-    |> assign(:selected_assigns, %{})
+    |> assign(:pinned_assigns, %{})
     |> assign_async_node_assigns()
   end
 
@@ -83,16 +83,16 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
          %{
            assigns: %{
              node_assigns_info: %AsyncResult{ok?: true} = old_node_assigns_info,
-             selected_assigns: selected_assigns
+             pinned_assigns: pinned_assigns
            }
          } = socket
        ) do
     node_assigns_info = update_node_assigns_info(old_node_assigns_info, node_assigns)
-    selected_assigns = update_selected_assigns(selected_assigns, node_assigns)
+    pinned_assigns = update_pinned_assigns(pinned_assigns, node_assigns)
 
     socket
     |> assign(:node_assigns_info, node_assigns_info)
-    |> assign(:selected_assigns, selected_assigns)
+    |> assign(:pinned_assigns, pinned_assigns)
     |> assign_size_async(node_assigns)
     |> halt()
   end
@@ -100,11 +100,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   defp handle_async(:fetch_node_assigns, {:ok, {:ok, node_assigns}}, socket) do
     term_node = TermParser.term_to_display_tree(node_assigns)
     copy_string = TermParser.term_to_copy_string(node_assigns)
-    selected_assigns = node_assigns |> Map.keys() |> Map.new(&{to_string(&1), false})
+    pinned_assigns = node_assigns |> Map.keys() |> Map.new(&{to_string(&1), false})
 
     socket
     |> assign(:node_assigns_info, AsyncResult.ok({node_assigns, term_node, copy_string}))
-    |> assign(:selected_assigns, selected_assigns)
+    |> assign(:pinned_assigns, pinned_assigns)
     |> assign_size_async(node_assigns)
     |> halt()
   end
@@ -155,11 +155,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     end
   end
 
-  defp update_selected_assigns(selected_assigns, node_assigns) do
+  defp update_pinned_assigns(pinned_assigns, node_assigns) do
     node_assigns
     |> Map.keys()
     |> Map.new(&{to_string(&1), false})
-    |> Map.merge(selected_assigns, fn _, _default, selected? -> selected? end)
+    |> Map.merge(pinned_assigns, fn _, _default, selected? -> selected? end)
   end
 
   # If one async task is already running, we start the second async task

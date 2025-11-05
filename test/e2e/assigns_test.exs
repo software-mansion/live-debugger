@@ -35,7 +35,7 @@ defmodule LiveDebugger.E2E.AssignsTest do
     debugger
     |> visit("/")
     |> click(first_link())
-    |> assert_has(css("#pinned-assigns", text: "You are not following any specific assign"))
+    |> assert_has(css("#pinned-assigns", text: "You have no pinned assigns."))
     |> hover(assigns_entry(key: "counter", value: "0"))
     |> click(pin_button("counter"))
     |> assert_has(pinned_assigns_entry(key: "counter", value: "0"))
@@ -59,7 +59,7 @@ defmodule LiveDebugger.E2E.AssignsTest do
     |> click(unpin_button("counter"))
     |> hover(pinned_assigns_entry(key: "datetime", value: "~U["))
     |> click(unpin_button("datetime"))
-    |> assert_has(css("#pinned-assigns", text: "You are not following any specific assign"))
+    |> assert_has(css("#pinned-assigns", text: "You have no pinned assigns."))
   end
 
   defp assigns_entry(key: key, value: value) do
