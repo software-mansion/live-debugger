@@ -30,7 +30,7 @@ You can enable inspecting mode in two ways:
 
 - Using `Debug Button` in the debugged LiveView window (clicking button and selecting from menu)
 
-- Using `Inspect Element` button in the LiveDebugger (not available in `Dead View Mode`)
+- Using `Inspect Element` button in the LiveDebugger (not available in `DeadView Mode`)
 
 ![Inspect Element Button](images/inspect_element_button.png)
 

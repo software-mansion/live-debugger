@@ -99,19 +99,18 @@ defmodule LiveDebugger.MixProject do
       extras: [
         "CHANGELOG.md",
         "docs/welcome.md": [title: "Welcome to LiveDebugger"],
+        "docs/features.md": [title: "Features Overview"],
         "docs/config.md": [title: "Configuration"],
         "docs/components_tree.md": [title: "Components Tree"],
         "docs/assigns_inspection.md": [title: "Assigns Inspection"],
         "docs/callback_tracing.md": [title: "Callback Tracing"],
         "docs/components_highlighting.md": [title: "Components Highlighting"],
-        "docs/dead_view_mode.md": [title: "Dead View Mode"],
+        "docs/dead_view_mode.md": [title: "DeadView Mode"],
         "docs/elements_inspection.md": [title: "Elements Inspection"]
       ],
       groups_for_extras: [
-        Configuration: [
-          "docs/config.md"
-        ],
         Features: [
+          "docs/features.md",
           "docs/assigns_inspection.md",
           "docs/components_tree.md",
           "docs/callback_tracing.md",
