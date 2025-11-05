@@ -1,0 +1,12 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@import "./theme.css";
+@import "./animations.css";
+
+/* @source "./src*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"; */
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--color-swm-brand-100);
+}

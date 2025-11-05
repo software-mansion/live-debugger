@@ -1,0 +1,38 @@
+---
+import ContentWrapper from "../components/ContentWrapper.tsx";
+import { Tabs } from "@/components/ui/TabsWrapper";
+import MixInstallTab from "@/components/getting-started-tabs-content/MixInstallTab";
+import IgniterInstallTab from "@/components/getting-started-tabs-content/IgniterInstallTab";
+
+const tabData = [
+  { key: "mix", title: "Mix installation" },
+  { key: "igniter", title: "Igniter installation" },
+];
+---
+
+<section
+  id="gettingstarted"
+  class="bg-primary relative flex min-h-[500px] w-full scroll-m-10 flex-col items-center justify-center overflow-hidden py-16 max-sm:px-6 sm:py-20 md:py-36"
+>
+  <ContentWrapper
+    className="font-aeonik z-20 flex w-full flex-col items-center justify-center gap-10 sm:gap-14 md:gap-16 lg:gap-20"
+  >
+    <h1 class="text-primary-foreground text-center text-xl font-bold">
+      Getting started
+    </h1>
+
+    <Tabs class="h-full w-full" tabData={tabData} client:idle>
+      <MixInstallTab slot="mix" client:idle />
+      <IgniterInstallTab slot="igniter" client:idle />
+    </Tabs>
+  </ContentWrapper>
+  <div
+    class="absolute -bottom-25 -left-20 z-1 sm:-right-15 sm:-bottom-25 lg:-right-45 lg:-bottom-30"
+  >
+    <img
+      src="live-debugger/assets/Vector.svg"
+      alt=""
+      class="h-60 w-auto sm:h-80 md:h-100 lg:h-120"
+    />
+  </div>
+</section>

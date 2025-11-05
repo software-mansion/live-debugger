@@ -1,0 +1,135 @@
+@layer utilities {
+  .animate-pulse-red {
+    animation: pulse-red 1.9s infinite;
+  }
+
+  /* Hero Animations */
+  .animate-fade-in-down {
+    animation: fadeInDown 0.8s ease-out 0.2s forwards;
+    opacity: 0;
+  }
+
+  .animate-slide-in-up {
+    animation: slideInUp 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.4s forwards;
+    opacity: 0;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 1s ease-out 0.6s forwards;
+    opacity: 0;
+  }
+}
+
+/* Keyframes for pulse-red */
+@keyframes pulse-red {
+  0% {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  75%,
+  100% {
+    transform: scale(5);
+    opacity: 0;
+  }
+}
+
+/* Keyframes for Hero */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Block component */
+@property --block-depth {
+  inherits: true;
+  initial-value: 0px;
+  syntax: "<length>";
+}
+
+@property --block-height {
+  inherits: true;
+  initial-value: 0px;
+  syntax: "<length>";
+}
+
+@utility block-d-* {
+  --block-depth: --spacing(--value(number));
+  --block-depth: --value([length]);
+}
+
+@utility block-h-* {
+  --block-height: --spacing(--value(number));
+  --block-height: --value([length]);
+}
+
+@utility -block-clip-h-45 {
+  clip-path: polygon(
+    0% 0%,
+    100% calc(var(--block-depth) + var(--block-height)),
+    100% 100%,
+    0% calc(100% - (var(--block-depth) + var(--block-height)))
+  );
+}
+
+@utility block-clip-h-45 {
+  clip-path: polygon(
+    0% calc(var(--block-depth) + var(--block-height)),
+    100% 0%,
+    100% calc(100% - (var(--block-depth) + var(--block-height))),
+    0% 100%
+  );
+}
+
+@utility -block-clip-v-45 {
+  clip-path: polygon(
+    0% 0%,
+    calc(100% - (var(--block-depth) + var(--block-height))) 0%,
+    100% 100%,
+    calc(var(--block-depth) + var(--block-height)) 100%
+  );
+}
+
+@utility block-clip-v-45 {
+  clip-path: polygon(
+    calc(var(--block-depth) + var(--block-height)) 0%,
+    100% 0%,
+    calc(100% - (var(--block-depth) + var(--block-height))) 100%,
+    0% 100%
+  );
+}
+
+@utility block-max-d-* {
+  --block-maximum-depth: --spacing(--value(number));
+  --block-maximum-depth: --value([length]);
+}
+
+@utility block-max-h-* {
+  --block-maximum-height: --spacing(--value(number));
+  --block-maximum-height: --value([length]);
+}

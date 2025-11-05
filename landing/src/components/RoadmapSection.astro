@@ -1,0 +1,79 @@
+---
+import ContentWrapper from "../components/ContentWrapper.tsx";
+import { Accordion } from "@/components/ui/AccordionWrapper";
+import CTA from "@/components/CTA.astro";
+
+const accordionData = [
+  {
+    versionNumber: "v0.5.0",
+    bulletpoints: [
+      "Improved assigns inspection and tracking",
+      "A sync loading and streams debugging",
+      "“Dead LiveViews” section showing recently crashed views",
+      "Resource usage monitoring of LiveView processes",
+      "Performance improvements",
+    ],
+  },
+  {
+    versionNumber: "v0.6.0",
+    bulletpoints: [
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "Sed do eiusmod tempor incididunt",
+      "ut labore et dolore magna aliqua.",
+    ],
+  },
+  {
+    versionNumber: "v0.7.0",
+    bulletpoints: [
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "Sed do eiusmod tempor incididunt",
+      "ut labore et dolore magna aliqua.",
+    ],
+  },
+  {
+    versionNumber: "v0.8.0",
+    bulletpoints: [
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "Sed do eiusmod tempor incididunt",
+      "ut labore et dolore magna aliqua.",
+    ],
+  },
+  {
+    versionNumber: "1.0",
+    bulletpoints: [
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "Sed do eiusmod tempor incididunt",
+      "ut labore et dolore magna aliqua.",
+    ],
+  },
+];
+---
+
+<section
+  id="roadmap"
+  class="flex w-full scroll-m-10 flex-col items-center justify-center bg-white py-16 sm:py-20 md:py-32"
+>
+  <ContentWrapper
+    className="font-aeonik text-primary flex flex-col items-center justify-center gap-12 sm:gap-14 md:gap-16 lg:gap-18"
+  >
+    <h1 class="text-primary text-center text-xl font-bold">Roadmap</h1>
+
+    <div>
+      <Accordion data={accordionData} client:idle />
+    </div>
+
+    <CTA
+      title="Have a feature idea?"
+      buttonText="Let us know"
+      url="https://github.com/software-mansion/live-debugger/issues/new/choose"
+    >
+      <img
+        src={`live-debugger/assets/github-2.svg`}
+        class="h-13 w-13"
+        alt={"github icon"}
+        width="32"
+        height="32"
+      />
+    </CTA>
+  </ContentWrapper>
+</section>
