@@ -45,6 +45,9 @@
 
   /* Other Button */
   --button-green-content: var(--swm-green-100);
+  --button-green-content-hover: var(--swm-green-80);
+  --button-red-content: var(--red-600);
+  --button-red-content-hover: var(--red-400);
 
   /* Tooltip */
   --tooltip-text: var(--neutrals-white);

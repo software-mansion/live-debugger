@@ -93,16 +93,20 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   defp selected_assigns_section(assigns) do
     ~H"""
     <p :if={Enum.all?(@selected_assigns, fn {_, v} -> !v end)} class="text-secondary-text">
-      You are not following any specific assign
+      You have no pinned assigns.
     </p>
     <div
       :for={{key, pinned} <- @selected_assigns}
       :if={pinned}
-      class="flex [&>div>button]:hidden hover:[&>div>button]:block"
+      class="flex min-h-4.5 [&>div>button]:hidden hover:[&>div>button]:block"
     >
       <div class="w-4">
-        <button class="text-error-text" phx-click="unpin-assign" phx-value-key={key}>
-          <.icon name="icon-cross" class="h-4 w-4" />
+        <button
+          class="text-button-red-content hover:text-button-red-content-hover"
+          phx-click="unpin-assign"
+          phx-value-key={key}
+        >
+          <.icon name="icon-pin-off" class="h-4 w-4" />
         </button>
       </div>
       <ElixirDisplay.static_term node={

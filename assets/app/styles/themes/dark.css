@@ -46,6 +46,9 @@
 
     /* Other Button */
     --button-green-content: var(--swm-green-100);
+    --button-green-content-hover: var(--swm-green-60);
+    --button-red-content: var(--swm-pink-80);
+    --button-red-content-hover: var(--swm-pink-60);
 
     /* Tooltip */
     --tooltip-text: var(--gray-900);

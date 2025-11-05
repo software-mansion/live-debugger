@@ -69,14 +69,14 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
       |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
-    <div class="font-code flex [&>div>button]:hidden hover:[&>div>button]:block">
+    <div class="font-code flex min-h-4.5 [&>div>button]:hidden hover:[&>div>button]:block">
       <div :if={@selectable_level == @level and is_atom(@node.key)} class="w-4">
         <button
           class="text-button-green-content hover:text-button-green-content-hover"
           phx-click="pin-assign"
           phx-value-key={@node.key}
         >
-          <.icon name="icon-plus" class="h-4 w-4" />
+          <.icon name="icon-pin" class="h-4 w-4" />
         </button>
       </div>
       <%= if @has_children? do %>
