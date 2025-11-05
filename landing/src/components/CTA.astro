@@ -1,0 +1,22 @@
+---
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { IconBox } from "@/components/ui/iconBox";
+
+const title = Astro.props.title;
+const buttonText = Astro.props.buttonText;
+const url = Astro.props.url;
+---
+
+<div class="flex flex-col items-center gap-5 pt-6">
+  <IconBox variant="secondary">
+    <slot />
+  </IconBox>
+  <h2 class="text-md font-medium">{title}</h2>
+  <Button variant="outline" size="sm">
+    <a href={url} class="flex flex-row items-center justify-center gap-2">
+      <p class="text-medium text-sm">{buttonText}</p>
+      <ArrowRight strokeWidth={2} />
+    </a>
+  </Button>
+</div>

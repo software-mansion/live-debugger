@@ -1,0 +1,124 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { IconBox } from "@/components/ui/iconBox";
+import { Circle } from "lucide-react";
+import { BlockWrapper } from "@/components/ui/blockWrapper";
+import {
+  Block,
+  BlockContent,
+  BlockSides,
+  BlockSideHorizontal,
+  BlockSideVertical,
+} from "@/components/ui/block";
+import { Card } from "@/components/ui/card";
+---
+
+<Layout>
+  <!-- <div class="bg-primary text-primary-foreground p-4">Test</div> -->
+  <div
+    class="m-0 flex min-h-screen flex-col items-center justify-center gap-10 bg-gray-200"
+  >
+    <div class="flex flex-wrap items-center gap-2 md:flex-row">
+      <Button variant="default">Button</Button>
+      <Button variant="outline">Button</Button>
+      <Button variant="defaultWithOutline">Button</Button>
+      <Button variant="secondary">Button</Button>
+      <Button variant="default" size="sm">Button</Button>
+      <Button variant="outline" size="sm">Button</Button>
+      <Button variant="defaultWithOutline" size="sm">Button</Button>
+      <Button variant="secondary" size="sm">Button</Button>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 md:flex-row">
+      <Badge variant="primary">Chip</Badge>
+      <Badge variant="secondary">Chip</Badge>
+      <Badge variant="primary" size="sm">Chip</Badge>
+      <Badge variant="secondary" size="sm">Chip</Badge>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 md:flex-row">
+      <IconBox><Circle strokeWidth={1} /></IconBox>
+      <IconBox variant="secondary"><Circle strokeWidth={1} /></IconBox>
+      <IconBox size="sm"><Circle strokeWidth={1} /></IconBox>
+      <IconBox variant="secondary" size="sm"><Circle strokeWidth={1} /></IconBox
+      >
+      <Circle size={32} strokeWidth={1} />
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 md:flex-row">
+      <BlockWrapper
+        variant="flat"
+        size="default"
+        iconColor="secondary"
+        icon={Circle}
+        isFeature={false}
+        header="Title of the step"
+        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna."
+      />
+
+      <BlockWrapper
+        variant="flat"
+        size="large"
+        iconColor="secondary"
+        icon={Circle}
+        isFeature={false}
+        header="Inspect state of your LiveViews"
+        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna."
+      />
+
+      <BlockWrapper
+        variant="cube"
+        size="default"
+        isFeature={false}
+        iconColor="secondary"
+        icon={Circle}
+        header="Inspect state of your LiveViews"
+        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna."
+      />
+
+      <BlockWrapper
+        variant="flat"
+        size="default"
+        isFeature={true}
+        icon={Circle}
+        header="Inspect state of your LiveViews"
+        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna."
+      />
+    </div>
+
+    <div class="flex flex-wrap items-center justify-center gap-2">
+      <Card
+        header="Title of the step"
+        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna."
+        imageUrl="live-debugger/assets/Screenshot-2.png"
+        imageSide="right"
+        badgeText="Step 1"
+      />
+
+      <Card
+        orientation="horizontal"
+        header="Title of the step"
+        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna."
+        imageUrl="live-debugger/assets/Screenshot-2.png"
+        imageSide="left"
+        badgeText="Step 1"
+      />
+
+      <Card
+        orientation="vertical"
+        header="Title of the step"
+        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna."
+        imageUrl="live-debugger/assets/Screenshot-2.png"
+        imageSide="right"
+        badgeText="Step 1"
+      />
+    </div>
+
+    <div
+      class="m-0 flex min-h-screen flex-col items-center justify-center gap-10 bg-gray-200"
+    >
+    </div>
+  </div>
+</Layout>

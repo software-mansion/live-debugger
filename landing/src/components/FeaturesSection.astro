@@ -1,0 +1,81 @@
+---
+import ContentWrapper from "../components/ContentWrapper.tsx";
+import { Button } from "@/components/ui/button";
+import { BlockWrapper } from "@/components/ui/blockWrapper";
+
+import {
+  ArrowRight,
+  LayoutList,
+  SearchCode,
+  Funnel,
+  SquareMousePointer,
+} from "lucide-react";
+
+const mainFeatures = [
+  {
+    title: "See your LiveComponents tree",
+    description:
+      "Explore your application’s structure at a glance. See how LiveComponents seamlessly fit together to shape your interface.",
+    icon: LayoutList,
+  },
+  {
+    title: "Inspect assigns",
+    description:
+      "Check the data of any LiveView or LiveComponent in real time. Track state transitions and understand your data flow in real time.",
+    icon: SearchCode,
+  },
+  {
+    title: "Trace and filter callback executions",
+    description:
+      "Follow lifecycle callbacks, measure execution time, and analyze performance. Filter events to see what really matters.",
+    icon: Funnel,
+  },
+  {
+    title: "Inspect elements",
+    description:
+      "Click on UI elements to reveal which component created them and instantly see how your full interface is structured.",
+    icon: SquareMousePointer,
+  },
+];
+---
+
+<section
+  id="features"
+  class="flex min-h-screen w-screen scroll-m-10 flex-col items-center justify-center bg-white py-16 md:py-20 lg:py-28"
+>
+  <ContentWrapper
+    className="font-aeonik text-primary flex w-full flex-col items-center justify-center gap-10 max-sm:px-8 sm:gap-14 md:gap-16 lg:gap-20"
+  >
+    <h1 class="text-center text-xl font-bold">Main features</h1>
+
+    <div
+      class="grid grid-cols-1 grid-rows-4 gap-y-6 md:grid-cols-2 md:grid-rows-2 md:gap-x-10 md:gap-y-10 lg:gap-x-14 lg:gap-y-14"
+    >
+      {
+        mainFeatures.map((feature) => {
+          const Icon = feature.icon;
+          return (
+            <BlockWrapper
+              size="large"
+              header={feature.title}
+              description={feature.description}
+              client:visible
+            >
+              <Icon />
+            </BlockWrapper>
+          );
+        })
+      }
+    </div>
+
+    <Button variant="outline" size="sm"
+      ><a
+        href="https://hexdocs.pm/live_debugger/0.1.3/readme.html"
+        class="flex flex-row items-center justify-center gap-1"
+      >
+        <p class="text-thin text-sm">Explore all</p>
+        <ArrowRight strokeWidth={2} />
+      </a></Button
+    >
+  </ContentWrapper>
+</section>

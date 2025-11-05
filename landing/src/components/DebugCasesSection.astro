@@ -1,0 +1,67 @@
+---
+import ContentWrapper from "../components/ContentWrapper.tsx";
+import { Card } from "@/components/ui/card";
+import { Youtube } from "lucide-react";
+import CTA from "@/components/CTA.astro";
+
+const debugCases = [
+  {
+    title: "Explore your component structure",
+    description:
+      "Quickly identify where issues originate by navigating your LiveView and component hierarchy.",
+    imageUrl: "live-debugger/assets/step-1.png",
+  },
+  {
+    title: "Inspect state in real time",
+    description:
+      "Check the current state of affected components and see how it changes as you interact with your app.",
+    imageUrl: "live-debugger/assets/step-2.png",
+  },
+  {
+    title: "Filter and focus on key callbacks",
+    description:
+      "Apply filters to isolate the most relevant callbacks for faster debugging.",
+    imageUrl: "live-debugger/assets/step-3.png",
+  },
+  {
+    title: "Observe state transitions and behavior",
+    description:
+      "Watch how each callback impacts your component’s state and behavior.",
+    imageUrl: "live-debugger/assets/step-4.png",
+  },
+];
+---
+
+<section
+  id="debugcases"
+  class="flex w-full flex-col items-center justify-center bg-white py-16 sm:py-20 md:py-32"
+>
+  <ContentWrapper
+    className="font-aeonik text-primary flex flex-col items-center justify-center gap-10 sm:gap-14 md:gap-16 lg:gap-20"
+  >
+    <h1 class="text-center text-xl font-bold">Debug case</h1>
+
+    <div
+      class="flex flex-row flex-wrap justify-around gap-6 sm:gap-12 md:gap-14 lg:gap-16"
+    >
+      {
+        debugCases.map((debugcase, i) => (
+          <Card
+            header={debugcase.title}
+            description={debugcase.description}
+            imageUrl={debugcase.imageUrl}
+            imageSide={i % 2 === 0 ? "right" : "left"}
+            badgeText={`Step ${i + 1}`}
+          />
+        ))
+      }
+    </div>
+
+    <CTA
+      title="Watch full video of this case"
+      buttonText="Go to video"
+      url="https://www.youtube.com/watch?v=mTYxjXdMoNs"
+      >{(<Youtube strokeWidth={1} />)}
+    </CTA>
+  </ContentWrapper>
+</section>
