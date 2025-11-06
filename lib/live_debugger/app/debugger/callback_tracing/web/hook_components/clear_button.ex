@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ClearButt
   use LiveDebugger.App.Web, :hook_component
 
   alias LiveDebugger.API.TracesStorage
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
 
   @required_assigns [:lv_process, :traces_empty?, :node_id]
 
@@ -20,6 +21,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ClearButt
   end
 
   attr(:label_class, :string, default: "")
+  attr(:display_mode, :atom, required: true, values: [:normal, :dropdown])
 
   @impl true
   def render(assigns) do
@@ -27,14 +29,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ClearButt
     <.button
       phx-click="clear-traces"
       aria-label="Clear traces"
-      class="flex gap-2"
+      class={["flex gap-2", @label_class]}
       variant="secondary"
       size="sm"
     >
-      <.icon name="icon-trash" class="w-4 h-4" />
-      <div class={[@label_class, "ml-1"]}>
-        Clear
-      </div>
+      <%= if @display_mode == :normal do %>
+        <.tooltip id="clear-tooltip" content="Clear">
+          <.icon name="icon-trash" class="w-4 h-4" />
+        </.tooltip>
+      <% else %>
+        <TraceSettings.dropdown_item icon="icon-trash" label="Clear" />
+      <% end %>
     </.button>
     """
   end
