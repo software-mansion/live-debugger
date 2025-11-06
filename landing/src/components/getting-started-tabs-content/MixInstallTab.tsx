@@ -1,5 +1,5 @@
 import { CodeBlock } from "./CodeBlock";
-import { InlineCode } from "./InlineCode";
+import { InlineCodeBlock } from "./InlineCodeBlock";
 
 const mixCode1 = `defp deps do
   [
@@ -17,24 +17,24 @@ export default function MixInstallTab() {
   return (
     <div className="flex flex-col gap-6">
       <p className="text-primary-foreground text-md font-normal">
-        Add <InlineCode>live_debugger</InlineCode> to your list of dependencies
-        in <InlineCode>mix.exs</InlineCode> :
+        Add <InlineCodeBlock>live_debugger</InlineCodeBlock> to your list of
+        dependencies in <InlineCodeBlock>mix.exs</InlineCodeBlock> :
       </p>
-      <CodeBlock codeString={mixCode1} />
-
-      <br />
+      <div className="mb-3 sm:mb-5 md:mb-10">
+        <CodeBlock codeString={mixCode1} />
+      </div>
 
       <p className="text-primary-foreground text-md font-normal">
         Add a line to your application root layout. It attaches{" "}
-        <InlineCode>meta</InlineCode> tag and LiveDebugger scripts.
+        <InlineCodeBlock>meta</InlineCodeBlock> tag and LiveDebugger scripts.
       </p>
-      <CodeBlock codeString={mixCode2} />
-
-      <br />
+      <div className="mb-3 sm:mb-5 md:mb-10">
+        <CodeBlock codeString={mixCode2} />
+      </div>
 
       <p className="text-primary-foreground text-md font-normal">
         After you start your application, LiveDebugger will be running at a
-        default port <InlineCode>http://localhost:4007</InlineCode>.
+        default port <InlineCodeBlock>http://localhost:4007</InlineCodeBlock>.
       </p>
     </div>
   );

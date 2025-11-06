@@ -11,7 +11,7 @@ const LATEST_NEWS_ID = "v0.4.2";
 const navItems = [
   { name: "Features", href: "#features" },
   { name: "Getting started", href: "#gettingstarted" },
-  { name: "Whats's new", href: "#whatsnew" },
+  { name: "What's new", href: "#whatsnew" },
   { name: "Roadmap", href: "#roadmap" },
 ];
 
