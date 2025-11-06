@@ -16,6 +16,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
 
   import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace
+  import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
 
   @live_stream_limit 128
   @page_size 25
@@ -110,11 +111,20 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
               lv_process_alive?={@lv_process.alive?}
             />
             <%= if not @tracing_started? do %>
-              <HookComponents.RefreshButton.render label_class="hidden @[40rem]/traces:block" />
-              <HookComponents.ClearButton.render label_class="hidden @[40rem]/traces:block" />
+              <.dropdown_menu class="@[30rem]/traces:hidden" current_filters={@current_filters} />
+
+              <HookComponents.RefreshButton.render
+                label_class="hidden @[30rem]/traces:block"
+                display_mode={:normal}
+              />
+              <HookComponents.ClearButton.render
+                label_class="hidden @[30rem]/traces:block"
+                display_mode={:normal}
+              />
               <HookComponents.FiltersFullscreen.filters_button
-                label_class="hidden @[40rem]/traces:block"
+                label_class="hidden @[30rem]/traces:block"
                 current_filters={@current_filters}
+                display_mode={:normal}
               />
             <% end %>
           </div>

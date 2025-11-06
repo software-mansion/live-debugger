@@ -121,8 +121,14 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                 lv_process_alive?={@lv_process.alive?}
               />
               <%= if not @tracing_started? do %>
-                <HookComponents.RefreshButton.render label_class="hidden @[30rem]/traces:block" />
-                <HookComponents.ClearButton.render label_class="hidden @[30rem]/traces:block" />
+                <HookComponents.RefreshButton.render
+                  label_class="hidden @[30rem]/traces:block"
+                  display_mode={:normal}
+                />
+                <HookComponents.ClearButton.render
+                  label_class="hidden @[30rem]/traces:block"
+                  display_mode={:normal}
+                />
               <% end %>
             </div>
           </div>

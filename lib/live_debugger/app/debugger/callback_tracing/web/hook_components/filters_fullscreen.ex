@@ -9,6 +9,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
   @required_assigns [:current_filters, :node_id]
 
   @fullscreen_id "filters-fullscreen"
@@ -51,6 +52,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
   attr(:current_filters, :map, required: true)
   attr(:node_id, :any, default: nil)
   attr(:label_class, :string, default: "")
+  attr(:display_mode, :atom, required: true, values: [:normal, :dropdown])
 
   def filters_button(assigns) do
     filters_number =
@@ -66,11 +68,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
         variant="secondary"
         aria-label="Open filters"
         size="sm"
-        class={["flex gap-1", if(@applied_filters_number > 0, do: "rounded-r-none")]}
+        class={["flex gap-1", if(@applied_filters_number > 0, do: "rounded-r-none"), @label_class]}
         phx-click="open-filters"
       >
-        <.icon name="icon-filters" class="w-4 h-4" />
-        <span class={["ml-1", @label_class]}>Filters</span>
+        <%= if @display_mode == :normal do %>
+          <.tooltip id="tracing-filters-tooltip" content="Filters">
+            <.icon name="icon-filters" class="w-4 h-4" />
+          </.tooltip>
+        <% else %>
+          <TraceSettings.dropdown_item icon="icon-filters" label="Filters" />
+        <% end %>
+
         <span :if={@applied_filters_number > 0}>
           (<%= @applied_filters_number %>)
         </span>
