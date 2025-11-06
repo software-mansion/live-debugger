@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { IconBox } from "@/components/ui/iconBox";
+import useMediaQuery from "@/hooks/use-media-query";
 
 import {
   Block,
@@ -24,12 +25,12 @@ const blockWrapperVariants = cva("inline-flex ", {
 });
 
 const blockWrapperContentVariants = cva(
-  "bg-slate-50 flex flex-col justify-start items-start overflow-hidden",
+  "flex flex-col justify-start items-start overflow-hidden",
   {
     variants: {
       size: {
-        default: "p-8",
-        large: "p-6 md:p-10 lg:p-14 md:w-96 lg:w-[600px]",
+        default: "p-8 bg-white",
+        large: "p-6 md:p-10 lg:p-14 md:w-96 lg:w-[600px] bg-bg-additional",
       },
     },
     defaultVariants: {
@@ -58,6 +59,7 @@ function BlockWrapper({
   ...props
 }: React.ComponentProps<"div"> & BlockWrapperProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const isSmallScreen = useMediaQuery("(max-width: 599px)");
 
   const content = (
     <div
@@ -67,7 +69,7 @@ function BlockWrapper({
       )}
     >
       <div>
-        <IconBox size="sm" variant={isHovered ? "primary" : "secondary"}>
+        <IconBox variant={isHovered ? "primary" : "secondary"}>
           {children}
         </IconBox>
       </div>
@@ -91,7 +93,7 @@ function BlockWrapper({
         setIsHovered(false);
         props.onMouseLeave?.(e);
       }}
-      height={isHovered && !isFlat ? 24 : 0}
+      height={isHovered && !isFlat && !isSmallScreen ? 24 : 0}
       depth={0}
       horizontal="left"
       vertical="top"

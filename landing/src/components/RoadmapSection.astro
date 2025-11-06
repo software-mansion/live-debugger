@@ -8,7 +8,7 @@ const accordionData = [
     versionNumber: "v0.5.0",
     bulletpoints: [
       "Improved assigns inspection and tracking",
-      "A sync loading and streams debugging",
+      "Async loading and streams debugging",
       "“Dead LiveViews” section showing recently crashed views",
       "Resource usage monitoring of LiveView processes",
       "Performance improvements",
@@ -17,33 +17,35 @@ const accordionData = [
   {
     versionNumber: "v0.6.0",
     bulletpoints: [
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      "Sed do eiusmod tempor incididunt",
-      "ut labore et dolore magna aliqua.",
+      "Ability to send custom messages to LiveViews / LiveComponents",
+      "Clearer error reporting for callback exceptions",
+      "Debugging of temporary assigns",
+      "Increased stability during application recompilation",
     ],
   },
   {
     versionNumber: "v0.7.0",
     bulletpoints: [
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      "Sed do eiusmod tempor incididunt",
-      "ut labore et dolore magna aliqua.",
+      "Extended filtering of global callback traces",
+      "Links to source files defining the LiveView / LiveComponent",
+      "Better support and representation of nested LiveViews",
+      "More reliable association between browser windows and server processes",
     ],
   },
   {
     versionNumber: "v0.8.0",
     bulletpoints: [
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      "Sed do eiusmod tempor incididunt",
-      "ut labore et dolore magna aliqua.",
+      "Running LiveDebugger UI inside an iframe for improved stability",
+      "Enhanced settings",
+      "UI redesign",
+      "Better isolation between LiveDebugger and the debugged application",
     ],
   },
   {
-    versionNumber: "1.0",
+    versionNumber: "v1.0.0",
     bulletpoints: [
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      "Sed do eiusmod tempor incididunt",
-      "ut labore et dolore magna aliqua.",
+      "Updated documentation and contributor onboarding guide",
+      "Requirement of LiveView v1.1.0+",
     ],
   },
 ];
@@ -56,11 +58,9 @@ const accordionData = [
   <ContentWrapper
     className="font-aeonik text-primary flex flex-col items-center justify-center gap-12 sm:gap-14 md:gap-16 lg:gap-18"
   >
-    <h1 class="text-primary text-center text-xl font-bold">Roadmap</h1>
+    <h1 class="text-primary text-center text-2xl font-bold">Roadmap</h1>
 
-    <div>
-      <Accordion data={accordionData} client:idle />
-    </div>
+    <Accordion data={accordionData} client:idle />
 
     <CTA
       title="Have a feature idea?"
@@ -68,11 +68,11 @@ const accordionData = [
       url="https://github.com/software-mansion/live-debugger/issues/new/choose"
     >
       <img
-        src={`live-debugger/assets/github-2.svg`}
-        class="h-13 w-13"
+        src={`/live-debugger/assets/github-3.svg`}
+        class="h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10"
         alt={"github icon"}
-        width="32"
-        height="32"
+        width="16"
+        height="16"
       />
     </CTA>
   </ContentWrapper>

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export interface InlineCodeProps extends React.HTMLAttributes<HTMLElement> {}
 
-const InlineCode = React.forwardRef<HTMLElement, InlineCodeProps>(
+const InlineCodeBlock = React.forwardRef<HTMLElement, InlineCodeProps>(
   ({ className, children, ...props }, ref) => {
     return (
       <code
@@ -11,7 +11,7 @@ const InlineCode = React.forwardRef<HTMLElement, InlineCodeProps>(
         className={cn(
           "inline-flex items-center align-baseline",
           "rounded-md border border-slate-400",
-          "bg-swm-brand-80 mx-0.5 h-7 px-1.5",
+          "bg-swm-brand-80 mx-0.5 h-5 px-1.5 md:h-7",
           "text-md text-primary-foreground font-normal",
           className,
         )}
@@ -23,5 +23,5 @@ const InlineCode = React.forwardRef<HTMLElement, InlineCodeProps>(
   },
 );
 
-InlineCode.displayName = "InlineCode";
-export { InlineCode };
+InlineCodeBlock.displayName = "InlineCodeBlock";
+export { InlineCodeBlock };

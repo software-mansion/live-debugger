@@ -12,15 +12,15 @@ const newsBlocks = [
     icon: SquareCheckBig,
   },
   {
-    title: "Better successor LiveView discovery",
+    title: "Inspecting HTML elements",
     description:
-      "Improved tracking of LiveView processes when they’re replaced due to actions like page reloads or errors, ensuring smoother debugging transitions.",
+      "Users can right-click on an HTML element and select “Inspect LiveElement” to identify which LiveView or LiveComponent is responsible for rendering it.",
     icon: SquareCheckBig,
   },
   {
-    title: "Better successor LiveView discovery",
+    title: "Search in callback traces",
     description:
-      "Improved tracking of LiveView processes when they’re replaced due to actions like page reloads or errors, ensuring smoother debugging transitions.",
+      "Adds a search option that lets users find specific text or phrases within callback traces, making it easier to navigate and analyze complex data flows.",
     icon: SquareCheckBig,
   },
 ];
@@ -28,7 +28,7 @@ const newsBlocks = [
 
 <section
   id="whatsnew"
-  class="bg-secondary-strong flex w-full scroll-m-10 items-center justify-center py-15 sm:py-20 md:py-28 lg:py-32"
+  class="bg-bg-additional flex w-full scroll-m-10 items-center justify-center py-15 sm:py-20 md:py-28 lg:py-32"
 >
   <ContentWrapper
     className="font-aeonik text-primary flex w-full flex-col items-center justify-center gap-12 sm:gap-14 md:gap-16 lg:gap-18"
@@ -37,7 +37,7 @@ const newsBlocks = [
       <Badge variant="ternary"
         ><p class="text-2xs font-medium">LiveDebugger v0.4.0</p></Badge
       >
-      <h1 class="text-primary text-center text-xl font-bold">What’s new</h1>
+      <h1 class="text-primary text-center text-2xl font-bold">What’s new</h1>
       <p class="font-regular text-xs">
         Highlights from the August 2025 update.
       </p>
@@ -46,7 +46,7 @@ const newsBlocks = [
     <div class="aspect-video h-full w-full">
       <iframe
         class="h-full w-full"
-        src="https://www.youtube.com/embed/mTYxjXdMoNs?controls=0"
+        src="https://www.youtube.com/embed/UxCUEC4Op6A?si=8rED37pD-VJs64yW?controls=0"
         title="YouTube video player"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerpolicy="strict-origin-when-cross-origin"
@@ -66,11 +66,10 @@ const newsBlocks = [
               size="default"
               header={block.title}
               description={block.description}
-              className="flex-1"
               isFlat={true}
               client:visible
             >
-              <Icon />
+              <Icon className="h-8 w-8 md:h-10 md:w-10 lg:h-11 lg:w-11 stroke-1" />
             </BlockWrapper>
           );
         })

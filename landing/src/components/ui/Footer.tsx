@@ -8,17 +8,17 @@ export interface FooterProps extends React.HTMLAttributes<HTMLElement> {}
 const logos = [
   {
     name: "Popcorn",
-    imageUrl: "live-debugger/assets/logo-popcorn.svg",
+    imageUrl: "/live-debugger/assets/logo-popcorn.svg",
     href: "https://popcorn.swmansion.com/",
   },
   {
     name: "Global Elixir Meetups",
-    imageUrl: "live-debugger/assets/logo-GEM.svg",
+    imageUrl: "/live-debugger/assets/logo-GEM.svg",
     href: "https://globalelixirmeetups.com/",
   },
   {
     name: "Membrane Live",
-    imageUrl: "live-debugger/assets/logo-membrane.svg",
+    imageUrl: "/live-debugger/assets/logo-membrane.svg",
     href: "https://membrane.stream/",
   },
 ];
@@ -76,11 +76,11 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
               <div className="z-10 flex flex-col items-center">
                 <div className="flex flex-col items-center gap-3">
                   <img
-                    src="live-debugger/assets/logo-swm.svg"
+                    src="/live-debugger/assets/logo-swm.svg"
                     alt="Software Mansion"
-                    className="h-7 w-auto"
+                    className="h-7 w-auto md:h-8 lg:h-9"
                   />
-                  <h1 className="mb-3 text-center text-lg font-bold">
+                  <h1 className="mb-3 text-center text-[24px] font-bold sm:text-[28px] lg:text-[36px]">
                     We are Software Mansion
                   </h1>
                 </div>
@@ -109,14 +109,14 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
                 </div>
               </div>
 
-              <div className="my-8 flex flex-row gap-x-10">
+              <div className="my-8 flex gap-x-10 gap-y-0 max-md:flex-col">
                 {logos.map((logo) => (
                   <a
                     key={logo.name}
                     href={logo.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex h-15 w-auto transform items-center justify-center rounded-full transition-all duration-300 ease-in-out hover:scale-130 hover:opacity-60"
+                    className="flex h-12 w-auto transform items-center justify-center rounded-full transition-all duration-300 ease-in-out hover:scale-105 hover:opacity-60 md:h-15"
                   >
                     <img
                       src={logo.imageUrl}
@@ -137,10 +137,10 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex h-6 w-6 transform items-center justify-center rounded-full transition-all duration-300 ease-in-out hover:scale-150 hover:opacity-60"
+                      className="flex h-6 w-6 transform items-center justify-center rounded-full transition-all duration-300 ease-in-out hover:scale-120 hover:opacity-60"
                     >
                       <img
-                        src={`live-debugger/assets/${icon}.svg`}
+                        src={`/live-debugger/assets/${icon}.svg`}
                         className="h-3 w-3"
                         alt={`${icon} icon`}
                         width="16"
@@ -158,14 +158,14 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
         </ContentWrapper>
         <div className="absolute -top-30 -left-30 z-1 sm:-top-40 sm:-left-20 md:-top-50 lg:-top-65 lg:-left-30">
           <img
-            src="live-debugger/assets/Vector.svg"
+            src="/live-debugger/assets/Vector.svg"
             alt=""
             className="h-60 w-auto sm:h-80 md:h-100 lg:h-120"
           />
         </div>
         <div className="absolute -right-10 -bottom-25 z-1 sm:-right-40 sm:-bottom-35 md:-right-20 md:-bottom-45 lg:-right-60 lg:-bottom-55">
           <img
-            src="live-debugger/assets/Vector.svg"
+            src="/live-debugger/assets/Vector.svg"
             alt=""
             className="h-60 w-auto sm:h-80 md:h-100 lg:h-120"
           />

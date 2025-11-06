@@ -13,7 +13,7 @@ interface RoadmapAccordionProps {
 }
 
 const itemContent = (bulletpoints: string[]) => (
-  <ul className="list-disc space-y-2 py-1.5 pl-7">
+  <ul className="w-full list-disc space-y-2 py-1.5 pl-7">
     {bulletpoints.map((point, index) => (
       <li key={index} className="text-secondary-strong text-sm font-normal">
         {point}
@@ -30,15 +30,14 @@ export function Accordion({ data }: RoadmapAccordionProps) {
           <AccordionItem value={`item-${i.toFixed()}`} key={item.versionNumber}>
             <AccordionTrigger>
               <div className="flex w-full flex-col gap-4 md:flex-row md:items-start md:gap-6">
-                <div className="flex flex-row items-start gap-6">
-                  <div className="w-8 shrink-0 text-left text-base font-medium sm:w-16 md:w-24 lg:w-42">
+                <div className="flex w-full flex-row items-start gap-6">
+                  <div className="w-8 shrink-0 text-left font-medium sm:w-16 md:w-24 lg:w-42">
                     {String(i + 1).padStart(2, "0")}
                   </div>
-                  <p className="text-left text-base font-medium md:w-64">
+                  <p className="text-left font-medium md:w-64 lg:w-100">
                     Release&nbsp;{item.versionNumber}
                   </p>
                 </div>
-
                 <AccordionContent>
                   {itemContent(item.bulletpoints)}
                 </AccordionContent>
