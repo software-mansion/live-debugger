@@ -635,13 +635,21 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       assert {:ok, updated_node} = TermParser.update_by_diff(term_node, diff)
 
       {_, user_node} = Enum.find(updated_node.children, fn {key, _} -> key == :user end)
+      {_, name_node} = Enum.find(user_node.children, fn {key, _} -> key == :name end)
       {_, settings_node} = Enum.find(user_node.children, fn {key, _} -> key == :settings end)
       {_, theme_node} = Enum.find(settings_node.children, fn {key, _} -> key == :theme end)
 
+      assert name_node.content == [
+               %DisplayElement{text: "name:", color: "text-code-1", pulse?: false},
+               %DisplayElement{text: " ", color: "text-code-2", pulse?: false},
+               %DisplayElement{text: "\"Alice\"", color: "text-code-4", pulse?: false},
+               %DisplayElement{text: ",", color: "text-code-2", pulse?: false}
+             ]
+
       assert theme_node.content == [
-               %DisplayElement{text: "theme:", color: "text-code-1"},
-               %DisplayElement{text: " ", color: "text-code-2"},
-               %DisplayElement{text: "\"dark\"", color: "text-code-4"}
+               %DisplayElement{text: "theme:", color: "text-code-1", pulse?: true},
+               %DisplayElement{text: " ", color: "text-code-2", pulse?: true},
+               %DisplayElement{text: "\"dark\"", color: "text-code-4", pulse?: true}
              ]
     end
 
@@ -725,18 +733,18 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       {_, field1_node} = Enum.find(updated_node.children, fn {key, _} -> key == :field1 end)
 
       assert field1_node.content == [
-               %DisplayElement{text: "field1:", color: "text-code-1"},
-               %DisplayElement{text: " ", color: "text-code-2"},
-               %DisplayElement{text: "\"new\"", color: "text-code-4"},
-               %DisplayElement{text: ",", color: "text-code-2"}
+               %DisplayElement{text: "field1:", color: "text-code-1", pulse?: true},
+               %DisplayElement{text: " ", color: "text-code-2", pulse?: true},
+               %DisplayElement{text: "\"new\"", color: "text-code-4", pulse?: true},
+               %DisplayElement{text: ",", color: "text-code-2", pulse?: false}
              ]
 
       {_, field2_node} = Enum.find(updated_node.children, fn {key, _} -> key == :field2 end)
 
       assert field2_node.content == [
-               %DisplayElement{text: "field2:", color: "text-code-1"},
-               %DisplayElement{text: " ", color: "text-code-2"},
-               %DisplayElement{text: "2", color: "text-code-1"}
+               %DisplayElement{text: "field2:", color: "text-code-1", pulse?: true},
+               %DisplayElement{text: " ", color: "text-code-2", pulse?: true},
+               %DisplayElement{text: "2", color: "text-code-1", pulse?: true}
              ]
     end
 
@@ -754,9 +762,9 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       assert {_, d_node} = Enum.find(updated_node.children, fn {key, _} -> key == "d" end)
 
       assert d_node.content == [
-               %DisplayElement{text: "\"d\"", color: "text-code-4"},
-               %DisplayElement{text: " => ", color: "text-code-2"},
-               %DisplayElement{text: "4", color: "text-code-1"}
+               %DisplayElement{text: "\"d\"", color: "text-code-4", pulse?: true},
+               %DisplayElement{text: " => ", color: "text-code-2", pulse?: true},
+               %DisplayElement{text: "4", color: "text-code-1", pulse?: true}
              ]
     end
 

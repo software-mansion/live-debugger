@@ -10,6 +10,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   alias LiveDebugger.App.Utils.TermDiffer
   alias LiveDebugger.App.Utils.TermDiffer.Diff
   alias LiveDebugger.App.Utils.TermParser
+  alias LiveDebugger.App.Utils.TermNode
   alias LiveDebugger.Utils.Memory
 
   @required_assigns [
@@ -27,10 +28,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     socket
     |> check_assigns!(@required_assigns)
     |> attach_hook(:node_assigns, :handle_async, &handle_async/3)
+    |> attach_hook(:node_assigns, :handle_event, &handle_event/3)
     |> register_hook(:node_assigns)
     |> assign(:node_assigns_info, AsyncResult.loading())
     |> assign(:assigns_sizes, AsyncResult.loading())
     |> assign(:pinned_assigns, %{})
+    |> put_private(:pulse_cleared?, true)
     |> assign_async_node_assigns()
   end
 
@@ -68,6 +71,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> assign(:node_assigns_info, node_assigns_info)
     |> assign(:assigns_sizes, assigns_sizes)
     |> start_async(:fetch_node_assigns, fn ->
+      # Small sleep serves here as a debounce mechanism
+      Process.sleep(100)
       NodeStateQueries.fetch_node_assigns(pid, node_id)
     end)
   end
@@ -77,20 +82,29 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> assign(:node_assigns_info, AsyncResult.failed(%AsyncResult{}, :no_node_id))
   end
 
+  defp handle_event(_, _, socket) do
+    socket
+    |> maybe_clear_term_node_pulse()
+    |> cont()
+  end
+
   defp handle_async(
          :fetch_node_assigns,
          {:ok, {:ok, node_assigns}},
          %{
            assigns: %{
-             node_assigns_info: %AsyncResult{ok?: true} = old_node_assigns_info,
+             node_assigns_info: %AsyncResult{ok?: true},
              pinned_assigns: pinned_assigns
            }
          } = socket
        ) do
-    node_assigns_info = update_node_assigns_info(old_node_assigns_info, node_assigns)
+    socket = maybe_clear_term_node_pulse(socket)
+
+    node_assigns_info = update_node_assigns_info(socket.assigns.node_assigns_info, node_assigns)
     pinned_assigns = update_pinned_assigns(pinned_assigns, node_assigns)
 
     socket
+    |> put_private(:pulse_cleared?, false)
     |> assign(:node_assigns_info, node_assigns_info)
     |> assign(:pinned_assigns, pinned_assigns)
     |> assign_size_async(node_assigns)
@@ -184,5 +198,23 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
 
   defp assigns_serialized_size(assigns) do
     assigns |> Memory.serialized_term_size() |> Memory.bytes_to_pretty_string()
+  end
+
+  defp maybe_clear_term_node_pulse(%{private: %{pulse_cleared?: true}} = socket) do
+    socket
+  end
+
+  defp maybe_clear_term_node_pulse(%{private: %{pulse_cleared?: false}} = socket) do
+    case socket.assigns.node_assigns_info do
+      %AsyncResult{ok?: true, result: {node_assigns, term_node, copy_string}} ->
+        term_node = TermNode.set_pulse(term_node, false, recursive: true)
+
+        socket
+        |> put_private(:pulse_cleared?, true)
+        |> assign(:node_assigns_info, AsyncResult.ok({node_assigns, term_node, copy_string}))
+
+      _ ->
+        socket
+    end
   end
 end

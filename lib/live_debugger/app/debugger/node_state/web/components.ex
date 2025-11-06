@@ -79,7 +79,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           </div>
           <div class="p-4 relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
-            <ElixirDisplay.static_term node={@term_node} selectable_level={1} />
+            <ElixirDisplay.static_term id="fullscreen-" node={@term_node} selectable_level={1} />
           </div>
         </div>
       </.fullscreen>

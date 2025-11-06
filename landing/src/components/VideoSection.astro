@@ -1,0 +1,40 @@
+---
+import ContentWrapper from "../components/ContentWrapper.tsx";
+---
+
+<section
+  id="videosection"
+  class="bg-primary relative flex w-full scroll-m-10 flex-col items-center justify-center overflow-hidden py-16 sm:py-16 md:py-20 lg:py-30"
+>
+  <ContentWrapper
+    className="font-aeonik text-primary flex w-full flex-col items-center justify-center gap-6 sm:gap-10 md:gap-12 lg:gap-20"
+  >
+    <h1 class="text-primary-foreground z-10 text-center text-xl font-bold">
+      See it in action
+    </h1>
+
+    <div class="z-10 h-auto w-full">
+      <iframe
+        class="aspect-video h-full w-full"
+        src="https://www.youtube.com/embed/yv39lCkoZKM?si=6ZTsFuUPPffDzzet"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      >
+      </iframe>
+    </div>
+  </ContentWrapper>
+
+  <div
+    class="absolute -right-15 -bottom-20 z-1 sm:-right-15 sm:-bottom-25 lg:-right-45 lg:-bottom-30"
+  >
+    <img
+      src="/live-debugger/assets/Vector.svg"
+      alt=""
+      class="h-60 w-auto sm:h-80 md:h-100 lg:h-120"
+    />
+  </div>
+</section>
+
+<!-- class="font-aeonik text-primary flex flex-col items-center justify-center gap-6 max-sm:px-8 sm:w-[552px] sm:max-w-[552px] sm:gap-10 md:w-[936px] md:max-w-[936px] md:gap-12 lg:w-[1360px] lg:max-w-[1360px] lg:gap-20" -->

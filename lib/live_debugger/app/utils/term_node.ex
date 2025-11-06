@@ -42,11 +42,12 @@ defmodule LiveDebugger.App.Utils.TermNode do
 
   defmodule DisplayElement do
     @moduledoc false
-    defstruct [:text, color: nil]
+    defstruct [:text, color: nil, pulse?: false]
 
     @type t :: %__MODULE__{
             text: String.t(),
-            color: String.t() | nil
+            color: String.t() | nil,
+            pulse?: boolean()
           }
 
     @spec blue(String.t()) :: t()
@@ -60,6 +61,11 @@ defmodule LiveDebugger.App.Utils.TermNode do
 
     @spec green(String.t()) :: t()
     def green(text), do: %__MODULE__{text: text, color: "text-code-4"}
+
+    @spec set_pulse(t(), boolean()) :: t()
+    def set_pulse(%__MODULE__{} = element, pulse?) do
+      %__MODULE__{element | pulse?: pulse?}
+    end
   end
 
   @spec new(kind(), [DisplayElement.t()], Keyword.t()) :: t()
@@ -178,6 +184,28 @@ defmodule LiveDebugger.App.Utils.TermNode do
     else
       term_node
     end
+  end
+
+  @spec set_pulse(t(), boolean(), recursive: boolean()) :: t()
+  def set_pulse(%__MODULE__{} = term_node, pulse?, opts \\ []) do
+    content = Enum.map(term_node.content, &DisplayElement.set_pulse(&1, pulse?))
+    expanded_before = Enum.map(term_node.expanded_before, &DisplayElement.set_pulse(&1, pulse?))
+    expanded_after = Enum.map(term_node.expanded_after, &DisplayElement.set_pulse(&1, pulse?))
+
+    children =
+      if Keyword.get(opts, :recursive, true) do
+        Enum.map(term_node.children, fn {key, child} -> {key, set_pulse(child, pulse?, opts)} end)
+      else
+        term_node.children
+      end
+
+    %__MODULE__{
+      term_node
+      | content: content,
+        expanded_before: expanded_before,
+        expanded_after: expanded_after,
+        children: children
+    }
   end
 
   defp open_first_element(%__MODULE__{} = term_node) do

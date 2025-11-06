@@ -170,4 +170,100 @@ defmodule LiveDebugger.App.Utils.TermNodeTest do
                TermNode.update_child(term_node, 1, &Function.identity/1)
     end
   end
+
+  describe "set_pulse/3" do
+    test "updates term node all display elements pulse? field" do
+      term_node =
+        Fakes.term_node(
+          content: [
+            Fakes.display_element(text: "key:", pulse?: false),
+            Fakes.display_element(text: " ", pulse?: false),
+            Fakes.display_element(text: "%{...}", pulse?: false)
+          ],
+          expanded_before: [Fakes.display_element(text: "%{", pulse?: false)],
+          expanded_after: [Fakes.display_element(text: "}", pulse?: false)],
+          children: [
+            {:key,
+             Fakes.term_node(
+               content: [
+                 Fakes.display_element(text: "counter:", pulse?: false),
+                 Fakes.display_element(text: " ", pulse?: false),
+                 Fakes.display_element(text: "3", pulse?: false)
+               ],
+               expanded_before: [],
+               expanded_after: []
+             )}
+          ]
+        )
+
+      assert %TermNode{
+               content: [
+                 %DisplayElement{text: "key:", pulse?: true},
+                 %DisplayElement{text: " ", pulse?: true},
+                 %DisplayElement{text: "%{...}", pulse?: true}
+               ],
+               expanded_before: [%DisplayElement{text: "%{", pulse?: true}],
+               expanded_after: [%DisplayElement{text: "}", pulse?: true}],
+               children: [
+                 {:key,
+                  %TermNode{
+                    content: [
+                      %DisplayElement{text: "counter:", pulse?: false},
+                      %DisplayElement{text: " ", pulse?: false},
+                      %DisplayElement{text: "3", pulse?: false}
+                    ],
+                    expanded_before: [],
+                    expanded_after: []
+                  }}
+               ]
+             } = TermNode.set_pulse(term_node, true, recursive: false)
+    end
+
+    test "updates term node all display elements pulse? field and recursively all children" do
+      term_node =
+        Fakes.term_node(
+          content: [
+            Fakes.display_element(text: "key:", pulse?: false),
+            Fakes.display_element(text: " ", pulse?: false),
+            Fakes.display_element(text: "%{...}", pulse?: false)
+          ],
+          expanded_before: [Fakes.display_element(text: "%{", pulse?: false)],
+          expanded_after: [Fakes.display_element(text: "}", pulse?: false)],
+          children: [
+            {:key,
+             Fakes.term_node(
+               content: [
+                 Fakes.display_element(text: "counter:", pulse?: false),
+                 Fakes.display_element(text: " ", pulse?: false),
+                 Fakes.display_element(text: "3", pulse?: false)
+               ],
+               expanded_before: [],
+               expanded_after: []
+             )}
+          ]
+        )
+
+      assert %TermNode{
+               content: [
+                 %DisplayElement{text: "key:", pulse?: true},
+                 %DisplayElement{text: " ", pulse?: true},
+                 %DisplayElement{text: "%{...}", pulse?: true}
+               ],
+               expanded_before: [%DisplayElement{text: "%{", pulse?: true}],
+               expanded_after: [%DisplayElement{text: "}", pulse?: true}],
+               children: [
+                 {:key,
+                  %TermNode{
+                    content: [
+                      %DisplayElement{text: "counter:", pulse?: true},
+                      %DisplayElement{text: " ", pulse?: true},
+                      %DisplayElement{text: "3", pulse?: true}
+                    ],
+                    expanded_before: [],
+                    expanded_after: []
+                  }}
+               ]
+             } = TermNode.set_pulse(term_node, true, recursive: true)
+    end
+  end
 end

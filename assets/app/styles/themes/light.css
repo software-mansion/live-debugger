@@ -84,4 +84,7 @@
   --search-highlight-text: var(--slate-900);
 
   --diff-border: var(--swm-brand-additional);
+
+  --diff-pulse-bg: var(--swm-sea-blue-60);
+  --diff-pulse-text: var(--slate-900);
 }

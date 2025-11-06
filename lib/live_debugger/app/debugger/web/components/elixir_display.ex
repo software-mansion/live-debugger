@@ -59,6 +59,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
     """
   end
 
+  attr(:id, :string, default: "")
   attr(:node, TermNode, required: true)
   attr(:selectable_level, :integer, default: nil)
   attr(:level, :integer, default: 0)
@@ -89,36 +90,47 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
         >
           <:label :let={open}>
             <%= if open do %>
-              <.text_items items={@node.expanded_before} />
+              <.text_items id={@id <> @node.id <> "-expanded-before"} items={@node.expanded_before} />
             <% else %>
-              <.text_items items={@node.content} />
+              <.text_items id={@id <> @node.id <> "-content"} items={@node.content} />
             <% end %>
           </:label>
           <ol class="m-0 ml-[2ch] block list-none p-0">
             <li :for={{_, child} <- @node.children} class="flex flex-col">
-              <.static_term node={child} selectable_level={@selectable_level} level={@level + 1} />
+              <.static_term
+                id={@id}
+                node={child}
+                selectable_level={@selectable_level}
+                level={@level + 1}
+              />
             </li>
           </ol>
           <div class="ml-[2ch]">
-            <.text_items items={@node.expanded_after} />
+            <.text_items id={@id <> @node.id <> "-expanded-after"} items={@node.expanded_after} />
           </div>
         </.static_collapsible>
       <% else %>
         <div class="ml-[2ch]">
-          <.text_items items={@node.content} />
+          <.text_items id={@id <> @node.id} items={@node.content} />
         </div>
       <% end %>
     </div>
     """
   end
 
+  attr(:id, :string, default: nil)
   attr(:items, :list, required: true)
 
   defp text_items(assigns) do
     ~H"""
     <div class="flex">
-      <%= for item <- @items do %>
-        <span class={"#{text_item_color_class(item)}"}>
+      <%= for {item, index} <- Enum.with_index(@items) do %>
+        <span
+          id={if(@id, do: @id <> "-#{index}")}
+          phx-hook={if(@id, do: "DiffPulse")}
+          data-pulse={item.pulse?}
+          class={"#{text_item_color_class(item)}"}
+        >
           <pre data-text_item="true"><%= item.text %></pre>
         </span>
       <% end %>

@@ -1,0 +1,80 @@
+---
+import ContentWrapper from "../components/ContentWrapper.tsx";
+import { Badge } from "./ui/badge";
+import { BlockWrapper } from "./ui/blockWrapper";
+import { SquareCheckBig } from "lucide-react";
+
+const newsBlocks = [
+  {
+    title: "Better successor LiveView discovery",
+    description:
+      "Improved tracking of LiveView processes when they’re replaced due to actions like page reloads or errors, ensuring smoother debugging transitions.",
+    icon: SquareCheckBig,
+  },
+  {
+    title: "Better successor LiveView discovery",
+    description:
+      "Improved tracking of LiveView processes when they’re replaced due to actions like page reloads or errors, ensuring smoother debugging transitions.",
+    icon: SquareCheckBig,
+  },
+  {
+    title: "Better successor LiveView discovery",
+    description:
+      "Improved tracking of LiveView processes when they’re replaced due to actions like page reloads or errors, ensuring smoother debugging transitions.",
+    icon: SquareCheckBig,
+  },
+];
+---
+
+<section
+  id="whatsnew"
+  class="bg-secondary-strong flex w-full scroll-m-10 items-center justify-center py-15 sm:py-20 md:py-28 lg:py-32"
+>
+  <ContentWrapper
+    className="font-aeonik text-primary flex w-full flex-col items-center justify-center gap-12 sm:gap-14 md:gap-16 lg:gap-18"
+  >
+    <div class="flex flex-col items-center justify-center gap-4">
+      <Badge variant="ternary"
+        ><p class="text-2xs font-medium">LiveDebugger v0.4.0</p></Badge
+      >
+      <h1 class="text-primary text-center text-xl font-bold">What’s new</h1>
+      <p class="font-regular text-xs">
+        Highlights from the August 2025 update.
+      </p>
+    </div>
+
+    <div class="aspect-video h-full w-full">
+      <iframe
+        class="h-full w-full"
+        src="https://www.youtube.com/embed/mTYxjXdMoNs?controls=0"
+        title="YouTube video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      >
+      </iframe>
+    </div>
+
+    <div
+      class="flex w-full items-start justify-between gap-x-8 gap-y-6 max-md:flex-col"
+    >
+      {
+        newsBlocks.map((block) => {
+          const Icon = block.icon;
+          return (
+            <BlockWrapper
+              size="default"
+              header={block.title}
+              description={block.description}
+              className="flex-1"
+              isFlat={true}
+              client:visible
+            >
+              <Icon />
+            </BlockWrapper>
+          );
+        })
+      }
+    </div>
+  </ContentWrapper>
+</section>
