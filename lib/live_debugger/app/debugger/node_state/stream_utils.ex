@@ -92,11 +92,26 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
         {dom_id, at, data, limit, updated?}, acc ->
           [{dom_id, at, data, limit, updated?} | acc]
 
+        {dom_id, at, data, limit}, acc ->
+          [{dom_id, at, data, limit} | acc]
+
+        {dom_id, at, data}, acc ->
+          [{dom_id, at, data} | acc]
+
         _, acc ->
           acc
       end)
 
-    Enum.reject(current, fn {dom_id, _at, _data, _limit, _updated?} -> dom_id in deletes end)
+    Enum.reject(current, fn
+      {dom_id, _at, _data, _limit, _updated?} ->
+        dom_id in deletes
+
+      {dom_id, _at, _data, _limit} ->
+        dom_id in deletes
+
+      {dom_id, _at, _data} ->
+        dom_id in deletes
+    end)
   end
 
   defp collect_config(update_list) do
