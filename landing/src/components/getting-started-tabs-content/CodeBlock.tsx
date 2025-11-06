@@ -34,18 +34,21 @@ export function CodeBlock({ codeString, ...props }: CodeBlockProps) {
         size="xs"
         className={cn(
           "max-sm:left-1/2 max-sm:-translate-x-1/2",
-          "absolute bottom-5 h-10 w-24",
-          "sm:right-4 md:top-4",
-          "text-primary-foreground opacity-0 transition-opacity",
+          "absolute bottom-5",
+          "sm:right-4 md:top-4 md:bottom-auto",
+          "text-primary-foreground opacity-0 transition-opacity max-sm:opacity-100",
           "group-hover:opacity-100",
           "focus-visible:ring-ring focus-visible:opacity-100 focus-visible:ring-2",
         )}
         onClick={handleCopy}
       >
-        <p className="text-thin text-2xs">{isCopied ? "Copied!" : "Copy"}</p>
-        {!isCopied && <Copy strokeWidth={2} className="h-4 w-4" />}
+        <p className="text-medium px-3 text-sm">
+          {isCopied ? "Copied!" : "Copy"}
+        </p>
+        {!isCopied && (
+          <Copy strokeWidth={2} className="h-4 w-4 md:h-5 md:w-5" />
+        )}
       </Button>
-
       <pre
         className={cn(
           "bg-swm-brand-80 min-h-35 overflow-x-auto p-6 max-md:pb-18 max-sm:pb-20",

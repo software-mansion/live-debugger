@@ -127,7 +127,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         depth={0}
         className={cn(
           "group",
-          "relative flex w-full max-w-[1360px] flex-col items-start justify-center bg-slate-100 p-6 md:p-8 lg:p-10",
+          "bg-bg-additional relative flex w-full max-w-[1360px] flex-col items-start justify-center p-6 md:p-8 lg:p-10",
           className,
         )}
         {...props}

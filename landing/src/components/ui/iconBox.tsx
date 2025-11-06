@@ -4,21 +4,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const iconBoxVariants = cva(
-  "inline-flex items-center flex-col justify-center w-16 h-16 p-8 rounded-lg",
+  "flex items-center flex-col justify-center rounded-lg p-1 h-12 w-12 md:h-14 md:w-14 lg:h-16 lg:w-16",
   {
     variants: {
       variant: {
         primary: "bg-primary text-primary-foreground",
         secondary: "bg-slate-300 text-secondary-strong-foreground",
       },
-      size: {
-        default: "p-1 [&_svg:not([class*='size-'])]:size-10",
-        sm: "p-1 [&_svg:not([class*='size-'])]:size-8",
-      },
     },
     defaultVariants: {
       variant: "primary",
-      size: "default",
     },
   },
 );
@@ -26,7 +21,6 @@ const iconBoxVariants = cva(
 function IconBox({
   className,
   variant,
-  size,
   asChild = false,
   children,
   ...props
@@ -35,15 +29,13 @@ function IconBox({
     asChild?: boolean;
   }) {
   return (
-    <span
+    <div
       data-slot="button"
-      className={cn(iconBoxVariants({ variant, size, className }))}
+      className={cn(iconBoxVariants({ variant, className }))}
       {...props}
     >
-      <div className="flex items-center justify-center gap-2.5 px-2">
-        {children}
-      </div>
-    </span>
+      {children}
+    </div>
   );
 }
 

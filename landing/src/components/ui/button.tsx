@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-aeonik text-md transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-aeonik cursor-pointer text-md transition-all disabled:opacity-50 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
   {
     variants: {
       variant: {
@@ -18,9 +18,9 @@ const buttonVariants = cva(
           "bg-tertiary text-tertiary-foreground hover:bg-tertiary-hover",
       },
       size: {
-        default: "max-sm:w-full px-5 py-3 md:py-3.5",
-        sm: "max-sm:w-full px-5 py-2",
-        xs: "max-sm:w-[calc(100%-50px)] px-5 py-2",
+        default: "max-sm:w-full px-6 py-3 md:py-3",
+        sm: "max-sm:w-full px-5 py-3 md:py-3.5",
+        xs: "max-sm:w-[calc(100%-50px)] px-3 py-3 md:py-3",
       },
     },
     defaultVariants: {
@@ -61,9 +61,7 @@ function Button({
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     >
-      <div className="flex items-center justify-center gap-2.5 px-2">
-        {children}
-      </div>
+      <div className="flex items-center justify-center">{children}</div>
     </Comp>
   );
 }
