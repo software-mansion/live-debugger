@@ -9,7 +9,7 @@ defmodule LiveDebugger.E2E.StreamsTest do
   end
 
   @sessions 2
-  feature "User can see elements and changes of the stream updates", %{
+  feature "User can see modifications of the stream updates", %{
     sessions: [dev_app, debugger]
   } do
     dev_app
@@ -56,7 +56,7 @@ defmodule LiveDebugger.E2E.StreamsTest do
   end
 
   @sessions 2
-  feature "The user can see modifications to the stream that occurred before it was rendered in debugger.",
+  feature "User can see modifications to the stream that occurred before it was rendered in debugger.",
           %{
             sessions: [dev_app, debugger]
           } do
