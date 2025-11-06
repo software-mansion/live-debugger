@@ -9,7 +9,7 @@ defmodule LiveDebugger.E2E.StreamsTest do
   end
 
   @sessions 2
-  feature "User can see elements and changes of the stream", %{
+  feature "User can see elements and changes of the stream updates", %{
     sessions: [dev_app, debugger]
   } do
     dev_app
@@ -53,6 +53,37 @@ defmodule LiveDebugger.E2E.StreamsTest do
 
     debugger
     |> assert_has(new_items_display())
+  end
+
+  @sessions 2
+  feature "The user can see modifications to the stream that occurred before it was rendered in debugger.",
+          %{
+            sessions: [dev_app, debugger]
+          } do
+    dev_app
+    |> visit(@dev_app_url <> "/stream")
+    |> click(create_item_button())
+    |> click(create_item_button())
+    |> click(reset_items_button())
+    |> click(create_item_button())
+    |> click(create_item_button())
+    |> click(delete_item_button())
+    |> click(create_another_item_button())
+    |> click(create_another_item_button())
+    |> click(add_new_stream_button())
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(items_display())
+    |> click(items_display())
+    |> assert_has(another_items_display())
+    |> click(another_items_display())
+    |> assert_has(new_items_display())
+
+    debugger
+    |> assert_has(another_items_stream(count: 2))
+    |> assert_has(items_stream(count: 1))
   end
 
   def create_item_button(), do: css("button#create-item")
