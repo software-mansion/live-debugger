@@ -80,9 +80,9 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
                     alt="Software Mansion"
                     className="h-7 w-auto md:h-8 lg:h-9"
                   />
-                  <h1 className="mb-3 text-center text-[24px] font-bold sm:text-[28px] lg:text-[36px]">
+                  <h2 className="mb-3 text-center text-[24px] font-bold sm:text-[28px] lg:text-[36px]">
                     We are Software Mansion
-                  </h1>
+                  </h2>
                 </div>
 
                 <h2 className="w-full text-center text-xs font-thin md:w-1/2">
@@ -100,10 +100,10 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
                   <a
                     href="https://swmansion.com/"
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="noopener"
                   >
                     <Button variant="secondary" size="sm">
-                      <p className="text-medium text-2xs">Learn more</p>
+                      <p className="text-medium text-sm">Learn more</p>
                     </Button>
                   </a>
                 </div>
@@ -115,7 +115,7 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
                     key={logo.name}
                     href={logo.href}
                     target="_blank"
-                    rel="noopener noreferrer"
+                    rel="noopener"
                     className="flex h-12 w-auto transform items-center justify-center rounded-full transition-all duration-300 ease-in-out hover:scale-105 hover:opacity-60 md:h-15"
                   >
                     <img
