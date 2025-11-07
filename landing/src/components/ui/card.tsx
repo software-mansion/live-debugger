@@ -29,9 +29,9 @@ const TextContent: React.FC<Omit<CardProps, "imageUrl" | "className">> = ({
         </Badge>
       </>
     )}
-    <div className="text-primary font-aeonik self-stretch text-xl leading-tight font-bold lg:leading-[50px]">
+    <h3 className="text-primary font-aeonik self-stretch text-xl leading-tight font-bold lg:leading-[50px]">
       {header}
-    </div>
+    </h3>
     <div className="text-primary font-aeonik text-md self-stretch font-normal">
       {description}
     </div>

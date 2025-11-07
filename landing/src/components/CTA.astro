@@ -14,7 +14,12 @@ const url = Astro.props.url;
   </IconBox>
   <h2 class="text-md font-medium">{title}</h2>
   <Button variant="outline" size="sm">
-    <a href={url} class="flex flex-row items-center justify-center">
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="flex flex-row items-center justify-center"
+    >
       <p class="text-medium px-2 text-sm">{buttonText}</p>
       <ArrowRight strokeWidth={1} className="h-5 w-5 md:h-6 md:w-6" />
     </a>

@@ -73,9 +73,7 @@ function BlockWrapper({
           {children}
         </IconBox>
       </div>
-      <div className="text-primary text-md font-aeonik font-medium">
-        {header}
-      </div>
+      <h3 className="text-primary text-md font-aeonik font-medium">{header}</h3>
       <div className="text-secondary font-aeonik text-sm font-normal">
         {description}
       </div>

@@ -41,7 +41,7 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "inline-flex w-full items-center justify-center pb-4 whitespace-nowrap",
+        "inline-flex w-full cursor-pointer items-center justify-center pb-4 whitespace-nowrap",
         "font-aeonik text-md font-medium",
         "transition-all disabled:pointer-events-none disabled:opacity-50",
         "text-primary-foreground border-b-2",
