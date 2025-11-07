@@ -9,7 +9,7 @@ interface CodeBlockProps extends React.HTMLAttributes<HTMLPreElement> {
   codeString: string;
 }
 
-export function CodeBlock({ codeString, ...props }: CodeBlockProps) {
+export function CodeBlock({ codeString }: CodeBlockProps) {
   const [isCopied, setIsCopied] = React.useState(false);
 
   const handleCopy = () => {
@@ -42,25 +42,26 @@ export function CodeBlock({ codeString, ...props }: CodeBlockProps) {
         )}
         onClick={handleCopy}
       >
-        <p className="text-medium px-3 text-sm">
-          {isCopied ? "Copied!" : "Copy"}
-        </p>
-        {!isCopied && (
-          <Copy strokeWidth={2} className="h-4 w-4 md:h-5 md:w-5" />
-        )}
+        <div className="flex items-center gap-2.5 px-2 align-middle">
+          <p className="text-medium text-sm">{isCopied ? "Copied!" : "Copy"}</p>
+          {!isCopied && (
+            <Copy strokeWidth={2} className="h-4 w-4 md:h-5 md:w-5" />
+          )}
+        </div>
       </Button>
-      <pre
-        className={cn(
-          "bg-swm-brand-80 min-h-35 overflow-x-auto p-6 max-md:pb-18 max-sm:pb-20",
-          "text-primary-foreground text-sm",
-          props.className,
-        )}
-        {...props}
+      <div
+        className={
+          "bg-swm-brand-80 min-h-35 overflow-x-auto p-6 max-md:pb-18 max-sm:pb-20"
+        }
       >
-        <p className="font-lg font-secondary-strong font-normal">
+        <code
+          className={
+            "text-secondary-strong font-aeonik text-md font-normal whitespace-pre"
+          }
+        >
           {codeString}
-        </p>
-      </pre>
+        </code>
+      </div>
     </div>
   );
 }

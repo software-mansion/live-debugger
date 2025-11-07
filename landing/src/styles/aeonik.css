@@ -32,6 +32,14 @@
 
 @font-face {
   font-family: "Aeonik";
+  src: url("/fonts/Aeonik-Thin.otf") format("opentype");
+  font-weight: 250;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Aeonik";
   src: url("/fonts/Aeonik-Light.otf") format("opentype");
   font-weight: 300;
   font-style: normal;

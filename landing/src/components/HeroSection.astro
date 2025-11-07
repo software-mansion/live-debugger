@@ -14,16 +14,19 @@ import { Button } from "@/components/ui/button";
       class="animate-fade-in-down z-10 flex w-full flex-col items-center justify-center gap-8 sm:h-1/2"
     >
       <div class="flex flex-col items-center justify-center gap-5 md:gap-6">
-        <div
-          class="flex flex-row items-center justify-center gap-3 text-sm font-normal sm:gap-4 md:gap-5 lg:gap-6"
-        >
-          <p>Created by</p>
-          <img
-            src="/live-debugger/assets/logo-swm.svg"
-            alt="Software Mansion"
-            class="h-10 w-auto md:h-12"
-          />
-        </div>
+        <a href="https://swmansion.com/" target="_blank" rel="noopener">
+          <div
+            class="flex flex-row items-center justify-center gap-3 text-sm font-normal sm:gap-4 md:gap-5 lg:gap-6"
+          >
+            <p>Created by</p>
+            <img
+              src="/live-debugger/assets/logo-swm.svg"
+              alt="Software Mansion"
+              class="h-10 w-auto md:h-12"
+            />
+          </div>
+        </a>
+
         <div class="flex flex-col items-center justify-center gap-4 md:gap-5">
           <h1
             class="max-w-[500px] text-center text-4xl font-bold md:text-5xl lg:text-6xl"
@@ -36,12 +39,16 @@ import { Button } from "@/components/ui/button";
         </div>
       </div>
       <div class="mt-5 flex gap-4 px-2 max-sm:w-full max-sm:flex-col">
-        <Button variant="secondary"
-          ><p class="text-medium text-sm tracking-normal">Get started</p>
-        </Button>
-        <Button variant="defaultWithOutline"
-          ><p class="text-medium px-2 text-sm">See it in action</p>
-        </Button>
+        <a href="#gettingstarted">
+          <Button variant="secondary"
+            ><p class="text-medium text-sm">Get started</p>
+          </Button>
+        </a>
+        <a href="#videosection">
+          <Button variant="defaultWithOutline"
+            ><p class="text-medium px-2 text-sm">See it in action</p>
+          </Button>
+        </a>
       </div>
     </div>
 
