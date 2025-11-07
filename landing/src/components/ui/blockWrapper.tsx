@@ -64,7 +64,7 @@ function BlockWrapper({
   const content = (
     <div
       className={cn(
-        "flex flex-col items-start justify-start gap-4 lg:gap-6 md:lg:gap-5",
+        "flex h-full flex-col items-start justify-start gap-4 lg:gap-6 md:lg:gap-5",
         size === "large" ? "self-stretch" : "self-stretch",
       )}
     >
@@ -73,8 +73,8 @@ function BlockWrapper({
           {children}
         </IconBox>
       </div>
-      <h3 className="text-primary text-md font-aeonik font-medium">{header}</h3>
-      <div className="text-secondary font-aeonik text-sm font-normal">
+      <h3 className="text-primary font-aeonik text-lg font-medium">{header}</h3>
+      <div className="text-secondary font-aeonik text-md font-normal">
         {description}
       </div>
     </div>
