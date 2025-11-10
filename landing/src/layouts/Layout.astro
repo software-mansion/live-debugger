@@ -14,8 +14,12 @@ const { title } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>{title}</title>
+    <link rel="icon" type="image/svg+xml" href="/live-debugger/favicon.svg" />
+    <title>LiveDebugger: LiveView debugging made simple</title>
+    <meta
+      name="description"
+      content="A must-have tool for Elixir developers. See your LiveComponents tree, inspect assigns, trace and filter callback executions, and more."
+    />
   </head>
   <body>
     <Header client:load />
