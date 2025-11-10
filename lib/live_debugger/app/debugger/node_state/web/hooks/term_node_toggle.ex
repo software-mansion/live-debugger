@@ -20,6 +20,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.TermNodeToggle do
   end
 
   defp handle_event("toggle_node", %{"id" => id}, socket) do
+    dbg(id)
+
     node_assigns_info =
       with %AsyncResult{ok?: true, result: {node_assigns, term_node, copy_string}} <-
              socket.assigns.node_assigns_info,
@@ -38,7 +40,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.TermNodeToggle do
 
     socket
     |> assign(:node_assigns_info, node_assigns_info)
-    |> halt()
+    |> cont()
   end
 
   defp handle_event("toggle_node", _, socket), do: {:halt, socket}
