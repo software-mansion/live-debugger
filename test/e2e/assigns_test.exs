@@ -30,9 +30,11 @@ defmodule LiveDebugger.E2E.AssignsTest do
     LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
 
     dev_app
+    |> resize_window(3840, 2160)
     |> visit(@dev_app_url)
 
     debugger
+    |> resize_window(3840, 2160)
     |> visit("/")
     |> click(first_link())
     |> assert_has(css("#pinned-assigns", text: "You have no pinned assigns."))
