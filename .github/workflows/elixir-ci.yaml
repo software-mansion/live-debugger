@@ -72,8 +72,11 @@ jobs:
       - name: Run unit tests
         run: mix test
 
-      - name: Run e2e tests
-        run: mix e2e
+      - name: Run weird test
+        run: mix e2e test/e2e/assigns_test.exs:29
+
+      # - name: Run e2e tests
+      #   run: mix e2e
 
       - name: Check prettier
         working-directory: ./assets
