@@ -36,19 +36,13 @@ defmodule LiveDebugger.E2E.AssignsTest do
     |> visit("/")
     |> click(first_link())
     |> assert_has(css("#pinned-assigns", text: "You have no pinned assigns."))
-    |> hover(assigns_entry(key: "counter", value: "0"))
-
-    Process.sleep(100)
 
     debugger
-    |> click(pin_button("counter"))
+    |> click_pin_button("counter")
     |> assert_has(pinned_assigns_entry(key: "counter", value: "0"))
-    |> hover(assigns_entry(key: "datetime", value: "nil"))
-
-    Process.sleep(100)
 
     debugger
-    |> click(pin_button("datetime"))
+    |> click_pin_button("datetime")
     |> assert_has(pinned_assigns_entry(key: "datetime", value: "nil"))
 
     dev_app
@@ -63,10 +57,8 @@ defmodule LiveDebugger.E2E.AssignsTest do
     |> assert_has(pinned_assigns_entry(key: "datetime", value: "~U["))
 
     debugger
-    |> hover(pinned_assigns_entry(key: "counter", value: "2"))
-    |> click(unpin_button("counter"))
-    |> hover(pinned_assigns_entry(key: "datetime", value: "~U["))
-    |> click(unpin_button("datetime"))
+    |> click_unpin_button("counter")
+    |> click_unpin_button("datetime")
     |> assert_has(css("#pinned-assigns", text: "You have no pinned assigns."))
   end
 
@@ -84,11 +76,31 @@ defmodule LiveDebugger.E2E.AssignsTest do
 
   defp fullscreen_button(), do: css("button[aria-label=\"Icon expand\"]")
 
-  defp pin_button(assign_key, opts \\ []) do
-    css("button[phx-click=\"pin-assign\"][phx-value-key=\"#{assign_key}\"]", opts)
+  defp click_pin_button(debugger, assign_key) do
+    selector = "button[phx-click=\"pin-assign\"][phx-value-key=\"#{assign_key}\"]"
+
+    debugger
+    |> show_button(selector)
+    |> click(css(selector))
   end
 
-  defp unpin_button(assign_key, opts \\ []) do
-    css("button[phx-click=\"unpin-assign\"][phx-value-key=\"#{assign_key}\"]", opts)
+  defp click_unpin_button(debugger, assign_key) do
+    selector = "button[phx-click=\"unpin-assign\"][phx-value-key=\"#{assign_key}\"]"
+
+    debugger
+    |> show_button(selector)
+    |> click(css(selector))
+  end
+
+  # Apparently hover does not work on our CI and since testing hover is not a priority for now, we decided to bypass it.
+  defp show_button(debugger, selector) do
+    debugger
+    |> execute_script(
+      """
+        var el = document.querySelector(arguments[0]);
+        if (el) { el.style.display = 'block'; }
+      """,
+      [selector]
+    )
   end
 end
