@@ -35,6 +35,19 @@ jobs:
           elixir-version: "1.19.1" # [Required] Define the Elixir version
           otp-version: "28.1.1" # [Required] Define the Erlang/OTP version
 
+      - name: Setup Google Chrome (stable)
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Setup Chromedriver (match Chrome)
+        uses: nanasess/setup-chromedriver@v2
+
+      - name: Print browser versions
+        run: |
+          google-chrome --version || chromium-browser --version || true
+          chromedriver --version || true
+
       - name: Cache Mix
         uses: actions/cache@v4
         with:
