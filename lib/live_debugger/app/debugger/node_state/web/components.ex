@@ -58,7 +58,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           data-search_phrase={@assigns_search_phrase}
         >
           <div id="pinned-assigns" class="p-4 border-b border-default-border">
-            <.pinned_assigns_section term_node={@term_node} pinned_assigns={@pinned_assigns} />
+            <.pinned_assigns_section
+              id="pinned-"
+              term_node={@term_node}
+              pinned_assigns={@pinned_assigns}
+            />
           </div>
           <div id="all-assigns" class="p-4 relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
@@ -75,7 +79,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         </:search_bar_slot>
         <div id="assigns-display-fullscreen-container" data-search_phrase={@assigns_search_phrase}>
           <div class="p-4 border-b border-default-border">
-            <.pinned_assigns_section term_node={@term_node} pinned_assigns={@pinned_assigns} />
+            <.pinned_assigns_section
+              id="pinned-fullscreen-"
+              term_node={@term_node}
+              pinned_assigns={@pinned_assigns}
+            />
           </div>
           <div class="p-4 relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
@@ -87,6 +95,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     """
   end
 
+  attr(:id, :string, required: true)
   attr(:term_node, TermNode, required: true)
   attr(:pinned_assigns, :map, required: true)
 
@@ -109,9 +118,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           <.icon name="icon-pin-off" class="h-4 w-4" />
         </button>
       </div>
-      <ElixirDisplay.static_term node={
-        Keyword.get(@term_node.children, String.to_existing_atom(key), %{})
-      } />
+      <ElixirDisplay.static_term
+        id={@id}
+        node={Keyword.get(@term_node.children, String.to_existing_atom(key), %{})}
+      />
     </div>
     """
   end
