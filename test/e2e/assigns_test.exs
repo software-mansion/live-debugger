@@ -33,7 +33,6 @@ defmodule LiveDebugger.E2E.AssignsTest do
     |> visit(@dev_app_url)
 
     debugger
-    |> resize_window(1920, 1080)
     |> visit("/")
     |> click(first_link())
     |> assert_has(css("#pinned-assigns", text: "You have no pinned assigns."))
