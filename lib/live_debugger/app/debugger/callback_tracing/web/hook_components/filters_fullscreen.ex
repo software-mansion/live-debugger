@@ -68,7 +68,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
         variant="secondary"
         aria-label="Open filters"
         size="sm"
-        class={["flex gap-1", if(@applied_filters_number > 0, do: "rounded-r-none"), @label_class]}
+        class={[
+          "flex gap-1",
+          if(@applied_filters_number > 0, do: "rounded-r-none"),
+          @label_class,
+          @display_mode == :dropdown && "!w-full !border-none text-primary-text"
+        ]}
         phx-click="open-filters"
       >
         <%= if @display_mode == :normal do %>
@@ -109,6 +114,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
       id: @form_id,
       reset_form?: true
     )
+
+    LiveDebugger.App.Web.LiveComponents.LiveDropdown.close("tracing-options-dropdown")
 
     socket
     |> push_event("#{@fullscreen_id}-open", %{})

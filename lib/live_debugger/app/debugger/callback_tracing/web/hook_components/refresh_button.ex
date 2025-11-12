@@ -26,7 +26,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.RefreshBu
     <.button
       phx-click="refresh-history"
       aria-label="Refresh traces"
-      class={["flex gap-2", @label_class]}
+      class={[
+        "flex gap-2",
+        @label_class,
+        @display_mode == :dropdown && "!w-full !border-none text-primary-text"
+      ]}
       variant="secondary"
       size="sm"
     >
@@ -42,6 +46,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.RefreshBu
   end
 
   defp handle_event("refresh-history", _, socket) do
+    LiveDebugger.App.Web.LiveComponents.LiveDropdown.close("tracing-options-dropdown")
+
     socket
     |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> halt()

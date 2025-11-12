@@ -29,7 +29,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ClearButt
     <.button
       phx-click="clear-traces"
       aria-label="Clear traces"
-      class={["flex gap-2", @label_class]}
+      class={[
+        "flex gap-2",
+        @label_class,
+        @display_mode == :dropdown && "!w-full !border-none text-primary-text"
+      ]}
       variant="secondary"
       size="sm"
     >
@@ -46,6 +50,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ClearButt
 
   defp handle_event("clear-traces", _, socket) do
     TracesStorage.clear!(socket.assigns.lv_process.pid, socket.assigns.node_id)
+    LiveDebugger.App.Web.LiveComponents.LiveDropdown.close("tracing-options-dropdown")
 
     socket
     |> stream(:existing_traces, [], reset: true)
