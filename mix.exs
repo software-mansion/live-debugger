@@ -120,6 +120,7 @@ defmodule LiveDebugger.MixProject do
         ]
       ],
       source_url: "https://github.com/software-mansion/live-debugger",
+      homepage_url: "https://docs.swmansion.com/live-debugger/",
       source_ref: @version,
       api_reference: false,
       assets: %{
