@@ -96,9 +96,8 @@ defmodule LiveDebugger.API.System.Module do
             _ ->
               false
           end)
-        functions = filter_funs_returning_lv_rendered(module, one_arity_funs, dummy_assigns())
-        dbg(functions)
-        functions
+
+        filter_funs_returning_lv_rendered(module, one_arity_funs, dummy_assigns())
       else
         []
       end
@@ -136,7 +135,7 @@ defmodule LiveDebugger.API.System.Module do
           _ -> false
         end,
         fn
-          {:keep, {name, rendered}} -> {module,name, 1}
+          {:keep, {name, rendered}} -> {module, name, 1}
         end
       )
     end

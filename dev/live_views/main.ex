@@ -40,10 +40,12 @@ defmodule LiveDebuggerDev.LiveViews.Main do
     <.box title="Main [LiveView]" color="blue">
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
-          <.button id="increment-button" phx-click="increment" color="blue">
-            Increment
-          </.button>
-          <span class="text-xl"><%= @counter %></span>
+          <.box title="Increment [LiveView]" color="blue">
+            <.button id="increment-button" phx-click="increment" color="blue">
+              Increment
+            </.button>
+            <span class="text-xl"><%= @counter %></span>
+          </.box>
         </div>
         <div class="flex items-center gap-2">
           <.button id="slow-increment-button" phx-click="slow-increment" color="blue">

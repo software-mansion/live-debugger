@@ -76,7 +76,7 @@ defmodule LiveDebugger.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:phoenix_live_view, "~> 0.20.8 or ~> 1.0"},
+      {:phoenix_live_view, path: "../phoenix_live_view"},
       {:phoenix, "~> 1.7"},
       {:igniter, "~> 0.5 and >= 0.5.40", optional: true},
       {:bandit, "~> 1.6", only: [:dev, :test]},

@@ -133,6 +133,13 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
     with {:ok, trace} <- TraceActions.create_trace(n, module, fun, args, pid, ts),
          {:ok, ref} <- TraceActions.persist_trace(trace),
          :ok <- TraceActions.publish_trace(trace, ref) do
+      # if fun == :render and module not in [Phoenix.LiveView.Diff] do
+      #   string =
+      #     "Call #{module}.#{fun}/#{length(args)} #{inspect(trace.pid)} #{inspect(trace.cid)}"
+
+      #   dbg(string)
+      # end
+
       {:noreply, put_trace_record(state, trace, ref, ts)}
     else
       {:error, "Transport PID is nil"} ->
@@ -153,6 +160,13 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
          {:ok, ref} <- TraceActions.persist_trace(updated_trace, ref),
          _ <- StateActions.maybe_save_state!(updated_trace),
          :ok <- TraceActions.publish_trace(updated_trace, ref) do
+      # if fun == :render and module not in [Phoenix.LiveView.Diff] do
+      #   string =
+      #     "Return #{module}.#{fun}/#{length(trace.args)} #{inspect(trace.pid)} #{inspect(trace.cid)}"
+
+      #   dbg(string)
+      # end
+
       {:noreply, delete_trace_record(state, trace_key)}
     else
       :trace_record_not_found ->
@@ -184,16 +198,20 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
     {:noreply, state}
   end
 
-  def handle_cast({:new_trace, {_, pid, :call, {module, fun, args}, ts}, n}, state) do
-    dbg({pid, module, fun, args, ts, n, state})
+  def handle_cast({:new_trace, {_, _pid, :call, {module, fun, args}, _ts}, _n}, state)
+      when module not in [Phoenix.LiveView.Diff] do
+    # string = "Call #{module}.#{fun}/#{length(args)}"
+    # dbg(string)
     {:noreply, state}
   end
 
   def handle_cast(
-        {:new_trace, {_, pid, :return_from, {module, fun, args}, returned, ts}, n},
+        {:new_trace, {_, pid, :return_from, {module, fun, arity}, returned, ts}, n},
         state
-      ) do
-    dbg({pid, module, fun, args, returned, ts, n, state})
+      )
+      when module not in [Phoenix.LiveView.Diff] do
+    # string = "Return #{module}.#{fun}/#{arity} #{inspect(pid)}"
+    # dbg(string)
     {:noreply, state}
   end
 
@@ -202,7 +220,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   #########################################################
 
   def handle_cast({:new_trace, trace, _n}, state) do
-    Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
+    # Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
 
     {:noreply, state}
   end

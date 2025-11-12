@@ -58,6 +58,8 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.Callbacks do
       |> Enum.reject(&live_behaviour?(&1, Phoenix.LiveComponent))
       |> Enum.flat_map(&ModuleAPI.get_component_functions_from_module/1)
 
+    # dbg(component_functions)
+
     # dbg(component_modules)
 
     component_functions
