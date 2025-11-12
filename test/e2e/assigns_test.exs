@@ -40,7 +40,7 @@ defmodule LiveDebugger.E2E.AssignsTest do
     |> assert_has(css("#pinned-assigns", text: "You have no pinned assigns."))
     |> hover(assigns_entry(key: "counter", value: "0"))
 
-    Process.sleep(10000)
+    Process.sleep(10_000)
 
     debugger
     |> click(pin_button("counter"))
