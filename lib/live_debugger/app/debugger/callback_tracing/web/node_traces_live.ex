@@ -111,7 +111,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
               lv_process_alive?={@lv_process.alive?}
             />
             <%= if not @tracing_started? do %>
-              <.dropdown_menu class="@[30rem]/traces:hidden" current_filters={@current_filters} />
+              <.node_traces_dropdown_menu
+                class="@[30rem]/traces:hidden"
+                current_filters={@current_filters}
+              />
 
               <HookComponents.RefreshButton.render
                 label_class="hidden @[30rem]/traces:block"
