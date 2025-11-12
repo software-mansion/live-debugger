@@ -27,17 +27,29 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ToggleTra
   @impl true
   def render(assigns) do
     ~H"""
-    <.button phx-click="switch-tracing" class="flex gap-2" size="sm" disabled={!@lv_process_alive?}>
-      <%= if @tracing_started? do %>
-        <.tooltip id="stop-tracing-tooltip" content="Stop">
+    <%= if @tracing_started? do %>
+      <.tooltip id="stop-tracing-tooltip" content="Stop" position="top-center">
+        <.button
+          phx-click="switch-tracing"
+          class="flex gap-2"
+          size="sm"
+          disabled={!@lv_process_alive?}
+        >
           <.icon name="icon-stop" class="w-4 h-4" />
-        </.tooltip>
-      <% else %>
-        <.tooltip id="start-tracing-tooltip" content="Start">
+        </.button>
+      </.tooltip>
+    <% else %>
+      <.tooltip id="start-tracing-tooltip" content="Start" position="top-center">
+        <.button
+          phx-click="switch-tracing"
+          class="flex gap-2"
+          size="sm"
+          disabled={!@lv_process_alive?}
+        >
           <.icon name="icon-play" class="w-4 h-4" />
-        </.tooltip>
-      <% end %>
-    </.button>
+        </.button>
+      </.tooltip>
+    <% end %>
     """
   end
 

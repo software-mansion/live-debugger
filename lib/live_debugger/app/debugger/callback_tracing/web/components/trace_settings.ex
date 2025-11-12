@@ -20,7 +20,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
     >
       <:button>
         <.nav_icon
-          icon="icon-chevron-right"
+          icon="icon-chevrons-right"
           class="border-button-secondary-border border hover:border-button-secondary-border-hover"
         />
       </:button>
@@ -50,7 +50,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
     >
       <:button>
         <.nav_icon
-          icon="icon-chevron-right"
+          icon="icon-chevrons-right"
           class="border-button-secondary-border border hover:border-button-secondary-border-hover"
         />
       </:button>
@@ -71,6 +71,25 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
       <.icon name={@icon} class="w-4 h-4" />
       <span>{@label}</span>
     </div>
+    """
+  end
+
+  attr(:display_mode, :atom, required: true)
+  attr(:id, :string, required: true)
+  attr(:content, :string, required: true)
+  attr(:position, :string, default: "top-center")
+
+  slot(:inner_block, required: true)
+
+  def maybe_add_tooltip(assigns) do
+    ~H"""
+    <%= if @display_mode == :normal do %>
+      <.tooltip id={@id} content={@content} position={@position}>
+        <%= render_slot(@inner_block) %>
+      </.tooltip>
+    <% else %>
+      <%= render_slot(@inner_block) %>
+    <% end %>
     """
   end
 end
