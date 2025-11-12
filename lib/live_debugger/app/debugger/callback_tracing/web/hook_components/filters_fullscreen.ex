@@ -64,30 +64,35 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
 
     ~H"""
     <div class="flex">
-      <.button
-        variant="secondary"
-        aria-label="Open filters"
-        size="sm"
-        class={[
-          "flex gap-1",
-          if(@applied_filters_number > 0, do: "rounded-r-none"),
-          @label_class,
-          @display_mode == :dropdown && "!w-full !border-none text-primary-text"
-        ]}
-        phx-click="open-filters"
+      <TraceSettings.maybe_add_tooltip
+        display_mode={@display_mode}
+        id="filters-tooltip"
+        content="Filters"
+        position="top-center"
       >
-        <%= if @display_mode == :normal do %>
-          <.tooltip id="tracing-filters-tooltip" content="Filters">
+        <.button
+          variant="secondary"
+          aria-label="Open filters"
+          size="sm"
+          class={[
+            "flex gap-1",
+            if(@applied_filters_number > 0, do: "rounded-r-none"),
+            @label_class,
+            @display_mode == :dropdown && "!w-full !border-none text-primary-text"
+          ]}
+          phx-click="open-filters"
+        >
+          <%= if @display_mode == :normal do %>
             <.icon name="icon-filters" class="w-4 h-4" />
-          </.tooltip>
-        <% else %>
-          <TraceSettings.dropdown_item icon="icon-filters" label="Filters" />
-        <% end %>
+          <% else %>
+            <TraceSettings.dropdown_item icon="icon-filters" label="Filters" />
+          <% end %>
 
-        <span :if={@applied_filters_number > 0}>
-          (<%= @applied_filters_number %>)
-        </span>
-      </.button>
+          <span :if={@applied_filters_number > 0}>
+            (<%= @applied_filters_number %>)
+          </span>
+        </.button>
+      </TraceSettings.maybe_add_tooltip>
       <.icon_button
         :if={@applied_filters_number > 0}
         icon="icon-cross"

@@ -26,25 +26,30 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ClearButt
   @impl true
   def render(assigns) do
     ~H"""
-    <.button
-      phx-click="clear-traces"
-      aria-label="Clear traces"
-      class={[
-        "flex gap-2",
-        @label_class,
-        @display_mode == :dropdown && "!w-full !border-none text-primary-text"
-      ]}
-      variant="secondary"
-      size="sm"
+    <TraceSettings.maybe_add_tooltip
+      display_mode={@display_mode}
+      id="clear-tooltip"
+      content="Clear"
+      position="top-center"
     >
-      <%= if @display_mode == :normal do %>
-        <.tooltip id="clear-tooltip" content="Clear">
+      <.button
+        phx-click="clear-traces"
+        aria-label="Clear traces"
+        class={[
+          "flex gap-2",
+          @label_class,
+          @display_mode == :dropdown && "!w-full !border-none text-primary-text"
+        ]}
+        variant="secondary"
+        size="sm"
+      >
+        <%= if @display_mode == :normal do %>
           <.icon name="icon-trash" class="w-4 h-4" />
-        </.tooltip>
-      <% else %>
-        <TraceSettings.dropdown_item icon="icon-trash" label="Clear" />
-      <% end %>
-    </.button>
+        <% else %>
+          <TraceSettings.dropdown_item icon="icon-trash" label="Clear" />
+        <% end %>
+      </.button>
+    </TraceSettings.maybe_add_tooltip>
     """
   end
 

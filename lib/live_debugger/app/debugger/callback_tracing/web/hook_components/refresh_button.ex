@@ -23,25 +23,30 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.RefreshBu
   @impl true
   def render(assigns) do
     ~H"""
-    <.button
-      phx-click="refresh-history"
-      aria-label="Refresh traces"
-      class={[
-        "flex gap-2",
-        @label_class,
-        @display_mode == :dropdown && "!w-full !border-none text-primary-text"
-      ]}
-      variant="secondary"
-      size="sm"
+    <TraceSettings.maybe_add_tooltip
+      display_mode={@display_mode}
+      id="refresh-tooltip"
+      content="Refresh"
+      position="top-center"
     >
-      <%= if @display_mode == :normal do %>
-        <.tooltip id="refresh-tooltip" content="Refresh">
+      <.button
+        phx-click="refresh-history"
+        aria-label="Refresh traces"
+        class={[
+          "flex gap-2",
+          @label_class,
+          @display_mode == :dropdown && "!w-full !border-none text-primary-text"
+        ]}
+        variant="secondary"
+        size="sm"
+      >
+        <%= if @display_mode == :normal do %>
           <.icon name="icon-refresh" class="w-4 h-4" />
-        </.tooltip>
-      <% else %>
-        <TraceSettings.dropdown_item icon="icon-refresh" label="Refresh" />
-      <% end %>
-    </.button>
+        <% else %>
+          <TraceSettings.dropdown_item icon="icon-refresh" label="Refresh" />
+        <% end %>
+      </.button>
+    </TraceSettings.maybe_add_tooltip>
     """
   end
 
