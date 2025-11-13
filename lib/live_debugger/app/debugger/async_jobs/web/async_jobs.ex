@@ -11,6 +11,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
 
   alias LiveDebugger.App.Debugger.AsyncJobs.Queries, as: AsyncJobsQueries
+  alias LiveDebugger.App.Debugger.AsyncJobs.Structs.AsyncJob
 
   @doc """
   Renders the `AsyncJobsLive` as a nested LiveView component.
@@ -73,7 +74,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
           <%= for async_job <- @async_jobs do %>
             <div class="flex gap-2">
               <span class="text-sm">
-                <%= inspect(Map.get(async_job, :name) || Map.get(async_job, :keys)) %>
+                <%= inspect(AsyncJob.identifier(async_job)) %>
               </span>
               <span class="text-sm"><%= inspect(async_job.pid) %></span>
             </div>
