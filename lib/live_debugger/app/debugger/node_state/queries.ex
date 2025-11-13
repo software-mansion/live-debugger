@@ -8,10 +8,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.App.Debugger.Structs.TreeNode
 
-  alias LiveDebugger.API.TracesStorage
-
-  alias LiveDebugger.App.Debugger.NodeState.StreamUtils
-
   @spec fetch_node_assigns(pid :: pid(), node_id :: TreeNode.id()) ::
           {:ok, map()} | {:error, term()}
   def fetch_node_assigns(pid, node_id) when is_pid(node_id) do
@@ -43,25 +39,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
       nil -> LiveViewDebug.liveview_state(pid)
       state -> {:ok, state}
     end
-  end
-
-  def fetch_node_streams(pid) do
-    opts =
-      [
-        functions: ["render/1"]
-      ]
-
-    case TracesStorage.get!(pid, opts) do
-      :end_of_table ->
-        {:error, "No render traces found"}
-
-      stream_updates ->
-        StreamUtils.get_initial_stream_functions(stream_updates)
-    end
-  end
-
-  def update_node_streams(_, stream_updates) do
-    StreamUtils.get_stream_functions_from_updates([stream_updates])
   end
 
   defp get_component_assigns(components, %Phoenix.LiveComponent.CID{cid: cid}) do

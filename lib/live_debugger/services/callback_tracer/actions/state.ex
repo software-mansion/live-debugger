@@ -19,7 +19,33 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
         args: [%{streams: streams} = arg_map | _]
       })
       when is_map(arg_map) and is_map_key(arg_map, :streams) do
-    Bus.broadcast_state!(%StreamUpdated{pid: pid, streams: streams}, pid)
+    changed = streams[:__changed__]
+    configured = streams[:__configured__]
+
+    streams
+    |> Map.values()
+    |> Enum.each(fn
+      %Phoenix.LiveView.LiveStream{name: name} = stream ->
+        if MapSet.member?(changed, name) do
+          conf_fun =
+            configured
+            |> Map.get(name, [])
+            |> Keyword.get(:dom_id)
+
+          Bus.broadcast_state!(
+            %StreamUpdated{
+              pid: pid,
+              stream: stream,
+              dom_id_fun: conf_fun
+            },
+            pid
+          )
+        end
+
+      _ ->
+        :skip
+    end)
+
     do_save_state!(pid)
   end
 

@@ -1,7 +1,7 @@
 defmodule LiveDebugger.App.Utils.StreamUtilsTest do
   use ExUnit.Case
 
-  alias LiveDebugger.App.Debugger.NodeState.StreamUtils
+  alias LiveDebugger.App.Debugger.Streams.StreamUtils
 
   defmodule DummyStream do
     defstruct [:name, :inserts, :deletes, :reset?, :consumable?]
@@ -49,7 +49,7 @@ defmodule LiveDebugger.App.Utils.StreamUtilsTest do
       assert is_list(fun_list)
 
       {module, name} = extract_info_from_diff_fun(Enum.at(fun_list, 0))
-      assert module == LiveDebugger.App.Debugger.NodeState.StreamUtils
+      assert module == LiveDebugger.App.Debugger.Streams.StreamUtils
       assert String.contains?(name, "create_insert_functions")
       assert is_list(config_list)
       assert length(fun_list) == 1
@@ -91,7 +91,7 @@ defmodule LiveDebugger.App.Utils.StreamUtilsTest do
 
       {module, name, dom_id_function} = extract_info_from_config_fun(Enum.at(config_list, 0))
 
-      assert module == LiveDebugger.App.Debugger.NodeState.StreamUtils
+      assert module == LiveDebugger.App.Debugger.Streams.StreamUtils
       assert String.contains?(name, "maybe_add_config")
       assert dom_id_function == (&DummyStream.dummy_stream_config_function/1)
 
@@ -110,15 +110,13 @@ defmodule LiveDebugger.App.Utils.StreamUtilsTest do
         consumable?: false
       }
 
-      updates = [%{things: stream, __configured__: %{}}]
-
-      {fun_list, config_list, stream_names} =
-        StreamUtils.get_stream_functions_from_updates(updates)
+      {fun_list, config_list, stream_name} =
+        StreamUtils.get_stream_functions_from_updates(stream, [])
 
       assert is_list(fun_list)
       assert is_list(config_list)
       assert length(fun_list) == 2
-      assert stream_names == [:things]
+      assert stream_name == :things
     end
 
     test "returns correct fun and preserves configured lambda" do
@@ -130,30 +128,25 @@ defmodule LiveDebugger.App.Utils.StreamUtilsTest do
         consumable?: false
       }
 
-      updates = [
-        %{
-          things: stream,
-          __configured__: %{
-            things: [
-              dom_id: &DummyStream.dummy_stream_config_function/1
-            ]
-          }
-        }
-      ]
-
-      {fun_list, config_list, stream_names} =
-        StreamUtils.get_stream_functions_from_updates(updates)
+      {fun_list, config_list, stream_name} =
+        StreamUtils.get_stream_functions_from_updates(stream,
+          dom_id_fun: &DummyStream.dummy_stream_config_function/1
+        )
 
       assert is_list(fun_list)
       assert is_list(config_list)
       {module, name, dom_id_function} = extract_info_from_config_fun(Enum.at(config_list, 0))
 
-      assert module == LiveDebugger.App.Debugger.NodeState.StreamUtils
+      assert module == LiveDebugger.App.Debugger.Streams.StreamUtils
       assert String.contains?(name, "maybe_add_config")
-      assert dom_id_function == (&DummyStream.dummy_stream_config_function/1)
+
+      assert dom_id_function == [
+               dom_id_fun:
+                 &LiveDebugger.App.Utils.StreamUtilsTest.DummyStream.dummy_stream_config_function/1
+             ]
 
       assert length(fun_list) == 2
-      assert stream_names == [:things]
+      assert stream_name == :things
     end
 
     test "returns correct funs with reset diff" do
@@ -165,26 +158,19 @@ defmodule LiveDebugger.App.Utils.StreamUtilsTest do
         consumable?: false
       }
 
-      updates = [
-        %{
-          items: stream,
-          __configured__: %{}
-        }
-      ]
-
-      {fun_list, config_list, stream_names} =
-        StreamUtils.get_stream_functions_from_updates(updates)
+      {fun_list, config_list, stream_name} =
+        StreamUtils.get_stream_functions_from_updates(stream, [])
 
       assert is_list(fun_list)
       assert is_list(config_list)
 
       {module, name} = extract_info_from_diff_fun(Enum.at(fun_list, 0))
 
-      assert module == LiveDebugger.App.Debugger.NodeState.StreamUtils
+      assert module == LiveDebugger.App.Debugger.Streams.StreamUtils
       assert String.contains?(name, "maybe_add_reset")
 
       assert length(fun_list) == 1
-      assert stream_names == [:items]
+      assert stream_name == :items
     end
   end
 

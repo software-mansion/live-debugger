@@ -1,9 +1,10 @@
-defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
+defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
   @moduledoc """
   Utilities for extracting Phoenix.LiveView.Stream diffs
   from render traces and mapping them into a list of functions.
   """
 
+  # @spec get_initial_stream_functions({stream_updates, _trace}) :: {list, list, map}
   def get_initial_stream_functions({stream_updates, _trace}) do
     stream_traces = extract_stream_traces(stream_updates)
     stream_names = get_stream_names_map(stream_traces)
@@ -14,12 +15,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
     {fun_list, config_list, stream_names}
   end
 
-  def get_stream_functions_from_updates(stream_updates) do
-    stream_names = get_stream_names_map(stream_updates)
-    fun_list = collect_updates(stream_updates)
-    config_list = collect_config(stream_updates)
+  # @spec get_stream_functions_from_updates({stream_updates, _trace}) :: {list, list, map}
+  def get_stream_functions_from_updates(stream_updates, dom_id_fun) do
+    stream_name = stream_updates.name
+    fun_list = map_stream_entry_to_stream_function(stream_updates)
+    config_list = map_stream_entry_to_stream_config(stream_updates, dom_id: dom_id_fun)
 
-    {fun_list, config_list, stream_names}
+    {fun_list, config_list, stream_name}
   end
 
   defp extract_stream_traces(stream_updates) do
@@ -38,14 +40,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
       |> Enum.map(fn {key, _} -> key end)
     end)
     |> Enum.uniq()
-  end
-
-  defp collect_updates(update_list) do
-    update_list =
-      update_list
-      |> Enum.flat_map(&flatten_stream_updates(&1))
-
-    update_list
   end
 
   defp collect_updates_for_initial_stream(update_list, stream_names) do
@@ -144,17 +138,18 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
     |> maybe_add_deletes(deletes, name)
   end
 
-  def map_stream_entry_to_stream_config(
-        %Phoenix.LiveView.LiveStream{
-          name: name
-        },
-        config
-      ) do
+  defp map_stream_entry_to_stream_config(
+         %Phoenix.LiveView.LiveStream{
+           name: name
+         },
+         config
+       ) do
     []
     |> maybe_add_config(config, name)
   end
 
   defp maybe_add_config(functions, nil, _name), do: functions
+  defp maybe_add_config(functions, [dom_id: nil], _name), do: functions
 
   defp maybe_add_config(functions, [dom_id: fun], name) do
     functions ++
@@ -230,16 +225,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.StreamUtils do
 
   defp flatten_stream_initial_updates({stream_name, inserts}) do
     map_initial_stream_entry_to_stream_function(stream_name, inserts)
-  end
-
-  defp flatten_stream_updates(stream_entry) do
-    Enum.flat_map(stream_entry, fn
-      {_stream_name, %Phoenix.LiveView.LiveStream{} = stream} ->
-        map_stream_entry_to_stream_function(stream)
-
-      _ ->
-        []
-    end)
   end
 
   defp flatten_stream_config(stream_entry) do

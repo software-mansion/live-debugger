@@ -1,22 +1,20 @@
-defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
+defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
   @moduledoc """
-  This LiveView displays the state of a particular node (`LiveView` or `LiveComponent`).
+  This LiveView displays streams of a particular node (`LiveView` or `LiveComponent`).
   It is meant to be used as a composable nested LiveView in the Debugger page.
   """
 
   use LiveDebugger.App.Web, :live_view
 
   alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.App.Debugger.NodeState.Web.Hooks
-  alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents
-  alias LiveDebugger.App.Debugger.NodeState.Web.Components, as: NodeStateComponents
+  alias LiveDebugger.App.Debugger.Streams.Web.Hooks
+  alias LiveDebugger.App.Debugger.Streams.Web.Components, as: StreamsComponents
 
   alias LiveDebugger.Bus
-  alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
-  alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.Services.CallbackTracer.Events.StreamUpdated
 
   @doc """
-  Renders the `NodeStateLive` as a nested LiveView component.
+  Renders the `StreamsLive` as a nested LiveView component.
 
   `id` - dom id
   `socket` - parent LiveView socket
@@ -62,10 +60,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     socket
     |> assign(:lv_process, lv_process)
     |> assign(:node_id, node_id)
-    |> assign(:assigns_search_phrase, "")
-    |> Hooks.NodeAssigns.init()
-    |> Hooks.TermNodeToggle.init()
-    |> HookComponents.AssignsSearch.init()
+    |> Hooks.Streams.init()
     |> ok()
   end
 
@@ -73,21 +68,18 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   def render(assigns) do
     ~H"""
     <div class="flex-1 max-w-full flex flex-col gap-4">
-      <.async_result :let={{node_assigns, term_node, copy_string}} assign={@node_assigns_info}>
+      <.async_result :let={stream_names} assign={@stream_names}>
         <:loading>
-          <NodeStateComponents.loading />
+          <StreamsComponents.loading />
         </:loading>
         <:failed>
-          <NodeStateComponents.failed />
+          <StreamsComponents.failed />
         </:failed>
 
-        <NodeStateComponents.assigns_section
-          term_node={term_node}
-          copy_string={copy_string}
-          assigns={node_assigns}
-          fullscreen_id="assigns-display-fullscreen"
-          assigns_sizes={@assigns_sizes}
-          assigns_search_phrase={@assigns_search_phrase}
+        <StreamsComponents.stream_section
+          :if={Map.has_key?(assigns, :streams) and stream_names != []}
+          stream_names={stream_names}
+          existing_streams={@streams}
         />
       </.async_result>
     </div>
@@ -95,16 +87,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   end
 
   @impl true
-  def handle_info(%NodeIdParamChanged{node_id: node_id}, socket) do
+  def handle_info(
+        %StreamUpdated{stream: stream, dom_id_fun: dom_id_fun},
+        socket
+      ) do
     socket
-    |> assign(:node_id, node_id)
-    |> Hooks.NodeAssigns.assign_async_node_assigns(reset: true)
-    |> noreply()
-  end
-
-  def handle_info(%StateChanged{}, socket) do
-    socket
-    |> Hooks.NodeAssigns.assign_async_node_assigns()
+    |> Hooks.Streams.assign_async_streams(stream, dom_id_fun)
     |> noreply()
   end
 

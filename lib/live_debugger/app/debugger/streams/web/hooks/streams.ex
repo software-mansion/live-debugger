@@ -1,4 +1,4 @@
-defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
+defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
   @moduledoc """
   This hook is responsible for fetching streams of a specific node.
   """
@@ -6,7 +6,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
   use LiveDebugger.App.Web, :hook
 
   alias Phoenix.LiveView.AsyncResult
-  alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
+  alias LiveDebugger.App.Debugger.Streams.Queries, as: StreamsQueries
 
   @required_assigns [
     :node_id,
@@ -33,7 +33,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
       when not is_nil(node_id) do
     socket
     |> start_async(:fetch_node_streams, fn ->
-      NodeStateQueries.fetch_node_streams(pid)
+      StreamsQueries.fetch_node_streams(pid)
     end)
   end
 
@@ -43,7 +43,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
 
   def assign_async_streams(
         %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket,
-        updated_streams
+        updated_streams,
+        dom_id_fun
       )
       when not is_nil(node_id) do
     case Map.get(socket.assigns, :stream_names, nil) do
@@ -53,27 +54,28 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
       _ ->
         socket
         |> start_async(:fetch_node_streams, fn ->
-          NodeStateQueries.update_node_streams(pid, updated_streams)
+          StreamsQueries.update_node_streams(pid, updated_streams, dom_id_fun)
         end)
     end
   end
 
   defp handle_async(
          :fetch_node_streams,
-         {:ok, {fun_list, config_list, stream_names}},
+         {:ok, {fun_list, config_list, stream_name}},
          %{
            assigns: %{
              stream_names: %AsyncResult{ok?: true, result: current_stream_names}
            }
          } = socket
        ) do
-    new_stream_names = Enum.reject(stream_names, &(&1 in current_stream_names))
-
     socket
     |> apply_stream_transformations(config_list)
-    |> assign_stream_names(new_stream_names)
+    |> maybe_assign_stream_name(stream_name, current_stream_names)
     |> apply_stream_transformations(fun_list)
-    |> assign(:stream_names, AsyncResult.ok(stream_names))
+    |> assign(
+      :stream_names,
+      AsyncResult.ok((current_stream_names ++ [stream_name]) |> Enum.uniq())
+    )
     |> halt()
   end
 
@@ -97,6 +99,14 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeStreams do
   end
 
   defp handle_async(_, _, socket), do: {:cont, socket}
+
+  defp maybe_assign_stream_name(socket, stream_name, current_stream_names) do
+    if stream_name in current_stream_names do
+      socket
+    else
+      stream(socket, stream_name, [])
+    end
+  end
 
   defp assign_stream_names(socket, stream_names) do
     Enum.reduce(stream_names, socket, fn stream_name, acc ->

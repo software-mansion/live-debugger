@@ -51,6 +51,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
 
   defevent(StreamUpdated,
     pid: pid(),
-    streams: map()
+    stream: %Phoenix.LiveView.LiveStream{},
+    dom_id_fun: (any() -> any()) | nil
   )
 end
