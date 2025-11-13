@@ -5,7 +5,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.App.Utils.TermParser
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory

@@ -366,7 +366,7 @@ defmodule LiveDebugger.App.Web.Components do
   )
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
-  attr(:rest, :global, include: ~w(id))
+  attr(:rest, :global, include: ~w(id disabled))
 
   def icon_button(assigns) do
     assigns =
