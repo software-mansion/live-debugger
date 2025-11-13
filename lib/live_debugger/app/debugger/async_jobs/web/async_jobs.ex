@@ -86,11 +86,8 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
   def handle_info(%StateChanged{}, socket) do
     dbg("State changed")
 
-    {:ok, state} = AsyncJobsQueries.fetch_node_state(socket.assigns.lv_process.pid)
-
-    live_async = state |> Map.get(:socket) |> Map.get(:private) |> Map.get(:live_async)
-
-    dbg(live_async)
+    {:ok, async_jobs} = AsyncJobsQueries.fetch_async_jobs(socket.assigns.lv_process.pid)
+    dbg(async_jobs)
 
     socket
     |> noreply()
