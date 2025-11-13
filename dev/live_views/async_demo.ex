@@ -18,7 +18,7 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
             <.button id="start-async-button" phx-click="trigger_start_async" color="blue">
-              Trigger start_async (5s)
+              Trigger start_async
             </.button>
             <%= if @start_async_loading do %>
               <span class="text-yellow-500">Loading...</span>
@@ -33,7 +33,7 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
             <.button id="assign-async-button" phx-click="trigger_assign_async" color="green">
-              Trigger assign_async (5s)
+              Trigger assign_async
             </.button>
             <%= if @assign_async_data do %>
               <.async_result :let={data} assign={@assign_async_data}>
@@ -52,6 +52,18 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
                 Data: <%= inspect(@assign_async_data) %>
               </span>
             <% end %>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <.button
+              id="start-async-button-no-render"
+              phx-click="trigger_start_async_no_render"
+              color="blue"
+            >
+              Trigger start_async (no render)
+            </.button>
           </div>
         </div>
       </div>
@@ -81,6 +93,17 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
     {:noreply, socket}
   end
 
+  def handle_event("trigger_start_async_no_render", _params, socket) do
+    socket =
+      socket
+      |> start_async(:fetch_data_no_render, fn ->
+        Process.sleep(5000)
+        {:ok, "Data fetched at #{DateTime.utc_now()}"}
+      end)
+
+    {:noreply, socket}
+  end
+
   def handle_async(:fetch_data, {:ok, result}, socket) do
     socket =
       socket
@@ -96,6 +119,10 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
       |> assign(start_async_result: "Error: #{inspect(reason)}")
       |> assign(start_async_loading: false)
 
+    {:noreply, socket}
+  end
+
+  def handle_async(:fetch_data_no_render, _, socket) do
     {:noreply, socket}
   end
 end
