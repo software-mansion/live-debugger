@@ -1,4 +1,4 @@
-defmodule LiveDebugger.App.Debugger.AsyncJobs.Structs.StartAsync do
+defmodule LiveDebugger.App.Debugger.AsyncJobs.Structs.AsyncJob.StartAsync do
   @moduledoc """
   This module provides a struct to represent a start_async background task.
   """
