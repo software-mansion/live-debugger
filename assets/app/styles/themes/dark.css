@@ -82,5 +82,7 @@
 
     --diff-pulse-bg: var(--swm-sea-blue-60);
     --diff-pulse-text: var(--gray-900);
+    --diff-negative-bg: var(--red-900);
+    --diff-positive-bg: rgb(from var(--swm-green-100) r g b / 0.3);
   }
 }
