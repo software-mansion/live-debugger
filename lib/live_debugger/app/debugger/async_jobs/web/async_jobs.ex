@@ -60,6 +60,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
     |> assign(:lv_process, lv_process)
     |> assign(:node_id, node_id)
     |> assign(:assigns_search_phrase, "")
+    |> assign(:async_jobs, [])
     |> ok()
   end
 
@@ -69,7 +70,14 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
     <div class="max-w-full flex flex-1">
       <.section title="Async jobs" id="async-jobs" inner_class="mx-0 my-4 px-4" class="flex-1">
         <div class="w-full h-full flex flex-col gap-4">
-          Async jobs
+          <%= for async_job <- @async_jobs do %>
+            <div class="flex gap-2">
+              <span class="text-sm">
+                <%= inspect(Map.get(async_job, :name) || Map.get(async_job, :keys)) %>
+              </span>
+              <span class="text-sm"><%= inspect(async_job.pid) %></span>
+            </div>
+          <% end %>
         </div>
       </.section>
     </div>
@@ -87,9 +95,9 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
     dbg("State changed")
 
     {:ok, async_jobs} = AsyncJobsQueries.fetch_async_jobs(socket.assigns.lv_process.pid)
-    dbg(async_jobs)
 
     socket
+    |> assign(:async_jobs, async_jobs)
     |> noreply()
   end
 
