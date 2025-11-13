@@ -90,7 +90,7 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
 
         {:ok,
          %{
-           async_data1: "Async data loaded at #{DateTime.utc_now()}",
+           async_data1: "Async data1 loaded at #{DateTime.utc_now()}",
            async_data2: "Async data2 loaded at #{DateTime.utc_now()}"
          }}
       end)
