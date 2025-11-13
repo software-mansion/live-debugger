@@ -5,7 +5,7 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
     socket =
       socket
       |> assign(start_async_result: nil)
-      |> assign(assign_async_data: nil)
+      |> assign(async_data: nil)
       |> assign(start_async_loading: false)
 
     {:ok, socket}
@@ -35,8 +35,8 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
             <.button id="assign-async-button" phx-click="trigger_assign_async" color="green">
               Trigger assign_async
             </.button>
-            <%= if @assign_async_data do %>
-              <.async_result :let={data} assign={@assign_async_data}>
+            <%= if @async_data do %>
+              <.async_result :let={data} assign={@async_data}>
                 <:loading>
                   <span class="text-yellow-500">Loading async data...</span>
                 </:loading>
@@ -49,7 +49,7 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
               </.async_result>
             <% else %>
               <span class="text-xl">
-                Data: <%= inspect(@assign_async_data) %>
+                Data: <%= inspect(@async_data) %>
               </span>
             <% end %>
           </div>
@@ -85,9 +85,9 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
 
   def handle_event("trigger_assign_async", _params, socket) do
     socket =
-      assign_async(socket, :assign_async_data, fn ->
+      assign_async(socket, :async_data, fn ->
         Process.sleep(5000)
-        {:ok, %{assign_async_data: "Async data loaded at #{DateTime.utc_now()}"}}
+        {:ok, %{async_data: "Async data loaded at #{DateTime.utc_now()}"}}
       end)
 
     {:noreply, socket}
