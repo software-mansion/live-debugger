@@ -85,9 +85,14 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
 
   def handle_event("trigger_assign_async", _params, socket) do
     socket =
-      assign_async(socket, :async_data, fn ->
+      assign_async(socket, [:async_data1, :async_data2], fn ->
         Process.sleep(5000)
-        {:ok, %{async_data: "Async data loaded at #{DateTime.utc_now()}"}}
+
+        {:ok,
+         %{
+           async_data1: "Async data loaded at #{DateTime.utc_now()}",
+           async_data2: "Async data2 loaded at #{DateTime.utc_now()}"
+         }}
       end)
 
     {:noreply, socket}
