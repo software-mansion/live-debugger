@@ -14,13 +14,23 @@ defmodule LiveDebugger.App.Utils.TermNode do
 
   @list_and_tuple_open_limit 3
 
-  defstruct [:id, :kind, :children, :content, :expanded_before, :expanded_after, open?: false]
+  defstruct [
+    :id,
+    :kind,
+    :key,
+    :children,
+    :content,
+    :expanded_before,
+    :expanded_after,
+    open?: false
+  ]
 
   @type kind() :: :atom | :binary | :number | :tuple | :list | :map | :struct | :regex | :other
 
   @type t :: %__MODULE__{
           id: String.t(),
           kind: kind(),
+          key: atom(),
           open?: boolean(),
           children: [{any(), t()}],
           content: [DisplayElement.t()],
