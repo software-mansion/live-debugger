@@ -14,6 +14,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
   alias LiveDebugger.App.Utils.TermParser
   alias Phoenix.LiveView.AsyncResult
 
+  @assigns_history_id "assigns-history"
+
   @required_assigns [:node_id, :lv_process]
 
   @impl true
@@ -24,7 +26,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
     |> attach_hook(:assigns_history, :handle_async, &handle_async/3)
     |> attach_hook(:assigns_history, :handle_info, &handle_info/2)
     |> register_hook(:assigns_history)
-    |> put_private(:opened?, false)
+    |> put_private(:open?, false)
     |> assign(:current_history_index, 0)
     |> assign(:history_length, 0)
     |> assign(:history_entries, AsyncResult.loading())
@@ -36,8 +38,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
 
   @impl true
   def render(assigns) do
+    assigns = assign(assigns, id: @assigns_history_id)
+
     ~H"""
-    <.fullscreen id="assigns-history" title="Assigns History" class="xl:w-3/4!">
+    <.fullscreen id={@id} title="Assigns History" class="xl:w-3/4!">
       <div class="flex flex-col justify-between p-4 min-h-[40rem]">
         <.async_result :let={history_entries} assign={@history_entries}>
           <:loading>
@@ -86,15 +90,25 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
   end
 
   def button(assigns) do
+    assigns = assign(assigns, id: @assigns_history_id)
+
     ~H"""
-    <.fullscreen_button id="assigns-history" icon="icon-history" phx-click="open-assigns-history" />
+    <.fullscreen_button id={@id} icon="icon-history" phx-click="open-assigns-history" />
     """
   end
 
   defp handle_event("open-assigns-history", _params, socket) do
     socket
+    |> put_private(:open?, true)
     |> assign_async_assigns_history()
-    |> push_event("assigns-history-open", %{})
+    |> push_event("#{@assigns_history_id}-open", %{})
+    |> halt()
+  end
+
+  defp handle_event("fullscreen-closed", %{"id" => @assigns_history_id}, socket) do
+    socket
+    |> put_private(:open?, false)
+    |> assign(:history_entries, AsyncResult.loading())
     |> halt()
   end
 
@@ -170,19 +184,23 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
 
   defp handle_async(:fetch_history_entries, {:ok, {:error, reason}}, socket) do
     socket
+    |> assign(:current_history_index, 0)
+    |> assign(:history_length, 0)
     |> assign(:history_entries, AsyncResult.failed(socket.assigns.history_entries, reason))
     |> halt()
   end
 
   defp handle_async(:fetch_history_entries, {:exit, reason}, socket) do
     socket
+    |> assign(:current_history_index, 0)
+    |> assign(:history_length, 0)
     |> assign(:history_entries, AsyncResult.failed(socket.assigns.history_entries, reason))
     |> halt()
   end
 
   defp handle_async(_, _, socket), do: {:cont, socket}
 
-  defp handle_info(%StateChanged{}, socket) do
+  defp handle_info(%StateChanged{}, %{private: %{open?: true}} = socket) do
     socket
     |> assign_async_assigns_history()
     |> cont()
