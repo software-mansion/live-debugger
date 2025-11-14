@@ -71,7 +71,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
   def render(assigns) do
     ~H"""
     <div class="max-w-full flex flex-1">
-      <.section title="Async jobs" id="async-jobs" inner_class="mx-0 py-2 px-4" class="flex-1">
+      <.section title="Async jobs" id="async-jobs" inner_class="mx-0 p-4" class="flex-1">
         <div class="w-full h-full flex flex-col gap-4">
           <.async_result :let={async_jobs} assign={@async_jobs}>
             <:loading>
@@ -80,14 +80,14 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
               </div>
             </:loading>
             <:failed>
-              <div class="flex justify-center items-center h-full py-2">
+              <div class="flex justify-center items-center h-full">
                 <.alert class="w-full" with_icon heading="Error while fetching async jobs">
                   Check logs for more
                 </.alert>
               </div>
             </:failed>
             <%= if Enum.empty?(async_jobs) do %>
-              <div class="w-full flex items-center justify-center h-10">
+              <div class="w-full flex items-center justify-center">
                 <span class=" text-secondary-text">No async jobs found</span>
               </div>
             <% end %>
