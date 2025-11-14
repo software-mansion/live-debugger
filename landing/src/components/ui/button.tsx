@@ -20,6 +20,7 @@ const buttonVariants = cva(
       size: {
         default: "max-sm:w-full px-6 py-3 md:py-3",
         sm: "max-sm:w-full px-5 py-3 md:py-3.5",
+        wfull: "px-5 py-2 md:py-2.5 w-full px-6",
         footer: "max-sm:w-full px-3 py-2 max-md:py-3 md:py-2.5",
         xs: "max-sm:w-[calc(100%-50px)] px-3 py-2 md:py-2.5",
       },
