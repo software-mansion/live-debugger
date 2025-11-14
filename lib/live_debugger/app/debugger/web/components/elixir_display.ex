@@ -6,8 +6,9 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.App.Utils.TermNode.DisplayElement
   alias LiveDebugger.App.Utils.TermNode
+  alias LiveDebugger.App.Utils.TermNode.DisplayElement
+  alias LiveDebugger.App.Utils.TermDiffer.Diff
 
   @doc """
   Returns a tree of terms.
@@ -61,6 +62,9 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   attr(:id, :string, default: "")
   attr(:node, TermNode, required: true)
+  attr(:click_event, :string, default: "toggle_node")
+  attr(:diff, Diff, default: nil)
+  attr(:diff_class, :string, default: "")
   attr(:selectable_level, :integer, default: nil)
   attr(:level, :integer, default: 0)
 
@@ -85,21 +89,29 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
           open={@node.open?}
           label_class="max-w-max"
           chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
-          phx-click="toggle_node"
+          phx-click={@click_event}
           phx-value-id={@node.id}
         >
           <:label :let={open}>
             <%= if open do %>
               <.text_items id={@id <> @node.id <> "-expanded-before"} items={@node.expanded_before} />
             <% else %>
-              <.text_items id={@id <> @node.id <> "-content"} items={@node.content} />
+              <div class={content_diff_class(@diff, @diff_class)}>
+                <.text_items id={@id <> @node.id <> "-content"} items={@node.content} />
+              </div>
             <% end %>
           </:label>
           <ol class="m-0 ml-[2ch] block list-none p-0">
-            <li :for={{_, child} <- @node.children} class="flex flex-col">
+            <li
+              :for={{key, child} <- @node.children}
+              class={"flex flex-col #{child_diff_class(@diff, key, @diff_class)}"}
+            >
               <.static_term
                 id={@id}
                 node={child}
+                click_event={@click_event}
+                diff={get_child_diff(@diff, key)}
+                diff_class={@diff_class}
                 selectable_level={@selectable_level}
                 level={@level + 1}
               />
@@ -129,7 +141,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
           id={if(@id, do: @id <> "-#{index}")}
           phx-hook={if(@id, do: "DiffPulse")}
           data-pulse={item.pulse?}
-          class={"#{text_item_color_class(item)}"}
+          class={text_item_color_class(item)}
         >
           <pre data-text_item="true"><%= item.text %></pre>
         </span>
@@ -140,5 +152,23 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   defp text_item_color_class(%DisplayElement{color: color}) do
     if color, do: "#{color}", else: ""
+  end
+
+  defp content_diff_class(nil, _), do: ""
+  defp content_diff_class(%Diff{type: :equal}, _), do: ""
+  defp content_diff_class(%Diff{}, diff_class), do: diff_class
+
+  defp child_diff_class(nil, _, _), do: ""
+
+  defp child_diff_class(diff, key, diff_class) do
+    if final_diff?(diff, key), do: diff_class, else: ""
+  end
+
+  defp get_child_diff(nil, _), do: nil
+  defp get_child_diff(diff, key), do: if(not final_diff?(diff, key), do: diff.diff[key])
+
+  defp final_diff?(%Diff{ins: ins, del: del, diff: diff}, key) do
+    Map.has_key?(ins, key) or Map.has_key?(del, key) or
+      (Map.has_key?(diff, key) && diff[key].type == :primitive)
   end
 end
