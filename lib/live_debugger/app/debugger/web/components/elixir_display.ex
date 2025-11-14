@@ -62,9 +62,11 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   attr(:id, :string, default: "")
   attr(:node, TermNode, required: true)
+  attr(:click_event, :string, default: "toggle_node")
   attr(:diff, Diff, default: nil)
   attr(:diff_class, :string, default: "")
-  attr(:click_event, :string, default: "toggle_node")
+  attr(:selectable_level, :integer, default: nil)
+  attr(:level, :integer, default: 0)
 
   def static_term(assigns) do
     assigns =
@@ -72,7 +74,16 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
       |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
-    <div class="font-code">
+    <div class="font-code flex min-h-4.5 [&>div>button]:hidden hover:[&>div>button]:block">
+      <div :if={@selectable_level == @level and is_atom(@node.key)} class="w-4">
+        <button
+          class="text-button-green-content hover:text-button-green-content-hover"
+          phx-click="pin-assign"
+          phx-value-key={@node.key}
+        >
+          <.icon name="icon-pin" class="h-4 w-4" />
+        </button>
+      </div>
       <%= if @has_children? do %>
         <.static_collapsible
           open={@node.open?}
@@ -101,6 +112,8 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
                 click_event={@click_event}
                 diff={get_child_diff(@diff, key)}
                 diff_class={@diff_class}
+                selectable_level={@selectable_level}
+                level={@level + 1}
               />
             </li>
           </ol>

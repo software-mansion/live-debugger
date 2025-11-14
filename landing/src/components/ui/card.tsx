@@ -29,9 +29,9 @@ const TextContent: React.FC<Omit<CardProps, "imageUrl" | "className">> = ({
         </Badge>
       </>
     )}
-    <div className="text-primary font-aeonik self-stretch text-xl leading-tight font-bold lg:leading-[50px]">
+    <h3 className="text-primary font-aeonik self-stretch text-xl leading-tight font-bold lg:leading-[50px]">
       {header}
-    </div>
+    </h3>
     <div className="text-primary font-aeonik text-md self-stretch font-normal">
       {description}
     </div>
@@ -127,7 +127,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         depth={0}
         className={cn(
           "group",
-          "relative flex w-full max-w-[1360px] flex-col items-start justify-center bg-slate-100 p-6 md:p-8 lg:p-10",
+          "bg-bg-additional relative flex w-full max-w-[1360px] flex-col items-start justify-center p-6 md:p-8 lg:p-10",
           className,
         )}
         {...props}

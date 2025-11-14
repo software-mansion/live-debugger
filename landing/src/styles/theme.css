@@ -1,7 +1,7 @@
 @theme {
   --breakpoint-sm: 600px;
   --breakpoint-md: 1025px;
-  --breakpoint-lg: 1441px;
+  --breakpoint-lg: 1550px;
   --breakpoint-xl: initial;
   --breakpoint-2xl: initial;
 
@@ -24,12 +24,10 @@
   --text-3xl: 34px;
   --text-3xl--line-height: 40px;
 
-  --font-weight-thin: 250;
-  --font-weight-regular: 400;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
+  --font-weight-thin: 200;
+  --font-weight-normal: 250;
+  --font-weight-medium: 400;
   --font-weight-bold: 600;
-  --font-weight-extrablack: 1;
 
   --color-swm-brand-100: #001a72;
   --color-swm-brand-80: #33498b;
@@ -41,6 +39,7 @@
   --color-white: #ffffff;
   --color-slate-50: #f8fafc;
   --color-slate-100: #f1f5f9;
+  --color-slate-150: #e9eff5;
   --color-slate-200: #e2e8f0;
   --color-slate-300: #cbd5e1;
   --color-slate-400: #94a3b8;
@@ -149,5 +148,9 @@
         --text-3xl--line-height: 74px;
       }
     }
+  }
+  code {
+    font-family: inherit;
+    font-weight: inherit;
   }
 }

@@ -120,6 +120,7 @@ defmodule LiveDebugger.MixProject do
         ]
       ],
       source_url: "https://github.com/software-mansion/live-debugger",
+      homepage_url: "https://docs.swmansion.com/live-debugger/",
       source_ref: @version,
       api_reference: false,
       assets: %{
@@ -135,8 +136,9 @@ defmodule LiveDebugger.MixProject do
     [
       licenses: ["Apache-2.0"],
       links: %{
-        changelog: "https://hexdocs.pm/live_debugger/changelog.html",
-        github: "https://github.com/software-mansion/live-debugger"
+        "Website" => "https://docs.swmansion.com/live-debugger/",
+        "GitHub" => "https://github.com/software-mansion/live-debugger",
+        "Changelog" => "https://hexdocs.pm/live_debugger/changelog.html"
       },
       files: ~w(lib priv LICENSE mix.exs README.md CHANGELOG.md)
     ]

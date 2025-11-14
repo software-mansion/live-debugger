@@ -2,13 +2,14 @@
 import ContentWrapper from "../components/ContentWrapper.tsx";
 import { Accordion } from "@/components/ui/AccordionWrapper";
 import CTA from "@/components/CTA.astro";
+import { Lightbulb } from "lucide-react";
 
 const accordionData = [
   {
     versionNumber: "v0.5.0",
     bulletpoints: [
       "Improved assigns inspection and tracking",
-      "A sync loading and streams debugging",
+      "Async loading and streams debugging",
       "“Dead LiveViews” section showing recently crashed views",
       "Resource usage monitoring of LiveView processes",
       "Performance improvements",
@@ -17,33 +18,35 @@ const accordionData = [
   {
     versionNumber: "v0.6.0",
     bulletpoints: [
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      "Sed do eiusmod tempor incididunt",
-      "ut labore et dolore magna aliqua.",
+      "Ability to send custom messages to LiveViews / LiveComponents",
+      "Clearer error reporting for callback exceptions",
+      "Debugging of temporary assigns",
+      "Increased stability during application recompilation",
     ],
   },
   {
     versionNumber: "v0.7.0",
     bulletpoints: [
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      "Sed do eiusmod tempor incididunt",
-      "ut labore et dolore magna aliqua.",
+      "Extended filtering of global callback traces",
+      "Links to source files defining the LiveView / LiveComponent",
+      "Better support and representation of nested LiveViews",
+      "More reliable association between browser windows and server processes",
     ],
   },
   {
     versionNumber: "v0.8.0",
     bulletpoints: [
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      "Sed do eiusmod tempor incididunt",
-      "ut labore et dolore magna aliqua.",
+      "Running LiveDebugger UI inside an iframe for improved stability",
+      "Enhanced settings",
+      "UI redesign",
+      "Better isolation between LiveDebugger and the debugged application",
     ],
   },
   {
-    versionNumber: "1.0",
+    versionNumber: "v1.0.0",
     bulletpoints: [
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      "Sed do eiusmod tempor incididunt",
-      "ut labore et dolore magna aliqua.",
+      "Updated documentation and contributor onboarding guide",
+      "Requirement of LiveView v1.1.0+",
     ],
   },
 ];
@@ -51,28 +54,25 @@ const accordionData = [
 
 <section
   id="roadmap"
-  class="flex w-full scroll-m-10 flex-col items-center justify-center bg-white py-16 sm:py-20 md:py-32"
+  class="flex w-full flex-col items-center justify-center bg-white py-16 sm:py-20 md:py-32"
 >
   <ContentWrapper
     className="font-aeonik text-primary flex flex-col items-center justify-center gap-12 sm:gap-14 md:gap-16 lg:gap-18"
   >
-    <h1 class="text-primary text-center text-xl font-bold">Roadmap</h1>
+    <h2 class="text-primary text-center text-2xl font-bold">Roadmap</h2>
 
-    <div>
-      <Accordion data={accordionData} client:idle />
-    </div>
+    <Accordion data={accordionData} client:idle />
 
     <CTA
-      title="Have a feature idea?"
-      buttonText="Let us know"
+      title="Have a feature idea? Let us know!"
+      buttonText="Submit a Github issue"
       url="https://github.com/software-mansion/live-debugger/issues/new/choose"
+      buttonText2="Fill out feedback survey"
+      url2="https://docs.google.com/forms/d/e/1FAIpQLSftsztVznsYRt6G-rv6Wk-ZppS4SkgM-5r6o38YxZYieatPLQ/viewform?usp=sharing&ouid=114462502893566863638"
     >
-      <img
-        src={`/live-debugger/assets/github-2.svg`}
-        class="h-13 w-13"
-        alt={"github icon"}
-        width="32"
-        height="32"
+      <Lightbulb
+        className="h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10"
+        strokeWidth={1}
       />
     </CTA>
   </ContentWrapper>

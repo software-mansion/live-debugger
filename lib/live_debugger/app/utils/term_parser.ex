@@ -386,7 +386,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
     node = value |> to_node() |> TermNode.add_prefix([key_span, sep_span])
 
-    {key, node}
+    {key, %TermNode{node | key: key}}
   end
 
   defp to_children(items) when is_list(items) do

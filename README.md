@@ -8,7 +8,7 @@
 
 </div>
 
-LiveDebugger is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
+[LiveDebugger](https://docs.swmansion.com/live-debugger/) is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
 
 Designed to enhance your development experience LiveDebugger gives you:
 

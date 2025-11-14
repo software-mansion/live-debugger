@@ -11,7 +11,7 @@ const LATEST_NEWS_ID = "v0.4.2";
 const navItems = [
   { name: "Features", href: "#features" },
   { name: "Getting started", href: "#gettingstarted" },
-  { name: "Whats's new", href: "#whatsnew" },
+  { name: "What's new", href: "#whatsnew" },
   { name: "Roadmap", href: "#roadmap" },
 ];
 
@@ -101,7 +101,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
         )}
         {...props}
       >
-        <div className="mx-auto flex h-20 w-full max-w-[1360px] items-center justify-between px-7 py-12 sm:px-8">
+        <div className="mx-auto flex h-20 w-full max-w-[1360px] items-center justify-between px-7 sm:px-8">
           <a href="#hero" className="mr-6 flex items-center gap-2">
             <Logo className="size-36 sm:size-42 md:size-45" />
           </a>
