@@ -40,7 +40,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
 
   @spec fetch_assigns_history_entries(pid(), TreeNode.id(), history_index()) ::
           {:ok, {history_entries(), history_length()}} | {:error, term()}
-
   def fetch_assigns_history_entries(pid, node_id, index) do
     case TracesStorage.get!(pid, functions: ["render/1"], node_id: node_id) do
       :end_of_table ->

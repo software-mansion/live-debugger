@@ -12,7 +12,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
   alias LiveDebugger.App.Utils.TermNode
   alias LiveDebugger.App.Utils.TermDiffer
   alias LiveDebugger.App.Utils.TermParser
-  alias LiveDebugger.API.TracesStorage
   alias Phoenix.LiveView.AsyncResult
 
   @required_assigns [:node_id, :lv_process]
@@ -44,8 +43,14 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
           <:loading>
             <NodeStateComponents.loading />
           </:loading>
-          <:failed>
-            <NodeStateComponents.failed />
+          <:failed :let={reason}>
+            <%= if reason == :no_history_record do %>
+              <div class="text-secondary-text flex-grow flex items-center justify-center ">
+                <span>No history records</span>
+              </div>
+            <% else %>
+              <NodeStateComponents.failed />
+            <% end %>
           </:failed>
 
           <div class="flex flex-grow justify-center items-center gap-2 mb-4">
