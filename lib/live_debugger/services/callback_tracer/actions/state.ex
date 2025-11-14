@@ -10,6 +10,44 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.Services.CallbackTracer.Events.StreamUpdated
+
+  def maybe_save_state!(%FunctionTrace{
+        pid: pid,
+        function: :render,
+        type: :return_from,
+        args: [%{streams: streams} = arg_map | _]
+      })
+      when is_map(arg_map) and is_map_key(arg_map, :streams) do
+    changed = streams[:__changed__]
+    configured = streams[:__configured__]
+
+    streams
+    |> Map.values()
+    |> Enum.each(fn
+      %Phoenix.LiveView.LiveStream{name: name} = stream ->
+        if MapSet.member?(changed, name) do
+          conf_fun =
+            configured
+            |> Map.get(name, [])
+            |> Keyword.get(:dom_id)
+
+          Bus.broadcast_state!(
+            %StreamUpdated{
+              pid: pid,
+              stream: stream,
+              dom_id_fun: conf_fun
+            },
+            pid
+          )
+        end
+
+      _ ->
+        :skip
+    end)
+
+    do_save_state!(pid)
+  end
 
   @doc """
   It checks if the trace is state changing and if so, it saves the state.
