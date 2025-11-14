@@ -62,7 +62,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
     |> assign(:lv_process, lv_process)
     |> assign(:node_id, node_id)
     |> assign(:assigns_search_phrase, "")
-    |> assign(:async_jobs, AsyncResult.loading())
+    |> assign(:async_jobs, AsyncResult.ok([]))
     |> start_async(:fetch_async_jobs, fn -> AsyncJobsQueries.fetch_async_jobs(lv_process.pid) end)
     |> ok()
   end
@@ -74,11 +74,6 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
       <.section title="Async jobs" id="async-jobs" inner_class="mx-0 p-4" class="flex-1">
         <div class="w-full h-full flex flex-col gap-4">
           <.async_result :let={async_jobs} assign={@async_jobs}>
-            <:loading>
-              <div class="w-full flex items-center justify-center h-10">
-                <.spinner size="sm" />
-              </div>
-            </:loading>
             <:failed>
               <div class="flex justify-center items-center h-full">
                 <.alert class="w-full" with_icon heading="Error while fetching async jobs">
