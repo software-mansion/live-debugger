@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.RefreshBu
   use LiveDebugger.App.Web, :hook_component
 
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
 
   @impl true
   def init(socket) do
@@ -17,26 +18,41 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.RefreshBu
   end
 
   attr(:label_class, :string, default: "")
+  attr(:display_mode, :atom, required: true, values: [:normal, :dropdown])
 
   @impl true
   def render(assigns) do
     ~H"""
-    <.button
-      phx-click="refresh-history"
-      aria-label="Refresh traces"
-      class="flex gap-2"
-      variant="secondary"
-      size="sm"
+    <TraceSettings.maybe_add_tooltip
+      display_mode={@display_mode}
+      id="refresh-tooltip"
+      content="Refresh"
+      position="top-center"
     >
-      <.icon name="icon-refresh" class="w-4 h-4" />
-      <div class={@label_class}>
-        Refresh
-      </div>
-    </.button>
+      <.button
+        phx-click="refresh-history"
+        aria-label="Refresh traces"
+        class={[
+          "flex gap-2",
+          @label_class,
+          @display_mode == :dropdown && "!w-full !border-none text-primary-text"
+        ]}
+        variant="secondary"
+        size="sm"
+      >
+        <%= if @display_mode == :normal do %>
+          <.icon name="icon-refresh" class="w-4 h-4" />
+        <% else %>
+          <TraceSettings.dropdown_item icon="icon-refresh" label="Refresh" />
+        <% end %>
+      </.button>
+    </TraceSettings.maybe_add_tooltip>
     """
   end
 
   defp handle_event("refresh-history", _, socket) do
+    LiveDebugger.App.Web.LiveComponents.LiveDropdown.close("tracing-options-dropdown")
+
     socket
     |> Hooks.ExistingTraces.assign_async_existing_traces()
     |> halt()
