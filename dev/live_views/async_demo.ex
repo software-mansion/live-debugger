@@ -5,7 +5,8 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
     socket =
       socket
       |> assign(start_async_result: nil)
-      |> assign(async_data: nil)
+      |> assign(async_data1: nil)
+      |> assign(async_data2: nil)
       |> assign(start_async_loading: false)
 
     {:ok, socket}
@@ -35,8 +36,8 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
             <.button id="assign-async-button" phx-click="trigger_assign_async" color="green">
               Trigger assign_async
             </.button>
-            <%= if @async_data do %>
-              <.async_result :let={data} assign={@async_data}>
+            <%= if @async_data1 do %>
+              <.async_result :let={data} assign={@async_data1}>
                 <:loading>
                   <span class="text-yellow-500">Loading async data...</span>
                 </:loading>
@@ -49,7 +50,7 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
               </.async_result>
             <% else %>
               <span class="text-xl">
-                Data: <%= inspect(@async_data) %>
+                Data: <%= inspect(@async_data1) %>
               </span>
             <% end %>
           </div>
