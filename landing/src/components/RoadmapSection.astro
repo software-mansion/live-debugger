@@ -2,6 +2,7 @@
 import ContentWrapper from "../components/ContentWrapper.tsx";
 import { Accordion } from "@/components/ui/AccordionWrapper";
 import CTA from "@/components/CTA.astro";
+import { Lightbulb } from "lucide-react";
 
 const accordionData = [
   {
@@ -63,16 +64,15 @@ const accordionData = [
     <Accordion data={accordionData} client:idle />
 
     <CTA
-      title="Have a feature idea?"
-      buttonText="Let us know"
+      title="Have a feature idea? Let us know!"
+      buttonText="Submit a Github issue"
       url="https://github.com/software-mansion/live-debugger/issues/new/choose"
+      buttonText2="Fill out feedback survey"
+      url2="https://docs.google.com/forms/d/e/1FAIpQLSftsztVznsYRt6G-rv6Wk-ZppS4SkgM-5r6o38YxZYieatPLQ/viewform?usp=sharing&ouid=114462502893566863638"
     >
-      <img
-        src={`/live-debugger/assets/github-3.svg`}
-        class="h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10"
-        alt={"github icon"}
-        width="16"
-        height="16"
+      <Lightbulb
+        className="h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10"
+        strokeWidth={1}
       />
     </CTA>
   </ContentWrapper>
