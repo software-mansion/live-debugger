@@ -15,7 +15,7 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
   def render(assigns) do
     ~H"""
     <.box title="Async Demo [LiveView]" color="purple">
-      <div class="flex flex-col gap-4">
+      <div class="flex flex-col gap-4 mb-4">
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
             <.button id="start-async-button" phx-click="trigger_start_async" color="blue">
@@ -68,6 +68,10 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
           </div>
         </div>
       </div>
+      <.live_component
+        module={LiveDebuggerDev.LiveComponents.AsyncDemoComponent}
+        id="async-demo-component"
+      />
     </.box>
     """
   end
