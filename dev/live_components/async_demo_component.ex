@@ -8,6 +8,8 @@ defmodule LiveDebuggerDev.LiveComponents.AsyncDemoComponent do
       |> assign(component_async_data1: nil)
       |> assign(component_async_data2: nil)
       |> assign(component_start_async_loading: false)
+      |> assign(component_cancelable_result: nil)
+      |> assign(component_cancelable_loading: false)
 
     {:ok, socket}
   end
@@ -79,6 +81,34 @@ defmodule LiveDebuggerDev.LiveComponents.AsyncDemoComponent do
               </.button>
             </div>
           </div>
+
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <.button
+                id="component-start-cancelable-async-button"
+                phx-click="component_trigger_cancelable_async"
+                phx-target={@myself}
+                color="orange"
+              >
+                Trigger cancelable async
+              </.button>
+              <%= if @component_cancelable_loading do %>
+                <.button
+                  id="component-cancel-async-button"
+                  phx-click="component_cancel_async_job"
+                  phx-target={@myself}
+                  color="red"
+                >
+                  Cancel
+                </.button>
+                <span class="text-yellow-500">Loading (can be cancelled)...</span>
+              <% else %>
+                <span class="text-xl">
+                  Result: <%= inspect(@component_cancelable_result) %>
+                </span>
+              <% end %>
+            </div>
+          </div>
         </div>
       </.box>
     </div>
@@ -123,6 +153,29 @@ defmodule LiveDebuggerDev.LiveComponents.AsyncDemoComponent do
     {:noreply, socket}
   end
 
+  def handle_event("component_trigger_cancelable_async", _params, socket) do
+    socket =
+      socket
+      |> assign(component_cancelable_loading: true)
+      |> assign(component_cancelable_result: nil)
+      |> start_async(:component_cancelable_fetch, fn ->
+        Process.sleep(10000)
+        {:ok, "Component cancelable data fetched at #{DateTime.utc_now()}"}
+      end)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("component_cancel_async_job", _params, socket) do
+    socket =
+      socket
+      |> cancel_async(:component_cancelable_fetch)
+      |> assign(component_cancelable_loading: false)
+      |> assign(component_cancelable_result: "Cancelled by user")
+
+    {:noreply, socket}
+  end
+
   def handle_async(:component_fetch_data, {:ok, result}, socket) do
     socket =
       socket
@@ -142,6 +195,24 @@ defmodule LiveDebuggerDev.LiveComponents.AsyncDemoComponent do
   end
 
   def handle_async(:component_fetch_data_no_render, _, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_async(:component_cancelable_fetch, {:ok, result}, socket) do
+    socket =
+      socket
+      |> assign(component_cancelable_result: result)
+      |> assign(component_cancelable_loading: false)
+
+    {:noreply, socket}
+  end
+
+  def handle_async(:component_cancelable_fetch, {:exit, reason}, socket) do
+    socket =
+      socket
+      |> assign(component_cancelable_result: "Cancelled: #{inspect(reason)}")
+      |> assign(component_cancelable_loading: false)
+
     {:noreply, socket}
   end
 end

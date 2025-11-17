@@ -8,6 +8,8 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
       |> assign(async_data1: nil)
       |> assign(async_data2: nil)
       |> assign(start_async_loading: false)
+      |> assign(cancelable_result: nil)
+      |> assign(cancelable_loading: false)
 
     {:ok, socket}
   end
@@ -67,6 +69,28 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
             </.button>
           </div>
         </div>
+
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center gap-2">
+            <.button
+              id="start-cancelable-async-button"
+              phx-click="trigger_cancelable_async"
+              color="orange"
+            >
+              Trigger cancelable async
+            </.button>
+            <%= if @cancelable_loading do %>
+              <.button id="cancel-async-button" phx-click="cancel_async_job" color="red">
+                Cancel
+              </.button>
+              <span class="text-yellow-500">Loading (can be cancelled)...</span>
+            <% else %>
+              <span class="text-xl">
+                Result: <%= inspect(@cancelable_result) %>
+              </span>
+            <% end %>
+          </div>
+        </div>
       </div>
       <.live_component
         module={LiveDebuggerDev.LiveComponents.AsyncDemoComponent}
@@ -114,6 +138,29 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
     {:noreply, socket}
   end
 
+  def handle_event("trigger_cancelable_async", _params, socket) do
+    socket =
+      socket
+      |> assign(cancelable_loading: true)
+      |> assign(cancelable_result: nil)
+      |> start_async(:cancelable_fetch, fn ->
+        Process.sleep(10000)
+        {:ok, "Cancelable data fetched at #{DateTime.utc_now()}"}
+      end)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("cancel_async_job", _params, socket) do
+    socket =
+      socket
+      |> cancel_async(:cancelable_fetch)
+      |> assign(cancelable_loading: false)
+      |> assign(cancelable_result: "Cancelled by user")
+
+    {:noreply, socket}
+  end
+
   def handle_async(:fetch_data, {:ok, result}, socket) do
     socket =
       socket
@@ -133,6 +180,24 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
   end
 
   def handle_async(:fetch_data_no_render, _, socket) do
+    {:noreply, socket}
+  end
+
+  def handle_async(:cancelable_fetch, {:ok, result}, socket) do
+    socket =
+      socket
+      |> assign(cancelable_result: result)
+      |> assign(cancelable_loading: false)
+
+    {:noreply, socket}
+  end
+
+  def handle_async(:cancelable_fetch, {:exit, reason}, socket) do
+    socket =
+      socket
+      |> assign(cancelable_result: "Cancelled: #{inspect(reason)}")
+      |> assign(cancelable_loading: false)
+
     {:noreply, socket}
   end
 end
