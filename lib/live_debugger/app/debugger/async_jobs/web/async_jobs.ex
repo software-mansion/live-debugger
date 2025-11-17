@@ -5,6 +5,8 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
 
   use LiveDebugger.App.Web, :live_view
 
+  import LiveDebugger.App.Debugger.AsyncJobs.Components
+
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Bus
@@ -12,7 +14,6 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
   alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
 
   alias LiveDebugger.App.Debugger.AsyncJobs.Queries, as: AsyncJobsQueries
-  alias LiveDebugger.App.Debugger.AsyncJobs.Structs.AsyncJob
 
   @doc """
   Renders the `AsyncJobsLive` as a nested LiveView component.
@@ -72,7 +73,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
     ~H"""
     <div class="max-w-full flex flex-1">
       <.section title="Async jobs" id="async-jobs" inner_class="mx-0 p-4" class="flex-1">
-        <div class="w-full h-full flex flex-col gap-4">
+        <div class="w-full h-full flex flex-col gap-2">
           <.async_result :let={async_jobs} assign={@async_jobs}>
             <:failed>
               <div class="flex justify-center items-center h-full">
@@ -88,12 +89,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
             <% end %>
 
             <%= for async_job <- async_jobs do %>
-              <div class="flex gap-2">
-                <span class="text-sm">
-                  <%= inspect(AsyncJob.identifier(async_job)) %>
-                </span>
-                <span class="text-sm"><%= inspect(async_job.pid) %></span>
-              </div>
+              <.async_job id={"async-job-#{inspect(async_job.pid)}"} async_job={async_job} />
             <% end %>
           </.async_result>
         </div>

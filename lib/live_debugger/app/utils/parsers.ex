@@ -127,6 +127,13 @@ defmodule LiveDebugger.App.Utils.Parsers do
     end
   end
 
+  @spec list_to_string(list :: list()) :: String.t()
+  def list_to_string(list) do
+    list
+    |> Enum.map(&inspect(&1, limit: :infinity, pretty: true, structs: false))
+    |> Enum.join(", ")
+  end
+
   @spec module_to_string(module :: module()) :: String.t()
   def module_to_string(module) do
     module
