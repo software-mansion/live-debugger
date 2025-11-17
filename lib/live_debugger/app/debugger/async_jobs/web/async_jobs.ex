@@ -64,7 +64,9 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
     |> assign(:node_id, node_id)
     |> assign(:assigns_search_phrase, "")
     |> assign(:async_jobs, AsyncResult.ok([]))
-    |> start_async(:fetch_async_jobs, fn -> AsyncJobsQueries.fetch_async_jobs(lv_process.pid) end)
+    |> start_async(:fetch_async_jobs, fn ->
+      AsyncJobsQueries.fetch_async_jobs(lv_process.pid, node_id)
+    end)
     |> ok()
   end
 
@@ -110,7 +112,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
 
     if node_id == cid or (node_id == pid and cid == nil) do
       socket
-      |> start_async(:fetch_async_jobs, fn -> AsyncJobsQueries.fetch_async_jobs(pid) end)
+      |> start_async(:fetch_async_jobs, fn -> AsyncJobsQueries.fetch_async_jobs(pid, node_id) end)
       |> noreply()
     else
       {:noreply, socket}
