@@ -58,19 +58,17 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
           </:failed>
 
           <div class="flex flex-grow justify-center items-center gap-2 mb-4">
-            <div class="max-w-1/2 overflow-x-auto">
+            <div id="history-old-assigns" class="max-w-1/2 overflow-x-auto">
               <ElixirDisplay.static_term
                 :if={history_entries.old != nil}
-                id="assigns-display-fullscreen-term-2"
                 node={history_entries.old |> elem(1)}
                 click_event="toggle_diff_node"
                 diff={history_entries.diff}
                 diff_class="bg-diff-negative-bg"
               />
             </div>
-            <div class="max-w-1/2 overflow-x-auto">
+            <div id="history-new-assigns" class="max-w-1/2 overflow-x-auto">
               <ElixirDisplay.static_term
-                id="assigns-display-fullscreen-term-3"
                 node={history_entries.new |> elem(1)}
                 click_event="toggle_diff_node"
                 diff={history_entries.diff}

@@ -60,7 +60,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
     """
   end
 
-  attr(:id, :string, default: "")
+  attr(:id, :string, default: nil)
   attr(:node, TermNode, required: true)
   attr(:click_event, :string, default: "toggle_node")
   attr(:diff, Diff, default: nil)
@@ -71,6 +71,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   def static_term(assigns) do
     assigns =
       assigns
+      |> assign(:text_items_id, if(assigns.id, do: assigns.id <> assigns.node.id))
       |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
@@ -94,10 +95,13 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
         >
           <:label :let={open}>
             <%= if open do %>
-              <.text_items id={@id <> @node.id <> "-expanded-before"} items={@node.expanded_before} />
+              <.text_items
+                id={if(@id, do: @text_items_id <> "-expanded-before")}
+                items={@node.expanded_before}
+              />
             <% else %>
               <div class={content_diff_class(@diff, @diff_class)}>
-                <.text_items id={@id <> @node.id <> "-content"} items={@node.content} />
+                <.text_items id={if(@id, do: @text_items_id <> "-content")} items={@node.content} />
               </div>
             <% end %>
           </:label>
@@ -118,12 +122,15 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
             </li>
           </ol>
           <div class="ml-[2ch]">
-            <.text_items id={@id <> @node.id <> "-expanded-after"} items={@node.expanded_after} />
+            <.text_items
+              id={if(@id, do: @text_items_id <> "-expanded-after")}
+              items={@node.expanded_after}
+            />
           </div>
         </.static_collapsible>
       <% else %>
         <div class="ml-[2ch]">
-          <.text_items id={@id <> @node.id} items={@node.content} />
+          <.text_items id={@text_items_id} items={@node.content} />
         </div>
       <% end %>
     </div>
