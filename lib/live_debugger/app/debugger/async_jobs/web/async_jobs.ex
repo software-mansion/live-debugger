@@ -105,20 +105,32 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
     |> noreply()
   end
 
-  def handle_info(%TraceReturned{function: :render}, socket) do
-    pid = socket.assigns.lv_process.pid
+  def handle_info(%TraceReturned{function: :render, cid: cid, pid: pid}, socket) do
+    node_id = socket.assigns.node_id
 
-    socket
-    |> start_async(:fetch_async_jobs, fn -> AsyncJobsQueries.fetch_async_jobs(pid) end)
-    |> noreply()
+    if node_id == cid or (node_id == pid and cid == nil) do
+      socket
+      |> start_async(:fetch_async_jobs, fn -> AsyncJobsQueries.fetch_async_jobs(pid) end)
+      |> noreply()
+    else
+      {:noreply, socket}
+    end
   end
 
-  def handle_info(%TraceReturned{ets_ref: ets_ref, trace_id: trace_id}, socket) do
+  def handle_info(
+        %TraceReturned{ets_ref: ets_ref, trace_id: trace_id, cid: cid, pid: pid},
+        socket
+      ) do
     trace_tuple = {ets_ref, trace_id}
+    node_id = socket.assigns.node_id
 
-    socket
-    |> start_async(:fetch_async_jobs, fn -> AsyncJobsQueries.fetch_async_jobs(trace_tuple) end)
-    |> noreply()
+    if node_id == cid or (node_id == pid and cid == nil) do
+      socket
+      |> start_async(:fetch_async_jobs, fn -> AsyncJobsQueries.fetch_async_jobs(trace_tuple) end)
+      |> noreply()
+    else
+      {:noreply, socket}
+    end
   end
 
   def handle_info(_, socket), do: {:noreply, socket}
