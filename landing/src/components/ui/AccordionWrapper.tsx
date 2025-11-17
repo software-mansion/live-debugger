@@ -24,7 +24,12 @@ const itemContent = (bulletpoints: string[]) => (
 
 export function Accordion({ data }: RoadmapAccordionProps) {
   return (
-    <BaseAccordion type="single" defaultValue={`item-0`} className="w-full">
+    <BaseAccordion
+      type="single"
+      collapsible
+      defaultValue={`item-0`}
+      className="w-full"
+    >
       {data.map((item, i) => {
         return (
           <AccordionItem value={`item-${i.toFixed()}`} key={item.versionNumber}>
