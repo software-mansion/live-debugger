@@ -45,20 +45,13 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Queries do
   end
 
   defp fetch_node_state(pid, %Phoenix.LiveComponent.CID{cid: cid} = _node_id) do
-    case StatesStorage.get!(pid) do
-      nil ->
-        case LiveViewDebug.liveview_state(pid) do
-          {:ok, %LvState{components: components}} ->
-            state = Enum.find(components, fn component -> component.cid == cid end)
-            {:ok, state}
-
-          {:error, reason} ->
-            {:error, reason}
-        end
-
-      %LvState{components: components} ->
+    case LiveViewDebug.liveview_state(pid) do
+      {:ok, %LvState{components: components}} ->
         state = Enum.find(components, fn component -> component.cid == cid end)
         {:ok, state}
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

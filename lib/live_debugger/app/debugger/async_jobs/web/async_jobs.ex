@@ -112,17 +112,16 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
     |> noreply()
   end
 
-  def handle_info(%TraceReturned{function: :render, cid: cid, pid: pid}, socket) do
-    node_id = socket.assigns.node_id
+  def handle_info({:DOWN, _ref, :process, pid, _reason}, socket) do
+    async_jobs = socket.assigns.async_jobs.result || []
+    updated_async_jobs = Enum.filter(async_jobs, fn async_job -> async_job.pid != pid end)
 
-    if node_id == cid or (node_id == pid and cid == nil) do
-      socket
-      |> start_async(:fetch_async_jobs, fn -> AsyncJobsQueries.fetch_async_jobs(pid, node_id) end)
-      |> noreply()
-    else
-      {:noreply, socket}
-    end
+    socket
+    |> assign(:async_jobs, AsyncResult.ok(updated_async_jobs))
+    |> noreply()
   end
+
+  def handle_info(%TraceReturned{function: :render}, socket), do: {:noreply, socket}
 
   def handle_info(
         %TraceReturned{ets_ref: ets_ref, trace_id: trace_id, cid: cid, pid: pid},
@@ -145,6 +144,10 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
   @impl true
   def handle_async(:fetch_async_jobs, {:ok, {:ok, async_jobs}}, socket)
       when is_list(async_jobs) do
+    Enum.each(async_jobs, fn async_job ->
+      Process.monitor(async_job.pid)
+    end)
+
     socket
     |> assign(:async_jobs, AsyncResult.ok(async_jobs))
     |> noreply()
