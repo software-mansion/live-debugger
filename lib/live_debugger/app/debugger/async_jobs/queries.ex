@@ -4,7 +4,6 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Queries do
   """
 
   alias LiveDebugger.API.LiveViewDebug
-  alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.Structs.LvState
   alias LiveDebugger.Structs.Trace.FunctionTrace
@@ -35,13 +34,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Queries do
   end
 
   defp fetch_node_state(pid, node_id) when is_pid(node_id) do
-    case StatesStorage.get!(pid) do
-      nil ->
-        LiveViewDebug.liveview_state(pid)
-
-      state ->
-        {:ok, state}
-    end
+    LiveViewDebug.liveview_state(pid)
   end
 
   defp fetch_node_state(pid, %Phoenix.LiveComponent.CID{cid: cid} = _node_id) do
