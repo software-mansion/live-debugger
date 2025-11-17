@@ -5,7 +5,7 @@
   --breakpoint-xl: initial;
   --breakpoint-2xl: initial;
 
-  --font-primary: "Aeonik", "sans-serif";
+  --font-primary: var(--font-aeonik), "sans-serif";
 
   --text-2xs: 14px;
   --text-2xs--line-height: 18px;
@@ -24,8 +24,7 @@
   --text-3xl: 34px;
   --text-3xl--line-height: 40px;
 
-  --font-weight-thin: 200;
-  --font-weight-normal: 250;
+  --font-weight-normal: 300;
   --font-weight-medium: 400;
   --font-weight-bold: 600;
 
@@ -106,47 +105,47 @@
       --text-3xl: 34px;
       --text-3xl--line-height: 40px;
     }
+  }
 
-    @variant md {
-      :root {
-        --text-2xs: 14px;
-        --text-2xs--line-height: 18px;
-        --text-xs: 14px;
-        --text-xs--line-height: 20px;
-        --text-sm: 16px;
-        --text-sm--line-height: 24px;
-        --text-md: 18px;
-        --text-md--line-height: 26px;
-        --text-lg: 20px;
-        --text-lg--line-height: 30px;
-        --text-xl: 26px;
-        --text-xl--line-height: 36px;
-        --text-2xl: 40px;
-        --text-2xl--line-height: 50px;
-        --text-3xl: 52px;
-        --text-3xl--line-height: 62px;
-      }
+  @variant md {
+    :root {
+      --text-2xs: 14px;
+      --text-2xs--line-height: 18px;
+      --text-xs: 14px;
+      --text-xs--line-height: 20px;
+      --text-sm: 16px;
+      --text-sm--line-height: 24px;
+      --text-md: 18px;
+      --text-md--line-height: 26px;
+      --text-lg: 20px;
+      --text-lg--line-height: 30px;
+      --text-xl: 26px;
+      --text-xl--line-height: 36px;
+      --text-2xl: 40px;
+      --text-2xl--line-height: 50px;
+      --text-3xl: 52px;
+      --text-3xl--line-height: 62px;
     }
+  }
 
-    @variant lg {
-      :root {
-        --text-2xs: 14px;
-        --text-2xs--line-height: 18px;
-        --text-xs: 16px;
-        --text-xs--line-height: 24px;
-        --text-sm: 18px;
-        --text-sm--line-height: 26px;
-        --text-md: 20px;
-        --text-md--line-height: 28px;
-        --text-lg: 24px;
-        --text-lg--line-height: 36px;
-        --text-xl: 36px;
-        --text-xl--line-height: 50px;
-        --text-2xl: 52px;
-        --text-2xl--line-height: 64px;
-        --text-3xl: 64px;
-        --text-3xl--line-height: 74px;
-      }
+  @variant lg {
+    :root {
+      --text-2xs: 14px;
+      --text-2xs--line-height: 18px;
+      --text-xs: 16px;
+      --text-xs--line-height: 24px;
+      --text-sm: 18px;
+      --text-sm--line-height: 26px;
+      --text-md: 20px;
+      --text-md--line-height: 28px;
+      --text-lg: 24px;
+      --text-lg--line-height: 36px;
+      --text-xl: 36px;
+      --text-xl--line-height: 50px;
+      --text-2xl: 52px;
+      --text-2xl--line-height: 64px;
+      --text-3xl: 64px;
+      --text-3xl--line-height: 74px;
     }
   }
   code {

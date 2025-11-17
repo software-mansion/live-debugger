@@ -82,12 +82,12 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
                         alt="Software Mansion"
                         className="h-7 w-auto md:h-8 lg:h-9"
                       />
-                      <h2 className="mb-3 text-center text-[24px] font-bold sm:text-[28px] lg:text-[36px]">
+                      <h2 className="mb-3 text-center text-2xl font-bold sm:text-[28px] lg:text-[36px]">
                         We are Software Mansion
                       </h2>
                     </div>
 
-                    <h2 className="w-full text-center text-xs font-thin md:w-3/5">
+                    <h2 className="w-full text-center text-lg font-normal md:w-3/5">
                       You might know us from Elixir Stream Week, Global Elixir
                       Meetups, or from projects like Popcorn and Membrane. But
                       that’s not all we do.
@@ -104,7 +104,7 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
                     rel="noopener"
                   >
                     <Button variant="secondary" size="footer">
-                      <p className="text-medium px-3 text-sm">Learn more</p>
+                      <p className="text-medium text-md px-3">Learn more</p>
                     </Button>
                   </a>
                 </div>
@@ -129,7 +129,7 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
               </div>
 
               <div className="flex flex-col items-center gap-4 md:gap-6">
-                <p className="text-2xs font-thin">Check our socials</p>
+                <p className="text-md font-normal">Check our socials</p>
 
                 <div className="flex items-center gap-1">
                   {socials.map(({ icon, href }) => (
@@ -150,7 +150,7 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
                     </a>
                   ))}
                 </div>
-                <p className="text-2xs mt-3 font-thin">
+                <p className="text-md mt-3 font-normal">
                   &copy; Software Mansion 2025.
                 </p>
               </div>

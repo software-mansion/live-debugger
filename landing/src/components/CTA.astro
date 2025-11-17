@@ -14,7 +14,7 @@ const url2 = Astro.props.url2;
   <IconBox variant="secondary">
     <slot />
   </IconBox>
-  <h2 class="text-md font-medium">{title}</h2>
+  <h2 class="text-lg font-medium">{title}</h2>
   <div class="flex w-full flex-col items-center gap-3">
     <Button variant="outline" size="wfull">
       <a
@@ -23,7 +23,7 @@ const url2 = Astro.props.url2;
         rel="noopener noreferrer"
         class="flex flex-row items-center justify-center"
       >
-        <p class="text-medium px-2 text-sm">{buttonText}</p>
+        <p class="text-md px-2">{buttonText}</p>
         <ArrowRight strokeWidth={1} className="h-5 w-5 md:h-6 md:w-6" />
       </a>
     </Button>
@@ -38,7 +38,7 @@ const url2 = Astro.props.url2;
               rel="noopener noreferrer"
               class="flex flex-row items-center justify-center"
             >
-              <p class="text-medium px-2 text-sm">{buttonText2}</p>
+              <p class="text-md px-2">{buttonText2}</p>
               <ArrowRight strokeWidth={1} className="h-5 w-5 md:h-6 md:w-6" />
             </a>
           </Button>
