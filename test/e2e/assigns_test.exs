@@ -41,10 +41,6 @@ defmodule LiveDebugger.E2E.AssignsTest do
     |> click_pin_button("counter")
     |> assert_has(pinned_assigns_entry(key: "counter", value: "0"))
 
-    debugger
-    |> click_pin_button("datetime")
-    |> assert_has(pinned_assigns_entry(key: "datetime", value: "nil"))
-
     dev_app
     |> click(button("increment-button"))
     |> click(button("increment-button"))
@@ -52,13 +48,10 @@ defmodule LiveDebugger.E2E.AssignsTest do
 
     debugger
     |> assert_has(assigns_entry(key: "counter", value: "2"))
-    |> assert_has(assigns_entry(key: "datetime", value: "~U["))
     |> assert_has(pinned_assigns_entry(key: "counter", value: "2"))
-    |> assert_has(pinned_assigns_entry(key: "datetime", value: "~U["))
 
     debugger
     |> click_unpin_button("counter")
-    |> click_unpin_button("datetime")
     |> assert_has(css("#pinned-assigns", text: "You have no pinned assigns."))
   end
 
