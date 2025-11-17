@@ -16,8 +16,8 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Queries do
   @type cid() :: LiveDebugger.CommonTypes.cid()
 
   @spec fetch_async_jobs(pid(), cid() | pid()) :: {:ok, [AsyncJob.t()]} | {:error, term()}
-  def fetch_async_jobs(pid, node_id) when is_pid(pid) and is_pid(node_id) do
-    with {:ok, state} <- fetch_node_state(pid),
+  def fetch_async_jobs(pid, node_id) when is_pid(pid) do
+    with {:ok, state} <- fetch_node_state(pid, node_id),
          live_async <- get_live_async(state) do
       {:ok, parse_live_async(live_async)}
     end
@@ -34,7 +34,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Queries do
     end
   end
 
-  defp fetch_node_state(pid) do
+  defp fetch_node_state(pid, node_id) when is_pid(node_id) do
     case StatesStorage.get!(pid) do
       nil ->
         LiveViewDebug.liveview_state(pid)
@@ -44,11 +44,33 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Queries do
     end
   end
 
+  defp fetch_node_state(pid, %Phoenix.LiveComponent.CID{cid: cid} = _node_id) do
+    case StatesStorage.get!(pid) do
+      nil ->
+        case LiveViewDebug.liveview_state(pid) do
+          {:ok, %LvState{components: components}} ->
+            state = Enum.find(components, fn component -> component.cid == cid end)
+            {:ok, state}
+
+          {:error, reason} ->
+            {:error, reason}
+        end
+
+      %LvState{components: components} ->
+        state = Enum.find(components, fn component -> component.cid == cid end)
+        {:ok, state}
+    end
+  end
+
   defp get_live_async(%LvState{socket: %{private: %{live_async: live_async}}}), do: live_async
 
   defp get_live_async(%FunctionTrace{
          return_value: {_, %Socket{private: %{live_async: live_async}}}
        }) do
+    live_async
+  end
+
+  defp get_live_async(%{cid: _cid, private: %{live_async: live_async}}) do
     live_async
   end
 

@@ -102,8 +102,13 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
 
   @impl true
   def handle_info(%NodeIdParamChanged{node_id: node_id}, socket) do
+    pid = socket.assigns.lv_process.pid
+
     socket
     |> assign(:node_id, node_id)
+    |> start_async(:fetch_async_jobs, fn ->
+      AsyncJobsQueries.fetch_async_jobs(pid, node_id)
+    end)
     |> noreply()
   end
 
