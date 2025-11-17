@@ -81,6 +81,11 @@ defmodule LiveDebugger.E2E.AssignsTest do
 
     debugger
     |> show_button(selector)
+
+    # Adding small sleep to ensure the button is visible
+    Process.sleep(100)
+
+    debugger
     |> click(css(selector))
   end
 
@@ -89,6 +94,11 @@ defmodule LiveDebugger.E2E.AssignsTest do
 
     debugger
     |> show_button(selector)
+
+    # Adding small sleep to ensure the button is visible
+    Process.sleep(100)
+
+    debugger
     |> click(css(selector))
   end
 
