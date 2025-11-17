@@ -74,8 +74,6 @@ defmodule LiveDebugger.E2E.AssignsTest do
 
     debugger
     |> show_button(selector)
-
-    debugger
     |> click(css(selector))
   end
 
@@ -84,8 +82,6 @@ defmodule LiveDebugger.E2E.AssignsTest do
 
     debugger
     |> show_button(selector)
-
-    debugger
     |> click(css(selector))
   end
 
