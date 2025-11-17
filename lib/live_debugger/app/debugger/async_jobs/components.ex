@@ -17,11 +17,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Components do
       id={@id}
       class="w-full grid grid-cols-[1fr_auto] border rounded border-default-border bg-surface-1-bg px-4 py-3"
     >
-      <.tooltip
-        id={@id <> "-subtitle-tooltip"}
-        content="Function that triggered the async job"
-        class="w-max"
-      >
+      <.tooltip id={@id <> "-subtitle-tooltip"} content="Async job type" class="w-max">
         <div class="text-primary text-2xs font-normal truncate">
           <%= async_job_subtitle(@async_job) %>
         </div>
