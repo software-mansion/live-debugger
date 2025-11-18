@@ -13,12 +13,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
 
   def node_traces_dropdown_menu(assigns) do
     ~H"""
-    <.live_component
-      module={LiveDropdown}
-      id={@id}
-      class={@class}
-      direction={:bottom_left}
-    >
+    <.live_component module={LiveDropdown} id={@id} class={@class} direction={:bottom_left}>
       <:button>
         <.dropdown_button />
       </:button>
