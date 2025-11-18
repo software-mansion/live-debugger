@@ -117,8 +117,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> noreply()
   end
 
-  def handle_event(_, _, socket), do: {:noreply, socket}
-
   @impl true
   def handle_info(%NodeIdParamChanged{node_id: node_id}, socket) do
     socket

@@ -48,13 +48,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
             <NodeStateComponents.loading />
           </:loading>
           <:failed :let={reason}>
-            <%= if reason == :no_history_record do %>
-              <div class="text-secondary-text flex-grow flex items-center justify-center ">
-                <span>No history records</span>
-              </div>
-            <% else %>
-              <NodeStateComponents.failed />
-            <% end %>
+            <.failed reason={reason} />
           </:failed>
 
           <div class="flex flex-grow justify-center items-center gap-2 mb-4">
