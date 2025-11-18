@@ -30,7 +30,7 @@ defmodule LiveDebugger.E2E.AsyncJobsTest do
     debugger
     |> assert_has(async_job_name(":fetch_data"))
 
-    Process.sleep(5500)
+    Process.sleep(600)
 
     debugger
     |> assert_has(no_async_jobs())
@@ -43,7 +43,7 @@ defmodule LiveDebugger.E2E.AsyncJobsTest do
     debugger
     |> assert_has(async_job_name(":async_data1, :async_data2"))
 
-    Process.sleep(5500)
+    Process.sleep(600)
 
     debugger
     |> assert_has(no_async_jobs())
@@ -59,7 +59,7 @@ defmodule LiveDebugger.E2E.AsyncJobsTest do
     debugger
     |> assert_has(async_job_name(":component_fetch_data"))
 
-    Process.sleep(5500)
+    Process.sleep(600)
 
     debugger
     |> assert_has(no_async_jobs())
@@ -72,7 +72,7 @@ defmodule LiveDebugger.E2E.AsyncJobsTest do
     debugger
     |> assert_has(async_job_name(":component_async_data1, :component_async_data2"))
 
-    Process.sleep(5500)
+    Process.sleep(600)
 
     debugger
     |> assert_has(no_async_jobs())
