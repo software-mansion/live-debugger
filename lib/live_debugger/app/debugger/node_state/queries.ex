@@ -46,19 +46,15 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
         {:error, :no_history_record}
 
       {render_traces, _} ->
+        history_length = length(render_traces)
+        index = min(index, history_length - 1)
+
         result =
           render_traces
           |> Enum.slice(index, 2)
           |> Enum.map(&(&1.args |> hd() |> Map.delete(:socket)))
-          |> case do
-            [new_assigns, old_assigns] ->
-              {{new_assigns, old_assigns}, length(render_traces)}
 
-            [initial_assigns] ->
-              {{initial_assigns}, length(render_traces)}
-          end
-
-        {:ok, result}
+        {:ok, {result, history_length}}
     end
   rescue
     error -> {:error, error}

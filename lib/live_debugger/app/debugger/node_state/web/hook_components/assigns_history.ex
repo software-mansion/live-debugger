@@ -178,18 +178,21 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
   defp handle_event(_, _, socket), do: {:cont, socket}
 
   defp handle_async(:fetch_history_entries, {:ok, {:ok, {entries, length}}}, socket) do
+    index = socket.assigns.current_history_index
+
     socket
+    |> assign(current_history_index: min(index, length - 1))
     |> assign(history_length: length)
     |> assign_async(:history_entries, fn ->
       case entries do
-        {new_assigns, old_assigns} ->
+        [new_assigns, old_assigns] ->
           new = {new_assigns, TermParser.term_to_display_tree(new_assigns)}
           old = {old_assigns, TermParser.term_to_display_tree(old_assigns)}
           diff = TermDiffer.diff(old_assigns, new_assigns)
 
           {:ok, %{history_entries: %{new: new, old: old, diff: diff}}}
 
-        {initial_assigns} ->
+        [initial_assigns] ->
           new = {initial_assigns, TermParser.term_to_display_tree(initial_assigns)}
 
           {:ok, %{history_entries: %{new: new, old: nil, diff: nil}}}
