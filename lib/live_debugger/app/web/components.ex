@@ -735,6 +735,7 @@ defmodule LiveDebugger.App.Web.Components do
   """
   attr(:icon, :string, required: true, doc: "Icon to be displayed.")
   attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
+  attr(:icon_class, :any, default: nil, doc: "Additional classes to add to the icon.")
   attr(:selected?, :boolean, default: false, doc: "Whether the icon is selected.")
   attr(:disabled?, :boolean, default: false, doc: "Whether the icon is disabled.")
 
@@ -760,12 +761,12 @@ defmodule LiveDebugger.App.Web.Components do
     <button
       aria-label={Format.kebab_to_text(@icon)}
       class={[
-        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold  #{@selected_class} #{@disabled_class}"
+        "w-8 h-8 px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold  #{@selected_class} #{@disabled_class}"
         | List.wrap(@class)
       ]}
       {@rest}
     >
-      <.icon name={@icon} class="h-6 w-6" />
+      <.icon name={@icon} class={["h-6 w-6", @icon_class]} />
     </button>
     """
   end

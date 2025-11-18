@@ -115,7 +115,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
             <%= if not @tracing_started? do %>
               <.node_traces_dropdown_menu
                 id="tracing-options-dropdown"
-                class="@[30rem]/traces:hidden"
+                class="@[30rem]/traces:hidden h-7!"
                 current_filters={@current_filters}
               />
 
