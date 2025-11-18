@@ -33,7 +33,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
       when not is_nil(node_id) do
     socket
     |> start_async(:fetch_node_streams, fn ->
-      StreamsQueries.fetch_node_streams(pid)
+      StreamsQueries.fetch_streams_from_render_traces(pid)
     end)
   end
 
@@ -42,8 +42,8 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
   end
 
   def assign_async_streams(
-        %{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket,
-        updated_streams,
+        %{assigns: %{node_id: node_id, lv_process: %{pid: _pid}}} = socket,
+        updated_stream,
         dom_id_fun
       )
       when not is_nil(node_id) do
@@ -54,14 +54,14 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
       _ ->
         socket
         |> start_async(:fetch_node_streams, fn ->
-          StreamsQueries.update_node_streams(pid, updated_streams, dom_id_fun)
+          StreamsQueries.update_stream(updated_stream, dom_id_fun)
         end)
     end
   end
 
   defp handle_async(
          :fetch_node_streams,
-         {:ok, {fun_list, config_list, stream_name}},
+         {:ok, {:ok, %{functions: fun_list, config: config, name: stream_name}}},
          %{
            assigns: %{
              stream_names: %AsyncResult{ok?: true, result: current_stream_names}
@@ -69,7 +69,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
          } = socket
        ) do
     socket
-    |> apply_stream_transformations(config_list)
+    |> apply_stream_transformations(config)
     |> maybe_assign_stream_name(stream_name, current_stream_names)
     |> apply_stream_transformations(fun_list)
     |> assign(
@@ -81,11 +81,11 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
 
   defp handle_async(
          :fetch_node_streams,
-         {:ok, {fun_list, config_list, stream_names}},
+         {:ok, {:ok, %{functions: fun_list, config: config, names: stream_names}}},
          socket
        ) do
     socket
-    |> apply_stream_transformations(config_list)
+    |> apply_stream_transformations(config)
     |> assign_stream_names(stream_names)
     |> apply_stream_transformations(fun_list)
     |> assign(:stream_names, AsyncResult.ok(stream_names))

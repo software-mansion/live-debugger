@@ -4,36 +4,39 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
   from render traces and mapping them into a list of functions.
   """
 
-  # @spec get_initial_stream_functions({stream_updates, _trace}) :: {list, list, map}
-  def get_initial_stream_functions({stream_updates, _trace}) do
-    stream_traces = extract_stream_traces(stream_updates)
-    stream_names = get_stream_names_map(stream_traces)
+  @type live_stream_item :: %Phoenix.LiveView.LiveStream{
+          name: atom(),
+          dom_id: (any() -> String.t()),
+          ref: String.t(),
+          inserts: list(),
+          deletes: list(),
+          reset?: boolean(),
+          consumable?: boolean()
+        }
 
-    fun_list = collect_updates_for_initial_stream(stream_traces, stream_names)
-    config_list = collect_config(stream_traces)
+  @type stream_entry :: %{
+          optional(atom()) => live_stream_item(),
+          __changed__: MapSet.t(atom()),
+          __configured__: %{optional(atom()) => [dom_id: (any() -> String.t())]},
+          __ref__: any()
+        }
 
-    {fun_list, config_list, stream_names}
-  end
+  @spec extract_stream_traces([LiveDebugger.Structs.Trace.FunctionTrace.t()]) ::
+          [stream_entry()]
+  def extract_stream_traces(stream_updates) do
+    stream_updates =
+      stream_updates
+      |> Enum.sort_by(& &1.timestamp, :asc)
+      |> Enum.flat_map(& &1.args)
+      |> Enum.map(&Map.get(&1, :streams, []))
+      |> Enum.reject(&Enum.empty?/1)
 
-  # @spec get_stream_functions_from_updates({stream_updates, _trace}) :: {list, list, map}
-  def get_stream_functions_from_updates(stream_updates, dom_id_fun) do
-    stream_name = stream_updates.name
-    fun_list = map_stream_entry_to_stream_function(stream_updates)
-    config_list = map_stream_entry_to_stream_config(stream_updates, dom_id: dom_id_fun)
-
-    {fun_list, config_list, stream_name}
-  end
-
-  defp extract_stream_traces(stream_updates) do
     stream_updates
-    |> Enum.sort_by(& &1.timestamp, :asc)
-    |> Enum.flat_map(& &1.args)
-    |> Enum.map(&Map.get(&1, :streams, []))
-    |> Enum.reject(&Enum.empty?/1)
   end
 
-  defp get_stream_names_map(updates) do
-    updates
+  @spec streams_names([stream_entry()]) :: [atom()]
+  def streams_names(update_list) do
+    update_list
     |> Enum.flat_map(fn update ->
       update
       |> Enum.filter(fn {_key, val} -> match?(%Phoenix.LiveView.LiveStream{}, val) end)
@@ -42,17 +45,65 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
     |> Enum.uniq()
   end
 
-  defp collect_updates_for_initial_stream(update_list, stream_names) do
-    update_map =
-      Enum.reduce(update_list, %{}, fn update, acc ->
-        process_update(acc, update, stream_names)
+  @spec streams_functions([stream_entry()], [atom()]) :: [function()]
+  def streams_functions(update_list, stream_names) do
+    update_list
+    |> Enum.reduce(%{}, fn update, acc ->
+      process_update(acc, update, stream_names)
+    end)
+    |> Enum.flat_map(fn {stream_name, inserts} ->
+      map_initial_stream_entry_to_stream_function(stream_name, inserts)
+    end)
+  end
+
+  @spec stream_update_functions(live_stream_item()) :: [function()]
+  def stream_update_functions(%Phoenix.LiveView.LiveStream{
+        name: name,
+        inserts: inserts,
+        deletes: deletes,
+        reset?: reset?,
+        consumable?: _consumable?
+      }) do
+    []
+    |> maybe_add_reset(reset?, name)
+    # Reverse to preserve the order of inserts
+    |> maybe_add_inserts(Enum.reverse(inserts), name)
+    |> maybe_add_deletes(deletes, name)
+  end
+
+  @spec stream_config(
+          live_stream_item(),
+          config :: [{:dom_id, (any() -> String.t()) | nil}]
+        ) :: [function()]
+  def stream_config(
+        %Phoenix.LiveView.LiveStream{
+          name: name
+        },
+        config
+      ) do
+    []
+    |> maybe_add_config(config, name)
+  end
+
+  @spec streams_config([stream_entry()], [atom()]) :: [function()]
+  def streams_config(update_list, stream_names) do
+    update_list
+    |> collect_stream_configs(stream_names)
+    |> Enum.uniq_by(fn {name, _config} -> name end)
+    |> Enum.flat_map(fn {_name, config} -> config end)
+  end
+
+  @spec collect_stream_configs([stream_entry()], [atom()]) :: [{atom(), [function()]}]
+  defp collect_stream_configs(update_list, stream_names) do
+    Enum.flat_map(update_list, fn update ->
+      stream_names
+      |> Enum.filter(&Map.has_key?(update, &1))
+      |> Enum.map(fn name ->
+        stream = Map.get(update, name)
+        conf = Map.get(update[:__configured__] || %{}, name)
+        {name, stream_config(stream, conf)}
       end)
-
-    fun_list =
-      update_map
-      |> Enum.flat_map(&flatten_stream_initial_updates/1)
-
-    fun_list
+    end)
   end
 
   defp process_update(acc, update, stream_names) do
@@ -81,21 +132,24 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
          inserts: inserts,
          deletes: deletes
        }) do
-    current =
-      Enum.reduce(inserts, current, fn
-        {dom_id, at, data, limit, updated?}, acc ->
-          [{dom_id, at, data, limit, updated?} | acc]
+    current
+    |> add_inserts(Enum.reverse(inserts))
+    |> remove_deleted(deletes)
+  end
 
-        {dom_id, at, data, limit}, acc ->
-          [{dom_id, at, data, limit} | acc]
+  defp add_inserts(current, inserts) do
+    Enum.reduce(inserts, current, fn insert, acc ->
+      [normalize_insert(insert) | acc]
+    end)
+  end
 
-        {dom_id, at, data}, acc ->
-          [{dom_id, at, data} | acc]
+  defp normalize_insert({dom_id, at, data, limit, updated?}),
+    do: {dom_id, at, data, limit, updated?}
 
-        _, acc ->
-          acc
-      end)
+  defp normalize_insert({dom_id, at, data, limit}), do: {dom_id, at, data, limit}
+  defp normalize_insert({dom_id, at, data}), do: {dom_id, at, data}
 
+  defp remove_deleted(current, deletes) do
     Enum.reject(current, fn
       {dom_id, _at, _data, _limit, _updated?} ->
         dom_id in deletes
@@ -108,44 +162,9 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
     end)
   end
 
-  defp collect_config(update_list) do
-    update_list =
-      update_list
-      |> Enum.map(&flatten_stream_config(&1))
-      # We only need the first render because config stays the same and cannot be changed
-      |> Enum.take(1)
-      |> List.flatten()
-
-    update_list
-  end
-
   defp map_initial_stream_entry_to_stream_function(stream_name, inserts) do
     []
     |> maybe_add_inserts(Enum.reverse(inserts), stream_name)
-  end
-
-  defp map_stream_entry_to_stream_function(%Phoenix.LiveView.LiveStream{
-         name: name,
-         inserts: inserts,
-         deletes: deletes,
-         reset?: reset?,
-         consumable?: _consumable?
-       }) do
-    []
-    |> maybe_add_reset(reset?, name)
-    # Reverse to preserve the order of inserts
-    |> maybe_add_inserts(Enum.reverse(inserts), name)
-    |> maybe_add_deletes(deletes, name)
-  end
-
-  defp map_stream_entry_to_stream_config(
-         %Phoenix.LiveView.LiveStream{
-           name: name
-         },
-         config
-       ) do
-    []
-    |> maybe_add_config(config, name)
   end
 
   defp maybe_add_config(functions, nil, _name), do: functions
@@ -220,23 +239,6 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
       fn socket ->
         Phoenix.LiveView.stream_delete_by_dom_id(socket, name, dom_id)
       end
-    end)
-  end
-
-  defp flatten_stream_initial_updates({stream_name, inserts}) do
-    map_initial_stream_entry_to_stream_function(stream_name, inserts)
-  end
-
-  defp flatten_stream_config(stream_entry) do
-    configured = Map.get(stream_entry, :__configured__)
-
-    Enum.flat_map(stream_entry, fn
-      {stream_name, %Phoenix.LiveView.LiveStream{} = stream} ->
-        name_config = Map.get(configured, stream_name)
-        map_stream_entry_to_stream_config(stream, name_config)
-
-      _ ->
-        []
     end)
   end
 end

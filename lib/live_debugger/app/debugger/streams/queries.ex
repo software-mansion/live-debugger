@@ -7,9 +7,40 @@ defmodule LiveDebugger.App.Debugger.Streams.Queries do
 
   alias LiveDebugger.App.Debugger.Streams.StreamUtils
 
-  @spec fetch_node_streams(pid :: pid()) ::
-          {:ok, map()} | {:error, term()}
-  def fetch_node_streams(pid) do
+  @type streams_result :: %{
+          functions: [function()],
+          config: map(),
+          names: [atom()]
+        }
+  @type stream_update_result :: %{
+          functions: [function()],
+          config: [function()],
+          name: atom()
+        }
+
+  @spec fetch_streams_from_render_traces(pid) :: {:ok, streams_result()} | {:error, String.t()}
+  def fetch_streams_from_render_traces(pid) do
+    with {:ok, render_traces} <- fetch_streams_traces(pid),
+         stream_traces <- StreamUtils.extract_stream_traces(render_traces),
+         names <- StreamUtils.streams_names(stream_traces),
+         funs <- StreamUtils.streams_functions(stream_traces, names),
+         config <- StreamUtils.streams_config(stream_traces, names) do
+      {:ok, %{functions: funs, config: config, names: names}}
+    end
+  end
+
+  @spec update_stream(stream_updates :: map(), dom_id_fun :: (any() -> String.t())) ::
+          {:ok, stream_update_result()} | {:error, String.t()}
+  def update_stream(stream_updates, dom_id_fun) do
+    with name <- stream_updates.name,
+         funs <- StreamUtils.stream_update_functions(stream_updates),
+         config <-
+           StreamUtils.stream_config(stream_updates, dom_id: dom_id_fun) do
+      {:ok, %{functions: funs, config: config, name: name}}
+    end
+  end
+
+  defp fetch_streams_traces(pid) do
     opts =
       [
         functions: ["render/1"]
@@ -19,12 +50,8 @@ defmodule LiveDebugger.App.Debugger.Streams.Queries do
       :end_of_table ->
         {:error, "No render traces found"}
 
-      stream_updates ->
-        StreamUtils.get_initial_stream_functions(stream_updates)
+      {stream_updates, _trace} ->
+        {:ok, stream_updates}
     end
-  end
-
-  def update_node_streams(_, stream_updates, dom_id_fun) do
-    StreamUtils.get_stream_functions_from_updates(stream_updates, dom_id_fun)
   end
 end
