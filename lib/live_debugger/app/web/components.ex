@@ -538,14 +538,16 @@ defmodule LiveDebugger.App.Web.Components do
 
   def fullscreen_button(assigns) do
     ~H"""
-    <.icon_button
-      id={"#{@id}-button"}
-      phx-click={@rest[:"phx-click"] || JS.dispatch("open", to: "##{@id}")}
-      icon={@icon}
-      data-fullscreen-id={@id}
-      variant="secondary"
-      {@rest}
-    />
+    <.tooltip id={@id <> "-tooltip"} content="Fullscreen" position="top-center">
+      <.icon_button
+        id={"#{@id}-button"}
+        phx-click={@rest[:"phx-click"] || JS.dispatch("open", to: "##{@id}")}
+        icon={@icon}
+        data-fullscreen-id={@id}
+        variant="secondary"
+        {@rest}
+      />
+    </.tooltip>
     """
   end
 
