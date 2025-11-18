@@ -39,6 +39,7 @@ defmodule LiveDebugger.App.Utils.TermNode do
         }
 
   @type ok_error() :: {:ok, t()} | {:error, any()}
+  @type open_settings() :: :default | :minimal
 
   defmodule DisplayElement do
     @moduledoc false
@@ -158,11 +159,16 @@ defmodule LiveDebugger.App.Utils.TermNode do
     end
   end
 
-  @spec open_with_default_settings(t()) :: t()
-  def open_with_default_settings(term_node) do
+  @spec open_with_settings(t(), open_settings()) :: t()
+  def open_with_settings(term_node, :default) do
     term_node
     |> open_first_element()
     |> open_small_lists_and_tuples()
+  end
+
+  def open_with_settings(term_node, :minimal) do
+    term_node
+    |> open_first_element()
   end
 
   @spec open_with_search_phrase(t(), String.t()) :: t()

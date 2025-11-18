@@ -186,8 +186,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
     |> assign_async(:history_entries, fn ->
       case entries do
         [new_assigns, old_assigns] ->
-          new = {new_assigns, TermParser.term_to_display_tree(new_assigns)}
-          old = {old_assigns, TermParser.term_to_display_tree(old_assigns)}
+          new =
+            {new_assigns, TermParser.term_to_display_tree(new_assigns, open_settings: :minimal)}
+
+          old =
+            {old_assigns, TermParser.term_to_display_tree(old_assigns, open_settings: :minimal)}
+
           diff = TermDiffer.diff(old_assigns, new_assigns)
 
           {:ok, %{history_entries: %{new: new, old: old, diff: diff}}}
