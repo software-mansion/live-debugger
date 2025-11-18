@@ -6,6 +6,6 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Structs.AsyncJob do
 
   @type t() :: StartAsync.t() | AsyncAssign.t()
 
-  def identifier(async) when is_struct(async, StartAsync), do: async.name
-  def identifier(async) when is_struct(async, AsyncAssign), do: async.keys
+  def identifier(%StartAsync{name: name}), do: name
+  def identifier(%AsyncAssign{keys: keys}), do: keys
 end

@@ -63,9 +63,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Queries do
   defp get_live_async(_), do: %{}
 
   defp parse_live_async(live_async) do
-    live_async
-    |> Enum.map(&parse_job/1)
-    |> Enum.reject(&is_nil/1)
+    Enum.map(live_async, &parse_job/1)
   end
 
   defp parse_job({name, {ref, pid, :start}}) when is_atom(name) do
