@@ -35,16 +35,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.RefreshBu
         class={[
           "flex gap-2",
           @label_class,
-          @display_mode == :dropdown && "!w-full !border-none text-primary-text"
+          @display_mode == :dropdown && "!w-full !border-none"
         ]}
         variant="secondary"
         size="sm"
       >
-        <%= if @display_mode == :normal do %>
-          <.icon name="icon-refresh" class="w-4 h-4" />
-        <% else %>
-          <TraceSettings.dropdown_item icon="icon-refresh" label="Refresh" />
-        <% end %>
+        <TraceSettings.action_icon display_mode={@display_mode} icon="icon-refresh" label="Refresh" />
       </.button>
     </TraceSettings.maybe_add_tooltip>
     """

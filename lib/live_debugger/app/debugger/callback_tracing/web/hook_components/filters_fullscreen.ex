@@ -78,15 +78,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
             "flex gap-1",
             if(@applied_filters_number > 0, do: "rounded-r-none"),
             @label_class,
-            @display_mode == :dropdown && "!w-full !border-none text-primary-text"
+            @display_mode == :dropdown && "!w-full !border-none"
           ]}
           phx-click="open-filters"
         >
-          <%= if @display_mode == :normal do %>
-            <.icon name="icon-filters" class="w-4 h-4" />
-          <% else %>
-            <TraceSettings.dropdown_item icon="icon-filters" label="Filters" />
-          <% end %>
+          <TraceSettings.action_icon display_mode={@display_mode} icon="icon-filters" label="Filters" />
 
           <span :if={@applied_filters_number > 0}>
             (<%= @applied_filters_number %>)

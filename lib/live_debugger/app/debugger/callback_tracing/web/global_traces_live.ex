@@ -124,14 +124,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
               <%= if not @tracing_started? do %>
                 <.global_traces_dropdown_menu class="@[30rem]/traces:hidden" />
 
-                <HookComponents.RefreshButton.render
-                  label_class="hidden @[30rem]/traces:block"
-                  display_mode={:normal}
-                />
-                <HookComponents.ClearButton.render
-                  label_class="hidden @[30rem]/traces:block"
-                  display_mode={:normal}
-                />
+                <div class="hidden @[30rem]/traces:flex gap-2">
+                  <HookComponents.RefreshButton.render display_mode={:normal} />
+                  <HookComponents.ClearButton.render display_mode={:normal} />
+                </div>
               <% end %>
             </div>
           </div>

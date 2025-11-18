@@ -9,12 +9,13 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
   attr(:current_filters, :map, required: true)
+  attr(:id, :string, required: true)
 
   def node_traces_dropdown_menu(assigns) do
     ~H"""
     <.live_component
       module={LiveDropdown}
-      id="tracing-options-dropdown"
+      id={@id}
       class={@class}
       direction={:bottom_left}
     >
@@ -49,10 +50,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
       direction={:bottom_left}
     >
       <:button>
-        <.nav_icon
-          icon="icon-chevrons-right"
-          class="border-button-secondary-border border hover:border-button-secondary-border-hover"
-        />
+        <.dropdown_button />
       </:button>
       <div class="min-w-44 flex flex-col">
         <HookComponents.RefreshButton.render display_mode={:dropdown} />
@@ -90,6 +88,29 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
     <% else %>
       <%= render_slot(@inner_block) %>
     <% end %>
+    """
+  end
+
+  attr(:display_mode, :atom, required: true)
+  attr(:icon, :string, required: true)
+  attr(:label, :string, default: nil)
+
+  def action_icon(assigns) do
+    ~H"""
+    <%= if @display_mode == :normal do %>
+      <.icon name={@icon} class="w-4 h-4" />
+    <% else %>
+      <.dropdown_item icon={@icon} label={@label} />
+    <% end %>
+    """
+  end
+
+  defp dropdown_button(assigns) do
+    ~H"""
+    <.nav_icon
+      icon="icon-chevrons-right"
+      class="border-button-secondary-border border hover:border-button-secondary-border-hover"
+    />
     """
   end
 end

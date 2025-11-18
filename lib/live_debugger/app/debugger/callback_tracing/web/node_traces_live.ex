@@ -100,35 +100,33 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
     <div class="max-w-full @container/traces flex flex-1">
       <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
         <:right_panel>
-          <div class="flex gap-2 items-center">
+          <div class="flex gap-2">
             <HookComponents.SearchInput.render
               disabled?={@tracing_started?}
               trace_search_phrase={@trace_search_phrase}
               class="h-7! w-full! @[47rem]/traces:w-64!"
             />
+
             <HookComponents.ToggleTracingButton.render
               tracing_started?={@tracing_started?}
               lv_process_alive?={@lv_process.alive?}
             />
+
             <%= if not @tracing_started? do %>
               <.node_traces_dropdown_menu
+                id="tracing-options-dropdown"
                 class="@[30rem]/traces:hidden"
                 current_filters={@current_filters}
               />
 
-              <HookComponents.RefreshButton.render
-                label_class="hidden @[30rem]/traces:block"
-                display_mode={:normal}
-              />
-              <HookComponents.ClearButton.render
-                label_class="hidden @[30rem]/traces:block"
-                display_mode={:normal}
-              />
-              <HookComponents.FiltersFullscreen.filters_button
-                label_class="hidden @[30rem]/traces:block"
-                current_filters={@current_filters}
-                display_mode={:normal}
-              />
+              <div class="hidden @[30rem]/traces:flex gap-2">
+                <HookComponents.RefreshButton.render display_mode={:normal} />
+                <HookComponents.ClearButton.render display_mode={:normal} />
+                <HookComponents.FiltersFullscreen.filters_button
+                  current_filters={@current_filters}
+                  display_mode={:normal}
+                />
+              </div>
             <% end %>
           </div>
         </:right_panel>
