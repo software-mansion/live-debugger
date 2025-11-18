@@ -1,6 +1,9 @@
 defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
   use DevWeb, :live_view
 
+  @short_load_time 500
+  @long_load_time 5000
+
   def mount(_params, _session, socket) do
     socket =
       socket
@@ -10,6 +13,9 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
       |> assign(start_async_loading: false)
       |> assign(cancelable_result: nil)
       |> assign(cancelable_loading: false)
+      |> assign(long_load: false)
+      |> assign(short_load_time: @short_load_time)
+      |> assign(long_load_time: @long_load_time)
 
     {:ok, socket}
   end
@@ -17,6 +23,19 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
   def render(assigns) do
     ~H"""
     <.box title="Async Demo [LiveView]" color="purple">
+      <div class="flex items-center gap-2 mb-4 p-2 bg-gray-100 rounded">
+        <input
+          type="checkbox"
+          id="long-load-toggle"
+          phx-click="toggle_long_load"
+          checked={@long_load}
+        />
+        <label for="long-load-toggle" class="cursor-pointer">
+          Long load (<%= @long_load_time %>ms) - currently: <%= if @long_load,
+            do: "ON (#{@long_load_time}ms)",
+            else: "OFF (#{@short_load_time}ms)" %>
+        </label>
+      </div>
       <div class="flex flex-col gap-4 mb-4">
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
@@ -100,12 +119,18 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
     """
   end
 
+  def handle_event("toggle_long_load", _params, socket) do
+    {:noreply, update(socket, :long_load, &(not &1))}
+  end
+
   def handle_event("trigger_start_async", _params, socket) do
+    sleep_time = get_sleep_time(socket)
+
     socket =
       socket
       |> assign(start_async_loading: true)
       |> start_async(:fetch_data, fn ->
-        Process.sleep(5000)
+        Process.sleep(sleep_time)
         {:ok, "Data fetched at #{DateTime.utc_now()}"}
       end)
 
@@ -113,9 +138,11 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
   end
 
   def handle_event("trigger_assign_async", _params, socket) do
+    sleep_time = get_sleep_time(socket)
+
     socket =
       assign_async(socket, [:async_data1, :async_data2], fn ->
-        Process.sleep(5000)
+        Process.sleep(sleep_time)
 
         {:ok,
          %{
@@ -128,10 +155,12 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
   end
 
   def handle_event("trigger_start_async_no_render", _params, socket) do
+    sleep_time = get_sleep_time(socket)
+
     socket =
       socket
       |> start_async(:fetch_data_no_render, fn ->
-        Process.sleep(5000)
+        Process.sleep(sleep_time)
         {:ok, "Data fetched at #{DateTime.utc_now()}"}
       end)
 
@@ -139,12 +168,14 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
   end
 
   def handle_event("trigger_cancelable_async", _params, socket) do
+    sleep_time = get_sleep_time(socket)
+
     socket =
       socket
       |> assign(cancelable_loading: true)
       |> assign(cancelable_result: nil)
       |> start_async(:cancelable_fetch, fn ->
-        Process.sleep(10000)
+        Process.sleep(sleep_time)
         {:ok, "Cancelable data fetched at #{DateTime.utc_now()}"}
       end)
 
@@ -199,5 +230,9 @@ defmodule LiveDebuggerDev.LiveViews.AsyncDemo do
       |> assign(cancelable_loading: false)
 
     {:noreply, socket}
+  end
+
+  defp get_sleep_time(socket) do
+    if socket.assigns.long_load, do: @long_load_time, else: @short_load_time
   end
 end

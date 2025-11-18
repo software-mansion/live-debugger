@@ -1,6 +1,9 @@
 defmodule LiveDebuggerDev.LiveComponents.AsyncDemoComponent do
   use DevWeb, :live_component
 
+  @short_load_time 500
+  @long_load_time 5000
+
   def mount(socket) do
     socket =
       socket
@@ -10,6 +13,9 @@ defmodule LiveDebuggerDev.LiveComponents.AsyncDemoComponent do
       |> assign(component_start_async_loading: false)
       |> assign(component_cancelable_result: nil)
       |> assign(component_cancelable_loading: false)
+      |> assign(component_long_load: false)
+      |> assign(component_short_load_time: @short_load_time)
+      |> assign(component_long_load_time: @long_load_time)
 
     {:ok, socket}
   end
@@ -18,6 +24,20 @@ defmodule LiveDebuggerDev.LiveComponents.AsyncDemoComponent do
     ~H"""
     <div>
       <.box title="Async Demo [LiveComponent]" color="teal">
+        <div class="flex items-center gap-2 mb-4 p-2 bg-gray-100 rounded">
+          <input
+            type="checkbox"
+            id="component-long-load-toggle"
+            phx-click="component_toggle_long_load"
+            phx-target={@myself}
+            checked={@component_long_load}
+          />
+          <label for="component-long-load-toggle" class="cursor-pointer">
+            Long load (<%= @component_long_load_time %>ms) - currently: <%= if @component_long_load,
+              do: "ON (#{@component_long_load_time}ms)",
+              else: "OFF (#{@component_short_load_time}ms)" %>
+          </label>
+        </div>
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-2">
             <div class="flex items-center gap-2">
@@ -115,12 +135,18 @@ defmodule LiveDebuggerDev.LiveComponents.AsyncDemoComponent do
     """
   end
 
+  def handle_event("component_toggle_long_load", _params, socket) do
+    {:noreply, update(socket, :component_long_load, &(not &1))}
+  end
+
   def handle_event("component_trigger_start_async", _params, socket) do
+    sleep_time = get_sleep_time(socket)
+
     socket =
       socket
       |> assign(component_start_async_loading: true)
       |> start_async(:component_fetch_data, fn ->
-        Process.sleep(5000)
+        Process.sleep(sleep_time)
         {:ok, "Component data fetched at #{DateTime.utc_now()}"}
       end)
 
@@ -128,9 +154,11 @@ defmodule LiveDebuggerDev.LiveComponents.AsyncDemoComponent do
   end
 
   def handle_event("component_trigger_assign_async", _params, socket) do
+    sleep_time = get_sleep_time(socket)
+
     socket =
       assign_async(socket, [:component_async_data1, :component_async_data2], fn ->
-        Process.sleep(5000)
+        Process.sleep(sleep_time)
 
         {:ok,
          %{
@@ -143,10 +171,12 @@ defmodule LiveDebuggerDev.LiveComponents.AsyncDemoComponent do
   end
 
   def handle_event("component_trigger_start_async_no_render", _params, socket) do
+    sleep_time = get_sleep_time(socket)
+
     socket =
       socket
       |> start_async(:component_fetch_data_no_render, fn ->
-        Process.sleep(5000)
+        Process.sleep(sleep_time)
         {:ok, "Component data fetched at #{DateTime.utc_now()}"}
       end)
 
@@ -154,12 +184,14 @@ defmodule LiveDebuggerDev.LiveComponents.AsyncDemoComponent do
   end
 
   def handle_event("component_trigger_cancelable_async", _params, socket) do
+    sleep_time = get_sleep_time(socket)
+
     socket =
       socket
       |> assign(component_cancelable_loading: true)
       |> assign(component_cancelable_result: nil)
       |> start_async(:component_cancelable_fetch, fn ->
-        Process.sleep(10000)
+        Process.sleep(sleep_time)
         {:ok, "Component cancelable data fetched at #{DateTime.utc_now()}"}
       end)
 
@@ -214,5 +246,9 @@ defmodule LiveDebuggerDev.LiveComponents.AsyncDemoComponent do
       |> assign(component_cancelable_loading: false)
 
     {:noreply, socket}
+  end
+
+  defp get_sleep_time(socket) do
+    if socket.assigns.component_long_load, do: @long_load_time, else: @short_load_time
   end
 end
