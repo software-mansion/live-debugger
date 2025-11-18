@@ -20,10 +20,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
       direction={:bottom_left}
     >
       <:button>
-        <.nav_icon
-          icon="icon-chevrons-right"
-          class="border-button-secondary-border border hover:border-button-secondary-border-hover"
-        />
+        <.dropdown_button />
       </:button>
       <div class="min-w-44 flex flex-col">
         <HookComponents.RefreshButton.render display_mode={:dropdown} />
