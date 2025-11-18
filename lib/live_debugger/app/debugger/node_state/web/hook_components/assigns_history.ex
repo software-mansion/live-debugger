@@ -91,7 +91,25 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
     assigns = assign(assigns, id: @assigns_history_id)
 
     ~H"""
-    <.fullscreen_button id={@id} icon="icon-history" phx-click="open-assigns-history" />
+    <.tooltip id="open-assigns-history-tooltip" content="Assigns history" position="top-center">
+      <.fullscreen_button id={@id} icon="icon-history" phx-click="open-assigns-history" />
+    </.tooltip>
+    """
+  end
+
+  attr(:reason, :any, default: nil)
+
+  defp failed(%{reason: :no_history_record} = assigns) do
+    ~H"""
+    <div class="text-secondary-text flex-grow flex items-center justify-center ">
+      <span>No history records</span>
+    </div>
+    """
+  end
+
+  defp failed(assigns) do
+    ~H"""
+    <NodeStateComponents.failed />
     """
   end
 

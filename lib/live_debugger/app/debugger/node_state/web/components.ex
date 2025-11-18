@@ -171,6 +171,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   def assigns_history_navigation(assigns) do
     ~H"""
     <div class="flex justify-end items-center gap-2 mb-4">
+      <div class="max-sm:max-w-70 flex items-center text-3xs py-2 px-3 rounded bg-button-secondary-bg text-button-secondary-content border-button-secondary-border border">
+        <.icon name="icon-info" class="w-4 h-4 mr-2" />
+        <span>
+          The history is constructed from registered <b>render/1</b> callbacks
+        </span>
+      </div>
       <.icon_button
         variant="secondary"
         icon="icon-chevrons-right"
