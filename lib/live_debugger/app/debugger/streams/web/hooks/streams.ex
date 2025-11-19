@@ -31,8 +31,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
   """
   def assign_async_streams(%{assigns: %{node_id: node_id, lv_process: %{pid: pid}}} = socket)
       when not is_nil(node_id) do
-    socket
-    |> start_async(:fetch_node_streams, fn ->
+    start_async(socket, :fetch_node_streams, fn ->
       StreamsQueries.fetch_streams_from_render_traces(pid, node_id)
     end)
   end
