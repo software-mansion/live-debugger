@@ -23,15 +23,12 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
 
   @spec extract_stream_traces([LiveDebugger.Structs.Trace.FunctionTrace.t()]) ::
           [stream_entry()]
-  def extract_stream_traces(stream_updates) do
-    stream_updates =
-      stream_updates
-      |> Enum.sort_by(& &1.timestamp, :asc)
-      |> Enum.flat_map(& &1.args)
-      |> Enum.map(&Map.get(&1, :streams, []))
-      |> Enum.reject(&Enum.empty?/1)
-
-    stream_updates
+  def extract_stream_traces(traces) do
+    traces
+    |> Enum.sort_by(& &1.timestamp, :asc)
+    |> Enum.flat_map(& &1.args)
+    |> Enum.map(&Map.get(&1, :streams, []))
+    |> Enum.reject(&Enum.empty?/1)
   end
 
   @spec streams_names([stream_entry()]) :: [atom()]
@@ -139,15 +136,9 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
 
   defp add_inserts(current, inserts) do
     Enum.reduce(inserts, current, fn insert, acc ->
-      [normalize_insert(insert) | acc]
+      [insert | acc]
     end)
   end
-
-  defp normalize_insert({dom_id, at, data, limit, updated?}),
-    do: {dom_id, at, data, limit, updated?}
-
-  defp normalize_insert({dom_id, at, data, limit}), do: {dom_id, at, data, limit}
-  defp normalize_insert({dom_id, at, data}), do: {dom_id, at, data}
 
   defp remove_deleted(current, deletes) do
     Enum.reject(current, fn
@@ -207,31 +198,35 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
   end
 
   defp create_insert_functions(inserts, name) do
-    Enum.map(inserts, fn
-      {_dom_id, at, element, limit, update?} ->
-        fn socket ->
-          Phoenix.LiveView.stream_insert(socket, name, element,
-            at: at,
-            limit: limit,
-            update: update?
-          )
-        end
+    Enum.map(inserts, &create_insert_function(&1, name))
+  end
 
-      # This cases are for old LiveView versions
-      {_dom_id, at, element, limit} ->
-        fn socket ->
-          Phoenix.LiveView.stream_insert(socket, name, element,
-            at: at,
-            limit: limit
-          )
-        end
+  defp create_insert_function({_dom_id, at, element, limit, update?}, name) do
+    fn socket ->
+      Phoenix.LiveView.stream_insert(socket, name, element,
+        at: at,
+        limit: limit,
+        update: update?
+      )
+    end
+  end
 
-      # For LiveView < 1.0
-      {_dom_id, at, element} ->
-        fn socket ->
-          Phoenix.LiveView.stream_insert(socket, name, element, at: at)
-        end
-    end)
+  # This cases are for old LiveView versions
+
+  defp create_insert_function({_dom_id, at, element, limit}, name) do
+    fn socket ->
+      Phoenix.LiveView.stream_insert(socket, name, element,
+        at: at,
+        limit: limit
+      )
+    end
+  end
+
+  # For LiveView < 1.0
+  defp create_insert_function({_dom_id, at, element}, name) do
+    fn socket ->
+      Phoenix.LiveView.stream_insert(socket, name, element, at: at)
+    end
   end
 
   defp create_delete_functions(deletes, name) do

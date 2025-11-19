@@ -7,6 +7,8 @@ defmodule LiveDebugger.App.Debugger.Streams.Queries do
 
   alias LiveDebugger.App.Debugger.Streams.StreamUtils
 
+  require Logger
+
   @type streams_result :: %{
           functions: [function()],
           config: map(),
@@ -18,14 +20,22 @@ defmodule LiveDebugger.App.Debugger.Streams.Queries do
           name: atom()
         }
 
-  @spec fetch_streams_from_render_traces(pid) :: {:ok, streams_result()} | {:error, String.t()}
-  def fetch_streams_from_render_traces(pid) do
-    with {:ok, render_traces} <- fetch_streams_traces(pid),
+  @spec fetch_streams_from_render_traces(pid :: pid(), node_id :: TreeNode.id()) ::
+          {:ok, streams_result()} | {:error, String.t()}
+  def fetch_streams_from_render_traces(pid, node_id) do
+    with {:ok, render_traces} <- fetch_render_traces(pid, node_id),
          stream_traces <- StreamUtils.extract_stream_traces(render_traces),
          names <- StreamUtils.streams_names(stream_traces),
          funs <- StreamUtils.streams_functions(stream_traces, names),
          config <- StreamUtils.streams_config(stream_traces, names) do
       {:ok, %{functions: funs, config: config, names: names}}
+    else
+      :end_of_table ->
+        :end_of_table
+
+      error ->
+        Logger.error("Failed to fetch streams: #{inspect(error)}")
+        {:error, "Failed to fetch streams"}
     end
   end
 
@@ -40,15 +50,10 @@ defmodule LiveDebugger.App.Debugger.Streams.Queries do
     end
   end
 
-  defp fetch_streams_traces(pid) do
-    opts =
-      [
-        functions: ["render/1"]
-      ]
-
-    case TracesStorage.get!(pid, opts) do
+  defp fetch_render_traces(pid, node_id) do
+    case TracesStorage.get!(pid, functions: ["render/1"], node_id: node_id) do
       :end_of_table ->
-        {:error, "No render traces found"}
+        :end_of_table
 
       {stream_updates, _trace} ->
         {:ok, stream_updates}

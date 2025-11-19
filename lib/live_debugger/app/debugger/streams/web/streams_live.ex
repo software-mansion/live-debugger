@@ -12,6 +12,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.StreamUpdated
+  alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
 
   @doc """
   Renders the `StreamsLive` as a nested LiveView component.
@@ -68,22 +69,34 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
   def render(assigns) do
     ~H"""
     <div class="flex-1 max-w-full flex flex-col gap-4">
-      <.async_result :let={stream_names} assign={@stream_names}>
-        <:loading>
-          <StreamsComponents.loading />
-        </:loading>
-        <:failed>
-          <StreamsComponents.failed />
-        </:failed>
+      <StreamsComponents.streams_section :if={not @stream_names.ok? or @stream_names.result != []}>
+        <:display>
+          <.async_result :let={stream_names} assign={@stream_names}>
+            <:loading>
+              <StreamsComponents.loading />
+            </:loading>
 
-        <StreamsComponents.stream_section
-          :if={Map.has_key?(assigns, :streams) and stream_names != []}
-          stream_names={stream_names}
-          existing_streams={@streams}
-        />
-      </.async_result>
+            <:failed>
+              <StreamsComponents.failed />
+            </:failed>
+
+            <StreamsComponents.streams_display_container
+              stream_names={stream_names}
+              existing_streams={@streams}
+            />
+          </.async_result>
+        </:display>
+      </StreamsComponents.streams_section>
     </div>
     """
+  end
+
+  @impl true
+  def handle_info(%NodeIdParamChanged{node_id: node_id}, socket) do
+    socket
+    |> assign(:node_id, node_id)
+    |> Hooks.Streams.assign_async_streams()
+    |> noreply()
   end
 
   @impl true

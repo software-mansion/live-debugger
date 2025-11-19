@@ -396,4 +396,54 @@ defmodule LiveDebugger.Fakes do
        LiveDebuggerDev.LiveComponents.Send => %{"send_outer" => 2}
      }, 9}
   end
+
+  def fake_stream_config_function(id) do
+    "#{id}-fake"
+  end
+
+  def live_stream(opts \\ []) do
+    name = Keyword.get(opts, :name, :items)
+    inserts = Keyword.get(opts, :inserts, [])
+    deletes = Keyword.get(opts, :deletes, [])
+    reset = Keyword.get(opts, :reset?, false)
+    consumable = Keyword.get(opts, :consumable?, false)
+
+    %Phoenix.LiveView.LiveStream{
+      name: name,
+      inserts: inserts,
+      deletes: deletes,
+      reset?: reset,
+      consumable?: consumable
+    }
+  end
+
+  def stream_entries(opts \\ []) do
+    default_stream = live_stream(name: :items)
+    default_config = %{}
+
+    streams = Keyword.get(opts, :streams, %{items: default_stream})
+    config = Keyword.get(opts, :config, default_config)
+
+    [
+      Map.merge(streams, %{__configured__: config})
+    ]
+  end
+
+  def stream_traces(opts \\ []) do
+    stream_opts = Keyword.get(opts, :streams, %{})
+    config_opts = Keyword.get(opts, :config, %{})
+
+    stream_entries = stream_entries(streams: stream_opts, config: config_opts)
+
+    [
+      %{
+        timestamp: 1,
+        args: [
+          %{
+            streams: hd(stream_entries)
+          }
+        ]
+      }
+    ]
+  end
 end

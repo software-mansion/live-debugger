@@ -22,9 +22,8 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
         pid: pid,
         function: :render,
         type: :return_from,
-        args: [%{streams: streams} = arg_map | _]
-      })
-      when is_map(arg_map) and is_map_key(arg_map, :streams) do
+        args: [%{streams: streams} | _]
+      }) do
     broadcast_stream_updates(pid, streams)
     do_save_state!(pid)
   end

@@ -1,6 +1,8 @@
 defmodule LiveDebuggerDev.LiveViews.Stream do
   use DevWeb, :live_view
 
+  alias LiveDebuggerDev.LiveComponents
+
   @impl true
   def mount(_params, _session, socket) do
     socket =
@@ -57,6 +59,8 @@ defmodule LiveDebuggerDev.LiveViews.Stream do
     </.box>
 
     <hr />
+
+    <.live_component id="stream_component" module={LiveComponents.StreamComponent} />
     """
   end
 

@@ -33,7 +33,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
       when not is_nil(node_id) do
     socket
     |> start_async(:fetch_node_streams, fn ->
-      StreamsQueries.fetch_streams_from_render_traces(pid)
+      StreamsQueries.fetch_streams_from_render_traces(pid, node_id)
     end)
   end
 
@@ -47,15 +47,14 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
         dom_id_fun
       )
       when not is_nil(node_id) do
-    case Map.get(socket.assigns, :stream_names, nil) do
-      nil ->
-        assign_async_streams(socket)
-
-      _ ->
-        socket
-        |> start_async(:fetch_node_streams, fn ->
+    case socket.assigns.stream_names do
+      %AsyncResult{ok?: true} ->
+        start_async(socket, :fetch_node_streams, fn ->
           StreamsQueries.update_stream(updated_stream, dom_id_fun)
         end)
+
+      _ ->
+        assign_async_streams(socket)
     end
   end
 
@@ -92,6 +91,12 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
     |> halt()
   end
 
+  defp handle_async(:fetch_node_streams, {:ok, :end_of_table}, socket) do
+    socket
+    |> assign(:stream_names, AsyncResult.ok([]))
+    |> halt()
+  end
+
   defp handle_async(:fetch_node_streams, {:ok, {:error, reason}}, socket) do
     socket
     |> assign(:stream_names, AsyncResult.failed(socket.assigns.stream_names, reason))
@@ -106,6 +111,15 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
     else
       stream(socket, stream_name, [])
     end
+  end
+
+  defp maybe_assign_stream_name(socket, stream_name, current_stream_names)
+       when stream_name in current_stream_names do
+    socket
+  end
+
+  defp maybe_assign_stream_name(socket, stream_name, _current_stream_names) do
+    stream(socket, stream_name, [])
   end
 
   defp assign_stream_names(socket, stream_names) do

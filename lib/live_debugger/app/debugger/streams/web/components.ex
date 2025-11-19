@@ -10,7 +10,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
 
   def loading(assigns) do
     ~H"""
-    <div class="w-full flex items-center justify-center">
+    <div class="w-full flex items-center justify-center p-4">
       <.spinner size="sm" />
     </div>
     """
@@ -18,39 +18,42 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
 
   def failed(assigns) do
     ~H"""
-    <.alert class="w-full" with_icon heading="Error while fetching stream from render traces">
-      Check logs for more
-    </.alert>
+    <div class="w-full flex items-center justify-center p-4">
+      <.alert class="w-full" with_icon heading="Error while fetching stream from render traces">
+        Check logs for more
+      </.alert>
+    </div>
     """
   end
 
-  attr(:stream_names, :list, required: true)
-  attr(:existing_streams, :map, required: true)
+  slot(:display, required: true)
 
-  def stream_section(assigns) do
+  def streams_section(assigns) do
     ~H"""
     <div id="streams_section-container">
       <.section id="streams" class="h-max overflow-y-hidden" title="Streams">
         <:right_panel>
           <.streams_info_tooltip id="stream-info" />
         </:right_panel>
-        <div
-          id="streams-display-container"
-          class="relative w-full h-max max-h-full p-4 overflow-y-auto"
-        >
-          <div :for={stream_name <- @stream_names} id={"#{stream_name}-display"}>
-            <.stream_name_wrapper
-              id={"#{stream_name}-collapsible"}
-              stream_name={stream_name}
-              existing_stream={Map.get(@existing_streams, stream_name, [])}
-            >
-              <:label>
-                {stream_name}
-              </:label>
-            </.stream_name_wrapper>
-          </div>
-        </div>
+        <%= render_slot(@display) %>
       </.section>
+    </div>
+    """
+  end
+
+  attr(:stream_names, :list, required: true)
+  attr(:existing_streams, :map, required: true)
+
+  def streams_display_container(assigns) do
+    ~H"""
+    <div id="streams-display-container" class="relative w-full h-max max-h-full p-4 overflow-y-auto">
+      <div :for={stream_name <- @stream_names} id={"#{stream_name}-display"}>
+        <.stream_name_wrapper
+          id={"#{stream_name}-collapsible"}
+          stream_name={stream_name}
+          existing_stream={Map.get(@existing_streams, stream_name, [])}
+        />
+      </div>
     </div>
     """
   end
@@ -58,8 +61,6 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
   attr(:id, :string, required: true)
   attr(:stream_name, :atom, required: true)
   attr(:existing_stream, Phoenix.LiveView.LiveStream, required: true)
-
-  slot(:label, required: true)
 
   def stream_name_wrapper(assigns) do
     ~H"""
@@ -71,27 +72,13 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
       label_class="font-semibold bg-surface-1-bg p-2 py-3 rounded"
     >
       <:label>
-        <%= render_slot(@label) %>
+        {stream_name}
       </:label>
       <div class="relative">
         <div class="overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
           <div id={"#{@stream_name}-stream"} phx-update="stream" class="flex flex-col gap-2">
             <%= for {dom_id, stream_element} <-@existing_stream do %>
-              <.stream_element_wrapper id={dom_id} dom_id={dom_id} stream_element={stream_element}>
-                <:label>
-                  <p class="font-semibold whitespace-nowrap break-keep grow-0 shrink-0">
-                    <%= dom_id %>
-                  </p>
-                  <div class="grow min-w-0 text-secondary-text font-code font-normal text-3xs truncate pl-2">
-                    <p
-                      id={dom_id <> "-short-content"}
-                      class="hide-on-open mt-0.5 overflow-hidden whitespace-nowrap"
-                    >
-                      <%= inspect(stream_element) %>
-                    </p>
-                  </div>
-                </:label>
-              </.stream_element_wrapper>
+              <.stream_element_wrapper dom_id={dom_id} stream_element={stream_element} />
             <% end %>
           </div>
         </div>
@@ -100,23 +87,30 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
     """
   end
 
-  attr(:id, :string, required: true)
   attr(:stream_element, :any, required: true)
   attr(:dom_id, :string, required: true)
-
-  slot(:label, required: true)
 
   def stream_element_wrapper(assigns) do
     ~H"""
     <.collapsible
-      id={@id}
+      id={@dom_id}
       icon="icon-chevron-right"
       chevron_class="w-5 h-5 text-accent-icon"
       class="max-w-full border rounded last:mb-1 border-default-border"
       label_class="font-semibold bg-surface-1-bg p-1 py-1 rounded"
     >
       <:label>
-        <%= render_slot(@label) %>
+        <p class="font-semibold whitespace-nowrap break-keep grow-0 shrink-0">
+          <%= dom_id %>
+        </p>
+        <div class="grow min-w-0 text-secondary-text font-code font-normal text-3xs truncate pl-2">
+          <p
+            id={dom_id <> "-short-content"}
+            class="hide-on-open mt-0.5 overflow-hidden whitespace-nowrap"
+          >
+            <%= inspect(stream_element) %>
+          </p>
+        </div>
       </:label>
       <div class="flex flex-col gap-4 w-full overflow-auto p-2">
         <ElixirDisplay.term
