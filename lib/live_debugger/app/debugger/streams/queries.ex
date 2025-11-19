@@ -39,7 +39,10 @@ defmodule LiveDebugger.App.Debugger.Streams.Queries do
     end
   end
 
-  @spec update_stream(stream_updates :: map(), dom_id_fun :: (any() -> String.t())) ::
+  @spec update_stream(
+          stream_updates :: StreamUtils.live_stream_item(),
+          dom_id_fun :: (any() -> String.t())
+        ) ::
           {:ok, stream_update_result()} | {:error, String.t()}
   def update_stream(stream_updates, dom_id_fun) do
     with name <- stream_updates.name,

@@ -86,18 +86,64 @@ defmodule LiveDebugger.E2E.StreamsTest do
     |> assert_has(items_stream(count: 1))
   end
 
-  def create_item_button(), do: css("button#create-item")
-  def create_another_item_button(), do: css("button#create-another-item")
-  def reset_items_button(), do: css("button#reset-items")
-  def delete_item_button(), do: css("button#delete-item")
-  def add_new_stream_button(), do: css("button#add-new-stream")
+  @sessions 2
+  feature "User can see streams in LiveView and LiveComponents",
+          %{
+            sessions: [dev_app, debugger]
+          } do
+    dev_app
+    |> visit(@dev_app_url <> "/stream")
+    |> click(create_item_button())
 
-  def streams(), do: css("#streams-display-container")
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(items_display())
+    |> click(items_display())
+    |> assert_has(another_items_display())
+    |> click(another_items_display())
 
-  def items_display(), do: css("#items-display")
-  def another_items_display(), do: css("#another_items-display")
-  def new_items_display(), do: css("#new_items-display")
+    debugger
+    |> click(component_tree_node(1))
+    |> assert_has(node_module_info("StreamComponent"))
+    |> assert_has(component_items_display())
+    |> click(component_items_display())
+    |> assert_has(component_items_stream(count: 3))
+  end
 
-  def items_stream(opts), do: css("#items-stream details", opts)
-  def another_items_stream(opts), do: css("#another_items-stream details", opts)
+  @sessions 2
+  feature "User don't see streams section if there are no streams",
+          %{
+            sessions: [dev_app, debugger]
+          } do
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> refute_has(streams_section())
+  end
+
+  defp component_tree_node(cid), do: css("#button-tree-node-#{cid}-components-tree")
+
+  defp create_item_button(), do: css("button#create-item")
+  defp create_another_item_button(), do: css("button#create-another-item")
+  defp reset_items_button(), do: css("button#reset-items")
+  defp delete_item_button(), do: css("button#delete-item")
+  defp add_new_stream_button(), do: css("button#add-new-stream")
+
+  defp streams_section(), do: css("#streams-section-container")
+
+  defp node_module_info(text),
+    do: css("#node-inspector-basic-info-current-node-module", text: text)
+
+  defp items_display(), do: css("#items-display")
+  defp another_items_display(), do: css("#another_items-display")
+  defp new_items_display(), do: css("#new_items-display")
+  defp component_items_display(), do: css("#component_items-display")
+
+  defp items_stream(opts), do: css("#items-stream details", opts)
+  defp another_items_stream(opts), do: css("#another_items-stream details", opts)
+  defp component_items_stream(opts), do: css("#component_items-stream details", opts)
 end

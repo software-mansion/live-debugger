@@ -113,15 +113,6 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
     end
   end
 
-  defp maybe_assign_stream_name(socket, stream_name, current_stream_names)
-       when stream_name in current_stream_names do
-    socket
-  end
-
-  defp maybe_assign_stream_name(socket, stream_name, _current_stream_names) do
-    stream(socket, stream_name, [])
-  end
-
   defp assign_stream_names(socket, stream_names) do
     Enum.reduce(stream_names, socket, fn stream_name, acc ->
       stream(acc, stream_name, [])
