@@ -75,10 +75,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
           aria-label="Open filters"
           size="sm"
           class={[
-            "flex gap-1",
+            "flex !w-7 !h-7 px-[0.2rem] py-[0.2rem] items-center justify-center",
             if(@applied_filters_number > 0, do: "rounded-r-none"),
             @label_class,
-            @display_mode == :dropdown && "!w-full !border-none"
+            @display_mode == :dropdown && "!w-full !border-none !h-full"
           ]}
           phx-click="open-filters"
         >

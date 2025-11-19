@@ -36,9 +36,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ClearButt
         phx-click="clear-traces"
         aria-label="Clear traces"
         class={[
-          "flex gap-2",
+          "flex !w-7 !h-7 px-[0.2rem] py-[0.2rem] items-center justify-center",
           @label_class,
-          @display_mode == :dropdown && "!w-full !border-none"
+          @display_mode == :dropdown && "!w-full !border-none !h-full"
         ]}
         variant="secondary"
         size="sm"

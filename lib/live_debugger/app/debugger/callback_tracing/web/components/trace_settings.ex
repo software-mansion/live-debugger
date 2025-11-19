@@ -101,7 +101,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
     ~H"""
     <.nav_icon
       icon="icon-chevrons-right"
-      class="border-button-secondary-border border hover:border-button-secondary-border-hover w-8! h-7!"
+      class="border-button-secondary-border border hover:border-button-secondary-border-hover !w-7 !h-7 px-[0.2rem] py-[0.2rem]"
       icon_class="!h-4 !w-4"
     />
     """

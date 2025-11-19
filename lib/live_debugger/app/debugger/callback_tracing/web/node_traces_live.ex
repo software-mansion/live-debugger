@@ -100,7 +100,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
     <div class="max-w-full @container/traces flex flex-1">
       <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
         <:right_panel>
-          <div class="flex gap-2">
+          <div class="flex gap-2 !h-7">
             <HookComponents.SearchInput.render
               disabled?={@tracing_started?}
               trace_search_phrase={@trace_search_phrase}
@@ -115,7 +115,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
             <%= if not @tracing_started? do %>
               <.node_traces_dropdown_menu
                 id="tracing-options-dropdown"
-                class="@[30rem]/traces:hidden h-7!"
+                class="@[30rem]/traces:hidden"
                 current_filters={@current_filters}
               />
 
