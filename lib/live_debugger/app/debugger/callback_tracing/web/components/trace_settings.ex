@@ -57,7 +57,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
 
   def dropdown_item(assigns) do
     ~H"""
-    <div class="flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer">
+    <div class="flex gap-1.5 p-2 rounded items-center w-full">
       <.icon name={@icon} class="w-4 h-4" />
       <span>{@label}</span>
     </div>
