@@ -7,12 +7,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
+  alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory
   alias LiveDebugger.App.Utils.TermNode
   alias Phoenix.LiveView.AsyncResult
 
   def loading(assigns) do
     ~H"""
-    <div class="w-full flex items-center justify-center">
+    <div class="w-full flex-grow flex items-center justify-center">
       <.spinner size="sm" />
     </div>
     """
@@ -48,6 +49,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
               assigns_search_phrase={@assigns_search_phrase}
               input_id="assigns-search-input"
             />
+            <AssignsHistory.button />
             <.copy_button id="assigns-copy-button" variant="icon-button" value={@copy_string} />
             <.fullscreen_button id={@fullscreen_id} />
           </div>
@@ -158,6 +160,52 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           <span class="text-red-700"> error </span>
         </:failed>
       </.async_result>
+    </div>
+    """
+  end
+
+  attr(:disabled?, :boolean, required: true)
+  attr(:index, :integer, required: true)
+  attr(:length, :integer, required: true)
+
+  def assigns_history_navigation(assigns) do
+    ~H"""
+    <div class="flex justify-end items-center gap-2 mb-4">
+      <div class="max-sm:max-w-70 flex items-center text-3xs py-2 px-3 rounded bg-button-secondary-bg text-button-secondary-content border-button-secondary-border border">
+        <.icon name="icon-info" class="w-4 h-4 mr-2" />
+        <span>
+          The history is constructed from registered <b>render/1</b> callbacks
+        </span>
+      </div>
+      <.icon_button
+        variant="secondary"
+        icon="icon-chevrons-right"
+        phx-click="go-back-end"
+        class="rotate-180"
+        disabled={if(@disabled? || @index == @length - 1, do: true)}
+      />
+      <.icon_button
+        variant="secondary"
+        icon="icon-chevron-right"
+        phx-click="go-back"
+        class="rotate-180"
+        disabled={if(@disabled? || @index == @length - 1, do: true)}
+      />
+      <span>
+        <%= @index + 1 %> / <%= @length %>
+      </span>
+      <.icon_button
+        variant="secondary"
+        icon="icon-chevron-right"
+        phx-click="go-forward"
+        disabled={if(@disabled? || @index == 0, do: true)}
+      />
+      <.icon_button
+        variant="secondary"
+        icon="icon-chevrons-right"
+        phx-click="go-forward-end"
+        disabled={if(@disabled? || @index == 0, do: true)}
+      />
     </div>
     """
   end

@@ -3,13 +3,17 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
   Queries for `LiveDebugger.App.Debugger.NodeState` context.
   """
 
+  alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.Structs.LvState
   alias LiveDebugger.API.LiveViewDebug
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.App.Debugger.Structs.TreeNode
 
-  @spec fetch_node_assigns(pid :: pid(), node_id :: TreeNode.id()) ::
-          {:ok, map()} | {:error, term()}
+  @type history_index :: non_neg_integer()
+  @type history_length :: non_neg_integer()
+  @type history_entries :: {assigns1 :: map(), assigns2 :: map()} | {assigns :: map()}
+
+  @spec fetch_node_assigns(pid(), TreeNode.id()) :: {:ok, map()} | {:error, term()}
   def fetch_node_assigns(pid, node_id) when is_pid(node_id) do
     case fetch_node_state(pid) do
       {:ok, %LvState{socket: %{assigns: assigns}}} ->
@@ -32,6 +36,28 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
 
   def fetch_node_assigns(_, _) do
     {:error, "Invalid node ID"}
+  end
+
+  @spec fetch_assigns_history_entries(pid(), TreeNode.id(), history_index()) ::
+          {:ok, {history_entries(), history_length()}} | {:error, term()}
+  def fetch_assigns_history_entries(pid, node_id, index) do
+    case TracesStorage.get!(pid, functions: ["render/1"], node_id: node_id) do
+      :end_of_table ->
+        {:error, :no_history_record}
+
+      {render_traces, _} ->
+        history_length = length(render_traces)
+        index = min(index, history_length - 1)
+
+        result =
+          render_traces
+          |> Enum.slice(index, 2)
+          |> Enum.map(&(&1.args |> hd() |> Map.delete(:socket)))
+
+        {:ok, {result, history_length}}
+    end
+  rescue
+    error -> {:error, error}
   end
 
   defp fetch_node_state(pid) do
