@@ -24,7 +24,8 @@ defmodule LiveDebugger.Structs.Trace.FunctionTrace do
     :transport_pid,
     :cid,
     :execution_time,
-    :type
+    :type,
+    :return_value
   ]
 
   @type t() :: %__MODULE__{
@@ -40,7 +41,8 @@ defmodule LiveDebugger.Structs.Trace.FunctionTrace do
           cid: CommonTypes.cid() | nil,
           timestamp: non_neg_integer(),
           execution_time: non_neg_integer() | nil,
-          type: :call | :return_from | :exception_from
+          type: :call | :return_from | :exception_from,
+          return_value: term() | nil
         }
 
   @doc """
@@ -52,6 +54,7 @@ defmodule LiveDebugger.Structs.Trace.FunctionTrace do
     transport_pid = Keyword.get(opts, :transport_pid, get_transport_pid_from_args(args))
     cid = Keyword.get(opts, :cid, get_cid_from_args(args))
     type = Keyword.get(opts, :type, :call)
+    return_value = Keyword.get(opts, :return_value)
 
     %__MODULE__{
       id: id,
@@ -65,7 +68,8 @@ defmodule LiveDebugger.Structs.Trace.FunctionTrace do
       cid: cid,
       timestamp: :timer.now_diff(timestamp, {0, 0, 0}),
       execution_time: nil,
-      type: type
+      type: type,
+      return_value: return_value
     }
   end
 

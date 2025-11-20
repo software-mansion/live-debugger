@@ -66,4 +66,20 @@ defmodule LiveDebugger.App.Utils.ParsersTest do
   test "module_to_string/1 converts module to string" do
     assert Parsers.module_to_string(LiveDebuggerTest.TestView) == "LiveDebuggerTest.TestView"
   end
+
+  describe "list_to_string/1" do
+    test "converts list with simple values" do
+      assert Parsers.list_to_string([]) == ""
+      assert Parsers.list_to_string([1, 2, 3]) == "1, 2, 3"
+      assert Parsers.list_to_string([:ok, :error]) == ":ok, :error"
+    end
+
+    test "converts list with complex and nested structures" do
+      assert Parsers.list_to_string([1, :atom, "string"]) == ~s(1, :atom, "string")
+      assert Parsers.list_to_string([[1, 2], [3, 4]]) == "[1, 2], [3, 4]"
+
+      assert Parsers.list_to_string([%{key: "value"}, %{foo: :bar}]) ==
+               ~s(%{key: "value"}, %{foo: :bar})
+    end
+  end
 end

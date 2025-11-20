@@ -10,6 +10,7 @@ defmodule LiveDebugger.Structs.LvState do
           cid: integer(),
           module: module(),
           assigns: map(),
+          private: map(),
           children_cids: [integer()]
         }
 

@@ -143,12 +143,15 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
     end
   end
 
-  def handle_cast({:new_trace, {_, pid, type, {module, fun, _}, _, return_ts}, _n}, state)
+  def handle_cast(
+        {:new_trace, {_, pid, type, {module, fun, _}, return_value, return_ts}, _n},
+        state
+      )
       when fun in @allowed_callbacks and type in [:return_from, :exception_from] do
     with trace_key <- {pid, module, fun},
          {ref, trace, ts} <- get_trace_record(state, trace_key),
          execution_time <- calculate_execution_time(return_ts, ts),
-         params <- %{execution_time: execution_time, type: type},
+         params <- %{execution_time: execution_time, type: type, return_value: return_value},
          {:ok, updated_trace} <- TraceActions.update_trace(trace, params),
          {:ok, ref} <- TraceActions.persist_trace(updated_trace, ref),
          _ <- StateActions.maybe_save_state!(updated_trace),
