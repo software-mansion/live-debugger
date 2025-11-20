@@ -48,7 +48,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
     <.tooltip id={@id <> "-tooltip"} position="bottom" content={@tooltip_content}>
       <div
         id={@id}
-        class="flex items-center gap-1 text-xs text-monitored-pid-text ml-1 bg-monitored-pid-bg rounded-xl py-1 px-2"
+        class="flex items-center gap-1 text-xs text-monitored-pid-text ml-1 bg-monitored-pid-bg rounded-xl py-1 px-2 w-max"
       >
         <.status_icon connected?={@connected?} />
         <%= if @connected? do %>
