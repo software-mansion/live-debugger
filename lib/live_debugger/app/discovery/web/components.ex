@@ -42,16 +42,17 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   attr(:refresh_event, :string, required: true)
   attr(:disabled?, :boolean, default: false)
   attr(:target, :any, default: nil)
-  slot(:inner_block)
 
   def header(assigns) do
     ~H"""
-    <div class="flex items-center gap-2">
+    <div class="flex flex-1 items-center gap-2 justify-between">
       <.h1 class={if(@disabled?, do: "opacity-30")}><%= @title %></.h1>
-      <div class="flex-1">
-        <%= render_slot(@inner_block) %>
-      </div>
-      <.button phx-click={@refresh_event} disabled={@disabled?} phx-target={@target}>
+      <.button
+        phx-click={@refresh_event}
+        disabled={@disabled?}
+        phx-target={@target}
+        class="show-on-open"
+      >
         <div class="flex items-center gap-2">
           <.icon name="icon-refresh" class="w-4 h-4" />
           <p>Refresh</p>

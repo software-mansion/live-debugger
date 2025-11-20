@@ -43,37 +43,41 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
   def render(assigns) do
     ~H"""
     <div id={@id} class="h-3/7 max-lg:p-8 py-8 lg:w-[60rem] lg:mx-auto">
-      <DiscoveryComponents.header
-        title="Dead LiveViews"
-        refresh_event="refresh-dead"
-        disabled?={!@dead_liveviews?}
-        target={@myself}
+      <.collapsible
+        id="dead-liveviews-collapsible"
+        chevron_class="mr-2"
+        label_class={if(!@dead_liveviews?, do: "w-max")}
+        open={@dead_liveviews?}
+        phx-click="toggle-dead-liveviews"
+        phx-target={@myself}
       >
-        <.toggle_switch
-          id="dead-liveviews"
-          checked={@dead_liveviews?}
-          phx-click="toggle-dead-liveviews"
-          phx-target={@myself}
-        />
-      </DiscoveryComponents.header>
+        <:label>
+          <DiscoveryComponents.header
+            title="Dead LiveViews"
+            refresh_event="refresh-dead"
+            disabled?={!@dead_liveviews?}
+            target={@myself}
+          />
+        </:label>
 
-      <div :if={@dead_liveviews?}>
-        <DiscoveryComponents.garbage_collection_info />
+        <div :if={@dead_liveviews?}>
+          <DiscoveryComponents.garbage_collection_info />
 
-        <div class="mt-6 max-h-72 lg:max-h-100 overflow-y-auto">
-          <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
-            <:loading><DiscoveryComponents.loading /></:loading>
-            <:failed><DiscoveryComponents.failed /></:failed>
-            <DiscoveryComponents.liveview_sessions
-              id="dead-sessions"
-              grouped_lv_processes={dead_grouped_lv_processes}
-              empty_info="No dead LiveViews"
-              remove_event="remove-lv-state"
-              target={@myself}
-            />
-          </.async_result>
+          <div class="mt-6 max-h-72 lg:max-h-100 overflow-y-auto">
+            <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
+              <:loading><DiscoveryComponents.loading /></:loading>
+              <:failed><DiscoveryComponents.failed /></:failed>
+              <DiscoveryComponents.liveview_sessions
+                id="dead-sessions"
+                grouped_lv_processes={dead_grouped_lv_processes}
+                empty_info="No dead LiveViews"
+                remove_event="remove-lv-state"
+                target={@myself}
+              />
+            </.async_result>
+          </div>
         </div>
-      </div>
+      </.collapsible>
     </div>
     """
   end
