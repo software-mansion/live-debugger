@@ -46,11 +46,14 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
 
     ~H"""
     <.tooltip id={@id <> "-tooltip"} position="bottom" content={@tooltip_content}>
-      <div id={@id} class="flex items-center gap-1 text-xs text-primary ml-1">
+      <div
+        id={@id}
+        class="flex items-center gap-1 text-xs text-monitored-pid-text ml-1 bg-monitored-pid-bg rounded-xl py-1 px-2"
+      >
         <.status_icon connected?={@connected?} />
         <%= if @connected? do %>
           <span class="font-medium">Monitored PID </span>
-          <%= @display_pid %>
+          <span class="font-light"><%= @display_pid %></span>
         <% else %>
           <span class="font-medium">Disconnected</span>
           <.button phx-click="find-successor" variant="secondary" size="sm">Continue</.button>

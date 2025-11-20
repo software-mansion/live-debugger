@@ -69,6 +69,8 @@ module.exports = {
         'diff-border': 'var(--diff-border)',
         'diff-negative-bg': 'var(--diff-negative-bg)',
         'diff-positive-bg': 'var(--diff-positive-bg)',
+        'monitored-pid-bg': 'var(--monitored-pid-bg)',
+        'monitored-pid-text': 'var(--monitored-pid-text)',
       },
       screens: { xs: '380px' },
       fontFamily: {

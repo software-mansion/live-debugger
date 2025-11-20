@@ -90,5 +90,8 @@
     --diff-pulse-text: var(--gray-900);
     --diff-negative-bg: var(--red-900);
     --diff-positive-bg: rgb(from var(--swm-green-100) r g b / 0.3);
+
+    --monitored-pid-bg: var(--swm-green-60);
+    --monitored-pid-text: var(--slate-900);
   }
 }
