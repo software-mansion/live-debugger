@@ -84,15 +84,14 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
                 </.alert>
               </div>
             </:failed>
-            <%= if Enum.empty?(async_jobs) do %>
-              <div class="w-full flex items-center justify-center">
-                <span class=" text-secondary-text">No async jobs found</span>
-              </div>
-            <% end %>
-
-            <%= for async_job <- async_jobs do %>
-              <.async_job id={"async-job-#{inspect(async_job.pid)}"} async_job={async_job} />
-            <% end %>
+            <div :if={Enum.empty?(async_jobs)} class="w-full flex items-center justify-center">
+              <span class=" text-secondary-text">No async jobs found</span>
+            </div>
+            <.async_job
+              :for={async_job <- async_jobs}
+              id={"async-job-#{inspect(async_job.pid)}"}
+              async_job={async_job}
+            />
           </.async_result>
         </div>
       </.section>
