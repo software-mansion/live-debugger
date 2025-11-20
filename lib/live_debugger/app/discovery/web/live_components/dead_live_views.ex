@@ -5,6 +5,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
 
   use LiveDebugger.App.Web, :live_component
 
+  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Discovery.Web.Components, as: DiscoveryComponents
@@ -54,6 +55,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
         <:label>
           <DiscoveryComponents.header
             title="Dead LiveViews"
+            sessions_count={if(@dead_liveviews?, do: @lv_processes_count.result)}
             refresh_event="refresh-dead"
             disabled?={!@dead_liveviews?}
             target={@myself}
@@ -119,11 +121,11 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
 
   defp assign_async_dead_grouped_lv_processes(socket) do
     if socket.assigns.dead_liveviews? do
-      assign_async(
-        socket,
-        :dead_grouped_lv_processes,
-        &DiscoveryQueries.fetch_dead_grouped_lv_processes/0,
-        reset: true
+      socket
+      |> assign(:lv_processes_count, AsyncResult.loading())
+      |> assign_async(
+        [:dead_grouped_lv_processes, :lv_processes_count],
+        &DiscoveryQueries.fetch_dead_grouped_lv_processes/0
       )
     else
       socket

@@ -15,9 +15,8 @@ defmodule LiveDebugger.App.Discovery.Queries do
   @spec fetch_grouped_lv_processes(transport_pid :: pid() | nil) ::
           {:ok,
            %{
-             grouped_lv_processes: %{
-               pid() => %{LvProcess.t() => [LvProcess.t()]}
-             }
+             grouped_lv_processes: %{pid() => %{LvProcess.t() => [LvProcess.t()]}},
+             lv_processes_count: non_neg_integer()
            }}
   def fetch_grouped_lv_processes(transport_pid \\ nil) do
     lv_processes =
@@ -26,7 +25,11 @@ defmodule LiveDebugger.App.Discovery.Queries do
         fetch_lv_processes_after(1000, transport_pid)
       end
 
-    {:ok, %{grouped_lv_processes: LiveViewDiscovery.group_lv_processes(lv_processes)}}
+    {:ok,
+     %{
+       grouped_lv_processes: LiveViewDiscovery.group_lv_processes(lv_processes),
+       lv_processes_count: length(lv_processes)
+     }}
   end
 
   @doc """
@@ -36,19 +39,25 @@ defmodule LiveDebugger.App.Discovery.Queries do
   @spec fetch_dead_grouped_lv_processes() ::
           {:ok,
            %{
-             dead_grouped_lv_processes: %{
-               pid() => %{LvProcess.t() => [LvProcess.t()]}
-             }
+             dead_grouped_lv_processes: %{pid() => %{LvProcess.t() => [LvProcess.t()]}},
+             lv_processes_count: non_neg_integer()
            }}
   def fetch_dead_grouped_lv_processes() do
-    dead_grouped_lv_processes =
+    lv_processes =
       StatesStorage.get_all_states()
       |> Enum.filter(fn {pid, %LvState{}} -> not Process.alive?(pid) end)
       |> Enum.map(&elem(&1, 1))
       |> Enum.map(&(LvProcess.new(&1.pid, &1.socket) |> LvProcess.set_alive(false)))
+
+    dead_grouped_lv_processes =
+      lv_processes
       |> LiveViewDiscovery.group_lv_processes()
 
-    {:ok, %{dead_grouped_lv_processes: dead_grouped_lv_processes}}
+    {:ok,
+     %{
+       dead_grouped_lv_processes: dead_grouped_lv_processes,
+       lv_processes_count: length(lv_processes)
+     }}
   end
 
   defp fetch_lv_processes_after(milliseconds, nil) do

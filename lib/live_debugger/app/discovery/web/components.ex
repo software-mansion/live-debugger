@@ -39,6 +39,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   end
 
   attr(:title, :string, required: true)
+  attr(:sessions_count, :integer, default: nil)
   attr(:refresh_event, :string, required: true)
   attr(:disabled?, :boolean, default: false)
   attr(:target, :any, default: nil)
@@ -46,7 +47,10 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   def header(assigns) do
     ~H"""
     <div class="flex flex-1 items-center gap-2 justify-between">
-      <.h1 class={if(@disabled?, do: "opacity-30")}><%= @title %></.h1>
+      <div class="flex items-center gap-3">
+        <.h1 class={if(@disabled?, do: "opacity-30")}><%= @title %></.h1>
+        <.info_block><%= if(@sessions_count, do: @sessions_count, else: 0) %></.info_block>
+      </div>
       <.button
         phx-click={@refresh_event}
         disabled={@disabled?}

@@ -837,6 +837,21 @@ defmodule LiveDebugger.App.Web.Components do
     """
   end
 
+  attr(:class, :string, default: "", doc: "Additional classes to add to the info block")
+
+  slot(:inner_block)
+
+  def info_block(assigns) do
+    ~H"""
+    <div class={[
+      "py-[0.3rem] px-[0.55rem] font-semibold text-3xs bg-ui-surface border border-default-border shadow-custom rounded"
+      | List.wrap(@class)
+    ]}>
+      <%= render_slot(@inner_block) %>
+    </div>
+    """
+  end
+
   defp button_color_classes(variant) do
     case variant do
       "primary" ->
