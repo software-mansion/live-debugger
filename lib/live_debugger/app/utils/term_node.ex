@@ -14,13 +14,23 @@ defmodule LiveDebugger.App.Utils.TermNode do
 
   @list_and_tuple_open_limit 3
 
-  defstruct [:id, :kind, :children, :content, :expanded_before, :expanded_after, open?: false]
+  defstruct [
+    :id,
+    :kind,
+    :key,
+    :children,
+    :content,
+    :expanded_before,
+    :expanded_after,
+    open?: false
+  ]
 
   @type kind() :: :atom | :binary | :number | :tuple | :list | :map | :struct | :regex | :other
 
   @type t :: %__MODULE__{
           id: String.t(),
           kind: kind(),
+          key: atom(),
           open?: boolean(),
           children: [{any(), t()}],
           content: [DisplayElement.t()],
@@ -29,14 +39,16 @@ defmodule LiveDebugger.App.Utils.TermNode do
         }
 
   @type ok_error() :: {:ok, t()} | {:error, any()}
+  @type open_settings() :: :default | :minimal
 
   defmodule DisplayElement do
     @moduledoc false
-    defstruct [:text, color: nil]
+    defstruct [:text, color: nil, pulse?: false]
 
     @type t :: %__MODULE__{
             text: String.t(),
-            color: String.t() | nil
+            color: String.t() | nil,
+            pulse?: boolean()
           }
 
     @spec blue(String.t()) :: t()
@@ -50,6 +62,11 @@ defmodule LiveDebugger.App.Utils.TermNode do
 
     @spec green(String.t()) :: t()
     def green(text), do: %__MODULE__{text: text, color: "text-code-4"}
+
+    @spec set_pulse(t(), boolean()) :: t()
+    def set_pulse(%__MODULE__{} = element, pulse?) do
+      %__MODULE__{element | pulse?: pulse?}
+    end
   end
 
   @spec new(kind(), [DisplayElement.t()], Keyword.t()) :: t()
@@ -142,11 +159,16 @@ defmodule LiveDebugger.App.Utils.TermNode do
     end
   end
 
-  @spec open_with_default_settings(t()) :: t()
-  def open_with_default_settings(term_node) do
+  @spec open_with_settings(t(), open_settings()) :: t()
+  def open_with_settings(term_node, :default) do
     term_node
     |> open_first_element()
     |> open_small_lists_and_tuples()
+  end
+
+  def open_with_settings(term_node, :minimal) do
+    term_node
+    |> open_first_element()
   end
 
   @spec open_with_search_phrase(t(), String.t()) :: t()
@@ -168,6 +190,28 @@ defmodule LiveDebugger.App.Utils.TermNode do
     else
       term_node
     end
+  end
+
+  @spec set_pulse(t(), boolean(), recursive: boolean()) :: t()
+  def set_pulse(%__MODULE__{} = term_node, pulse?, opts \\ []) do
+    content = Enum.map(term_node.content, &DisplayElement.set_pulse(&1, pulse?))
+    expanded_before = Enum.map(term_node.expanded_before, &DisplayElement.set_pulse(&1, pulse?))
+    expanded_after = Enum.map(term_node.expanded_after, &DisplayElement.set_pulse(&1, pulse?))
+
+    children =
+      if Keyword.get(opts, :recursive, true) do
+        Enum.map(term_node.children, fn {key, child} -> {key, set_pulse(child, pulse?, opts)} end)
+      else
+        term_node.children
+      end
+
+    %__MODULE__{
+      term_node
+      | content: content,
+        expanded_before: expanded_before,
+        expanded_after: expanded_after,
+        children: children
+    }
   end
 
   defp open_first_element(%__MODULE__{} = term_node) do

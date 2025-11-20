@@ -1,0 +1,155 @@
+@theme {
+  --breakpoint-sm: 600px;
+  --breakpoint-md: 1025px;
+  --breakpoint-lg: 1550px;
+  --breakpoint-xl: initial;
+  --breakpoint-2xl: initial;
+
+  --font-primary: var(--font-aeonik), "sans-serif";
+
+  --text-2xs: 14px;
+  --text-2xs--line-height: 18px;
+  --text-xs: 14px;
+  --text-xs--line-height: 20px;
+  --text-sm: 14px;
+  --text-sm--line-height: 22px;
+  --text-md: 16px;
+  --text-md--line-height: 24px;
+  --text-lg: 16px;
+  --text-lg--line-height: 26px;
+  --text-xl: 18px;
+  --text-xl--line-height: 30px;
+  --text-2xl: 28px;
+  --text-2xl--line-height: 34px;
+  --text-3xl: 34px;
+  --text-3xl--line-height: 40px;
+
+  --font-weight-normal: 300;
+  --font-weight-medium: 400;
+  --font-weight-bold: 600;
+
+  --color-swm-brand-100: #001a72;
+  --color-swm-brand-80: #33498b;
+  --color-swm-brand-40: #919fcf;
+
+  --color-swm-red-100: #ff6259;
+  --color-swm-red-100-50: #ff625980;
+
+  --color-white: #ffffff;
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-150: #e9eff5;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+
+  --color-gray-50: #f6f6f6;
+  --color-gray-100: #e7e7e7;
+  --color-gray-200: #d1d1d1;
+  --color-gray-300: #b0b0b0;
+  --color-gray-400: #888888;
+  --color-gray-500: #6d6d6d;
+  --color-gray-600: #5d5d5d;
+  --color-gray-700: #454545;
+  --color-gray-800: #303030;
+  --color-gray-900: #282828;
+  --color-gray-950: #1f1f1f;
+
+  --color-bg-primary: var(--color-swm-brand-100);
+  --color-bg-strong: var(--color-swm-brand-100);
+  --color-bg-soft: var(--color-white);
+  --color-bg-additional: var(--color-slate-100);
+
+  --color-primary: var(--color-swm-brand-100);
+  --color-primary-foreground: var(--color-white);
+  --color-primary-hover: var(--color-swm-brand-80);
+
+  --color-secondary: var(--color-swm-brand-80);
+  --color-secondary-foreground: var(--color-swm-brand-100);
+  --color-secondary-hover: var(--color-slate-200);
+
+  --color-secondary-strong: var(--color-slate-200);
+  --color-secondary-strong-foreground: var(--color-swm-brand-80);
+
+  --color-tertiary: var(--color-white);
+  --color-tertiary-foreground: var(--color-swm-brand-100);
+  --color-tertiary-hover: var(--color-slate-200);
+
+  --color-tertiary-strong: var(--color-swm-brand-40);
+  --color-tertiary-strong-hover: var(--color-slate-300);
+}
+
+@layer base {
+  @variant sm {
+    :root {
+      --text-2xs: 14px;
+      --text-2xs--line-height: 18px;
+      --text-xs: 14px;
+      --text-xs--line-height: 20px;
+      --text-sm: 14px;
+      --text-sm--line-height: 22px;
+      --text-md: 16px;
+      --text-md--line-height: 24px;
+      --text-lg: 16px;
+      --text-lg--line-height: 26px;
+      --text-xl: 18px;
+      --text-xl--line-height: 30px;
+      --text-2xl: 28px;
+      --text-2xl--line-height: 34px;
+      --text-3xl: 34px;
+      --text-3xl--line-height: 40px;
+    }
+  }
+
+  @variant md {
+    :root {
+      --text-2xs: 14px;
+      --text-2xs--line-height: 18px;
+      --text-xs: 14px;
+      --text-xs--line-height: 20px;
+      --text-sm: 16px;
+      --text-sm--line-height: 24px;
+      --text-md: 18px;
+      --text-md--line-height: 26px;
+      --text-lg: 20px;
+      --text-lg--line-height: 30px;
+      --text-xl: 26px;
+      --text-xl--line-height: 36px;
+      --text-2xl: 40px;
+      --text-2xl--line-height: 50px;
+      --text-3xl: 52px;
+      --text-3xl--line-height: 62px;
+    }
+  }
+
+  @variant lg {
+    :root {
+      --text-2xs: 14px;
+      --text-2xs--line-height: 18px;
+      --text-xs: 16px;
+      --text-xs--line-height: 24px;
+      --text-sm: 18px;
+      --text-sm--line-height: 26px;
+      --text-md: 20px;
+      --text-md--line-height: 28px;
+      --text-lg: 24px;
+      --text-lg--line-height: 36px;
+      --text-xl: 36px;
+      --text-xl--line-height: 50px;
+      --text-2xl: 52px;
+      --text-2xl--line-height: 64px;
+      --text-3xl: 64px;
+      --text-3xl--line-height: 74px;
+    }
+  }
+  code {
+    font-family: inherit;
+    font-weight: inherit;
+  }
+}

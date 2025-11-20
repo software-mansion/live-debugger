@@ -6,7 +6,8 @@ defmodule LiveDebugger.Fakes do
   def display_element(opts \\ []) do
     %LiveDebugger.App.Utils.TermNode.DisplayElement{
       text: Keyword.get(opts, :text, "text"),
-      color: Keyword.get(opts, :color, "text-code-1")
+      color: Keyword.get(opts, :color, "text-code-1"),
+      pulse?: Keyword.get(opts, :pulse?, false)
     }
   end
 

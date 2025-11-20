@@ -1,0 +1,11 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@import "./theme.css";
+@import "./animations.css";
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--color-swm-brand-100);
+  letter-spacing: 0.0025em;
+}

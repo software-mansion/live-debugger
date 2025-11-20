@@ -99,19 +99,18 @@ defmodule LiveDebugger.MixProject do
       extras: [
         "CHANGELOG.md",
         "docs/welcome.md": [title: "Welcome to LiveDebugger"],
+        "docs/features.md": [title: "Features Overview"],
         "docs/config.md": [title: "Configuration"],
         "docs/components_tree.md": [title: "Components Tree"],
         "docs/assigns_inspection.md": [title: "Assigns Inspection"],
         "docs/callback_tracing.md": [title: "Callback Tracing"],
         "docs/components_highlighting.md": [title: "Components Highlighting"],
-        "docs/dead_view_mode.md": [title: "Dead View Mode"],
+        "docs/dead_view_mode.md": [title: "DeadView Mode"],
         "docs/elements_inspection.md": [title: "Elements Inspection"]
       ],
       groups_for_extras: [
-        Configuration: [
-          "docs/config.md"
-        ],
         Features: [
+          "docs/features.md",
           "docs/assigns_inspection.md",
           "docs/components_tree.md",
           "docs/callback_tracing.md",
@@ -121,6 +120,7 @@ defmodule LiveDebugger.MixProject do
         ]
       ],
       source_url: "https://github.com/software-mansion/live-debugger",
+      homepage_url: "https://docs.swmansion.com/live-debugger/",
       source_ref: @version,
       api_reference: false,
       assets: %{
@@ -136,8 +136,9 @@ defmodule LiveDebugger.MixProject do
     [
       licenses: ["Apache-2.0"],
       links: %{
-        changelog: "https://hexdocs.pm/live_debugger/changelog.html",
-        github: "https://github.com/software-mansion/live-debugger"
+        "Website" => "https://docs.swmansion.com/live-debugger/",
+        "GitHub" => "https://github.com/software-mansion/live-debugger",
+        "Changelog" => "https://hexdocs.pm/live_debugger/changelog.html"
       },
       files: ~w(lib priv LICENSE mix.exs README.md CHANGELOG.md)
     ]

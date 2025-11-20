@@ -26,8 +26,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.Stream do
   def render(assigns) do
     ~H"""
     <div id={"#{@id}-stream"} phx-update="stream" class="flex flex-col gap-2">
-      <div id={"#{@id}-stream-empty"} class="only:block hidden text-secondary-text text-center">
-        <div :if={@existing_traces_status == :ok}>
+      <div id={"#{@id}-stream-empty"} class="only:block hidden">
+        <div :if={@existing_traces_status == :ok} class="text-secondary-text text-center">
           No traces have been recorded yet.
         </div>
         <div :if={@existing_traces_status == :loading} class="w-full flex items-center justify-center">

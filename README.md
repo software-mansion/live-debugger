@@ -8,15 +8,16 @@
 
 </div>
 
-LiveDebugger is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
+[LiveDebugger](https://docs.swmansion.com/live-debugger/) is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
 
 Designed to enhance your development experience LiveDebugger gives you:
 
-- :deciduous_tree: A detailed view of your LiveComponents tree
-- :mag: The ability to inspect assigns for LiveViews and LiveComponents
-- :link: Tracing and filtering of their callback executions
-- :flashlight: Highlighting components in debugged apps
-- :telescope: Inspecting elements on the page
+- 🌳 See your LiveComponents tree
+- 🔍 View assigns
+- 🔗 Trace and filter callback executions
+- 🔦 Inspect elements
+
+Check out our comprehensive [Features Overview](https://hexdocs.pm/live_debugger/features.html) to explore all capabilities in detail.
 
 https://github.com/user-attachments/assets/317ab6ad-f9ac-48db-a010-dda5a7a23fd5
 

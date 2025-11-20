@@ -6,8 +6,9 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   use LiveDebugger.App.Web, :component
 
-  alias LiveDebugger.App.Utils.TermNode.DisplayElement
   alias LiveDebugger.App.Utils.TermNode
+  alias LiveDebugger.App.Utils.TermNode.DisplayElement
+  alias LiveDebugger.App.Utils.TermDiffer.Diff
 
   @doc """
   Returns a tree of terms.
@@ -59,55 +60,96 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
     """
   end
 
+  attr(:id, :string, default: nil)
   attr(:node, TermNode, required: true)
+  attr(:click_event, :string, default: "toggle_node")
+  attr(:diff, Diff, default: nil)
+  attr(:diff_class, :string, default: "")
+  attr(:selectable_level, :integer, default: nil)
+  attr(:level, :integer, default: 0)
 
   def static_term(assigns) do
     assigns =
       assigns
+      |> assign(:text_items_id, if(assigns.id, do: assigns.id <> assigns.node.id))
       |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
-    <div class="font-code">
+    <div class="font-code flex min-h-4.5 [&>div>button]:hidden hover:[&>div>button]:block">
+      <div :if={@selectable_level == @level and is_atom(@node.key)} class="w-4">
+        <button
+          class="text-button-green-content hover:text-button-green-content-hover"
+          phx-click="pin-assign"
+          phx-value-key={@node.key}
+        >
+          <.icon name="icon-pin" class="h-4 w-4" />
+        </button>
+      </div>
       <%= if @has_children? do %>
         <.static_collapsible
           open={@node.open?}
           label_class="max-w-max"
           chevron_class="text-code-2 m-auto w-[2ch] h-[2ch]"
-          phx-click="toggle_node"
+          phx-click={@click_event}
           phx-value-id={@node.id}
         >
           <:label :let={open}>
             <%= if open do %>
-              <.text_items items={@node.expanded_before} />
+              <.text_items
+                id={if(@id, do: @text_items_id <> "-expanded-before")}
+                items={@node.expanded_before}
+              />
             <% else %>
-              <.text_items items={@node.content} />
+              <div class={content_diff_class(@diff, @diff_class)}>
+                <.text_items id={if(@id, do: @text_items_id <> "-content")} items={@node.content} />
+              </div>
             <% end %>
           </:label>
           <ol class="m-0 ml-[2ch] block list-none p-0">
-            <li :for={{_, child} <- @node.children} class="flex flex-col">
-              <.static_term node={child} />
+            <li
+              :for={{key, child} <- @node.children}
+              class={"flex flex-col #{child_diff_class(@diff, key, @diff_class)}"}
+            >
+              <.static_term
+                id={@id}
+                node={child}
+                click_event={@click_event}
+                diff={get_child_diff(@diff, key)}
+                diff_class={@diff_class}
+                selectable_level={@selectable_level}
+                level={@level + 1}
+              />
             </li>
           </ol>
           <div class="ml-[2ch]">
-            <.text_items items={@node.expanded_after} />
+            <.text_items
+              id={if(@id, do: @text_items_id <> "-expanded-after")}
+              items={@node.expanded_after}
+            />
           </div>
         </.static_collapsible>
       <% else %>
         <div class="ml-[2ch]">
-          <.text_items items={@node.content} />
+          <.text_items id={@text_items_id} items={@node.content} />
         </div>
       <% end %>
     </div>
     """
   end
 
+  attr(:id, :string, default: nil)
   attr(:items, :list, required: true)
 
   defp text_items(assigns) do
     ~H"""
     <div class="flex">
-      <%= for item <- @items do %>
-        <span class={"#{text_item_color_class(item)}"}>
+      <%= for {item, index} <- Enum.with_index(@items) do %>
+        <span
+          id={if(@id, do: @id <> "-#{index}")}
+          phx-hook={if(@id, do: "DiffPulse")}
+          data-pulse={item.pulse?}
+          class={text_item_color_class(item)}
+        >
           <pre data-text_item="true"><%= item.text %></pre>
         </span>
       <% end %>
@@ -117,5 +159,23 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
 
   defp text_item_color_class(%DisplayElement{color: color}) do
     if color, do: "#{color}", else: ""
+  end
+
+  defp content_diff_class(nil, _), do: ""
+  defp content_diff_class(%Diff{type: :equal}, _), do: ""
+  defp content_diff_class(%Diff{}, diff_class), do: diff_class
+
+  defp child_diff_class(nil, _, _), do: ""
+
+  defp child_diff_class(diff, key, diff_class) do
+    if final_diff?(diff, key), do: diff_class, else: ""
+  end
+
+  defp get_child_diff(nil, _), do: nil
+  defp get_child_diff(diff, key), do: if(not final_diff?(diff, key), do: diff.diff[key])
+
+  defp final_diff?(%Diff{ins: ins, del: del, diff: diff}, key) do
+    Map.has_key?(ins, key) or Map.has_key?(del, key) or
+      (Map.has_key?(diff, key) && diff[key].type == :primitive)
   end
 end

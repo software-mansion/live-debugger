@@ -1,0 +1,83 @@
+---
+import ContentWrapper from "../components/ContentWrapper.tsx";
+import { Button } from "@/components/ui/button";
+---
+
+<section
+  id="hero"
+  class="bg-primary relative flex w-full scroll-m-20 flex-col items-center justify-start overflow-hidden sm:h-[640px] md:h-[900px] lg:h-[1000px]"
+>
+  <ContentWrapper
+    className="font-aeonik text-primary-foreground flex flex-col items-center justify-center gap-10 py-12 md:py-16"
+  >
+    <div
+      class="animate-fade-in-down z-10 flex w-full flex-col items-center justify-center gap-8 sm:h-1/2"
+    >
+      <div class="flex flex-col items-center justify-center gap-5 md:gap-6">
+        <a href="https://swmansion.com/" target="_blank" rel="noopener">
+          <div
+            class="flex flex-row items-center justify-center gap-3 text-sm font-normal sm:gap-4 md:gap-5 lg:gap-6"
+          >
+            <p>Created by</p>
+            <img
+              src="/live-debugger/assets/logo-swm.svg"
+              alt="Software Mansion"
+              class="h-10 w-auto md:h-12"
+            />
+          </div>
+        </a>
+
+        <div class="flex flex-col items-center justify-center gap-4 md:gap-5">
+          <h1
+            class="max-w-[600px] text-center text-3xl font-bold text-balance md:text-5xl lg:text-6xl"
+          >
+            LiveView debugging made simple
+          </h1>
+          <h2 class="text-secondary-strong text-center text-lg">
+            See what’s happening inside your apps with&nbsp;LiveDebugger
+          </h2>
+        </div>
+      </div>
+      <div class="mt-5 flex gap-4 px-2 max-sm:w-full max-sm:flex-col">
+        <a href="#gettingstarted">
+          <Button variant="secondary"
+            ><p class="text-medium text-md">Get started</p>
+          </Button>
+        </a>
+        <a href="#videosection">
+          <Button variant="defaultWithOutline"
+            ><p class="text-medium text-md px-2">See it in action</p>
+          </Button>
+        </a>
+      </div>
+    </div>
+
+    <div
+      class="animate-slide-in-up absolute -bottom-20 z-10 hidden sm:block lg:-bottom-25"
+    >
+      <img
+        src="/live-debugger/assets/Screenshot-1.png"
+        alt="screenshot 1"
+        class="h-auto sm:w-[552px] sm:max-w-[552px] md:mt-16 md:w-[936px] md:max-w-[936px] lg:mt-20 lg:w-[1100px] lg:max-w-[1100px]"
+      />
+    </div>
+  </ContentWrapper>
+  <div
+    class="animate-fade-in absolute top-90 -right-10 z-1 sm:top-0 lg:-right-40"
+  >
+    <img
+      src="/live-debugger/assets/Vector.svg"
+      alt=""
+      class="h-60 w-auto md:h-80 lg:h-100"
+    />
+  </div>
+  <div
+    class="animate-fade-in absolute top-100 -left-5 z-1 hidden sm:block lg:-left-50"
+  >
+    <img
+      src="/live-debugger/assets/Vector.svg"
+      alt=""
+      class="h-60 w-auto md:h-80 lg:h-100"
+    />
+  </div>
+</section>

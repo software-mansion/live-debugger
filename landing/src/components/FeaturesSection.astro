@@ -1,0 +1,81 @@
+---
+import ContentWrapper from "../components/ContentWrapper.tsx";
+import { Button } from "@/components/ui/button";
+import { BlockWrapper } from "@/components/ui/blockWrapper";
+
+import {
+  ArrowRight,
+  LayoutList,
+  SearchCode,
+  Funnel,
+  SquareMousePointer,
+} from "lucide-react";
+
+const mainFeatures = [
+  {
+    title: "See your LiveComponents tree",
+    description:
+      "Explore your application’s structure at a glance. See how LiveComponents seamlessly fit together to shape your interface.",
+    icon: LayoutList,
+  },
+  {
+    title: "Inspect assigns",
+    description:
+      "Check the data of any LiveView or LiveComponent in real time. Track state transitions and understand your data flow in real time.",
+    icon: SearchCode,
+  },
+  {
+    title: "Trace and filter callback executions",
+    description:
+      "Follow lifecycle callbacks, measure execution time, and analyze performance. Filter events to see what really matters.",
+    icon: Funnel,
+  },
+  {
+    title: "Inspect elements",
+    description:
+      "Click on UI elements to reveal which component created them and instantly see how your full interface is structured.",
+    icon: SquareMousePointer,
+  },
+];
+---
+
+<section
+  id="features"
+  class="flex w-full scroll-m-5 flex-col items-center justify-center bg-white py-16 md:py-20 lg:py-28"
+>
+  <ContentWrapper
+    className="font-aeonik text-primary flex flex-col items-center justify-center gap-10 sm:gap-14 md:gap-16 lg:gap-20"
+  >
+    <h2 class="text-center text-2xl font-bold">Main features</h2>
+
+    <div
+      class="grid grid-cols-1 grid-rows-4 gap-y-6 md:grid-cols-2 md:grid-rows-2 md:gap-x-10 md:gap-y-10 lg:gap-x-14 lg:gap-y-14"
+    >
+      {
+        mainFeatures.map((feature) => {
+          const Icon = feature.icon;
+          return (
+            <BlockWrapper
+              size="large"
+              header={feature.title}
+              description={feature.description}
+              client:visible
+            >
+              <Icon className="h-8 w-8 md:h-10 md:w-10 lg:h-11 lg:w-11 stroke-1" />
+            </BlockWrapper>
+          );
+        })
+      }
+    </div>
+
+    <Button variant="outline" size="sm"
+      ><a
+        href="https://hexdocs.pm/live_debugger/features.html"
+        class="flex flex-row items-center justify-center gap-1 px-2"
+      >
+        <p class="text-normal text-md">Explore all</p>
+        <ArrowRight strokeWidth={1} className="h-5 w-5 md:h-6 md:w-6" />
+      </a></Button
+    >
+  </ContentWrapper>
+</section>
