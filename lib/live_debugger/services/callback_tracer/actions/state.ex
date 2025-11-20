@@ -10,11 +10,24 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.Services.CallbackTracer.Events.StreamUpdated
 
   @doc """
-  It checks if the trace is state changing and if so, it saves the state.
+  Handles stream updates and saves state across render traces.
+  - Broadcasts `StreamUpdated` events for streams that changed.
+  - Checks if the trace is state changing and if so, it saves the state.
   """
   @spec maybe_save_state!(FunctionTrace.t()) :: :ok
+  def maybe_save_state!(%FunctionTrace{
+        pid: pid,
+        function: :render,
+        type: :return_from,
+        args: [%{streams: streams} | _]
+      }) do
+    broadcast_stream_updates(pid, streams)
+    do_save_state!(pid)
+  end
+
   def maybe_save_state!(%FunctionTrace{pid: pid, function: :render, type: :return_from}) do
     do_save_state!(pid)
   end
@@ -57,5 +70,34 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
         Bus.broadcast_state!(%StateChanged{pid: pid}, pid)
         :ok
     end
+  end
+
+  defp broadcast_stream_updates(pid, streams) do
+    changed = streams[:__changed__]
+    configured = streams[:__configured__]
+
+    streams
+    |> Map.values()
+    |> Enum.each(fn
+      %Phoenix.LiveView.LiveStream{name: name} = stream ->
+        if MapSet.member?(changed, name) do
+          dom_id_fun =
+            configured
+            |> Map.get(name, [])
+            |> Keyword.get(:dom_id)
+
+          Bus.broadcast_state!(
+            %StreamUpdated{
+              pid: pid,
+              stream: stream,
+              dom_id_fun: dom_id_fun
+            },
+            pid
+          )
+        end
+
+      _ ->
+        :skip
+    end)
   end
 end
