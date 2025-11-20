@@ -30,13 +30,13 @@ defmodule LiveDebugger.App.Utils.TermParser do
   - Adding comma suffixes
   - Opening proper elements
   """
-  @spec term_to_display_tree(term()) :: TermNode.t()
-  def term_to_display_tree(term) do
+  @spec term_to_display_tree(term(), open_settings: TermNode.open_settings()) :: TermNode.t()
+  def term_to_display_tree(term, opts \\ []) do
     term
     |> to_node()
     |> index_term_node()
     |> update_comma_suffixes()
-    |> TermNode.open_with_default_settings()
+    |> TermNode.open_with_settings(Keyword.get(opts, :open_settings, :default))
   end
 
   @doc """
@@ -386,7 +386,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
     node = value |> to_node() |> TermNode.add_prefix([key_span, sep_span])
 
-    {key, node}
+    {key, %TermNode{node | key: key}}
   end
 
   defp to_children(items) when is_list(items) do

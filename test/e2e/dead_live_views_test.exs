@@ -1,11 +1,20 @@
 defmodule LiveDebugger.E2E.DeadLiveViewsTest do
   use LiveDebugger.E2ECase
 
+  alias LiveDebugger.Bus
+  alias LiveDebugger.App.Events.UserChangedSettings
+
   setup_all do
     LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
     LiveDebugger.API.SettingsStorage.save(:dead_view_mode, true)
     LiveDebugger.API.SettingsStorage.save(:garbage_collection, true)
     LiveDebugger.API.SettingsStorage.save(:dead_liveviews, false)
+
+    Bus.Impl.broadcast_event!(%UserChangedSettings{
+      key: :garbage_collection,
+      value: true,
+      from: self()
+    })
 
     :ok
   end

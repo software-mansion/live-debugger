@@ -32,6 +32,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> register_hook(:node_assigns)
     |> assign(:node_assigns_info, AsyncResult.loading())
     |> assign(:assigns_sizes, AsyncResult.loading())
+    |> assign(:pinned_assigns, %{})
     |> put_private(:pulse_cleared?, true)
     |> assign_async_node_assigns()
   end
@@ -90,28 +91,22 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   defp handle_async(
          :fetch_node_assigns,
          {:ok, {:ok, node_assigns}},
-         %{assigns: %{node_assigns_info: %AsyncResult{ok?: true}}} = socket
+         %{
+           assigns: %{
+             node_assigns_info: %AsyncResult{ok?: true},
+             pinned_assigns: pinned_assigns
+           }
+         } = socket
        ) do
     socket = maybe_clear_term_node_pulse(socket)
-    %AsyncResult{result: {old_assigns, old_term_node, _}} = socket.assigns.node_assigns_info
 
-    node_assigns_info =
-      case TermDiffer.diff(old_assigns, node_assigns) do
-        %Diff{type: :equal} ->
-          AsyncResult.ok(socket.assigns.node_assigns_info.result)
-
-        diff ->
-          copy_string = TermParser.term_to_copy_string(node_assigns)
-
-          case TermParser.update_by_diff(old_term_node, diff) do
-            {:ok, term_node} -> AsyncResult.ok({node_assigns, term_node, copy_string})
-            {:error, reason} -> AsyncResult.failed(socket.assigns.node_assigns_info, reason)
-          end
-      end
+    node_assigns_info = update_node_assigns_info(socket.assigns.node_assigns_info, node_assigns)
+    pinned_assigns = update_pinned_assigns(pinned_assigns, node_assigns)
 
     socket
     |> put_private(:pulse_cleared?, false)
     |> assign(:node_assigns_info, node_assigns_info)
+    |> assign(:pinned_assigns, pinned_assigns)
     |> assign_size_async(node_assigns)
     |> halt()
   end
@@ -119,9 +114,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   defp handle_async(:fetch_node_assigns, {:ok, {:ok, node_assigns}}, socket) do
     term_node = TermParser.term_to_display_tree(node_assigns)
     copy_string = TermParser.term_to_copy_string(node_assigns)
+    pinned_assigns = node_assigns |> Map.keys() |> Map.new(&{to_string(&1), false})
 
     socket
     |> assign(:node_assigns_info, AsyncResult.ok({node_assigns, term_node, copy_string}))
+    |> assign(:pinned_assigns, pinned_assigns)
     |> assign_size_async(node_assigns)
     |> halt()
   end
@@ -151,6 +148,33 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   end
 
   defp handle_async(_, _, socket), do: {:cont, socket}
+
+  defp update_node_assigns_info(old_node_assigns_info, node_assigns) do
+    %AsyncResult{result: {old_assigns, _, _}} = old_node_assigns_info
+
+    case TermDiffer.diff(old_assigns, node_assigns) do
+      %Diff{type: :equal} -> AsyncResult.ok(old_node_assigns_info.result)
+      diff -> update_node_assigns_info_by_diff(old_node_assigns_info, node_assigns, diff)
+    end
+  end
+
+  defp update_node_assigns_info_by_diff(old_node_assigns_info, node_assigns, diff) do
+    %AsyncResult{result: {_, old_term_node, _}} = old_node_assigns_info
+
+    copy_string = TermParser.term_to_copy_string(node_assigns)
+
+    case TermParser.update_by_diff(old_term_node, diff) do
+      {:ok, term_node} -> AsyncResult.ok({node_assigns, term_node, copy_string})
+      {:error, reason} -> AsyncResult.failed(old_node_assigns_info, reason)
+    end
+  end
+
+  defp update_pinned_assigns(pinned_assigns, node_assigns) do
+    node_assigns
+    |> Map.keys()
+    |> Map.new(&{to_string(&1), false})
+    |> Map.merge(pinned_assigns, fn _, _default, selected? -> selected? end)
+  end
 
   # If one async task is already running, we start the second async task
   # If both async tasks are running, we start the second async task

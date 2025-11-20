@@ -6,22 +6,44 @@ import { IconBox } from "@/components/ui/iconBox";
 const title = Astro.props.title;
 const buttonText = Astro.props.buttonText;
 const url = Astro.props.url;
+const buttonText2 = Astro.props.buttonText2;
+const url2 = Astro.props.url2;
 ---
 
 <div class="flex flex-col items-center gap-5 pt-6">
   <IconBox variant="secondary">
     <slot />
   </IconBox>
-  <h2 class="text-md font-medium">{title}</h2>
-  <Button variant="outline" size="sm">
-    <a
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="flex flex-row items-center justify-center"
-    >
-      <p class="text-medium px-2 text-sm">{buttonText}</p>
-      <ArrowRight strokeWidth={1} className="h-5 w-5 md:h-6 md:w-6" />
-    </a>
-  </Button>
+  <h2 class="text-lg font-medium">{title}</h2>
+  <div class="flex w-full flex-col items-center gap-3">
+    <Button variant="outline" size="wfull">
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex flex-row items-center justify-center"
+      >
+        <p class="text-md px-2">{buttonText}</p>
+        <ArrowRight strokeWidth={1} className="h-5 w-5 md:h-6 md:w-6" />
+      </a>
+    </Button>
+    {
+      buttonText2 && (
+        <div class="flex w-full flex-col items-center gap-3">
+          <p class="text-secondary font-aeonik text-md font-normal">or</p>
+          <Button variant="outline" size="wfull">
+            <a
+              href={url2}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex flex-row items-center justify-center"
+            >
+              <p class="text-md px-2">{buttonText2}</p>
+              <ArrowRight strokeWidth={1} className="h-5 w-5 md:h-6 md:w-6" />
+            </a>
+          </Button>
+        </div>
+      )
+    }
+  </div>
 </div>

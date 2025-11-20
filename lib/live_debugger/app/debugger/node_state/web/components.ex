@@ -7,12 +7,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
+  alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory
   alias LiveDebugger.App.Utils.TermNode
   alias Phoenix.LiveView.AsyncResult
 
   def loading(assigns) do
     ~H"""
-    <div class="w-full flex items-center justify-center">
+    <div class="w-full flex-grow flex items-center justify-center">
       <.spinner size="sm" />
     </div>
     """
@@ -26,12 +27,12 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     """
   end
 
-  attr(:assigns, :list, required: true)
   attr(:term_node, TermNode, required: true)
   attr(:copy_string, :string, required: true)
   attr(:fullscreen_id, :string, required: true)
   attr(:assigns_sizes, AsyncResult, required: true)
   attr(:assigns_search_phrase, :string, default: "")
+  attr(:pinned_assigns, :map, default: %{})
 
   def assigns_section(assigns) do
     opened_term_node =
@@ -48,17 +49,27 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
               assigns_search_phrase={@assigns_search_phrase}
               input_id="assigns-search-input"
             />
+            <AssignsHistory.button />
             <.copy_button id="assigns-copy-button" variant="icon-button" value={@copy_string} />
             <.fullscreen_button id={@fullscreen_id} />
           </div>
         </:right_panel>
         <div
           id="assigns-display-container"
-          class="relative w-full h-max max-h-full p-4 overflow-y-auto"
+          class="w-full h-max max-h-full overflow-y-auto"
           data-search_phrase={@assigns_search_phrase}
         >
-          <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
-          <ElixirDisplay.static_term node={@term_node} />
+          <div id="pinned-assigns" class="p-4 border-b border-default-border">
+            <.pinned_assigns_section
+              id="pinned-"
+              term_node={@term_node}
+              pinned_assigns={@pinned_assigns}
+            />
+          </div>
+          <div id="all-assigns" class="p-4 relative">
+            <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
+            <ElixirDisplay.static_term node={@term_node} selectable_level={1} />
+          </div>
         </div>
       </.section>
       <.fullscreen id={@fullscreen_id} title="Assigns">
@@ -68,15 +79,51 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
             input_id="assigns-search-input-fullscreen"
           />
         </:search_bar_slot>
-        <div
-          id="assigns-display-fullscreen-container"
-          class="relative p-4"
-          data-search_phrase={@assigns_search_phrase}
-        >
-          <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
-          <ElixirDisplay.static_term id="fullscreen-" node={@term_node} />
+        <div id="assigns-display-fullscreen-container" data-search_phrase={@assigns_search_phrase}>
+          <div class="p-4 border-b border-default-border">
+            <.pinned_assigns_section
+              id="pinned-fullscreen-"
+              term_node={@term_node}
+              pinned_assigns={@pinned_assigns}
+            />
+          </div>
+          <div class="p-4 relative">
+            <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
+            <ElixirDisplay.static_term id="fullscreen-" node={@term_node} selectable_level={1} />
+          </div>
         </div>
       </.fullscreen>
+    </div>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:term_node, TermNode, required: true)
+  attr(:pinned_assigns, :map, required: true)
+
+  defp pinned_assigns_section(assigns) do
+    ~H"""
+    <p :if={Enum.all?(@pinned_assigns, fn {_, v} -> !v end)} class="text-secondary-text">
+      You have no pinned assigns.
+    </p>
+    <div
+      :for={{key, pinned} <- @pinned_assigns}
+      :if={pinned}
+      class="flex min-h-4.5 [&>div>button]:hidden hover:[&>div>button]:block"
+    >
+      <div class="w-4">
+        <button
+          class="text-button-red-content hover:text-button-red-content-hover"
+          phx-click="unpin-assign"
+          phx-value-key={key}
+        >
+          <.icon name="icon-pin-off" class="h-4 w-4" />
+        </button>
+      </div>
+      <ElixirDisplay.static_term
+        id={@id}
+        node={Keyword.get(@term_node.children, String.to_existing_atom(key), %{})}
+      />
     </div>
     """
   end
@@ -113,6 +160,52 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           <span class="text-red-700"> error </span>
         </:failed>
       </.async_result>
+    </div>
+    """
+  end
+
+  attr(:disabled?, :boolean, required: true)
+  attr(:index, :integer, required: true)
+  attr(:length, :integer, required: true)
+
+  def assigns_history_navigation(assigns) do
+    ~H"""
+    <div class="flex justify-end items-center gap-2 mb-4">
+      <div class="max-sm:max-w-70 flex items-center text-3xs py-2 px-3 rounded bg-button-secondary-bg text-button-secondary-content border-button-secondary-border border">
+        <.icon name="icon-info" class="w-4 h-4 mr-2" />
+        <span>
+          The history is constructed from registered <b>render/1</b> callbacks
+        </span>
+      </div>
+      <.icon_button
+        variant="secondary"
+        icon="icon-chevrons-right"
+        phx-click="go-back-end"
+        class="rotate-180"
+        disabled={if(@disabled? || @index == @length - 1, do: true)}
+      />
+      <.icon_button
+        variant="secondary"
+        icon="icon-chevron-right"
+        phx-click="go-back"
+        class="rotate-180"
+        disabled={if(@disabled? || @index == @length - 1, do: true)}
+      />
+      <span>
+        <%= @index + 1 %> / <%= @length %>
+      </span>
+      <.icon_button
+        variant="secondary"
+        icon="icon-chevron-right"
+        phx-click="go-forward"
+        disabled={if(@disabled? || @index == 0, do: true)}
+      />
+      <.icon_button
+        variant="secondary"
+        icon="icon-chevrons-right"
+        phx-click="go-forward-end"
+        disabled={if(@disabled? || @index == 0, do: true)}
+      />
     </div>
     """
   end

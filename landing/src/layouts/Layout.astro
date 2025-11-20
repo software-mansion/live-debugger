@@ -1,6 +1,6 @@
 ---
 import "../styles/global.css";
-import "../styles/aeonik.css";
+import { Font } from "astro:assets";
 import { Header } from "@/components/ui/Header";
 import { Footer } from "@/components/ui/Footer";
 
@@ -20,8 +20,32 @@ const { title } = Astro.props;
       name="description"
       content="A must-have tool for Elixir developers. See your LiveComponents tree, inspect assigns, trace and filter callback executions, and more."
     />
+    <Font cssVariable="--font-aeonik" preload />
+    <!-- Google Tag Manager -->
+    <script>
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+        var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s),
+          dl = l != "dataLayer" ? "&l=" + l : "";
+        j.async = true;
+        j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+        f.parentNode.insertBefore(j, f);
+      })(window, document, "script", "dataLayer", "GTM-PMLFF7CX");
+    </script>
+    <!-- End Google Tag Manager -->
   </head>
-  <body>
+  <body class="font-primary">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript
+      ><iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-PMLFF7CX"
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"></iframe></noscript
+    >
+    <!-- End Google Tag Manager (noscript) -->
     <Header client:load />
     <slot />
     <Footer client:load />

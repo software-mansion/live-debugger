@@ -43,7 +43,7 @@ export function CodeBlock({ codeString }: CodeBlockProps) {
         onClick={handleCopy}
       >
         <div className="flex items-center gap-2.5 px-2 align-middle">
-          <p className="text-medium text-sm">{isCopied ? "Copied!" : "Copy"}</p>
+          <p className="text-medium text-md">{isCopied ? "Copied!" : "Copy"}</p>
           {!isCopied && (
             <Copy strokeWidth={2} className="h-4 w-4 md:h-5 md:w-5" />
           )}

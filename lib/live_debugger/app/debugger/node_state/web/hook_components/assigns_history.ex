@@ -1,0 +1,260 @@
+defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory do
+  @moduledoc """
+  This component is used to add node assigns history functionality.
+  """
+
+  use LiveDebugger.App.Web, :hook_component
+
+  alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
+  alias LiveDebugger.App.Debugger.NodeState.Web.Components, as: NodeStateComponents
+  alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+  alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
+  alias LiveDebugger.App.Utils.TermNode
+  alias LiveDebugger.App.Utils.TermDiffer
+  alias LiveDebugger.App.Utils.TermParser
+  alias Phoenix.LiveView.AsyncResult
+
+  @assigns_history_id "assigns-history"
+
+  @required_assigns [:node_id, :lv_process]
+
+  @impl true
+  def init(socket) do
+    socket
+    |> check_assigns!(@required_assigns)
+    |> attach_hook(:assigns_history, :handle_event, &handle_event/3)
+    |> attach_hook(:assigns_history, :handle_async, &handle_async/3)
+    |> attach_hook(:assigns_history, :handle_info, &handle_info/2)
+    |> register_hook(:assigns_history)
+    |> put_private(:open?, false)
+    |> assign(:current_history_index, 0)
+    |> assign(:history_length, 0)
+    |> assign(:history_entries, AsyncResult.loading())
+  end
+
+  attr(:current_history_index, :integer, required: true)
+  attr(:history_entries, AsyncResult, required: true)
+  attr(:history_length, :integer, required: true)
+
+  @impl true
+  def render(assigns) do
+    assigns = assign(assigns, id: @assigns_history_id)
+
+    ~H"""
+    <.fullscreen id={@id} title="Assigns History" class="xl:w-3/4!">
+      <div class="flex flex-col justify-between p-4 min-h-[40rem]">
+        <.async_result :let={history_entries} assign={@history_entries}>
+          <:loading>
+            <NodeStateComponents.loading />
+          </:loading>
+          <:failed :let={reason}>
+            <.failed reason={reason} />
+          </:failed>
+
+          <div class="flex flex-grow justify-center items-center gap-2 mb-4">
+            <div id="history-old-assigns" class="max-w-1/2 overflow-x-auto">
+              <ElixirDisplay.static_term
+                :if={history_entries.old != nil}
+                node={history_entries.old |> elem(1)}
+                click_event="toggle_diff_node"
+                diff={history_entries.diff}
+                diff_class="bg-diff-negative-bg"
+              />
+            </div>
+            <div id="history-new-assigns" class="max-w-1/2 overflow-x-auto">
+              <ElixirDisplay.static_term
+                node={history_entries.new |> elem(1)}
+                click_event="toggle_diff_node"
+                diff={history_entries.diff}
+                diff_class="bg-diff-positive-bg"
+              />
+            </div>
+          </div>
+        </.async_result>
+        <NodeStateComponents.assigns_history_navigation
+          disabled?={not @history_entries.ok?}
+          index={@current_history_index}
+          length={@history_length}
+        />
+      </div>
+    </.fullscreen>
+    """
+  end
+
+  def button(assigns) do
+    assigns = assign(assigns, id: @assigns_history_id)
+
+    ~H"""
+    <.tooltip id="open-assigns-history-tooltip" content="Assigns history" position="top-center">
+      <.fullscreen_button id={@id} icon="icon-history" phx-click="open-assigns-history" />
+    </.tooltip>
+    """
+  end
+
+  attr(:reason, :any, default: nil)
+
+  defp failed(%{reason: :no_history_record} = assigns) do
+    ~H"""
+    <div class="text-secondary-text flex-grow flex items-center justify-center ">
+      <span>No history records</span>
+    </div>
+    """
+  end
+
+  defp failed(assigns) do
+    ~H"""
+    <NodeStateComponents.failed />
+    """
+  end
+
+  defp handle_event("open-assigns-history", _params, socket) do
+    socket
+    |> put_private(:open?, true)
+    |> assign_async_assigns_history()
+    |> push_event("#{@assigns_history_id}-open", %{})
+    |> halt()
+  end
+
+  defp handle_event("fullscreen-closed", %{"id" => @assigns_history_id}, socket) do
+    socket
+    |> put_private(:open?, false)
+    |> assign(:history_entries, AsyncResult.loading())
+    |> halt()
+  end
+
+  defp handle_event("go-back", _, socket) do
+    new_index = min(socket.assigns.current_history_index + 1, socket.assigns.history_length - 1)
+
+    socket
+    |> assign(:current_history_index, new_index)
+    |> assign_async_assigns_history()
+    |> halt()
+  end
+
+  defp handle_event("go-back-end", _, socket) do
+    socket
+    |> assign(:current_history_index, socket.assigns.history_length - 1)
+    |> assign_async_assigns_history()
+    |> halt()
+  end
+
+  defp handle_event("go-forward", _, socket) do
+    new_index = max(socket.assigns.current_history_index - 1, 0)
+
+    socket
+    |> assign(:current_history_index, new_index)
+    |> assign_async_assigns_history()
+    |> halt()
+  end
+
+  defp handle_event("go-forward-end", _, socket) do
+    socket
+    |> assign(:current_history_index, 0)
+    |> assign_async_assigns_history()
+    |> halt()
+  end
+
+  defp handle_event("toggle_diff_node", %{"id" => id}, socket) do
+    case socket.assigns.history_entries do
+      %AsyncResult{result: %{new: new, old: old} = result} ->
+        new = toggle_term_node_in_history_entry(new, id)
+        old = toggle_term_node_in_history_entry(old, id)
+
+        socket
+        |> assign(:history_entries, AsyncResult.ok(%{result | new: new, old: old}))
+
+      _ ->
+        socket
+    end
+    |> halt()
+  end
+
+  defp handle_event(_, _, socket), do: {:cont, socket}
+
+  defp handle_async(:fetch_history_entries, {:ok, {:ok, {entries, length}}}, socket) do
+    index = socket.assigns.current_history_index
+
+    socket
+    |> assign(current_history_index: min(index, length - 1))
+    |> assign(history_length: length)
+    |> assign_async(:history_entries, fn ->
+      case entries do
+        [new_assigns, old_assigns] ->
+          new =
+            {new_assigns, TermParser.term_to_display_tree(new_assigns, open_settings: :minimal)}
+
+          old =
+            {old_assigns, TermParser.term_to_display_tree(old_assigns, open_settings: :minimal)}
+
+          diff = TermDiffer.diff(old_assigns, new_assigns)
+
+          {:ok, %{history_entries: %{new: new, old: old, diff: diff}}}
+
+        [initial_assigns] ->
+          new = {initial_assigns, TermParser.term_to_display_tree(initial_assigns)}
+
+          {:ok, %{history_entries: %{new: new, old: nil, diff: nil}}}
+      end
+    end)
+    |> halt()
+  end
+
+  defp handle_async(:fetch_history_entries, {:ok, {:error, reason}}, socket) do
+    socket
+    |> assign(:current_history_index, 0)
+    |> assign(:history_length, 0)
+    |> assign(:history_entries, AsyncResult.failed(socket.assigns.history_entries, reason))
+    |> halt()
+  end
+
+  defp handle_async(:fetch_history_entries, {:exit, reason}, socket) do
+    socket
+    |> assign(:current_history_index, 0)
+    |> assign(:history_length, 0)
+    |> assign(:history_entries, AsyncResult.failed(socket.assigns.history_entries, reason))
+    |> halt()
+  end
+
+  defp handle_async(_, _, socket), do: {:cont, socket}
+
+  defp handle_info(%StateChanged{}, %{private: %{open?: true}} = socket) do
+    socket
+    |> assign_async_assigns_history()
+    |> cont()
+  end
+
+  defp handle_info(_, socket), do: {:cont, socket}
+
+  defp assign_async_assigns_history(
+         %{
+           assigns: %{
+             current_history_index: index,
+             node_id: node_id,
+             lv_process: %{pid: pid}
+           }
+         } = socket
+       ) do
+    socket
+    |> assign(history_entries: AsyncResult.loading())
+    |> start_async(:fetch_history_entries, fn ->
+      NodeStateQueries.fetch_assigns_history_entries(pid, node_id, index)
+    end)
+  end
+
+  defp toggle_term_node_in_history_entry(nil, _id), do: nil
+
+  defp toggle_term_node_in_history_entry({assigns, term_node}, id) do
+    {assigns, maybe_toggle_term_node_by_id(term_node, id)}
+  end
+
+  defp maybe_toggle_term_node_by_id(term_node, id) do
+    term_node
+    |> TermParser.update_by_id(id, fn %TermNode{} = term_node ->
+      %TermNode{term_node | open?: !term_node.open?}
+    end)
+    |> case do
+      {:ok, updated_term_node} -> updated_term_node
+      {:error, _reason} -> term_node
+    end
+  end
+end
