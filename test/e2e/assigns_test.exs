@@ -1,6 +1,13 @@
 defmodule LiveDebugger.E2E.AssignsTest do
   use LiveDebugger.E2ECase
 
+  setup_all do
+    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
+    LiveDebugger.API.SettingsStorage.save(:tracing_enabled_on_start, false)
+
+    :ok
+  end
+
   @sessions 2
   feature "user can search assigns using the searchbar", %{
     sessions: [dev_app, debugger]
