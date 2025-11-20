@@ -470,6 +470,12 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:id, :string, required: true)
   attr(:title, :string, default: "", doc: "Title of the fullscreen.")
 
+  attr(:send_close_event, :boolean,
+    default: false,
+    doc:
+      "Whether to send a `fullscreen-closed` event to the server when the fullscreen is closed."
+  )
+
   attr(:class, :any,
     default: nil,
     doc: "Additional classes to be added to the fullscreen element."
@@ -483,6 +489,7 @@ defmodule LiveDebugger.App.Web.Components do
     <dialog
       id={@id}
       phx-hook="Fullscreen"
+      data-send-close-event={@send_close_event}
       class={[
         "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg pt-1 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
