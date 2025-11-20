@@ -130,11 +130,9 @@ defmodule LiveDebugger.App.Utils.Parsers do
   @spec list_to_string(list :: list()) :: String.t()
   def list_to_string(list) do
     list
-    |> Enum.map_join(", ", fn item ->
-      case item do
-        %Phoenix.LiveComponent.CID{cid: cid} -> Integer.to_string(cid)
-        _ -> inspect(item, limit: :infinity, pretty: true, structs: false)
-      end
+    |> Enum.map_join(", ", fn
+      %Phoenix.LiveComponent.CID{cid: cid} -> Integer.to_string(cid)
+      item -> inspect(item, limit: :infinity, pretty: true, structs: false)
     end)
   end
 
