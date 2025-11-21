@@ -25,8 +25,7 @@ defmodule LiveDebugger.App.Discovery.QueriesTest do
       |> expect(:debugged_lv_processes, fn -> [lv_process] end)
       |> expect(:group_lv_processes, fn [^lv_process] -> grouped_lv_processes end)
 
-      assert {:ok, %{grouped_lv_processes: ^grouped_lv_processes}} =
-               DiscoveryQueries.fetch_grouped_lv_processes()
+      assert {^grouped_lv_processes, 1} = DiscoveryQueries.fetch_grouped_lv_processes()
     end
 
     test "returns LiveView processes with transport_pid" do
@@ -45,7 +44,7 @@ defmodule LiveDebugger.App.Discovery.QueriesTest do
       |> expect(:debugged_lv_processes, fn ^transport_pid -> [lv_process] end)
       |> expect(:group_lv_processes, fn [^lv_process] -> grouped_lv_processes end)
 
-      assert {:ok, %{grouped_lv_processes: ^grouped_lv_processes}} =
+      assert {^grouped_lv_processes, 1} =
                DiscoveryQueries.fetch_grouped_lv_processes(transport_pid)
     end
 
@@ -64,8 +63,7 @@ defmodule LiveDebugger.App.Discovery.QueriesTest do
       |> expect(:debugged_lv_processes, fn -> [lv_process] end)
       |> expect(:group_lv_processes, fn [^lv_process] -> grouped_lv_processes end)
 
-      assert {:ok, %{grouped_lv_processes: ^grouped_lv_processes}} =
-               DiscoveryQueries.fetch_grouped_lv_processes()
+      assert {^grouped_lv_processes, 1} = DiscoveryQueries.fetch_grouped_lv_processes()
     end
 
     test "returns empty map when no active LiveViews" do
@@ -73,8 +71,7 @@ defmodule LiveDebugger.App.Discovery.QueriesTest do
       |> expect(:debugged_lv_processes, 3, fn -> [] end)
       |> expect(:group_lv_processes, fn [] -> %{} end)
 
-      assert {:ok, %{grouped_lv_processes: %{}}} =
-               DiscoveryQueries.fetch_grouped_lv_processes()
+      assert {%{}, 0} = DiscoveryQueries.fetch_grouped_lv_processes()
     end
   end
 
@@ -88,8 +85,7 @@ defmodule LiveDebugger.App.Discovery.QueriesTest do
       MockAPILiveViewDiscovery
       |> expect(:group_lv_processes, fn [] -> %{} end)
 
-      assert {:ok, %{dead_grouped_lv_processes: %{}}} =
-               DiscoveryQueries.fetch_dead_grouped_lv_processes()
+      assert {%{}, 0} = DiscoveryQueries.fetch_dead_grouped_lv_processes()
 
       Process.exit(pid, :kill)
     end
@@ -116,26 +112,22 @@ defmodule LiveDebugger.App.Discovery.QueriesTest do
           %{transport_pid => %{lv_process => []}}
       end)
 
-      assert {:ok,
-              %{
-                dead_grouped_lv_processes: %{
-                  transport_pid => %{
-                    %LvProcess{
-                      pid: pid,
-                      transport_pid: transport_pid,
-                      alive?: false,
-                      socket_id: socket.id,
-                      root_pid: pid,
-                      parent_pid: nil,
-                      module: socket.view,
-                      nested?: false,
-                      embedded?: false,
-                      debugger?: false
-                    } => []
-                  }
+      assert {%{
+                transport_pid => %{
+                  %LvProcess{
+                    pid: pid,
+                    transport_pid: transport_pid,
+                    alive?: false,
+                    socket_id: socket.id,
+                    root_pid: pid,
+                    parent_pid: nil,
+                    module: socket.view,
+                    nested?: false,
+                    embedded?: false,
+                    debugger?: false
+                  } => []
                 }
-              }} ==
-               DiscoveryQueries.fetch_dead_grouped_lv_processes()
+              }, 1} == DiscoveryQueries.fetch_dead_grouped_lv_processes()
     end
   end
 end

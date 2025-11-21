@@ -19,14 +19,15 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
   @impl true
   def update(%{action: :refresh}, socket) do
     socket
-    |> assign_async_dead_grouped_lv_processes()
+    |> start_async_dead_grouped_lv_processes()
     |> ok()
   end
 
   def update(%{dead_liveviews?: value}, socket) do
     socket
     |> assign(dead_liveviews?: value)
-    |> assign_async_dead_grouped_lv_processes()
+    |> assign(dead_grouped_lv_processes: AsyncResult.loading())
+    |> start_async_dead_grouped_lv_processes()
     |> ok()
   end
 
@@ -34,7 +35,9 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
     socket
     |> assign(assigns)
     |> assign(dead_liveviews?: SettingsStorage.get(:dead_liveviews))
-    |> assign_async_dead_grouped_lv_processes()
+    |> assign(lv_processes_count: 0)
+    |> assign(dead_grouped_lv_processes: AsyncResult.loading())
+    |> start_async_dead_grouped_lv_processes()
     |> ok()
   end
 
@@ -55,7 +58,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
         <:label>
           <DiscoveryComponents.header
             title="Dead LiveViews"
-            sessions_count={if(@dead_liveviews?, do: @lv_processes_count.result)}
+            lv_processes_count={@lv_processes_count}
             refresh_event="refresh-dead"
             disabled?={!@dead_liveviews?}
             target={@myself}
@@ -87,7 +90,8 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
   @impl true
   def handle_event("refresh-dead", _params, socket) do
     socket
-    |> assign_async_dead_grouped_lv_processes()
+    |> assign(dead_grouped_lv_processes: AsyncResult.loading())
+    |> start_async_dead_grouped_lv_processes()
     |> noreply()
   end
 
@@ -99,7 +103,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
       {:ok, true} ->
         socket
         |> assign(dead_liveviews?: true)
-        |> assign_async_dead_grouped_lv_processes()
+        |> start_async_dead_grouped_lv_processes()
 
       {:ok, false} ->
         assign(socket, dead_liveviews?: false)
@@ -115,16 +119,27 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
     DiscoveryActions.remove_lv_process_state!(pid)
 
     socket
-    |> assign_async_dead_grouped_lv_processes()
+    |> start_async_dead_grouped_lv_processes()
     |> noreply()
   end
 
-  defp assign_async_dead_grouped_lv_processes(socket) do
+  @impl true
+  def handle_async(
+        :fetch_dead_grouped_lv_processes,
+        {:ok, {dead_grouped_lv_processes, lv_processes_count}},
+        socket
+      ) do
+    socket
+    |> assign(lv_processes_count: lv_processes_count)
+    |> assign(dead_grouped_lv_processes: AsyncResult.ok(dead_grouped_lv_processes))
+    |> noreply()
+  end
+
+  defp start_async_dead_grouped_lv_processes(socket) do
     if socket.assigns.dead_liveviews? do
-      socket
-      |> assign(:lv_processes_count, AsyncResult.loading())
-      |> assign_async(
-        [:dead_grouped_lv_processes, :lv_processes_count],
+      start_async(
+        socket,
+        :fetch_dead_grouped_lv_processes,
         &DiscoveryQueries.fetch_dead_grouped_lv_processes/0
       )
     else
