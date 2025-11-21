@@ -41,7 +41,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
     assigns = assign(assigns, id: @assigns_history_id)
 
     ~H"""
-    <.fullscreen id={@id} title="Assigns History" class="xl:w-3/4!">
+    <.fullscreen id={@id} title="Assigns History" send_close_event={true} class="xl:w-3/4!">
       <div class="flex flex-col justify-between p-4 min-h-[40rem]">
         <.async_result :let={history_entries} assign={@history_entries}>
           <:loading>
