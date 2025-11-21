@@ -78,7 +78,9 @@
   --info-text: var(--primary-text);
 
   /* Warning */
-  --warning-text: #e6bf00;
+  --warning-bg: var(--swm-yellow-20);
+  --warning-border: var(--swm-yellow-40);
+  --warning-text: var(--primary-text);
 
   --search-highlight-bg: var(--swm-yellow-80);
   --search-highlight-text: var(--slate-900);

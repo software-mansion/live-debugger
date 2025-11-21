@@ -65,8 +65,10 @@ module.exports = {
         'info-border': 'var(--info-border)',
         'info-icon': 'var(--info-icon)',
         'info-text': 'var(--info-text)',
-        'diff-border': 'var(--diff-border)',
+        'warning-bg': 'var(--warning-bg)',
+        'warning-border': 'var(--warning-border)',
         'warning-text': 'var(--warning-text)',
+        'diff-border': 'var(--diff-border)',
       },
       screens: { xs: '380px' },
       fontFamily: {

@@ -10,31 +10,35 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
+  # You have <b>Garbage Collection enabled</b>
+  # which means that LiveViews listed below will be removed automatically.
+  # You can disable this behaviour in <.settings_link />.
+
+  # You have <b>Garbage Collection disabled</b>
+  # which means that LiveViews listed below will not be removed automatically.
+  # This will lead to increased memory usage. You can enable it in <.settings_link />.
+
   def garbage_collection_info(assigns) do
     assigns =
       assign(assigns, garbage_collection_enabled?: SettingsStorage.get(:garbage_collection))
 
     ~H"""
-    <div class={[
-      "mt-6 p-4 bg-surface-0-bg rounded shadow-custom border flex justify-center",
-      if(@garbage_collection_enabled?, do: "border-info-text", else: "border-warning-text")
-    ]}>
-      <div class="text-center max-w-[40rem]">
+    <.info_block variant={if(@garbage_collection_enabled?, do: "info", else: "warning")} class="mt-6">
+      <:header>
         <%= if @garbage_collection_enabled? do %>
-          <p class="text-info-text">
-            You have <b>Garbage Collection enabled</b>
-            which means that LiveViews listed below will be removed automatically.
-            You can disable this behaviour in <.settings_link />.
-          </p>
+          The LiveViews listed below are no longer active and will be removed shortly.
         <% else %>
-          <p class="text-warning-text">
-            You have <b>Garbage Collection disabled</b>
-            which means that LiveViews listed below will not be removed automatically.
-            This will lead to increased memory usage. You can enable it in <.settings_link />.
-          </p>
+          Garbage Collection is disabled, so the LiveViews below will not be removed automatically.
+        <% end %>
+      </:header>
+      <div>
+        <%= if @garbage_collection_enabled? do %>
+          To keep them longer, disable Garbage Collection in <b><.settings_link /></b>. Note that this may increase memory usage.
+        <% else %>
+          To keep them longer, disable Garbage Collection in <b><.settings_link /></b>. Note that this may increase memory usage.
         <% end %>
       </div>
-    </div>
+    </.info_block>
     """
   end
 
@@ -49,7 +53,11 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
     <div class="flex flex-1 items-center gap-2 justify-between">
       <div class="flex items-center gap-3">
         <.h1 class={if(@disabled?, do: "opacity-30")}><%= @title %></.h1>
-        <.info_block><%= @lv_processes_count %></.info_block>
+        <.info_block size="sm" class={if(@disabled?, do: "opacity-30")}>
+          <:header>
+            <%= @lv_processes_count %>
+          </:header>
+        </.info_block>
       </div>
       <.button
         phx-click={@refresh_event}
@@ -212,7 +220,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   defp settings_link(assigns) do
     ~H"""
     <.link navigate={RoutesHelper.settings()} class="underline cursor-pointer">
-      settings
+      Settings
     </.link>
     """
   end
