@@ -46,7 +46,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
 
   def streams_display_container(assigns) do
     ~H"""
-    <div id="streams-display-container" class="relative w-full h-max max-h-full p-4 overflow-y-auto">
+    <div id="streams-display-container" class="flex flex-col gap-2 w-full h-max p-4 overflow-y-auto">
       <div :for={stream_name <- @stream_names} id={"#{stream_name}-display"}>
         <.stream_name_wrapper
           id={"#{stream_name}-collapsible"}
@@ -68,19 +68,18 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
       id={@id}
       icon="icon-chevron-right"
       chevron_class="w-5 h-5 text-accent-icon"
-      class="max-w-full border rounded last:mb-4 border-default-border"
+      class="max-w-full border rounded border-default-border"
       label_class="font-semibold bg-surface-1-bg p-2 py-3 rounded"
     >
       <:label>
         {@stream_name}
       </:label>
-      <div class="relative">
-        <div class="overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
-          <div id={"#{@stream_name}-stream"} phx-update="stream" class="flex flex-col gap-2">
-            <%= for {dom_id, stream_element} <-@existing_stream do %>
-              <.stream_element_wrapper dom_id={dom_id} stream_element={stream_element} />
-            <% end %>
-          </div>
+
+      <div class="overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-3">
+        <div id={"#{@stream_name}-stream"} phx-update="stream" class="flex flex-col gap-2">
+          <%= for {dom_id, stream_element} <-@existing_stream do %>
+            <.stream_element_wrapper dom_id={dom_id} stream_element={stream_element} />
+          <% end %>
         </div>
       </div>
     </.collapsible>
@@ -131,7 +130,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
       content="Streams are built from render traces. You won’t be able to reconstruct the entire stream if those traces are garbage collected."
       position="top-center"
     >
-      <.icon name="icon-info" class="w-4 h-4" />
+      <.icon name="icon-info" class="w-4 h-4 bg-button-secondary-content" />
     </.tooltip>
     """
   end

@@ -69,7 +69,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
   def render(assigns) do
     ~H"""
     <div class="flex-1 max-w-full flex flex-col gap-4">
-      <StreamsComponents.streams_section :if={not @stream_names.ok? or @stream_names.result != []}>
+      <StreamsComponents.streams_section>
         <:display>
           <.async_result :let={stream_names} assign={@stream_names}>
             <:loading>
@@ -80,10 +80,16 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
               <StreamsComponents.failed />
             </:failed>
 
-            <StreamsComponents.streams_display_container
-              stream_names={stream_names}
-              existing_streams={@streams}
-            />
+            <%= if Enum.empty?(stream_names) do %>
+              <div class="w-full flex items-center justify-center">
+                <span class="text-secondary-text p-4">No streams found</span>
+              </div>
+            <% else %>
+              <StreamsComponents.streams_display_container
+                stream_names={stream_names}
+                existing_streams={@streams}
+              />
+            <% end %>
           </.async_result>
         </:display>
       </StreamsComponents.streams_section>

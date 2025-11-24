@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
 
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Debugger.Streams.Queries, as: StreamsQueries
+  alias LiveDebugger.App.Debugger.Streams.Actions, as: StreamsActions
 
   @required_assigns [
     :node_id,
@@ -49,7 +50,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Hooks.Streams do
     case socket.assigns.stream_names do
       %AsyncResult{ok?: true} ->
         start_async(socket, :fetch_node_streams, fn ->
-          StreamsQueries.update_stream(updated_stream, dom_id_fun)
+          StreamsActions.update_stream(updated_stream, dom_id_fun)
         end)
 
       _ ->

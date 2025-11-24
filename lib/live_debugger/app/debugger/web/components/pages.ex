@@ -41,16 +41,15 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
         node_id={@node_id}
       />
 
-      <StreamsLive.live_render
-        id="streams-list"
+      <AsyncJobsLive.live_render
+        id="async-jobs-lv"
         class="flex"
         socket={@socket}
         lv_process={@lv_process}
         node_id={@node_id}
       />
-
-      <AsyncJobsLive.live_render
-        id="async-jobs-lv"
+      <StreamsLive.live_render
+        id="streams-list"
         class="flex"
         socket={@socket}
         lv_process={@lv_process}

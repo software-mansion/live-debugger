@@ -14,11 +14,6 @@ defmodule LiveDebugger.App.Debugger.Streams.Queries do
           config: map(),
           names: [atom()]
         }
-  @type stream_update_result :: %{
-          functions: [function()],
-          config: [function()],
-          name: atom()
-        }
 
   @spec fetch_streams_from_render_traces(pid :: pid(), node_id :: TreeNode.id()) ::
           {:ok, streams_result()} | {:error, String.t()}
@@ -36,20 +31,6 @@ defmodule LiveDebugger.App.Debugger.Streams.Queries do
       error ->
         Logger.error("Failed to fetch streams: #{inspect(error)}")
         {:error, "Failed to fetch streams"}
-    end
-  end
-
-  @spec update_stream(
-          stream_updates :: StreamUtils.live_stream_item(),
-          dom_id_fun :: (any() -> String.t())
-        ) ::
-          {:ok, stream_update_result()} | {:error, String.t()}
-  def update_stream(stream_updates, dom_id_fun) do
-    with name <- stream_updates.name,
-         funs <- StreamUtils.stream_update_functions(stream_updates),
-         config <-
-           StreamUtils.stream_config(stream_updates, dom_id: dom_id_fun) do
-      {:ok, %{functions: funs, config: config, name: name}}
     end
   end
 
