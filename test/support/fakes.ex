@@ -185,6 +185,10 @@ defmodule LiveDebugger.Fakes do
           myself: %Phoenix.LiveComponent.CID{cid: 1},
           __changed__: %{}
         },
+        private: %{
+          root_view: LiveDebuggerDev.LiveViews.Main,
+          children_cids: []
+        },
         children_cids: []
       },
       %{
@@ -196,6 +200,10 @@ defmodule LiveDebugger.Fakes do
           myself: %Phoenix.LiveComponent.CID{cid: 2},
           __changed__: %{},
           flash: %{}
+        },
+        private: %{
+          root_view: LiveDebuggerDev.LiveViews.Main,
+          children_cids: [6, 7]
         },
         children_cids: [6, 7]
       },
@@ -210,6 +218,10 @@ defmodule LiveDebugger.Fakes do
           flash: %{},
           show_child?: false
         },
+        private: %{
+          root_view: LiveDebuggerDev.LiveViews.Main,
+          children_cids: []
+        },
         children_cids: []
       },
       %{
@@ -222,6 +234,10 @@ defmodule LiveDebugger.Fakes do
           myself: %Phoenix.LiveComponent.CID{cid: 4},
           __changed__: %{},
           flash: %{}
+        },
+        private: %{
+          root_view: LiveDebuggerDev.LiveViews.Main,
+          children_cids: [5]
         },
         children_cids: [5]
       },
@@ -236,6 +252,10 @@ defmodule LiveDebugger.Fakes do
           __changed__: %{},
           flash: %{}
         },
+        private: %{
+          root_view: LiveDebuggerDev.LiveViews.Main,
+          children_cids: [8]
+        },
         children_cids: [8]
       },
       %{
@@ -247,6 +267,10 @@ defmodule LiveDebugger.Fakes do
           myself: %Phoenix.LiveComponent.CID{cid: 6},
           __changed__: %{},
           flash: %{}
+        },
+        private: %{
+          root_view: LiveDebuggerDev.LiveViews.Main,
+          children_cids: []
         },
         children_cids: []
       },
@@ -260,6 +284,10 @@ defmodule LiveDebugger.Fakes do
           __changed__: %{},
           flash: %{}
         },
+        private: %{
+          root_view: LiveDebuggerDev.LiveViews.Main,
+          children_cids: []
+        },
         children_cids: []
       },
       %{
@@ -272,6 +300,10 @@ defmodule LiveDebugger.Fakes do
           myself: %Phoenix.LiveComponent.CID{cid: 8},
           __changed__: %{},
           flash: %{}
+        },
+        private: %{
+          root_view: LiveDebuggerDev.LiveViews.Main,
+          children_cids: []
         },
         children_cids: []
       }

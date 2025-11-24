@@ -470,6 +470,12 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:id, :string, required: true)
   attr(:title, :string, default: "", doc: "Title of the fullscreen.")
 
+  attr(:send_close_event, :boolean,
+    default: false,
+    doc:
+      "Whether to send a `fullscreen-closed` event to the server when the fullscreen is closed."
+  )
+
   attr(:class, :any,
     default: nil,
     doc: "Additional classes to be added to the fullscreen element."
@@ -483,6 +489,7 @@ defmodule LiveDebugger.App.Web.Components do
     <dialog
       id={@id}
       phx-hook="Fullscreen"
+      data-send-close-event={@send_close_event}
       class={[
         "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg pt-1 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
@@ -538,14 +545,16 @@ defmodule LiveDebugger.App.Web.Components do
 
   def fullscreen_button(assigns) do
     ~H"""
-    <.icon_button
-      id={"#{@id}-button"}
-      phx-click={@rest[:"phx-click"] || JS.dispatch("open", to: "##{@id}")}
-      icon={@icon}
-      data-fullscreen-id={@id}
-      variant="secondary"
-      {@rest}
-    />
+    <.tooltip id={@id <> "-tooltip"} content="Fullscreen" position="top-center">
+      <.icon_button
+        id={"#{@id}-button"}
+        phx-click={@rest[:"phx-click"] || JS.dispatch("open", to: "##{@id}")}
+        icon={@icon}
+        data-fullscreen-id={@id}
+        variant="secondary"
+        {@rest}
+      />
+    </.tooltip>
     """
   end
 
@@ -735,6 +744,7 @@ defmodule LiveDebugger.App.Web.Components do
   """
   attr(:icon, :string, required: true, doc: "Icon to be displayed.")
   attr(:class, :any, default: nil, doc: "Additional classes to add to the nav icon.")
+  attr(:icon_class, :any, default: nil, doc: "Additional classes to add to the icon.")
   attr(:selected?, :boolean, default: false, doc: "Whether the icon is selected.")
   attr(:disabled?, :boolean, default: false, doc: "Whether the icon is disabled.")
 
@@ -760,12 +770,12 @@ defmodule LiveDebugger.App.Web.Components do
     <button
       aria-label={Format.kebab_to_text(@icon)}
       class={[
-        "w-8! h-8! px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold  #{@selected_class} #{@disabled_class}"
+        "w-8 h-8 px-[0.25rem] py-[0.25rem] w-max h-max rounded text-xs font-semibold  #{@selected_class} #{@disabled_class}"
         | List.wrap(@class)
       ]}
       {@rest}
     >
-      <.icon name={@icon} class="h-6 w-6" />
+      <.icon name={@icon} class={["h-6 w-6", @icon_class]} />
     </button>
     """
   end

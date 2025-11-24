@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ClearButt
   use LiveDebugger.App.Web, :hook_component
 
   alias LiveDebugger.API.TracesStorage
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
 
   @required_assigns [:lv_process, :traces_empty?, :node_id]
 
@@ -20,27 +21,37 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.ClearButt
   end
 
   attr(:label_class, :string, default: "")
+  attr(:display_mode, :atom, required: true, values: [:normal, :dropdown])
 
   @impl true
   def render(assigns) do
     ~H"""
-    <.button
-      phx-click="clear-traces"
-      aria-label="Clear traces"
-      class="flex gap-2"
-      variant="secondary"
-      size="sm"
+    <TraceSettings.maybe_add_tooltip
+      display_mode={@display_mode}
+      id="clear-tooltip"
+      content="Clear"
+      position="top-center"
     >
-      <.icon name="icon-trash" class="w-4 h-4" />
-      <div class={[@label_class, "ml-1"]}>
-        Clear
-      </div>
-    </.button>
+      <.button
+        phx-click="clear-traces"
+        aria-label="Clear traces"
+        class={[
+          "flex !w-7 !h-7 px-[0.2rem] py-[0.2rem] items-center justify-center",
+          @label_class,
+          @display_mode == :dropdown && "!w-full !border-none !h-full"
+        ]}
+        variant="secondary"
+        size="sm"
+      >
+        <TraceSettings.action_icon display_mode={@display_mode} icon="icon-trash" label="Clear" />
+      </.button>
+    </TraceSettings.maybe_add_tooltip>
     """
   end
 
   defp handle_event("clear-traces", _, socket) do
     TracesStorage.clear!(socket.assigns.lv_process.pid, socket.assigns.node_id)
+    LiveDebugger.App.Web.LiveComponents.LiveDropdown.close("tracing-options-dropdown")
 
     socket
     |> stream(:existing_traces, [], reset: true)

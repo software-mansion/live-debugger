@@ -15,6 +15,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   alias LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive
   alias LiveDebugger.App.Debugger.Streams.Web.StreamsLive
   alias LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksLive
+  alias LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive
   alias LiveDebugger.Structs.LvProcess
 
   @node_inspector_sidebar_id "node-inspector-sidebar"
@@ -42,6 +43,14 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
 
       <StreamsLive.live_render
         id="streams-list"
+        class="flex"
+        socket={@socket}
+        lv_process={@lv_process}
+        node_id={@node_id}
+      />
+
+      <AsyncJobsLive.live_render
+        id="async-jobs-lv"
         class="flex"
         socket={@socket}
         lv_process={@lv_process}

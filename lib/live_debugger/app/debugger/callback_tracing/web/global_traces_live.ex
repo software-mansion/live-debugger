@@ -19,6 +19,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   use LiveDebugger.App.Web, :live_view
 
   import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace
+  import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
 
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Assigns.Filters, as: FiltersAssigns
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents
@@ -121,8 +122,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                 lv_process_alive?={@lv_process.alive?}
               />
               <%= if not @tracing_started? do %>
-                <HookComponents.RefreshButton.render label_class="hidden @[30rem]/traces:block" />
-                <HookComponents.ClearButton.render label_class="hidden @[30rem]/traces:block" />
+                <.global_traces_dropdown_menu class="@[30rem]/traces:hidden" />
+
+                <div class="hidden @[30rem]/traces:flex gap-2">
+                  <HookComponents.RefreshButton.render display_mode={:normal} />
+                  <HookComponents.ClearButton.render display_mode={:normal} />
+                </div>
               <% end %>
             </div>
           </div>
