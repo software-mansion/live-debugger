@@ -97,10 +97,8 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             :if={@live_action == :global_traces}
             socket={@socket}
             lv_process={lv_process}
+            url={@url}
           >
-            <:sidebar>
-              <NavigationMenu.sidebar class="hidden sm:flex w-full border-b" current_url={@url} />
-            </:sidebar>
           </Pages.global_traces>
 
           <Pages.resources :if={@live_action == :resources} socket={@socket} lv_process={lv_process}>

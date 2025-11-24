@@ -27,6 +27,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
 
+  alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
+
   @live_stream_limit 128
   @page_size 25
 
@@ -34,11 +36,13 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   attr(:id, :string, required: true)
   attr(:lv_process, LvProcess, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the container")
+  attr(:url, :string, required: true)
 
   def live_render(assigns) do
     session = %{
       "id" => assigns.id,
       "lv_process" => assigns.lv_process,
+      "url" => assigns.url,
       "parent_pid" => self()
     }
 
@@ -56,7 +60,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   @impl true
   def mount(
         _params,
-        %{"parent_pid" => parent_pid, "lv_process" => lv_process, "id" => id},
+        %{"parent_pid" => parent_pid, "lv_process" => lv_process, "id" => id, "url" => url},
         socket
       ) do
     if connected?(socket) do
@@ -75,7 +79,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
       traces_continuation: nil,
       sidebar_hidden?: true,
       trace_search_phrase: "",
-      node_id: nil
+      node_id: nil,
+      url: url
     )
     |> stream(:existing_traces, [], reset: true)
     |> put_private(:page_size, @page_size)
@@ -99,72 +104,76 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="grow p-8 overflow-y-auto scrollbar-main">
-      <div class="w-full min-w-[25rem] max-w-screen-2xl mx-auto">
-        <div class="flex flex-col gap-1.5 pb-6 px-0.5">
-          <.h1>Global Callback Traces</.h1>
-          <span class="text-secondary-text">
-            This view lists all callbacks inside debugged LiveView and its LiveComponents
-          </span>
-        </div>
-        <div class="@container/traces w-full min-w-[20rem] flex flex-col pt-2 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
-          <div class="w-full flex justify-between items-center border-b border-default-border pb-2">
-            <div class="ml-2">
-              <HookComponents.SearchInput.render
-                disabled?={@tracing_started?}
-                trace_search_phrase={@trace_search_phrase}
-              />
-            </div>
-            <div class="flex gap-2 items-center h-8 px-2">
-              <HookComponents.ToggleTracingButton.render
-                tracing_started?={@tracing_started?}
-                lv_process_alive?={@lv_process.alive?}
-              />
-              <%= if not @tracing_started? do %>
-                <HookComponents.RefreshButton.render label_class="hidden @[30rem]/traces:block" />
-                <HookComponents.ClearButton.render label_class="hidden @[30rem]/traces:block" />
-              <% end %>
-            </div>
-          </div>
-          <div class="flex flex-1 overflow-auto rounded-sm bg-surface-0-bg p-4">
-            <div class="w-full h-full flex flex-col gap-4">
-              <HookComponents.Stream.render
-                id={@id}
-                existing_traces_status={@existing_traces_status}
-                existing_traces={@streams.existing_traces}
-              >
-                <:trace :let={{id, trace_display}}>
-                  <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
-                    <:label>
-                      <.trace_label
-                        id={id <> "-label"}
-                        trace_display={trace_display}
-                        search_phrase={@trace_search_phrase}
-                        short_content_full?={true}
-                        show_subtitle?={true}
-                      />
-                    </:label>
+    <div class="flex flex-col max-w-screen-2xl mx-auto h-full w-full overflow-x-auto">
+      <NavigationMenu.sidebar class="hidden sm:flex w-full border-b" current_url={@url} />
 
-                    <:body>
-                      <.trace_body
-                        id={id <> "-body"}
-                        trace_display={trace_display}
-                        search_phrase={@trace_search_phrase}
-                      />
-                    </:body>
-                  </HookComponents.TraceWrapper.render>
-                </:trace>
-              </HookComponents.Stream.render>
-              <HookComponents.LoadMoreButton.render
-                :if={not @tracing_started? and not @traces_empty?}
-                traces_continuation={@traces_continuation}
-              />
-              <.trace_fullscreen
-                :if={@displayed_trace}
-                id="trace-fullscreen"
-                displayed_trace={@displayed_trace}
-                search_phrase={@trace_search_phrase}
-              />
+      <div class="grow p-8 overflow-y-auto scrollbar-main">
+        <div class="w-full min-w-[25rem] max-w-screen-2xl mx-auto">
+          <div class="flex flex-col gap-1.5 pb-6 px-0.5">
+            <.h1>Global Callback Traces</.h1>
+            <span class="text-secondary-text">
+              This view lists all callbacks inside debugged LiveView and its LiveComponents
+            </span>
+          </div>
+          <div class="@container/traces w-full min-w-[20rem] flex flex-col pt-2 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
+            <div class="w-full flex justify-between items-center border-b border-default-border pb-2">
+              <div class="ml-2">
+                <HookComponents.SearchInput.render
+                  disabled?={@tracing_started?}
+                  trace_search_phrase={@trace_search_phrase}
+                />
+              </div>
+              <div class="flex gap-2 items-center h-8 px-2">
+                <HookComponents.ToggleTracingButton.render
+                  tracing_started?={@tracing_started?}
+                  lv_process_alive?={@lv_process.alive?}
+                />
+                <%= if not @tracing_started? do %>
+                  <HookComponents.RefreshButton.render label_class="hidden @[30rem]/traces:block" />
+                  <HookComponents.ClearButton.render label_class="hidden @[30rem]/traces:block" />
+                <% end %>
+              </div>
+            </div>
+            <div class="flex flex-1 overflow-auto rounded-sm bg-surface-0-bg p-4">
+              <div class="w-full h-full flex flex-col gap-4">
+                <HookComponents.Stream.render
+                  id={@id}
+                  existing_traces_status={@existing_traces_status}
+                  existing_traces={@streams.existing_traces}
+                >
+                  <:trace :let={{id, trace_display}}>
+                    <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
+                      <:label>
+                        <.trace_label
+                          id={id <> "-label"}
+                          trace_display={trace_display}
+                          search_phrase={@trace_search_phrase}
+                          short_content_full?={true}
+                          show_subtitle?={true}
+                        />
+                      </:label>
+
+                      <:body>
+                        <.trace_body
+                          id={id <> "-body"}
+                          trace_display={trace_display}
+                          search_phrase={@trace_search_phrase}
+                        />
+                      </:body>
+                    </HookComponents.TraceWrapper.render>
+                  </:trace>
+                </HookComponents.Stream.render>
+                <HookComponents.LoadMoreButton.render
+                  :if={not @tracing_started? and not @traces_empty?}
+                  traces_continuation={@traces_continuation}
+                />
+                <.trace_fullscreen
+                  :if={@displayed_trace}
+                  id="trace-fullscreen"
+                  displayed_trace={@displayed_trace}
+                  search_phrase={@trace_search_phrase}
+                />
+              </div>
             </div>
           </div>
         </div>

@@ -35,7 +35,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
     <div class="flex flex-col max-w-screen-2xl mx-auto h-full overflow-x-auto">
       <%= render_slot(@sidebar) %>
 
-      <div class="flex flex-col gap-4 p-8 w-full flex-1 overflow-y-auto scrollbar-main">
+      <div class="flex flex-col w-full gap-4 p-8 w-full flex-1 overflow-y-auto scrollbar-main">
         <NodeStateLive.live_render
           id="node-state-lv"
           class="flex"
@@ -80,22 +80,19 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
 
   attr(:socket, LiveViewSocket, required: true)
   attr(:lv_process, LvProcess, required: true)
-  slot(:sidebar, required: true)
+  attr(:url, :string, required: true)
 
   def global_traces(assigns) do
     assigns = assign(assigns, :id, @global_traces_id)
 
     ~H"""
-    <div class="flex flex-col max-w-screen-2xl mx-auto w-full overflow-x-auto">
-      <%= render_slot(@sidebar) %>
-
-      <CallbackTracingWeb.GlobalTracesLive.live_render
-        id={@id}
-        class="flex overflow-hidden w-full"
-        socket={@socket}
-        lv_process={@lv_process}
-      />
-    </div>
+    <CallbackTracingWeb.GlobalTracesLive.live_render
+      id={@id}
+      class="flex overflow-hidden w-full"
+      socket={@socket}
+      lv_process={@lv_process}
+      url={@url}
+    />
     """
   end
 

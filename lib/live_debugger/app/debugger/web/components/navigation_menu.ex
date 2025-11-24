@@ -24,10 +24,8 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
       "flex flex-row gap-3 bg-sidebar-bg shadow-custom w-full h-max pt-1 px-2 border-r border-default-border"
       | List.wrap(@class)
     ]}>
-    
       <.sidebar_item
         id="node-inspector-sidebar-item"
-        position="bottom"
         content="Node Inspector"
         patch={RoutesHelper.debugger_node_inspector(@pid)}
         icon="icon-info"
@@ -36,7 +34,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
 
       <.sidebar_item
         id="global-traces-sidebar-item"
-        position="right"
         content="Global Callbacks"
         patch={RoutesHelper.debugger_global_traces(@pid)}
         icon="icon-globe"
@@ -45,7 +42,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
 
       <.sidebar_item
         id="resources-sidebar-item"
-        position="right"
         content="Resources"
         patch={RoutesHelper.debugger_resources(@pid)}
         icon="icon-chart-line"
@@ -130,6 +126,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
   attr(:patch, :string, required: true)
   attr(:icon, :string, required: true)
   attr(:selected?, :boolean, default: false)
+  attr(:content, :string, required: true)
 
   def sidebar_item(assigns) do
     ~H"""
@@ -139,7 +136,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
           <.icon name={@icon} class="h-4 w-4" />
 
           <span class="text-xs font-medium text-center pl-1">
-            Node Inspector
+            {@content}
           </span>
         </div>
       </.link>

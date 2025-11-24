@@ -13,7 +13,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   def loading(assigns) do
     ~H"""
-    <div class="w-full flex-grow flex items-center justify-center">
+    <div class="flex-1 flex-grow  items-center justify-center w-full h-full">
       <.spinner size="sm" />
     </div>
     """
