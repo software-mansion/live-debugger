@@ -100,6 +100,7 @@ defmodule LiveDebugger.API.LiveViewDebug do
                   cid: cid,
                   module: mod,
                   assigns: assigns,
+                  private: private,
                   children_cids: private.children_cids
                 }
               end)

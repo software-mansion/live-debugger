@@ -18,6 +18,7 @@ defmodule LiveDebuggerDev.Router do
     live("/messages", LiveDebuggerDev.LiveViews.Messages)
     live("/embedded", LiveDebuggerDev.LiveViews.Embedded)
     live("/endless_crash_reload", LiveDebuggerDev.LiveViews.EndlessCrashReload)
+    live("/async_demo", LiveDebuggerDev.LiveViews.AsyncDemo)
     get("/embedded_in_controller", LiveDebuggerDev.EmbeddedLiveViewController, :embedded)
   end
 end

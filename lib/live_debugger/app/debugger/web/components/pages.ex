@@ -14,6 +14,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   alias LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive
   alias LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive
   alias LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksLive
+  alias LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive
   alias LiveDebugger.Structs.LvProcess
 
   @node_inspector_sidebar_id "node-inspector-sidebar"
@@ -35,9 +36,16 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
     <div class="flex flex-col max-w-screen-2xl mx-auto h-full overflow-x-auto">
       <%= render_slot(@sidebar) %>
 
-      <div class="flex flex-col w-full gap-4 p-8 w-full flex-1 overflow-y-auto scrollbar-main">
+      <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
         <NodeStateLive.live_render
           id="node-state-lv"
+          class="flex"
+          socket={@socket}
+          lv_process={@lv_process}
+          node_id={@node_id}
+        />
+        <AsyncJobsLive.live_render
+          id="async-jobs-lv"
           class="flex"
           socket={@socket}
           lv_process={@lv_process}

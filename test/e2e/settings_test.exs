@@ -135,7 +135,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
     debugger1
     |> visit("/")
     |> click(first_link())
-    |> assert_has(toggle_tracing_button(text: "Start"))
+    |> assert_has(toggle_tracing_button(icon: "icon-play"))
     |> assert_has(traces(count: 2))
 
     dev_app
@@ -155,7 +155,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     debugger1
     |> click(return_button())
-    |> assert_has(toggle_tracing_button(text: "Stop"))
+    |> assert_has(toggle_tracing_button(icon: "icon-stop"))
     |> assert_has(traces(count: 4))
 
     dev_app
