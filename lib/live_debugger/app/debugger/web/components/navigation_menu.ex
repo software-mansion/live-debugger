@@ -11,6 +11,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
   attr(:current_url, :any, required: true)
+  slot(:inspect_button)
 
   def sidebar(assigns) do
     assigns =
@@ -21,9 +22,10 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
 
     ~H"""
     <div class={[
-      "flex flex-row gap-3 bg-sidebar-bg shadow-custom w-full h-max pt-1 px-2 border-r border-default-border"
+      "flex flex-row gap-3 bg-sidebar-bg shadow-custom w-full h-max px-2 border-default-border"
       | List.wrap(@class)
     ]}>
+      <%= render_slot(@inspect_button) %>
       <.sidebar_item
         id="node-inspector-sidebar-item"
         content="Node Inspector"
@@ -130,7 +132,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
 
   def sidebar_item(assigns) do
     ~H"""
-    <div id={@id} class={["w-max", @selected? && "border-b-2"]}>
+    <div id={@id} class={["w-max pb-1 pt-2", @selected? && "border-b-2"]}>
       <.link patch={@patch}>
         <div class="flex flex-row items-center justify-center w-full mt-1 mb-2">
           <.icon name={@icon} class="h-4 w-4" />

@@ -90,6 +90,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   attr(:socket, LiveViewSocket, required: true)
   attr(:lv_process, LvProcess, required: true)
   attr(:url, :string, required: true)
+  attr(:inspect_mode?, :boolean, required: true)
 
   def global_traces(assigns) do
     assigns = assign(assigns, :id, @global_traces_id)
@@ -101,6 +102,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
       socket={@socket}
       lv_process={@lv_process}
       url={@url}
+      inspect_mode?={@inspect_mode?}
     />
     """
   end
