@@ -105,7 +105,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col max-w-screen-2xl mx-auto h-full w-full overflow-x-auto">
+    <div class="flex flex-col h-full overflow-x-auto w-full">
       <NavigationMenu.sidebar class="hidden sm:flex w-full border-b" current_url={@url} />
       <div class="grow p-8 overflow-y-auto scrollbar-main">
         <div class="w-full min-w-[25rem] max-w-screen-2xl mx-auto">

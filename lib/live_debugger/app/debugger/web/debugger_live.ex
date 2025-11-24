@@ -90,7 +90,10 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             root_socket_id={@root_socket_id}
           >
             <:sidebar>
-              <NavigationMenu.sidebar class="hidden sm:flex w-full border-b" current_url={@url} />
+              <NavigationMenu.sidebar
+                class="hidden sm:flex w-full border-b margin-0"
+                current_url={@url}
+              />
             </:sidebar>
           </Pages.node_inspector>
           <Pages.global_traces

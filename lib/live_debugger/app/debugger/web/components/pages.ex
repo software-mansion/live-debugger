@@ -33,10 +33,10 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
     assigns = assign(assigns, :sidebar_id, @node_inspector_sidebar_id)
 
     ~H"""
-    <div class="flex flex-col max-w-screen-2xl mx-auto h-full overflow-x-auto">
+    <div class="flex flex-col h-full overflow-x-auto w-full">
       <%= render_slot(@sidebar) %>
 
-      <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
+      <div class="flex flex-col w-full max-w-screen-2xl gap-4 p-8 overflow-y-auto scrollbar-main mx-auto">
         <NodeStateLive.live_render
           id="node-state-lv"
           class="flex"
@@ -44,6 +44,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
           lv_process={@lv_process}
           node_id={@node_id}
         />
+
         <AsyncJobsLive.live_render
           id="async-jobs-lv"
           class="flex"
@@ -112,7 +113,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
     assigns = assign(assigns, :id, @resources_id)
 
     ~H"""
-    <div class="flex flex-col max-w-screen-2xl mx-auto w-full overflow-x-auto">
+    <div class="flex flex-col h-full overflow-x-auto w-full">
       <%= render_slot(@sidebar) %>
 
       <ResourcesLive.live_render
