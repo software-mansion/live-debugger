@@ -127,6 +127,15 @@ defmodule LiveDebugger.App.Utils.Parsers do
     end
   end
 
+  @spec list_to_string(list :: list()) :: String.t()
+  def list_to_string(list) do
+    list
+    |> Enum.map_join(", ", fn
+      %Phoenix.LiveComponent.CID{cid: cid} -> Integer.to_string(cid)
+      item -> inspect(item, limit: :infinity, pretty: true, structs: false)
+    end)
+  end
+
   @spec module_to_string(module :: module()) :: String.t()
   def module_to_string(module) do
     module

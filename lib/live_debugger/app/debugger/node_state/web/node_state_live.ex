@@ -66,6 +66,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> Hooks.NodeAssigns.init()
     |> Hooks.TermNodeToggle.init()
     |> HookComponents.AssignsSearch.init()
+    |> HookComponents.AssignsHistory.init()
     |> ok()
   end
 
@@ -88,6 +89,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
           assigns_sizes={@assigns_sizes}
           pinned_assigns={@pinned_assigns}
           assigns_search_phrase={@assigns_search_phrase}
+        />
+        <HookComponents.AssignsHistory.render
+          current_history_index={@current_history_index}
+          history_entries={@history_entries}
+          history_length={@history_length}
         />
       </.async_result>
     </div>

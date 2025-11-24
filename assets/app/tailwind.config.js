@@ -61,6 +61,7 @@ module.exports = {
         'error-border': 'var(--error-border)',
         'error-icon': 'var(--error-icon)',
         'error-text': 'var(--error-text)',
+        'warning-text': 'var(--warning-text)',
         'info-bg': 'var(--info-bg)',
         'info-border': 'var(--info-border)',
         'info-icon': 'var(--info-icon)',
@@ -69,6 +70,8 @@ module.exports = {
         'warning-border': 'var(--warning-border)',
         'warning-text': 'var(--warning-text)',
         'diff-border': 'var(--diff-border)',
+        'diff-negative-bg': 'var(--diff-negative-bg)',
+        'diff-positive-bg': 'var(--diff-positive-bg)',
       },
       screens: { xs: '380px' },
       fontFamily: {

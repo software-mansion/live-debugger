@@ -10,6 +10,10 @@ const Fullscreen = {
       this.el.close();
       this.el.classList.remove('flex');
       this.el.classList.add('hidden');
+
+      if (this.el.hasAttribute('data-send-close-event')) {
+        this.pushEvent('fullscreen-closed', { id: this.el.id });
+      }
     };
 
     // Events from the browser
