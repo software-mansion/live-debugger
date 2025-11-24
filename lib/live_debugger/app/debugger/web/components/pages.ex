@@ -26,25 +26,31 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   attr(:node_id, :any, required: true)
   attr(:root_socket_id, :string, required: true)
 
+  slot(:sidebar, required: true)
+
   def node_inspector(assigns) do
     assigns = assign(assigns, :sidebar_id, @node_inspector_sidebar_id)
 
     ~H"""
-    <div class="flex grow flex-col gap-4 p-8 overflow-y-auto max-w-screen-2xl mx-auto scrollbar-main">
-      <NodeStateLive.live_render
-        id="node-state-lv"
-        class="flex"
-        socket={@socket}
-        lv_process={@lv_process}
-        node_id={@node_id}
-      />
-      <CallbackTracingWeb.NodeTracesLive.live_render
-        id="traces-list"
-        class="flex"
-        socket={@socket}
-        lv_process={@lv_process}
-        node_id={@node_id}
-      />
+    <div class="flex flex-col max-w-screen-2xl mx-auto h-full overflow-x-auto">
+      <%= render_slot(@sidebar) %>
+
+      <div class="flex flex-col gap-4 p-8 w-full flex-1 overflow-y-auto scrollbar-main">
+        <NodeStateLive.live_render
+          id="node-state-lv"
+          class="flex"
+          socket={@socket}
+          lv_process={@lv_process}
+          node_id={@node_id}
+        />
+        <CallbackTracingWeb.NodeTracesLive.live_render
+          id="traces-list"
+          class="flex"
+          socket={@socket}
+          lv_process={@lv_process}
+          node_id={@node_id}
+        />
+      </div>
     </div>
     <.live_component module={NodeInspectorSidebar} id={@sidebar_id}>
       <.live_component
@@ -74,33 +80,43 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
 
   attr(:socket, LiveViewSocket, required: true)
   attr(:lv_process, LvProcess, required: true)
+  slot(:sidebar, required: true)
 
   def global_traces(assigns) do
     assigns = assign(assigns, :id, @global_traces_id)
 
     ~H"""
-    <CallbackTracingWeb.GlobalTracesLive.live_render
-      id={@id}
-      class="flex overflow-hidden w-full"
-      socket={@socket}
-      lv_process={@lv_process}
-    />
+    <div class="flex flex-col max-w-screen-2xl mx-auto w-full overflow-x-auto">
+      <%= render_slot(@sidebar) %>
+
+      <CallbackTracingWeb.GlobalTracesLive.live_render
+        id={@id}
+        class="flex overflow-hidden w-full"
+        socket={@socket}
+        lv_process={@lv_process}
+      />
+    </div>
     """
   end
 
   attr(:socket, LiveViewSocket, required: true)
   attr(:lv_process, LvProcess, required: true)
+  slot(:sidebar, required: true)
 
   def resources(assigns) do
     assigns = assign(assigns, :id, @resources_id)
 
     ~H"""
-    <ResourcesLive.live_render
-      id={@id}
-      class="flex overflow-hidden w-full"
-      socket={@socket}
-      lv_process={@lv_process}
-    />
+    <div class="flex flex-col max-w-screen-2xl mx-auto w-full overflow-x-auto">
+      <%= render_slot(@sidebar) %>
+
+      <ResourcesLive.live_render
+        id={@id}
+        class="flex overflow-hidden w-full"
+        socket={@socket}
+        lv_process={@lv_process}
+      />
+    </div>
     """
   end
 

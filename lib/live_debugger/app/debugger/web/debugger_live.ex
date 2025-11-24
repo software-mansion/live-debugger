@@ -79,8 +79,8 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             />
           </div>
         </Navbar.navbar>
-        <div class="flex overflow-hidden w-full">
-          <NavigationMenu.sidebar class="hidden sm:flex" current_url={@url} />
+
+        <div class="flex overflow-auto w-full">
           <Pages.node_inspector
             :if={@live_action == :node_inspector}
             socket={@socket}
@@ -88,13 +88,26 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             url={@url}
             node_id={@node_id}
             root_socket_id={@root_socket_id}
-          />
+          >
+            <:sidebar>
+              <NavigationMenu.sidebar class="hidden sm:flex w-full border-b" current_url={@url} />
+            </:sidebar>
+          </Pages.node_inspector>
           <Pages.global_traces
             :if={@live_action == :global_traces}
             socket={@socket}
             lv_process={lv_process}
-          />
-          <Pages.resources :if={@live_action == :resources} socket={@socket} lv_process={lv_process} />
+          >
+            <:sidebar>
+              <NavigationMenu.sidebar class="hidden sm:flex w-full border-b" current_url={@url} />
+            </:sidebar>
+          </Pages.global_traces>
+
+          <Pages.resources :if={@live_action == :resources} socket={@socket} lv_process={lv_process}>
+            <:sidebar>
+              <NavigationMenu.sidebar class="hidden sm:flex w-full border-b" current_url={@url} />
+            </:sidebar>
+          </Pages.resources>
         </div>
       </.async_result>
     </div>

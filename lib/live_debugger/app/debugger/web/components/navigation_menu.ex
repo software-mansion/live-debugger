@@ -21,24 +21,36 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
 
     ~H"""
     <div class={[
-      "flex flex-col gap-3 bg-sidebar-bg shadow-custom h-full p-2 border-r border-default-border"
+      "flex flex-row gap-3 bg-sidebar-bg shadow-custom w-full h-max pt-1 px-2 border-r border-default-border"
       | List.wrap(@class)
     ]}>
-      <.tooltip id="node-inspector-tooltip" position="right" content="Node Inspector">
-        <.link patch={RoutesHelper.debugger_node_inspector(@pid)}>
-          <.nav_icon icon="icon-info" selected?={@current_view == "node_inspector"} />
-        </.link>
-      </.tooltip>
-      <.tooltip id="global-traces-tooltip" position="right" content="Global Callbacks">
-        <.link patch={RoutesHelper.debugger_global_traces(@pid)}>
-          <.nav_icon icon="icon-globe" selected?={@current_view == "global_traces"} />
-        </.link>
-      </.tooltip>
-      <.tooltip id="resources-tooltip" position="right" content="Resources">
-        <.link patch={RoutesHelper.debugger_resources(@pid)}>
-          <.nav_icon icon="icon-chart-line" selected?={@current_view == "resources"} />
-        </.link>
-      </.tooltip>
+    
+      <.sidebar_item
+        id="node-inspector-sidebar-item"
+        position="bottom"
+        content="Node Inspector"
+        patch={RoutesHelper.debugger_node_inspector(@pid)}
+        icon="icon-info"
+        selected?={@current_view == "node_inspector"}
+      />
+
+      <.sidebar_item
+        id="global-traces-sidebar-item"
+        position="right"
+        content="Global Callbacks"
+        patch={RoutesHelper.debugger_global_traces(@pid)}
+        icon="icon-globe"
+        selected?={@current_view == "global_traces"}
+      />
+
+      <.sidebar_item
+        id="resources-sidebar-item"
+        position="right"
+        content="Resources"
+        patch={RoutesHelper.debugger_resources(@pid)}
+        icon="icon-chart-line"
+        selected?={@current_view == "resources"}
+      />
     </div>
     """
   end
@@ -112,6 +124,27 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
     url
     |> JS.patch()
     |> JS.push("close", target: "#navigation-bar-dropdown-live-dropdown-container")
+  end
+
+  attr(:id, :string, required: true)
+  attr(:patch, :string, required: true)
+  attr(:icon, :string, required: true)
+  attr(:selected?, :boolean, default: false)
+
+  def sidebar_item(assigns) do
+    ~H"""
+    <div id={@id} class={["w-max", @selected? && "border-b-2"]}>
+      <.link patch={@patch}>
+        <div class="flex flex-row items-center justify-center w-full mt-1 mb-2">
+          <.icon name={@icon} class="h-4 w-4" />
+
+          <span class="text-xs font-medium text-center pl-1">
+            Node Inspector
+          </span>
+        </div>
+      </.link>
+    </div>
+    """
   end
 
   defp get_current_view(url) do
