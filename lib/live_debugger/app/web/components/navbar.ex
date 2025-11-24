@@ -95,7 +95,7 @@ defmodule LiveDebugger.App.Web.Components.Navbar do
   """
   attr(:garbage_collection_enabled?, :boolean)
 
-  def garbage_collection_warning(%{garbage_collection_enabled?: gc_enabled?} = assigns) do
+  def garbage_collection_warning(%{garbage_collection_enabled?: _} = assigns) do
     ~H"""
     <.info_block :if={!@garbage_collection_enabled?} size="sm" variant="warning">
       <:header>

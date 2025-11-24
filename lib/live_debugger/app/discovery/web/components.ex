@@ -10,14 +10,6 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
-  # You have <b>Garbage Collection enabled</b>
-  # which means that LiveViews listed below will be removed automatically.
-  # You can disable this behaviour in <.settings_link />.
-
-  # You have <b>Garbage Collection disabled</b>
-  # which means that LiveViews listed below will not be removed automatically.
-  # This will lead to increased memory usage. You can enable it in <.settings_link />.
-
   def garbage_collection_info(assigns) do
     assigns =
       assign(assigns, garbage_collection_enabled?: SettingsStorage.get(:garbage_collection))
@@ -35,7 +27,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
         <%= if @garbage_collection_enabled? do %>
           To keep them longer, disable Garbage Collection in <b><.settings_link /></b>. Note that this may increase memory usage.
         <% else %>
-          To keep them longer, disable Garbage Collection in <b><.settings_link /></b>. Note that this may increase memory usage.
+          Note that this may increase memory usage. To have them removed automatically, enable Garbage Collection in <b><.settings_link /></b>.
         <% end %>
       </div>
     </.info_block>
