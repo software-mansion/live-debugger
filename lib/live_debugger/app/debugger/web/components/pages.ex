@@ -37,6 +37,14 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
       <%= render_slot(@sidebar) %>
 
       <div class="flex flex-col w-full max-w-screen-2xl gap-4 p-8 overflow-y-auto scrollbar-main mx-auto">
+        
+      <.live_component
+          module={NodeBasicInfo}
+          id="node-inspector-basic-info"
+          lv_process={@lv_process}
+          node_id={@node_id}
+        />
+        
         <NodeStateLive.live_render
           id="node-state-lv"
           class="flex"
@@ -62,12 +70,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
       </div>
     </div>
     <.live_component module={NodeInspectorSidebar} id={@sidebar_id}>
-      <.live_component
-        module={NodeBasicInfo}
-        id="node-inspector-basic-info"
-        lv_process={@lv_process}
-        node_id={@node_id}
-      />
       <NestedLiveViewLinksLive.live_render
         id="nested-live-view-links"
         lv_process={@lv_process}
