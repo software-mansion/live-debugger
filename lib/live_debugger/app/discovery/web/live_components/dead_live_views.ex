@@ -106,7 +106,9 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
         |> start_async_dead_grouped_lv_processes()
 
       {:ok, false} ->
-        assign(socket, dead_liveviews?: false)
+        socket
+        |> assign(dead_liveviews?: false)
+        |> assign(lv_processes_count: 0)
 
       {:error, _reason} ->
         push_flash(socket, :error, "Failed to update setting")
