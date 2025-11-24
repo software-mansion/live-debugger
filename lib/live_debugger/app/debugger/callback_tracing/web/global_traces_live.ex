@@ -107,56 +107,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
     ~H"""
     <div class="flex flex-col max-w-screen-2xl mx-auto h-full w-full overflow-x-auto">
       <NavigationMenu.sidebar class="hidden sm:flex w-full border-b" current_url={@url} />
-    <div class="grow p-8 overflow-y-auto scrollbar-main">
-      <div class="w-full min-w-[25rem] max-w-screen-2xl mx-auto">
-        <div class="flex flex-col gap-1.5 pb-6 px-0.5">
-          <.h1>Global Callback Traces</.h1>
-          <span class="text-secondary-text">
-            This view lists all callbacks inside debugged LiveView and its LiveComponents
-          </span>
-        </div>
-        <div class="@container/traces w-full min-w-[20rem] flex flex-col pt-2 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
-          <div class="w-full flex justify-between items-center border-b border-default-border pb-2">
-            <div class="ml-2">
-              <HookComponents.SearchInput.render
-                disabled?={@tracing_started?}
-                trace_search_phrase={@trace_search_phrase}
-              />
-            </div>
-            <div class="flex gap-2 items-center h-8 px-2">
-              <HookComponents.ToggleTracingButton.render
-                tracing_started?={@tracing_started?}
-                lv_process_alive?={@lv_process.alive?}
-              />
-              <%= if not @tracing_started? do %>
-                <.global_traces_dropdown_menu class="@[30rem]/traces:hidden" />
-
-                <div class="hidden @[30rem]/traces:flex gap-2">
-                  <HookComponents.RefreshButton.render display_mode={:normal} />
-                  <HookComponents.ClearButton.render display_mode={:normal} />
-                </div>
-              <% end %>
-            </div>
-          </div>
-          <div class="flex flex-1 overflow-auto rounded-sm bg-surface-0-bg p-4">
-            <div class="w-full h-full flex flex-col gap-4">
-              <HookComponents.Stream.render
-                id={@id}
-                existing_traces_status={@existing_traces_status}
-                existing_traces={@streams.existing_traces}
-              >
-                <:trace :let={{id, trace_display}}>
-                  <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
-                    <:label>
-                      <.trace_label
-                        id={id <> "-label"}
-                        trace_display={trace_display}
-                        search_phrase={@trace_search_phrase}
-                        short_content_full?={true}
-                        show_subtitle?={true}
-                      />
-                    </:label>
-
       <div class="grow p-8 overflow-y-auto scrollbar-main">
         <div class="w-full min-w-[25rem] max-w-screen-2xl mx-auto">
           <div class="flex flex-col gap-1.5 pb-6 px-0.5">
@@ -179,8 +129,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                   lv_process_alive?={@lv_process.alive?}
                 />
                 <%= if not @tracing_started? do %>
-                  <HookComponents.RefreshButton.render label_class="hidden @[30rem]/traces:block" />
-                  <HookComponents.ClearButton.render label_class="hidden @[30rem]/traces:block" />
+                  <.global_traces_dropdown_menu class="@[30rem]/traces:hidden" />
+
+                  <div class="hidden @[30rem]/traces:flex gap-2">
+                    <HookComponents.RefreshButton.render display_mode={:normal} />
+                    <HookComponents.ClearButton.render display_mode={:normal} />
+                  </div>
                 <% end %>
               </div>
             </div>
