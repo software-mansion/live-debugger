@@ -30,8 +30,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> attach_hook(:node_assigns, :handle_async, &handle_async/3)
     |> attach_hook(:node_assigns, :handle_event, &handle_event/3)
     |> register_hook(:node_assigns)
-    |> assign(:node_assigns_info, AsyncResult.loading())
-    |> assign(:assigns_sizes, AsyncResult.loading())
+    |> assign(:node_assigns_info, AsyncResult.loading(%{stage: :init}))
+    |> assign(:assigns_sizes, AsyncResult.loading(%{stage: :init}))
     |> assign(:pinned_assigns, %{})
     |> put_private(:pulse_cleared?, true)
     |> assign_async_node_assigns()
@@ -55,16 +55,16 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
       when not is_nil(node_id) do
     node_assigns_info =
       if Keyword.get(opts, :reset, false) do
-        AsyncResult.loading()
+        AsyncResult.loading(stage: :initial)
       else
-        socket.assigns.node_assigns_info
+        AsyncResult.loading(socket.assigns.node_assigns_info, stage: :update)
       end
 
     assigns_sizes =
       if Keyword.get(opts, :reset, false) do
-        AsyncResult.loading()
+        AsyncResult.loading(stage: :initial)
       else
-        socket.assigns.assigns_sizes
+        AsyncResult.loading(socket.assigns.assigns_sizes, stage: :update)
       end
 
     socket
