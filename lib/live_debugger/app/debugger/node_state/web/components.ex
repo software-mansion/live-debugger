@@ -213,4 +213,29 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     </div>
     """
   end
+
+  attr(:status, :atom, required: true)
+  attr(:pulse?, :boolean, default: false)
+
+  def status_dot(assigns) do
+    assigns =
+      case assigns.status do
+        :success -> assign(assigns, :bg_class, "bg-status-dot-success-bg")
+        :warning -> assign(assigns, :bg_class, "bg-status-dot-warning-bg")
+        :error -> assign(assigns, :bg_class, "bg-status-dot-error-bg")
+      end
+
+    ~H"""
+    <.tooltip id="loading-dot-tooltip" content="Updating assigns sizes">
+      <span class="relative flex size-2">
+        <span
+          :if={@pulse?}
+          class={"absolute inline-flex h-full w-full animate-ping rounded-full #{@bg_class} opacity-75"}
+        >
+        </span>
+        <span class={"relative inline-flex size-2 rounded-full #{@bg_class}"}></span>
+      </span>
+    </.tooltip>
+    """
+  end
 end
