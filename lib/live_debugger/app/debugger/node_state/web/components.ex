@@ -111,7 +111,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       :if={pinned}
       class="flex min-h-4.5 [&>div>button]:hidden hover:[&>div>button]:block"
     >
-      <div class="w-4">
+      <div class="w-4 shrink-0">
         <button
           class="text-button-red-content hover:text-button-red-content-hover"
           phx-click="unpin-assign"
