@@ -42,7 +42,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
     ~H"""
     <div id="assigns-section-container" phx-hook="AssignsBodySearchHighlight">
-      <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
+      <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns" title_class="!min-w-14">
         <:right_panel>
           <div class="flex gap-2">
             <AssignsSearch.render
