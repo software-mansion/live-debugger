@@ -292,6 +292,7 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:inner_class, :any, default: nil)
 
   slot(:right_panel)
+  slot(:title_sub_panel)
   slot(:inner_block)
 
   def section(assigns) do
@@ -305,7 +306,13 @@ defmodule LiveDebugger.App.Web.Components do
     >
       <div class="pl-4 flex items-center h-12 p-2 border-b border-default-border">
         <div class="flex justify-between items-center w-full gap-2">
-          <div class={["font-medium text-sm min-w-26" | List.wrap(@title_class)]}><%= @title %></div>
+          <div class={[
+            "font-medium text-sm min-w-26 flex items-center gap-2"
+            | List.wrap(@title_class)
+          ]}>
+            <p><%= @title %></p>
+            <%= render_slot(@title_sub_panel) %>
+          </div>
           <div class="w-max">
             <%= render_slot(@right_panel) %>
           </div>

@@ -89,6 +89,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
           assigns_sizes={@assigns_sizes}
           pinned_assigns={@pinned_assigns}
           assigns_search_phrase={@assigns_search_phrase}
+          node_assigns_loading_status={@node_assigns_info.loading}
         />
         <HookComponents.AssignsHistory.render
           current_history_index={@current_history_index}

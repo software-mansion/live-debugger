@@ -33,6 +33,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:assigns_sizes, AsyncResult, required: true)
   attr(:assigns_search_phrase, :string, default: "")
   attr(:pinned_assigns, :map, default: %{})
+  attr(:node_assigns_loading_status, :list, required: true)
 
   def assigns_section(assigns) do
     opened_term_node =
@@ -42,7 +43,15 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
     ~H"""
     <div id="assigns-section-container" phx-hook="AssignsBodySearchHighlight">
-      <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns" title_class="!min-w-14">
+      <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns" title_class="!min-w-18">
+        <:title_sub_panel>
+          <.status_dot
+            status={status_dot_status(@node_assigns_loading_status)}
+            pulse?={status_dot_pulse?(@node_assigns_loading_status)}
+            tooltip={status_dot_tooltip(@node_assigns_loading_status)}
+          />
+        </:title_sub_panel>
+
         <:right_panel>
           <div class="flex gap-2">
             <AssignsSearch.render
@@ -216,8 +225,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   attr(:status, :atom, required: true)
   attr(:pulse?, :boolean, default: false)
+  attr(:tooltip, :string, required: true)
 
-  def status_dot(assigns) do
+  defp status_dot(assigns) do
     assigns =
       case assigns.status do
         :success -> assign(assigns, :bg_class, "bg-status-dot-success-bg")
@@ -226,7 +236,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       end
 
     ~H"""
-    <.tooltip id="loading-dot-tooltip" content="Updating assigns sizes">
+    <.tooltip id="loading-dot-tooltip" content={@tooltip}>
       <span class="relative flex size-2">
         <span
           :if={@pulse?}
@@ -238,4 +248,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     </.tooltip>
     """
   end
+
+  defp status_dot_status(stage: :update), do: :warning
+  defp status_dot_status(_), do: :success
+
+  defp status_dot_pulse?(stage: :update), do: true
+  defp status_dot_pulse?(_), do: false
+
+  defp status_dot_tooltip(stage: :update), do: "Updating assigns..."
+  defp status_dot_tooltip(_), do: "Assigns are up to date."
 end
