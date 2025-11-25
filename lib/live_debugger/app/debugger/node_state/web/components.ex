@@ -66,9 +66,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
               pinned_assigns={@pinned_assigns}
             />
           </div>
-          <div id="all-assigns" class="p-4 relative overflow-x-auto">
+          <div id="all-assigns" class="relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
-            <ElixirDisplay.static_term id="assigns-" node={@term_node} selectable_level={1} />
+            <div class="p-4 overflow-x-auto">
+              <ElixirDisplay.static_term id="assigns-" node={@term_node} selectable_level={1} />
+            </div>
           </div>
         </div>
       </.section>
@@ -87,9 +89,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
               pinned_assigns={@pinned_assigns}
             />
           </div>
-          <div class="p-4 relative overflow-x-auto">
+          <div class="relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
-            <ElixirDisplay.static_term id="fullscreen-" node={@term_node} selectable_level={1} />
+            <div class="p-4 overflow-x-auto">
+              <ElixirDisplay.static_term id="fullscreen-" node={@term_node} selectable_level={1} />
+            </div>
           </div>
         </div>
       </.fullscreen>
