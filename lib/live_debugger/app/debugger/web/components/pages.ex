@@ -33,18 +33,17 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
     assigns = assign(assigns, :sidebar_id, @node_inspector_sidebar_id)
 
     ~H"""
-    <div class="flex flex-col h-full overflow-x-auto w-full">
+    <div class="flex flex-col h-full overflow-x-auto w-full scrollbar-main">
       <%= render_slot(@sidebar) %>
 
-      <div class="flex flex-col w-full max-w-screen-2xl gap-4 p-8 overflow-y-auto scrollbar-main mx-auto">
-        
-      <.live_component
+      <div class="flex flex-col w-full gap-4 p-8 overflow-y-auto">
+        <.live_component
           module={NodeBasicInfo}
           id="node-inspector-basic-info"
           lv_process={@lv_process}
           node_id={@node_id}
         />
-        
+
         <NodeStateLive.live_render
           id="node-state-lv"
           class="flex"
@@ -93,6 +92,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   attr(:lv_process, LvProcess, required: true)
   attr(:url, :string, required: true)
   attr(:inspect_mode?, :boolean, required: true)
+  attr(:return_link, :string, required: true)
 
   def global_traces(assigns) do
     assigns = assign(assigns, :id, @global_traces_id)
@@ -105,6 +105,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
       lv_process={@lv_process}
       url={@url}
       inspect_mode?={@inspect_mode?}
+      return_link={@return_link}
     />
     """
   end

@@ -40,6 +40,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   attr(:class, :string, default: "", doc: "CSS class for the container")
   attr(:url, :string, required: true)
   attr(:inspect_mode?, :boolean, default: false)
+  attr(:return_link, :string)
 
   def live_render(assigns) do
     session = %{
@@ -47,7 +48,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
       "lv_process" => assigns.lv_process,
       "url" => assigns.url,
       "parent_pid" => self(),
-      "inspect_mode?" => assigns.inspect_mode?
+      "inspect_mode?" => assigns.inspect_mode?,
+      "return_link" => assigns.return_link
     }
 
     assigns = assign(assigns, session: session)
@@ -69,7 +71,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
           "lv_process" => lv_process,
           "id" => id,
           "url" => url,
-          "inspect_mode?" => inspect_mode?
+          "inspect_mode?" => inspect_mode?,
+          "return_link" => return_link
         },
         socket
       ) do
@@ -91,7 +94,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
       trace_search_phrase: "",
       node_id: nil,
       url: url,
-      inspect_mode?: inspect_mode?
+      inspect_mode?: inspect_mode?,
+      return_link: return_link
     )
     |> stream(:existing_traces, [], reset: true)
     |> put_private(:page_size, @page_size)
@@ -116,7 +120,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   def render(assigns) do
     ~H"""
     <div class="flex flex-col h-full overflow-x-auto w-full">
-      <NavigationMenu.sidebar class="hidden sm:flex w-full border-b" current_url={@url}>
+      <NavigationMenu.sidebar
+        class="flex w-full border-b"
+        current_url={@url}
+        return_link={@return_link}
+      >
         <:inspect_button>
           <DebuggerHookComponents.InspectButton.render
             inspect_mode?={@inspect_mode?}

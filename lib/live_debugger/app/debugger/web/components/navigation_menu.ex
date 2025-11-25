@@ -11,6 +11,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
   attr(:current_url, :any, required: true)
+  attr(:return_link, :any, required: true, doc: "Link to navigate to.")
   slot(:inspect_button)
 
   def sidebar(assigns) do
@@ -22,33 +23,39 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
 
     ~H"""
     <div class={[
-      "flex flex-row gap-3 bg-sidebar-bg shadow-custom w-full h-max px-2 border-default-border"
+      "flex flex-row gap-3 bg-sidebar-bg shadow-custom w-full h-max px-2 border-default-border items-center"
       | List.wrap(@class)
     ]}>
       <%= render_slot(@inspect_button) %>
-      <.sidebar_item
-        id="node-inspector-sidebar-item"
-        content="Node Inspector"
-        patch={RoutesHelper.debugger_node_inspector(@pid)}
-        icon="icon-info"
-        selected?={@current_view == "node_inspector"}
-      />
+      <div id="visible-items" class="flex flex-row gap-3">
+        <.sidebar_item
+          id="node-inspector-sidebar-item"
+          content="Node Inspector"
+          patch={RoutesHelper.debugger_node_inspector(@pid)}
+          icon="icon-info"
+          selected?={@current_view == "node_inspector"}
+        />
 
-      <.sidebar_item
-        id="global-traces-sidebar-item"
-        content="Global Callbacks"
-        patch={RoutesHelper.debugger_global_traces(@pid)}
-        icon="icon-globe"
-        selected?={@current_view == "global_traces"}
-      />
+        <.sidebar_item
+          id="global-traces-sidebar-item"
+          content="Global Callbacks"
+          patch={RoutesHelper.debugger_global_traces(@pid)}
+          icon="icon-globe"
+          selected?={@current_view == "global_traces"}
+        />
+      </div>
 
-      <.sidebar_item
-        id="resources-sidebar-item"
-        content="Resources"
-        patch={RoutesHelper.debugger_resources(@pid)}
-        icon="icon-chart-line"
-        selected?={@current_view == "resources"}
-      />
+      <.dropdown return_link={@return_link} current_url={@current_url} class="sm:hidden" />
+
+      <div id="hidden-items" class="hidden sm:flex flex-row gap-3">
+        <.sidebar_item
+          id="resources-sidebar-item"
+          content="Resources"
+          patch={RoutesHelper.debugger_resources(@pid)}
+          icon="icon-chart-line"
+          selected?={@current_view == "resources"}
+        />
+      </div>
     </div>
     """
   end
@@ -65,27 +72,16 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
       )
 
     ~H"""
-    <.live_component module={LiveDropdown} id="navigation-bar-dropdown" class={@class}>
+    <.live_component
+      module={LiveDropdown}
+      id="navigation-bar-dropdown"
+      class={@class}
+      direction={:bottom_left}
+    >
       <:button>
-        <.nav_icon icon="icon-menu-hamburger" />
+        <.nav_icon icon="icon-chevrons-right" icon_class="w-5! h-5!" />
       </:button>
       <div class="min-w-44 flex flex-col p-1">
-        <.link patch={@return_link}>
-          <.dropdown_item icon="icon-arrow-left" label="Back to Home" />
-        </.link>
-        <span class="w-full border-b border-default-border my-1"></span>
-        <.dropdown_item
-          icon="icon-info"
-          label="Node Inspector"
-          selected?={@current_view == "node_inspector"}
-          phx-click={dropdown_item_click(RoutesHelper.debugger_node_inspector(@pid))}
-        />
-        <.dropdown_item
-          icon="icon-globe"
-          label="Global Callbacks"
-          selected?={@current_view == "global_traces"}
-          phx-click={dropdown_item_click(RoutesHelper.debugger_global_traces(@pid))}
-        />
         <.dropdown_item
           icon="icon-chart-line"
           label="Resources"
@@ -132,7 +128,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
 
   def sidebar_item(assigns) do
     ~H"""
-    <div id={@id} class={["w-max pb-1 pt-2", @selected? && "border-b-2"]}>
+    <div id={@id} class={["w-max pb-0.5 pt-2", @selected? && "border-b-2"]}>
       <.link patch={@patch}>
         <div class="flex flex-row items-center justify-center w-full mt-1 mb-2">
           <.icon name={@icon} class="h-4 w-4" />

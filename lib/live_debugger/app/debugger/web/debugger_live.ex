@@ -56,12 +56,8 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
         </:loading>
 
         <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto] pl-2 lg:pr-4">
-          <Navbar.return_link return_link={RoutesHelper.discovery()} class="hidden sm:block" />
-          <NavigationMenu.dropdown
-            return_link={RoutesHelper.discovery()}
-            current_url={@url}
-            class="sm:hidden"
-          />
+          <Navbar.return_link return_link={RoutesHelper.discovery()} />
+
           <Navbar.live_debugger_logo_icon />
           <HookComponents.DeadViewMode.render id="navbar-connected" lv_process={lv_process} />
           <div class="flex items-center gap-2">
@@ -86,8 +82,9 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
           >
             <:sidebar>
               <NavigationMenu.sidebar
-                class="hidden sm:flex w-full border-b margin-0"
+                class="w-full border-b margin-0"
                 current_url={@url}
+                return_link={RoutesHelper.discovery()}
               >
                 <:inspect_button>
                   <HookComponents.InspectButton.render
@@ -104,11 +101,16 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             lv_process={lv_process}
             url={@url}
             inspect_mode?={@inspect_mode?}
+            return_link={RoutesHelper.discovery()}
           />
 
           <Pages.resources :if={@live_action == :resources} socket={@socket} lv_process={lv_process}>
             <:sidebar>
-              <NavigationMenu.sidebar class="hidden sm:flex w-full border-b" current_url={@url}>
+              <NavigationMenu.sidebar
+                class="flex w-full border-b"
+                current_url={@url}
+                return_link={RoutesHelper.discovery()}
+              >
                 <:inspect_button>
                   <HookComponents.InspectButton.render
                     inspect_mode?={@inspect_mode?}
