@@ -320,6 +320,43 @@ defmodule LiveDebugger.App.Web.Components do
     """
   end
 
+  attr(:id, :string, required: true)
+  attr(:title, :string, required: true)
+  attr(:class, :any, default: nil)
+  attr(:title_class, :any, default: nil)
+  attr(:inner_class, :any, default: nil)
+
+  slot(:right_panel)
+  slot(:inner_block)
+
+  def collapsible_section(assigns) do
+    ~H"""
+    <.collapsible
+      id={@id}
+      class={[
+        "w-full min-w-[20rem] flex flex-col shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
+        | List.wrap(@class)
+      ]}
+      label_class="pr-4 flex items-center h-12 p-2 border-b border-default-border"
+      open={true}
+    >
+      <:label>
+        <div class="ml-1 flex justify-between items-center w-full gap-2">
+          <div class={["font-medium text-sm min-w-26" | List.wrap(@title_class)]}><%= @title %></div>
+          <div class="w-max">
+            <%= render_slot(@right_panel) %>
+          </div>
+        </div>
+      </:label>
+      <div class={[
+        "flex flex-1 overflow-auto rounded-sm bg-surface-0-bg" | List.wrap(@inner_class)
+      ]}>
+        <%= render_slot(@inner_block) %>
+      </div>
+    </.collapsible>
+    """
+  end
+
   @doc """
   Typography component to render headings.
   """

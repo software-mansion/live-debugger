@@ -74,7 +74,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
   def render(assigns) do
     ~H"""
     <div class="max-w-full flex flex-1">
-      <.section title="Async jobs" id="async-jobs" inner_class="mx-0 p-4" class="flex-1">
+      <.collapsible_section title="Async jobs" id="async-jobs" inner_class="mx-0 p-4" class="flex-1">
         <div class="w-full h-full flex flex-col gap-2">
           <.async_result :let={async_jobs} assign={@async_jobs}>
             <:failed>
@@ -90,7 +90,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
             />
           </.async_result>
         </div>
-      </.section>
+      </.collapsible_section>
     </div>
     """
   end
