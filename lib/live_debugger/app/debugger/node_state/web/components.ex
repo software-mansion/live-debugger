@@ -42,7 +42,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
     ~H"""
     <div id="assigns-section-container" phx-hook="AssignsBodySearchHighlight">
-      <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns">
+      <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns" title_class="!min-w-14">
         <:right_panel>
           <div class="flex gap-2">
             <AssignsSearch.render
@@ -59,16 +59,18 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           class="w-full h-max max-h-full overflow-y-auto"
           data-search_phrase={@assigns_search_phrase}
         >
-          <div id="pinned-assigns" class="p-4 border-b border-default-border">
+          <div id="pinned-assigns" class="p-4 border-b border-default-border overflow-x-auto">
             <.pinned_assigns_section
               id="pinned-"
               term_node={@term_node}
               pinned_assigns={@pinned_assigns}
             />
           </div>
-          <div id="all-assigns" class="p-4 relative">
+          <div id="all-assigns" class="relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
-            <ElixirDisplay.static_term id="assigns-" node={@term_node} selectable_level={1} />
+            <div class="p-4 overflow-x-auto">
+              <ElixirDisplay.static_term id="assigns-" node={@term_node} selectable_level={1} />
+            </div>
           </div>
         </div>
       </.section>
@@ -80,16 +82,18 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           />
         </:search_bar_slot>
         <div id="assigns-display-fullscreen-container" data-search_phrase={@assigns_search_phrase}>
-          <div class="p-4 border-b border-default-border">
+          <div class="p-4 border-b border-default-border overflow-x-auto">
             <.pinned_assigns_section
               id="pinned-fullscreen-"
               term_node={@term_node}
               pinned_assigns={@pinned_assigns}
             />
           </div>
-          <div class="p-4 relative">
+          <div class="relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
-            <ElixirDisplay.static_term id="fullscreen-" node={@term_node} selectable_level={1} />
+            <div class="p-4 overflow-x-auto">
+              <ElixirDisplay.static_term id="fullscreen-" node={@term_node} selectable_level={1} />
+            </div>
           </div>
         </div>
       </.fullscreen>
@@ -111,7 +115,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       :if={pinned}
       class="flex min-h-4.5 [&>div>button]:hidden hover:[&>div>button]:block"
     >
-      <div class="w-4">
+      <div class="w-4 shrink-0">
         <button
           class="text-button-red-content hover:text-button-red-content-hover"
           phx-click="unpin-assign"
