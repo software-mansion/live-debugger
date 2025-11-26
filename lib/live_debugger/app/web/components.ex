@@ -129,6 +129,11 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:chevron_class, :any, default: nil, doc: "CSS class for the chevron icon")
   attr(:open, :boolean, default: false, doc: "Whether the collapsible is open by default")
 
+  attr(:save_state_in_browser, :boolean,
+    default: false,
+    doc: "Whether to save the open/closed state in the browser's local storage"
+  )
+
   attr(:icon, :string,
     default: "icon-chevron-right",
     doc: "Icon for chevron. It will be rotated 90 degrees when the collapsible is open"
@@ -140,13 +145,17 @@ defmodule LiveDebugger.App.Web.Components do
   slot(:inner_block, required: true)
 
   def collapsible(assigns) do
-    assigns = assign(assigns, :open, to_string(assigns.open))
+    assigns =
+      assigns
+      |> assign(:open, to_string(assigns.open))
+      |> assign(:save_state_in_browser, to_string(assigns.save_state_in_browser))
 
     ~H"""
     <details
       id={@id}
       phx-hook="Collapsible"
       data-open={@open}
+      data-save-state-in-browser={@save_state_in_browser}
       class={[
         "block"
         | List.wrap(@class)
@@ -322,6 +331,12 @@ defmodule LiveDebugger.App.Web.Components do
 
   attr(:id, :string, required: true)
   attr(:title, :string, required: true)
+
+  attr(:save_state_in_browser, :boolean,
+    default: false,
+    doc: "Whether to save the open/closed state in the browser's local storage"
+  )
+
   attr(:class, :any, default: nil)
   attr(:title_class, :any, default: nil)
   attr(:inner_class, :any, default: nil)
@@ -338,7 +353,7 @@ defmodule LiveDebugger.App.Web.Components do
         | List.wrap(@class)
       ]}
       label_class="pr-4 flex items-center h-12 p-2 border-b border-default-border"
-      open={true}
+      save_state_in_browser={@save_state_in_browser}
     >
       <:label>
         <div class="ml-1 flex justify-between items-center w-full gap-2">

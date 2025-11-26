@@ -34,6 +34,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
       id="streams_section-container"
       class="h-max overflow-y-hidden"
       title="Streams"
+      save_state_in_browser={true}
     >
       <:right_panel>
         <.streams_info_tooltip id="stream-info" />
