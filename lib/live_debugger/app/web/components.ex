@@ -441,10 +441,12 @@ defmodule LiveDebugger.App.Web.Components do
         ]}
       >
         <div
-          phx-click-away="close-sidebar"
-          class="h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border lg:border-l"
+          class="w-full h-full lg:hidden"
+          phx-click="close-sidebar"
           {@event_target && %{:"phx-target" => @event_target} || %{}}
         >
+        </div>
+        <div class="shrink-0 h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border lg:border-l">
           <.icon_button
             :if={!@sidebar_hidden?}
             icon="icon-cross"
