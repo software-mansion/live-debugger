@@ -46,29 +46,28 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id} class="h-3/7 max-lg:p-8 py-8 lg:w-[60rem] lg:mx-auto">
-      <.collapsible
-        id="dead-liveviews-collapsible"
+    <div id={@id} class={if(@dead_liveviews?, do: "flex-1")}>
+      <.static_collapsible
         chevron_class="mr-2"
-        label_class={if(!@dead_liveviews?, do: "w-max")}
+        class="h-full flex! flex-col max-lg:p-8 py-8 lg:w-[60rem] lg:mx-auto"
         open={@dead_liveviews?}
         phx-click="toggle-dead-liveviews"
         phx-target={@myself}
       >
-        <:label>
+        <:label :let={open?}>
           <DiscoveryComponents.header
             title="Dead LiveViews"
             lv_processes_count={@lv_processes_count}
             refresh_event="refresh-dead"
-            disabled?={!@dead_liveviews?}
+            disabled?={!open?}
             target={@myself}
           />
         </:label>
 
-        <div :if={@dead_liveviews?}>
+        <div class="flex flex-col flex-1">
           <DiscoveryComponents.garbage_collection_info />
 
-          <div class="mt-6 max-h-72 lg:max-h-100 overflow-y-auto">
+          <div class="mt-6 flex-[1_0_0] overflow-y-scroll">
             <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
               <:loading><DiscoveryComponents.loading /></:loading>
               <:failed><DiscoveryComponents.failed /></:failed>
@@ -82,7 +81,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
             </.async_result>
           </div>
         </div>
-      </.collapsible>
+      </.static_collapsible>
     </div>
     """
   end
