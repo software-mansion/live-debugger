@@ -13,6 +13,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   alias LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo
   alias LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive
   alias LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive
+  alias LiveDebugger.App.Debugger.Streams.Web.StreamsLive
   alias LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksLive
   alias LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive
   alias LiveDebugger.Structs.LvProcess
@@ -39,6 +40,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
         lv_process={@lv_process}
         node_id={@node_id}
       />
+
       <AsyncJobsLive.live_render
         id="async-jobs-lv"
         class="flex"
@@ -46,6 +48,14 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
         lv_process={@lv_process}
         node_id={@node_id}
       />
+      <StreamsLive.live_render
+        id="streams-list"
+        class="flex"
+        socket={@socket}
+        lv_process={@lv_process}
+        node_id={@node_id}
+      />
+
       <CallbackTracingWeb.NodeTracesLive.live_render
         id="traces-list"
         class="flex"

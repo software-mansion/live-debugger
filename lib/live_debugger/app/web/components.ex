@@ -302,7 +302,7 @@ defmodule LiveDebugger.App.Web.Components do
         | List.wrap(@class)
       ]}
     >
-      <div class="pl-4 flex items-center h-12 p-2 border-b border-default-border">
+      <div class="px-4 flex items-center h-12 p-2 border-b border-default-border">
         <div class="flex justify-between items-center w-full gap-2">
           <div class="font-medium text-sm min-w-26"><%= @title %></div>
           <div class="w-max">
