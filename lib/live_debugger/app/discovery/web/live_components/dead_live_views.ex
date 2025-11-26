@@ -99,15 +99,8 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
 
     DiscoveryActions.update_dead_liveviews_setting(new_value)
     |> case do
-      {:ok, true} ->
-        socket
-        |> assign(dead_liveviews?: true)
-        |> start_async_dead_grouped_lv_processes()
-
-      {:ok, false} ->
-        socket
-        |> assign(dead_liveviews?: false)
-        |> assign(lv_processes_count: 0)
+      {:ok, value} ->
+        assign(socket, dead_liveviews?: value)
 
       {:error, _reason} ->
         push_flash(socket, :error, "Failed to update setting")
@@ -137,14 +130,10 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
   end
 
   defp start_async_dead_grouped_lv_processes(socket) do
-    if socket.assigns.dead_liveviews? do
-      start_async(
-        socket,
-        :fetch_dead_grouped_lv_processes,
-        &DiscoveryQueries.fetch_dead_grouped_lv_processes/0
-      )
-    else
-      socket
-    end
+    start_async(
+      socket,
+      :fetch_dead_grouped_lv_processes,
+      &DiscoveryQueries.fetch_dead_grouped_lv_processes/0
+    )
   end
 end

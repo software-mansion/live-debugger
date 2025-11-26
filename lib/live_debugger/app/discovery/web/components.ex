@@ -44,8 +44,8 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
     ~H"""
     <div class="flex flex-1 items-center gap-2 justify-between">
       <div class="flex items-center gap-3">
-        <.h1 class={if(@disabled?, do: "opacity-30")}><%= @title %></.h1>
-        <.info_block size="sm" class={if(@disabled?, do: "opacity-30")}>
+        <.h1><%= @title %></.h1>
+        <.info_block size="sm">
           <:header>
             <%= @lv_processes_count %>
           </:header>
