@@ -632,6 +632,36 @@ defmodule LiveDebugger.App.Web.Components do
   end
 
   @doc """
+  Renders a status dot with a tooltip.
+  """
+
+  attr(:status, :atom, required: true)
+  attr(:pulse?, :boolean, default: false)
+  attr(:tooltip, :string, required: true)
+
+  def status_dot(assigns) do
+    assigns =
+      case assigns.status do
+        :success -> assign(assigns, :bg_class, "bg-status-dot-success-bg")
+        :warning -> assign(assigns, :bg_class, "bg-status-dot-warning-bg")
+        :error -> assign(assigns, :bg_class, "bg-status-dot-error-bg")
+      end
+
+    ~H"""
+    <.tooltip id="loading-dot-tooltip" content={@tooltip}>
+      <span class="relative flex size-2">
+        <span
+          :if={@pulse?}
+          class={"absolute inline-flex h-full w-full animate-ping rounded-full #{@bg_class} opacity-75"}
+        >
+        </span>
+        <span class={"relative inline-flex size-2 rounded-full #{@bg_class}"}></span>
+      </span>
+    </.tooltip>
+    """
+  end
+
+  @doc """
   Renders a tooltip using Tooltip hook.
   """
   attr(:id, :string, required: true, doc: "ID of the tooltip.")

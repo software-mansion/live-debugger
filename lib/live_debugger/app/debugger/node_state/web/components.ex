@@ -33,7 +33,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:assigns_sizes, AsyncResult, required: true)
   attr(:assigns_search_phrase, :string, default: "")
   attr(:pinned_assigns, :map, default: %{})
-  attr(:node_assigns_loading_status, :list, required: true)
+  attr(:node_assigns_status, :atom, required: true)
 
   def assigns_section(assigns) do
     opened_term_node =
@@ -45,11 +45,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     <div id="assigns-section-container" phx-hook="AssignsBodySearchHighlight">
       <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns" title_class="!min-w-18">
         <:title_sub_panel>
-          <.status_dot
-            status={status_dot_status(@node_assigns_loading_status)}
-            pulse?={status_dot_pulse?(@node_assigns_loading_status)}
-            tooltip={status_dot_tooltip(@node_assigns_loading_status)}
-          />
+          <.assigns_status_indicator node_assigns_status={@node_assigns_status} />
         </:title_sub_panel>
 
         <:right_panel>
@@ -223,38 +219,29 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     """
   end
 
-  attr(:status, :atom, required: true)
-  attr(:pulse?, :boolean, default: false)
-  attr(:tooltip, :string, required: true)
+  attr(:node_assigns_status, :atom, required: true)
 
-  defp status_dot(assigns) do
-    assigns =
-      case assigns.status do
-        :success -> assign(assigns, :bg_class, "bg-status-dot-success-bg")
-        :warning -> assign(assigns, :bg_class, "bg-status-dot-warning-bg")
-        :error -> assign(assigns, :bg_class, "bg-status-dot-error-bg")
-      end
+  defp assigns_status_indicator(assigns) do
+    assigns = assign(assigns, get_status_indicator_params(assigns.node_assigns_status))
 
     ~H"""
-    <.tooltip id="loading-dot-tooltip" content={@tooltip}>
-      <span class="relative flex size-2">
-        <span
-          :if={@pulse?}
-          class={"absolute inline-flex h-full w-full animate-ping rounded-full #{@bg_class} opacity-75"}
-        >
-        </span>
-        <span class={"relative inline-flex size-2 rounded-full #{@bg_class}"}></span>
-      </span>
-    </.tooltip>
+    <.status_dot status={@status} pulse?={@pulse?} tooltip={@tooltip} />
     """
   end
 
-  defp status_dot_status(stage: :update), do: :warning
-  defp status_dot_status(_), do: :success
+  defp get_status_indicator_params(:updating) do
+    [status: :warning, pulse?: true, tooltip: "Updating assigns..."]
+  end
 
-  defp status_dot_pulse?(stage: :update), do: true
-  defp status_dot_pulse?(_), do: false
+  defp get_status_indicator_params(:loaded) do
+    [status: :success, pulse?: false, tooltip: "Assigns are up to date."]
+  end
 
-  defp status_dot_tooltip(stage: :update), do: "Updating assigns..."
-  defp status_dot_tooltip(_), do: "Assigns are up to date."
+  defp get_status_indicator_params(:error) do
+    [status: :error, pulse?: false, tooltip: "Error while fetching assigns."]
+  end
+
+  defp get_status_indicator_params(:disconnected) do
+    [status: :error, pulse?: false, tooltip: "Disconnected from the LiveView process."]
+  end
 end
