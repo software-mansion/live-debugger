@@ -81,7 +81,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
               <%= async_jobs_failed(@async_jobs) %>
             </:failed>
             <div :if={Enum.empty?(async_jobs)} class="w-full flex items-center justify-center">
-              <span class=" text-secondary-text">No async jobs found</span>
+              <span class=" text-secondary-text">No active async jobs found</span>
             </div>
             <.async_job
               :for={async_job <- async_jobs}
