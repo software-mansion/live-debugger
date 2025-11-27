@@ -26,12 +26,13 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
     """
   end
 
+  attr(:id, :string, required: true)
   slot(:display, required: true)
 
   def streams_section(assigns) do
     ~H"""
     <.collapsible_section
-      id="streams_section-container"
+      id={@id}
       class="h-max overflow-y-hidden"
       title="Streams"
       save_state_in_browser={true}

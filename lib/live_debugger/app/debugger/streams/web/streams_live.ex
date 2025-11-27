@@ -14,6 +14,8 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
   alias LiveDebugger.Services.CallbackTracer.Events.StreamUpdated
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
 
+  @streams_section_id "streams_section-container"
+
   @doc """
   Renders the `StreamsLive` as a nested LiveView component.
 
@@ -67,9 +69,11 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
 
   @impl true
   def render(assigns) do
+    assigns = assign(assigns, id: @streams_section_id)
+
     ~H"""
     <div class="flex-1 max-w-full flex flex-col gap-4">
-      <StreamsComponents.streams_section>
+      <StreamsComponents.streams_section id={@id}>
         <:display>
           <.async_result :let={stream_names} assign={@stream_names}>
             <:loading>
@@ -112,6 +116,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
       ) do
     socket
     |> Hooks.Streams.assign_async_streams(stream, dom_id_fun)
+    |> push_event("#{@streams_section_id}-summary-pulse", %{})
     |> noreply()
   end
 

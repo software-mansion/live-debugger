@@ -15,6 +15,8 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
 
   alias LiveDebugger.App.Debugger.AsyncJobs.Queries, as: AsyncJobsQueries
 
+  @async_jobs_sectinon_id "async-jobs"
+
   @doc """
   Renders the `AsyncJobsLive` as a nested LiveView component.
 
@@ -72,11 +74,13 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
 
   @impl true
   def render(assigns) do
+    assigns = assign(assigns, id: @async_jobs_sectinon_id)
+
     ~H"""
     <div class="max-w-full flex flex-1">
       <.collapsible_section
         title="Async jobs"
-        id="async-jobs"
+        id={@id}
         inner_class="mx-0 p-4"
         class="flex-1"
         save_state_in_browser={true}
@@ -119,6 +123,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
 
     socket
     |> assign(:async_jobs, AsyncResult.ok(updated_async_jobs))
+    |> push_event("#{@async_jobs_sectinon_id}-summary-pulse", %{})
     |> noreply()
   end
 
@@ -143,6 +148,12 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
   def handle_info(_, socket), do: {:noreply, socket}
 
   @impl true
+  def handle_async(:fetch_async_jobs, {:ok, {:ok, []}}, socket) do
+    socket
+    |> assign(:async_jobs, AsyncResult.ok([]))
+    |> noreply()
+  end
+
   def handle_async(:fetch_async_jobs, {:ok, {:ok, async_jobs}}, socket)
       when is_list(async_jobs) do
     Enum.each(async_jobs, fn async_job ->
@@ -151,6 +162,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
 
     socket
     |> assign(:async_jobs, AsyncResult.ok(async_jobs))
+    |> push_event("#{@async_jobs_sectinon_id}-summary-pulse", %{})
     |> noreply()
   end
 

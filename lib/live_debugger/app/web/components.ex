@@ -348,6 +348,7 @@ defmodule LiveDebugger.App.Web.Components do
     ~H"""
     <.collapsible
       id={@id}
+      phx-hook="CollapsedSectionPulse"
       class={[
         "w-full min-w-[20rem] flex flex-col shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
         | List.wrap(@class)
