@@ -14,7 +14,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
   alias LiveDebugger.Services.CallbackTracer.Events.StreamUpdated
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
 
-  @streams_section_id "streams_section-container"
+  @streams_section_id "streams-section-container"
 
   @doc """
   Renders the `StreamsLive` as a nested LiveView component.

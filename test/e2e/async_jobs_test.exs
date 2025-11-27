@@ -8,6 +8,14 @@ defmodule LiveDebugger.E2E.AsyncJobsTest do
     :ok
   end
 
+  setup %{sessions: [_dev_app, debugger]} do
+    debugger
+    |> visit("/")
+    |> set_collapsible_open_state("async-jobs", "true")
+
+    :ok
+  end
+
   @sessions 2
   feature "user can see and track async jobs in LiveView and LiveComponent", %{
     sessions: [dev_app, debugger]
@@ -104,4 +112,14 @@ defmodule LiveDebugger.E2E.AsyncJobsTest do
     do: css("#node-inspector-basic-info-current-node-module", text: text)
 
   defp component_tree_node(cid), do: css("#button-tree-node-#{cid}-components-tree")
+
+  defp set_collapsible_open_state(debugger, section_id, state) do
+    debugger
+    |> execute_script(
+      """
+      localStorage.setItem(`collapsible-open-${arguments[0]}`, arguments[1])
+      """,
+      [section_id, state]
+    )
+  end
 end
