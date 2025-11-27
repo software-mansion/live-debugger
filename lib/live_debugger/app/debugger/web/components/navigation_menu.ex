@@ -78,8 +78,17 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
       class={@class}
       direction={:bottom_left}
     >
-      <:button>
-        <.nav_icon icon="icon-chevrons-right" icon_class="w-5! h-5!" />
+      <:button :let={open}>
+        <.nav_icon
+          icon="icon-chevrons-right"
+          icon_class={[
+            "w-5! h-5! text-secondary-text hover:text-navbar-icon",
+            open && "!text-navbar-icon",
+            @current_view == "resources" &&
+              "!text-navbar-icon-hover"
+          ]}
+          class={open && "text-navbar-icon bg-navbar-icon-bg-hover"}
+        />
       </:button>
       <div class="min-w-44 flex flex-col p-1">
         <.dropdown_item
@@ -102,8 +111,8 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
     ~H"""
     <div
       class={[
-        "flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer",
-        if(@selected?, do: "bg-surface-0-bg-hover font-semibold")
+        "flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer text-secondary-text font-medium",
+        if(@selected?, do: "bg-surface-0-bg-hover font-semibold !text-button-secondary-content")
       ]}
       {@rest}
     >
@@ -128,7 +137,13 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
 
   def sidebar_item(assigns) do
     ~H"""
-    <div id={@id} class={["w-max pb-0.5 pt-2", @selected? && "border-b-2"]}>
+    <div
+      id={@id}
+      class={[
+        "w-max pb-0.5 pt-2 text-secondary-text border-b-2 border-transparent",
+        @selected? && "!border-button-secondary-content !text-button-secondary-content"
+      ]}
+    >
       <.link patch={@patch}>
         <div class="flex flex-row items-center justify-center w-full mt-1 mb-2">
           <.icon name={@icon} class="h-4 w-4" />

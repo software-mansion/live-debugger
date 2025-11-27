@@ -30,8 +30,8 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
     assigns = assign(assigns, :disabled?, !assigns.lv_process.alive?)
 
     ~H"""
-    <div class="flex items-center pr-2 ">
-      <div class="border-r-2 border-default-border pr-1">
+    <div class="flex items-center pr-1">
+      <div class="border-r-2 border-default-border pr-2">
         <.tooltip id="inspect-button-tooltip" position="bottom" content="Inspect element on the page">
           <.nav_icon
             icon="icon-inspect"

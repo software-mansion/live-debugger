@@ -62,12 +62,12 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksL
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full px-4 py-3 gap-3 flex flex-col border-b border-default-border">
+    <div class="w-full px-4 pt-4 pb-5 gap-3 flex flex-col border-b border-default-border mt-1 z-10">
       <.async_result :let={nested_lv_processes} assign={@nested_lv_processes}>
         <:loading>
           <.spinner size="sm" class="m-auto" />
         </:loading>
-        <p class="pl-2 shrink-0 font-medium text-secondary-text">
+        <p class="pl-2 shrink-0 font-medium text-secondary-text pb-1 pt-1">
           <%= if Enum.empty?(nested_lv_processes), do: "No nested LiveViews", else: "Nested LiveViews" %>
         </p>
         <%= if not Enum.empty?(nested_lv_processes) do %>

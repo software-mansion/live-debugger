@@ -58,7 +58,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.LiveDropdown do
     ~H"""
     <div id={@id <> "-live-dropdown-container"} class={["relative", @class]} phx-hook="LiveDropdown">
       <div id={@id <> "-button"} phx-click={if !@open, do: "open"} phx-target={@myself}>
-        <%= render_slot(@button) %>
+        <%= render_slot(@button, @open) %>
       </div>
 
       <div
