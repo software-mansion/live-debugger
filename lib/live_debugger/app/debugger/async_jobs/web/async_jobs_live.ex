@@ -148,6 +148,12 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
     |> noreply()
   end
 
+  def handle_async(:fetch_async_jobs, {:ok, {:error, :not_alive_or_not_a_liveview}}, socket) do
+    socket
+    |> assign(:async_jobs, AsyncResult.ok([]))
+    |> noreply()
+  end
+
   def handle_async(:fetch_async_jobs, {:ok, {:error, reason}}, socket) do
     socket
     |> assign(:async_jobs, AsyncResult.failed(AsyncResult.loading(), reason))
