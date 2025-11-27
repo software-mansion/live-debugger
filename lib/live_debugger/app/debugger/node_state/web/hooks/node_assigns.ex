@@ -180,12 +180,24 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   # If both async tasks are running, we start the second async task
   # It stops already running second async tasks and start a new one
   defp assign_size_async(%{private: %{live_async: %{assigns_size_1: _}}} = socket, assigns) do
-    start_async(socket, :assigns_size_2, fn -> calculate_assigns_size(assigns) end)
+    # We have to calculate the size of assigns of debugged process asynchronously.
+    # When user has enabled `enable_expensive_runtime_checks` in `config.exs`, LiveView will assume,
+    # that we are accessing assigns inside a function given to `async` and will raise a warning.
+    # We wrap the assigns in a map to avoid this warning.
+    wrapper = %{assigns: assigns}
+
+    start_async(socket, :assigns_size_2, fn ->
+      calculate_assigns_size(wrapper.assigns)
+    end)
   end
 
   # If assigns are not calculated, we start the first async task
   defp assign_size_async(socket, assigns) do
-    start_async(socket, :assigns_size_1, fn -> calculate_assigns_size(assigns) end)
+    wrapper = %{assigns: assigns}
+
+    start_async(socket, :assigns_size_1, fn ->
+      calculate_assigns_size(wrapper.assigns)
+    end)
   end
 
   defp calculate_assigns_size(assigns) do

@@ -288,6 +288,7 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:id, :string, required: true)
   attr(:title, :string, required: true)
   attr(:class, :any, default: nil)
+  attr(:title_class, :any, default: nil)
   attr(:inner_class, :any, default: nil)
 
   slot(:right_panel)
@@ -302,9 +303,9 @@ defmodule LiveDebugger.App.Web.Components do
         | List.wrap(@class)
       ]}
     >
-      <div class="pl-4 flex items-center h-12 p-2 border-b border-default-border">
+      <div class="px-4 flex items-center h-12 p-2 border-b border-default-border">
         <div class="flex justify-between items-center w-full gap-2">
-          <div class="font-medium text-sm min-w-26"><%= @title %></div>
+          <div class={["font-medium text-sm min-w-26" | List.wrap(@title_class)]}><%= @title %></div>
           <div class="w-max">
             <%= render_slot(@right_panel) %>
           </div>
@@ -441,10 +442,12 @@ defmodule LiveDebugger.App.Web.Components do
         ]}
       >
         <div
-          phx-click-away="close-sidebar"
-          class="h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border lg:border-l"
+          class="w-full h-full lg:hidden"
+          phx-click="close-sidebar"
           {@event_target && %{:"phx-target" => @event_target} || %{}}
         >
+        </div>
+        <div class="shrink-0 h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border lg:border-l">
           <.icon_button
             :if={!@sidebar_hidden?}
             icon="icon-cross"
