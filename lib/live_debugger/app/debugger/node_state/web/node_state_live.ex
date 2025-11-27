@@ -135,7 +135,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> noreply()
   end
 
-  def handle_info(%DeadViewModeEntered{debugger_pid: pid}, socket) do
+  def handle_info(%DeadViewModeEntered{}, socket) do
     socket
     |> assign(:lv_process, LvProcess.set_alive(socket.assigns.lv_process, false))
     |> noreply()
