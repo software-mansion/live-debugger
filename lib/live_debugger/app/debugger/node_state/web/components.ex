@@ -68,7 +68,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           </div>
           <div id="all-assigns" class="p-4 relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
-            <ElixirDisplay.static_term node={@term_node} selectable_level={1} />
+            <ElixirDisplay.static_term id="assigns-" node={@term_node} selectable_level={1} />
           </div>
         </div>
       </.section>
