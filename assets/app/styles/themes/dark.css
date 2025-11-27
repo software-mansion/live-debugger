@@ -92,6 +92,7 @@
     --diff-positive-bg: rgb(from var(--swm-green-100) r g b / 0.3);
 
     --monitored-pid-bg: var(--swm-green-60);
-    --monitored-pid-text: var(--slate-900);
+    --disconnected-bg: var(--swm-pink-60);
+    --disconnected-text: var(--slate-900);
   }
 }

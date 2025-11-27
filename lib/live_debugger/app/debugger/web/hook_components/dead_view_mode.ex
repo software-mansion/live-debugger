@@ -46,21 +46,25 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
 
     ~H"""
     <.tooltip id={@id <> "-tooltip"} position="bottom" content={@tooltip_content}>
-      <div
-        id={@id}
-        class={[
-          "flex items-center gap-1 text-xs text-primary ml-1",
-          @connected? && "bg-monitored-pid-bg rounded-xl py-1 px-2 w-max text-monitored-pid-text"
-        ]}
-      >
-        <.status_icon connected?={@connected?} />
-        <%= if @connected? do %>
-          <span class="font-medium">Monitored PID </span>
-          <span class="font-light"><%= @display_pid %></span>
-        <% else %>
-          <span class="font-medium">Disconnected</span>
-          <.button phx-click="find-successor" variant="secondary" size="sm">Continue</.button>
-        <% end %>
+      <div class="flex items-center gap-2 flex-row">
+        <div
+          id={@id}
+          class={[
+            "flex items-center gap-1 text-xs text-primary ml-1 rounded-xl py-1 px-2 w-max bg-disconnected-bg text-disconnected-text",
+            @connected? && "bg-monitored-pid-bg"
+          ]}
+        >
+          <.status_icon connected?={@connected?} />
+          <%= if @connected? do %>
+            <span class="font-medium">Monitored PID </span>
+            <span class="font-light"><%= @display_pid %></span>
+          <% else %>
+            <span class="font-medium">Disconnected</span>
+          <% end %>
+        </div>
+        <.button :if={!@connected?} phx-click="find-successor" variant="secondary" size="sm">
+          Continue
+        </.button>
       </div>
     </.tooltip>
     """

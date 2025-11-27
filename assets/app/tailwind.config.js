@@ -70,7 +70,8 @@ module.exports = {
         'diff-negative-bg': 'var(--diff-negative-bg)',
         'diff-positive-bg': 'var(--diff-positive-bg)',
         'monitored-pid-bg': 'var(--monitored-pid-bg)',
-        'monitored-pid-text': 'var(--monitored-pid-text)',
+        'disconnected-bg': 'var(--disconnected-bg)',
+        'disconnected-text': 'var(--disconnected-text)',
       },
       screens: { xs: '380px' },
       fontFamily: {
