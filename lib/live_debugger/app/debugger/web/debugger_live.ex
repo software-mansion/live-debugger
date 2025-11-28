@@ -17,6 +17,12 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
   alias LiveDebugger.Bus
 
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
+
+  @views_with_sidebar [
+    "node_inspector",
+    "global_traces"
+  ]
 
   @impl true
   def mount(%{"pid" => string_pid}, _session, socket) do
@@ -45,6 +51,11 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   @impl true
   def render(assigns) do
+    assigns =
+      assign(assigns,
+        show_sidebar_icon?: NavigationMenu.get_current_view(assigns.url) in @views_with_sidebar
+      )
+
     ~H"""
     <div id="lv-process-live" class="w-screen h-screen grid grid-rows-[auto_1fr]">
       <.async_result :let={lv_process} assign={@lv_process}>
@@ -61,8 +72,11 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
           <HookComponents.DeadViewMode.render id="navbar-connected" lv_process={lv_process} />
           <div class="flex items-center gap-2">
             <Navbar.settings_button return_to={@url} />
-            <span class="h-5 border-r border-default-border lg:hidden"></span>
+            <span :if={@show_sidebar_icon?} class="h-5 border-r border-default-border lg:hidden">
+            </span>
+
             <.nav_icon
+              :if={@show_sidebar_icon?}
               phx-click={if @lv_process.ok?, do: Pages.get_open_sidebar_js(@live_action)}
               class="flex lg:hidden"
               icon="icon-panel-right"

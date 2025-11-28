@@ -38,19 +38,13 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
     assigns = assign(assigns, :sidebar_id, @node_inspector_sidebar_id)
 
     ~H"""
-    <div class="flex flex-col h-full overflow-x-auto w-max scrollbar-main">
-      <NavigationMenu.sidebar
-        class="w-full border-b margin-0"
-        current_url={@url}
+    <div class="flex flex-col h-full overflow-x-auto w-full scrollbar-main items-center">
+      <.navbar_menu
+        url={@url}
         return_link={@return_link}
-      >
-        <:inspect_button>
-          <HookComponents.InspectButton.render
-            inspect_mode?={@inspect_mode?}
-            lv_process={@lv_process}
-          />
-        </:inspect_button>
-      </NavigationMenu.sidebar>
+        inspect_mode?={@inspect_mode?}
+        lv_process={@lv_process}
+      />
 
       <div class="flex flex-col w-full gap-4 p-8 overflow-y-auto">
         <.live_component
@@ -145,18 +139,13 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
 
     ~H"""
     <div class="flex flex-col h-full overflow-x-auto w-full">
-      <NavigationMenu.sidebar
-        class="w-full border-b margin-0"
-        current_url={@url}
+      <.navbar_menu
+        url={@url}
         return_link={@return_link}
-      >
-        <:inspect_button>
-          <HookComponents.InspectButton.render
-            inspect_mode?={@inspect_mode?}
-            lv_process={@lv_process}
-          />
-        </:inspect_button>
-      </NavigationMenu.sidebar>
+        inspect_mode?={@inspect_mode?}
+        lv_process={@lv_process}
+      />
+
       <ResourcesLive.live_render
         id={@id}
         class="flex overflow-hidden w-full"
@@ -168,13 +157,13 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   end
 
   attr(:url, :string, required: true)
-  attr(:return_link, :string, required: false)
-  attr(:inspect_mode?, :boolean, default: false)
-  attr(:lv_process, :any)
+  attr(:return_link, :string, required: true)
+  attr(:inspect_mode?, :boolean, required: true)
+  attr(:lv_process, LvProcess, required: true)
 
   def navbar_menu(assigns) do
     ~H"""
-    <NavigationMenu.sidebar
+    <NavigationMenu.navbar
       class="w-full border-b margin-0"
       current_url={@url}
       return_link={@return_link}
@@ -182,7 +171,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
       <:inspect_button>
         <HookComponents.InspectButton.render inspect_mode?={@inspect_mode?} lv_process={@lv_process} />
       </:inspect_button>
-    </NavigationMenu.sidebar>
+    </NavigationMenu.navbar>
     """
   end
 

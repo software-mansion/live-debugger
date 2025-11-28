@@ -56,7 +56,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               <.tooltip
                 id={@id <> "-current-node-module"}
                 content={node_module}
-                class="max-sm:max-w-[140px] max-sm:truncate"
+                class="max-sm:max-w-[180px] max-sm:truncate"
               >
                 <%= node_module %>
               </.tooltip>

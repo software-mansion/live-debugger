@@ -12,9 +12,10 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
   attr(:current_url, :any, required: true)
   attr(:return_link, :any, required: true, doc: "Link to navigate to.")
+
   slot(:inspect_button)
 
-  def sidebar(assigns) do
+  def navbar(assigns) do
     assigns =
       assign(assigns,
         pid: get_pid(assigns.current_url),
@@ -28,16 +29,16 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
     ]}>
       <%= render_slot(@inspect_button) %>
       <div id="visible-items" class="flex flex-row gap-3">
-        <.sidebar_item
-          id="node-inspector-sidebar-item"
+        <.navbar_item
+          id="node-inspector-navbar-item"
           content="Node Inspector"
           patch={RoutesHelper.debugger_node_inspector(@pid)}
           icon="icon-info"
           selected?={@current_view == "node_inspector"}
         />
 
-        <.sidebar_item
-          id="global-traces-sidebar-item"
+        <.navbar_item
+          id="global-traces-navbar-item"
           content="Global Callbacks"
           patch={RoutesHelper.debugger_global_traces(@pid)}
           icon="icon-globe"
@@ -48,8 +49,8 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
       <.dropdown return_link={@return_link} current_url={@current_url} class="sm:hidden" />
 
       <div id="hidden-items" class="hidden sm:flex flex-row gap-3">
-        <.sidebar_item
-          id="resources-sidebar-item"
+        <.navbar_item
+          id="resources-navbar-item"
           content="Resources"
           patch={RoutesHelper.debugger_resources(@pid)}
           icon="icon-chart-line"
@@ -135,7 +136,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
   attr(:selected?, :boolean, default: false)
   attr(:content, :string, required: true)
 
-  def sidebar_item(assigns) do
+  def navbar_item(assigns) do
     ~H"""
     <div
       id={@id}
@@ -157,7 +158,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
     """
   end
 
-  defp get_current_view(url) do
+  def get_current_view(url) do
     URL.take_nth_segment(url, 3) || "node_inspector"
   end
 

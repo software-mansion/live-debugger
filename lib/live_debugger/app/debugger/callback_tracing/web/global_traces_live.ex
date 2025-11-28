@@ -27,9 +27,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
-
-  alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
-  alias LiveDebugger.App.Debugger.Web.HookComponents, as: DebuggerHookComponents
+  alias LiveDebugger.App.Debugger.Web.Components.Pages
 
   @live_stream_limit 128
   @page_size 25
@@ -39,8 +37,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   attr(:lv_process, LvProcess, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the container")
   attr(:url, :string, required: true)
-  attr(:inspect_mode?, :boolean, default: false)
-  attr(:return_link, :string)
+  attr(:inspect_mode?, :boolean, required: true)
+  attr(:return_link, :string, required: true)
 
   def live_render(assigns) do
     session = %{
@@ -120,18 +118,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   def render(assigns) do
     ~H"""
     <div class="flex flex-col h-full overflow-x-auto w-full">
-      <NavigationMenu.sidebar
-        class="flex w-full border-b"
-        current_url={@url}
+      <Pages.navbar_menu
+        url={@url}
         return_link={@return_link}
-      >
-        <:inspect_button>
-          <DebuggerHookComponents.InspectButton.render
-            inspect_mode?={@inspect_mode?}
-            lv_process={@lv_process}
-          />
-        </:inspect_button>
-      </NavigationMenu.sidebar>
+        inspect_mode?={@inspect_mode?}
+        lv_process={@lv_process}
+      />
       <div class="grow p-8 overflow-y-auto scrollbar-main">
         <div class="w-full min-w-[25rem] max-w-screen-2xl mx-auto">
           <div class="flex flex-col gap-1.5 pb-6 px-0.5">
