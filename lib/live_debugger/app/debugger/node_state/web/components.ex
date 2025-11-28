@@ -33,6 +33,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:assigns_sizes, AsyncResult, required: true)
   attr(:assigns_search_phrase, :string, default: "")
   attr(:pinned_assigns, :map, default: %{})
+  attr(:node_assigns_status, :atom, required: true)
 
   def assigns_section(assigns) do
     opened_term_node =
@@ -42,7 +43,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
     ~H"""
     <div id="assigns-section-container" phx-hook="AssignsBodySearchHighlight">
-      <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns" title_class="!min-w-14">
+      <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns" title_class="!min-w-18">
+        <:title_sub_panel>
+          <.assigns_status_indicator node_assigns_status={@node_assigns_status} />
+        </:title_sub_panel>
+
         <:right_panel>
           <div class="flex gap-2">
             <AssignsSearch.render
@@ -212,5 +217,31 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       />
     </div>
     """
+  end
+
+  attr(:node_assigns_status, :atom, required: true)
+
+  defp assigns_status_indicator(assigns) do
+    assigns = assign(assigns, get_status_indicator_params(assigns.node_assigns_status))
+
+    ~H"""
+    <.status_dot status={@status} pulse?={@pulse?} tooltip={@tooltip} />
+    """
+  end
+
+  defp get_status_indicator_params(:updating) do
+    [status: :warning, pulse?: true, tooltip: "Updating assigns..."]
+  end
+
+  defp get_status_indicator_params(:loaded) do
+    [status: :success, pulse?: false, tooltip: "Assigns are up to date."]
+  end
+
+  defp get_status_indicator_params(:error) do
+    [status: :error, pulse?: false, tooltip: "Error while fetching assigns."]
+  end
+
+  defp get_status_indicator_params(:disconnected) do
+    [status: :error, pulse?: false, tooltip: "Disconnected from the LiveView process."]
   end
 end
