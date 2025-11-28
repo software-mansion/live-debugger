@@ -850,6 +850,46 @@ defmodule LiveDebugger.App.Web.Components do
     """
   end
 
+  attr(:variant, :string, default: "info", values: ~w(info warning))
+  attr(:size, :string, default: "md", values: ~w(sm md))
+  attr(:class, :string, default: "", doc: "Additional classes to add to the info block")
+
+  slot(:header)
+  slot(:inner_block)
+
+  def info_block(assigns) do
+    ~H"""
+    <div class={
+      [
+        "flex border shadow-custom rounded",
+        info_block_size_classes(@size),
+        info_block_color_classes(@variant)
+      ] ++ List.wrap(@class)
+    }>
+      <div :if={@size == "md"} class="w-4 mr-2">
+        <.icon name={info_block_icon_name(@variant)} class="w-4 h-4" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <div :if={@header != []} class="font-semibold">
+          <%= render_slot(@header) %>
+        </div>
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
+    """
+  end
+
+  defp info_block_size_classes("sm"), do: "py-[0.3rem] px-[0.55rem] text-3xs"
+  defp info_block_size_classes("md"), do: "py-[1rem] px-[1rem] text-xs"
+
+  defp info_block_color_classes("info"), do: "bg-info-bg border-info-border text-info-text"
+
+  defp info_block_color_classes("warning"),
+    do: "bg-warning-bg border-warning-border text-warning-text"
+
+  defp info_block_icon_name("info"), do: "icon-info"
+  defp info_block_icon_name("warning"), do: "icon-triangle-alert"
+
   defp button_color_classes(variant) do
     case variant do
       "primary" ->

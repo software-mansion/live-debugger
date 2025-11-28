@@ -5,6 +5,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
 
   use LiveDebugger.App.Web, :live_component
 
+  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Discovery.Web.Components, as: DiscoveryComponents
@@ -18,14 +19,15 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
   @impl true
   def update(%{action: :refresh}, socket) do
     socket
-    |> assign_async_dead_grouped_lv_processes()
+    |> start_async_dead_grouped_lv_processes()
     |> ok()
   end
 
   def update(%{dead_liveviews?: value}, socket) do
     socket
     |> assign(dead_liveviews?: value)
-    |> assign_async_dead_grouped_lv_processes()
+    |> assign(dead_grouped_lv_processes: AsyncResult.loading())
+    |> start_async_dead_grouped_lv_processes()
     |> ok()
   end
 
@@ -33,7 +35,9 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
     socket
     |> assign(assigns)
     |> assign(dead_liveviews?: SettingsStorage.get(:dead_liveviews))
-    |> assign_async_dead_grouped_lv_processes()
+    |> assign(lv_processes_count: 0)
+    |> assign(dead_grouped_lv_processes: AsyncResult.loading())
+    |> start_async_dead_grouped_lv_processes()
     |> ok()
   end
 
@@ -42,38 +46,42 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id} class="h-3/7 max-lg:p-8 py-8 lg:w-[60rem] lg:mx-auto">
-      <DiscoveryComponents.header
-        title="Dead LiveViews"
-        refresh_event="refresh-dead"
-        disabled?={!@dead_liveviews?}
-        target={@myself}
+    <div id={@id} class={if(@dead_liveviews?, do: "flex-1")}>
+      <.static_collapsible
+        chevron_class="mr-2"
+        class="h-full flex! flex-col max-lg:p-8 py-8 lg:w-[60rem] lg:mx-auto"
+        open={@dead_liveviews?}
+        phx-click="toggle-dead-liveviews"
+        phx-target={@myself}
       >
-        <.toggle_switch
-          id="dead-liveviews"
-          checked={@dead_liveviews?}
-          phx-click="toggle-dead-liveviews"
-          phx-target={@myself}
-        />
-      </DiscoveryComponents.header>
+        <:label :let={open?}>
+          <DiscoveryComponents.header
+            title="Dead LiveViews"
+            lv_processes_count={@lv_processes_count}
+            refresh_event="refresh-dead"
+            disabled?={!open?}
+            target={@myself}
+          />
+        </:label>
 
-      <div :if={@dead_liveviews?}>
-        <DiscoveryComponents.garbage_collection_info />
+        <div class="flex flex-col flex-1">
+          <DiscoveryComponents.garbage_collection_info />
 
-        <div class="mt-6 max-h-72 lg:max-h-100 overflow-y-auto">
-          <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
-            <:loading><DiscoveryComponents.loading /></:loading>
-            <:failed><DiscoveryComponents.failed /></:failed>
-            <DiscoveryComponents.liveview_sessions
-              id="dead-sessions"
-              grouped_lv_processes={dead_grouped_lv_processes}
-              empty_info="No dead LiveViews"
-              remove_event="remove-lv-state"
-              target={@myself}
-            />
-          </.async_result>
+          <div class="mt-6 flex-[1_0_0] overflow-y-scroll">
+            <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
+              <:loading><DiscoveryComponents.loading /></:loading>
+              <:failed><DiscoveryComponents.failed /></:failed>
+              <DiscoveryComponents.liveview_sessions
+                id="dead-sessions"
+                grouped_lv_processes={dead_grouped_lv_processes}
+                empty_info="No dead LiveViews"
+                remove_event="remove-lv-state"
+                target={@myself}
+              />
+            </.async_result>
+          </div>
         </div>
-      </div>
+      </.static_collapsible>
     </div>
     """
   end
@@ -81,7 +89,8 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
   @impl true
   def handle_event("refresh-dead", _params, socket) do
     socket
-    |> assign_async_dead_grouped_lv_processes()
+    |> assign(dead_grouped_lv_processes: AsyncResult.loading())
+    |> start_async_dead_grouped_lv_processes()
     |> noreply()
   end
 
@@ -90,13 +99,8 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
 
     DiscoveryActions.update_dead_liveviews_setting(new_value)
     |> case do
-      {:ok, true} ->
-        socket
-        |> assign(dead_liveviews?: true)
-        |> assign_async_dead_grouped_lv_processes()
-
-      {:ok, false} ->
-        assign(socket, dead_liveviews?: false)
+      {:ok, value} ->
+        assign(socket, dead_liveviews?: value)
 
       {:error, _reason} ->
         push_flash(socket, :error, "Failed to update setting")
@@ -109,20 +113,27 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
     DiscoveryActions.remove_lv_process_state!(pid)
 
     socket
-    |> assign_async_dead_grouped_lv_processes()
+    |> start_async_dead_grouped_lv_processes()
     |> noreply()
   end
 
-  defp assign_async_dead_grouped_lv_processes(socket) do
-    if socket.assigns.dead_liveviews? do
-      assign_async(
-        socket,
-        :dead_grouped_lv_processes,
-        &DiscoveryQueries.fetch_dead_grouped_lv_processes/0,
-        reset: true
-      )
-    else
-      socket
-    end
+  @impl true
+  def handle_async(
+        :fetch_dead_grouped_lv_processes,
+        {:ok, {dead_grouped_lv_processes, lv_processes_count}},
+        socket
+      ) do
+    socket
+    |> assign(lv_processes_count: lv_processes_count)
+    |> assign(dead_grouped_lv_processes: AsyncResult.ok(dead_grouped_lv_processes))
+    |> noreply()
+  end
+
+  defp start_async_dead_grouped_lv_processes(socket) do
+    start_async(
+      socket,
+      :fetch_dead_grouped_lv_processes,
+      &DiscoveryQueries.fetch_dead_grouped_lv_processes/0
+    )
   end
 end

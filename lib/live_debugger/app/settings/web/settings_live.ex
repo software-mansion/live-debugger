@@ -34,9 +34,14 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   def render(assigns) do
     ~H"""
     <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
-      <NavbarComponents.navbar class="flex pl-2">
-        <NavbarComponents.return_link return_link={@return_to || RoutesHelper.discovery()} />
-        <NavbarComponents.live_debugger_logo />
+      <NavbarComponents.navbar class="flex pl-2 justify-between">
+        <div class="flex items-center gap-2">
+          <NavbarComponents.return_link return_link={@return_to || RoutesHelper.discovery()} />
+          <NavbarComponents.live_debugger_logo />
+        </div>
+        <NavbarComponents.garbage_collection_warning garbage_collection_enabled?={
+          @settings[:garbage_collection]
+        } />
       </NavbarComponents.navbar>
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
         <div class="flex items-center justify-between">

@@ -5,6 +5,7 @@ defmodule LiveDebugger.App.Web.Components.Navbar do
 
   use LiveDebugger.App.Web, :component
 
+  alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
   @doc """
@@ -86,6 +87,39 @@ defmodule LiveDebugger.App.Web.Components.Navbar do
     <.link navigate={RoutesHelper.settings(@return_to)} class={@class} id="settings-button">
       <.nav_icon icon="icon-settings" />
     </.link>
+    """
+  end
+
+  @doc """
+  Warning info block about garbage collection being disabled.
+  """
+  attr(:garbage_collection_enabled?, :boolean)
+
+  def garbage_collection_warning(%{garbage_collection_enabled?: _} = assigns) do
+    ~H"""
+    <.info_block :if={!@garbage_collection_enabled?} size="sm" variant="warning">
+      <:header>
+        <p class="hidden sm:block">
+          <span class="underline">Garbage Collection</span> is disabled. Memory usage may increase.
+        </p>
+        <.tooltip
+          id="gc-disabled-warning-tooltip"
+          content="Garbage Collection is disabled. Memory usage may increase."
+          position="bottom"
+          class="sm:hidden"
+        >
+          <.icon name="icon-triangle-alert" class="w-4 h-4" />
+        </.tooltip>
+      </:header>
+    </.info_block>
+    """
+  end
+
+  def garbage_collection_warning(assigns) do
+    ~H"""
+    <.garbage_collection_warning garbage_collection_enabled?={
+      SettingsStorage.get(:garbage_collection)
+    } />
     """
   end
 end

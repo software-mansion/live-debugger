@@ -30,7 +30,10 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
     <div class="h-full flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
       <NavbarComponents.navbar class="flex justify-between">
         <NavbarComponents.live_debugger_logo />
-        <NavbarComponents.settings_button return_to={@url} />
+        <div class="flex items-center gap-2">
+          <NavbarComponents.garbage_collection_warning />
+          <NavbarComponents.settings_button return_to={@url} />
+        </div>
       </NavbarComponents.navbar>
       <div class="h-full flex flex-col">
         <.live_component module={ActiveLiveViews} id="active-live-views" />
