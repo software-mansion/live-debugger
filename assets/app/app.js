@@ -15,6 +15,7 @@ import TraceLabelSearchHighlight from './hooks/trace_label_search_highlight';
 import AssignsBodySearchHighlight from './hooks/assigns_body_search_highlight';
 import DiffPulse from './hooks/diff_pulse';
 import ChartHook from './hooks/chart_hook';
+import CollapsedSectionPulse from './hooks/collapsed_section_pulse';
 
 import topbar from './vendor/topbar';
 
@@ -42,6 +43,7 @@ function createHooks() {
     AssignsBodySearchHighlight,
     DiffPulse,
     ChartHook,
+    CollapsedSectionPulse,
   };
 }
 
