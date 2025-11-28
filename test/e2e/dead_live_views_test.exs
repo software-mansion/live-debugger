@@ -28,12 +28,10 @@ defmodule LiveDebugger.E2E.DeadLiveViewsTest do
 
     debugger
     |> visit("/")
-    |> assert_has(enable_dead_liveviews_checkbox(selected: false))
     |> refute_has(css("#dead-sessions"))
-    |> click(enable_dead_liveviews_toggle())
-
-    # |> find(css("#dead-sessions"))
-    # |> assert_text("No dead LiveViews")
+    |> click(toggle_dead_liveviews_collapsible())
+    |> find(css("#dead-sessions"))
+    |> assert_text("No dead LiveViews")
 
     dev_app
     |> visit(@dev_app_url <> "/side")
@@ -56,11 +54,7 @@ defmodule LiveDebugger.E2E.DeadLiveViewsTest do
 
   def dead_sessions(opts \\ []), do: css("#dead-sessions > div", opts)
 
-  defp enable_dead_liveviews_toggle() do
-    css("label:has(input#dead-liveviews)")
-  end
-
-  defp enable_dead_liveviews_checkbox(opts) do
-    css("input#dead-liveviews", opts)
+  defp toggle_dead_liveviews_collapsible() do
+    css("div[phx-click=\"toggle-dead-liveviews\"]")
   end
 end
