@@ -5,11 +5,9 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   use LiveDebugger.App.Web, :live_component
 
-  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Debugger.Web.Components, as: DebuggerComponents
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
-  alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
   alias LiveDebugger.App.Utils.Parsers
 
   @impl true
@@ -20,7 +18,6 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     |> assign(:lv_process, assigns.lv_process)
     |> assign_node_type()
     |> assign_async_node_module()
-    |> assign_async_parent_lv_process()
     |> ok()
   end
 
@@ -65,15 +62,6 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
           </div>
         </div>
       </.async_result>
-      <.async_result :let={parent_lv_process} assign={@parent_lv_process}>
-        <div :if={parent_lv_process} class="w-full flex flex-col">
-          <span class="font-medium">Parent LiveView Process</span>
-          <DebuggerComponents.live_view_link
-            lv_process={parent_lv_process}
-            id="parent-live-view-link"
-          />
-        </div>
-      </.async_result>
     </div>
     """
   end
@@ -104,19 +92,5 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
           {:error, "Failed to get node module"}
       end
     end)
-  end
-
-  defp assign_async_parent_lv_process(socket) do
-    parent_pid = socket.assigns.lv_process.parent_pid
-
-    case parent_pid do
-      nil ->
-        assign(socket, :parent_lv_process, AsyncResult.ok(nil))
-
-      pid ->
-        assign_async(socket, :parent_lv_process, fn ->
-          {:ok, %{parent_lv_process: LvProcessQueries.get_lv_process_with_retries(pid)}}
-        end)
-    end
   end
 end

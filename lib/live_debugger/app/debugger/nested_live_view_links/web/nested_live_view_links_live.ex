@@ -5,12 +5,16 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksL
 
   use LiveDebugger.App.Web, :live_view
 
+  alias Phoenix.LiveView.AsyncResult
+
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.API.LiveViewDiscovery
   alias LiveDebugger.App.Debugger.Web.Components, as: DebuggerComponents
 
   alias LiveDebugger.App.Debugger.NestedLiveViewLinks.Queries,
     as: NestedLiveViewLinksQueries
+
+  alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
@@ -56,6 +60,7 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksL
     socket
     |> assign(lv_process: lv_process)
     |> assign_async_nested_lv_processes()
+    |> assign_async_parent_lv_process()
     |> ok()
   end
 
@@ -63,6 +68,16 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksL
   def render(assigns) do
     ~H"""
     <div class="w-full px-4 pt-4 pb-5 gap-3 flex flex-col border-b border-default-border mt-1 z">
+      <.async_result :let={parent_lv_process} assign={@parent_lv_process}>
+        <div :if={parent_lv_process} class="w-full flex flex-col">
+          <span class="font-medium">Parent LiveView Process</span>
+          <DebuggerComponents.live_view_link
+            lv_process={parent_lv_process}
+            id="parent-live-view-link"
+          />
+          <span class="border-1 border-default-border" />
+        </div>
+      </.async_result>
       <.async_result :let={nested_lv_processes} assign={@nested_lv_processes}>
         <:loading>
           <.spinner size="sm" class="m-auto" />
@@ -112,6 +127,20 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksL
       :nested_lv_processes,
       fn -> {:ok, %{nested_lv_processes: LiveViewDiscovery.children_lv_processes(pid)}} end
     )
+  end
+
+  defp assign_async_parent_lv_process(socket) do
+    parent_pid = socket.assigns.lv_process.parent_pid
+
+    case parent_pid do
+      nil ->
+        assign(socket, :parent_lv_process, AsyncResult.ok(nil))
+
+      pid ->
+        assign_async(socket, :parent_lv_process, fn ->
+          {:ok, %{parent_lv_process: LvProcessQueries.get_lv_process_with_retries(pid)}}
+        end)
+    end
   end
 
   defp known_child_lv_process?(socket, pid) do
