@@ -226,7 +226,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
 
   defp trace_module(opts), do: css("#global-traces-stream details div.col-span-3", opts)
 
-  defp global_callback_traces_button(), do: css("button[aria-label=\"Icon globe\"]")
+  defp global_callback_traces_button(), do: css("#global-traces-sidebar-item a")
 
   defp open_fullscreen_trace_button(), do: css("button[phx-click=\"open-trace\"]")
 
