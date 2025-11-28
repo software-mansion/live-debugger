@@ -10,9 +10,14 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   alias LiveDebugger.App.Debugger.CallbackTracing.Web, as: CallbackTracingWeb
   alias LiveDebugger.App.Debugger.Resources.Web.ResourcesLive
   alias LiveDebugger.App.Debugger.Web.LiveComponents.NodeInspectorSidebar
+  alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
+  alias LiveDebugger.App.Debugger.Web.HookComponents
+
   alias LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo
   alias LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive
   alias LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive
+  alias LiveDebugger.App.Debugger.Streams.Web.StreamsLive
+
   alias LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksLive
   alias LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive
   alias LiveDebugger.Structs.LvProcess
@@ -26,15 +31,26 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   attr(:url, :string, required: true)
   attr(:node_id, :any, required: true)
   attr(:root_socket_id, :string, required: true)
-
-  slot(:sidebar, required: true)
+  attr(:return_link, :string, required: true)
+  attr(:inspect_mode?, :boolean, required: true)
 
   def node_inspector(assigns) do
     assigns = assign(assigns, :sidebar_id, @node_inspector_sidebar_id)
 
     ~H"""
-    <div class="flex flex-col h-full overflow-x-auto w-full scrollbar-main">
-      <%= render_slot(@sidebar) %>
+    <div class="flex flex-col h-full overflow-x-auto w-max scrollbar-main">
+      <NavigationMenu.sidebar
+        class="w-full border-b margin-0"
+        current_url={@url}
+        return_link={@return_link}
+      >
+        <:inspect_button>
+          <HookComponents.InspectButton.render
+            inspect_mode?={@inspect_mode?}
+            lv_process={@lv_process}
+          />
+        </:inspect_button>
+      </NavigationMenu.sidebar>
 
       <div class="flex flex-col w-full gap-4 p-8 overflow-y-auto">
         <.live_component
@@ -59,6 +75,14 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
           lv_process={@lv_process}
           node_id={@node_id}
         />
+        <StreamsLive.live_render
+          id="streams-list"
+          class="flex"
+          socket={@socket}
+          lv_process={@lv_process}
+          node_id={@node_id}
+        />
+
         <CallbackTracingWeb.NodeTracesLive.live_render
           id="traces-list"
           class="flex"
@@ -112,15 +136,27 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
 
   attr(:socket, LiveViewSocket, required: true)
   attr(:lv_process, LvProcess, required: true)
-  slot(:sidebar, required: true)
+  attr(:url, :string, required: true)
+  attr(:inspect_mode?, :boolean, required: true)
+  attr(:return_link, :string, required: true)
 
   def resources(assigns) do
     assigns = assign(assigns, :id, @resources_id)
 
     ~H"""
     <div class="flex flex-col h-full overflow-x-auto w-full">
-      <%= render_slot(@sidebar) %>
-
+      <NavigationMenu.sidebar
+        class="w-full border-b margin-0"
+        current_url={@url}
+        return_link={@return_link}
+      >
+        <:inspect_button>
+          <HookComponents.InspectButton.render
+            inspect_mode?={@inspect_mode?}
+            lv_process={@lv_process}
+          />
+        </:inspect_button>
+      </NavigationMenu.sidebar>
       <ResourcesLive.live_render
         id={@id}
         class="flex overflow-hidden w-full"
@@ -128,6 +164,25 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
         lv_process={@lv_process}
       />
     </div>
+    """
+  end
+
+  attr(:url, :string, required: true)
+  attr(:return_link, :string, required: false)
+  attr(:inspect_mode?, :boolean, default: false)
+  attr(:lv_process, :any)
+
+  def navbar_menu(assigns) do
+    ~H"""
+    <NavigationMenu.sidebar
+      class="w-full border-b margin-0"
+      current_url={@url}
+      return_link={@return_link}
+    >
+      <:inspect_button>
+        <HookComponents.InspectButton.render inspect_mode?={@inspect_mode?} lv_process={@lv_process} />
+      </:inspect_button>
+    </NavigationMenu.sidebar>
     """
   end
 

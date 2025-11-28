@@ -62,7 +62,7 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksL
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full px-4 pt-4 pb-5 gap-3 flex flex-col border-b border-default-border mt-1 z-10">
+    <div class="w-full px-4 pt-4 pb-5 gap-3 flex flex-col border-b border-default-border mt-1 z">
       <.async_result :let={nested_lv_processes} assign={@nested_lv_processes}>
         <:loading>
           <.spinner size="sm" class="m-auto" />

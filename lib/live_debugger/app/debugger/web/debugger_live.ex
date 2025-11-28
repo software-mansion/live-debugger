@@ -9,7 +9,6 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   alias LiveDebugger.App.Debugger.Web.Hooks
   alias LiveDebugger.App.Debugger.Web.HookComponents
-  alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
   alias LiveDebugger.App.Debugger.Web.Components.Pages
   alias LiveDebugger.App.Web.Components.Navbar
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
@@ -79,22 +78,10 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             url={@url}
             node_id={@node_id}
             root_socket_id={@root_socket_id}
-          >
-            <:sidebar>
-              <NavigationMenu.sidebar
-                class="w-full border-b margin-0"
-                current_url={@url}
-                return_link={RoutesHelper.discovery()}
-              >
-                <:inspect_button>
-                  <HookComponents.InspectButton.render
-                    inspect_mode?={@inspect_mode?}
-                    lv_process={lv_process}
-                  />
-                </:inspect_button>
-              </NavigationMenu.sidebar>
-            </:sidebar>
-          </Pages.node_inspector>
+            inspect_mode?={@inspect_mode?}
+            return_link={RoutesHelper.discovery()}
+          />
+
           <Pages.global_traces
             :if={@live_action == :global_traces}
             socket={@socket}
@@ -104,22 +91,14 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             return_link={RoutesHelper.discovery()}
           />
 
-          <Pages.resources :if={@live_action == :resources} socket={@socket} lv_process={lv_process}>
-            <:sidebar>
-              <NavigationMenu.sidebar
-                class="flex w-full border-b"
-                current_url={@url}
-                return_link={RoutesHelper.discovery()}
-              >
-                <:inspect_button>
-                  <HookComponents.InspectButton.render
-                    inspect_mode?={@inspect_mode?}
-                    lv_process={lv_process}
-                  />
-                </:inspect_button>
-              </NavigationMenu.sidebar>
-            </:sidebar>
-          </Pages.resources>
+          <Pages.resources
+            :if={@live_action == :resources}
+            socket={@socket}
+            lv_process={lv_process}
+            url={@url}
+            inspect_mode?={@inspect_mode?}
+            return_link={RoutesHelper.discovery()}
+          />
         </div>
       </.async_result>
     </div>
