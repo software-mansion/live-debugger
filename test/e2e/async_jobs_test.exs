@@ -106,7 +106,7 @@ defmodule LiveDebugger.E2E.AsyncJobsTest do
 
   defp async_job_name(name), do: css("#async-jobs p.font-medium", text: name)
 
-  defp no_async_jobs(), do: css("#async-jobs", text: "No async jobs found")
+  defp no_async_jobs(), do: css("#async-jobs", text: "No active async jobs found")
 
   defp node_module_info(text),
     do: css("#node-inspector-basic-info-current-node-module", text: text)

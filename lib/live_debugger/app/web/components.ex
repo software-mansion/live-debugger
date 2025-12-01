@@ -301,6 +301,7 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:inner_class, :any, default: nil)
 
   slot(:right_panel)
+  slot(:title_sub_panel)
   slot(:inner_block)
 
   def section(assigns) do
@@ -314,7 +315,13 @@ defmodule LiveDebugger.App.Web.Components do
     >
       <div class="px-4 flex items-center h-12 p-2 border-b border-default-border">
         <div class="flex justify-between items-center w-full gap-2">
-          <div class={["font-medium text-sm min-w-26" | List.wrap(@title_class)]}><%= @title %></div>
+          <div class={[
+            "font-medium text-sm min-w-26 flex items-center gap-2"
+            | List.wrap(@title_class)
+          ]}>
+            <p><%= @title %></p>
+            <%= render_slot(@title_sub_panel) %>
+          </div>
           <div class="w-max">
             <%= render_slot(@right_panel) %>
           </div>
@@ -674,6 +681,36 @@ defmodule LiveDebugger.App.Web.Components do
       <.icon class="w-3 h-3 text-accent-icon" name={@icon} />
       <p class="text-accent-text"><%= @text %></p>
     </div>
+    """
+  end
+
+  @doc """
+  Renders a status dot with a tooltip.
+  """
+
+  attr(:status, :atom, required: true)
+  attr(:pulse?, :boolean, default: false)
+  attr(:tooltip, :string, required: true)
+
+  def status_dot(assigns) do
+    assigns =
+      case assigns.status do
+        :success -> assign(assigns, :bg_class, "bg-status-dot-success-bg")
+        :warning -> assign(assigns, :bg_class, "bg-status-dot-warning-bg")
+        :error -> assign(assigns, :bg_class, "bg-status-dot-error-bg")
+      end
+
+    ~H"""
+    <.tooltip id="loading-dot-tooltip" content={@tooltip}>
+      <span class="relative flex size-2">
+        <span
+          :if={@pulse?}
+          class={"absolute inline-flex h-full w-full animate-ping rounded-full #{@bg_class} opacity-75"}
+        >
+        </span>
+        <span class={"relative inline-flex size-2 rounded-full #{@bg_class}"}></span>
+      </span>
+    </.tooltip>
     """
   end
 
