@@ -9,16 +9,20 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   alias LiveDebugger.App.Debugger.Web.Hooks
   alias LiveDebugger.App.Debugger.Web.HookComponents
-  alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
   alias LiveDebugger.App.Debugger.Web.Components.Pages
   alias LiveDebugger.App.Web.Components.Navbar
-  alias LiveDebugger.App.Debugger.Web.HookComponents
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.Bus
 
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
+
+  @views_with_sidebar [
+    "node_inspector",
+    "global_traces"
+  ]
 
   @impl true
   def mount(%{"pid" => string_pid}, _session, socket) do
@@ -47,6 +51,11 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   @impl true
   def render(assigns) do
+    assigns =
+      assign(assigns,
+        show_sidebar_icon?: NavigationMenu.get_current_view(assigns.url) in @views_with_sidebar
+      )
+
     ~H"""
     <div id="lv-process-live" class="w-screen h-screen grid grid-rows-[auto_1fr]">
       <.async_result :let={lv_process} assign={@lv_process}>
@@ -57,31 +66,27 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
         </:loading>
 
         <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto] pl-2 lg:pr-4">
-          <Navbar.return_link return_link={RoutesHelper.discovery()} class="hidden sm:block" />
-          <NavigationMenu.dropdown
-            return_link={RoutesHelper.discovery()}
-            current_url={@url}
-            class="sm:hidden"
-          />
+          <Navbar.return_link return_link={RoutesHelper.discovery()} />
+
           <Navbar.live_debugger_logo_icon />
           <HookComponents.DeadViewMode.render id="navbar-connected" lv_process={lv_process} />
           <div class="flex items-center gap-2">
             <Navbar.garbage_collection_warning />
-            <HookComponents.InspectButton.render
-              inspect_mode?={@inspect_mode?}
-              lv_process={lv_process}
-            />
+
             <Navbar.settings_button return_to={@url} />
-            <span class="h-5 border-r border-default-border lg:hidden"></span>
+            <span :if={@show_sidebar_icon?} class="h-5 border-r border-default-border lg:hidden">
+            </span>
+
             <.nav_icon
+              :if={@show_sidebar_icon?}
               phx-click={if @lv_process.ok?, do: Pages.get_open_sidebar_js(@live_action)}
               class="flex lg:hidden"
               icon="icon-panel-right"
             />
           </div>
         </Navbar.navbar>
-        <div class="flex overflow-hidden w-full">
-          <NavigationMenu.sidebar class="hidden sm:flex" current_url={@url} />
+
+        <div class="flex overflow-auto w-full">
           <Pages.node_inspector
             :if={@live_action == :node_inspector}
             socket={@socket}
@@ -89,13 +94,27 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             url={@url}
             node_id={@node_id}
             root_socket_id={@root_socket_id}
+            inspect_mode?={@inspect_mode?}
+            return_link={RoutesHelper.discovery()}
           />
+
           <Pages.global_traces
             :if={@live_action == :global_traces}
             socket={@socket}
             lv_process={lv_process}
+            url={@url}
+            inspect_mode?={@inspect_mode?}
+            return_link={RoutesHelper.discovery()}
           />
-          <Pages.resources :if={@live_action == :resources} socket={@socket} lv_process={lv_process} />
+
+          <Pages.resources
+            :if={@live_action == :resources}
+            socket={@socket}
+            lv_process={lv_process}
+            url={@url}
+            inspect_mode?={@inspect_mode?}
+            return_link={RoutesHelper.discovery()}
+          />
         </div>
       </.async_result>
     </div>

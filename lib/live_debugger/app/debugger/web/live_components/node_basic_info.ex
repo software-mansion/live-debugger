@@ -5,11 +5,8 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   use LiveDebugger.App.Web, :live_component
 
-  alias Phoenix.LiveView.AsyncResult
-  alias LiveDebugger.App.Debugger.Web.Components, as: DebuggerComponents
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
-  alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
   alias LiveDebugger.App.Utils.Parsers
 
   @impl true
@@ -20,7 +17,6 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     |> assign(:lv_process, assigns.lv_process)
     |> assign_node_type()
     |> assign_async_node_module()
-    |> assign_async_parent_lv_process()
     |> ok()
   end
 
@@ -31,7 +27,10 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id} class="w-full p-6 shrink-0 flex flex-col gap-2 border-b border-default-border">
+    <div
+      id={@id}
+      class="w-full min-w-[20rem] h-max max-h-full overflow-y-auto p-4 shrink-0 flex flex-col gap-2 border border-default-border bg-surface-0-bg rounded-sm"
+    >
       <.async_result :let={node_module} assign={@node_module}>
         <:loading>
           <div class="w-full h-30 flex justify-center items-center"><.spinner size="sm" /></div>
@@ -41,32 +40,25 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
             <p>Couldn't load basic information about the node.</p>
           </.alert>
         </:failed>
-        <div class="w-full flex flex-col">
-          <span class="font-medium">Type:</span>
-          <span><%= @node_type %></span>
-          <div class="w-full flex flex-col">
+        <div class="flex flex-row gap-8 w-max max-sm:flex-col">
+          <div class="w-full flex flex-col gap-1">
+            <span class="font-medium">Type:</span>
+            <span><%= @node_type %></span>
+          </div>
+          <div class="w-full flex flex-col gap-1">
             <span class="font-medium">Module:</span>
 
             <div class="flex gap-2">
               <.tooltip
                 id={@id <> "-current-node-module"}
                 content={node_module}
-                class="truncate max-w-[232px]"
+                class="max-sm:max-w-[260px] max-sm:truncate"
               >
                 <%= node_module %>
               </.tooltip>
               <.copy_button id="copy-button-module-name" value={node_module} />
             </div>
           </div>
-        </div>
-      </.async_result>
-      <.async_result :let={parent_lv_process} assign={@parent_lv_process}>
-        <div :if={parent_lv_process} class="w-full flex flex-col">
-          <span class="font-medium">Parent LiveView Process</span>
-          <DebuggerComponents.live_view_link
-            lv_process={parent_lv_process}
-            id="parent-live-view-link"
-          />
         </div>
       </.async_result>
     </div>
@@ -99,19 +91,5 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
           {:error, "Failed to get node module"}
       end
     end)
-  end
-
-  defp assign_async_parent_lv_process(socket) do
-    parent_pid = socket.assigns.lv_process.parent_pid
-
-    case parent_pid do
-      nil ->
-        assign(socket, :parent_lv_process, AsyncResult.ok(nil))
-
-      pid ->
-        assign_async(socket, :parent_lv_process, fn ->
-          {:ok, %{parent_lv_process: LvProcessQueries.get_lv_process_with_retries(pid)}}
-        end)
-    end
   end
 end

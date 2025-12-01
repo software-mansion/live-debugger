@@ -76,7 +76,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex-1 max-w-full flex flex-col gap-4">
+    <div class="flex-1 w-full flex flex-col gap-4">
       <.async_result :let={{_node_assigns, term_node, copy_string}} assign={@node_assigns_info}>
         <:loading>
           <NodeStateComponents.loading />

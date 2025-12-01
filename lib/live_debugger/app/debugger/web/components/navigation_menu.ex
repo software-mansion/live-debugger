@@ -11,8 +11,11 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
   attr(:current_url, :any, required: true)
+  attr(:return_link, :any, required: true, doc: "Link to navigate to.")
 
-  def sidebar(assigns) do
+  slot(:inspect_button)
+
+  def navbar(assigns) do
     assigns =
       assign(assigns,
         pid: get_pid(assigns.current_url),
@@ -21,24 +24,39 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
 
     ~H"""
     <div class={[
-      "flex flex-col gap-3 bg-sidebar-bg shadow-custom h-full p-2 border-r border-default-border"
+      "flex flex-row gap-3 bg-sidebar-bg shadow-custom w-full h-max px-2 border-default-border items-center"
       | List.wrap(@class)
     ]}>
-      <.tooltip id="node-inspector-tooltip" position="right" content="Node Inspector">
-        <.link patch={RoutesHelper.debugger_node_inspector(@pid)}>
-          <.nav_icon icon="icon-info" selected?={@current_view == "node_inspector"} />
-        </.link>
-      </.tooltip>
-      <.tooltip id="global-traces-tooltip" position="right" content="Global Callbacks">
-        <.link patch={RoutesHelper.debugger_global_traces(@pid)}>
-          <.nav_icon icon="icon-globe" selected?={@current_view == "global_traces"} />
-        </.link>
-      </.tooltip>
-      <.tooltip id="resources-tooltip" position="right" content="Resources">
-        <.link patch={RoutesHelper.debugger_resources(@pid)}>
-          <.nav_icon icon="icon-chart-line" selected?={@current_view == "resources"} />
-        </.link>
-      </.tooltip>
+      <%= render_slot(@inspect_button) %>
+      <div id="visible-items" class="flex flex-row gap-3">
+        <.navbar_item
+          id="node-inspector-navbar-item"
+          content="Node Inspector"
+          patch={RoutesHelper.debugger_node_inspector(@pid)}
+          icon="icon-info"
+          selected?={@current_view == "node_inspector"}
+        />
+
+        <.navbar_item
+          id="global-traces-navbar-item"
+          content="Global Callbacks"
+          patch={RoutesHelper.debugger_global_traces(@pid)}
+          icon="icon-globe"
+          selected?={@current_view == "global_traces"}
+        />
+      </div>
+
+      <.dropdown return_link={@return_link} current_url={@current_url} class="sm:hidden" />
+
+      <div id="hidden-items" class="hidden sm:flex flex-row gap-3">
+        <.navbar_item
+          id="resources-navbar-item"
+          content="Resources"
+          patch={RoutesHelper.debugger_resources(@pid)}
+          icon="icon-chart-line"
+          selected?={@current_view == "resources"}
+        />
+      </div>
     </div>
     """
   end
@@ -55,27 +73,25 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
       )
 
     ~H"""
-    <.live_component module={LiveDropdown} id="navigation-bar-dropdown" class={@class}>
-      <:button>
-        <.nav_icon icon="icon-menu-hamburger" />
+    <.live_component
+      module={LiveDropdown}
+      id="navigation-bar-dropdown"
+      class={@class}
+      direction={:bottom_left}
+    >
+      <:button :let={open}>
+        <.nav_icon
+          icon="icon-chevrons-right"
+          icon_class={[
+            "w-5! h-5! text-secondary-text hover:text-navbar-selected-bg",
+            open && "!text-navbar-selected-bg",
+            @current_view == "resources" &&
+              "!text-navbar-selected-bg"
+          ]}
+          class={open && "text-navbar-icon bg-navbar-icon-bg-hover"}
+        />
       </:button>
       <div class="min-w-44 flex flex-col p-1">
-        <.link patch={@return_link}>
-          <.dropdown_item icon="icon-arrow-left" label="Back to Home" />
-        </.link>
-        <span class="w-full border-b border-default-border my-1"></span>
-        <.dropdown_item
-          icon="icon-info"
-          label="Node Inspector"
-          selected?={@current_view == "node_inspector"}
-          phx-click={dropdown_item_click(RoutesHelper.debugger_node_inspector(@pid))}
-        />
-        <.dropdown_item
-          icon="icon-globe"
-          label="Global Callbacks"
-          selected?={@current_view == "global_traces"}
-          phx-click={dropdown_item_click(RoutesHelper.debugger_global_traces(@pid))}
-        />
         <.dropdown_item
           icon="icon-chart-line"
           label="Resources"
@@ -96,8 +112,8 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
     ~H"""
     <div
       class={[
-        "flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer",
-        if(@selected?, do: "bg-surface-0-bg-hover font-semibold")
+        "flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer text-secondary-text font-medium",
+        if(@selected?, do: "bg-surface-0-bg-hover font-semibold !text-navbar-selected-bg")
       ]}
       {@rest}
     >
@@ -114,7 +130,35 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
     |> JS.push("close", target: "#navigation-bar-dropdown-live-dropdown-container")
   end
 
-  defp get_current_view(url) do
+  attr(:id, :string, required: true)
+  attr(:patch, :string, required: true)
+  attr(:icon, :string, required: true)
+  attr(:selected?, :boolean, default: false)
+  attr(:content, :string, required: true)
+
+  def navbar_item(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      class={[
+        "w-max pb-0.5 pt-2 text-secondary-text border-b-2 border-transparent",
+        @selected? && "!border-navbar-selected-bg !text-navbar-selected-bg"
+      ]}
+    >
+      <.link patch={@patch}>
+        <div class="flex flex-row items-center justify-center w-full mt-1 mb-2">
+          <.icon name={@icon} class="h-4 w-4" />
+
+          <span class="text-xs font-medium text-center pl-1">
+            {@content}
+          </span>
+        </div>
+      </.link>
+    </div>
+    """
+  end
+
+  def get_current_view(url) do
     URL.take_nth_segment(url, 3) || "node_inspector"
   end
 

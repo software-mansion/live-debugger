@@ -72,9 +72,13 @@ module.exports = {
         'diff-border': 'var(--diff-border)',
         'diff-negative-bg': 'var(--diff-negative-bg)',
         'diff-positive-bg': 'var(--diff-positive-bg)',
+        'monitored-pid-bg': 'var(--monitored-pid-bg)',
+        'disconnected-bg': 'var(--disconnected-bg)',
+        'disconnected-text': 'var(--disconnected-text)',
         'status-dot-success-bg': 'var(--status-dot-success-bg)',
         'status-dot-warning-bg': 'var(--status-dot-warning-bg)',
         'status-dot-error-bg': 'var(--status-dot-error-bg)',
+        'navbar-selected-bg': 'var(--navbar-selected-bg)',
       },
       screens: { xs: '380px' },
       fontFamily: {

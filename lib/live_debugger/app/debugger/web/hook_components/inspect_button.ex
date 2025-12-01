@@ -30,14 +30,19 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
     assigns = assign(assigns, :disabled?, !assigns.lv_process.alive?)
 
     ~H"""
-    <.tooltip id="inspect-button-tooltip" position="bottom" content="Inspect element on the page">
-      <.nav_icon
-        icon="icon-inspect"
-        selected?={@inspect_mode?}
-        phx-click="switch-inspect-mode"
-        disabled?={@disabled?}
-      />
-    </.tooltip>
+    <div class="flex items-center pr-1">
+      <div class="border-r-2 border-default-border pr-2">
+        <.tooltip id="inspect-button-tooltip" position="bottom" content="Inspect element on the page">
+          <.nav_icon
+            icon="icon-inspect"
+            selected?={@inspect_mode?}
+            phx-click="switch-inspect-mode"
+            disabled?={@disabled?}
+            icon_class="!w-5 !h-5"
+          />
+        </.tooltip>
+      </div>
+    </div>
     """
   end
 
@@ -75,9 +80,19 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
     end
   end
 
+  defp handle_info(:switch_inspect_mode, socket) do
+    switch_inspect_mode(socket)
+  end
+
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp handle_event("switch-inspect-mode", _, socket) do
+    switch_inspect_mode(socket)
+  end
+
+  defp handle_event(_, _, socket), do: {:cont, socket}
+
+  defp switch_inspect_mode(socket) do
     Client.push_event!(socket.assigns.root_socket_id, "inspect-mode-changed", %{
       inspect_mode: !socket.assigns.inspect_mode?,
       pid: inspect(self())
@@ -87,6 +102,4 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
     |> assign(:inspect_mode?, !socket.assigns.inspect_mode?)
     |> halt()
   end
-
-  defp handle_event(_, _, socket), do: {:cont, socket}
 end
