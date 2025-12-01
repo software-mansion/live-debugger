@@ -13,7 +13,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
 
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+
+  alias Phoenix.LiveView.AsyncResult
 
   @doc """
   Renders the `NodeStateLive` as a nested LiveView component.
@@ -89,6 +92,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
           assigns_sizes={@assigns_sizes}
           pinned_assigns={@pinned_assigns}
           assigns_search_phrase={@assigns_search_phrase}
+          node_assigns_status={assigns_status(@lv_process, @node_assigns_info)}
         />
         <HookComponents.AssignsHistory.render
           current_history_index={@current_history_index}
@@ -131,5 +135,16 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> noreply()
   end
 
+  def handle_info(%DeadViewModeEntered{}, socket) do
+    socket
+    |> assign(:lv_process, LvProcess.set_alive(socket.assigns.lv_process, false))
+    |> noreply()
+  end
+
   def handle_info(_, socket), do: {:noreply, socket}
+
+  defp assigns_status(%LvProcess{alive?: false}, _), do: :disconnected
+  defp assigns_status(_, %AsyncResult{loading: [stage: :update]}), do: :updating
+  defp assigns_status(_, %AsyncResult{ok?: true}), do: :loaded
+  defp assigns_status(_, _), do: :error
 end

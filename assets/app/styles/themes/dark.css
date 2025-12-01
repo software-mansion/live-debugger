@@ -92,5 +92,9 @@
     --diff-pulse-text: var(--gray-900);
     --diff-negative-bg: var(--red-900);
     --diff-positive-bg: rgb(from var(--swm-green-100) r g b / 0.3);
+
+    --status-dot-success-bg: var(--swm-green-100);
+    --status-dot-warning-bg: var(--swm-yellow-100);
+    --status-dot-error-bg: var(--swm-pink-100);
   }
 }
