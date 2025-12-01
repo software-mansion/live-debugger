@@ -5,7 +5,6 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   use LiveDebugger.App.Web, :live_component
 
-  alias LiveDebugger.App.Debugger.Web.Components, as: DebuggerComponents
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
   alias LiveDebugger.App.Utils.Parsers
