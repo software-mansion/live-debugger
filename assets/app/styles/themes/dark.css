@@ -96,9 +96,11 @@
     --monitored-pid-bg: var(--swm-green-60);
     --disconnected-bg: var(--swm-pink-60);
     --disconnected-text: var(--slate-900);
-    
+
     --status-dot-success-bg: var(--swm-green-100);
     --status-dot-warning-bg: var(--swm-yellow-100);
     --status-dot-error-bg: var(--swm-pink-100);
+    
+    --navbar-selected-bg: var(--swm-sea-blue-60);
   }
 }

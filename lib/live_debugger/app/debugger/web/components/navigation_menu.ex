@@ -83,10 +83,10 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
         <.nav_icon
           icon="icon-chevrons-right"
           icon_class={[
-            "w-5! h-5! text-secondary-text hover:text-navbar-icon",
-            open && "!text-navbar-icon",
+            "w-5! h-5! text-secondary-text hover:text-navbar-selected-bg",
+            open && "!text-navbar-selected-bg",
             @current_view == "resources" &&
-              "!text-navbar-icon-hover"
+              "!text-navbar-selected-bg"
           ]}
           class={open && "text-navbar-icon bg-navbar-icon-bg-hover"}
         />
@@ -113,7 +113,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
     <div
       class={[
         "flex gap-1.5 p-2 rounded items-center w-full hover:bg-surface-0-bg-hover cursor-pointer text-secondary-text font-medium",
-        if(@selected?, do: "bg-surface-0-bg-hover font-semibold !text-button-secondary-content")
+        if(@selected?, do: "bg-surface-0-bg-hover font-semibold !text-navbar-selected-bg")
       ]}
       {@rest}
     >
@@ -142,7 +142,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
       id={@id}
       class={[
         "w-max pb-0.5 pt-2 text-secondary-text border-b-2 border-transparent",
-        @selected? && "!border-button-secondary-content !text-button-secondary-content"
+        @selected? && "!border-navbar-selected-bg !text-navbar-selected-bg"
       ]}
     >
       <.link patch={@patch}>

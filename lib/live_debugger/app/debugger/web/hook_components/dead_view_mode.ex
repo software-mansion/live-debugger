@@ -50,8 +50,9 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
         <div
           id={@id}
           class={[
-            "flex items-center gap-1 text-xs text-primary ml-1 rounded-xl py-1 px-2 w-max bg-disconnected-bg text-disconnected-text",
-            @connected? && "bg-monitored-pid-bg"
+            "flex items-center gap-1 text-xs text-primary ml-1 rounded-xl py-1 px-2 w-max text-disconnected-text",
+            @connected? && "bg-monitored-pid-bg",
+            !@connected? && "bg-disconnected-bg"
           ]}
         >
           <.status_icon connected?={@connected?} />

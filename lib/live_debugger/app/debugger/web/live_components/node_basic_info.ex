@@ -40,7 +40,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
             <p>Couldn't load basic information about the node.</p>
           </.alert>
         </:failed>
-        <div class="flex flex-row gap-8 w-max">
+        <div class="flex flex-row gap-8 w-max max-sm:flex-col">
           <div class="w-full flex flex-col gap-1">
             <span class="font-medium">Type:</span>
             <span><%= @node_type %></span>
@@ -52,7 +52,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               <.tooltip
                 id={@id <> "-current-node-module"}
                 content={node_module}
-                class="max-sm:max-w-[180px] max-sm:truncate"
+                class="max-sm:max-w-[260px] max-sm:truncate"
               >
                 <%= node_module %>
               </.tooltip>

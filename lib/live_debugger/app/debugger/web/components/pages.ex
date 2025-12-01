@@ -46,7 +46,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
         lv_process={@lv_process}
       />
 
-      <div class="flex flex-col w-full gap-4 p-8 overflow-y-auto">
+      <div class="flex flex-col max-w-screen-2xl w-full gap-4 p-8 overflow-y-auto">
         <.live_component
           module={NodeBasicInfo}
           id="node-inspector-basic-info"

@@ -78,6 +78,7 @@ module.exports = {
         'status-dot-success-bg': 'var(--status-dot-success-bg)',
         'status-dot-warning-bg': 'var(--status-dot-warning-bg)',
         'status-dot-error-bg': 'var(--status-dot-error-bg)',
+        'navbar-selected-bg': 'var(--navbar-selected-bg)',
       },
       screens: { xs: '380px' },
       fontFamily: {
