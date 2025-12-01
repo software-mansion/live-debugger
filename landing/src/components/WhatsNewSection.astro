@@ -6,21 +6,27 @@ import { SquareCheckBig } from "lucide-react";
 
 const newsBlocks = [
   {
-    title: "Better LiveView successor discovery",
+    title: "Improved asssigns inspections and tracking",
     description:
-      "Improved tracking of LiveView processes when they’re replaced due to actions like page reloads or errors, ensuring smoother debugging transitions.",
+      "The Assigns inspector is now faster, smoother, and lets you browse the full history of each assign, see exactly how values changed over time, pin important assigns to keep them always visible & inspect state size measurements to catch heavy structures early.",
     icon: SquareCheckBig,
   },
   {
-    title: "Inspecting HTML elements",
+    title: "LiveView Resource Usage Page",
     description:
-      "Users can right-click on an HTML element and select “Inspect LiveElement” to identify which LiveView or LiveComponent is responsible for rendering it.",
+      "We added an entirely new page that shows resource consumption of your LiveView processes. This is a simple way to keep track of how your LiveViews behave behind the scenes.",
     icon: SquareCheckBig,
   },
   {
-    title: "Search in callback traces",
+    title: "Async loading & Stream debugging",
     description:
-      "Adds a search option that lets users find specific text or phrases within callback traces, making it easier to navigate and analyze complex data flows.",
+      "v0.5.0 brings support for even more LiveView features, like async assigns and stream operations. This gives you deeper insight into LiveView internals than ever before.",
+    icon: SquareCheckBig,
+  },
+  {
+    title: "Dead LiveViews",
+    description:
+      "LiveDebugger can now show recently crashed LiveViews, making debugging those tricky failure cases a whole lot easier.",
     icon: SquareCheckBig,
   },
 ];
@@ -39,7 +45,7 @@ const newsBlocks = [
       >
       <h2 class="text-primary text-center text-2xl font-bold">What’s new</h2>
       <h3 class="font-regular text-lg">
-        Highlights from the August 2025 update.
+        Highlights from the December 2025 update.
       </h3>
     </div>
 
@@ -55,7 +61,9 @@ const newsBlocks = [
       </iframe>
     </div>
 
-    <div class="flex w-full justify-between gap-x-8 gap-y-6 max-md:flex-col">
+    <div
+      class={`w-full gap-x-8 gap-y-6 ${newsBlocks.length > 3 ? "grid grid-cols-1 md:grid-cols-2" : "flex justify-between max-md:flex-col"}`}
+    >
       {
         newsBlocks.map((block) => {
           const Icon = block.icon;
