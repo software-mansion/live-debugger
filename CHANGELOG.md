@@ -1,5 +1,63 @@
 # Changelog
 
+## 0.5.0 (2025-12-01)
+
+### Features
+  * Calculate assigns size in [#795](https://github.com/software-mansion/live-debugger/pull/795)
+  * Trace diffs sent to browser by in [#801](https://github.com/software-mansion/live-debugger/pull/801)
+  * Add dead LiveViews section by in [#798](https://github.com/software-mansion/live-debugger/pull/798)
+  * Add resources page  in [#820](https://github.com/software-mansion/live-debugger/pull/820)
+  * Add history of assigns in [#845](https://github.com/software-mansion/live-debugger/pull/845)
+  * Async loading support in [#851](https://github.com/software-mansion/live-debugger/pull/851)
+  * Add streams section in [#817](https://github.com/software-mansion/live-debugger/pull/817)
+
+### Bug fixes
+  * Fix appearance buttons in settings are not synchronized across tabs in [#736](https://github.com/software-mansion/live-debugger/pull/736)
+  * Settings switch wrong state when clicking fast in [#758](https://github.com/software-mansion/live-debugger/pull/758)
+  * Debugger LiveViews state saved among debugged LiveViews in [#785](https://github.com/software-mansion/live-debugger/pull/785)
+  * change position of the searchbar in fullscreen assigns in [#796](https://github.com/software-mansion/live-debugger/pull/796)
+  * Fix search in assigns in [#812](https://github.com/software-mansion/live-debugger/pull/812)
+  * Fix flaky e2e test in [#819](https://github.com/software-mansion/live-debugger/pull/819)
+  * fix error alert in traces in [#852](https://github.com/software-mansion/live-debugger/pull/852)
+  * Fix sending events from browser in [#853](https://github.com/software-mansion/live-debugger/pull/853)
+  * Fix assigns change pulse in [#854](https://github.com/software-mansion/live-debugger/pull/854)
+  * fix sending obsolete event on clicking in LiveDebugger in [#863](https://github.com/software-mansion/live-debugger/pull/863)
+  * remove LiveDebugger warnings on production in [#862](https://github.com/software-mansion/live-debugger/pull/862)
+  * not displaying error in async jobs for dead LiveView in [#866](https://github.com/software-mansion/live-debugger/pull/866)
+
+### Enhancements
+  * Add option to disable debug button in [#750](https://github.com/software-mansion/live-debugger/pull/750)
+  * Add setting for tracing enabled no start in [#752](https://github.com/software-mansion/live-debugger/pull/752)
+  * Search in assigns in [#755](https://github.com/software-mansion/live-debugger/pull/755)
+  * Extend `GarbageCollector` in [#766](https://github.com/software-mansion/live-debugger/pull/766)
+  * Add diffing functionality in [#761](https://github.com/software-mansion/live-debugger/pull/761)
+  * Improve Assigns section performance in [#799](https://github.com/software-mansion/live-debugger/pull/799)
+  * async calculation assigns sizes in [#810](https://github.com/software-mansion/live-debugger/pull/810)
+  * Add search for callback traces in node inspector in [#814](https://github.com/software-mansion/live-debugger/pull/814)
+  * Remove Trace body from DOM on collapsible close in [#818](https://github.com/software-mansion/live-debugger/pull/818)
+  * Add pulse on assign change in [#822](https://github.com/software-mansion/live-debugger/pull/822)
+  * Add ability to track specific assigns in [#824](https://github.com/software-mansion/live-debugger/pull/824)
+  * Update Active LiveViews page in [#858](https://github.com/software-mansion/live-debugger/pull/858)
+  * added status dot for indicating that assigns are loading in [#864](https://github.com/software-mansion/live-debugger/pull/864)
+  * Add chevrons to sections in node inspector in [#867](https://github.com/software-mansion/live-debugger/pull/867)
+
+### Other
+  * Refactor: Add garbage collection to settings and remove config from settings storage in [#734](https://github.com/software-mansion/live-debugger/pull/734)
+  * Refactor: unify traces on the UI in [#813](https://github.com/software-mansion/live-debugger/pull/813)
+  * Refactor: unify trace data structures in [#815](https://github.com/software-mansion/live-debugger/pull/815)
+  * Refactor: update tracing action buttons in [#844](https://github.com/software-mansion/live-debugger/pull/844)
+  * Refactor: Update layout of LiveDebugger in [#859](https://github.com/software-mansion/live-debugger/pull/859)
+  * Refactor: Change components to better match designs in [#735](https://github.com/software-mansion/live-debugger/pull/735)
+  * Refactor: remove config flags in [#746](https://github.com/software-mansion/live-debugger/pull/746)
+  * Docs: Move config guide from README.md to HexDocs in [#744](https://github.com/software-mansion/live-debugger/pull/744)
+  * Docs: Improved deprecation info for Process API in [#768](https://github.com/software-mansion/live-debugger/pull/768)
+  * Docs: add website urls in [#843](https://github.com/software-mansion/live-debugger/pull/843)
+  * Chore: bump elixir to 1.19 in [#811](https://github.com/software-mansion/live-debugger/pull/811)
+  * Chore: bump wallaby in [#821](https://github.com/software-mansion/live-debugger/pull/821)
+  * Tests: Remove `live_debugger_refactor` directory in [#800](https://github.com/software-mansion/live-debugger/pull/800)
+  * Tests: Remove flaky case from e2e test in [#847](https://github.com/software-mansion/live-debugger/pull/847)
+  * Add EndlessCrashLoop LiveView to devApp in [#739](https://github.com/software-mansion/live-debugger/pull/739)
+
 ## 0.4.3 (2025-11-05)
 
 ### Bug fixes
