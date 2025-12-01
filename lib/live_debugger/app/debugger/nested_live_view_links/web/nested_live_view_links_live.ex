@@ -69,8 +69,8 @@ defmodule LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksL
     ~H"""
     <div class="w-full px-4 pt-4 pb-5 gap-3 flex flex-col border-b border-default-border mt-1 z">
       <.async_result :let={parent_lv_process} assign={@parent_lv_process}>
-        <p class="pl-2 shrink-0 font-medium text-secondary-text pb-1 pt-1">
-          <%= if !parent_lv_process, do: "No parent LiveView", else: "Parent LiveView" %>
+        <p :if={parent_lv_process} class="pl-2 shrink-0 font-medium text-secondary-text pb-1 pt-1">
+          Parent LiveView
         </p>
         <div :if={parent_lv_process} class="pl-2 flex flex-col gap-1">
           <DebuggerComponents.live_view_link
