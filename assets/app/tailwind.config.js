@@ -75,6 +75,9 @@ module.exports = {
         'monitored-pid-bg': 'var(--monitored-pid-bg)',
         'disconnected-bg': 'var(--disconnected-bg)',
         'disconnected-text': 'var(--disconnected-text)',
+        'status-dot-success-bg': 'var(--status-dot-success-bg)',
+        'status-dot-warning-bg': 'var(--status-dot-warning-bg)',
+        'status-dot-error-bg': 'var(--status-dot-error-bg)',
       },
       screens: { xs: '380px' },
       fontFamily: {
