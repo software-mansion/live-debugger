@@ -3,7 +3,7 @@ import { InlineCodeBlock } from "./InlineCodeBlock";
 
 const mixCode1 = `defp deps do
   [
-    {:live_debugger, "~> 0.4.0", only: :dev}
+    {:live_debugger, "~> 0.5.0", only: :dev}
   ]
 end`;
 
