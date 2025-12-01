@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.3 (2025-11-05)
+
+### Bug fixes
+  * Fix highlighting with embedded LiveViews [#797](https://github.com/software-mansion/live-debugger/pull/797)
+
+### Enhancements
+  * Route to same page after redirect to new process [#803](https://github.com/software-mansion/live-debugger/pull/803)
+  * Add features page to docs [#829](https://github.com/software-mansion/live-debugger/pull/829)
+
+## 0.4.2 (2025-10-09)
+
+### Bug fixes
+  * Fix crash when refreshing during callback execution in [#760](https://github.com/software-mansion/live-debugger/pull/760)
+  * Explicit formats in SocketDiscoveryController in [#754](https://github.com/software-mansion/live-debugger/pull/754)
+  * Fix positioning of return arrow in [#788](https://github.com/software-mansion/live-debugger/pull/788)
+  * Fix highlighting LiveViews in LiveComponents in [#725](https://github.com/software-mansion/live-debugger/pull/725)
+  * Add phoenix ~> 1.7 dep in [#791](https://github.com/software-mansion/live-debugger/pull/791)
+
 ## 0.4.1 (2025-09-09)
 
 ### Bug fixes
