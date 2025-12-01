@@ -44,6 +44,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
         return_link={@return_link}
         inspect_mode?={@inspect_mode?}
         lv_process={@lv_process}
+        dropdown_id="node-inspector"
       />
 
       <div class="flex flex-col max-w-screen-2xl w-full gap-4 p-8 overflow-y-auto">
@@ -144,6 +145,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
         return_link={@return_link}
         inspect_mode?={@inspect_mode?}
         lv_process={@lv_process}
+        dropdown_id="resources"
       />
 
       <ResourcesLive.live_render
@@ -160,6 +162,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   attr(:return_link, :string, required: true)
   attr(:inspect_mode?, :boolean, required: true)
   attr(:lv_process, LvProcess, required: true)
+  attr(:dropdown_id, :string, required: true)
 
   def navbar_menu(assigns) do
     ~H"""
@@ -167,6 +170,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
       class="w-full border-b margin-0"
       current_url={@url}
       return_link={@return_link}
+      dropdown_id={@dropdown_id}
     >
       <:inspect_button>
         <HookComponents.InspectButton.render inspect_mode?={@inspect_mode?} lv_process={@lv_process} />
