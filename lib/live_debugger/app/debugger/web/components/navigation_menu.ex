@@ -10,9 +10,9 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
   alias Phoenix.LiveView.JS
 
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
-  attr(:current_url, :any, required: true)
-  attr(:return_link, :any, required: true, doc: "Link to navigate to.")
-  attr(:dropdown_id, :any, required: true)
+  attr(:current_url, :string, required: true)
+  attr(:return_link, :string, required: true, doc: "Link to navigate to.")
+  attr(:dropdown_id, :string, required: true)
 
   slot(:inspect_button)
 
@@ -103,7 +103,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
           icon="icon-chart-line"
           label="Resources"
           selected?={@current_view == "resources"}
-          phx-click={dropdown_item_click(RoutesHelper.debugger_resources(@pid))}
+          phx-click={dropdown_item_click(RoutesHelper.debugger_resources(@pid), @id)}
         />
       </div>
     </.live_component>
@@ -131,10 +131,10 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
   end
 
   # We do it to make sure that the dropdown is closed when the item is clicked.
-  defp dropdown_item_click(url) do
+  defp dropdown_item_click(url, id) do
     url
     |> JS.patch()
-    |> JS.push("close", target: "#navigation-bar-dropdown-live-dropdown-container")
+    |> JS.push("close", target: "##{id}-navigation-bar-dropdown-live-dropdown-container")
   end
 
   attr(:id, :string, required: true)

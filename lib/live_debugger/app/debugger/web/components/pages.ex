@@ -162,7 +162,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   attr(:return_link, :string, required: true)
   attr(:inspect_mode?, :boolean, required: true)
   attr(:lv_process, LvProcess, required: true)
-  attr(:dropdown_id, :any, required: true)
+  attr(:dropdown_id, :string, required: true)
 
   def navbar_menu(assigns) do
     ~H"""
