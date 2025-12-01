@@ -123,6 +123,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
         return_link={@return_link}
         inspect_mode?={@inspect_mode?}
         lv_process={@lv_process}
+        dropdown_id="global-traces"
       />
       <div class="grow p-8 overflow-y-auto scrollbar-main">
         <div class="w-full min-w-[25rem] max-w-screen-2xl mx-auto">

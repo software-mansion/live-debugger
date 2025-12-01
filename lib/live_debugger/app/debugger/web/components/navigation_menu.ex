@@ -12,6 +12,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
   attr(:current_url, :any, required: true)
   attr(:return_link, :any, required: true, doc: "Link to navigate to.")
+  attr(:dropdown_id, :any, required: true)
 
   slot(:inspect_button)
 
@@ -46,7 +47,12 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
         />
       </div>
 
-      <.dropdown return_link={@return_link} current_url={@current_url} class="sm:hidden" />
+      <.dropdown
+        return_link={@return_link}
+        current_url={@current_url}
+        class="sm:hidden"
+        id={@dropdown_id}
+      />
 
       <div id="hidden-items" class="hidden sm:flex flex-row gap-3">
         <.navbar_item
@@ -64,6 +70,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
   attr(:class, :any, default: nil, doc: "Additional classes to add to the navigation bar.")
   attr(:return_link, :any, required: true, doc: "Link to navigate to.")
   attr(:current_url, :any, required: true)
+  attr(:id, :string, required: true)
 
   def dropdown(assigns) do
     assigns =
@@ -75,7 +82,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
     ~H"""
     <.live_component
       module={LiveDropdown}
-      id="navigation-bar-dropdown"
+      id={"#{@id}-navigation-bar-dropdown"}
       class={@class}
       direction={:bottom_left}
     >
