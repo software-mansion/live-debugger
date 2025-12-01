@@ -8,6 +8,14 @@ defmodule LiveDebugger.E2E.StreamsTest do
     :ok
   end
 
+  setup %{sessions: [_dev_app, debugger]} do
+    debugger
+    |> visit("/")
+    |> set_collapsible_open_state("streams-section-container", "true")
+
+    :ok
+  end
+
   @sessions 2
   feature "User can see modifications of the stream updates", %{
     sessions: [dev_app, debugger]
@@ -122,7 +130,27 @@ defmodule LiveDebugger.E2E.StreamsTest do
     debugger
     |> visit("/")
     |> click(first_link())
-    |> refute_has(streams_section())
+    |> refute_has(streams_display())
+  end
+
+  @sessions 2
+  feature "collapsible state stays after navigation", %{
+    sessions: [dev_app, debugger]
+  } do
+    dev_app
+    |> visit(@dev_app_url <> "/stream")
+
+    debugger
+    |> visit("/")
+    |> click(first_link())
+    |> assert_has(streams_display())
+    |> click(streams_collapsible())
+    |> refute_has(streams_display())
+    |> visit("/")
+    |> click(first_link())
+    |> refute_has(streams_display())
+    |> click(streams_collapsible())
+    |> assert_has(streams_display())
   end
 
   defp component_tree_node(cid), do: css("#button-tree-node-#{cid}-components-tree")
@@ -133,7 +161,8 @@ defmodule LiveDebugger.E2E.StreamsTest do
   defp delete_item_button(), do: css("button#delete-item")
   defp add_new_stream_button(), do: css("button#add-new-stream")
 
-  defp streams_section(), do: css("#streams-section-container")
+  defp streams_display(), do: css("#streams-display-container")
+  defp streams_collapsible(), do: css("summary#streams-section-container-summary")
 
   defp node_module_info(text),
     do: css("#node-inspector-basic-info-current-node-module", text: text)
@@ -146,4 +175,14 @@ defmodule LiveDebugger.E2E.StreamsTest do
   defp items_stream(opts), do: css("#items-stream details", opts)
   defp another_items_stream(opts), do: css("#another_items-stream details", opts)
   defp component_items_stream(opts), do: css("#component_items-stream details", opts)
+
+  defp set_collapsible_open_state(debugger, section_id, state) do
+    debugger
+    |> execute_script(
+      """
+      localStorage.setItem(`collapsible-open-${arguments[0]}`, arguments[1])
+      """,
+      [section_id, state]
+    )
+  end
 end

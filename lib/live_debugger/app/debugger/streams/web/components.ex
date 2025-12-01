@@ -26,18 +26,22 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
     """
   end
 
+  attr(:id, :string, required: true)
   slot(:display, required: true)
 
   def streams_section(assigns) do
     ~H"""
-    <div id="streams_section-container">
-      <.section id="streams" class="h-max overflow-y-hidden" title="Streams">
-        <:right_panel>
-          <.streams_info_tooltip id="stream-info" />
-        </:right_panel>
-        <%= render_slot(@display) %>
-      </.section>
-    </div>
+    <.collapsible_section
+      id={@id}
+      class="h-max overflow-y-hidden"
+      title="Streams"
+      save_state_in_browser={true}
+    >
+      <:right_panel>
+        <.streams_info_tooltip id="stream-info" />
+      </:right_panel>
+      <%= render_slot(@display) %>
+    </.collapsible_section>
     """
   end
 

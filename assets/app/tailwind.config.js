@@ -118,6 +118,14 @@ module.exports = {
           },
           '100%': { backgroundColor: '', color: '' },
         },
+        sectionPulse: {
+          '0%': {
+            boxShadow: '0 0 10px var(--diff-pulse-bg)',
+          },
+          '100%': {
+            boxShadow: '0 0 0px var(--diff-pulse-bg)',
+          },
+        },
       },
       animation: {
         'fade-out': 'fadeOut 200ms ease-out forwards',
@@ -125,6 +133,7 @@ module.exports = {
         'fade-in': 'fadeIn 100ms ease-in forwards',
         'fade-in-mobile': 'fadeInMobile 100ms ease-in forwards',
         'diff-pulse': 'diffPulse 500ms ease-out',
+        'section-pulse': 'sectionPulse 500ms ease-out',
       },
     },
   },
