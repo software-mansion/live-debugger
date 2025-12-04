@@ -145,14 +145,14 @@ defmodule LiveDebugger.App.Utils.Parsers do
   end
 
   defp apply_timezone_diff({:ok, timestamp}) do
-    {:ok, DateTime.add(timestamp, get_utc_difference_in_seconds(), :second)}
+    {:ok, DateTime.add(timestamp, get_utc_difference_in_minutes(), :minute)}
   end
 
   defp apply_timezone_diff(error), do: error
 
-  def get_utc_difference_in_seconds do
-    local = NaiveDateTime.local_now()
-    utc = DateTime.utc_now() |> DateTime.to_naive()
-    NaiveDateTime.diff(local, utc)
+  def get_utc_difference_in_minutes do
+    DateTime.utc_now()
+    |> DateTime.to_naive()
+    |> NaiveDateTime.diff(NaiveDateTime.local_now(), :minute)
   end
 end
