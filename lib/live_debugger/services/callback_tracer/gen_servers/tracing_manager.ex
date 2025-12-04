@@ -6,7 +6,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   use GenServer
 
   alias LiveDebugger.Bus
-  alias LiveDebugger.App.Events.UserChangedSettings
   alias LiveDebugger.App.Events.UserRefreshedTrace
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
 
@@ -41,20 +40,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   @impl true
   def handle_info(:setup_tracing, state) do
     TracingActions.setup_tracing!()
-
-    {:noreply, state}
-  end
-
-  @impl true
-  def handle_info(%UserChangedSettings{key: :tracing_update_on_code_reload, value: true}, state) do
-    TracingActions.start_tracing_recompile_pattern()
-
-    {:noreply, state}
-  end
-
-  @impl true
-  def handle_info(%UserChangedSettings{key: :tracing_update_on_code_reload, value: false}, state) do
-    TracingActions.stop_tracing_recompile_pattern()
 
     {:noreply, state}
   end
