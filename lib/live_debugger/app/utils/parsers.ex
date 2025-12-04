@@ -36,16 +36,17 @@ defmodule LiveDebugger.App.Utils.Parsers do
   ## Examples
 
       iex> LiveDebugger.App.Utils.Parsers.parse_timestamp(1_000_000)
-      "00:00:01.000000"
+      "00:00:01"
   """
   @spec parse_timestamp(non_neg_integer()) :: String.t()
   def parse_timestamp(timestamp) when is_integer(timestamp) and timestamp > 0 do
     timestamp
     |> DateTime.from_unix(:microsecond)
+    |> apply_timezone_diff()
     |> case do
-      {:ok, %DateTime{hour: hour, minute: minute, second: second, microsecond: {micro, _}}} ->
-        "~2..0B:~2..0B:~2..0B.~6..0B"
-        |> :io_lib.format([hour, minute, second, micro])
+      {:ok, %DateTime{hour: hour, minute: minute, second: second}} ->
+        "~2..0B:~2..0B:~2..0B"
+        |> :io_lib.format([hour, minute, second])
         |> IO.iodata_to_binary()
 
       _ ->
@@ -141,5 +142,17 @@ defmodule LiveDebugger.App.Utils.Parsers do
     module
     |> Module.split()
     |> Enum.join(".")
+  end
+
+  defp apply_timezone_diff({:ok, timestamp}) do
+    {:ok, DateTime.add(timestamp, get_utc_difference_in_seconds(), :second)}
+  end
+
+  defp apply_timezone_diff(error), do: error
+
+  def get_utc_difference_in_seconds do
+    local = NaiveDateTime.local_now()
+    utc = DateTime.utc_now() |> DateTime.to_naive()
+    NaiveDateTime.diff(local, utc)
   end
 end
