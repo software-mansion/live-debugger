@@ -3,6 +3,10 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
 
   import Mox
 
+  # These params are defined here to prevent errors associated with String.to_existing_atom/1
+  @live_view_module :"Elixir.TracingTestLiveView"
+  @live_component_module :"Elixir.TracingTestLiveComponent"
+
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIModule
@@ -92,6 +96,62 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       expect(MockAPIDbg, :trace_pattern, 19, fn _, _ -> :ok end)
 
       assert :ok = TracingActions.refresh_tracing()
+    end
+  end
+
+  describe "refresh_tracing/1" do
+    test "refreshes tracing for a LiveView module" do
+      MockAPIModule
+      |> expect(:loaded?, fn @live_view_module -> true end)
+      |> expect(:live_module?, fn @live_view_module -> true end)
+      |> stub(:behaviours, fn @live_view_module -> [Phoenix.LiveView] end)
+
+      MockAPIDbg
+      |> expect(:trace_pattern, 18, fn _, _ -> :ok end)
+
+      assert :ok = TracingActions.refresh_tracing("/app/ebin/Elixir.TracingTestLiveView.beam")
+    end
+
+    test "refreshes tracing for a LiveComponent module" do
+      MockAPIModule
+      |> expect(:loaded?, fn @live_component_module -> true end)
+      |> expect(:live_module?, fn @live_component_module -> true end)
+      |> stub(:behaviours, fn @live_component_module -> [Phoenix.LiveComponent] end)
+
+      MockAPIDbg
+      |> expect(:trace_pattern, 12, fn _, _ -> :ok end)
+
+      assert :ok =
+               TracingActions.refresh_tracing("/app/ebin/Elixir.TracingTestLiveComponent.beam")
+    end
+
+    test "does nothing when path is not a .beam file" do
+      assert :ok = TracingActions.refresh_tracing("/app/lib/test_module.ex")
+      assert :ok = TracingActions.refresh_tracing("/app/lib/test_module.exs")
+      assert :ok = TracingActions.refresh_tracing("/app/lib/test_module")
+    end
+
+    test "does nothing when module is a debugger module" do
+      MockAPIModule
+      |> expect(:loaded?, fn LiveDebugger.Bus -> true end)
+
+      assert :ok = TracingActions.refresh_tracing("/app/ebin/Elixir.LiveDebugger.Bus.beam")
+    end
+
+    test "does nothing when module is not loaded" do
+      # Enum is a real existing atom
+      MockAPIModule
+      |> expect(:loaded?, fn Enum -> false end)
+
+      assert :ok = TracingActions.refresh_tracing("/app/ebin/Elixir.Enum.beam")
+    end
+
+    test "does nothing when module is not a live module" do
+      MockAPIModule
+      |> expect(:loaded?, fn Enum -> true end)
+      |> expect(:live_module?, fn Enum -> false end)
+
+      assert :ok = TracingActions.refresh_tracing("/app/ebin/Elixir.Enum.beam")
     end
   end
 
