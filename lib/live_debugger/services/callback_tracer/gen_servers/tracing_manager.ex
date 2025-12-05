@@ -65,7 +65,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
          true <- ModuleAPI.loaded?(module),
          false <- UtilsModules.debugger_module?(module),
          true <- live_module?(module) do
-      dbg(module)
       TracingActions.refresh_tracing(module)
     end
 
