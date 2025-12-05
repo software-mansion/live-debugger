@@ -24,10 +24,5 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.Paths do
 
   defp loaded?({module, _}), do: ModuleAPI.loaded?(module)
   defp debugger_module?({module, _}), do: UtilsModules.debugger_module?(module)
-
-  defp live_module?({module, _}) do
-    module
-    |> ModuleAPI.behaviours()
-    |> Enum.any?(&(&1 == Phoenix.LiveView || &1 == Phoenix.LiveComponent))
-  end
+  defp live_module?({module, _}), do: ModuleAPI.live_module?(module)
 end

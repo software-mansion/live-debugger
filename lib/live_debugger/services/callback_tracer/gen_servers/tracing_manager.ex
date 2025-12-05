@@ -64,7 +64,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
          module <- path |> Path.basename(".beam") |> String.to_existing_atom(),
          true <- ModuleAPI.loaded?(module),
          false <- UtilsModules.debugger_module?(module),
-         true <- live_module?(module) do
+         true <- ModuleAPI.live_module?(module) do
       TracingActions.refresh_tracing(module)
     end
 
@@ -81,11 +81,5 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   defp beam_file?(path) do
     String.ends_with?(path, ".beam")
-  end
-
-  defp live_module?(module) do
-    module
-    |> ModuleAPI.behaviours()
-    |> Enum.any?(&(&1 == Phoenix.LiveView || &1 == Phoenix.LiveComponent))
   end
 end
