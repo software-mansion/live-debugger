@@ -8,8 +8,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserRefreshedTrace
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
-  alias LiveDebugger.API.System.Module, as: ModuleAPI
-  alias LiveDebugger.Utils.Modules, as: UtilsModules
 
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
 
@@ -59,13 +57,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   end
 
   def handle_info({:file_event, _pid, {path, events}}, state) do
-    with true <- correct_event?(events),
-         true <- beam_file?(path),
-         module <- path |> Path.basename(".beam") |> String.to_existing_atom(),
-         true <- ModuleAPI.loaded?(module),
-         false <- UtilsModules.debugger_module?(module),
-         true <- ModuleAPI.live_module?(module) do
-      TracingActions.refresh_tracing(module)
+    if correct_event?(events) do
+      TracingActions.refresh_tracing(path)
     end
 
     {:noreply, state}
@@ -77,9 +70,5 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   defp correct_event?(events) do
     Enum.any?(events, &(&1 == :modified || &1 == :created))
-  end
-
-  defp beam_file?(path) do
-    String.ends_with?(path, ".beam")
   end
 end

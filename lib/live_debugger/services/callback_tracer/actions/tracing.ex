@@ -7,6 +7,8 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
   alias LiveDebugger.Services.CallbackTracer.Process.Tracer
   alias LiveDebugger.API.System.Dbg
+  alias LiveDebugger.API.System.Module, as: ModuleAPI
+  alias LiveDebugger.Utils.Modules, as: UtilsModules
   alias LiveDebugger.Services.CallbackTracer.Queries.Paths, as: PathQueries
 
   @spec setup_tracing!() :: :ok
@@ -33,8 +35,20 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
     :ok
   end
 
-  @spec refresh_tracing(module()) :: :ok
-  def refresh_tracing(module) do
+  @spec refresh_tracing(String.t()) :: :ok
+  def refresh_tracing(path) do
+    with true <- beam_file?(path),
+         module <- path |> Path.basename(".beam") |> String.to_existing_atom(),
+         true <- ModuleAPI.loaded?(module),
+         false <- UtilsModules.debugger_module?(module),
+         true <- ModuleAPI.live_module?(module) do
+      refresh_tracing_for_module(module)
+    end
+
+    :ok
+  end
+
+  defp refresh_tracing_for_module(module) do
     module
     |> CallbackQueries.all_callbacks()
     |> case do
@@ -48,8 +62,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
           Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:exception_trace))
         end)
     end
-
-    :ok
   end
 
   @spec start_outgoing_messages_tracing(pid()) :: :ok
@@ -77,5 +89,9 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
     FileSystem.subscribe(:lvdbg_file_system_monitor)
 
     :ok
+  end
+
+  defp beam_file?(path) do
+    String.ends_with?(path, ".beam")
   end
 end
