@@ -10,7 +10,6 @@ defmodule LiveDebugger.E2E.SettingsTest do
     LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
 
     LiveDebugger.API.SettingsStorage.save(:dead_view_mode, false)
-    LiveDebugger.API.SettingsStorage.save(:tracing_update_on_code_reload, false)
     LiveDebugger.API.SettingsStorage.save(:garbage_collection, false)
     LiveDebugger.API.SettingsStorage.save(:tracing_enabled_on_start, false)
     LiveDebugger.API.SettingsStorage.save(:debug_button, false)
@@ -19,7 +18,6 @@ defmodule LiveDebugger.E2E.SettingsTest do
     debugger2
     |> visit("/settings")
     |> assert_has(enable_dead_view_mode_checkbox(selected: false))
-    |> assert_has(enable_tracing_update_on_reload_checkbox(selected: false))
     |> assert_has(enable_garbage_collector_checkbox(selected: false))
     |> assert_has(enable_debug_button_checkbox(selected: false))
     |> assert_has(enable_tracing_enabled_on_start_checkbox(selected: false))
@@ -69,19 +67,6 @@ defmodule LiveDebugger.E2E.SettingsTest do
     debugger1
     |> find(css("#navbar-connected"))
     |> assert_text("Disconnected")
-
-    # Check tracing update on reload toggle
-
-    debugger1
-    |> visit("/settings")
-    |> assert_has(enable_tracing_update_on_reload_checkbox(selected: false))
-    |> click(enable_tracing_update_on_reload_toggle())
-    |> assert_has(enable_tracing_update_on_reload_checkbox(selected: true))
-
-    assert(check_dets_for_setting(:tracing_update_on_code_reload))
-
-    debugger2
-    |> assert_has(enable_tracing_update_on_reload_checkbox(selected: true))
 
     # Check garbage collector toggle
 
@@ -180,14 +165,6 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
   defp enable_dead_view_mode_checkbox(opts) do
     css("input[phx-value-setting=\"dead_view_mode\"]", opts)
-  end
-
-  defp enable_tracing_update_on_reload_toggle() do
-    css("label:has(input[phx-value-setting=\"tracing_update_on_code_reload\"])")
-  end
-
-  defp enable_tracing_update_on_reload_checkbox(opts) do
-    css("input[phx-value-setting=\"tracing_update_on_code_reload\"]", opts)
   end
 
   defp enable_garbage_collector_toggle() do
