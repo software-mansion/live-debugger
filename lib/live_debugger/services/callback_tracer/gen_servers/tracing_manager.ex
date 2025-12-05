@@ -40,6 +40,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   @impl true
   def handle_info(:setup_tracing, state) do
     TracingActions.setup_tracing!()
+    TracingActions.monitor_recompilation()
 
     {:noreply, state}
   end

@@ -23,7 +23,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
 
     Dbg.process([:c, :timestamp])
     apply_trace_patterns()
-    monitor_recompilation()
 
     :ok
   end
@@ -48,6 +47,28 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
     :ok
   end
 
+  @doc """
+  Starts FileSystem monitor and subscribes to it for compiled modules directories.
+  When changes are detected in the monitored directories,
+  process will receive `{:file_event, _pid, {path, events}}` message.
+  """
+
+  @spec monitor_recompilation() :: :ok
+  def monitor_recompilation() do
+    directories = PathQueries.compiled_modules_directories()
+    FileSystem.start_link(dirs: directories, name: :lvdbg_file_system_monitor)
+    FileSystem.subscribe(:lvdbg_file_system_monitor)
+
+    :ok
+  end
+
+  @spec start_outgoing_messages_tracing(pid()) :: :ok
+  def start_outgoing_messages_tracing(pid) do
+    Dbg.process(pid, [:s])
+
+    :ok
+  end
+
   defp refresh_tracing_for_module(module) do
     module
     |> CallbackQueries.all_callbacks()
@@ -64,13 +85,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
     end
   end
 
-  @spec start_outgoing_messages_tracing(pid()) :: :ok
-  def start_outgoing_messages_tracing(pid) do
-    Dbg.process(pid, [:s])
-
-    :ok
-  end
-
   defp apply_trace_patterns() do
     # This is not a callback created by user
     # We trace it to refresh the components tree
@@ -81,14 +95,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
       Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:return_trace))
       Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:exception_trace))
     end)
-  end
-
-  defp monitor_recompilation() do
-    directories = PathQueries.compiled_modules_directories()
-    FileSystem.start_link(dirs: directories, name: :lvdbg_file_system_monitor)
-    FileSystem.subscribe(:lvdbg_file_system_monitor)
-
-    :ok
   end
 
   defp beam_file?(path) do
