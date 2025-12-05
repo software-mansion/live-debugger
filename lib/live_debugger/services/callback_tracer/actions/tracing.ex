@@ -6,6 +6,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
   alias LiveDebugger.Services.CallbackTracer.Process.Tracer
   alias LiveDebugger.API.System.Dbg
+  alias LiveDebugger.Services.CallbackTracer.Queries.Paths, as: PathQueries
 
   @spec setup_tracing!() :: :ok
   def setup_tracing!() do
@@ -19,6 +20,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
 
     Dbg.process([:c, :timestamp])
     apply_trace_patterns()
+    monitor_recompilation()
 
     :ok
   end
@@ -26,6 +28,18 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   @spec refresh_tracing() :: :ok
   def refresh_tracing() do
     apply_trace_patterns()
+
+    :ok
+  end
+
+  @spec refresh_tracing(module()) :: :ok
+  def refresh_tracing(module) do
+    module
+    |> CallbackQueries.all_callbacks()
+    |> Enum.each(fn mfa ->
+      Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:return_trace))
+      Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:exception_trace))
+    end)
 
     :ok
   end
@@ -47,5 +61,13 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
       Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:return_trace))
       Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:exception_trace))
     end)
+  end
+
+  defp monitor_recompilation() do
+    paths = PathQueries.all_paths()
+    FileSystem.start_link(dirs: paths, name: :lvdbg_file_system_monitor) |> dbg()
+    FileSystem.subscribe(:lvdbg_file_system_monitor) |> dbg()
+
+    :ok
   end
 end

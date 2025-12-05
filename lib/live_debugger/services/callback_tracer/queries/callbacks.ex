@@ -43,6 +43,22 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.Callbacks do
     live_view_callbacks_to_trace ++ live_component_callbacks_to_trace
   end
 
+  @spec all_callbacks(module()) :: [{module(), atom(), non_neg_integer()}]
+  def all_callbacks(module) do
+    cond do
+      live_behaviour?(module, Phoenix.LiveView) ->
+        UtilsCallbacks.live_view_callbacks()
+        |> Enum.map(fn {callback, arity} -> {module, callback, arity} end)
+
+      live_behaviour?(module, Phoenix.LiveComponent) ->
+        UtilsCallbacks.live_component_callbacks()
+        |> Enum.map(fn {callback, arity} -> {module, callback, arity} end)
+
+      true ->
+        []
+    end
+  end
+
   defp live_behaviour?(module, behaviour) do
     module |> ModuleAPI.behaviours() |> Enum.any?(&(&1 == behaviour))
   end
