@@ -9,6 +9,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
 
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.MockAPIDbg
+  alias LiveDebugger.MockAPIFileSystem
   alias LiveDebugger.MockAPIModule
 
   setup :verify_on_exit!
@@ -152,6 +153,32 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:live_module?, fn Enum -> false end)
 
       assert :ok = TracingActions.refresh_tracing("/app/ebin/Elixir.Enum.beam")
+    end
+  end
+
+  describe "monitor_recompilation/0" do
+    test "monitors multiple directories" do
+      MockAPIModule
+      |> expect(:all, fn ->
+        [
+          {~c"Test.LiveViewModule", ~c"/app/views/view.beam", true},
+          {~c"Test.LiveComponentModule", ~c"/app/components/component.beam", true}
+        ]
+      end)
+      |> stub(:loaded?, fn _ -> true end)
+      |> stub(:live_module?, fn _ -> true end)
+
+      MockAPIFileSystem
+      |> expect(:start_link, fn opts ->
+        assert Keyword.get(opts, :name) == :lvdbg_file_system_monitor
+        dirs = Keyword.get(opts, :dirs)
+        assert "/app/views" in dirs
+        assert "/app/components" in dirs
+        {:ok, self()}
+      end)
+      |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
+
+      assert :ok = TracingActions.monitor_recompilation()
     end
   end
 
