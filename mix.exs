@@ -78,6 +78,7 @@ defmodule LiveDebugger.MixProject do
     [
       {:phoenix_live_view, "~> 0.20.8 or ~> 1.0"},
       {:phoenix, "~> 1.7"},
+      {:file_system, "~> 1.0"},
       {:igniter, "~> 0.5 and >= 0.5.40", optional: true},
       {:bandit, "~> 1.6", only: [:dev, :test]},
       {:phoenix_live_reload, "~> 1.5", only: :dev},

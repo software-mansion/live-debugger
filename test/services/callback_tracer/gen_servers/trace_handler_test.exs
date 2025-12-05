@@ -7,8 +7,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
   setup :set_mox_from_context
 
   alias LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler
-  alias LiveDebugger.MockAPIDbg
-  alias LiveDebugger.MockAPIModule
   alias LiveDebugger.MockAPILiveViewDebug
   alias LiveDebugger.MockBus
   alias LiveDebugger.MockAPITracesStorage
@@ -22,44 +20,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
   alias LiveDebugger.Structs.Trace.DiffTrace
 
   describe "handle_cast/2" do
-    test "handles proper recompilation traces" do
-      pid = :c.pid(0, 1, 0)
-
-      MockAPIDbg
-      |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
-
-      MockAPIModule
-      |> expect(:all, fn -> [{~c"Debugged.TestModule", ~c"delete_component", true}] end)
-      |> expect(:loaded?, fn _ -> true end)
-      |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
-
-      trace =
-        {:new_trace,
-         {:trace_ts, pid, :return_from, {Mix.Tasks.Compile.Elixir, :run, 1}, {:ok, []},
-          {1753, 174_270, 660_820}}, -1}
-
-      assert TraceHandler.handle_cast(trace, nil) == {:noreply, nil}
-
-      Process.sleep(400)
-    end
-
-    test "handles incorrect recompilation traces" do
-      pid = :c.pid(0, 1, 0)
-
-      trace1 =
-        {:new_trace,
-         {:trace_ts, pid, :call, {Mix.Tasks.Compile.Elixir, :run, 1}, {1753, 174_270, 660_820}},
-         -1}
-
-      trace2 =
-        {:new_trace,
-         {:trace_ts, pid, :return_from, {Mix.Tasks.Compile.Elixir, :run, 1}, {:error, []},
-          {1753, 174_270, 660_820}}, -1}
-
-      assert TraceHandler.handle_cast(trace1, %{}) == {:noreply, %{}}
-      assert TraceHandler.handle_cast(trace2, %{}) == {:noreply, %{}}
-    end
-
     test "handles LiveComponent deletion traces" do
       transport_pid = :c.pid(0, 1, 0)
       pid = :c.pid(0, 2, 0)

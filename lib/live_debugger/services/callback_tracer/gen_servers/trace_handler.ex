@@ -9,7 +9,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace, as: TraceActions
-  alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
   alias LiveDebugger.Services.CallbackTracer.Actions.DiffTrace, as: DiffActions
   alias LiveDebugger.Structs.Trace.FunctionTrace
@@ -54,39 +53,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   end
 
   #########################################################
-  # Handling recompile events
-  #
-  # We catch this trace to know when modules were recompiled.
-  # We do not display this trace to user, so we do not have to care about order
-  # We need to catch that case because tracer disconnects from modules that were recompiled
-  # and we need to reapply tracing patterns to them.
-  # This will be replaced in the future with a more efficient way to handle this.
-  # https://github.com/software-mansion/live-debugger/issues/592
-  #
-  #########################################################
-
-  @impl true
-  def handle_cast(
-        {:new_trace, {_, _, :return_from, {Mix.Tasks.Compile.Elixir, _, _}, {:ok, _}, _}, _n},
-        state
-      ) do
-    Task.start(fn ->
-      Process.sleep(100)
-      TracingActions.refresh_tracing()
-    end)
-
-    {:noreply, state}
-  end
-
-  def handle_cast({:new_trace, {_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _}, _}, state) do
-    {:noreply, state}
-  end
-
-  def handle_cast({:new_trace, {_, _, _, {Mix.Tasks.Compile.Elixir, _, _}, _, _}, _}, state) do
-    {:noreply, state}
-  end
-
-  #########################################################
   # Handling component deletion traces
   #
   # We catch this trace to know when components are deleted.
@@ -96,6 +62,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   #
   #########################################################
 
+  @impl true
   def handle_cast(
         {:new_trace,
          {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, ts}, n},

@@ -29,6 +29,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install inotify-tools
+        run: sudo apt-get update && sudo apt-get install -y inotify-tools
+
       - name: Set up Elixir
         uses: erlef/setup-beam@v1.20.4
         with:

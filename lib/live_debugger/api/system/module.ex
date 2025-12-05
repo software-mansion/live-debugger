@@ -6,6 +6,7 @@ defmodule LiveDebugger.API.System.Module do
   @callback all() :: [{charlist(), charlist(), boolean()}]
   @callback loaded?(module :: module()) :: boolean()
   @callback behaviours(module :: module()) :: [module()]
+  @callback live_module?(module :: module()) :: boolean()
 
   @doc """
   Wrapper for `:code.all_available/0`.
@@ -25,6 +26,12 @@ defmodule LiveDebugger.API.System.Module do
   """
   @spec behaviours(module :: module()) :: [module()]
   def behaviours(module), do: impl().behaviours(module)
+
+  @doc """
+  Returns true if the module implements Phoenix.LiveView or Phoenix.LiveComponent behaviour.
+  """
+  @spec live_module?(module :: module()) :: boolean()
+  def live_module?(module), do: impl().live_module?(module)
 
   defp impl() do
     Application.get_env(
@@ -57,6 +64,13 @@ defmodule LiveDebugger.API.System.Module do
       # It applies to compiler modules that does not have behaviours
       # It is safe to return empty list in this case
       UndefinedFunctionError -> []
+    end
+
+    @impl true
+    def live_module?(module) do
+      module
+      |> behaviours()
+      |> Enum.any?(&(&1 == Phoenix.LiveView || &1 == Phoenix.LiveComponent))
     end
   end
 end

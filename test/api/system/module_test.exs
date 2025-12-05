@@ -38,4 +38,33 @@ defmodule LiveDebugger.API.System.ModuleImplTest do
       assert ModuleImpl.loaded?(NonExistingModule) == false
     end
   end
+
+  describe "live_module?/1" do
+    defmodule LiveViewModule do
+      use Phoenix.LiveView
+    end
+
+    defmodule LiveComponentModule do
+      use Phoenix.LiveComponent
+    end
+
+    defmodule RegularModule do
+    end
+
+    test "returns true for a LiveView module" do
+      assert ModuleImpl.live_module?(LiveViewModule) == true
+    end
+
+    test "returns true for a LiveComponent module" do
+      assert ModuleImpl.live_module?(LiveComponentModule) == true
+    end
+
+    test "returns false for a regular module" do
+      assert ModuleImpl.live_module?(RegularModule) == false
+    end
+
+    test "returns false for a non-existing module" do
+      assert ModuleImpl.live_module?(NonExistingModule) == false
+    end
+  end
 end
