@@ -10,7 +10,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.Callbacks do
   @doc """
   Returns a list of all callbacks of the traced modules.
   """
-  @spec all_callbacks() :: [module()]
+  @spec all_callbacks() :: [{module(), atom(), non_neg_integer()}]
   def all_callbacks() do
     all_modules =
       ModuleAPI.all()
