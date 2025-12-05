@@ -151,8 +151,10 @@ defmodule LiveDebugger.App.Utils.Parsers do
   defp apply_timezone_diff(error), do: error
 
   def get_utc_difference_in_minutes do
-    DateTime.utc_now()
-    |> DateTime.to_naive()
-    |> NaiveDateTime.diff(NaiveDateTime.local_now(), :minute)
+    NaiveDateTime.diff(
+      NaiveDateTime.local_now(),
+      DateTime.utc_now() |> DateTime.to_naive(),
+      :minute
+    )
   end
 end

@@ -8,9 +8,12 @@ defmodule LiveDebugger.App.Utils.ParsersTest do
       timestamp1 = 1_000_000
 
       timezone_offset_minutes =
-        DateTime.utc_now()
-        |> DateTime.to_naive()
-        |> NaiveDateTime.diff(NaiveDateTime.local_now(), :minute)
+        NaiveDateTime.diff(
+          NaiveDateTime.local_now(),
+          DateTime.utc_now()
+          |> DateTime.to_naive(),
+          :minute
+        )
 
       assert Parsers.parse_timestamp(timestamp1) ==
                "00:00:01"
