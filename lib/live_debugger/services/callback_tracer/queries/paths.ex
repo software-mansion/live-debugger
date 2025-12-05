@@ -1,16 +1,14 @@
 defmodule LiveDebugger.Services.CallbackTracer.Queries.Paths do
-  @moduledoc """
-  Queries the paths of the traced modules.
-  """
+  @moduledoc false
 
   alias LiveDebugger.API.System.Module, as: ModuleAPI
   alias LiveDebugger.Utils.Modules, as: UtilsModules
 
   @doc """
-  Returns a list of all paths of the traced modules.
+  Returns a list of directories where compiled modules of LiveViews and LiveComponents are stored.
   """
-  @spec all_paths() :: [String.t()]
-  def all_paths() do
+  @spec compiled_modules_directories() :: [String.t()]
+  def compiled_modules_directories() do
     ModuleAPI.all()
     |> Enum.map(fn {module_charlist, compiled_path, _} ->
       {module_charlist |> to_string |> String.to_atom(), to_string(compiled_path)}

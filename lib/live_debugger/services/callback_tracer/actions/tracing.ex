@@ -64,8 +64,8 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   end
 
   defp monitor_recompilation() do
-    paths = PathQueries.all_paths()
-    FileSystem.start_link(dirs: paths, name: :lvdbg_file_system_monitor)
+    directories = PathQueries.compiled_modules_directories()
+    FileSystem.start_link(dirs: directories, name: :lvdbg_file_system_monitor)
     FileSystem.subscribe(:lvdbg_file_system_monitor)
 
     :ok
