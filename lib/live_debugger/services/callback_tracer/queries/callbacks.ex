@@ -43,7 +43,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.Callbacks do
     live_view_callbacks_to_trace ++ live_component_callbacks_to_trace
   end
 
-  @spec all_callbacks(module()) :: [{module(), atom(), non_neg_integer()}]
+  @spec all_callbacks(module()) :: [{module(), atom(), non_neg_integer()}] | {:error, term()}
   def all_callbacks(module) do
     cond do
       live_behaviour?(module, Phoenix.LiveView) ->
@@ -55,7 +55,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.Callbacks do
         |> Enum.map(fn {callback, arity} -> {module, callback, arity} end)
 
       true ->
-        []
+        {:error, "Module #{module} is not a LiveView or LiveComponent"}
     end
   end
 

@@ -2,6 +2,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   @moduledoc """
   This module provides actions for tracing.
   """
+  require Logger
 
   alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
   alias LiveDebugger.Services.CallbackTracer.Process.Tracer
@@ -36,10 +37,17 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   def refresh_tracing(module) do
     module
     |> CallbackQueries.all_callbacks()
-    |> Enum.each(fn mfa ->
-      Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:return_trace))
-      Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:exception_trace))
-    end)
+    |> case do
+      {:error, error} ->
+        Logger.error("Error refreshing tracing for module #{module}: #{error}")
+
+      callbacks ->
+        callbacks
+        |> Enum.each(fn mfa ->
+          Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:return_trace))
+          Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:exception_trace))
+        end)
+    end
 
     :ok
   end
