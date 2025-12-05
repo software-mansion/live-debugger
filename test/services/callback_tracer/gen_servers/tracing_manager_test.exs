@@ -76,6 +76,20 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
       assert {:noreply, []} = TracingManager.handle_info(event, [])
     end
 
+    test "handles file_event event" do
+      MockAPIModule
+      |> expect(:loaded?, fn Enum -> true end)
+      |> expect(:live_module?, fn Enum -> true end)
+      |> stub(:behaviours, fn Enum -> [Phoenix.LiveView] end)
+
+      MockAPIDbg
+      |> expect(:trace_pattern, 18, fn _, _ -> :ok end)
+
+      event = {:file_event, self(), {"/app/ebin/Elixir.Enum.beam", [:modified]}}
+
+      assert {:noreply, []} = TracingManager.handle_info(event, [])
+    end
+
     test "handles unknown event" do
       assert {:noreply, []} = TracingManager.handle_info(:unknown_event, [])
     end
