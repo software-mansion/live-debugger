@@ -147,7 +147,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   defp trace_short_content(assigns) do
     ~H"""
     <div class="grow shrink text-secondary-text font-code font-normal text-3xs truncate">
-      <div class="hidden @[25rem]/traces:flex">
+      <div class="hidden @[30rem]/traces:flex">
         <p
           id={if(@id, do: @id <> "-short-content", else: false)}
           class="hide-on-open mt-0.5"
