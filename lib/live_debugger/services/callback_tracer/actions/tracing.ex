@@ -7,6 +7,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
   alias LiveDebugger.Services.CallbackTracer.Process.Tracer
   alias LiveDebugger.API.System.Dbg
+  alias LiveDebugger.API.System.FileSystem, as: FileSystemAPI
   alias LiveDebugger.API.System.Module, as: ModuleAPI
   alias LiveDebugger.Utils.Modules, as: UtilsModules
   alias LiveDebugger.Services.CallbackTracer.Queries.Paths, as: PathQueries
@@ -56,8 +57,8 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   @spec monitor_recompilation() :: :ok
   def monitor_recompilation() do
     directories = PathQueries.compiled_modules_directories()
-    FileSystem.start_link(dirs: directories, name: :lvdbg_file_system_monitor)
-    FileSystem.subscribe(:lvdbg_file_system_monitor)
+    FileSystemAPI.start_link(dirs: directories, name: :lvdbg_file_system_monitor)
+    FileSystemAPI.subscribe(:lvdbg_file_system_monitor)
 
     :ok
   end
