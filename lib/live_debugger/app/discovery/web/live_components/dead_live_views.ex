@@ -11,6 +11,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
   alias LiveDebugger.App.Discovery.Web.Components, as: DiscoveryComponents
   alias LiveDebugger.App.Discovery.Queries, as: DiscoveryQueries
   alias LiveDebugger.App.Discovery.Actions, as: DiscoveryActions
+  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
   def refresh(id) do
     send_update(__MODULE__, id: id, action: :refresh)
@@ -94,6 +95,12 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
     |> noreply()
   end
 
+  def handle_event("select-live-view", %{"id" => pid}, socket) do
+    socket
+    |> push_navigate(to: RoutesHelper.debugger_node_inspector(pid))
+    |> noreply()
+  end
+
   def handle_event("toggle-dead-liveviews", _params, socket) do
     new_value = !socket.assigns.dead_liveviews?
 
@@ -116,6 +123,8 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
     |> start_async_dead_grouped_lv_processes()
     |> noreply()
   end
+
+  def handle_event(_, _, socket), do: {:noreply, socket}
 
   @impl true
   def handle_async(
