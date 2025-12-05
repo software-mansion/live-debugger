@@ -6,12 +6,11 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIModule
-  alias LiveDebugger.MockAPISettingsStorage
 
   setup :verify_on_exit!
 
   describe "setup_tracing!/0" do
-    test "successfully sets up tracing with tracing_update_on_code_reload set to false" do
+    test "successfully sets up tracing" do
       MockAPIModule
       |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)
       |> expect(:loaded?, fn _ -> true end)
@@ -22,26 +21,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:process, fn [:c, :timestamp] -> :ok end)
       |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
 
-      expect(MockAPISettingsStorage, :get, fn :tracing_update_on_code_reload -> false end)
-
-      # Should not call trace_pattern for Mix.Tasks.Compile.Elixir when setting is false
-      assert :ok = TracingActions.setup_tracing!()
-    end
-
-    test "successfully sets up tracing with tracing_update_on_code_reload set to true" do
-      MockAPIModule
-      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)
-      |> expect(:loaded?, fn _ -> true end)
-      |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
-
-      MockAPIDbg
-      |> expect(:tracer, fn {_handler, 0} -> {:ok, self()} end)
-      |> expect(:process, fn [:c, :timestamp] -> :ok end)
-      |> expect(:trace_pattern, 20, fn _, _ -> :ok end)
-
-      expect(MockAPISettingsStorage, :get, fn :tracing_update_on_code_reload -> true end)
-
-      # Should call trace_pattern for Mix.Tasks.Compile.Elixir when setting is true
       assert :ok = TracingActions.setup_tracing!()
     end
 
@@ -72,30 +51,10 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:process, fn [:c, :timestamp] -> :ok end)
       |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
 
-      expect(MockAPISettingsStorage, :get, fn :tracing_update_on_code_reload -> false end)
-
       assert :ok = TracingActions.setup_tracing!()
 
       # Verify process is linked
       assert Process.info(self(), :links) |> elem(1) |> Enum.member?(tracer_pid)
-    end
-  end
-
-  describe "start_tracing_recompile_pattern/0" do
-    test "starts tracing for Mix.Tasks.Compile.Elixir" do
-      MockAPIDbg
-      |> expect(:trace_pattern, fn {Mix.Tasks.Compile.Elixir, :run, 1}, _flag -> :ok end)
-
-      assert :ok = TracingActions.start_tracing_recompile_pattern()
-    end
-  end
-
-  describe "stop_tracing_recompile_pattern/0" do
-    test "stops tracing for Mix.Tasks.Compile.Elixir" do
-      MockAPIDbg
-      |> expect(:clear_trace_pattern, fn {Mix.Tasks.Compile.Elixir, :run, 1} -> :ok end)
-
-      assert :ok = TracingActions.stop_tracing_recompile_pattern()
     end
   end
 
