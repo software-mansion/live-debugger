@@ -6,10 +6,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
   alias LiveDebugger.MockBus
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIModule
-  alias LiveDebugger.MockAPISettingsStorage
   alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
 
-  alias LiveDebugger.App.Events.UserChangedSettings
   alias LiveDebugger.App.Events.UserRefreshedTrace
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
 
@@ -27,38 +25,17 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
   describe "handle_info/2" do
     test "handles :setup_tracing event" do
       MockAPIModule
-      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)
-      |> expect(:loaded?, fn _ -> true end)
+      |> expect(:all, 2, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)
+      |> expect(:loaded?, 2, fn _ -> true end)
       |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
+      |> expect(:live_module?, fn _ -> true end)
 
       MockAPIDbg
       |> expect(:tracer, fn _ -> {:ok, self()} end)
       |> expect(:process, fn _ -> :ok end)
       |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
 
-      expect(MockAPISettingsStorage, :get, fn :tracing_update_on_code_reload -> false end)
-
       assert {:noreply, []} = TracingManager.handle_info(:setup_tracing, [])
-    end
-
-    test "handles SettingsChanged event with tracing_update_on_code_reload set to true" do
-      expect(MockAPIDbg, :trace_pattern, fn {Mix.Tasks.Compile.Elixir, :run, 1}, _ -> :ok end)
-
-      event = %UserChangedSettings{key: :tracing_update_on_code_reload, value: true, from: self()}
-
-      assert {:noreply, []} = TracingManager.handle_info(event, [])
-    end
-
-    test "handles SettingsChanged event with tracing_update_on_code_reload set to false" do
-      expect(MockAPIDbg, :clear_trace_pattern, fn {Mix.Tasks.Compile.Elixir, :run, 1} -> :ok end)
-
-      event = %UserChangedSettings{
-        key: :tracing_update_on_code_reload,
-        value: false,
-        from: self()
-      }
-
-      assert {:noreply, []} = TracingManager.handle_info(event, [])
     end
 
     test "handles TracingRefreshed event" do
