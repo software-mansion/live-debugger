@@ -33,7 +33,6 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
   attr(:id, :string, required: true)
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:lv_process, LvProcess, required: true)
-  attr(:root_socket_id, :string, required: true)
   attr(:node_id, :any, required: true)
   attr(:url, :string, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the wrapper div")
@@ -42,7 +41,6 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     session = %{
       "lv_process" => assigns.lv_process,
       "node_id" => assigns.node_id,
-      "root_socket_id" => assigns.root_socket_id,
       "url" => assigns.url,
       "parent_pid" => self()
     }
@@ -68,7 +66,6 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     |> assign(lv_process: lv_process)
     |> assign(parent_pid: parent_pid)
     |> assign(node_id: session["node_id"])
-    |> assign(root_socket_id: session["root_socket_id"])
     |> assign(url: session["url"])
     |> assign_async_tree()
     |> ok()
@@ -161,7 +158,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
         id_key: if(params["type"] == "live_view", do: "PID", else: "CID")
       }
 
-      Client.push_event!(socket.assigns.root_socket_id, "highlight", payload)
+      Client.push_event!(socket.assigns.lv_process.root_socket_id, "highlight", payload)
     end
 
     socket
@@ -175,7 +172,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
         type: if(params["type"] == "live_view", do: "LiveView", else: "LiveComponent")
       }
 
-      Client.push_event!(socket.assigns.root_socket_id, "pulse", payload)
+      Client.push_event!(socket.assigns.lv_process.root_socket_id, "pulse", payload)
     end
 
     socket

@@ -33,7 +33,6 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
 
     socket
     |> assign(:lv_process, AsyncResult.ok(lv_process))
-    |> assign(:root_socket_id, lv_process.root_socket_id)
     |> halt()
   end
 
