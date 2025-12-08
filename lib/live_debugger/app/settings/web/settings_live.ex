@@ -101,6 +101,14 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
               phx-click="update"
               phx-value-setting="tracing_enabled_on_start"
             />
+            <SettingsComponents.settings_switch
+              id="highlight-in-browser-switch"
+              label="Highlight components"
+              description="When enabled, it will highlight LiveViews and LiveComponent in the browser using Components Tree and Active LiveViews. For this feature to work, you must have enabled browser features (See docs for config)."
+              checked={@settings[:highlight_in_browser]}
+              phx-click="update"
+              phx-value-setting="highlight_in_browser"
+            />
           </div>
         </div>
 
