@@ -48,37 +48,6 @@ defmodule LiveDebugger.App.Discovery.Queries do
     Process.sleep(milliseconds)
 
     LiveViewDiscovery.debugged_lv_processes()
-    |> Enum.map(fn lv_process ->
-      LvProcess.set_root_socket_id(lv_process, get_root_socket_id(lv_process))
-    end)
-  end
-
-  defp get_root_socket_id(%LvProcess{embedded?: false, nested?: false} = lv_process) do
-    lv_process.socket_id
-  end
-
-  defp get_root_socket_id(%LvProcess{embedded?: true, nested?: false} = lv_process) do
-    case find_root_lv_process_over_transport_pid(lv_process.transport_pid) do
-      %LvProcess{socket_id: socket_id} -> socket_id
-      _ -> lv_process.socket_id
-    end
-  end
-
-  defp get_root_socket_id(lv_process) do
-    lv_process.root_pid
-    |> LiveViewDiscovery.lv_process()
-    |> case do
-      %LvProcess{embedded?: false} = lv_process -> lv_process.socket_id
-      %LvProcess{embedded?: true, nested?: false} = lv_process -> get_root_socket_id(lv_process)
-      _ -> nil
-    end
-  end
-
-  defp find_root_lv_process_over_transport_pid(transport_pid) do
-    LiveViewDiscovery.debugged_lv_processes()
-    |> Enum.find(fn
-      %LvProcess{transport_pid: ^transport_pid, embedded?: false, nested?: false} -> true
-      _ -> false
-    end)
+    |> Enum.map(&LiveViewDiscovery.root_socket_id/1)
   end
 end
