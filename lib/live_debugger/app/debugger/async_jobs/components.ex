@@ -42,7 +42,7 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Components do
   end
 
   defp async_job_subtitle(%AsyncJob.StartAsync{}), do: "start_async/3"
-  defp async_job_subtitle(%AsyncJob.AsyncAssign{}), do: "assign/3"
+  defp async_job_subtitle(%AsyncJob.AsyncAssign{}), do: "assign_async/3"
 
   defp identifier(async_job) do
     async_job
