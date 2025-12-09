@@ -8,7 +8,7 @@ defmodule LiveDebugger.App.Events do
   alias LiveDebugger.Structs.LvProcess
 
   defevent(UserChangedSettings,
-    key: :dead_view_mode | :tracing_update_on_code_reload | :garbage_collection,
+    key: :dead_view_mode | :garbage_collection,
     value: term(),
     from: pid()
   )

@@ -10,7 +10,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.Callbacks do
   @doc """
   Returns a list of all callbacks of the traced modules.
   """
-  @spec all_callbacks() :: [module()]
+  @spec all_callbacks() :: [mfa()]
   def all_callbacks() do
     all_modules =
       ModuleAPI.all()
@@ -41,6 +41,22 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.Callbacks do
       end)
 
     live_view_callbacks_to_trace ++ live_component_callbacks_to_trace
+  end
+
+  @spec all_callbacks(module()) :: [mfa()] | {:error, term()}
+  def all_callbacks(module) do
+    cond do
+      live_behaviour?(module, Phoenix.LiveView) ->
+        UtilsCallbacks.live_view_callbacks()
+        |> Enum.map(fn {callback, arity} -> {module, callback, arity} end)
+
+      live_behaviour?(module, Phoenix.LiveComponent) ->
+        UtilsCallbacks.live_component_callbacks()
+        |> Enum.map(fn {callback, arity} -> {module, callback, arity} end)
+
+      true ->
+        {:error, "Module #{module} is not a LiveView or LiveComponent"}
+    end
   end
 
   defp live_behaviour?(module, behaviour) do
