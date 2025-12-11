@@ -24,7 +24,7 @@ defmodule LiveDebugger.API.UserEvents do
 
   def send_event(%LvProcess{} = lv_process, cid \\ nil, event, unsigned_params) do
     payload = %{"event" => event, "value" => unsigned_params, "type" => "debug"}
-    payload = if is_nil(cid), do: payload, else: Map.put(payload, "cid", cid)
+    payload = if is_nil(cid), do: payload, else: Map.put(payload, "cid", cid.cid)
 
     message = %Phoenix.Socket.Message{
       topic: "lv:#{lv_process.socket_id}",
@@ -38,4 +38,4 @@ end
 
 # alias LiveDebugger.API.UserEvents
 # [lv_process] = LiveDebugger.API.LiveViewDiscovery.debugged_lv_processes
-# UserEvents.send_event(lv_process, %Phoenix.LiveComponent.CID{cid: 6}, :handle_event, "show_child", %{})
+# UserEvents.send_event(lv_process, %Phoenix.LiveComponent.CID{cid: 6}, "show_child", %{})
