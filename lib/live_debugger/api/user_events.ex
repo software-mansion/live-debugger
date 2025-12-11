@@ -6,6 +6,8 @@ defmodule LiveDebugger.API.UserEvents do
   alias LiveDebugger.Structs.LvProcess
   alias Phoenix.LiveComponent.CID
 
+  # According to docs this will trigger the update_many if defined, if not it will go with update
+  # https://hexdocs.pm/phoenix_live_view/Phoenix.LiveComponent.html#module-update-many
   def send_update(%LvProcess{} = lv_process, %CID{} = cid, payload) do
     Phoenix.LiveView.send_update(lv_process.pid, cid, payload)
   end
