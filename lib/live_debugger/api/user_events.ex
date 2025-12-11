@@ -5,42 +5,28 @@ defmodule LiveDebugger.API.UserEvents do
 
   alias LiveDebugger.Structs.LvProcess
   alias Phoenix.LiveComponent.CID
-  alias Phoenix.Socket.Message
 
-  def send_event(lv_process, cid \\ nil, handler_type, payload)
-
-  def send_event(%LvProcess{} = lv_process, %CID{} = cid, :update, payload) do
+  def send_update(%LvProcess{} = lv_process, %CID{} = cid, payload) do
     Phoenix.LiveView.send_update(lv_process.pid, cid, payload)
   end
 
-  def send_event(%LvProcess{} = lv_process, nil, :handle_info, payload) do
+  def send_info(%LvProcess{} = lv_process, payload) do
     send(lv_process.pid, payload)
   end
 
-  def send_event(%LvProcess{} = lv_process, nil, :handle_cast, payload) do
+  def send_cast(%LvProcess{} = lv_process, payload) do
     GenServer.cast(lv_process.pid, payload)
   end
 
-  def send_event(%LvProcess{} = lv_process, nil, :handle_call, payload) do
+  def send_call(%LvProcess{} = lv_process, payload) do
     GenServer.call(lv_process.pid, payload)
   end
 
-  def send_event(%LvProcess{} = lv_process, nil, :handle_event, event, params) do
-    payload = %{"event" => event, "value" => params, "type" => "debug"}
+  def send_event(%LvProcess{} = lv_process, cid \\ nil, event, unsigned_params) do
+    payload = %{"event" => event, "value" => unsigned_params, "type" => "debug"}
+    payload = if is_nil(cid), do: payload, else: Map.put(payload, "cid", cid)
 
-    message = %Message{
-      topic: "lv:#{lv_process.socket_id}",
-      event: "event",
-      payload: payload
-    }
-
-    send(lv_process.pid, message)
-  end
-
-  def send_event(%LvProcess{} = lv_process, %CID{cid: cid}, :handle_event, event, params) do
-    payload = %{"cid" => cid, "event" => event, "value" => params, "type" => "debug"}
-
-    message = %Message{
+    message = %Phoenix.Socket.Message{
       topic: "lv:#{lv_process.socket_id}",
       event: "event",
       payload: payload
