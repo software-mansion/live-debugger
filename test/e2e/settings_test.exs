@@ -14,6 +14,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
     LiveDebugger.API.SettingsStorage.save(:garbage_collection, false)
     LiveDebugger.API.SettingsStorage.save(:tracing_enabled_on_start, false)
     LiveDebugger.API.SettingsStorage.save(:debug_button, false)
+    LiveDebugger.API.SettingsStorage.save(:dead_liveviews, false)
     LiveDebugger.update_live_debugger_tags()
 
     debugger2
@@ -31,7 +32,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     debugger1
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_text("Monitored PID")
 
     dev_app
@@ -58,7 +59,7 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     debugger1
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_text("Monitored PID")
 
     dev_app
@@ -128,13 +129,13 @@ defmodule LiveDebugger.E2E.SettingsTest do
     |> execute_script("window.location.reload();")
     |> refute_has(css("#live-debugger-debug-button"))
 
-    # Check debug button toggle
+    # Check tracing enabled on start toggle
     dev_app
     |> visit(@dev_app_url)
 
     debugger1
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(toggle_tracing_button(icon: "icon-play"))
     |> assert_has(traces(count: 2))
 

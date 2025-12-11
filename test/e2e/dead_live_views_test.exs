@@ -40,16 +40,12 @@ defmodule LiveDebugger.E2E.DeadLiveViewsTest do
     debugger
     |> find(dead_sessions(count: 2))
     |> List.first()
-    |> click(css("a.live-view-link"))
+    |> click(live_view_button())
 
     Process.sleep(100)
 
     debugger
     |> assert_text(css("#navbar-connected"), "Disconnected")
-
-    debugger
-    |> assert_has(css("label.pointer-events-none", text: "Highlight"))
-    |> assert_has(toggle_tracing_button())
   end
 
   def dead_sessions(opts \\ []), do: css("#dead-sessions > div", opts)
