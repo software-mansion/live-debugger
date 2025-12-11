@@ -285,4 +285,53 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
              ]
     end
   end
+
+  describe "all_callbacks/1" do
+    test "returns LiveView callbacks for a LiveView module" do
+      MockAPIModule
+      |> stub(:behaviours, fn :"Test.LiveViewModule" -> [Phoenix.LiveView] end)
+
+      assert Callbacks.all_callbacks(:"Test.LiveViewModule") == [
+               {:"Test.LiveViewModule", :mount, 3},
+               {:"Test.LiveViewModule", :handle_params, 3},
+               {:"Test.LiveViewModule", :render, 1},
+               {:"Test.LiveViewModule", :handle_event, 3},
+               {:"Test.LiveViewModule", :handle_async, 3},
+               {:"Test.LiveViewModule", :handle_info, 2},
+               {:"Test.LiveViewModule", :handle_call, 3},
+               {:"Test.LiveViewModule", :handle_cast, 2},
+               {:"Test.LiveViewModule", :terminate, 2}
+             ]
+    end
+
+    test "returns LiveComponent callbacks for a LiveComponent module" do
+      MockAPIModule
+      |> stub(:behaviours, fn :"Test.LiveComponentModule" -> [Phoenix.LiveComponent] end)
+
+      assert Callbacks.all_callbacks(:"Test.LiveComponentModule") == [
+               {:"Test.LiveComponentModule", :mount, 1},
+               {:"Test.LiveComponentModule", :update, 2},
+               {:"Test.LiveComponentModule", :update_many, 1},
+               {:"Test.LiveComponentModule", :render, 1},
+               {:"Test.LiveComponentModule", :handle_event, 3},
+               {:"Test.LiveComponentModule", :handle_async, 3}
+             ]
+    end
+
+    test "returns error for a module without LiveView or LiveComponent behaviour" do
+      MockAPIModule
+      |> stub(:behaviours, fn :"Test.RegularModule" -> [] end)
+
+      assert Callbacks.all_callbacks(:"Test.RegularModule") ==
+               {:error, "Module Test.RegularModule is not a LiveView or LiveComponent"}
+    end
+
+    test "returns error for a module with other behaviours" do
+      MockAPIModule
+      |> stub(:behaviours, fn :"Test.GenServerModule" -> [GenServer] end)
+
+      assert Callbacks.all_callbacks(:"Test.GenServerModule") ==
+               {:error, "Module Test.GenServerModule is not a LiveView or LiveComponent"}
+    end
+  end
 end

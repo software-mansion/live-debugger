@@ -70,14 +70,6 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
             />
 
             <SettingsComponents.settings_switch
-              id="tracing-update-on-reload-switch"
-              label="Refresh tracing after recompilation"
-              description="Tracing in LiveDebugger may be interrupted when modules are recompiled. With this option enabled, LiveDebugger will refresh tracing after project recompilation. It may have a negative impact on application performance."
-              checked={@settings[:tracing_update_on_code_reload]}
-              phx-click="update"
-              phx-value-setting="tracing_update_on_code_reload"
-            />
-            <SettingsComponents.settings_switch
               id="garbage-collection-switch"
               label="Garbage Collection"
               description="When enabled, LiveDebugger will remove old data to free up memory. Disabling this option will lead to increased memory usage."

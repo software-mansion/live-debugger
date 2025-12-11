@@ -6,7 +6,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   use GenServer
 
   alias LiveDebugger.Bus
-  alias LiveDebugger.App.Events.UserChangedSettings
   alias LiveDebugger.App.Events.UserRefreshedTrace
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
 
@@ -41,40 +40,36 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   @impl true
   def handle_info(:setup_tracing, state) do
     TracingActions.setup_tracing!()
+    TracingActions.monitor_recompilation()
 
     {:noreply, state}
   end
 
-  @impl true
-  def handle_info(%UserChangedSettings{key: :tracing_update_on_code_reload, value: true}, state) do
-    TracingActions.start_tracing_recompile_pattern()
-
-    {:noreply, state}
-  end
-
-  @impl true
-  def handle_info(%UserChangedSettings{key: :tracing_update_on_code_reload, value: false}, state) do
-    TracingActions.stop_tracing_recompile_pattern()
-
-    {:noreply, state}
-  end
-
-  @impl true
   def handle_info(%LiveViewBorn{pid: pid}, state) do
     TracingActions.start_outgoing_messages_tracing(pid)
 
     {:noreply, state}
   end
 
-  @impl true
   def handle_info(%UserRefreshedTrace{}, state) do
     TracingActions.refresh_tracing()
 
     {:noreply, state}
   end
 
-  @impl true
+  def handle_info({:file_event, _pid, {path, events}}, state) do
+    if correct_event?(events) do
+      TracingActions.refresh_tracing(path)
+    end
+
+    {:noreply, state}
+  end
+
   def handle_info(_, state) do
     {:noreply, state}
+  end
+
+  defp correct_event?(events) do
+    Enum.any?(events, &(&1 == :modified || &1 == :created))
   end
 end

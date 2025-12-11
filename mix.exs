@@ -1,7 +1,7 @@
 defmodule LiveDebugger.MixProject do
   use Mix.Project
 
-  @version "0.5.0-dev"
+  @version "0.6.0-dev"
 
   def project do
     [
@@ -78,6 +78,7 @@ defmodule LiveDebugger.MixProject do
     [
       {:phoenix_live_view, "~> 0.20.8 or ~> 1.0"},
       {:phoenix, "~> 1.7"},
+      {:file_system, "~> 1.0"},
       {:igniter, "~> 0.5 and >= 0.5.40", optional: true},
       {:bandit, "~> 1.6", only: [:dev, :test]},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
