@@ -22,8 +22,8 @@ defmodule LiveDebugger.API.UserEvents do
     GenServer.call(lv_process.pid, payload)
   end
 
-  def send_event(%LvProcess{} = lv_process, cid \\ nil, event, unsigned_params) do
-    payload = %{"event" => event, "value" => unsigned_params, "type" => "debug"}
+  def send_event(%LvProcess{} = lv_process, cid \\ nil, event, unassigned_params) do
+    payload = %{"event" => event, "value" => unassigned_params, "type" => "debug"}
     payload = if is_nil(cid), do: payload, else: Map.put(payload, "cid", cid.cid)
 
     message = %Phoenix.Socket.Message{
