@@ -1,43 +1,128 @@
 defmodule LiveDebugger.API.UserEvents do
   @moduledoc """
-  API for user events.
+  API for sending user-triggered events and messages to LiveView processes.
+
+  This module provides functions to interact with LiveView processes by sending
+  various types of messages: component updates, info messages, GenServer casts/calls,
+  and Phoenix LiveView events.
   """
 
   alias LiveDebugger.Structs.LvProcess
   alias Phoenix.LiveComponent.CID
 
-  # According to docs this will trigger the update_many if defined, if not it will go with update
-  # https://hexdocs.pm/phoenix_live_view/Phoenix.LiveComponent.html#module-update-many
-  def send_update(%LvProcess{} = lv_process, %CID{} = cid, payload) do
-    Phoenix.LiveView.send_update(lv_process.pid, cid, payload)
+  @callback send_component_update(LvProcess.t(), %CID{}, map()) :: :ok
+  @callback send_info_message(LvProcess.t(), term()) :: term()
+  @callback send_genserver_cast(LvProcess.t(), term()) :: :ok
+  @callback send_genserver_call(LvProcess.t(), term()) :: term()
+  @callback send_lv_event(LvProcess.t(), %CID{} | nil, String.t(), map()) :: term()
+
+  @doc """
+  Sends an update to a LiveComponent.
+
+  This will trigger the `update_many/1` callback if defined, otherwise falls back to `update/2`.
+  See: https://hexdocs.pm/phoenix_live_view/Phoenix.LiveComponent.html#module-update-many
+  """
+  @spec send_component_update(LvProcess.t(), %CID{}, map()) :: :ok
+  def send_component_update(%LvProcess{} = lv_process, %CID{} = cid, payload) do
+    impl().send_component_update(lv_process, cid, payload)
   end
 
-  def send_info(%LvProcess{} = lv_process, payload) do
-    send(lv_process.pid, payload)
+  @doc """
+  Sends an info message directly to the LiveView process.
+
+  The message will be handled by the `handle_info/2` callback in the LiveView.
+  """
+  @spec send_info_message(LvProcess.t(), term()) :: term()
+  def send_info_message(%LvProcess{} = lv_process, payload) do
+    impl().send_info_message(lv_process, payload)
   end
 
-  def send_cast(%LvProcess{} = lv_process, payload) do
-    GenServer.cast(lv_process.pid, payload)
+  @doc """
+  Sends a GenServer cast to the LiveView process.
+
+  The message will be handled by the `handle_cast/2` callback.
+  """
+  @spec send_genserver_cast(LvProcess.t(), term()) :: :ok
+  def send_genserver_cast(%LvProcess{} = lv_process, payload) do
+    impl().send_genserver_cast(lv_process, payload)
   end
 
-  def send_call(%LvProcess{} = lv_process, payload) do
-    GenServer.call(lv_process.pid, payload)
+  @doc """
+  Sends a GenServer call to the LiveView process.
+
+  The message will be handled by the `handle_call/3` callback.
+  Returns the response from the LiveView process.
+  """
+  @spec send_genserver_call(LvProcess.t(), term()) :: term()
+  def send_genserver_call(%LvProcess{} = lv_process, payload) do
+    impl().send_genserver_call(lv_process, payload)
   end
 
-  def send_event(%LvProcess{} = lv_process, cid \\ nil, event, unassigned_params) do
-    payload = %{"event" => event, "value" => unassigned_params, "type" => "debug"}
-    payload = if is_nil(cid), do: payload, else: Map.put(payload, "cid", cid.cid)
+  @doc """
+  Sends a Phoenix LiveView event to the LiveView process.
 
-    message = %Phoenix.Socket.Message{
-      topic: "lv:#{lv_process.socket_id}",
-      event: "event",
-      payload: payload
-    }
+  This simulates a user-triggered event (like a button click) and will be handled
+  by the `handle_event/3` callback in the LiveView or LiveComponent.
 
-    send(lv_process.pid, message)
+  ## Parameters
+
+    * `lv_process` - The target LiveView process
+    * `cid` - Optional component ID (CID) if targeting a LiveComponent, `nil` for LiveView
+    * `event` - The event name as a string
+    * `params` - The event parameters as a map
+  """
+  @spec send_lv_event(LvProcess.t(), %CID{} | nil, String.t(), map()) :: term()
+  def send_lv_event(%LvProcess{} = lv_process, cid \\ nil, event, params) do
+    impl().send_lv_event(lv_process, cid, event, params)
+  end
+
+  defp impl do
+    Application.get_env(
+      :live_debugger,
+      :api_user_events,
+      __MODULE__.Impl
+    )
+  end
+
+  defmodule Impl do
+    @moduledoc false
+    @behaviour LiveDebugger.API.UserEvents
+
+    alias LiveDebugger.Structs.LvProcess
+    alias Phoenix.LiveComponent.CID
+
+    @impl true
+    def send_component_update(%LvProcess{} = lv_process, %CID{} = cid, payload) do
+      Phoenix.LiveView.send_update(lv_process.pid, cid, payload)
+    end
+
+    @impl true
+    def send_info_message(%LvProcess{} = lv_process, payload) do
+      send(lv_process.pid, payload)
+    end
+
+    @impl true
+    def send_genserver_cast(%LvProcess{} = lv_process, payload) do
+      GenServer.cast(lv_process.pid, payload)
+    end
+
+    @impl true
+    def send_genserver_call(%LvProcess{} = lv_process, payload) do
+      GenServer.call(lv_process.pid, payload)
+    end
+
+    @impl true
+    def send_lv_event(%LvProcess{} = lv_process, cid, event, params) do
+      payload = %{"event" => event, "value" => params, "type" => "debug"}
+      payload = if is_nil(cid), do: payload, else: Map.put(payload, "cid", cid.cid)
+
+      message = %Phoenix.Socket.Message{
+        topic: "lv:#{lv_process.socket_id}",
+        event: "event",
+        payload: payload
+      }
+
+      send(lv_process.pid, message)
+    end
   end
 end
-
-# alias LiveDebugger.API.UserEvents
-# [lv_process] = LiveDebugger.API.LiveViewDiscovery.debugged_lv_processes
-# UserEvents.send_event(lv_process, %Phoenix.LiveComponent.CID{cid: 6}, "show_child", %{})

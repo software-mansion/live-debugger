@@ -77,6 +77,16 @@ else
     LiveDebugger.MockAPIStatesStorage
   )
 
+  Mox.defmock(LiveDebugger.MockAPIUserEvents,
+    for: LiveDebugger.API.UserEvents
+  )
+
+  Application.put_env(
+    :live_debugger,
+    :api_user_events,
+    LiveDebugger.MockAPIUserEvents
+  )
+
   Mox.defmock(LiveDebugger.MockClient, for: LiveDebugger.Client)
   Application.put_env(:live_debugger, :client, LiveDebugger.MockClient)
 end
