@@ -123,6 +123,29 @@ defmodule LiveDebugger.Fakes do
     |> Enum.into(%{})
   end
 
+  def lv_process(opts \\ []) do
+    pid = Keyword.get(opts, :pid, :c.pid(0, 0, 1))
+    root_pid = Keyword.get(opts, :root_pid, pid)
+
+    default = [
+      pid: pid,
+      socket_id: Keyword.get(opts, :socket_id, "phx-test-socket"),
+      root_pid: root_pid,
+      parent_pid: nil,
+      transport_pid: :c.pid(0, 7, 0),
+      module: TestLiveView,
+      nested?: pid != root_pid,
+      debugger?: false,
+      embedded?: false,
+      alive?: true
+    ]
+
+    Kernel.struct!(
+      LiveDebugger.Structs.LvProcess,
+      Keyword.merge(default, opts)
+    )
+  end
+
   def socket(opts \\ []) do
     socket_id = Keyword.get(opts, :id, "phx-GBsi_6M7paYhySQj")
     socket_id = Keyword.get(opts, :socket_id, socket_id)
