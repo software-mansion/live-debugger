@@ -63,9 +63,9 @@ defmodule LiveDebugger.Structs.LvProcess do
     %__MODULE__{lv_process | alive?: alive?}
   end
 
-  @spec set_root_socket_id(t(), String.t()) :: t()
+  @spec set_root_socket_id(t(), String.t() | nil) :: t()
   def set_root_socket_id(%__MODULE__{} = lv_process, root_socket_id)
-      when is_binary(root_socket_id) do
+      when is_binary(root_socket_id) or is_nil(root_socket_id) do
     %__MODULE__{lv_process | root_socket_id: root_socket_id}
   end
 end

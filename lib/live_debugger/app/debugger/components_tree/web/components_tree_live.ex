@@ -19,6 +19,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
+  alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
 
   @doc """
   Renders the `ComponentsTreeLive` as a nested LiveView component.
@@ -140,6 +141,16 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     |> noreply()
   end
 
+  def handle_info(
+        %DeadViewModeEntered{debugger_pid: pid},
+        %{assigns: %{parent_pid: pid}} = socket
+      ) do
+    socket
+    |> assign(highlight_disabled?: true)
+    |> assign(lv_process: socket.assigns.lv_process |> LvProcess.set_alive(false))
+    |> noreply()
+  end
+
   def handle_info(_, socket), do: {:noreply, socket}
 
   defp assign_async_tree(socket) do
@@ -147,7 +158,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     assign_async(socket, [:tree], fn -> ComponentsTreeQueries.fetch_components_tree(pid) end)
   end
 
-  defp highlight_element(socket, params) do
+  defp highlight_element(%{assigns: %{lv_process: %LvProcess{alive?: true}}} = socket, params) do
     if SettingsStorage.get(:highlight_in_browser) do
       payload = %{
         attr: params["search-attribute"],
@@ -164,7 +175,9 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     socket
   end
 
-  defp pulse_element(socket, params) do
+  defp highlight_element(socket, _), do: socket
+
+  defp pulse_element(%{assigns: %{lv_process: %LvProcess{alive?: true}}} = socket, params) do
     if SettingsStorage.get(:highlight_in_browser) do
       payload = %{
         attr: params["search-attribute"],
@@ -177,4 +190,6 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
 
     socket
   end
+
+  defp pulse_element(socket, _), do: socket
 end
