@@ -5,12 +5,13 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
     LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
     LiveDebugger.API.SettingsStorage.save(:dead_view_mode, true)
     LiveDebugger.API.SettingsStorage.save(:tracing_enabled_on_start, false)
+    LiveDebugger.API.SettingsStorage.save(:dead_liveviews, false)
 
     :ok
   end
 
   @sessions 2
-  feature "dead view mode with navigation and disabled highlighting", %{
+  feature "dead view mode with navigation", %{
     sessions: [dev_app, debugger]
   } do
     dev_app
@@ -18,7 +19,7 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> find(css("#navbar-connected"))
     |> assert_text("Monitored PID")
 
@@ -42,11 +43,9 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
     |> assert_text("LiveDebuggerDev.LiveComponents.Crash")
 
     debugger
-    |> assert_has(css("label.pointer-events-none", text: "Highlight"))
     |> click(global_callback_traces_button())
     |> assert_has(global_traces(count: 25))
     |> click(node_inspector_button())
-    |> assert_has(css("label.pointer-events-none", text: "Highlight"))
   end
 
   @sessions 2
@@ -58,7 +57,7 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(global_callback_traces_button())
     |> click(clear_traces_button())
     |> click(toggle_tracing_button())

@@ -17,14 +17,14 @@ defmodule LiveDebugger.E2E.AssignsTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(term_entry("all-assigns", key: "counter", value: "0"))
     |> fill_in(assigns_search_bar(), with: "deep value")
     |> assert_has(css("pre", text: "\"deep value\"", count: 1, visible: true))
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(term_entry("all-assigns", key: "counter", value: "0"))
     |> assert_has(fullscreen_button())
     |> click(fullscreen_button())
@@ -41,7 +41,7 @@ defmodule LiveDebugger.E2E.AssignsTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(css("#pinned-assigns", text: "You have no pinned assigns."))
 
     debugger
@@ -74,7 +74,7 @@ defmodule LiveDebugger.E2E.AssignsTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(open_assigns_history_button())
     |> assert_has(term_entry("history-old-assigns", key: "counter", value: "2"))
     |> assert_has(term_entry("history-old-assigns", key: "datetime", value: "nil"))

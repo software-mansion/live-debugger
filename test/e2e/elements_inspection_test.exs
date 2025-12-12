@@ -14,7 +14,7 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(switch_inspect_mode_button())
 
     dev_app1
@@ -53,7 +53,7 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(switch_inspect_mode_button())
 
     dev_app1
@@ -79,7 +79,7 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(switch_inspect_mode_button())
 
     dev_app1
@@ -101,17 +101,17 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
 
     debugger1
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(switch_inspect_mode_button())
 
     debugger2
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(switch_inspect_mode_button())
 
     debugger3
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
 
     dev_app1
     |> click(live_component(2))
@@ -148,6 +148,7 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
 
     debugger
     |> visit("/")
+    |> hover(css("#live-sessions p.font-medium", text: "LiveDebuggerDev.LiveViews.Embedded"))
     |> click(css("#live-sessions p.font-medium", text: "LiveDebuggerDev.LiveViews.Embedded"))
     |> click(switch_inspect_mode_button())
 

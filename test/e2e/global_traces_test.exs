@@ -17,7 +17,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(global_callback_traces_button())
     |> assert_has(title(text: "Global Callback Traces"))
     |> assert_has(traces(count: 25))
@@ -60,7 +60,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(global_callback_traces_button())
     |> assert_has(title(text: "Global Callback Traces"))
     |> click(clear_traces_button())
@@ -99,7 +99,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(global_callback_traces_button())
     |> assert_has(title(text: "Global Callback Traces"))
     |> assert_has(traces(count: 25))
@@ -159,7 +159,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(global_callback_traces_button())
     |> assert_has(title(text: "Global Callback Traces"))
     |> assert_has(traces(count: 25))
@@ -184,7 +184,7 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     debugger
     |> resize_window(1920, 1080)
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(global_callback_traces_button())
     |> assert_has(title(text: "Global Callback Traces"))
     |> click(clear_traces_button())

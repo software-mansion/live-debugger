@@ -93,7 +93,6 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             lv_process={lv_process}
             url={@url}
             node_id={@node_id}
-            root_socket_id={@root_socket_id}
             inspect_mode?={@inspect_mode?}
             return_link={RoutesHelper.discovery()}
           />

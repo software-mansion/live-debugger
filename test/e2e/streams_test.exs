@@ -25,7 +25,7 @@ defmodule LiveDebugger.E2E.StreamsTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(items_display())
     |> click(items_display())
     |> assert_has(another_items_display())
@@ -82,7 +82,7 @@ defmodule LiveDebugger.E2E.StreamsTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(items_display())
     |> click(items_display())
     |> assert_has(another_items_display())
@@ -105,7 +105,7 @@ defmodule LiveDebugger.E2E.StreamsTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(items_display())
     |> click(items_display())
     |> assert_has(another_items_display())
@@ -129,7 +129,7 @@ defmodule LiveDebugger.E2E.StreamsTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> refute_has(streams_display())
   end
 
@@ -142,12 +142,12 @@ defmodule LiveDebugger.E2E.StreamsTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(streams_display())
     |> click(streams_collapsible())
     |> refute_has(streams_display())
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> refute_has(streams_display())
     |> click(streams_collapsible())
     |> assert_has(streams_display())

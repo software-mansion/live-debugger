@@ -25,7 +25,7 @@ defmodule LiveDebugger.E2E.AsyncJobsTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(node_module_info("AsyncDemo"))
     |> assert_has(async_jobs_section())
     |> assert_has(no_async_jobs())

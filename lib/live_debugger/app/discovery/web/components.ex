@@ -171,9 +171,16 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   defp list_element(assigns) do
     ~H"""
     <div class="flex w-full items-center">
-      <.link
-        navigate={RoutesHelper.debugger_node_inspector(@lv_process.pid)}
-        class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm live-view-link"
+      <button
+        id={Parsers.pid_to_string(@lv_process.pid)}
+        phx-click="select-live-view"
+        phx-hook="Highlight"
+        phx-value-search-value={@lv_process.socket_id}
+        phx-value-module={@lv_process.module}
+        phx-value-root-socket-id={@lv_process.root_socket_id}
+        phx-value-id={Parsers.pid_to_string(@lv_process.pid)}
+        phx-target={@target}
+        class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm"
       >
         <div class="flex flex-col gap-1">
           <div class="text-link-primary flex items-center gap-1">
@@ -193,7 +200,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
             icon="icon-code"
           />
         </div>
-      </.link>
+      </button>
       <div :if={@remove_event} class="pl-3">
         <.button
           phx-click={@remove_event}

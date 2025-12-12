@@ -17,7 +17,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(assigns_entry(key: "counter", value: "0"))
     |> assert_has(traces(count: 2))
 
@@ -92,7 +92,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(css("div#traces", text: "Callback traces"))
     |> assert_has(settings_button())
     |> click(settings_button())
@@ -111,7 +111,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(css("div#traces", text: "Callback traces"))
     |> click(return_button())
     |> assert_has(css("h1", text: "Active LiveViews"))
@@ -126,7 +126,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(conditional_component_5_node_button())
     |> find(sidebar_basic_info(), fn info ->
       info
@@ -157,7 +157,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(traces(count: 2))
     |> click(toggle_tracing_button())
 
@@ -260,7 +260,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_traces(6, [
       "render/1",
       "handle_event/3",
@@ -305,7 +305,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(traces(count: 2))
     |> click(toggle_tracing_button())
 
@@ -413,7 +413,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(toggle_tracing_button())
 
     dev_app
@@ -459,7 +459,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> find(sidebar_basic_info())
     |> assert_text("LiveDebuggerDev.LiveViews.Main")
 
@@ -489,7 +489,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_text("LiveDebuggerDev.LiveViews.Main")
     |> execute_script("""
       window._copiedText = null;
@@ -521,8 +521,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
-    |> click(highlight_switch())
+    |> select_live_view()
     |> hover(name_component_2_node_button())
 
     Process.sleep(400)
@@ -542,7 +541,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(traces(count: 2))
     |> click(toggle_tracing_button())
 
@@ -600,7 +599,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(traces(count: 2))
     |> fill_in(search_bar(), with: ":new_datetime")
 
@@ -674,11 +673,4 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   end
 
   defp open_fullscreen_trace_button(), do: css("button[phx-click=\"open-trace\"]")
-
-  # The toggle_switch component uses a hidden checkbox input with class "sr-only" (screen reader only).
-  # Wallaby cannot click on hidden elements, so we need to click on the visible label element
-  # that contains the checkbox instead of the checkbox itself.
-  defp highlight_switch() do
-    xpath("//label[.//input[@id='highlight-switch']]")
-  end
 end
