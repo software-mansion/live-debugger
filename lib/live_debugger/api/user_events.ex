@@ -9,12 +9,13 @@ defmodule LiveDebugger.API.UserEvents do
 
   alias LiveDebugger.Structs.LvProcess
   alias Phoenix.LiveComponent.CID
+  alias LiveDebugger.CommonTypes
 
-  @callback send_component_update(LvProcess.t(), %CID{}, map()) :: :ok
+  @callback send_component_update(LvProcess.t(), CommonTypes.cid(), map()) :: :ok
   @callback send_info_message(LvProcess.t(), term()) :: term()
   @callback send_genserver_cast(LvProcess.t(), term()) :: :ok
   @callback send_genserver_call(LvProcess.t(), term()) :: term()
-  @callback send_lv_event(LvProcess.t(), %CID{} | nil, String.t(), map()) :: term()
+  @callback send_lv_event(LvProcess.t(), CommonTypes.cid() | nil, String.t(), map()) :: term()
 
   @doc """
   Sends an update to a LiveComponent.
@@ -22,7 +23,7 @@ defmodule LiveDebugger.API.UserEvents do
   This will trigger the `update_many/1` callback if defined, otherwise falls back to `update/2`.
   See: https://hexdocs.pm/phoenix_live_view/Phoenix.LiveComponent.html#module-update-many
   """
-  @spec send_component_update(LvProcess.t(), %CID{}, map()) :: :ok
+  @spec send_component_update(LvProcess.t(), CommonTypes.cid(), map()) :: :ok
   def send_component_update(%LvProcess{} = lv_process, %CID{} = cid, payload) do
     impl().send_component_update(lv_process, cid, payload)
   end
@@ -71,7 +72,7 @@ defmodule LiveDebugger.API.UserEvents do
     * `event` - The event name as a string
     * `params` - The event parameters as a map
   """
-  @spec send_lv_event(LvProcess.t(), %CID{} | nil, String.t(), map()) :: term()
+  @spec send_lv_event(LvProcess.t(), CommonTypes.cid() | nil, String.t(), map()) :: term()
   def send_lv_event(%LvProcess{} = lv_process, cid \\ nil, event, params) do
     impl().send_lv_event(lv_process, cid, event, params)
   end
