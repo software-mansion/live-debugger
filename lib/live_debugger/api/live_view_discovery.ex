@@ -13,7 +13,7 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
   @callback lv_processes() :: [LvProcess.t()]
   @callback children_lv_processes(pid(), searched_lv_processes :: [LvProcess.t()] | nil) ::
               [LvProcess.t()]
-  @callback root_socket_id(LvProcess.t()) :: LvProcess.t()
+  @callback get_root_socket_id(LvProcess.t()) :: String.t() | nil
 
   @doc """
   Returns all debugged LvProcesses.
@@ -67,9 +67,9 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
     impl().children_lv_processes(pid, searched_lv_processes)
   end
 
-  @spec root_socket_id(LvProcess.t()) :: LvProcess.t()
-  def root_socket_id(lv_process) do
-    impl().root_socket_id(lv_process)
+  @spec get_root_socket_id(LvProcess.t()) :: LvProcess.t()
+  def get_root_socket_id(lv_process) do
+    impl().get_root_socket_id(lv_process)
   end
 
   defp impl() do
@@ -169,23 +169,18 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
     end
 
     @impl true
-    def root_socket_id(lv_process) do
-      root_socket_id = get_root_socket_id(lv_process)
-      LvProcess.set_root_socket_id(lv_process, root_socket_id)
-    end
-
-    defp get_root_socket_id(%LvProcess{embedded?: false, nested?: false} = lv_process) do
+    def get_root_socket_id(%LvProcess{embedded?: false, nested?: false} = lv_process) do
       lv_process.socket_id
     end
 
-    defp get_root_socket_id(%LvProcess{embedded?: true, nested?: false} = lv_process) do
+    def get_root_socket_id(%LvProcess{embedded?: true, nested?: false} = lv_process) do
       case find_root_lv_process_over_transport_pid(lv_process.transport_pid) do
         %LvProcess{socket_id: socket_id} -> socket_id
         _ -> lv_process.socket_id
       end
     end
 
-    defp get_root_socket_id(lv_process) do
+    def get_root_socket_id(lv_process) do
       lv_process.root_pid
       |> lv_process()
       |> case do
@@ -195,7 +190,7 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
       end
     end
 
-    defp find_root_lv_process_over_transport_pid(transport_pid) do
+    def find_root_lv_process_over_transport_pid(transport_pid) do
       debugged_lv_processes()
       |> Enum.find(fn
         %LvProcess{transport_pid: ^transport_pid, embedded?: false, nested?: false} -> true

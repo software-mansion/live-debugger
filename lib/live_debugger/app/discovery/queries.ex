@@ -48,6 +48,8 @@ defmodule LiveDebugger.App.Discovery.Queries do
     Process.sleep(milliseconds)
 
     LiveViewDiscovery.debugged_lv_processes()
-    |> Enum.map(&LiveViewDiscovery.root_socket_id/1)
+    |> Enum.map(fn lv_process ->
+      LvProcess.set_root_socket_id(lv_process, LiveViewDiscovery.get_root_socket_id(lv_process))
+    end)
   end
 end

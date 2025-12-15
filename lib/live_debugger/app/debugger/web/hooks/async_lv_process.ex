@@ -57,8 +57,11 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
 
   defp get_lv_process_with_root_socket_id(pid) do
     case LvProcessQueries.get_lv_process_with_retries(pid) do
-      nil -> nil
-      %LvProcess{} = lv_process -> LiveViewDiscovery.root_socket_id(lv_process)
+      nil ->
+        nil
+
+      %LvProcess{} = lv_process ->
+        LvProcess.set_root_socket_id(lv_process, LiveViewDiscovery.get_root_socket_id(lv_process))
     end
   end
 end
