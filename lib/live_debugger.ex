@@ -20,6 +20,19 @@ defmodule LiveDebugger do
   def start(_type, _args) do
     disabled? = Application.get_env(@app_name, :disabled?, false)
     children = if disabled?, do: [], else: get_children()
+
+    crash_events = [
+      [:phoenix, :live_view, :handle_event, :exception],
+      [:phoenix, :live_component, :handle_event, :exception]
+    ]
+
+    :telemetry.attach_many(
+      "live_debugger",
+      crash_events,
+      &LiveDebugger.App.CrashHandler.handle_event/4,
+      nil
+    )
+
     Supervisor.start_link(children, strategy: :one_for_one, name: LiveDebugger.Supervisor)
   end
 

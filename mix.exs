@@ -88,7 +88,8 @@ defmodule LiveDebugger.MixProject do
       {:phx_new, "~> 1.7", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
-      {:wallaby, "~> 0.30", runtime: false, only: :test}
+      {:wallaby, "~> 0.30", runtime: false, only: :test},
+      {:telemetry, "~> 1.0"}
     ]
   end
 
