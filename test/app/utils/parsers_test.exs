@@ -16,13 +16,13 @@ defmodule LiveDebugger.App.Utils.ParsersTest do
         )
 
       assert Parsers.parse_timestamp(timestamp1) ==
-               "00:00:01"
+               "00:00:01.000000"
                |> apply_timezone_diff(timezone_offset_minutes)
 
       timestamp2 = 60_000_000
 
       assert Parsers.parse_timestamp(timestamp2) ==
-               "00:01:00" |> apply_timezone_diff(timezone_offset_minutes)
+               "00:01:00.000000" |> apply_timezone_diff(timezone_offset_minutes)
     end
 
     test "returns \"Invalid timestamp\" when timestamp is invalid" do
@@ -100,6 +100,6 @@ defmodule LiveDebugger.App.Utils.ParsersTest do
     time
     |> Time.from_iso8601!()
     |> Time.add(timezone_offset_minutes, :minute)
-    |> Calendar.strftime("%H:%M:%S")
+    |> Calendar.strftime("%H:%M:%S.%6f")
   end
 end

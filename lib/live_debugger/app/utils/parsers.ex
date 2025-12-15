@@ -36,7 +36,7 @@ defmodule LiveDebugger.App.Utils.Parsers do
   ## Examples
 
       iex> LiveDebugger.App.Utils.Parsers.parse_timestamp(1_000_000)
-      "00:00:01"
+      "00:00:01.000000"
   """
   @spec parse_timestamp(non_neg_integer()) :: String.t()
   def parse_timestamp(timestamp) when is_integer(timestamp) and timestamp > 0 do
@@ -44,9 +44,9 @@ defmodule LiveDebugger.App.Utils.Parsers do
     |> DateTime.from_unix(:microsecond)
     |> apply_timezone_diff()
     |> case do
-      {:ok, %DateTime{hour: hour, minute: minute, second: second}} ->
-        "~2..0B:~2..0B:~2..0B"
-        |> :io_lib.format([hour, minute, second])
+      {:ok, %DateTime{hour: hour, minute: minute, second: second, microsecond: {micro, _}}} ->
+        "~2..0B:~2..0B:~2..0B.~6..0B"
+        |> :io_lib.format([hour, minute, second, micro])
         |> IO.iodata_to_binary()
 
       _ ->
