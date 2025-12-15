@@ -146,7 +146,6 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
         %{assigns: %{parent_pid: pid}} = socket
       ) do
     socket
-    |> assign(highlight_disabled?: true)
     |> assign(lv_process: socket.assigns.lv_process |> LvProcess.set_alive(false))
     |> noreply()
   end
