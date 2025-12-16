@@ -2,9 +2,10 @@ defmodule LiveDebugger.E2E.DiscoveryTest do
   use LiveDebugger.E2ECase
 
   @sessions 3
-  feature "user can see active live views which are refreshed automatically", %{
-    sessions: [dev_app1, dev_app2, debugger]
-  } do
+  feature "user can see active live views and their highlights which are refreshed automatically",
+          %{
+            sessions: [dev_app1, dev_app2, debugger]
+          } do
     dev_app1
     |> visit(@dev_app_url)
 
@@ -16,8 +17,30 @@ defmodule LiveDebugger.E2E.DiscoveryTest do
     dev_app2
     |> visit(@dev_app_url)
 
+    Process.sleep(200)
+
     debugger
     |> assert_has(live_sessions(count: 2))
+    |> hover(live_view_button(at: 0))
+
+    dev_app1
+    |> assert_has(inspect_tooltip_module_text("LiveDebuggerDev.LiveViews.Main"))
+    |> assert_has(inspect_tooltip_type_text("LiveView"))
+
+    dev_app2
+    |> refute_has(inspect_tooltip_module_text("LiveDebuggerDev.LiveViews.Main"))
+    |> refute_has(inspect_tooltip_type_text("LiveView"))
+
+    debugger
+    |> hover(live_view_button(at: 1))
+
+    dev_app1
+    |> refute_has(inspect_tooltip_module_text("LiveDebuggerDev.LiveViews.Main"))
+    |> refute_has(inspect_tooltip_type_text("LiveView"))
+
+    dev_app2
+    |> assert_has(inspect_tooltip_module_text("LiveDebuggerDev.LiveViews.Main"))
+    |> assert_has(inspect_tooltip_type_text("LiveView"))
   end
 
   @sessions 2
