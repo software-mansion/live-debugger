@@ -75,7 +75,12 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
           </div>
         </div>
       </.async_result>
-      <.live_component module={SendEventFullscreen} id="send-event-fullscreen" />
+      <.live_component
+        module={SendEventFullscreen}
+        id="send-event-fullscreen"
+        lv_process={@lv_process}
+        node_id={@node_id}
+      />
     </div>
     """
   end

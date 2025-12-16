@@ -12,15 +12,21 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
     {"update", "update"}
   ]
 
+  alias LiveDebugger.API.UserEvents
+
   @impl true
   def update(assigns, socket) do
     socket
     |> assign(:id, assigns.id)
+    |> assign(:lv_process, assigns.lv_process)
+    |> assign(:node_id, assigns.node_id)
     |> assign_form()
     |> ok()
   end
 
   attr(:id, :string, required: true)
+  attr(:lv_process, :any, required: true)
+  attr(:node_id, :any, required: true)
 
   @impl true
   def render(assigns) do
@@ -50,7 +56,12 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   end
 
   @impl true
-  def handle_event("submit", _params, socket) do
+  def handle_event("submit", %{"handler" => handler, "message" => message}, socket) do
+    dbg(handler)
+    dbg(message)
+
+    UserEvents.send_info_message(socket.assigns.lv_process, message)
+
     socket
     |> push_event("#{socket.assigns.id}-close", %{})
     |> noreply()
