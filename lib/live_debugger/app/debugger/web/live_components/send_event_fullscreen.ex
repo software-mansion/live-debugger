@@ -12,8 +12,6 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
     {"update", "update"}
   ]
 
-  @fullscreen_id "send-event-modal"
-
   @impl true
   def update(assigns, socket) do
     socket
@@ -26,11 +24,9 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :fullscreen_id, @fullscreen_id)
-
     ~H"""
     <div>
-      <.fullscreen id={@fullscreen_id} title="Send Event" class="max-w-156">
+      <.fullscreen id={@id} title="Send Event" class="max-w-156">
         <div class="p-4">
           <.form for={@form} phx-submit="submit" phx-target={@myself}>
             <div class="flex flex-col gap-4">
@@ -56,7 +52,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   @impl true
   def handle_event("submit", _params, socket) do
     socket
-    |> push_event("#{@fullscreen_id}-close", %{})
+    |> push_event("#{socket.assigns.id}-close", %{})
     |> noreply()
   end
 

@@ -68,7 +68,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               variant="secondary"
               size="sm"
               id="send-event-button"
-              phx-click={JS.dispatch("open", to: "#send-event-modal")}
+              phx-click={JS.dispatch("open", to: "#send-event-fullscreen")}
             >
               <.icon name="icon-send" class="w-4 h-4" /> Send Event
             </.button>
