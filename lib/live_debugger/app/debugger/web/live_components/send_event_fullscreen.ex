@@ -57,9 +57,8 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   end
 
   defp assign_form(socket) do
-    form =
-      %{"handler" => "handle_info", "message" => ""}
-      |> to_form(id: socket.assigns.id)
+    params = %{"handler" => "handle_info", "message" => ""}
+    form = to_form(params, id: socket.assigns.id <> "-form")
 
     assign(socket, :form, form)
   end
