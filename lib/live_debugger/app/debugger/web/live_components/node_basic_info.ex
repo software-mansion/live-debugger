@@ -7,14 +7,9 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
+  alias LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen
   alias LiveDebugger.App.Utils.Parsers
   alias Phoenix.LiveView.JS
-
-  @handler_options [
-    {"handle_info", "handle_info"},
-    {"handle_event", "handle_event"},
-    {"update", "update"}
-  ]
 
   @impl true
   def update(assigns, socket) do
@@ -24,17 +19,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     |> assign(:lv_process, assigns.lv_process)
     |> assign_node_type()
     |> assign_async_node_module()
-    |> assign_send_event_form()
     |> ok()
-  end
-
-  @impl true
-  def handle_event("send-event", params, socket) do
-    dbg(params)
-
-    socket
-    |> push_event("send-event-modal-close", %{})
-    |> noreply()
   end
 
   attr(:id, :string, required: true)
@@ -90,25 +75,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
           </div>
         </div>
       </.async_result>
-      <.fullscreen id="send-event-modal" title="Send Event" class="max-w-156">
-        <div class="p-4">
-          <.form for={@send_event_form} phx-submit="send-event" phx-target={@myself}>
-            <div class="flex flex-col gap-4">
-              <.select field={@send_event_form[:handler]} label="Handler" options={handler_options()} />
-              <.textarea
-                field={@send_event_form[:message]}
-                label="Message"
-                rows="6"
-                placeholder="Enter your message..."
-                textarea_class="font-mono"
-              />
-              <.button variant="primary" type="submit" class="!w-full">
-                Send
-              </.button>
-            </div>
-          </.form>
-        </div>
-      </.fullscreen>
+      <.live_component module={SendEventFullscreen} id="send-event-fullscreen" />
     </div>
     """
   end
@@ -140,14 +107,4 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
       end
     end)
   end
-
-  defp assign_send_event_form(socket) do
-    form =
-      %{"handler" => "handle_info", "message" => ""}
-      |> to_form(id: "send-event-form")
-
-    assign(socket, :send_event_form, form)
-  end
-
-  defp handler_options, do: @handler_options
 end
