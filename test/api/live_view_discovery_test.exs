@@ -431,4 +431,217 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
       end
     end
   end
+
+  describe "get_root_socket_id/1" do
+    test "returns socket_id for a regular LvProcess" do
+      pid = :c.pid(0, 11, 0)
+
+      lv_process = %LvProcess{
+        pid: pid,
+        root_pid: pid,
+        transport_pid: :c.pid(0, 12, 0),
+        socket_id: "regular",
+        embedded?: false,
+        nested?: false
+      }
+
+      assert "regular" == LiveViewDiscoveryImpl.get_root_socket_id(lv_process)
+    end
+
+    test "returns root socket_id for an embedded LvProcess if a root exists with same transport_pid" do
+      embedded_pid = :c.pid(0, 11, 0)
+      root_pid = :c.pid(0, 12, 0)
+      transport_pid = :c.pid(0, 13, 0)
+      root_socket_id = "root_socket"
+
+      embedded_lv_process =
+        %LvProcess{
+          pid: embedded_pid,
+          transport_pid: transport_pid,
+          socket_id: "embedded_socket",
+          embedded?: true,
+          nested?: false
+        }
+
+      MockAPILiveViewDebug
+      |> expect(:list_liveviews, fn ->
+        [Fakes.liveview(pid: root_pid), Fakes.liveview(pid: embedded_pid)]
+      end)
+      |> expect(:socket, 2, fn
+        ^root_pid ->
+          {:ok,
+           Fakes.socket(
+             id: root_socket_id,
+             root_pid: root_pid,
+             transport_pid: transport_pid,
+             view: Test
+           )}
+
+        ^embedded_pid ->
+          {:ok,
+           Fakes.socket(
+             id: embedded_lv_process.socket_id,
+             root_pid: embedded_pid,
+             transport_pid: transport_pid,
+             embedded?: true,
+             view: Test
+           )}
+      end)
+
+      assert root_socket_id == LiveViewDiscoveryImpl.get_root_socket_id(embedded_lv_process)
+    end
+
+    test "returns its own socket_id for an embedded LvProcess if no root exists with same transport_pid" do
+      pid = :c.pid(0, 11, 0)
+      transport_pid = :c.pid(0, 12, 0)
+
+      embedded_lv_process =
+        %LvProcess{
+          pid: pid,
+          transport_pid: transport_pid,
+          socket_id: "embedded_socket",
+          embedded?: true,
+          nested?: false
+        }
+
+      MockAPILiveViewDebug
+      |> expect(:list_liveviews, fn -> [Fakes.liveview(pid: pid)] end)
+      |> expect(:socket, fn
+        ^pid ->
+          {:ok,
+           Fakes.socket(
+             id: embedded_lv_process.socket_id,
+             root_pid: pid,
+             transport_pid: transport_pid,
+             view: Test
+           )}
+      end)
+
+      assert embedded_lv_process.socket_id ==
+               LiveViewDiscoveryImpl.get_root_socket_id(embedded_lv_process)
+    end
+
+    test "returns root socket_id for a nested LvProcess with a regular root" do
+      pid = :c.pid(0, 12, 0)
+      root_pid = :c.pid(0, 11, 0)
+      root_socket_id = "root_socket"
+
+      nested_lv_process =
+        %LvProcess{
+          pid: pid,
+          root_pid: root_pid,
+          nested?: true,
+          socket_id: "nested_socket"
+        }
+
+      MockAPILiveViewDebug
+      |> expect(:list_liveviews, fn ->
+        [Fakes.liveview(pid: pid), Fakes.liveview(pid: root_pid)]
+      end)
+      |> expect(:socket, 2, fn
+        ^root_pid ->
+          {:ok,
+           Fakes.socket(
+             id: root_socket_id,
+             root_pid: root_pid,
+             view: Test
+           )}
+
+        ^pid ->
+          {:ok,
+           Fakes.socket(
+             id: nested_lv_process.socket_id,
+             root_pid: root_pid,
+             view: Test
+           )}
+      end)
+
+      assert root_socket_id == LiveViewDiscoveryImpl.get_root_socket_id(nested_lv_process)
+    end
+
+    test "returns root socket_id for a nested LvProcess with an embedded root" do
+      transport_pid = :c.pid(0, 15, 0)
+      root_pid = :c.pid(0, 11, 0)
+      embedded_pid = :c.pid(0, 12, 0)
+      pid = :c.pid(0, 10, 0)
+      root_socket_id = "root_socket"
+      embedded_socket_id = "embedded_socket"
+
+      nested_lv_process =
+        %LvProcess{
+          pid: pid,
+          root_pid: embedded_pid,
+          nested?: true,
+          socket_id: "nested_socket"
+        }
+
+      MockAPILiveViewDebug
+      |> expect(:list_liveviews, 2, fn ->
+        [
+          Fakes.liveview(pid: root_pid),
+          Fakes.liveview(pid: embedded_pid),
+          Fakes.liveview(pid: pid)
+        ]
+      end)
+      |> expect(:socket, 6, fn
+        ^root_pid ->
+          {:ok,
+           Fakes.socket(
+             id: root_socket_id,
+             root_pid: root_pid,
+             transport_pid: transport_pid,
+             view: Test
+           )}
+
+        ^embedded_pid ->
+          {:ok,
+           Fakes.socket(
+             id: embedded_socket_id,
+             root_pid: embedded_pid,
+             transport_pid: transport_pid,
+             embedded?: true,
+             view: Test
+           )}
+
+        ^pid ->
+          {:ok,
+           Fakes.socket(
+             id: nested_lv_process.socket_id,
+             root_pid: embedded_pid,
+             transport_pid: transport_pid,
+             nested?: true,
+             view: Test
+           )}
+      end)
+
+      assert root_socket_id == LiveViewDiscoveryImpl.get_root_socket_id(nested_lv_process)
+    end
+
+    test "returns nil for a nested LvProcess if root_pid is not found" do
+      root_pid = :c.pid(0, 11, 0)
+      pid = :c.pid(0, 10, 0)
+
+      nested_lv_process =
+        %LvProcess{
+          pid: pid,
+          root_pid: root_pid,
+          nested?: true,
+          socket_id: "nested_socket"
+        }
+
+      MockAPILiveViewDebug
+      |> expect(:list_liveviews, fn -> [Fakes.liveview(pid: pid)] end)
+      |> expect(:socket, fn
+        ^pid ->
+          {:ok,
+           Fakes.socket(
+             id: nested_lv_process.socket_id,
+             root_pid: root_pid,
+             view: Test
+           )}
+      end)
+
+      assert nil == LiveViewDiscoveryImpl.get_root_socket_id(nested_lv_process)
+    end
+  end
 end

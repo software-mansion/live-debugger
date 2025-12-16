@@ -23,7 +23,7 @@ defmodule LiveDebugger.App.Discovery.QueriesTest do
 
       MockAPILiveViewDiscovery
       |> expect(:debugged_lv_processes, fn -> [lv_process] end)
-      |> expect(:root_socket_id, fn ^lv_process -> lv_process end)
+      |> expect(:get_root_socket_id, fn ^lv_process -> lv_process.socket_id end)
       |> expect(:group_lv_processes, fn [^lv_process] -> grouped_lv_processes end)
 
       assert {^grouped_lv_processes, 1} = DiscoveryQueries.fetch_grouped_lv_processes()
@@ -42,7 +42,7 @@ defmodule LiveDebugger.App.Discovery.QueriesTest do
       MockAPILiveViewDiscovery
       |> expect(:debugged_lv_processes, 2, fn -> [] end)
       |> expect(:debugged_lv_processes, fn -> [lv_process] end)
-      |> expect(:root_socket_id, fn ^lv_process -> lv_process end)
+      |> expect(:get_root_socket_id, fn ^lv_process -> lv_process.socket_id end)
       |> expect(:group_lv_processes, fn [^lv_process] -> grouped_lv_processes end)
 
       assert {^grouped_lv_processes, 1} = DiscoveryQueries.fetch_grouped_lv_processes()
