@@ -8,6 +8,13 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
   alias LiveDebugger.App.Utils.Parsers
+  alias Phoenix.LiveView.JS
+
+  @handler_options [
+    {"handle_info", "handle_info"},
+    {"handle_event", "handle_event"},
+    {"update", "update"}
+  ]
 
   @impl true
   def update(assigns, socket) do
@@ -17,7 +24,17 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     |> assign(:lv_process, assigns.lv_process)
     |> assign_node_type()
     |> assign_async_node_module()
+    |> assign_send_event_form()
     |> ok()
+  end
+
+  @impl true
+  def handle_event("send-event", params, socket) do
+    dbg(params)
+
+    socket
+    |> push_event("send-event-modal-close", %{})
+    |> noreply()
   end
 
   attr(:id, :string, required: true)
@@ -62,12 +79,51 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
             </div>
           </div>
           <div>
-            <.button variant="secondary" size="sm">
+            <.button
+              variant="secondary"
+              size="sm"
+              id="send-event-button"
+              phx-click={JS.dispatch("open", to: "#send-event-modal")}
+            >
               <.icon name="icon-send" class="w-4 h-4" /> Send Event
             </.button>
           </div>
         </div>
       </.async_result>
+      <.fullscreen id="send-event-modal" title="Send Event" class="max-w-128">
+        <div class="p-4">
+          <.form for={@send_event_form} phx-submit="send-event" phx-target={@myself}>
+            <div class="flex flex-col gap-4">
+              <div class="flex flex-col gap-2">
+                <label for="handler" class="font-medium text-sm">Handler</label>
+                <select
+                  id={@send_event_form[:handler].id}
+                  name={@send_event_form[:handler].name}
+                  class="w-full rounded bg-surface-0-bg border border-default-border text-xs"
+                >
+                  <%= Phoenix.HTML.Form.options_for_select(
+                    handler_options(),
+                    @send_event_form[:handler].value
+                  ) %>
+                </select>
+              </div>
+              <div class="flex flex-col gap-2">
+                <label for="message" class="font-medium text-sm">Message</label>
+                <textarea
+                  id={@send_event_form[:message].id}
+                  name={@send_event_form[:message].name}
+                  rows="6"
+                  placeholder="Enter your message..."
+                  class="w-full rounded bg-surface-0-bg border border-default-border text-xs placeholder:text-ui-muted resize-y font-mono"
+                ><%= @send_event_form[:message].value %></textarea>
+              </div>
+              <.button variant="primary" type="submit" class="!w-full">
+                Send
+              </.button>
+            </div>
+          </.form>
+        </div>
+      </.fullscreen>
     </div>
     """
   end
@@ -99,4 +155,14 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
       end
     end)
   end
+
+  defp assign_send_event_form(socket) do
+    form =
+      %{"handler" => "handle_info", "message" => ""}
+      |> to_form(id: "send-event-form")
+
+    assign(socket, :send_event_form, form)
+  end
+
+  defp handler_options, do: @handler_options
 end
