@@ -133,7 +133,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
     {:noreply, assign(socket, datetime: datetime)}
   end
 
-  def handle_info("increment", socket) do
+  def handle_info(:increment, socket) do
     {:noreply, assign(socket, counter: socket.assigns.counter + 1)}
   end
 
