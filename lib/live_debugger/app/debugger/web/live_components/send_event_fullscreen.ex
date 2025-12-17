@@ -6,7 +6,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
 
   use LiveDebugger.App.Web, :live_component
 
-  alias LiveDebugger.API.UserEvents
+  alias LiveDebugger.App.Debugger.Actions.UserEvents, as: UserEventsActions
 
   @lc_handler_options [
     {"handle_event/3", "handle_event/3"},
@@ -86,35 +86,13 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
         %{"handler" => "handle_event/3", "payload" => payload, "event" => event},
         socket
       ) do
-    event = String.trim(event)
-    payload = if String.trim(payload) == "", do: "%{}", else: payload
-
-    with {:ok, _} <- validate_event(event),
-         {:ok, term} <- parse_elixir_term(payload) do
-      cid = get_cid(socket.assigns.node_id)
-      UserEvents.send_lv_event(socket.assigns.lv_process, cid, event, term)
-
-      socket
-      |> assign(:message_error, nil)
-      |> push_event("#{socket.assigns.id}-close", %{})
-      |> noreply()
-    else
-      {:error, error} ->
-        socket
-        |> assign(:message_error, error)
-        |> noreply()
-    end
-  end
-
-  def handle_event(
-        "submit",
-        %{"handler" => handler, "payload" => payload},
-        socket
-      ) do
-    case parse_elixir_term(payload) do
-      {:ok, term} ->
-        send_message(handler, socket.assigns.lv_process, socket.assigns.node_id, term)
-
+    case UserEventsActions.send_lv_event(
+           socket.assigns.lv_process,
+           socket.assigns.node_id,
+           event,
+           payload
+         ) do
+      {:ok, _} ->
         socket
         |> assign(:message_error, nil)
         |> push_event("#{socket.assigns.id}-close", %{})
@@ -127,52 +105,27 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
     end
   end
 
-  defp send_message("handle_info/2", lv_process, _node_id, payload) do
-    UserEvents.send_info_message(lv_process, payload)
-  end
+  def handle_event(
+        "submit",
+        %{"handler" => handler, "payload" => payload},
+        socket
+      ) do
+    case UserEventsActions.send_message(
+           handler,
+           socket.assigns.lv_process,
+           socket.assigns.node_id,
+           payload
+         ) do
+      {:ok, _} ->
+        socket
+        |> assign(:message_error, nil)
+        |> push_event("#{socket.assigns.id}-close", %{})
+        |> noreply()
 
-  defp send_message("handle_cast/2", lv_process, _node_id, payload) do
-    UserEvents.send_genserver_cast(lv_process, payload)
-  end
-
-  defp send_message("handle_call/3", lv_process, _node_id, payload) do
-    UserEvents.send_genserver_call(lv_process, payload)
-  end
-
-  defp send_message("update/2", lv_process, node_id, payload) do
-    UserEvents.send_component_update(lv_process, node_id, payload)
-  end
-
-  defp get_cid(node_id) when is_pid(node_id), do: nil
-  defp get_cid(cid), do: cid
-
-  defp validate_event(""), do: {:error, "Event cannot be empty"}
-  defp validate_event(_event), do: {:ok, :valid}
-
-  defp parse_elixir_term(""), do: {:error, "Payload cannot be empty"}
-
-  defp parse_elixir_term(string) do
-    with {:ok, quoted} <- Code.string_to_quoted(string),
-         {:ok, term} <- safe_eval(quoted) do
-      {:ok, term}
-    else
-      {:error, {_line, message, token}} when is_binary(message) and is_binary(token) ->
-        {:error, "Syntax error: #{message}#{token}"}
-
-      {:error, {_line, message, token}} ->
-        {:error, "Syntax error: #{inspect(message)}#{inspect(token)}"}
-
-      {:error, message} when is_binary(message) ->
-        {:error, "Evaluation error: #{message}"}
-    end
-  end
-
-  defp safe_eval(quoted) do
-    try do
-      {term, _binding} = Code.eval_quoted(quoted)
-      {:ok, term}
-    rescue
-      e -> {:error, Exception.message(e)}
+      {:error, error} ->
+        socket
+        |> assign(:message_error, error)
+        |> noreply()
     end
   end
 
