@@ -22,6 +22,14 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   ]
 
   @impl true
+  def update(%{reset_form?: true}, socket) do
+    socket
+    |> assign(:message_error, nil)
+    |> assign_form()
+    |> ok()
+  end
+
+  @impl true
   def update(assigns, socket) do
     socket
     |> assign(:id, assigns.id)

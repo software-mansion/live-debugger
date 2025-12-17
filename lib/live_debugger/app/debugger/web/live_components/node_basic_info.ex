@@ -9,7 +9,6 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
   alias LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen
   alias LiveDebugger.App.Utils.Parsers
-  alias Phoenix.LiveView.JS
 
   @impl true
   def update(assigns, socket) do
@@ -69,7 +68,8 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               size="sm"
               id="send-event-button"
               disabled={not @lv_process.alive?}
-              phx-click={JS.dispatch("open", to: "#send-event-fullscreen")}
+              phx-click="open-send-event"
+              phx-target={@myself}
             >
               <.icon name="icon-send" class="w-4 h-4" /> Send Event
             </.button>
@@ -84,6 +84,18 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
       />
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("open-send-event", _, socket) do
+    send_update(SendEventFullscreen,
+      id: "send-event-fullscreen",
+      reset_form?: true
+    )
+
+    socket
+    |> push_event("send-event-fullscreen-open", %{})
+    |> noreply()
   end
 
   defp assign_node_type(socket) do
