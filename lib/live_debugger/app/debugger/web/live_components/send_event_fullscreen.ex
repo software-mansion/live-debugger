@@ -50,10 +50,10 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
               />
               <div class="flex flex-col gap-2">
                 <.textarea
-                  field={@form[:message]}
-                  label="Message (Elixir term)"
+                  field={@form[:payload]}
+                  label={payload_label(@form[:handler].value)}
                   rows="6"
-                  placeholder={~s|{:hello, "world", 123}|}
+                  placeholder={payload_placeholder(@form[:handler].value)}
                   textarea_class="font-mono"
                 />
                 <p :if={@message_error} class="text-xs text-error-text truncate">
@@ -81,10 +81,10 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   @impl true
   def handle_event(
         "submit",
-        %{"handler" => handler, "message" => message} = params,
+        %{"handler" => handler, "payload" => payload} = params,
         socket
       ) do
-    case parse_elixir_term(message) do
+    case parse_elixir_term(payload) do
       {:ok, term} ->
         dbg(handler)
         dbg(term)
@@ -102,7 +102,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
     end
   end
 
-  defp parse_elixir_term(""), do: {:error, "Message cannot be empty"}
+  defp parse_elixir_term(""), do: {:error, "Payload cannot be empty"}
 
   defp parse_elixir_term(string) do
     with {:ok, quoted} <- Code.string_to_quoted(string),
@@ -130,7 +130,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   end
 
   defp assign_form(socket, params \\ %{}) do
-    defaults = %{"handler" => "handle_event/3", "message" => "", "event" => ""}
+    defaults = %{"handler" => "handle_event/3", "payload" => "", "event" => ""}
     params = Map.merge(defaults, params)
     form = to_form(params, id: socket.assigns.id <> "-form")
 
@@ -139,4 +139,12 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
 
   defp handler_options(node_id) when is_pid(node_id), do: @lv_handler_options
   defp handler_options(_), do: @lc_handler_options
+
+  defp payload_label("update/2"), do: "Assigns"
+  defp payload_label("handle_event/3"), do: "Unsigned params"
+  defp payload_label(_), do: "Message"
+
+  defp payload_placeholder("update/2"), do: ~s|%{my_assign: "value"}|
+  defp payload_placeholder("handle_event/3"), do: ~s|%{my_param: "value"}|
+  defp payload_placeholder(_), do: ~s|{:my, "message"}|
 end
