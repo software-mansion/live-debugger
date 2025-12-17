@@ -121,6 +121,44 @@ defmodule LiveDebugger.App.Web.Components do
   end
 
   @doc """
+  Text input element usable in forms.
+
+  ## Examples
+
+    <.form for={@form}>
+      <.text_input field={@form[:my_field]} label="My Field" placeholder="Enter text..." />
+    </.form>
+  """
+  attr(:field, Phoenix.HTML.FormField, required: true)
+  attr(:label, :string, default: nil)
+
+  attr(:wrapper_class, :any, default: nil, doc: "Additional classes for the wrapper div.")
+  attr(:input_class, :any, default: nil, doc: "Additional classes for the input element.")
+  attr(:label_class, :any, default: nil, doc: "Additional classes for the label element.")
+  attr(:rest, :global, include: ~w(type placeholder))
+
+  def text_input(assigns) do
+    ~H"""
+    <div class={["flex flex-col gap-2" | List.wrap(@wrapper_class)]}>
+      <label :if={@label} for={@field.id} class={["font-medium text-sm" | List.wrap(@label_class)]}>
+        <%= @label %>
+      </label>
+      <input
+        type={@rest[:type] || "text"}
+        id={@field.id}
+        name={@field.name}
+        value={@field.value}
+        class={[
+          "w-full rounded bg-surface-0-bg border border-default-border text-xs placeholder:text-ui-muted px-3 py-2"
+          | List.wrap(@input_class)
+        ]}
+        {@rest}
+      />
+    </div>
+    """
+  end
+
+  @doc """
   Textarea element usable in forms.
 
   ## Examples

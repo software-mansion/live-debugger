@@ -39,9 +39,15 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
     <div>
       <.fullscreen id={@id} title="Send Event" class="max-w-156">
         <div class="p-4">
-          <.form for={@form} phx-submit="submit" phx-target={@myself}>
+          <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
             <div class="flex flex-col gap-4">
               <.select field={@form[:handler]} label="Handler" options={handler_options(@node_id)} />
+              <.text_input
+                :if={@form[:handler].value == "handle_event/3"}
+                field={@form[:event]}
+                label="Event"
+                placeholder="e.g., click, submit"
+              />
               <div class="flex flex-col gap-2">
                 <.textarea
                   field={@form[:message]}
@@ -63,6 +69,13 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
       </.fullscreen>
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("change", params, socket) do
+    socket
+    |> assign_form(params)
+    |> noreply()
   end
 
   @impl true
@@ -111,8 +124,9 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
     end
   end
 
-  defp assign_form(socket) do
-    params = %{"handler" => "handle_event/3", "message" => ""}
+  defp assign_form(socket, params \\ %{}) do
+    defaults = %{"handler" => "handle_event/3", "message" => "", "event" => ""}
+    params = Map.merge(defaults, params)
     form = to_form(params, id: socket.assigns.id <> "-form")
 
     assign(socket, :form, form)
