@@ -79,11 +79,16 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   end
 
   @impl true
-  def handle_event("submit", %{"handler" => handler, "message" => message}, socket) do
+  def handle_event(
+        "submit",
+        %{"handler" => handler, "message" => message} = params,
+        socket
+      ) do
     case parse_elixir_term(message) do
       {:ok, term} ->
         dbg(handler)
         dbg(term)
+        dbg(params["event"])
 
         socket
         |> assign(:message_error, nil)
