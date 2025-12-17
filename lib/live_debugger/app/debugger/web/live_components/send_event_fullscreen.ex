@@ -7,15 +7,15 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   use LiveDebugger.App.Web, :live_component
 
   @lc_handler_options [
-    {"handle_event/3", "handle_event"},
-    {"update/2", "update"}
+    {"handle_event/3", "handle_event/3"},
+    {"update/2", "update/2"}
   ]
 
   @lv_handler_options [
-    {"handle_info/2", "handle_info"},
-    {"handle_event/3", "handle_event"},
-    {"handle_call/3", "handle_call"},
-    {"handle_cast/2", "handle_cast"}
+    {"handle_event/3", "handle_event/3"},
+    {"handle_info/2", "handle_info/2"},
+    {"handle_call/3", "handle_call/3"},
+    {"handle_cast/2", "handle_cast/2"}
   ]
 
   @impl true
@@ -112,7 +112,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   end
 
   defp assign_form(socket) do
-    params = %{"handler" => "handle_info", "message" => ""}
+    params = %{"handler" => "handle_event/3", "message" => ""}
     form = to_form(params, id: socket.assigns.id <> "-form")
 
     assign(socket, :form, form)

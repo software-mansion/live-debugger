@@ -68,6 +68,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               variant="secondary"
               size="sm"
               id="send-event-button"
+              disabled={not @lv_process.alive?}
               phx-click={JS.dispatch("open", to: "#send-event-fullscreen")}
             >
               <.icon name="icon-send" class="w-4 h-4" /> Send Event
@@ -78,7 +79,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
       <.live_component
         module={SendEventFullscreen}
         id="send-event-fullscreen"
-        lv_process={@lv_process}
+        lv_process={@lv_process |> dbg()}
         node_id={@node_id}
       />
     </div>
