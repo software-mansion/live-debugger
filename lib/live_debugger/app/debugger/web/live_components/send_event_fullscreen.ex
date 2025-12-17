@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   use LiveDebugger.App.Web, :live_component
 
   alias LiveDebugger.App.Debugger.Actions.UserEvents, as: UserEventsActions
+  alias LiveDebugger.App.Debugger.Web.Components.HandlerInfo
 
   @lc_handler_options [
     {"handle_event/3", "handle_event/3"},
@@ -44,7 +45,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
           <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
             <div class="flex flex-col gap-4">
               <.select field={@form[:handler]} label="Handler" options={handler_options(@node_id)} />
-              <.handler_info handler={@form[:handler].value} />
+              <HandlerInfo.handler_info handler={@form[:handler].value} />
               <.text_input
                 :if={@form[:handler].value == "handle_event/3"}
                 field={@form[:event]}
@@ -118,32 +119,4 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   defp payload_placeholder("update/2"), do: ~s|%{my_assign: "value"}|
   defp payload_placeholder("handle_event/3"), do: ~s|%{my_param: "value"}|
   defp payload_placeholder(_), do: ~s|{:my, "message"}|
-
-  attr(:handler, :string, required: true)
-
-  defp handler_info(%{handler: handler} = assigns) do
-    assigns = assign(assigns, :description, handler_description(handler))
-
-    ~H"""
-    <div class="flex items-start gap-2 text-xs text-secondary-text pl-1 pb-2">
-      <.icon name="icon-info" class="w-4 h-4 shrink-0 text-info-icon" />
-      <span><%= @description %></span>
-    </div>
-    """
-  end
-
-  defp handler_description("handle_event/3"),
-    do: "Sends a Phoenix LiveView event. Triggers handle_event/3 callback."
-
-  defp handler_description("handle_info/2"),
-    do: "Sends a message via Kernel.send/2. Triggers handle_info/2 callback."
-
-  defp handler_description("handle_cast/2"),
-    do: "Sends an async message via GenServer.cast/2. Triggers handle_cast/2 callback."
-
-  defp handler_description("handle_call/3"),
-    do: "Sends a sync message via GenServer.call/3. Triggers handle_call/3 callback."
-
-  defp handler_description("update/2"),
-    do: "Sends assigns via Phoenix.LiveView.send_update/3. Triggers update/2 callback."
 end
