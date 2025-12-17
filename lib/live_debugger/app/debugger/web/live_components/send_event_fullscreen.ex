@@ -44,7 +44,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
                   placeholder={~s|{:hello, "world", 123}|}
                   textarea_class="font-mono"
                 />
-                <p :if={@message_error} class="text-xs text-error-text">
+                <p :if={@message_error} class="text-xs text-error-text truncate">
                   <%= @message_error %>
                 </p>
               </div>
