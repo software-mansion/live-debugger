@@ -81,41 +81,11 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   end
 
   @impl true
-  def handle_event(
-        "submit",
-        %{"handler" => "handle_event/3", "payload" => payload, "event" => event},
-        socket
-      ) do
-    case UserEventsActions.send_lv_event(
-           socket.assigns.lv_process,
-           socket.assigns.node_id,
-           event,
-           payload
-         ) do
-      {:ok, _} ->
-        socket
-        |> assign(:message_error, nil)
-        |> push_event("#{socket.assigns.id}-close", %{})
-        |> noreply()
+  def handle_event("submit", params, socket) do
+    lv_process = socket.assigns.lv_process
+    node_id = socket.assigns.node_id
 
-      {:error, error} ->
-        socket
-        |> assign(:message_error, error)
-        |> noreply()
-    end
-  end
-
-  def handle_event(
-        "submit",
-        %{"handler" => handler, "payload" => payload},
-        socket
-      ) do
-    case UserEventsActions.send_message(
-           handler,
-           socket.assigns.lv_process,
-           socket.assigns.node_id,
-           payload
-         ) do
+    case UserEventsActions.send(params, lv_process, node_id) do
       {:ok, _} ->
         socket
         |> assign(:message_error, nil)

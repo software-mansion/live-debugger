@@ -8,6 +8,25 @@ defmodule LiveDebugger.App.Debugger.Actions.UserEvents do
   alias LiveDebugger.CommonTypes
 
   @doc """
+  Sends a message based on form params. Dispatches to `send_lv_event/4` or `send_message/4`.
+
+  Returns `{:ok, result}` on success or `{:error, reason}` on failure.
+  """
+  @spec send(map(), LvProcess.t(), pid() | CommonTypes.cid()) ::
+          {:ok, term()} | {:error, String.t()}
+  def send(
+        %{"handler" => "handle_event/3", "event" => event, "payload" => payload},
+        lv_process,
+        node_id
+      ) do
+    send_lv_event(lv_process, node_id, event, payload)
+  end
+
+  def send(%{"handler" => handler, "payload" => payload}, lv_process, node_id) do
+    send_message(handler, lv_process, node_id, payload)
+  end
+
+  @doc """
   Sends a LiveView event (handle_event/3).
 
   Returns `{:ok, result}` on success or `{:error, reason}` on failure.
