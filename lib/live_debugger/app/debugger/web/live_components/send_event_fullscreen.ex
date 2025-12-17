@@ -6,10 +6,16 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
 
   use LiveDebugger.App.Web, :live_component
 
-  @handler_options [
-    {"handle_info", "handle_info"},
-    {"handle_event", "handle_event"},
-    {"update", "update"}
+  @lc_handler_options [
+    {"handle_event/3", "handle_event"},
+    {"update/2", "update"}
+  ]
+
+  @lv_handler_options [
+    {"handle_info/2", "handle_info"},
+    {"handle_event/3", "handle_event"},
+    {"handle_call/3", "handle_call"},
+    {"handle_cast/2", "handle_cast"}
   ]
 
   @impl true
@@ -35,7 +41,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
         <div class="p-4">
           <.form for={@form} phx-submit="submit" phx-target={@myself}>
             <div class="flex flex-col gap-4">
-              <.select field={@form[:handler]} label="Handler" options={handler_options()} />
+              <.select field={@form[:handler]} label="Handler" options={handler_options(@node_id)} />
               <div class="flex flex-col gap-2">
                 <.textarea
                   field={@form[:message]}
@@ -112,5 +118,6 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
     assign(socket, :form, form)
   end
 
-  defp handler_options, do: @handler_options
+  defp handler_options(node_id) when is_pid(node_id), do: @lv_handler_options
+  defp handler_options(_), do: @lc_handler_options
 end
