@@ -10,7 +10,7 @@ defmodule LiveDebugger.E2E.ResourcesTest do
 
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> click(resources_tab())
     |> assert_has(css("div#process-info"))
     |> assert_has(process_info_field("Initial Call"))

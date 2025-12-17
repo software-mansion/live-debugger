@@ -21,7 +21,8 @@ defmodule LiveDebugger.Support.CssQueries do
 
   def refresh_button(), do: css("button[phx-click=\"refresh\"]")
 
-  def first_link(), do: css("#live-sessions a.live-view-link", count: 1)
+  def live_view_button(opts \\ []),
+    do: css("button[phx-click=\"select-live-view\"]", opts)
 
   def live_component(id), do: css("div[data-phx-component=\"#{id}\"]")
 

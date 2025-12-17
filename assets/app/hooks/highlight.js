@@ -1,32 +1,40 @@
 const Highlight = {
   mounted() {
-    const highlightSwitch = document.querySelector('#highlight-switch');
-    let params = {};
+    this.highlighted = false;
+    this.liveComponent = this.el.closest('[data-phx-id]');
 
-    this.pushHighlight = (e) => {
-      if (highlightSwitch.checked) {
-        const attr = e.target.attributes;
+    const attr = this.el.attributes;
 
-        params = {
-          'search-attribute': attr['phx-value-search-attribute'].value,
-          'search-value': attr['phx-value-search-value'].value,
-          type: attr['phx-value-type'].value,
-          module: attr['phx-value-module'].value,
-          id: attr['phx-value-id'].value,
-        };
-
-        this.pushEvent('highlight', params);
-      }
+    this.params = {
+      'root-socket-id': attr['phx-value-root-socket-id']?.value,
+      'search-attribute': attr['phx-value-search-attribute']?.value,
+      'search-value': attr['phx-value-search-value'].value,
+      type: attr['phx-value-type']?.value,
+      module: attr['phx-value-module']?.value,
+      id: attr['phx-value-id']?.value,
     };
 
-    if (highlightSwitch) {
-      this.el.addEventListener('mouseenter', this.pushHighlight);
-      this.el.addEventListener('mouseleave', this.pushHighlight);
-    }
+    this.pushHighlight = () => {
+      this.pushEventTo(this.liveComponent, 'highlight', this.params);
+      this.highlighted = !this.highlighted;
+    };
+
+    this.el.addEventListener('mouseenter', () => {
+      if (!this.highlighted) this.pushHighlight();
+    });
+    this.el.addEventListener('mouseleave', () => {
+      if (this.highlighted) this.pushHighlight();
+    });
   },
   destroyed() {
     this.el.removeEventListener('mouseenter', this.pushHighlight);
     this.el.removeEventListener('mouseleave', this.pushHighlight);
+
+    setTimeout(() => {
+      if (this.highlighted && this.liveComponent.checkVisibility()) {
+        this.pushHighlight();
+      }
+    }, 200);
   },
 };
 

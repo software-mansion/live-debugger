@@ -5,9 +5,13 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.ActiveLiveViews do
 
   use LiveDebugger.App.Web, :live_component
 
+  alias LiveDebugger.API.SettingsStorage
+  alias LiveDebugger.Client
+  alias LiveDebugger.App.Utils.Parsers
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Discovery.Web.Components, as: DiscoveryComponents
   alias LiveDebugger.App.Discovery.Queries, as: DiscoveryQueries
+  alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
   def refresh(id) do
     send_update(__MODULE__, id: id, action: :refresh)
@@ -61,6 +65,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.ActiveLiveViews do
               id="live-sessions"
               grouped_lv_processes={grouped_lv_processes}
               empty_info="No active LiveViews"
+              target={@myself}
             />
           </.async_result>
         </div>
@@ -83,6 +88,20 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.ActiveLiveViews do
     |> noreply()
   end
 
+  def handle_event("highlight", params, socket) do
+    socket
+    |> highlight_element(params)
+    |> noreply()
+  end
+
+  def handle_event("select-live-view", %{"id" => pid} = params, socket) do
+    socket
+    # Resets the highlight when the user selects LiveView
+    |> highlight_element(params)
+    |> push_navigate(to: RoutesHelper.debugger_node_inspector(pid))
+    |> noreply()
+  end
+
   @impl true
   def handle_async(
         :fetch_grouped_lv_processes,
@@ -101,5 +120,22 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.ActiveLiveViews do
       :fetch_grouped_lv_processes,
       &DiscoveryQueries.fetch_grouped_lv_processes/0
     )
+  end
+
+  defp highlight_element(socket, params) do
+    if SettingsStorage.get(:highlight_in_browser) do
+      payload = %{
+        attr: "id",
+        val: params["search-value"],
+        type: "LiveView",
+        module: Parsers.module_to_string(params["module"]),
+        id_value: params["id"],
+        id_key: "PID"
+      }
+
+      Client.push_event!(params["root-socket-id"], "highlight", payload)
+    end
+
+    socket
   end
 end

@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
 
   require Logger
 
+  alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.Client
   alias LiveDebugger.App.Utils.URL
   alias LiveDebugger.Structs.LvProcess
@@ -33,7 +34,6 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
   attr(:id, :string, required: true)
   attr(:socket, Phoenix.LiveView.Socket, required: true)
   attr(:lv_process, LvProcess, required: true)
-  attr(:root_socket_id, :string, required: true)
   attr(:node_id, :any, required: true)
   attr(:url, :string, required: true)
   attr(:class, :string, default: "", doc: "CSS class for the wrapper div")
@@ -42,7 +42,6 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     session = %{
       "lv_process" => assigns.lv_process,
       "node_id" => assigns.node_id,
-      "root_socket_id" => assigns.root_socket_id,
       "url" => assigns.url,
       "parent_pid" => self()
     }
@@ -68,10 +67,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     |> assign(lv_process: lv_process)
     |> assign(parent_pid: parent_pid)
     |> assign(node_id: session["node_id"])
-    |> assign(root_socket_id: session["root_socket_id"])
     |> assign(url: session["url"])
-    |> assign(highlight?: false)
-    |> assign(highlight_disabled?: !lv_process.alive?)
     |> assign_async_tree()
     |> ok()
   end
@@ -89,14 +85,6 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
       <div class="min-h-20 px-1 overflow-y-auto overflow-x-hidden flex flex-col">
         <div class="flex items-center justify-between">
           <div class="shrink-0 font-medium text-secondary-text px-6 py-3">Components Tree</div>
-          <.toggle_switch
-            :if={LiveDebugger.Feature.enabled?(:browser_features?)}
-            id="highlight-switch"
-            label="Highlight"
-            checked={@highlight?}
-            phx-click="toggle-highlight"
-            disabled={@highlight_disabled?}
-          />
         </div>
         <div class="flex-1">
           <TreeComponents.tree_node
@@ -112,12 +100,6 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
   end
 
   @impl true
-  def handle_event("toggle-highlight", _params, socket) do
-    socket
-    |> update(:highlight?, &(not &1))
-    |> noreply()
-  end
-
   def handle_event("highlight", params, socket) do
     socket
     |> highlight_element(params)
@@ -128,7 +110,6 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
     socket
     |> pulse_element(params)
     |> push_patch(to: URL.upsert_query_param(socket.assigns.url, "node_id", node_id))
-    |> assign(:highlight?, false)
     |> noreply()
   end
 
@@ -165,58 +146,49 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
         %{assigns: %{parent_pid: pid}} = socket
       ) do
     socket
-    |> assign(highlight_disabled?: true)
-    |> assign(highlight?: false)
+    |> assign(lv_process: socket.assigns.lv_process |> LvProcess.set_alive(false))
     |> noreply()
   end
+
+  def handle_info(_, socket), do: {:noreply, socket}
 
   defp assign_async_tree(socket) do
     pid = socket.assigns.lv_process.pid
     assign_async(socket, [:tree], fn -> ComponentsTreeQueries.fetch_components_tree(pid) end)
   end
 
-  defp highlight_element(
-         %{assigns: %{highlight_disabled?: false, highlight?: true}} = socket,
-         params
-       ) do
-    payload = %{
-      attr: params["search-attribute"],
-      val: params["search-value"],
-      type: if(params["type"] == "live_view", do: "LiveView", else: "LiveComponent"),
-      module: Parsers.module_to_string(params["module"]),
-      id_value: params["id"],
-      id_key: if(params["type"] == "live_view", do: "PID", else: "CID")
-    }
+  defp highlight_element(%{assigns: %{lv_process: %LvProcess{alive?: true}}} = socket, params) do
+    if SettingsStorage.get(:highlight_in_browser) do
+      payload = %{
+        attr: params["search-attribute"],
+        val: params["search-value"],
+        type: if(params["type"] == "live_view", do: "LiveView", else: "LiveComponent"),
+        module: Parsers.module_to_string(params["module"]),
+        id_value: params["id"],
+        id_key: if(params["type"] == "live_view", do: "PID", else: "CID")
+      }
 
-    Client.push_event!(socket.assigns.root_socket_id, "highlight", payload)
+      Client.push_event!(socket.assigns.lv_process.root_socket_id, "highlight", payload)
+    end
 
     socket
   end
 
-  defp highlight_element(socket, _) do
-    socket
-  end
+  defp highlight_element(socket, _), do: socket
 
-  defp pulse_element(%{assigns: %{highlight_disabled?: true}} = socket, _) do
-    socket
-  end
-
-  defp pulse_element(socket, params) do
-    if LiveDebugger.Feature.enabled?(:browser_features?) do
-      # Resets the highlight when the user selects node
-      if socket.assigns.highlight? do
-        Client.push_event!(socket.assigns.root_socket_id, "highlight")
-      end
-
+  defp pulse_element(%{assigns: %{lv_process: %LvProcess{alive?: true}}} = socket, params) do
+    if SettingsStorage.get(:highlight_in_browser) do
       payload = %{
         attr: params["search-attribute"],
         val: params["search-value"],
         type: if(params["type"] == "live_view", do: "LiveView", else: "LiveComponent")
       }
 
-      Client.push_event!(socket.assigns.root_socket_id, "pulse", payload)
+      Client.push_event!(socket.assigns.lv_process.root_socket_id, "pulse", payload)
     end
 
     socket
   end
+
+  defp pulse_element(socket, _), do: socket
 end

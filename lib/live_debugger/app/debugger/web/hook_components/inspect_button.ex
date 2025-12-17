@@ -47,7 +47,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   end
 
   defp handle_info(%DeadViewModeEntered{debugger_pid: pid}, socket) when pid == self() do
-    Client.push_event!(socket.assigns.root_socket_id, "inspect-mode-changed", %{
+    Client.push_event!(socket.assigns.lv_process.result.root_socket_id, "inspect-mode-changed", %{
       inspect_mode: false,
       pid: inspect(self())
     })
@@ -93,7 +93,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   defp handle_event(_, _, socket), do: {:cont, socket}
 
   defp switch_inspect_mode(socket) do
-    Client.push_event!(socket.assigns.root_socket_id, "inspect-mode-changed", %{
+    Client.push_event!(socket.assigns.lv_process.result.root_socket_id, "inspect-mode-changed", %{
       inspect_mode: !socket.assigns.inspect_mode?,
       pid: inspect(self())
     })

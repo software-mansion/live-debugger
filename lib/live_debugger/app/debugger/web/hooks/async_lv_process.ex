@@ -25,7 +25,7 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
     |> start_async(:lv_process, fn -> get_lv_process_with_root_socket_id(pid) end)
   end
 
-  defp handle_async(:lv_process, {:ok, {%LvProcess{} = lv_process, root_socket_id}}, socket) do
+  defp handle_async(:lv_process, {:ok, %LvProcess{} = lv_process}, socket) do
     Bus.broadcast_event!(%DebuggerMounted{
       debugger_pid: self(),
       debugged_pid: lv_process.pid
@@ -33,7 +33,6 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
 
     socket
     |> assign(:lv_process, AsyncResult.ok(lv_process))
-    |> assign(:root_socket_id, root_socket_id)
     |> halt()
   end
 
@@ -41,12 +40,6 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
     socket
     |> put_flash(:error, "LiveView process not found")
     |> push_navigate(to: RoutesHelper.discovery())
-    |> halt()
-  end
-
-  defp handle_async(:lv_process, {:ok, :root_socket_id_not_found}, socket) do
-    socket
-    |> push_navigate(to: RoutesHelper.error("root_socket_id_not_found"))
     |> halt()
   end
 
@@ -63,41 +56,12 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
   defp handle_async(_, _, socket), do: {:cont, socket}
 
   defp get_lv_process_with_root_socket_id(pid) do
-    with %LvProcess{} = lv_process <- LvProcessQueries.get_lv_process_with_retries(pid),
-         {:ok, root_socket_id} <- get_root_socket_id(lv_process) do
-      {lv_process, root_socket_id}
-    else
-      {:error, :root_socket_id_not_found} -> :root_socket_id_not_found
-      nil -> nil
+    case LvProcessQueries.get_lv_process_with_retries(pid) do
+      nil ->
+        nil
+
+      %LvProcess{} = lv_process ->
+        LvProcess.set_root_socket_id(lv_process, LiveViewDiscovery.get_root_socket_id(lv_process))
     end
-  end
-
-  defp get_root_socket_id(%LvProcess{embedded?: false, nested?: false} = lv_process) do
-    {:ok, lv_process.socket_id}
-  end
-
-  defp get_root_socket_id(%LvProcess{embedded?: true, nested?: false} = lv_process) do
-    case find_root_lv_process_over_transport_pid(lv_process.transport_pid) do
-      %LvProcess{socket_id: socket_id} -> {:ok, socket_id}
-      _ -> {:ok, lv_process.socket_id}
-    end
-  end
-
-  defp get_root_socket_id(lv_process) do
-    lv_process.root_pid
-    |> LvProcessQueries.get_lv_process()
-    |> case do
-      %LvProcess{embedded?: false} = lv_process -> {:ok, lv_process.socket_id}
-      %LvProcess{embedded?: true, nested?: false} = lv_process -> get_root_socket_id(lv_process)
-      _ -> {:error, :root_socket_id_not_found}
-    end
-  end
-
-  defp find_root_lv_process_over_transport_pid(transport_pid) do
-    LiveViewDiscovery.debugged_lv_processes()
-    |> Enum.find(fn
-      %LvProcess{transport_pid: ^transport_pid, embedded?: false, nested?: false} -> true
-      _ -> false
-    end)
   end
 end
