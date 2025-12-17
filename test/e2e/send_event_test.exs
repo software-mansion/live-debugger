@@ -1,8 +1,6 @@
 defmodule LiveDebugger.E2E.SendEventTest do
   use LiveDebugger.E2ECase
 
-  import LiveDebugger.Support.CssQueries
-
   setup_all do
     LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
     LiveDebugger.API.SettingsStorage.save(:tracing_enabled_on_start, false)
