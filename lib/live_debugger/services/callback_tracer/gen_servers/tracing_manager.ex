@@ -31,6 +31,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
     Bus.receive_events!()
     attach_telemetry_handler()
 
+    send(self(), :setup_tracing)
+
     {:ok, %{dbg_pid: nil}}
   end
 
@@ -45,6 +47,12 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
     TracingActions.monitor_recompilation()
 
     {:noreply, new_state}
+  end
+
+  def handle_info(:refresh_tracing, state) do
+    TracingActions.refresh_tracing()
+
+    {:noreply, state}
   end
 
   def handle_info(%LiveViewBorn{pid: pid}, state) do
@@ -80,7 +88,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   def handle_telemetry(@telemetry_event_name, _measurements, metadata, manager_pid) do
     if not LiveDebugger.Utils.Modules.debugger_module?(metadata.socket.endpoint) do
-      send(manager_pid, :setup_tracing)
+      send(manager_pid, :refresh_tracing)
 
       :telemetry.detach({__MODULE__, @telemetry_event_name, manager_pid})
     end
