@@ -84,14 +84,6 @@ LiveDebugger traces callbacks of `Phoenix.LiveView` and `Phoenix.LiveComponent` 
 - `update/2`
 - `update_many/1`
 
-## Configuration
-
-When you have complex application and Callback Tracing doesn't work after starting up then add delay of LiveDebugger setup:
-
-```elixir
-config :live_debugger, :tracing_setup_delay, 200 # in ms
-```
-
 ## How Callback Tracing works
 
 To properly check each callback we are leveraging erlang's [`:dbg`](https://www.erlang.org/doc/apps/runtime_tools/dbg.html) module. When the application starts `:dbg.tracer/0` is initiated and calls for all LiveView or LiveComponent modules are added. It traces start of the callback, end of it and exceptions if some occur which allows to measure time of execution and which callback ended with error.

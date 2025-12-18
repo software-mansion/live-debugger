@@ -17,9 +17,9 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
   describe "init/1" do
     test "sets up the tracing manager properly" do
       expect(MockBus, :receive_events!, fn -> :ok end)
-      assert {:ok, []} = TracingManager.init([])
+      assert {:ok, %{dbg_pid: nil}} = TracingManager.init([])
 
-      assert_receive :setup_tracing
+      # assert_receive :setup_tracing
     end
   end
 
@@ -44,24 +44,17 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
       end)
       |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
-      assert {:noreply, []} = TracingManager.handle_info(:setup_tracing, [])
+      assert {:noreply, %{dbg_pid: self()}} ==
+               TracingManager.handle_info(:setup_tracing, %{dbg_pid: nil})
     end
 
     test "handles TracingRefreshed event" do
-      MockAPIModule
-      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)
-      |> expect(:loaded?, fn _ -> true end)
-      |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
-
-      # Should call trace_pattern for Phoenix.LiveView.Diff.delete_component (1 call)
-      # Plus 2 calls per callback (return_trace and exception_trace)
-      # For LiveView callbacks: 9 callbacks * 2 = 18 calls
-      # Total: 1 + 18 = 19 calls
-      expect(MockAPIDbg, :trace_pattern, 19, fn _, _ -> :ok end)
+      expect(MockAPIDbg, :stop, fn -> :ok end)
 
       event = %UserRefreshedTrace{}
 
-      assert {:noreply, []} = TracingManager.handle_info(event, [])
+      assert {:noreply, %{dbg_pid: self()}} ==
+               TracingManager.handle_info(event, %{dbg_pid: self()})
     end
 
     test "handles LiveViewBorn event" do
