@@ -21,6 +21,7 @@ defmodule LiveDebugger.API.System.Dbg do
   @callback trace_pattern(module() | mfa(), match_spec :: term()) ::
               {:ok, term()} | {:error, term()}
   @callback clear_trace_pattern(module() | mfa()) :: {:ok, term()} | {:error, term()}
+  @callback stop() :: :ok
 
   @doc """
   Starts tracer process and returns its PID.
@@ -69,6 +70,15 @@ defmodule LiveDebugger.API.System.Dbg do
   end
 
   @doc """
+  Stops dbg process.
+  This is a wrapper for `:dbg.stop/0`
+  """
+  @spec stop() :: :ok
+  def stop() do
+    impl().stop()
+  end
+
+  @doc """
   Converts flag to `match_spec` format used by `tp/2` function.
   Available flags are: #{Enum.map_join(@tracing_flags, ", ", &"`:#{&1}`")}
   """
@@ -112,6 +122,11 @@ defmodule LiveDebugger.API.System.Dbg do
     @impl true
     def clear_trace_pattern(pattern) do
       :dbg.ctp(pattern)
+    end
+
+    @impl true
+    def stop() do
+      :dbg.stop()
     end
   end
 end

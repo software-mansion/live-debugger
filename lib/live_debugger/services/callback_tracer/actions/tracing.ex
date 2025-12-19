@@ -4,6 +4,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   """
   require Logger
 
+  alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
   alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
   alias LiveDebugger.Services.CallbackTracer.Process.Tracer
   alias LiveDebugger.API.System.Dbg
@@ -12,25 +13,25 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   alias LiveDebugger.Utils.Modules, as: UtilsModules
   alias LiveDebugger.Services.CallbackTracer.Queries.Paths, as: PathQueries
 
-  @spec setup_tracing!() :: :ok
-  def setup_tracing!() do
+  @spec setup_tracing!(TracingManager.state()) :: pid() | nil
+  def setup_tracing!(state) do
     case Dbg.tracer({&Tracer.handle_trace/2, 0}) do
       {:ok, pid} ->
-        Process.link(pid)
+        Process.monitor(pid)
+
+        Dbg.process([:c, :timestamp])
+        apply_trace_patterns()
+
+        %{state | dbg_pid: pid}
 
       {:error, error} ->
         raise "Couldn't start tracer: #{inspect(error)}"
     end
-
-    Dbg.process([:c, :timestamp])
-    apply_trace_patterns()
-
-    :ok
   end
 
   @spec refresh_tracing() :: :ok
   def refresh_tracing() do
-    apply_trace_patterns()
+    Dbg.stop()
 
     :ok
   end
