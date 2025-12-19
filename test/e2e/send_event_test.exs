@@ -18,7 +18,7 @@ defmodule LiveDebugger.E2E.SendEventTest do
     # Open debugger and select the LiveView
     debugger
     |> visit("/")
-    |> click(first_link())
+    |> select_live_view()
     |> assert_has(sidebar_basic_info())
     |> assert_has(assigns_entry(key: "counter", value: "0"))
 
