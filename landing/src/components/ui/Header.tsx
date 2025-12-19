@@ -7,7 +7,9 @@ import { getStorageValue } from "@/lib/utils";
 
 export interface HeaderProps extends React.HTMLAttributes<HTMLElement> {}
 
-const LATEST_NEWS_ID = "v0.5.0";
+// Keep the previous version to avoid confusion with the indicator
+// TODO: Update this on next release
+const LATEST_NEWS_ID = "v0.4.2";
 
 const navItems = [
   { name: "Features", href: "#features" },
