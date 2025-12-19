@@ -29,6 +29,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   @impl true
   def init(_opts) do
     Bus.receive_events!()
+    TracingActions.monitor_recompilation()
     attach_telemetry_handler()
 
     send(self(), :setup_tracing)
@@ -44,7 +45,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   @impl true
   def handle_info(:setup_tracing, state) do
     new_state = TracingActions.setup_tracing!(state)
-    TracingActions.monitor_recompilation()
 
     {:noreply, new_state}
   end

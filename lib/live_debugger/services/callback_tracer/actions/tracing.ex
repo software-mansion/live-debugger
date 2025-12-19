@@ -15,23 +15,17 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
 
   @spec setup_tracing!(TracingManager.state()) :: pid() | nil
   def setup_tracing!(state) do
-    pid =
-      case Dbg.tracer({&Tracer.handle_trace/2, 0}) do
-        {:ok, pid} ->
-          Process.monitor(pid)
-          pid
+    case Dbg.tracer({&Tracer.handle_trace/2, 0}) do
+      {:ok, pid} ->
+        Process.monitor(pid)
 
-        {:error, error} ->
-          raise "Couldn't start tracer: #{inspect(error)}"
-      end
+        Dbg.process([:c, :timestamp])
+        apply_trace_patterns()
 
-    Dbg.process([:c, :timestamp])
-    apply_trace_patterns()
+        %{state | dbg_pid: pid}
 
-    if is_pid(pid) do
-      %{state | dbg_pid: pid}
-    else
-      state
+      {:error, error} ->
+        raise "Couldn't start tracer: #{inspect(error)}"
     end
   end
 
