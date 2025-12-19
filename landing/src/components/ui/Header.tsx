@@ -7,9 +7,9 @@ import { getStorageValue } from "@/lib/utils";
 
 export interface HeaderProps extends React.HTMLAttributes<HTMLElement> {}
 
-// Keep the previous version to avoid confusion with the indicator
-// TODO: Update this on next release
-const LATEST_NEWS_ID = "v0.4.2";
+const DEFAULT_LATEST_NEWS_ID = "v0.5.0";
+const GITHUB_API_URL =
+  "https://api.github.com/repos/software-mansion/live-debugger/releases/latest";
 
 const navItems = [
   { name: "Features", href: "#features" },
@@ -47,14 +47,33 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
     const [isScrolled, setIsScrolled] = useState(false);
     const [showIndicator, setShowIndicator] = useState(false);
     const [activeTheme, setActiveTheme] = useState("dark");
+    const [latestNewsId, setLatestNewsId] = useState(DEFAULT_LATEST_NEWS_ID);
 
     const localHeaderRef = useRef<HTMLElement>(null);
     useImperativeHandle(ref, () => localHeaderRef.current!);
 
     useEffect(() => {
-      const seenVersion = getStorageValue("seenNewsVersion", null);
-      setShowIndicator(seenVersion !== LATEST_NEWS_ID);
+      const fetchLatestRelease = async () => {
+        try {
+          const response = await fetch(GITHUB_API_URL);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.tag_name) {
+              setLatestNewsId(data.tag_name);
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch latest release:", error);
+        }
+      };
+
+      fetchLatestRelease();
     }, []);
+
+    useEffect(() => {
+      const seenVersion = getStorageValue("seenNewsVersion", null);
+      setShowIndicator(seenVersion !== latestNewsId);
+    }, [latestNewsId]);
 
     useEffect(() => {
       const handleScroll = () => {
@@ -128,7 +147,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
                   if (item.href === "#whatsnew") {
                     setShowIndicator(false);
                     try {
-                      localStorage.setItem("seenNewsVersion", LATEST_NEWS_ID);
+                      localStorage.setItem("seenNewsVersion", latestNewsId);
                     } catch (error) {
                       console.error("Error setting localStorage", error);
                     }
