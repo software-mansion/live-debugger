@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
+  alias LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen
   alias LiveDebugger.App.Utils.Parsers
 
   @impl true
@@ -40,29 +41,61 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
             <p>Couldn't load basic information about the node.</p>
           </.alert>
         </:failed>
-        <div class="flex flex-row gap-8 w-max max-sm:flex-col">
-          <div class="w-full flex flex-col gap-1">
-            <span class="font-medium">Type:</span>
-            <span><%= @node_type %></span>
-          </div>
-          <div class="w-full flex flex-col gap-1">
-            <span class="font-medium">Module:</span>
-
-            <div class="flex gap-2">
-              <.tooltip
-                id={@id <> "-current-node-module"}
-                content={node_module}
-                class="max-sm:max-w-[260px] max-sm:truncate"
-              >
-                <%= node_module %>
-              </.tooltip>
-              <.copy_button id="copy-button-module-name" value={node_module} />
+        <div class="flex flex-row justify-between max-sm:flex-col max-sm:gap-2 sm:items-center">
+          <div class="flex flex-row max-sm:gap-2 gap-8 w-max max-sm:flex-col">
+            <div class="w-full flex flex-col gap-1">
+              <span class="font-medium">Type:</span>
+              <span><%= @node_type %></span>
             </div>
+            <div class="w-full flex flex-col gap-1">
+              <span class="font-medium">Module:</span>
+
+              <div class="flex gap-2">
+                <.tooltip
+                  id={@id <> "-current-node-module"}
+                  content={node_module}
+                  class="max-sm:max-w-[260px] max-sm:truncate"
+                >
+                  <%= node_module %>
+                </.tooltip>
+                <.copy_button id="copy-button-module-name" value={node_module} />
+              </div>
+            </div>
+          </div>
+          <div>
+            <.button
+              variant="secondary"
+              size="sm"
+              id="send-event-button"
+              disabled={not @lv_process.alive?}
+              phx-click="open-send-event"
+              phx-target={@myself}
+            >
+              <.icon name="icon-send" class="w-4 h-4" /> Send Event
+            </.button>
           </div>
         </div>
       </.async_result>
+      <.live_component
+        module={SendEventFullscreen}
+        id="send-event-fullscreen"
+        lv_process={@lv_process}
+        node_id={@node_id}
+      />
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("open-send-event", _, socket) do
+    send_update(SendEventFullscreen,
+      id: "send-event-fullscreen",
+      reset_form?: true
+    )
+
+    socket
+    |> push_event("send-event-fullscreen-open", %{})
+    |> noreply()
   end
 
   defp assign_node_type(socket) do
