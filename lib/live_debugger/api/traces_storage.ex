@@ -24,6 +24,7 @@ defmodule LiveDebugger.API.TracesStorage do
   @callback get_by_id!(table_identifier(), trace_id :: Trace.id()) :: Trace.t() | nil
   @callback get!(table_identifier(), opts :: keyword()) ::
               {[Trace.t()], continuation()} | :end_of_table
+  @callback get_last_trace(table_identifier()) :: Trace.t() | nil
   @callback clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
   @callback get_table(ets_table_id()) :: reference()
   @callback trim_table!(table_identifier(), max_size :: non_neg_integer()) :: true
@@ -114,6 +115,14 @@ defmodule LiveDebugger.API.TracesStorage do
     impl().get_table(pid)
   end
 
+  @doc """
+  Returns last trace for a given table.
+  """
+  @spec get_last_trace(table_identifier()) :: Trace.t() | nil
+  def get_last_trace(table_id) when is_table_identifier(table_id) do
+    impl().get_last_trace(table_id)
+  end
+
   @spec trim_table!(table_identifier(), non_neg_integer()) :: true
   def trim_table!(table_id, max_size) when is_table_identifier(table_id) do
     impl().trim_table!(table_id, max_size)
@@ -199,6 +208,17 @@ defmodule LiveDebugger.API.TracesStorage do
       |> case do
         [] -> nil
         [{_id, trace}] -> trace
+      end
+    end
+
+    @impl true
+    def get_last_trace(table_id) do
+      table_id
+      |> ets_table()
+      |> :ets.first()
+      |> case do
+        :"$end_of_table" -> nil
+        key -> {:ok, {key, :ets.lookup_element(table_id, key, 2)}}
       end
     end
 

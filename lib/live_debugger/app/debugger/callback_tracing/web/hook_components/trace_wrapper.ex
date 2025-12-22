@@ -49,8 +49,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
       id={@id}
       icon="icon-chevron-right"
       chevron_class="w-5 h-5 text-accent-icon"
-      class={["max-w-full border rounded last:mb-4", border_color_class(@trace_display)]}
-      label_class="font-semibold bg-surface-1-bg p-2 py-3 rounded"
+      class={[
+        "max-w-full border rounded last:mb-4",
+        border_color_class(@trace_display)
+      ]}
+      label_class={["font-semibold p-2 py-3 rounded", bg_color_class(@trace_display)]}
       phx-click="toggle-collapsible"
       phx-value-trace-id={@trace_display.id}
       phx-value-render-body={@trace_display.render_body?}
@@ -147,4 +150,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
   defp border_color_class(%{type: :error}), do: "border-error-icon"
   defp border_color_class(%{type: :diff}), do: "border-diff-border"
   defp border_color_class(%{type: :normal}), do: "border-default-border"
+
+  defp bg_color_class(%{type: :error}), do: "bg-red-50"
+  defp bg_color_class(%{type: :diff}), do: "bg-surface-1-bg"
+  defp bg_color_class(%{type: :normal}), do: "bg-surface-1-bg"
 end

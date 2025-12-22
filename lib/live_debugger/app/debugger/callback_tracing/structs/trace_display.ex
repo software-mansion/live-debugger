@@ -10,6 +10,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.Trace.FunctionTrace
   alias LiveDebugger.Structs.Trace.DiffTrace
+  alias LiveDebugger.Structs.Trace.TraceError
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.CommonTypes
 
@@ -23,7 +24,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
     :subtitle_link_data,
     :body,
     :side_section_left,
-    :side_section_right
+    :side_section_right,
+    :error
   ]
 
   @type type() :: :normal | :diff | :error
@@ -41,7 +43,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
           subtitle_link_data: %{pid: pid(), cid: CommonTypes.cid()} | nil,
           body: list({String.t(), term()}),
           side_section_left: side_section_left(),
-          side_section_right: side_section_right()
+          side_section_right: side_section_right(),
+          error: TraceError.t() | nil
         }
 
   @spec from_trace(Trace.t(), boolean()) :: t()
@@ -56,7 +59,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
       subtitle_link_data: get_subtitle_link_data(trace),
       body: get_body(trace),
       side_section_left: get_side_section_left(trace),
-      side_section_right: get_side_section_right(trace)
+      side_section_right: get_side_section_right(trace),
+      error: get_error(trace)
     }
   end
 
@@ -112,5 +116,24 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
 
   defp get_side_section_right(%DiffTrace{size: size}) do
     {:size, size}
+  end
+
+  defp get_error(%FunctionTrace{error: error}) when error != nil do
+    error
+  end
+
+  defp get_error(%FunctionTrace{
+         type: :exception_from,
+         return_value: {:error, %RuntimeError{message: _} = error}
+       }) do
+    %TraceError{
+      message: Exception.format_banner(:error, error),
+      stacktrace: nil,
+      raw_error: nil
+    }
+  end
+
+  defp get_error(%FunctionTrace{error: error}) do
+    error
   end
 end
