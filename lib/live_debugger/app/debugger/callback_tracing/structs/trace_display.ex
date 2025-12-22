@@ -136,4 +136,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   defp get_error(%FunctionTrace{error: error}) do
     error
   end
+
+  defp get_error(_), do: nil
 end

@@ -167,7 +167,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
     message = Exception.format_banner(:error, error)
     stacktrace = Exception.format_stacktrace(stacktrace)
-    dbg({message, stacktrace, pid, ts, raw_error_banner})
 
     with table <- TracesStorage.get_table(pid),
          {:ok, {_key, trace}} <- TracesStorage.get_last_trace(table),

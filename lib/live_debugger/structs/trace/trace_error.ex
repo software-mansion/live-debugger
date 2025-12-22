@@ -1,4 +1,7 @@
 defmodule LiveDebugger.Structs.Trace.TraceError do
+  @moduledoc """
+   This module defines a struct for representing trace errors.
+  """
   defstruct [
     :message,
     :raw_error,
