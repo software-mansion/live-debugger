@@ -30,7 +30,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   attr(:lv_process, LvProcess, required: true)
   attr(:url, :string, required: true)
   attr(:node_id, :any, required: true)
-  attr(:root_socket_id, :string, required: true)
   attr(:return_link, :string, required: true)
   attr(:inspect_mode?, :boolean, required: true)
 
@@ -97,7 +96,6 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
         id="components-tree"
         lv_process={@lv_process}
         socket={@socket}
-        root_socket_id={@root_socket_id}
         node_id={@node_id}
         url={@url}
         class="overflow-x-hidden"

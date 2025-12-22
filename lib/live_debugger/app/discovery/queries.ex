@@ -14,14 +14,14 @@ defmodule LiveDebugger.App.Discovery.Queries do
   Fetches all active LiveView processes grouped by their transport PID.
   Performs delayed fetching to ensure processes are captured.
   """
-  @spec fetch_grouped_lv_processes(transport_pid :: pid() | nil) ::
+  @spec fetch_grouped_lv_processes() ::
           {grouped_lv_processes :: grouped_lv_processes(),
            lv_processes_count :: non_neg_integer()}
-  def fetch_grouped_lv_processes(transport_pid \\ nil) do
+  def fetch_grouped_lv_processes() do
     lv_processes =
-      with [] <- fetch_lv_processes_after(200, transport_pid),
-           [] <- fetch_lv_processes_after(800, transport_pid) do
-        fetch_lv_processes_after(1000, transport_pid)
+      with [] <- fetch_lv_processes_after(0),
+           [] <- fetch_lv_processes_after(500) do
+        fetch_lv_processes_after(1000)
       end
 
     {LiveViewDiscovery.group_lv_processes(lv_processes), length(lv_processes)}
@@ -44,13 +44,12 @@ defmodule LiveDebugger.App.Discovery.Queries do
     {LiveViewDiscovery.group_lv_processes(dead_lv_processes), length(dead_lv_processes)}
   end
 
-  defp fetch_lv_processes_after(milliseconds, nil) do
+  defp fetch_lv_processes_after(milliseconds) do
     Process.sleep(milliseconds)
-    LiveViewDiscovery.debugged_lv_processes()
-  end
 
-  defp fetch_lv_processes_after(milliseconds, transport_pid) do
-    Process.sleep(milliseconds)
-    LiveViewDiscovery.debugged_lv_processes(transport_pid)
+    LiveViewDiscovery.debugged_lv_processes()
+    |> Enum.map(fn lv_process ->
+      LvProcess.set_root_socket_id(lv_process, LiveViewDiscovery.get_root_socket_id(lv_process))
+    end)
   end
 end

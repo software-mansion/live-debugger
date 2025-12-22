@@ -270,7 +270,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
     assigns = assign(assigns, :timestamp, timestamp)
 
     ~H"""
-    <.tooltip id={@id <> "-tooltip"} content="timestamp" class="min-w-24">
+    <.tooltip id={@id <> "-tooltip"} content="Timestamp" class="min-w-12">
       <%= Parsers.parse_timestamp(@timestamp) %>
     </.tooltip>
     """
