@@ -22,7 +22,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
         raise "Couldn't start tracer: #{inspect(error)}"
     end
 
-    Dbg.process([:c, :timestamp])
+    Dbg.process([:c, :timestamp, :procs])
     apply_trace_patterns()
 
     :ok

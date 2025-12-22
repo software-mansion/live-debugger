@@ -148,7 +148,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
                 </:label>
 
                 <:body>
-                  <.trace_body
+                  <.trace_body_navbar_wrapper
                     id={id <> "-body"}
                     trace_display={trace_display}
                     search_phrase={@trace_search_phrase}

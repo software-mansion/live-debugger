@@ -23,7 +23,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
 
       MockAPIDbg
       |> expect(:tracer, fn {_handler, 0} -> {:ok, self()} end)
-      |> expect(:process, fn [:c, :timestamp] -> :ok end)
+      |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
       |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
 
       assert :ok = TracingActions.setup_tracing!()
@@ -53,7 +53,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
 
       MockAPIDbg
       |> expect(:tracer, fn {_handler, 0} -> {:ok, tracer_pid} end)
-      |> expect(:process, fn [:c, :timestamp] -> :ok end)
+      |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
       |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
 
       assert :ok = TracingActions.setup_tracing!()

@@ -13,6 +13,10 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   alias LiveDebugger.Services.CallbackTracer.Actions.DiffTrace, as: DiffActions
   alias LiveDebugger.Structs.Trace.FunctionTrace
 
+  alias LiveDebugger.API.TracesStorage
+  alias LiveDebugger.Structs.Trace.TraceError
+  alias LiveDebugger.App.Utils.Parsers
+
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
 
   @typedoc """
@@ -154,13 +158,32 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
     {:noreply, state}
   end
 
+  def handle_cast(
+        {:new_trace, {_, pid, :exit, {%RuntimeError{message: _} = error, stacktrace}, ts}, _n},
+        state
+      ) do
+    raw_error_banner =
+      "#{ts |> format_ts()} [error] GenServer #{inspect(pid)} terminating \n"
+
+    message = Exception.format_banner(:error, error)
+    stacktrace = Exception.format_stacktrace(stacktrace)
+
+    with table <- TracesStorage.get_table(pid),
+         {:ok, {_key, trace}} <- TracesStorage.get_last_trace(table),
+         new_trace <- add_error_to_trace(trace, message, stacktrace, raw_error_banner),
+         {:ok, _ref} <-
+           TraceActions.persist_trace(new_trace) do
+      :ok
+    end
+
+    {:noreply, state}
+  end
+
   #########################################################
   # Handling unknown traces
   #########################################################
 
-  def handle_cast({:new_trace, trace, _n}, state) do
-    Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
-
+  def handle_cast({:new_trace, _trace, _n}, state) do
     {:noreply, state}
   end
 
@@ -178,5 +201,22 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   defp calculate_execution_time(return_ts, call_ts) do
     :timer.now_diff(return_ts, call_ts)
+  end
+
+  defp format_ts({mega, sec, micro}) do
+    unix_micro = (mega * 1_000_000 + sec) * 1_000_000 + micro
+    Parsers.parse_timestamp(unix_micro)
+  end
+
+  defp add_error_to_trace(trace, message, stacktrace, raw_error_banner) do
+    %{
+      trace
+      | error:
+          TraceError.new(
+            message,
+            stacktrace,
+            raw_error_banner <> message <> " \n" <> stacktrace
+          )
+    }
   end
 end
