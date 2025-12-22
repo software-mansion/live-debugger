@@ -20,8 +20,6 @@ defmodule LiveDebugger do
   def start(_type, _args) do
     disabled? = Application.get_env(@app_name, :disabled?, false)
     children = if disabled?, do: [], else: get_children()
-
-
     Supervisor.start_link(children, strategy: :one_for_one, name: LiveDebugger.Supervisor)
   end
 
