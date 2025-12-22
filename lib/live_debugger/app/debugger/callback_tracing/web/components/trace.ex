@@ -128,21 +128,21 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         ]}>
           <label
             for={@id <> "-tab-1"}
-            class="cursor-pointer pb-2 px-1 border-b-2 border-transparent text-secondary-text transition-colors hover:text-primary-text font-medium"
+            class="cursor-pointer pb-2 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
           >
             Trace Body
           </label>
 
           <label
             for={@id <> "-tab-2"}
-            class="cursor-pointer pb-2 px-1 border-b-2 border-transparent text-secondary-text transition-colors hover:text-primary-text font-medium"
+            class="cursor-pointer pb-2 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
           >
             Stacktrace
           </label>
 
           <label
             for={@id <> "-tab-3"}
-            class="cursor-pointer pb-2 px-1 border-b-2 border-transparent text-secondary-text transition-colors hover:text-primary-text font-medium"
+            class="cursor-pointer pb-2 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
           >
             Raw Error
           </label>
@@ -154,17 +154,13 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
         <div class="hidden peer-checked/stack:block">
           <div class="flex flex-col gap-2">
-            <pre class="whitespace-pre-wrap break-words text-xs font-mono p-2 overflow-x-auto">
-              {@error.stacktrace}
-            </pre>
+            <pre class="whitespace-pre-wrap break-words text-xs p-2 overflow-x-auto font-code">{@error.stacktrace}</pre>
           </div>
         </div>
 
         <div class="hidden peer-checked/raw:block">
           <div class="flex flex-col gap-2">
-            <pre class="whitespace-pre-wrap break-words text-xs font-mono p-2 overflow-x-auto">
-              {@error.raw_error}
-            </pre>
+            <pre class="whitespace-pre-wrap break-words text-xs p-2 overflow-x-auto font-code">{@error.raw_error}</pre>
           </div>
         </div>
       <% else %>
@@ -312,7 +308,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   defp trace_error_message(assigns) do
     ~H"""
-    <div class="flex flex-row mt-2 text-red-600">
+    <div class="flex flex-row mt-2 text-error-text">
       <.icon name="icon-info" class="w-4 h-4" />
       <p :if={@error}>{@error.message}</p>
     </div>

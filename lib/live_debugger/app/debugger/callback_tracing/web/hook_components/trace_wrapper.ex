@@ -147,11 +147,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
     )
   end
 
-  defp border_color_class(%{type: :error}), do: "border-error-icon"
+  defp border_color_class(%{type: :error}), do: "border-error-border"
   defp border_color_class(%{type: :diff}), do: "border-diff-border"
   defp border_color_class(%{type: :normal}), do: "border-default-border"
 
-  defp bg_color_class(%{type: :error}), do: "bg-red-50"
+  defp bg_color_class(%{type: :error}), do: "bg-error-bg"
   defp bg_color_class(%{type: :diff}), do: "bg-surface-1-bg"
   defp bg_color_class(%{type: :normal}), do: "bg-surface-1-bg"
 end
