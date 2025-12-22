@@ -15,6 +15,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.Structs.Trace.TraceError
+  alias LiveDebugger.App.Utils.Parsers
 
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
 
@@ -205,9 +206,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   defp format_ts({mega, sec, micro}) do
     unix_micro = (mega * 1_000_000 + sec) * 1_000_000 + micro
-
-    DateTime.from_unix!(unix_micro, :microsecond)
-    |> Calendar.strftime("%H:%M:%S.%3f")
+    Parsers.parse_timestamp(unix_micro)
   end
 
   defp add_error_to_trace(trace, message, stacktrace, raw_error_banner) do
