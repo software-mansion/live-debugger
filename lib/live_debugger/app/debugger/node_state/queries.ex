@@ -60,11 +60,34 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
     error -> {:error, error}
   end
 
+  @spec fetch_node_temporary_assigns(pid(), TreeNode.id()) :: {:ok, map()} | {:error, term()}
+  def fetch_node_temporary_assigns(pid, node_id) do
+    with {:ok, node_assigns} <- fetch_last_render_assigns(pid, node_id),
+         %{temporary_assigns: temporary_assigns} <- node_assigns.socket.private do
+      {:ok, Map.take(node_assigns, Map.keys(temporary_assigns))}
+    else
+      {:error, error} -> {:error, error}
+      _ -> {:error, :no_temporary_assigns}
+    end
+  end
+
   defp fetch_node_state(pid) do
     case StatesStorage.get!(pid) do
       nil -> LiveViewDebug.liveview_state(pid)
       state -> {:ok, state}
     end
+  end
+
+  defp fetch_last_render_assigns(pid, node_id) do
+    case TracesStorage.get!(pid, node_id: node_id, functions: ["render/1"], limit: 1) do
+      :end_of_table ->
+        {:error, :no_render_trace}
+
+      {[%{args: [node_assigns]}], _} ->
+        {:ok, node_assigns}
+    end
+  rescue
+    error -> {:error, error}
   end
 
   defp get_component_assigns(components, %Phoenix.LiveComponent.CID{cid: cid}) do

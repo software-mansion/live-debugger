@@ -5,6 +5,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   use LiveDebugger.App.Web, :component
 
+  alias LiveDebugger.App.Utils.TermParser
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory
@@ -34,6 +35,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:assigns_search_phrase, :string, default: "")
   attr(:pinned_assigns, :map, default: %{})
   attr(:node_assigns_status, :atom, required: true)
+  attr(:temporary_assigns, :map, required: true)
 
   def assigns_section(assigns) do
     opened_term_node =
@@ -70,6 +72,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
               term_node={@term_node}
               pinned_assigns={@pinned_assigns}
             />
+          </div>
+          <div id="temporary-assigns" class="p-4 border-b border-default-border overflow-x-auto">
+            <.temporary_assigns_section temporary_assigns={@temporary_assigns} />
           </div>
           <div id="all-assigns" class="relative">
             <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
@@ -133,6 +138,23 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         id={@id}
         node={Keyword.get(@term_node.children, String.to_existing_atom(key), %{})}
       />
+    </div>
+    """
+  end
+
+  attr(:temporary_assigns, :map, required: true)
+
+  defp temporary_assigns_section(assigns) do
+    assigns =
+      assigns
+      |> assign(entries: TermParser.term_to_display_tree(assigns.temporary_assigns).children)
+
+    ~H"""
+    <p :if={Enum.empty?(@temporary_assigns)} class="text-secondary-text">
+      No temporary assigns.
+    </p>
+    <div :for={{_key, term_node} <- @entries}>
+      <ElixirDisplay.term id="temporary_assigns" node={term_node} />
     </div>
     """
   end

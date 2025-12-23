@@ -14,7 +14,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
-  alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
 
   alias Phoenix.LiveView.AsyncResult
 
@@ -68,6 +67,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     |> assign(:assigns_search_phrase, "")
     |> Hooks.NodeAssigns.init()
     |> Hooks.TermNodeToggle.init()
+    |> Hooks.TemporaryAssigns.init()
     |> HookComponents.AssignsSearch.init()
     |> HookComponents.AssignsHistory.init()
     |> ok()
@@ -93,6 +93,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
           pinned_assigns={@pinned_assigns}
           assigns_search_phrase={@assigns_search_phrase}
           node_assigns_status={assigns_status(@lv_process, @node_assigns_info)}
+          temporary_assigns={@temporary_assigns}
         />
         <HookComponents.AssignsHistory.render
           current_history_index={@current_history_index}
@@ -126,12 +127,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     socket
     |> assign(:node_id, node_id)
     |> Hooks.NodeAssigns.assign_async_node_assigns(reset: true)
-    |> noreply()
-  end
-
-  def handle_info(%StateChanged{}, socket) do
-    socket
-    |> Hooks.NodeAssigns.assign_async_node_assigns()
+    |> Hooks.TemporaryAssigns.assign_async_temporary_assigns()
     |> noreply()
   end
 
