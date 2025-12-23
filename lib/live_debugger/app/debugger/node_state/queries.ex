@@ -67,7 +67,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
       {:ok, Map.take(node_assigns, Map.keys(temporary_assigns))}
     else
       {:error, error} -> {:error, error}
-      _ -> {:error, :no_temporary_assigns}
+      _ -> {:ok, %{}}
     end
   end
 
