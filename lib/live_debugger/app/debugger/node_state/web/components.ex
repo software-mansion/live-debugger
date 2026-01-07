@@ -66,22 +66,17 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           class="w-full h-max max-h-full overflow-y-auto"
           data-search_phrase={@assigns_search_phrase}
         >
-          <div id="pinned-assigns" class="p-4 border-b border-default-border overflow-x-auto">
-            <.pinned_assigns_section
-              id="pinned-"
-              term_node={@term_node}
-              pinned_assigns={@pinned_assigns}
-            />
-          </div>
-          <div id="temporary-assigns" class="p-4 border-b border-default-border overflow-x-auto">
-            <.temporary_assigns_section temporary_assigns={@temporary_assigns} />
-          </div>
-          <div id="all-assigns" class="relative">
-            <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-container-size-label" />
-            <div class="p-4 overflow-x-auto">
-              <ElixirDisplay.static_term id="assigns-" node={@term_node} selectable_level={1} />
-            </div>
-          </div>
+          <.pinned_assigns_section
+            id="pinned-assigns"
+            term_node={@term_node}
+            pinned_assigns={@pinned_assigns}
+          />
+          <.temporary_assigns_section id="temporary-assigns" temporary_assigns={@temporary_assigns} />
+          <.all_assigns_section
+            id="all-assigns"
+            term_node={@term_node}
+            assigns_sizes={@assigns_sizes}
+          />
         </div>
       </.section>
       <.fullscreen id={@fullscreen_id} title="Assigns">
@@ -92,21 +87,34 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           />
         </:search_bar_slot>
         <div id="assigns-display-fullscreen-container" data-search_phrase={@assigns_search_phrase}>
-          <div class="p-4 border-b border-default-border overflow-x-auto">
-            <.pinned_assigns_section
-              id="pinned-fullscreen-"
-              term_node={@term_node}
-              pinned_assigns={@pinned_assigns}
-            />
-          </div>
-          <div class="relative">
-            <.assigns_sizes_section assigns_sizes={@assigns_sizes} id="display-fullscreen-size-label" />
-            <div class="p-4 overflow-x-auto">
-              <ElixirDisplay.static_term id="fullscreen-" node={@term_node} selectable_level={1} />
-            </div>
-          </div>
+          <.pinned_assigns_section
+            id="pinned-assigns-fullscreen"
+            term_node={@term_node}
+            pinned_assigns={@pinned_assigns}
+          />
+          <.temporary_assigns_section
+            id="temporary-assigns-fullscreen"
+            temporary_assigns={@temporary_assigns}
+          />
+          <.all_assigns_section
+            id="all-assigns-fullscreen"
+            term_node={@term_node}
+            assigns_sizes={@assigns_sizes}
+          />
         </div>
       </.fullscreen>
+    </div>
+    """
+  end
+
+  attr(:name, :string, required: true)
+  attr(:icon, :string, default: nil)
+
+  defp section_title(assigns) do
+    ~H"""
+    <div class="bg-surface-1-bg flex items-center h-10 gap-2 p-4 border-b border-default-border font-semibold text-secondary-text">
+      <.icon :if={@icon} name={"icon-#{@icon}"} class="h-4 w-4" />
+      <p><%= @name %></p>
     </div>
     """
   end
@@ -116,32 +124,35 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:pinned_assigns, :map, required: true)
 
   defp pinned_assigns_section(assigns) do
+    assigns = assign(assigns, empty?: Enum.all?(assigns.pinned_assigns, fn {_, v} -> !v end))
+
     ~H"""
-    <p :if={Enum.all?(@pinned_assigns, fn {_, v} -> !v end)} class="text-secondary-text">
-      You have no pinned assigns.
-    </p>
-    <div
-      :for={{key, pinned} <- @pinned_assigns}
-      :if={pinned}
-      class="flex min-h-4.5 [&>div>button]:hidden hover:[&>div>button]:block"
-    >
-      <div class="w-4 shrink-0">
-        <button
-          class="text-button-red-content hover:text-button-red-content-hover"
-          phx-click="unpin-assign"
-          phx-value-key={key}
-        >
-          <.icon name="icon-pin-off" class="h-4 w-4" />
-        </button>
+    <.section_title name={if(@empty?, do: "No pinned assigns", else: "Pinned assigns")} icon="pin" />
+    <div :if={not @empty?} id={@id} class="p-4 border-b border-default-border overflow-x-auto">
+      <div
+        :for={{key, pinned} <- @pinned_assigns}
+        :if={pinned}
+        class="flex min-h-4.5 [&>div>button]:hidden hover:[&>div>button]:block"
+      >
+        <div class="w-4 shrink-0">
+          <button
+            class="text-button-red-content hover:text-button-red-content-hover"
+            phx-click="unpin-assign"
+            phx-value-key={key}
+          >
+            <.icon name="icon-pin-off" class="h-4 w-4" />
+          </button>
+        </div>
+        <ElixirDisplay.static_term
+          id={@id}
+          node={Keyword.get(@term_node.children, String.to_existing_atom(key), %{})}
+        />
       </div>
-      <ElixirDisplay.static_term
-        id={@id}
-        node={Keyword.get(@term_node.children, String.to_existing_atom(key), %{})}
-      />
     </div>
     """
   end
 
+  attr(:id, :string, required: true)
   attr(:temporary_assigns, :map, required: true)
 
   defp temporary_assigns_section(assigns) do
@@ -150,11 +161,36 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       |> assign(entries: TermParser.term_to_display_tree(assigns.temporary_assigns).children)
 
     ~H"""
-    <p :if={Enum.empty?(@temporary_assigns)} class="text-secondary-text">
-      No temporary assigns.
-    </p>
-    <div :for={{_key, term_node} <- @entries}>
-      <ElixirDisplay.term id="temporary_assigns" node={term_node} />
+    <.section_title
+      name={
+        if(Enum.empty?(@temporary_assigns), do: "No temporary assigns", else: "Temporary assigns")
+      }
+      icon="history"
+    />
+    <div
+      :if={not Enum.empty?(@temporary_assigns)}
+      id={@id}
+      class="pl-8 p-4 border-b border-default-border overflow-x-auto"
+    >
+      <div :for={{_key, term_node} <- @entries}>
+        <ElixirDisplay.term id={@id} node={term_node} />
+      </div>
+    </div>
+    """
+  end
+
+  attr(:id, :string, required: true)
+  attr(:term_node, TermNode, required: true)
+  attr(:assigns_sizes, AsyncResult, required: true)
+
+  defp all_assigns_section(assigns) do
+    ~H"""
+    <.section_title name="All assigns" />
+    <div id={@id} class="relative">
+      <.assigns_sizes_section assigns_sizes={@assigns_sizes} id={@id <> "-size-label-container"} />
+      <div class="p-4 overflow-x-auto">
+        <ElixirDisplay.static_term id={@id} node={@term_node} selectable_level={1} />
+      </div>
     </div>
     """
   end
