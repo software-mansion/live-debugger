@@ -80,11 +80,6 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   @impl true
   def handle_event("open-send-event", _, socket) do
-    send_update(SendEventFullscreen,
-      id: "send-event-fullscreen",
-      reset_form?: true
-    )
-
     socket
     |> push_event("send-event-fullscreen-open", %{})
     |> noreply()
