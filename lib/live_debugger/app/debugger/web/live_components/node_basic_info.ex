@@ -41,39 +41,31 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
             <p>Couldn't load basic information about the node.</p>
           </.alert>
         </:failed>
-        <div class="flex flex-row justify-between max-sm:flex-col max-sm:gap-2 sm:items-center">
-          <div class="flex flex-row max-sm:gap-2 gap-8 w-max max-sm:flex-col">
-            <div class="w-full flex flex-col gap-1">
-              <span class="font-medium">Type:</span>
-              <span><%= @node_type %></span>
-            </div>
-            <div class="w-full flex flex-col gap-1">
-              <span class="font-medium">Module:</span>
-
-              <div class="flex gap-2">
-                <.tooltip
-                  id={@id <> "-current-node-module"}
-                  content={node_module}
-                  class="max-sm:max-w-[260px] max-sm:truncate"
-                >
-                  <%= node_module %>
-                </.tooltip>
-                <.copy_button id="copy-button-module-name" value={node_module} />
-              </div>
+        <div class="flex flex-row gap-8 max-sm:flex-col max-sm:gap-2 sm:items-center">
+          <div class="shrink-0 flex flex-col gap-1">
+            <span class="font-medium">Type:</span>
+            <span><%= @node_type %></span>
+          </div>
+          <div class="min-w-0 flex flex-col gap-1">
+            <span class="font-medium">Module:</span>
+            <div class="flex gap-2 min-w-0">
+              <.tooltip id={@id <> "-current-node-module"} content={node_module} class="truncate">
+                <%= node_module %>
+              </.tooltip>
+              <.copy_button id="copy-button-module-name" value={node_module} />
             </div>
           </div>
-          <div>
-            <.button
-              variant="secondary"
-              size="sm"
-              id="send-event-button"
-              disabled={not @lv_process.alive?}
-              phx-click="open-send-event"
-              phx-target={@myself}
-            >
-              <.icon name="icon-send" class="w-4 h-4" /> Send Event
-            </.button>
-          </div>
+          <.button
+            class="shrink-0 sm:ml-auto"
+            variant="secondary"
+            size="sm"
+            id="send-event-button"
+            disabled={not @lv_process.alive?}
+            phx-click="open-send-event"
+            phx-target={@myself}
+          >
+            <.icon name="icon-send" class="w-4 h-4" /> Send Event
+          </.button>
         </div>
       </.async_result>
       <.live_component
