@@ -72,15 +72,34 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
                   <%= @message_error %>
                 </p>
               </div>
-              <.button variant="primary" type="submit" class="!w-full">
-                Send
-              </.button>
+              <div class="flex gap-2">
+                <.button
+                  variant="secondary"
+                  type="button"
+                  class="!w-full"
+                  phx-click="reset"
+                  phx-target={@myself}
+                >
+                  Reset
+                </.button>
+                <.button variant="primary" type="submit" class="!w-full">
+                  Send
+                </.button>
+              </div>
             </div>
           </.form>
         </div>
       </.fullscreen>
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("reset", _, socket) do
+    socket
+    |> assign(:message_error, nil)
+    |> assign_form()
+    |> noreply()
   end
 
   @impl true
