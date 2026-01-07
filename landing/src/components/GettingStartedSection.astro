@@ -1,8 +1,9 @@
 ---
-import ContentWrapper from "../components/ContentWrapper.tsx";
+import ContentWrapper from "@/components/ContentWrapper.tsx";
 import { Tabs } from "@/components/ui/TabsWrapper";
 import MixInstallTab from "@/components/getting-started-tabs-content/MixInstallTab";
 import IgniterInstallTab from "@/components/getting-started-tabs-content/IgniterInstallTab";
+import { Button } from "@/components/ui/button";
 
 const tabData = [
   { key: "mix", title: "Mix installation" },
@@ -12,7 +13,7 @@ const tabData = [
 
 <section
   id="gettingstarted"
-  class="bg-primary relative flex w-full scroll-m-5 flex-col items-center justify-center overflow-hidden py-16 max-md:mb-10 sm:py-20 md:py-36"
+  class="bg-primary relative flex w-full scroll-m-5 flex-col items-center justify-center overflow-hidden pt-16 pb-8 max-md:mb-10 sm:pt-20 sm:pb-12 md:pt-36 md:pb-24"
 >
   <ContentWrapper
     className="font-aeonik z-20 flex w-full flex-col items-center justify-center gap-10 sm:gap-14 md:gap-16 lg:gap-20"
@@ -25,6 +26,47 @@ const tabData = [
       <MixInstallTab slot="mix" client:idle />
       <IgniterInstallTab slot="igniter" client:idle />
     </Tabs>
+
+    <div class="mt-12 flex flex-col gap-4 md:mt-16 md:gap-6 lg:mt-24 lg:gap-8">
+      <h3 class="text-primary-foreground text-center text-lg">
+        Install optional browser extension
+      </h3>
+
+      <div
+        class="flex flex-row items-center justify-center gap-4 max-sm:flex-col"
+      >
+        <Button variant="outline">
+          <a
+            href="https://chromewebstore.google.com/detail/livedebugger-devtools/gmdfnfcigbfkmghbjeelmbkbiglbmbpe "
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex flex-row items-center justify-center gap-2"
+          >
+            Install for Chrome
+            <img
+              src="/live-debugger/assets/chrome.svg"
+              alt="Chrome"
+              class="h-6 w-6"
+            />
+          </a>
+        </Button>
+        <Button variant="outline">
+          <a
+            href="https://addons.mozilla.org/en-US/firefox/addon/livedebugger-devtools/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex flex-row items-center justify-center gap-2"
+          >
+            Install for Firefox
+            <img
+              src="/live-debugger/assets/firefox.svg"
+              alt="Firefox"
+              class="h-6 w-6"
+            />
+          </a>
+        </Button>
+      </div>
+    </div>
   </ContentWrapper>
   <div
     class="absolute -bottom-25 -left-20 z-1 sm:-right-15 sm:-bottom-25 lg:-right-45 lg:-bottom-30"
