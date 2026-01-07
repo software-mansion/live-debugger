@@ -127,26 +127,28 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     assigns = assign(assigns, empty?: Enum.all?(assigns.pinned_assigns, fn {_, v} -> !v end))
 
     ~H"""
-    <.section_title name={if(@empty?, do: "No pinned assigns", else: "Pinned assigns")} icon="pin" />
-    <div :if={not @empty?} id={@id} class="p-4 border-b border-default-border overflow-x-auto">
-      <div
-        :for={{key, pinned} <- @pinned_assigns}
-        :if={pinned}
-        class="flex min-h-4.5 [&>div>button]:hidden hover:[&>div>button]:block"
-      >
-        <div class="w-4 shrink-0">
-          <button
-            class="text-button-red-content hover:text-button-red-content-hover"
-            phx-click="unpin-assign"
-            phx-value-key={key}
-          >
-            <.icon name="icon-pin-off" class="h-4 w-4" />
-          </button>
+    <div id={@id}>
+      <.section_title name={if(@empty?, do: "No pinned assigns", else: "Pinned assigns")} icon="pin" />
+      <div :if={not @empty?} class="p-4 border-b border-default-border overflow-x-auto">
+        <div
+          :for={{key, pinned} <- @pinned_assigns}
+          :if={pinned}
+          class="flex min-h-4.5 [&>div>button]:hidden hover:[&>div>button]:block"
+        >
+          <div class="w-4 shrink-0">
+            <button
+              class="text-button-red-content hover:text-button-red-content-hover"
+              phx-click="unpin-assign"
+              phx-value-key={key}
+            >
+              <.icon name="icon-pin-off" class="h-4 w-4" />
+            </button>
+          </div>
+          <ElixirDisplay.static_term
+            id={@id}
+            node={Keyword.get(@term_node.children, String.to_existing_atom(key), %{})}
+          />
         </div>
-        <ElixirDisplay.static_term
-          id={@id}
-          node={Keyword.get(@term_node.children, String.to_existing_atom(key), %{})}
-        />
       </div>
     </div>
     """
@@ -161,19 +163,20 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       |> assign(entries: TermParser.term_to_display_tree(assigns.temporary_assigns).children)
 
     ~H"""
-    <.section_title
-      name={
-        if(Enum.empty?(@temporary_assigns), do: "No temporary assigns", else: "Temporary assigns")
-      }
-      icon="history"
-    />
-    <div
-      :if={not Enum.empty?(@temporary_assigns)}
-      id={@id}
-      class="pl-8 p-4 border-b border-default-border overflow-x-auto"
-    >
-      <div :for={{_key, term_node} <- @entries}>
-        <ElixirDisplay.term id={@id} node={term_node} />
+    <div id={@id}>
+      <.section_title
+        name={
+          if(Enum.empty?(@temporary_assigns), do: "No temporary assigns", else: "Temporary assigns")
+        }
+        icon="history"
+      />
+      <div
+        :if={not Enum.empty?(@temporary_assigns)}
+        class="pl-8 p-4 border-b border-default-border overflow-x-auto"
+      >
+        <div :for={{_key, term_node} <- @entries}>
+          <ElixirDisplay.term id={@id} node={term_node} />
+        </div>
       </div>
     </div>
     """
@@ -185,11 +188,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   defp all_assigns_section(assigns) do
     ~H"""
-    <.section_title name="All assigns" />
-    <div id={@id} class="relative">
-      <.assigns_sizes_section assigns_sizes={@assigns_sizes} id={@id <> "-size-label-container"} />
-      <div class="p-4 overflow-x-auto">
-        <ElixirDisplay.static_term id={@id} node={@term_node} selectable_level={1} />
+    <div id={@id}>
+      <.section_title name="All assigns" />
+      <div class="relative">
+        <.assigns_sizes_section assigns_sizes={@assigns_sizes} id={@id <> "-size-label-container"} />
+        <div class="p-4 overflow-x-auto">
+          <ElixirDisplay.static_term id={@id} node={@term_node} selectable_level={1} />
+        </div>
       </div>
     </div>
     """

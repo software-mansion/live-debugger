@@ -49,6 +49,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.TemporaryAssigns do
     {:halt, socket}
   end
 
+  defp handle_async(_, _, socket), do: {:cont, socket}
+
   defp handle_info(%StateChanged{}, socket) do
     socket
     |> assign_async_temporary_assigns()
