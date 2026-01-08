@@ -86,6 +86,8 @@ if config_env() == :test do
     server: true,
     port: 4008
 
+  config :live_debugger, update_checks?: false
+
   # Print only warnings and errors during test
   config :logger, level: :warning
 
