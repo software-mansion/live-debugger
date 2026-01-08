@@ -6,6 +6,7 @@ defmodule LiveDebugger.API.TracesStorage do
 
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.CommonTypes
+  alias LiveDebugger.Structs.Trace.DiffTrace
 
   import Trace, only: [is_trace: 1, is_trace_id: 1]
 
@@ -24,7 +25,7 @@ defmodule LiveDebugger.API.TracesStorage do
   @callback get_by_id!(table_identifier(), trace_id :: Trace.id()) :: Trace.t() | nil
   @callback get!(table_identifier(), opts :: keyword()) ::
               {[Trace.t()], continuation()} | :end_of_table
-  @callback get_last_trace(table_identifier()) :: Trace.t() | nil
+  @callback get_latest_trace(table_identifier()) :: Trace.t() | nil
   @callback clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
   @callback get_table(ets_table_id()) :: reference()
   @callback trim_table!(table_identifier(), max_size :: non_neg_integer()) :: true
@@ -116,11 +117,11 @@ defmodule LiveDebugger.API.TracesStorage do
   end
 
   @doc """
-  Returns last trace for a given table.
+  Returns latest function trace for a given table.
   """
-  @spec get_last_trace(table_identifier()) :: Trace.t() | nil
-  def get_last_trace(table_id) when is_table_identifier(table_id) do
-    impl().get_last_trace(table_id)
+  @spec get_latest_trace(table_identifier()) :: Trace.t() | nil
+  def get_latest_trace(table_id) when is_table_identifier(table_id) do
+    impl().get_latest_trace(table_id)
   end
 
   @spec trim_table!(table_identifier(), non_neg_integer()) :: true
@@ -212,13 +213,25 @@ defmodule LiveDebugger.API.TracesStorage do
     end
 
     @impl true
-    def get_last_trace(table_id) do
-      table_id
-      |> ets_table()
-      |> :ets.first()
-      |> case do
-        :"$end_of_table" -> nil
-        key -> {:ok, {key, :ets.lookup_element(table_id, key, 2)}}
+    def get_latest_trace(table_id) do
+      table = ets_table(table_id)
+      first_key = :ets.first(table)
+
+      find_first_function_trace(table, first_key)
+    end
+
+    defp find_first_function_trace(_table, :"$end_of_table"), do: nil
+
+    defp find_first_function_trace(table, key) do
+      trace = :ets.lookup_element(table, key, 2)
+
+      case trace do
+        %DiffTrace{} ->
+          next_key = :ets.next(table, key)
+          find_first_function_trace(table, next_key)
+
+        function_trace ->
+          {:ok, {key, function_trace}}
       end
     end
 

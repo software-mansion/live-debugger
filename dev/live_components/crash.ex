@@ -139,7 +139,7 @@ defmodule LiveDebuggerDev.LiveComponents.Crash do
   end
 
   def handle_event("crash_key", _, socket) do
-    user = %User{name: "Tester"}
+    user = %User{name: "test"}
 
     _ = user.age
 
