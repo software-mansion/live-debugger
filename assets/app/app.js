@@ -59,7 +59,7 @@ function saveDialogAndDetailsState() {
 
 function setTheme() {
   // Check system preferences for dark mode, and add the .dark class to the body if it's dark
-  switch (localStorage.theme) {
+  switch (localStorage.getItem('lvdbg:theme')) {
     case 'light':
       document.documentElement.classList.remove('dark');
       break;
@@ -72,13 +72,13 @@ function setTheme() {
       ).matches;
 
       document.documentElement.classList.toggle('dark', prefersDarkScheme);
-      localStorage.theme = prefersDarkScheme ? 'dark' : 'light';
+      localStorage.setItem('lvdbg:theme', prefersDarkScheme ? 'dark' : 'light');
       break;
   }
 }
 
-export default async function checkForUpdate() {
-  if (sessionStorage.getItem('latestVersion')) {
+export default async function checkForUpdate(currentVersion) {
+  if (sessionStorage.getItem('lvdbg:latest-version')) {
     return;
   }
 
@@ -86,8 +86,8 @@ export default async function checkForUpdate() {
 
   const data = await response.json();
   const latestVersion = data.version;
-  sessionStorage.setItem('latestVersion', latestVersion);
-  console.log(`Latest version: ${latestVersion}`);
+
+  sessionStorage.setItem('lvdbg:latest-version', latestVersion);
 }
 
 function getCsrfToken() {
@@ -97,7 +97,7 @@ function getCsrfToken() {
 }
 
 function handleStorage(e) {
-  if (e.key !== 'theme') return;
+  if (e.key !== 'lvdbg:theme') return;
   document.documentElement.classList.toggle('dark', e.newValue === 'dark');
 }
 
