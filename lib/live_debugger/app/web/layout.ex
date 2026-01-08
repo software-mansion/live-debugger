@@ -122,9 +122,8 @@ defmodule LiveDebugger.App.Web.Layout do
 
         <div class="flex flex-col gap-2">
           <p class="text-xs font-medium text-primary-text">
-            To update bump LiveDebugger in your
-            <code class="text-xs font-mono text-primary-text">mix.exs</code>
-            file and run:
+            Update your <code class="text-xs font-mono text-primary-text">mix.exs</code>
+            file if needed and run:
           </p>
           <div class="relative group">
             <div class="bg-surface-1-bg border border-default-border rounded px-3 py-2 pr-10">
