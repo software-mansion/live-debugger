@@ -55,6 +55,20 @@ defmodule LiveDebugger.App.Web.Layout do
         </script>
         <span id="tooltip" class="absolute hidden p-2 text-xs rounded bg-tooltip-bg text-tooltip-text">
         </span>
+        <LiveDebugger.App.Web.Components.popup id="new-version-popup" title="New Version Available">
+          <div class="flex flex-col gap-3">
+            <p class="text-xs">
+              A new version of LiveDebugger is available! Update to get the latest features and improvements.
+            </p>
+            <div class="flex justify-end">
+              <LiveDebugger.App.Web.Components.button variant="primary" size="sm">
+                <a href="https://hex.pm/packages/live_debugger" target="_blank">
+                  View on Hex.pm
+                </a>
+              </LiveDebugger.App.Web.Components.button>
+            </div>
+          </div>
+        </LiveDebugger.App.Web.Components.popup>
         <%= @inner_content %>
       </body>
     </html>

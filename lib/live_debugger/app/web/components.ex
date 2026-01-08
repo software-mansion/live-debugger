@@ -980,6 +980,46 @@ defmodule LiveDebugger.App.Web.Components do
   defp info_block_icon_name("info"), do: "icon-info"
   defp info_block_icon_name("warning"), do: "icon-triangle-alert"
 
+  @doc """
+  Renders a simple popup dialog.
+
+  ## Examples
+
+      <.popup id="new-version-popup" title="New Version Available">
+        A new version is available!
+      </.popup>
+  """
+  attr(:id, :string, required: true)
+  attr(:title, :string, default: nil)
+  attr(:show, :boolean, default: true)
+  attr(:class, :any, default: nil)
+
+  slot(:inner_block, required: true)
+
+  def popup(assigns) do
+    ~H"""
+    <div :if={@show} id={@id} class="fixed inset-0 z-50">
+      <div class="fixed inset-0 bg-black/50"></div>
+      <dialog
+        open
+        class={[
+          "fixed inset-0 max-w-md bg-surface-0-bg rounded-lg shadow-xl border border-default-border"
+          | List.wrap(@class)
+        ]}
+      >
+        <div class="flex flex-col">
+          <div :if={@title} class="px-4 py-3 border-b border-default-border">
+            <h2 class="font-semibold text-sm text-primary-text"><%= @title %></h2>
+          </div>
+          <div class="p-4 text-primary-text">
+            <%= render_slot(@inner_block) %>
+          </div>
+        </div>
+      </dialog>
+    </div>
+    """
+  end
+
   defp button_color_classes(variant) do
     case variant do
       "primary" ->
