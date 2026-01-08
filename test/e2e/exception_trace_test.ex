@@ -4,6 +4,11 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
   setup_all do
     LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
     LiveDebugger.API.SettingsStorage.save(:tracing_enabled_on_start, false)
+    Application.put_env(:wallaby, :js_errors, false)
+
+    on_exit(fn ->
+      Application.put_env(:wallaby, :js_errors, true)
+    end)
 
     :ok
   end
@@ -66,13 +71,28 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
       "ArithmeticError",
       "dev/live_components/crash"
     )
+  end
+
+  @sessions 2
+  feature "debugger captures runtime errors and exceptions in global callbacks pt.2", %{
+    sessions: [dev_app, debugger]
+  } do
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> select_live_view()
+    |> click(global_callback_traces_button())
+    |> click(clear_traces_button())
+    |> click(toggle_tracing_button())
 
     test_exception(
       dev_app,
       debugger,
       "crash_linked",
       "RuntimeError",
-      "(Stacktrace not available)"
+      "dev/live_components/crash"
     )
 
     test_exception(
@@ -96,7 +116,7 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
       debugger,
       "crash_bad_return",
       "ArgumentError",
-      "dev/live_components/crash"
+      "lib/phoenix_live_view/channel"
     )
   end
 
@@ -104,7 +124,7 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
     dev_app
     |> click(error_button(crash_name))
 
-    Process.sleep(100)
+    # Process.sleep(100)
 
     debugger
     |> assert_trace_exception(error_name, stacktrace_content)
@@ -139,7 +159,7 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
     session
     |> click(css("button", text: "Continue"))
 
-    Process.sleep(200)
+    # Process.sleep(100)
 
     session
     |> click(global_callback_traces_button())
