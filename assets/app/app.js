@@ -88,6 +88,8 @@ export default async function checkForUpdate(currentVersion) {
   const latestVersion = data.version;
 
   if (currentVersion !== latestVersion) {
+    document.getElementById('new-version-popup-version').innerText =
+      latestVersion;
     document.getElementById('new-version-popup').classList.remove('hidden');
   }
 
