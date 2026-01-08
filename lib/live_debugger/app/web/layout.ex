@@ -140,6 +140,24 @@ defmodule LiveDebugger.App.Web.Layout do
             </div>
           </div>
         </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <input
+              id="ignore-checkbox"
+              type="checkbox"
+              class="w-4 h-4 text-ui-accent border border-default-border"
+            />
+            <label for="ignore-checkbox" class="text-xs">
+              Don't remind me about this version
+            </label>
+          </div>
+          <LiveDebugger.App.Web.Components.button phx-click={
+            Phoenix.LiveView.JS.add_class("hidden", to: "#new-version-popup")
+          }>
+            Close
+          </LiveDebugger.App.Web.Components.button>
+        </div>
       </div>
     </LiveDebugger.App.Web.Components.popup>
     """
