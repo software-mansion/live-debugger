@@ -70,6 +70,8 @@ if config_env() == :dev do
 
   config :live_debugger, LiveDebugger.App.Web.Endpoint, debug_errors: true
 
+  config :live_debugger, update_checks?: false
+
   config :phoenix_live_view, enable_expensive_runtime_checks: true
 end
 
