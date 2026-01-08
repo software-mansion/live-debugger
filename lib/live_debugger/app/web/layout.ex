@@ -48,6 +48,7 @@ defmodule LiveDebugger.App.Web.Layout do
           });
 
           window.setTheme();
+          window.checkForUpdate();
           liveSocket.connect();
 
           window.liveSocket = liveSocket;

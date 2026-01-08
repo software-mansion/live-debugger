@@ -77,6 +77,19 @@ function setTheme() {
   }
 }
 
+export default async function checkForUpdate() {
+  if (sessionStorage.getItem('latestVersion')) {
+    return;
+  }
+
+  const response = await fetch('http://localhost:3000/');
+
+  const data = await response.json();
+  const latestVersion = data.version;
+  sessionStorage.setItem('latestVersion', latestVersion);
+  console.log(`Latest version: ${latestVersion}`);
+}
+
 function getCsrfToken() {
   return document
     .querySelector("meta[name='csrf-token']")
@@ -92,5 +105,6 @@ window.addEventListener('storage', handleStorage);
 
 window.createHooks = createHooks;
 window.setTheme = setTheme;
+window.checkForUpdate = checkForUpdate;
 window.getCsrfToken = getCsrfToken;
 window.saveDialogAndDetailsState = saveDialogAndDetailsState;
