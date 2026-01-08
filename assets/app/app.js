@@ -78,6 +78,29 @@ function setTheme() {
 }
 
 export default async function checkForUpdate(currentVersion) {
+  const shouldShowPopup = (latestVersion) => {
+    return (
+      currentVersion !== latestVersion &&
+      localStorage.getItem('lvdbg:ignored-version') !== latestVersion
+    );
+  };
+
+  const showPopup = (latestVersion) => {
+    const versionSpan = document.getElementById('new-version-popup-version');
+    const ignoreCheckbox = document.getElementById('ignore-checkbox');
+    const newVersionPopup = document.getElementById('new-version-popup');
+
+    versionSpan.innerText = latestVersion;
+    ignoreCheckbox.checked = false;
+    ignoreCheckbox.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        localStorage.setItem('lvdbg:ignored-version', latestVersion);
+      }
+    });
+
+    newVersionPopup.classList.remove('hidden');
+  };
+
   if (sessionStorage.getItem('lvdbg:latest-version')) {
     return;
   }
@@ -87,10 +110,8 @@ export default async function checkForUpdate(currentVersion) {
   const data = await response.json();
   const latestVersion = data.version;
 
-  if (currentVersion !== latestVersion) {
-    document.getElementById('new-version-popup-version').innerText =
-      latestVersion;
-    document.getElementById('new-version-popup').classList.remove('hidden');
+  if (shouldShowPopup(latestVersion)) {
+    showPopup(latestVersion);
   }
 
   sessionStorage.setItem('lvdbg:latest-version', latestVersion);
