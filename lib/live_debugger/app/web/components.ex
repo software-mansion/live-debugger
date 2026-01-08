@@ -994,13 +994,14 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:show, :boolean, default: true)
   attr(:class, :any, default: nil)
   attr(:wrapper_class, :any, default: nil)
+  attr(:on_close, :any, default: nil)
 
   slot(:inner_block, required: true)
 
   def popup(assigns) do
     ~H"""
     <div :if={@show} id={@id} class={["fixed inset-0 z-50", @wrapper_class]}>
-      <div class="fixed inset-0 bg-black/50"></div>
+      <div class="fixed inset-0 bg-black/50" phx-click={@on_close}></div>
       <dialog
         open
         class={[
@@ -1009,8 +1010,17 @@ defmodule LiveDebugger.App.Web.Components do
         ]}
       >
         <div class="flex flex-col">
-          <div :if={@title} class="px-4 py-3 border-b border-default-border">
+          <div
+            :if={@title}
+            class="px-4 py-3 border-b border-default-border flex justify-between items-center"
+          >
             <h2 class="font-semibold text-sm text-primary-text"><%= @title %></h2>
+            <.icon_button
+              id={"#{@id}-close"}
+              phx-click={@on_close}
+              icon="icon-cross"
+              variant="secondary"
+            />
           </div>
           <div class="p-4 text-primary-text">
             <%= render_slot(@inner_block) %>
