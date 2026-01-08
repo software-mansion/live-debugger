@@ -357,7 +357,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp to_node(map) when is_map(map) do
-    children = map |> Enum.sort() |> to_key_value_children()
+    children = map |> Enum.into([]) |> to_key_value_children()
 
     TermNode.new(:map, [DisplayElement.black("%{...}")],
       children: children,
@@ -390,13 +390,17 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp to_children(items) when is_list(items) do
-    Enum.with_index(items, fn item, index ->
+    items
+    |> Enum.sort()
+    |> Enum.with_index(fn item, index ->
       {index, to_node(item)}
     end)
   end
 
   defp to_key_value_children(items) when is_list(items) do
-    Enum.map(items, &to_key_value_node/1)
+    items
+    |> Enum.sort()
+    |> Enum.map(&to_key_value_node/1)
   end
 
   defp has_comma_suffix?(%TermNode{content: content, expanded_after: expanded_after}) do

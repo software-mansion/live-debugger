@@ -22,6 +22,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       |> assign(func: fn a -> {:ok, a} end)
       |> assign(single_element_list: [%Phoenix.LiveComponent.CID{cid: 1}])
       |> assign(list: [%Phoenix.LiveComponent.CID{cid: 1}, %Phoenix.LiveComponent.CID{cid: 2}])
+      |> assign(other_list: [b: %{d: 4, b: 3}, a: %{g: 1, i: 2}, e: {3, 8, 2}, c: [9, 8, 7]])
       |> assign(
         cid_map: %{
           %Phoenix.LiveComponent.CID{cid: 1} => "1",
