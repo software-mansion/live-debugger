@@ -31,14 +31,25 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       )
       |> assign(long_assign: @long_text)
       |> assign(deep_assign: %{b: %{c: %{d: %{e: %{f: %{g: "deep value"}}}}}})
+      |> assign(message: nil)
 
-    {:ok, socket}
+    {:ok, socket, temporary_assigns: [message: nil]}
   end
 
   def render(assigns) do
     ~H"""
     <.box title="Main [LiveView]" color="blue">
+      <div id="chat-messages">
+        <p :if={@message != nil}>
+          <span><%= @message.name %>:</span> <%= @message.text %>
+        </p>
+      </div>
       <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <.button id="append-message" phx-click="append-message" color="green">
+            Append message
+          </.button>
+        </div>
         <div class="flex items-center gap-2">
           <.button id="increment-button" phx-click="increment" color="blue">
             Increment
@@ -105,6 +116,10 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       </div>
     </.box>
     """
+  end
+
+  def handle_event("append-message", _, socket) do
+    {:noreply, assign(socket, :message, %{name: "message name", text: "some text"})}
   end
 
   def handle_event("increment", _, socket) do
