@@ -26,7 +26,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:process, fn [:c, :timestamp] -> :ok end)
       |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
 
-      assert :ok = TracingActions.setup_tracing!()
+      assert %{dbg_pid: self()} == TracingActions.setup_tracing!(%{dbg_pid: nil})
     end
 
     test "raises error when tracer fails to start" do
@@ -34,7 +34,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:tracer, fn {_handler, 0} -> {:error, :already_started} end)
 
       assert_raise RuntimeError, "Couldn't start tracer: :already_started", fn ->
-        TracingActions.setup_tracing!()
+        TracingActions.setup_tracing!(%{})
       end
     end
 
@@ -56,45 +56,18 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:process, fn [:c, :timestamp] -> :ok end)
       |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
 
-      assert :ok = TracingActions.setup_tracing!()
+      assert %{dbg_pid: ^tracer_pid} = TracingActions.setup_tracing!(%{dbg_pid: nil})
 
-      # Verify process is linked
-      assert Process.info(self(), :links) |> elem(1) |> Enum.member?(tracer_pid)
+      # Verify process is monitored
+      Process.exit(tracer_pid, :done)
+
+      assert_receive {:DOWN, _, :process, ^tracer_pid, :done}
     end
   end
 
   describe "refresh_tracing/0" do
-    test "applies trace patterns for all callbacks" do
-      MockAPIModule
-      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)
-      |> expect(:loaded?, fn _ -> true end)
-      |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
-
-      expect(MockAPIDbg, :trace_pattern, 19, fn _, _ -> :ok end)
-
-      assert :ok = TracingActions.refresh_tracing()
-    end
-
-    test "handles empty callbacks list" do
-      MockAPIModule
-      |> expect(:all, fn -> [] end)
-
-      expect(MockAPIDbg, :trace_pattern, 1, fn _, _ -> :ok end)
-
-      assert :ok = TracingActions.refresh_tracing()
-    end
-
-    test "applies both return_trace and exception_trace for each callback" do
-      MockAPIModule
-      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)
-      |> expect(:loaded?, fn _ -> true end)
-      |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
-
-      # Should call trace_pattern for Phoenix.LiveView.Diff.delete_component (1 call)
-      # Plus 2 calls per callback (return_trace and exception_trace)
-      # For LiveView callbacks: 9 callbacks * 2 = 18 calls
-      # Total: 1 + 18 = 19 calls
-      expect(MockAPIDbg, :trace_pattern, 19, fn _, _ -> :ok end)
+    test "stops dbg server which causes restart" do
+      expect(MockAPIDbg, :stop, fn -> :ok end)
 
       assert :ok = TracingActions.refresh_tracing()
     end
