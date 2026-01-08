@@ -118,24 +118,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
     {:size, size}
   end
 
-  defp get_error(%FunctionTrace{error: error}) when error != nil do
-    error
-  end
-
-  defp get_error(%FunctionTrace{
-         type: :exception_from,
-         return_value: {:error, %RuntimeError{message: _} = error}
-       }) do
-    %TraceError{
-      message: Exception.format_banner(:error, error),
-      stacktrace: nil,
-      raw_error: nil
-    }
-  end
-
-  defp get_error(%FunctionTrace{error: error}) do
-    error
-  end
+  defp get_error(%FunctionTrace{error: error}), do: error
 
   defp get_error(_), do: nil
 end

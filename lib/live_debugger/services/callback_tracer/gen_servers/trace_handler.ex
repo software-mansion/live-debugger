@@ -158,21 +158,29 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
     {:noreply, state}
   end
 
+  def handle_cast({:new_trace, {_, _, :exit, :normal, _}, _}, state),
+    do: {:noreply, state}
+
+  def handle_cast({:new_trace, {_, _, :exit, :shutdown, _}, _}, state),
+    do: {:noreply, state}
+
+  def handle_cast({:new_trace, {_, _, :exit, {:shutdown, _}, _}, _}, state),
+    do: {:noreply, state}
+
   def handle_cast(
-        {:new_trace, {_, pid, :exit, {%RuntimeError{message: _} = error, stacktrace}, ts}, _n},
+        {:new_trace, {_, pid, :exit, reason, ts}, _n},
         state
       ) do
-    raw_error_banner =
-      "#{ts |> format_ts()} [error] GenServer #{inspect(pid)} terminating \n"
+    timestamp_str = ts |> format_ts()
+    raw_error_banner = "#{timestamp_str} [exit] GenServer #{inspect(pid)} terminating \n"
 
-    message = Exception.format_banner(:error, error)
-    stacktrace = Exception.format_stacktrace(stacktrace)
+    {message, stacktrace_str} = normalize_error(reason)
 
     with table <- TracesStorage.get_table(pid),
          {:ok, {_key, trace}} <- TracesStorage.get_last_trace(table),
-         new_trace <- add_error_to_trace(trace, message, stacktrace, raw_error_banner),
-         {:ok, _ref} <-
-           TraceActions.persist_trace(new_trace) do
+         new_trace <- add_error_to_trace(trace, message, stacktrace_str, raw_error_banner),
+         {:ok, ref} <- TraceActions.persist_trace(new_trace),
+         {:ok} <- TraceActions.publish_trace_exception(new_trace, ref) do
       :ok
     end
 
@@ -216,7 +224,22 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
             message,
             stacktrace,
             raw_error_banner <> message <> " \n" <> stacktrace
-          )
+          ),
+        type: :exception_from
+    }
+  end
+
+  defp normalize_error({reason, stacktrace}) when is_list(stacktrace) do
+    {
+      Exception.format_banner(:error, reason),
+      Exception.format_stacktrace(stacktrace)
+    }
+  end
+
+  defp normalize_error(reason) do
+    {
+      "** (error) " <> inspect(reason),
+      "(Stacktrace not available)"
     }
   end
 end

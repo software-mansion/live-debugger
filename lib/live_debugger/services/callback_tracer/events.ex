@@ -54,4 +54,15 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
     stream: %Phoenix.LiveView.LiveStream{},
     dom_id_fun: (any() -> any()) | nil
   )
+
+  defevent(TraceExceptionUpdated,
+    trace_id: Trace.id(),
+    ets_ref: reference() | nil,
+    module: module(),
+    function: atom(),
+    arity: non_neg_integer(),
+    pid: pid(),
+    cid: CommonTypes.cid() | nil,
+    transport_pid: pid()
+  )
 end

@@ -76,6 +76,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
       ) do
     if connected?(socket) do
       Bus.receive_events!(parent_pid)
+      Bus.receive_events!(lv_process.pid)
     end
 
     socket
