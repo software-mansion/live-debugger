@@ -217,18 +217,18 @@ defmodule LiveDebugger.API.TracesStorage do
       table = ets_table(table_id)
       first_key = :ets.first(table)
 
-      find_first_function_trace(table, first_key)
+      find_latest_function_trace(table, first_key)
     end
 
-    defp find_first_function_trace(_table, :"$end_of_table"), do: nil
+    defp find_latest_function_trace(_table, :"$end_of_table"), do: nil
 
-    defp find_first_function_trace(table, key) do
+    defp find_latest_function_trace(table, key) do
       trace = :ets.lookup_element(table, key, 2)
 
       case trace do
         %DiffTrace{} ->
           next_key = :ets.next(table, key)
-          find_first_function_trace(table, next_key)
+          find_latest_function_trace(table, next_key)
 
         function_trace ->
           {:ok, {key, function_trace}}
