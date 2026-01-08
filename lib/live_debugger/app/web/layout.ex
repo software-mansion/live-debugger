@@ -10,6 +10,11 @@ defmodule LiveDebugger.App.Web.Layout do
   def render(template, assigns)
 
   def render("root.html", assigns) do
+    assigns =
+      assigns
+      |> assign(:update_checks?, Application.get_env(:live_debugger, :update_checks?, true))
+      |> assign(:current_version, Application.spec(:live_debugger)[:vsn] |> to_string())
+
     ~H"""
     <!DOCTYPE html>
     <html lang="en">
@@ -48,14 +53,25 @@ defmodule LiveDebugger.App.Web.Layout do
           });
 
           window.setTheme();
-          window.checkForUpdate();
+
+          const checkForUpdate = <%= @update_checks? %>;
+          const currentVersion = "<%= @current_version %>";
+
+          if (checkForUpdate) {
+            window.checkForUpdate(currentVersion);
+          }
+
           liveSocket.connect();
 
           window.liveSocket = liveSocket;
         </script>
         <span id="tooltip" class="absolute hidden p-2 text-xs rounded bg-tooltip-bg text-tooltip-text">
         </span>
-        <LiveDebugger.App.Web.Components.popup id="new-version-popup" title="New Version Available">
+        <LiveDebugger.App.Web.Components.popup
+          id="new-version-popup"
+          title="New Version Available"
+          wrapper_class="hidden"
+        >
           <div class="flex flex-col gap-3">
             <p class="text-xs">
               A new version of LiveDebugger is available! Update to get the latest features and improvements.

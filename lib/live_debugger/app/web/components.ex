@@ -993,12 +993,13 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:title, :string, default: nil)
   attr(:show, :boolean, default: true)
   attr(:class, :any, default: nil)
+  attr(:wrapper_class, :any, default: nil)
 
   slot(:inner_block, required: true)
 
   def popup(assigns) do
     ~H"""
-    <div :if={@show} id={@id} class="fixed inset-0 z-50">
+    <div :if={@show} id={@id} class={["fixed inset-0 z-50", @wrapper_class]}>
       <div class="fixed inset-0 bg-black/50"></div>
       <dialog
         open

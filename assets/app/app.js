@@ -87,6 +87,10 @@ export default async function checkForUpdate(currentVersion) {
   const data = await response.json();
   const latestVersion = data.version;
 
+  if (currentVersion !== latestVersion) {
+    document.getElementById('new-version-popup').classList.remove('hidden');
+  }
+
   sessionStorage.setItem('lvdbg:latest-version', latestVersion);
 }
 
