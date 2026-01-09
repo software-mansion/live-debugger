@@ -9,6 +9,8 @@ defmodule LiveDebugger.E2E.DiscoveryTest do
     dev_app1
     |> visit(@dev_app_url)
 
+    dev_pid1 = get_dev_pid(dev_app1)
+
     debugger
     |> visit("/")
     |> assert_has(title(text: "Active LiveViews"))
@@ -17,10 +19,9 @@ defmodule LiveDebugger.E2E.DiscoveryTest do
     dev_app2
     |> visit(@dev_app_url)
 
-    Process.sleep(200)
-
-    dev_pid1 = get_dev_pid(dev_app1)
     dev_pid2 = get_dev_pid(dev_app2)
+
+    Process.sleep(200)
 
     debugger
     |> assert_has(live_sessions(count: 2))
