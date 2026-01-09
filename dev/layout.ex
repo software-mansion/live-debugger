@@ -75,7 +75,7 @@ defmodule LiveDebuggerDev.Layout do
     ~H"""
     <main class="p-5">
       <.navbar />
-      <div>Current PID: <span id="current-pid"><%= pid_to_string(self()) %></span></div>
+      <p>Current PID: <span id="current-pid"><%= pid_to_string(self()) %></span></p>
       <%= @inner_content %>
     </main>
     """
