@@ -142,6 +142,8 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
       |> find(traces(count: 1))
       |> click(css("summary"))
 
+    Process.sleep(200)
+
     trace
     |> assert_has(css("summary.bg-error-bg"))
     |> assert_has(trace_summary_error(error_name))
