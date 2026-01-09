@@ -13,7 +13,7 @@ defmodule LiveDebugger.Support.E2EActions do
   end
 
   def get_dev_pid(session) do
-    if has_css?(session, "#current-pid") |> dbg() do
+    if has_css?(session, "#current-pid") do
       do_get_dev_pid(session)
     else
       # Sometimes the PID is not available immediately, so we wait for it
