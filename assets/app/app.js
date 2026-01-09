@@ -95,6 +95,8 @@ export default async function checkForUpdate(currentVersion) {
     ignoreCheckbox.addEventListener('change', (e) => {
       if (e.target.checked) {
         localStorage.setItem('lvdbg:ignored-version', latestVersion);
+      } else {
+        localStorage.removeItem('lvdbg:ignored-version');
       }
     });
 
