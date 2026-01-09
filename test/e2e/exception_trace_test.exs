@@ -1,6 +1,10 @@
 defmodule LiveDebugger.E2E.ExceptionTraceTest do
   use LiveDebugger.E2ECase
 
+  @moduledoc """
+  This module contains tests for the exception traces
+  """
+
   setup_all do
     LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
     LiveDebugger.API.SettingsStorage.save(:tracing_enabled_on_start, false)
@@ -180,7 +184,4 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
   defp error_button(action), do: css("button[phx-click=\"#{action}\"]")
 
   defp traces(opts), do: css("#global-traces-stream details", opts)
-
-  defp trace_name(opts), do: css("#global-traces-stream details p.font-medium", opts)
-  defp trace_module(opts), do: css("#global-traces-stream details div.col-span-3", opts)
 end

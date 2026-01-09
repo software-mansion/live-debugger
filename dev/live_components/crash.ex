@@ -5,6 +5,7 @@ defmodule LiveDebuggerDev.LiveComponents.Crash do
     defstruct [:name]
   end
 
+  @impl true
   def render(assigns) do
     ~H"""
     <div>
@@ -68,6 +69,7 @@ defmodule LiveDebuggerDev.LiveComponents.Crash do
     """
   end
 
+  @impl true
   def handle_event("crash", _, _) do
     raise "Exception in handle_event"
   end
@@ -106,8 +108,6 @@ defmodule LiveDebuggerDev.LiveComponents.Crash do
     throw(:throw_value)
     {:noreply, socket}
   end
-
-  defp private_function(:ok), do: :ok
 
   def handle_event("crash_function_clause", _, socket) do
     private_function(:error)
@@ -149,4 +149,6 @@ defmodule LiveDebuggerDev.LiveComponents.Crash do
   def handle_event("crash_bad_return", _, socket) do
     {:ok, socket}
   end
+
+  defp private_function(:ok), do: :ok
 end
