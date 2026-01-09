@@ -15,9 +15,11 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(global_callback_traces_button())
     |> assert_has(title(text: "Global Callback Traces"))
     |> assert_has(traces(count: 25))
@@ -58,9 +60,11 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(global_callback_traces_button())
     |> assert_has(title(text: "Global Callback Traces"))
     |> click(clear_traces_button())
@@ -97,9 +101,11 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(global_callback_traces_button())
     |> assert_has(title(text: "Global Callback Traces"))
     |> assert_has(traces(count: 25))
@@ -157,9 +163,11 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(global_callback_traces_button())
     |> assert_has(title(text: "Global Callback Traces"))
     |> assert_has(traces(count: 25))
@@ -180,11 +188,13 @@ defmodule LiveDebugger.E2E.GlobalTracesTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     # Resizing since in smaller screens the apply button is not visible
     debugger
     |> resize_window(1920, 1080)
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(global_callback_traces_button())
     |> assert_has(title(text: "Global Callback Traces"))
     |> click(clear_traces_button())

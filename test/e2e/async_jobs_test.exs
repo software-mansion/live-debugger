@@ -23,9 +23,11 @@ defmodule LiveDebugger.E2E.AsyncJobsTest do
     dev_app
     |> visit("#{@dev_app_url}/async_demo")
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(node_module_info("AsyncDemo"))
     |> assert_has(async_jobs_section())
     |> assert_has(no_async_jobs())

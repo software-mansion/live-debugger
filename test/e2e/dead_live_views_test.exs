@@ -26,6 +26,8 @@ defmodule LiveDebugger.E2E.DeadLiveViewsTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
     |> refute_has(css("#dead-sessions"))
@@ -40,7 +42,7 @@ defmodule LiveDebugger.E2E.DeadLiveViewsTest do
     debugger
     |> find(dead_sessions(count: 2))
     |> List.first()
-    |> click(live_view_button())
+    |> click(live_view_button(dev_pid))
 
     Process.sleep(100)
 

@@ -23,9 +23,11 @@ defmodule LiveDebugger.E2E.StreamsTest do
     dev_app
     |> visit(@dev_app_url <> "/stream")
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(items_display())
     |> click(items_display())
     |> assert_has(another_items_display())
@@ -80,9 +82,11 @@ defmodule LiveDebugger.E2E.StreamsTest do
     |> click(create_another_item_button())
     |> click(add_new_stream_button())
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(items_display())
     |> click(items_display())
     |> assert_has(another_items_display())
@@ -103,9 +107,11 @@ defmodule LiveDebugger.E2E.StreamsTest do
     |> visit(@dev_app_url <> "/stream")
     |> click(create_item_button())
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(items_display())
     |> click(items_display())
     |> assert_has(another_items_display())
@@ -127,9 +133,11 @@ defmodule LiveDebugger.E2E.StreamsTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> refute_has(streams_display())
   end
 
@@ -140,14 +148,16 @@ defmodule LiveDebugger.E2E.StreamsTest do
     dev_app
     |> visit(@dev_app_url <> "/stream")
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(streams_display())
     |> click(streams_collapsible())
     |> refute_has(streams_display())
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> refute_has(streams_display())
     |> click(streams_collapsible())
     |> assert_has(streams_display())

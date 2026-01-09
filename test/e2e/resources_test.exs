@@ -8,9 +8,11 @@ defmodule LiveDebugger.E2E.ResourcesTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(resources_tab())
     |> assert_has(css("div#process-info"))
     |> assert_has(process_info_field("Initial Call"))

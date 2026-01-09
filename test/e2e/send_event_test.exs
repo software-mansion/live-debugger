@@ -15,10 +15,12 @@ defmodule LiveDebugger.E2E.SendEventTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     # Open debugger and select the LiveView
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(sidebar_basic_info())
     |> assert_has(assigns_entry(key: "counter", value: "0"))
 

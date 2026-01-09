@@ -75,6 +75,7 @@ defmodule LiveDebuggerDev.Layout do
     ~H"""
     <main class="p-5">
       <.navbar />
+      <p>Current PID: <span id="current-pid"><%= pid_to_string(self()) %></span></p>
       <%= @inner_content %>
     </main>
     """
@@ -96,5 +97,12 @@ defmodule LiveDebuggerDev.Layout do
       <%= @inner_content %>
     </main>
     """
+  end
+
+  defp pid_to_string(pid) when is_pid(pid) do
+    pid
+    |> :erlang.pid_to_list()
+    |> to_string()
+    |> String.slice(1..-2//1)
   end
 end
