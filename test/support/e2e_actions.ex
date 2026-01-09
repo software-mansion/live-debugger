@@ -13,6 +13,17 @@ defmodule LiveDebugger.Support.E2EActions do
   end
 
   def get_dev_pid(session) do
+    if has_css?(session, "#current-pid") |> dbg() do
+      do_get_dev_pid(session)
+    else
+      # Sometimes the PID is not available immediately, so we wait for it
+      Process.sleep(500)
+
+      do_get_dev_pid(session)
+    end
+  end
+
+  defp do_get_dev_pid(session) do
     session
     |> Wallaby.Browser.find(Wallaby.Query.css("#current-pid"))
     |> Wallaby.Element.text()
