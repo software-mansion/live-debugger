@@ -38,6 +38,9 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   def render(assigns) do
     ~H"""
     <.box title="Main [LiveView]" color="blue">
+      <div>
+        Current PID: <span id="current-pid"><%= pid_to_string(self()) %></span>
+      </div>
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
           <.button id="increment-button" phx-click="increment" color="blue">
@@ -139,5 +142,12 @@ defmodule LiveDebuggerDev.LiveViews.Main do
 
   defp random_name() do
     Enum.random(["Alice", "Bob", "Charlie", "David", "Eve"])
+  end
+
+  defp pid_to_string(pid) when is_pid(pid) do
+    pid
+    |> :erlang.pid_to_list()
+    |> to_string()
+    |> String.slice(1..-2//1)
   end
 end
