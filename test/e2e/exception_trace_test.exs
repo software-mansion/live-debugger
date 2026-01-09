@@ -43,6 +43,21 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
     )
 
     test_exception(dev_app, debugger, "crash_exit", ":exit_reason", "(Stacktrace not available)")
+  end
+
+  @sessions 2
+  feature "debugger captures runtime errors and exceptions in global callbacks 2", %{
+    sessions: [dev_app, debugger]
+  } do
+    dev_app
+    |> visit(@dev_app_url)
+
+    debugger
+    |> visit("/")
+    |> select_live_view()
+    |> click(global_callback_traces_button())
+    |> click(clear_traces_button())
+    |> click(toggle_tracing_button())
 
     test_exception(
       dev_app,
@@ -78,7 +93,7 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
   end
 
   @sessions 2
-  feature "debugger captures runtime errors and exceptions in global callbacks pt.2", %{
+  feature "debugger captures runtime errors and exceptions in global callbacks 3", %{
     sessions: [dev_app, debugger]
   } do
     dev_app
