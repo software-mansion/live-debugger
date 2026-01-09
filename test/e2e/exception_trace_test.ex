@@ -124,8 +124,6 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
     dev_app
     |> click(error_button(crash_name))
 
-    # Process.sleep(100)
-
     debugger
     |> assert_trace_exception(error_name, stacktrace_content)
 
@@ -158,8 +156,6 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
   defp navigate_to_new_process(session) do
     session
     |> click(css("button", text: "Continue"))
-
-    # Process.sleep(100)
 
     session
     |> click(global_callback_traces_button())
