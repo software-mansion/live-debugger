@@ -77,7 +77,7 @@ function setTheme() {
   }
 }
 
-export default async function checkForUpdate(currentVersion) {
+async function checkForUpdate(currentVersion) {
   const shouldShowPopup = (latestVersion) => {
     return (
       currentVersion !== latestVersion &&
