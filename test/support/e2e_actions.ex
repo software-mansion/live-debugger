@@ -6,9 +6,15 @@ defmodule LiveDebugger.Support.E2EActions do
   import Wallaby.Browser
   import LiveDebugger.Support.CssQueries
 
-  def select_live_view(parent, opts \\ []) do
+  def select_live_view(parent, pid, opts \\ []) do
     parent
-    |> hover(live_view_button(opts))
-    |> click(live_view_button(opts))
+    |> hover(live_view_button(pid, opts))
+    |> click(live_view_button(pid, opts))
+  end
+
+  def get_dev_pid(session) do
+    session
+    |> Wallaby.Browser.find(Wallaby.Query.css("#current-pid"))
+    |> Wallaby.Element.text()
   end
 end
