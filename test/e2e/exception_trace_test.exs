@@ -140,7 +140,6 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
       session
       |> assert_has(traces(count: 1))
       |> find(traces(count: 1))
-      |> take_screenshot()
       |> click(css("summary"))
 
     trace
