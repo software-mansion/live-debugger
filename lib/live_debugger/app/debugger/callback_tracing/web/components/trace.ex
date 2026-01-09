@@ -153,14 +153,20 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         </div>
 
         <div class="hidden peer-checked/stack:block">
-          <div class="flex flex-col gap-2">
-            <pre class="whitespace-pre-wrap break-words text-xs p-2 overflow-x-auto font-code">{@error.stacktrace}</pre>
+          <div class="relative group mt-1">
+            <div class="absolute top-2 right-2 z-10">
+              <.copy_button id={"#{@id}-stacktrace"} value={@error.stacktrace} />
+            </div>
+            <pre class="whitespace-pre-wrap break-words text-xs p-4 pr-12 overflow-y-auto font-code bg-primary-bg">{@error.stacktrace}</pre>
           </div>
         </div>
 
         <div class="hidden peer-checked/raw:block">
-          <div class="flex flex-col gap-2">
-            <pre class="whitespace-pre-wrap break-words text-xs p-2 overflow-x-auto font-code">{@error.raw_error}</pre>
+          <div class="relative group mt-1">
+            <div class="absolute top-2 right-2 z-10">
+              <.copy_button id={"#{@id}-raw-error"} value={@error.raw_error} />
+            </div>
+            <pre class="whitespace-pre-wrap break-words text-xs p-4 pr-12 overflow-y-auto font-code bg-primary-bg">{@error.raw_error}</pre>
           </div>
         </div>
       <% else %>
