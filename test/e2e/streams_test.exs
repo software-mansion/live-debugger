@@ -180,7 +180,7 @@ defmodule LiveDebugger.E2E.StreamsTest do
     debugger
     |> execute_script(
       """
-      localStorage.setItem(`collapsible-open-${arguments[0]}`, arguments[1])
+      localStorage.setItem(`lvdbg:collapsible-open-${arguments[0]}`, arguments[1])
       """,
       [section_id, state]
     )
