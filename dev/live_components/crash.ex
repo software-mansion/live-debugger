@@ -69,6 +69,8 @@ defmodule LiveDebuggerDev.LiveComponents.Crash do
     """
   end
 
+  defp hide_value(val), do: val
+
   @impl true
   def handle_event("crash", _, _) do
     raise "Exception in handle_event"
@@ -80,12 +82,12 @@ defmodule LiveDebuggerDev.LiveComponents.Crash do
   end
 
   def handle_event("crash_argument", _, socket) do
-    String.to_integer("invalid_integer")
+    _ = apply(String, :to_integer, ["invalid_integer"])
     {:noreply, socket}
   end
 
   def handle_event("crash_case", _, socket) do
-    val = :unexpected
+    val = hide_value(:unexpected)
 
     case val do
       :expected -> :ok
@@ -95,7 +97,8 @@ defmodule LiveDebuggerDev.LiveComponents.Crash do
   end
 
   def handle_event("crash_match", _, socket) do
-    {:ok, _val} = {:error, "mismatch"}
+    mismatch = hide_value({:error, "mismatch"})
+    {:ok, _val} = mismatch
     {:noreply, socket}
   end
 
@@ -110,18 +113,19 @@ defmodule LiveDebuggerDev.LiveComponents.Crash do
   end
 
   def handle_event("crash_function_clause", _, socket) do
-    private_function(:error)
+    val = hide_value(:error)
+    private_function(val)
     {:noreply, socket}
   end
 
   def handle_event("crash_undefined", _, socket) do
-    List.this_function_does_not_exist([1, 2, 3])
-
+    apply(List, :this_function_does_not_exist, [[1, 2, 3]])
     {:noreply, socket}
   end
 
   def handle_event("crash_arithmetic", _, socket) do
-    _result = 1 / 0
+    zero = hide_value(0)
+    _result = 1 / zero
     {:noreply, socket}
   end
 
@@ -134,15 +138,14 @@ defmodule LiveDebuggerDev.LiveComponents.Crash do
   end
 
   def handle_event("crash_protocol", _, socket) do
-    Enum.map(12345, fn x -> x * 2 end)
+    val = hide_value(12345)
+    Enum.map(val, fn x -> x * 2 end)
     {:noreply, socket}
   end
 
   def handle_event("crash_key", _, socket) do
     user = %User{name: "test"}
-
-    _ = user.age
-
+    _ = Map.fetch!(user, :age)
     {:noreply, socket}
   end
 
