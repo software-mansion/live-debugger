@@ -19,9 +19,12 @@ defmodule LiveDebugger.E2E.DiscoveryTest do
 
     Process.sleep(200)
 
+    dev_pid1 = get_dev_pid(dev_app1)
+    dev_pid2 = get_dev_pid(dev_app2)
+
     debugger
     |> assert_has(live_sessions(count: 2))
-    |> hover(live_view_button(at: 0))
+    |> hover(live_view_button(dev_pid1))
 
     dev_app1
     |> assert_has(inspect_tooltip_module_text("LiveDebuggerDev.LiveViews.Main"))
@@ -32,7 +35,7 @@ defmodule LiveDebugger.E2E.DiscoveryTest do
     |> refute_has(inspect_tooltip_type_text("LiveView"))
 
     debugger
-    |> hover(live_view_button(at: 1))
+    |> hover(live_view_button(dev_pid2))
 
     dev_app1
     |> refute_has(inspect_tooltip_module_text("LiveDebuggerDev.LiveViews.Main"))
