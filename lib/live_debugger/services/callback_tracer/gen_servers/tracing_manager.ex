@@ -11,7 +11,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
 
-  @telemetry_event_name [:phoenix, :live_view, :mount, :start]
+  @telemetry_event_name [:phoenix, :live_view, :render, :stop]
 
   @type state() :: %{dbg_pid: pid() | nil}
 
