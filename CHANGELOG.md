@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.1 (2026-01-12)
+
+### Bug fixes
+  * Bug: fix function name in async loading [#877](https://github.com/software-mansion/live-debugger/pull/877)
+  * Bug: Modals should be closed on click away [#897](https://github.com/software-mansion/live-debugger/pull/897)
+  * Bug: fix navigation menu in old LiveView versions [#899](https://github.com/software-mansion/live-debugger/pull/899) 
+
+### Enhancements
+  * Enhancement: Sort children in TermNode [#896](https://github.com/software-mansion/live-debugger/pull/896)
+
 ## 0.5.0 (2025-12-01)
 
 ### Features
