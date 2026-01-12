@@ -80,7 +80,7 @@ if config_env() == :test do
     chrome: [headless: true],
     js_logger: nil,
     screenshot_on_failure: true,
-    screenshot_path: "tmp/screenshots"
+    screenshot_dir: "tmp/screenshots"
 
   config :live_debugger,
     server: true,
