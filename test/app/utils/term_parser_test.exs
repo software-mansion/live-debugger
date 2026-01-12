@@ -324,26 +324,8 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
             ],
             expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
           },
-          month: %TermNode{
-            id: "root.1",
-            kind: :number,
-            key: :month,
-            open?: false,
-            children: [],
-            content: [
-              %DisplayElement{text: "month:", color: "text-code-1"},
-              %DisplayElement{text: " ", color: "text-code-2"},
-              %DisplayElement{text: "5", color: "text-code-1"},
-              %DisplayElement{text: ",", color: "text-code-2"}
-            ],
-            expanded_before: [
-              %DisplayElement{text: "month:", color: "text-code-1"},
-              %DisplayElement{text: " ", color: "text-code-2"}
-            ],
-            expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
-          },
           day: %TermNode{
-            id: "root.2",
+            id: "root.1",
             kind: :number,
             key: :day,
             open?: false,
@@ -356,6 +338,24 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
             ],
             expanded_before: [
               %DisplayElement{text: "day:", color: "text-code-1"},
+              %DisplayElement{text: " ", color: "text-code-2"}
+            ],
+            expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
+          },
+          month: %TermNode{
+            id: "root.2",
+            kind: :number,
+            key: :month,
+            open?: false,
+            children: [],
+            content: [
+              %DisplayElement{text: "month:", color: "text-code-1"},
+              %DisplayElement{text: " ", color: "text-code-2"},
+              %DisplayElement{text: "5", color: "text-code-1"},
+              %DisplayElement{text: ",", color: "text-code-2"}
+            ],
+            expanded_before: [
+              %DisplayElement{text: "month:", color: "text-code-1"},
               %DisplayElement{text: " ", color: "text-code-2"}
             ],
             expanded_after: [%DisplayElement{text: ",", color: "text-code-2"}]
