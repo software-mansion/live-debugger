@@ -36,6 +36,8 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     |> click(button("increment-button"))
     |> click(button("increment-button"))
 
+    Process.sleep(250)
+
     debugger
     |> assert_has(traces(count: 6))
     |> assert_has(assigns_entry(key: "counter", value: "4"))
@@ -435,6 +437,8 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> click(button("increment-button"))
     |> click(button("send-button"))
+
+    Process.sleep(250)
 
     [render3_trace, send_trace, render2_trace, increment_trace, render1_trace, _] =
       debugger
