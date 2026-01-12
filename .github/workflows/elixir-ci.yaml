@@ -75,4 +75,4 @@ jobs:
         with:
           name: wallaby-screenshots
           path: tmp/screenshots
-          retention-days: 7
+          retention-days: 1
