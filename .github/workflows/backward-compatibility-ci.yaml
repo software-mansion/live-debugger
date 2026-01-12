@@ -61,3 +61,11 @@ jobs:
 
       - name: Run e2e tests
         run: mix e2e
+
+      - name: Upload Wallaby Screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wallaby-screenshots
+          path: tmp/screenshots
+          retention-days: 7

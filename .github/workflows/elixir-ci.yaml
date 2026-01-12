@@ -50,6 +50,10 @@ jobs:
       - name: Install Dependencies
         run: mix deps.get
 
+      - name: Check prettier
+        working-directory: ./assets
+        run: npx prettier . --check
+
       - name: Check formatting
         run: mix format --check-formatted
 
@@ -65,6 +69,10 @@ jobs:
       - name: Run e2e tests
         run: mix e2e
 
-      - name: Check prettier
-        working-directory: ./assets
-        run: npx prettier . --check
+      - name: Upload Wallaby Screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wallaby-screenshots
+          path: tmp/screenshots
+          retention-days: 7

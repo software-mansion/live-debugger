@@ -78,7 +78,9 @@ if config_env() == :test do
     driver: Wallaby.Chrome,
     otp_app: :live_debugger,
     chrome: [headless: true],
-    js_logger: nil
+    js_logger: nil,
+    screenshot_on_failure: true,
+    screenshot_path: "tmp/screenshots"
 
   config :live_debugger,
     server: true,
