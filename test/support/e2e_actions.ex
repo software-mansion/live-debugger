@@ -17,7 +17,7 @@ defmodule LiveDebugger.Support.E2EActions do
       do_get_dev_pid(session)
     else
       # Sometimes the PID is not available immediately, so we wait for it
-      Process.sleep(5000)
+      Process.sleep(3000)
 
       do_get_dev_pid(session)
     end
