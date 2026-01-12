@@ -36,11 +36,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:node_assigns_status, :atom, required: true)
 
   def assigns_section(assigns) do
-    opened_term_node =
-      TermNode.open_with_search_phrase(assigns.term_node, assigns.assigns_search_phrase)
-
-    assigns = assign(assigns, term_node: opened_term_node)
-
     ~H"""
     <div id="assigns-section-container" phx-hook="AssignsBodySearchHighlight">
       <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns" title_class="!min-w-18">
