@@ -157,7 +157,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.NavigationMenu do
           <.icon name={@icon} class="h-4 w-4" />
 
           <span class="text-xs font-medium text-center pl-1">
-            {@content}
+            <%= @content %>
           </span>
         </div>
       </.link>
