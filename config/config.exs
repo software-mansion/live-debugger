@@ -81,7 +81,7 @@ if config_env() == :test do
     js_logger: nil,
     screenshot_on_failure: true,
     screenshot_dir: "tmp/screenshots",
-    max_wait_time: 10_000
+    max_wait_time: 5_000
 
   config :live_debugger,
     server: true,
