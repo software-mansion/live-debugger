@@ -8,11 +8,6 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
   setup_all do
     LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
     LiveDebugger.API.SettingsStorage.save(:tracing_enabled_on_start, false)
-    Application.put_env(:wallaby, :js_errors, false)
-
-    on_exit(fn ->
-      Application.put_env(:wallaby, :js_errors, true)
-    end)
 
     :ok
   end
