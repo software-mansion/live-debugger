@@ -177,7 +177,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
     {message, stacktrace_str} = normalize_error(reason)
 
     with table <- TracesStorage.get_table(pid),
-         {:ok, {_key, trace}} <- TracesStorage.get_latest_trace(table),
+         {:ok, {_key, trace}} <- TracesStorage.get_latest_function_trace(table),
          new_trace <- add_error_to_trace(trace, message, stacktrace_str, raw_error_banner),
          {:ok, ref} <- TraceActions.persist_trace(new_trace),
          {:ok} <- TraceActions.publish_trace_exception(new_trace, ref) do

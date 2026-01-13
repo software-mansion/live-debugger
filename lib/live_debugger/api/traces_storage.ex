@@ -25,7 +25,7 @@ defmodule LiveDebugger.API.TracesStorage do
   @callback get_by_id!(table_identifier(), trace_id :: Trace.id()) :: Trace.t() | nil
   @callback get!(table_identifier(), opts :: keyword()) ::
               {[Trace.t()], continuation()} | :end_of_table
-  @callback get_latest_trace(table_identifier()) :: Trace.t() | nil
+  @callback get_latest_function_trace(table_identifier()) :: Trace.t() | nil
   @callback clear!(table_identifier(), node_id :: pid() | CommonTypes.cid() | nil) :: true
   @callback get_table(ets_table_id()) :: reference()
   @callback trim_table!(table_identifier(), max_size :: non_neg_integer()) :: true
@@ -119,9 +119,9 @@ defmodule LiveDebugger.API.TracesStorage do
   @doc """
   Returns latest function trace for a given table.
   """
-  @spec get_latest_trace(table_identifier()) :: Trace.t() | nil
-  def get_latest_trace(table_id) when is_table_identifier(table_id) do
-    impl().get_latest_trace(table_id)
+  @spec get_latest_function_trace(table_identifier()) :: Trace.t() | nil
+  def get_latest_function_trace(table_id) when is_table_identifier(table_id) do
+    impl().get_latest_function_trace(table_id)
   end
 
   @spec trim_table!(table_identifier(), non_neg_integer()) :: true
@@ -213,9 +213,12 @@ defmodule LiveDebugger.API.TracesStorage do
     end
 
     @impl true
-    def get_latest_trace(table_id) do
+    def get_latest_function_trace(table_id) do
       table = ets_table(table_id)
       first_key = :ets.first(table)
+
+      all_rows = :ets.tab2list(table)
+      dbg(all_rows)
 
       find_latest_function_trace(table, first_key)
     end
