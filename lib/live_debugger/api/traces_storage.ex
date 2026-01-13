@@ -217,9 +217,6 @@ defmodule LiveDebugger.API.TracesStorage do
       table = ets_table(table_id)
       first_key = :ets.first(table)
 
-      all_rows = :ets.tab2list(table)
-      dbg(all_rows)
-
       find_latest_function_trace(table, first_key)
     end
 
