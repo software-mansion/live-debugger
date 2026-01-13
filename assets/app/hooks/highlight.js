@@ -1,5 +1,6 @@
 const Highlight = {
   mounted() {
+    console.log('Highlight mounted');
     this.highlighted = false;
     this.liveComponent = this.el.closest('[data-phx-id]');
 

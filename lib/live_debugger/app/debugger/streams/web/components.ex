@@ -101,6 +101,11 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
       chevron_class="w-5 h-5 text-accent-icon"
       class="max-w-full border rounded last:mb-1 border-default-border"
       label_class="font-semibold bg-surface-1-bg p-1 py-1 rounded"
+      phx-hook="Highlight"
+      phx-value-search-attribute="id"
+      phx-value-search-value={@dom_id}
+      phx-value-type="StreamItem"
+      phx-value-id={@dom_id}
     >
       <:label>
         <p class="font-semibold whitespace-nowrap break-keep grow-0 shrink-0">
