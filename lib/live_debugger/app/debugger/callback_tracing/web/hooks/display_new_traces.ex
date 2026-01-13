@@ -83,6 +83,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
 
     socket
     |> stream_update_trace(trace)
+    |> push_event("stop-timer", %{})
     |> halt()
   end
 
