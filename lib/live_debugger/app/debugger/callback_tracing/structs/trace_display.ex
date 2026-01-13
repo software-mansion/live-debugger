@@ -10,7 +10,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.Trace.FunctionTrace
   alias LiveDebugger.Structs.Trace.DiffTrace
-  alias LiveDebugger.Structs.Trace.TraceError
+  alias LiveDebugger.Structs.Trace.ErrorTrace
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.CommonTypes
 
@@ -44,7 +44,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
           body: list({String.t(), term()}),
           side_section_left: side_section_left(),
           side_section_right: side_section_right(),
-          error: TraceError.t() | nil
+          error: ErrorTrace.t() | nil
         }
 
   @spec from_trace(Trace.t(), boolean()) :: t()

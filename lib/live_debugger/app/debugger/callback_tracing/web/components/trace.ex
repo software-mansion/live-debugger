@@ -12,7 +12,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   alias LiveDebugger.Utils.Memory
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
-  alias LiveDebugger.Structs.Trace.TraceError
+  alias LiveDebugger.Structs.Trace.ErrorTrace
 
   @doc """
   Displays the label of the trace with a polymorphic composition.
@@ -100,52 +100,76 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   attr(:search_phrase, :string, required: true)
 
   def trace_body_navbar_wrapper(assigns) do
-    assigns = assign(assigns, :error, assigns.trace_display.error)
+    assigns =
+      assigns
+      |> assign(:error, assigns.trace_display.error)
+      |> assign(:group_name, "error-trace-tabs-#{assigns.id}")
 
     ~H"""
-    <div id={@id <> "wrapper"} class="flex flex-col gap-4 w-full">
+    <div id={@id <> "wrapper"} class="flex flex-col w-full">
       <%= if @error do %>
-        <% group_name = "error-trace-tabs-#{@id}" %>
-
         <input
           type="radio"
-          name={group_name}
+          name={@group_name}
           id={@id <> "-tab-1"}
           class="peer/content hidden"
           checked
         />
-        <input type="radio" name={group_name} id={@id <> "-tab-2"} class="peer/stack hidden" />
-        <input type="radio" name={group_name} id={@id <> "-tab-3"} class="peer/raw hidden" />
+        <input type="radio" name={@group_name} id={@id <> "-tab-2"} class="peer/stack hidden" />
+        <input type="radio" name={@group_name} id={@id <> "-tab-3"} class="peer/raw hidden" />
 
         <div class={[
-          "flex flex-row gap-4 border-b border-default-border mb-2 text-sm select-none",
-          "peer-checked/content:[&>label:nth-of-type(1)]:text-navbar-selected-bg",
-          "peer-checked/content:[&>label:nth-of-type(1)]:border-navbar-selected-bg",
-          "peer-checked/stack:[&>label:nth-of-type(2)]:text-navbar-selected-bg",
-          "peer-checked/stack:[&>label:nth-of-type(2)]:border-navbar-selected-bg",
-          "peer-checked/raw:[&>label:nth-of-type(3)]:text-navbar-selected-bg",
-          "peer-checked/raw:[&>label:nth-of-type(3)]:border-navbar-selected-bg"
+          "flex flex-row gap-6 border-b border-default-border mb-2 text-sm select-none",
+          "items-center",
+          "pr-12",
+          "peer-checked/content:[&_.tab-content]:text-navbar-selected-bg peer-checked/content:[&_.tab-content]:border-navbar-selected-bg",
+          "peer-checked/stack:[&_.tab-stack]:text-navbar-selected-bg peer-checked/stack:[&_.tab-stack]:border-navbar-selected-bg",
+          "peer-checked/raw:[&_.tab-raw]:text-navbar-selected-bg peer-checked/raw:[&_.tab-raw]:border-navbar-selected-bg",
+          "peer-checked/stack:[&_.btn-stack]:block",
+          "peer-checked/raw:[&_.btn-raw]:block"
         ]}>
           <label
             for={@id <> "-tab-1"}
-            class="cursor-pointer pb-2 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
+            class="tab-content cursor-pointer pb-2 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
           >
             Trace Body
           </label>
 
-          <label
-            for={@id <> "-tab-2"}
-            class="cursor-pointer pb-2 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
-          >
-            Stacktrace
-          </label>
+          <div class="flex items-center gap-2">
+            <label
+              for={@id <> "-tab-2"}
+              class="tab-stack cursor-pointer pb-2 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
+            >
+              Stacktrace
+            </label>
 
-          <label
-            for={@id <> "-tab-3"}
-            class="cursor-pointer pb-2 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
-          >
-            Raw Error
-          </label>
+            <div class="btn-stack hidden pb-2">
+              <.copy_button
+                id={"#{@id}-copy-stack"}
+                value={@error.stacktrace}
+                variant="icon"
+                class="text-secondary-text hover:text-primary-text"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <label
+              for={@id <> "-tab-3"}
+              class="tab-raw cursor-pointer pb-2 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
+            >
+              Raw Error
+            </label>
+
+            <div class="btn-raw hidden pb-2">
+              <.copy_button
+                id={"#{@id}-copy-raw"}
+                value={@error.raw_error}
+                variant="icon"
+                class="text-secondary-text hover:text-primary-text"
+              />
+            </div>
+          </div>
         </div>
 
         <div class="hidden peer-checked/content:block">
@@ -153,21 +177,25 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         </div>
 
         <div class="hidden peer-checked/stack:block">
-          <div class="relative group mt-1">
-            <div class="absolute top-2 right-2 z-10">
-              <.copy_button id={"#{@id}-stacktrace"} value={@error.stacktrace} />
-            </div>
-            <pre class="whitespace-pre-wrap break-words text-xs p-4 pr-12 overflow-y-auto font-code bg-primary-bg">{@error.stacktrace}</pre>
-          </div>
+          <pre class={[
+            "block w-full",
+            "max-h-[30vh] overflow-y-auto overflow-x-auto",
+            "whitespace-pre",
+            "text-xs p-4",
+            "font-code bg-primary-bg",
+            "overscroll-y-contain"
+          ]}><%= format_stacktrace(@error.stacktrace) %></pre>
         </div>
 
         <div class="hidden peer-checked/raw:block">
-          <div class="relative group mt-1">
-            <div class="absolute top-2 right-2 z-10">
-              <.copy_button id={"#{@id}-raw-error"} value={@error.raw_error} />
-            </div>
-            <pre class="whitespace-pre-wrap break-words text-xs p-4 pr-12 overflow-y-auto font-code bg-primary-bg">{@error.raw_error}</pre>
-          </div>
+          <pre class={[
+            "block w-full",
+            "whitespace-pre",
+            "text-xs p-4",
+            "overflow-y-auto overflow-x-auto max-h-[30vh]",
+            "font-code bg-primary-bg",
+            "overscroll-y-contain"
+          ]}>{@error.raw_error}</pre>
         </div>
       <% else %>
         <.trace_body id={@id} trace_display={@trace_display} search_phrase={@search_phrase} />
@@ -310,15 +338,27 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
     """
   end
 
-  attr(:error, TraceError, required: true)
+  attr(:error, ErrorTrace, required: true)
 
   defp trace_error_message(assigns) do
     ~H"""
-    <div class="flex flex-row mt-2 text-error-text">
-      <.icon name="icon-info" class="w-4 h-4" />
-      <p :if={@error}>{@error.message}</p>
+    <div class="flex flex-row gap-2 mt-2 text-error-text items-center">
+      <.icon name="icon-info" class="w-4 h-4 shrink-0" />
+      <p :if={@error}><%= clean_error_message(@error.message) %></p>
     </div>
     """
+  end
+
+  defp clean_error_message(message) do
+    message
+    |> String.replace("**", "")
+    |> String.trim()
+  end
+
+  defp format_stacktrace(stacktrace) do
+    stacktrace
+    |> String.split("\n")
+    |> Enum.map_join("\n", &String.trim/1)
   end
 
   defp get_threshold_class(execution_time) do

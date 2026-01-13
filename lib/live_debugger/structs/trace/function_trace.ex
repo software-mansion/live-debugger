@@ -11,7 +11,7 @@ defmodule LiveDebugger.Structs.Trace.FunctionTrace do
 
   alias LiveDebugger.CommonTypes
   alias LiveDebugger.Structs.Trace
-  alias LiveDebugger.Structs.Trace.TraceError
+  alias LiveDebugger.Structs.Trace.ErrorTrace
 
   defstruct [
     :id,
@@ -45,7 +45,7 @@ defmodule LiveDebugger.Structs.Trace.FunctionTrace do
           execution_time: non_neg_integer() | nil,
           type: :call | :return_from | :exception_from,
           return_value: term() | nil,
-          error: TraceError.t() | nil
+          error: ErrorTrace.t() | nil
         }
 
   @doc """
