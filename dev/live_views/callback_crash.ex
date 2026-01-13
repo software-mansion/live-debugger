@@ -28,27 +28,27 @@ defmodule LiveDebuggerDev.LiveViews.CallbackCrash do
         <.card title="1. Initialization & URL">
           <p class="text-sm text-gray-500 mb-2">Reloads page with query param</p>
           <div class="flex gap-2 flex-wrap">
-            <.link href="?crash_in=mount" class="btn-red">Crash MOUNT</.link>
-            <.link href="?crash_in=params" class="btn-red">Crash HANDLE_PARAMS</.link>
-            <.link href="?" class="btn-green">Reset URL</.link>
+            <.link href="?crash_in=mount">Crash MOUNT</.link>
+            <.link href="?crash_in=params">Crash HANDLE_PARAMS</.link>
+            <.link href="?">Reset URL</.link>
           </div>
         </.card>
 
         <.card title="2. Event Loop Handlers">
           <div class="flex flex-col gap-2">
-            <.button phx-click="crash_event" class="btn-blue">
+            <.button phx-click="crash_event">
               handle_event
             </.button>
 
-            <.button phx-click="trigger_info" class="btn-orange">
+            <.button phx-click="trigger_info">
               handle_info
             </.button>
 
-            <.button phx-click="trigger_cast" class="btn-purple">
+            <.button phx-click="trigger_cast">
               handle_cast
             </.button>
 
-            <.button phx-click="trigger_call" class="btn-purple">
+            <.button phx-click="trigger_call">
               handle_call
             </.button>
           </div>
@@ -56,11 +56,11 @@ defmodule LiveDebuggerDev.LiveViews.CallbackCrash do
 
         <.card title="3. Async & Render">
           <div class="flex flex-col gap-2">
-            <.button phx-click="trigger_async" class="btn-teal">
+            <.button phx-click="trigger_async">
               handle_async
             </.button>
 
-            <.button phx-click="trigger_render" class="btn-pink">
+            <.button phx-click="trigger_render">
               render
             </.button>
           </div>
