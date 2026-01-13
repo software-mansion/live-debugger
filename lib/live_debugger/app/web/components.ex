@@ -675,20 +675,22 @@ defmodule LiveDebugger.App.Web.Components do
         | List.wrap(@class)
       ]}
     >
-      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border">
-        <div class="flex justify-between items-center w-full font-semibold text-primary-text text-base">
-          <%= @title %>
-          <div class="mr-2 font-normal"><%= render_slot(@search_bar_slot) %></div>
+      <div phx-click-away={JS.dispatch("close", to: "##{@id}")}>
+        <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border">
+          <div class="flex justify-between items-center w-full font-semibold text-primary-text text-base">
+            <%= @title %>
+            <div class="mr-2 font-normal"><%= render_slot(@search_bar_slot) %></div>
+          </div>
+          <.icon_button
+            id={"#{@id}-close"}
+            phx-click={JS.dispatch("close", to: "##{@id}")}
+            icon="icon-cross"
+            variant="secondary"
+          />
         </div>
-        <.icon_button
-          id={"#{@id}-close"}
-          phx-click={JS.dispatch("close", to: "##{@id}")}
-          icon="icon-cross"
-          variant="secondary"
-        />
-      </div>
-      <div class="overflow-auto flex flex-col gap-2 text-primary-text">
-        <%= render_slot(@inner_block) %>
+        <div class="overflow-auto flex flex-col gap-2 text-primary-text">
+          <%= render_slot(@inner_block) %>
+        </div>
       </div>
     </dialog>
     """
