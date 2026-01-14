@@ -119,18 +119,18 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         <input type="radio" name={@group_name} id={@id <> "-tab-3"} class="peer/raw hidden" />
 
         <div class={[
-          "flex flex-row gap-6 border-b border-default-border mb-2 text-sm select-none",
+          "flex flex-row gap-6 border-b border-default-border mb-2 text-sm select-none sticky top-0 z-10 bg-navbar-bg",
           "items-center",
-          "pr-12",
+          "pr-12, px-4",
           "peer-checked/content:[&_.tab-content]:text-navbar-selected-bg peer-checked/content:[&_.tab-content]:border-navbar-selected-bg",
           "peer-checked/stack:[&_.tab-stack]:text-navbar-selected-bg peer-checked/stack:[&_.tab-stack]:border-navbar-selected-bg",
           "peer-checked/raw:[&_.tab-raw]:text-navbar-selected-bg peer-checked/raw:[&_.tab-raw]:border-navbar-selected-bg",
-          "peer-checked/stack:[&_.btn-stack]:block",
-          "peer-checked/raw:[&_.btn-raw]:block"
+          "peer-checked/stack:[&_.copy-btn-stack]:block",
+          "peer-checked/raw:[&_.copy-btn-raw]:block"
         ]}>
           <label
             for={@id <> "-tab-1"}
-            class="tab-content cursor-pointer pb-2 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
+            class="tab-content cursor-pointer pb-3 pt-3 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
           >
             Trace Body
           </label>
@@ -138,41 +138,51 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
           <div class="flex items-center gap-2">
             <label
               for={@id <> "-tab-2"}
-              class="tab-stack cursor-pointer pb-2 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
+              class="tab-stack cursor-pointer pb-3 pt-3 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
             >
               Stacktrace
             </label>
-
-            <div class="btn-stack hidden pb-2">
-              <.copy_button
-                id={"#{@id}-copy-stack"}
-                value={@error.stacktrace}
-                variant="icon"
-                class="text-secondary-text hover:text-primary-text"
-              />
-            </div>
           </div>
 
           <div class="flex items-center gap-2">
             <label
               for={@id <> "-tab-3"}
-              class="tab-raw cursor-pointer pb-2 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
+              class="tab-raw cursor-pointer pb-3 pt-3 px-1 border-b border-transparent -mb-px text-secondary-text transition-colors hover:text-navbar-selected-bg font-medium"
             >
               Raw Error
             </label>
+          </div>
+          <div class="flex items-center gap-1 ml-auto">
+            <.fullscreen_button
+              id={"trace-fullscreen-#{@id}"}
+              class="m-2"
+              phx-click="open-trace"
+              phx-value-trace-id={@trace_display.id}
+            />
 
-            <div class="btn-raw hidden pb-2">
+            <div class="copy-btn-stack hidden">
+              <.copy_button
+                id={"#{@id}-copy-stack"}
+                value={@error.stacktrace}
+                variant="button"
+                title="Copy Stacktrace"
+                class="text-secondary-text hover:text-primary-text"
+              />
+            </div>
+
+            <div class="copy-btn-raw hidden">
               <.copy_button
                 id={"#{@id}-copy-raw"}
                 value={@error.raw_error}
-                variant="icon"
+                variant="button"
+                title="Copy Raw Error"
                 class="text-secondary-text hover:text-primary-text"
               />
             </div>
           </div>
         </div>
 
-        <div class="hidden peer-checked/content:block">
+        <div class="hidden peer-checked/content:block px-4 pt-4">
           <.trace_body id={@id} trace_display={@trace_display} search_phrase={@search_phrase} />
         </div>
 
@@ -182,7 +192,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
             "max-h-[30vh] overflow-y-auto overflow-x-auto",
             "whitespace-pre",
             "text-xs p-4",
-            "font-code bg-primary-bg",
+            "font-code bg-navbar-bg",
             "overscroll-y-contain"
           ]}><%= format_stacktrace(@error.stacktrace) %></pre>
         </div>
@@ -193,7 +203,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
             "whitespace-pre",
             "text-xs p-4",
             "overflow-y-auto overflow-x-auto max-h-[30vh]",
-            "font-code bg-primary-bg",
+            "font-code bg-navbar-bg",
             "overscroll-y-contain"
           ]}>{@error.raw_error}</pre>
         </div>
@@ -214,7 +224,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   def trace_fullscreen(assigns) do
     ~H"""
     <.fullscreen id={@id} title={@displayed_trace.title}>
-      <div class="p-4 flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden">
+      <div class={[
+        "flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden",
+        if(is_nil(@displayed_trace.error), do: "p-4", else: "")
+      ]}>
         <.trace_body_navbar_wrapper
           id={@id <> "-fullscreen"}
           trace_display={@displayed_trace}

@@ -62,7 +62,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
         <%= render_slot(@label) %>
       </:label>
       <div class="relative">
-        <div :if={@trace_display.render_body?} class="absolute right-0 top-0 z-10">
+        <div
+          :if={@trace_display.render_body? && is_nil(@trace_display.error)}
+          class="absolute right-0 top-0 z-10"
+        >
           <.fullscreen_button
             id={"trace-fullscreen-#{@id}"}
             class="m-2"
@@ -70,7 +73,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
             phx-value-trace-id={@trace_display.id}
           />
         </div>
-        <div class="overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
+        <div class={[
+          "overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto",
+          if(is_nil(@trace_display.error), do: "p-4", else: "")
+        ]}>
           <%= if @trace_display.render_body? do %>
             <%= render_slot(@body) %>
           <% else %>
