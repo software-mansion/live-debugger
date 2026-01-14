@@ -19,9 +19,11 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(global_callback_traces_button())
     |> click(clear_traces_button())
     |> click(toggle_tracing_button())
@@ -47,9 +49,11 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(global_callback_traces_button())
     |> click(clear_traces_button())
     |> click(toggle_tracing_button())
@@ -94,9 +98,11 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(global_callback_traces_button())
     |> click(clear_traces_button())
     |> click(toggle_tracing_button())

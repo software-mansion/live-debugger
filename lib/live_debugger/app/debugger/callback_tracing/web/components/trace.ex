@@ -164,7 +164,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
               <.copy_button
                 id={"#{@id}-copy-stack"}
                 value={@error.stacktrace}
-                variant="button"
+                variant="icon-button"
                 title="Copy Stacktrace"
                 class="text-secondary-text hover:text-primary-text"
               />
@@ -174,7 +174,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
               <.copy_button
                 id={"#{@id}-copy-raw"}
                 value={@error.raw_error}
-                variant="button"
+                variant="icon-button"
                 title="Copy Raw Error"
                 class="text-secondary-text hover:text-primary-text"
               />
