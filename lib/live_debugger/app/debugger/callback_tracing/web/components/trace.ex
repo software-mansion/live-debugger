@@ -205,7 +205,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
             "overflow-y-auto overflow-x-auto max-h-[30vh]",
             "font-code bg-navbar-bg",
             "overscroll-y-contain"
-          ]}>{@error.raw_error}</pre>
+          ]}><%=@error.raw_error%></pre>
         </div>
       <% else %>
         <.trace_body id={@id} trace_display={@trace_display} search_phrase={@search_phrase} />
