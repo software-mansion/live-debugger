@@ -76,7 +76,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
       label_class="font-semibold bg-surface-1-bg p-2 py-3 rounded"
     >
       <:label>
-        <%=@stream_name%>
+        <%= @stream_name %>
       </:label>
 
       <div class="overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-3">
