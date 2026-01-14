@@ -15,16 +15,18 @@ defmodule LiveDebugger.E2E.AssignsTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(term_entry("all-assigns", key: "counter", value: "0"))
     |> fill_in(assigns_search_bar(), with: "deep value")
     |> assert_has(css("pre", text: "\"deep value\"", count: 1, visible: true))
 
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(term_entry("all-assigns", key: "counter", value: "0"))
     |> assert_has(fullscreen_button())
     |> click(fullscreen_button())
@@ -39,9 +41,11 @@ defmodule LiveDebugger.E2E.AssignsTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(css("#pinned-assigns", text: "You have no pinned assigns."))
 
     debugger
@@ -72,9 +76,11 @@ defmodule LiveDebugger.E2E.AssignsTest do
     |> click(button("increment-button"))
     |> click(button("send-button"))
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(open_assigns_history_button())
     |> assert_has(term_entry("history-old-assigns", key: "counter", value: "2"))
     |> assert_has(term_entry("history-old-assigns", key: "datetime", value: "nil"))
