@@ -61,13 +61,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
                 placeholder="e.g., click, submit"
               />
               <div class="flex flex-col gap-2">
-                <.textarea
-                  field={@form[:payload]}
-                  label={payload_label(@form[:handler].value)}
-                  rows="6"
-                  placeholder={payload_placeholder(@form[:handler].value)}
-                  textarea_class="font-mono"
-                />
+                <.codearea field={@form[:payload]} label={payload_label(@form[:handler].value)} />
                 <p :if={@message_error} class="text-xs text-error-text truncate">
                   <%= @message_error %>
                 </p>
