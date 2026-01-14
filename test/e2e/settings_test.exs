@@ -28,9 +28,11 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     # Check dead view mode toggle
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger1
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_text("Monitored PID")
 
     dev_app
@@ -55,9 +57,11 @@ defmodule LiveDebugger.E2E.SettingsTest do
 
     assert(check_dets_for_setting(:dead_view_mode))
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger1
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_text("Monitored PID")
 
     dev_app
@@ -118,9 +122,11 @@ defmodule LiveDebugger.E2E.SettingsTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger1
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(toggle_tracing_button(icon: "icon-play"))
     |> assert_has(traces(count: 2))
 
