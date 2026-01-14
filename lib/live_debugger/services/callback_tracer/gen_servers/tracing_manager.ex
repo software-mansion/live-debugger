@@ -11,7 +11,9 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
 
-  @tracing_setup_delay Application.compile_env(:live_debugger, :tracing_setup_delay, 0)
+  @telemetry_event_name [:phoenix, :live_view, :render, :stop]
+
+  @type state() :: %{dbg_pid: pid() | nil}
 
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
@@ -25,11 +27,14 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   end
 
   @impl true
-  def init(opts) do
+  def init(_opts) do
     Bus.receive_events!()
-    Process.send_after(self(), :setup_tracing, @tracing_setup_delay)
+    TracingActions.monitor_recompilation()
+    attach_telemetry_handler()
 
-    {:ok, opts}
+    send(self(), :setup_tracing)
+
+    {:ok, %{dbg_pid: nil}}
   end
 
   @impl true
@@ -39,8 +44,13 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   @impl true
   def handle_info(:setup_tracing, state) do
-    TracingActions.setup_tracing!()
-    TracingActions.monitor_recompilation()
+    new_state = TracingActions.setup_tracing!(state)
+
+    {:noreply, new_state}
+  end
+
+  def handle_info(:refresh_tracing, state) do
+    TracingActions.refresh_tracing()
 
     {:noreply, state}
   end
@@ -65,8 +75,32 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
     {:noreply, state}
   end
 
+  # handling dbg tracer stop
+  def handle_info({:DOWN, _, _, pid, :done}, %{dbg_pid: pid} = state) do
+    send(self(), :setup_tracing)
+
+    {:noreply, state}
+  end
+
   def handle_info(_, state) do
     {:noreply, state}
+  end
+
+  def handle_telemetry(@telemetry_event_name, _measurements, metadata, manager_pid) do
+    if not LiveDebugger.Utils.Modules.debugger_module?(metadata.socket.endpoint) do
+      send(manager_pid, :refresh_tracing)
+
+      :telemetry.detach({__MODULE__, @telemetry_event_name, manager_pid})
+    end
+  end
+
+  defp attach_telemetry_handler() do
+    :telemetry.attach(
+      {__MODULE__, @telemetry_event_name, self()},
+      @telemetry_event_name,
+      &__MODULE__.handle_telemetry/4,
+      self()
+    )
   end
 
   defp correct_event?(events) do

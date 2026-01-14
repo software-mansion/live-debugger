@@ -78,6 +78,123 @@ defmodule LiveDebugger.App.Web.Components do
   end
 
   @doc """
+  Select dropdown element usable in forms.
+
+  ## Examples
+
+    <.form for={@form}>
+      <.select field={@form[:my_field]} label="My Field" options={[{"Option 1", "1"}, {"Option 2", "2"}]} />
+    </.form>
+  """
+  attr(:field, Phoenix.HTML.FormField, required: true)
+  attr(:label, :string, default: nil)
+
+  attr(:options, :list,
+    required: true,
+    doc: "List of {label, value} tuples for the select options"
+  )
+
+  attr(:wrapper_class, :any, default: nil, doc: "Additional classes for the wrapper div.")
+  attr(:select_class, :any, default: nil, doc: "Additional classes for the select element.")
+  attr(:label_class, :any, default: nil, doc: "Additional classes for the label element.")
+  attr(:rest, :global)
+
+  def select(assigns) do
+    ~H"""
+    <div class={["flex flex-col gap-2" | List.wrap(@wrapper_class)]}>
+      <label :if={@label} for={@field.id} class={["font-medium text-sm" | List.wrap(@label_class)]}>
+        <%= @label %>
+      </label>
+      <select
+        id={@field.id}
+        name={@field.name}
+        class={[
+          "w-full rounded bg-surface-0-bg border border-default-border text-xs"
+          | List.wrap(@select_class)
+        ]}
+        {@rest}
+      >
+        <%= Phoenix.HTML.Form.options_for_select(@options, @field.value) %>
+      </select>
+    </div>
+    """
+  end
+
+  @doc """
+  Text input element usable in forms.
+
+  ## Examples
+
+    <.form for={@form}>
+      <.text_input field={@form[:my_field]} label="My Field" placeholder="Enter text..." />
+    </.form>
+  """
+  attr(:field, Phoenix.HTML.FormField, required: true)
+  attr(:label, :string, default: nil)
+
+  attr(:wrapper_class, :any, default: nil, doc: "Additional classes for the wrapper div.")
+  attr(:input_class, :any, default: nil, doc: "Additional classes for the input element.")
+  attr(:label_class, :any, default: nil, doc: "Additional classes for the label element.")
+  attr(:rest, :global, include: ~w(type placeholder))
+
+  def text_input(assigns) do
+    ~H"""
+    <div class={["flex flex-col gap-2" | List.wrap(@wrapper_class)]}>
+      <label :if={@label} for={@field.id} class={["font-medium text-sm" | List.wrap(@label_class)]}>
+        <%= @label %>
+      </label>
+      <input
+        type={@rest[:type] || "text"}
+        id={@field.id}
+        name={@field.name}
+        value={@field.value}
+        class={[
+          "w-full rounded bg-surface-0-bg border border-default-border text-xs placeholder:text-ui-muted px-3 py-2"
+          | List.wrap(@input_class)
+        ]}
+        {@rest}
+      />
+    </div>
+    """
+  end
+
+  @doc """
+  Textarea element usable in forms.
+
+  ## Examples
+
+    <.form for={@form}>
+      <.textarea field={@form[:my_field]} label="My Field" placeholder="Enter text..." />
+    </.form>
+  """
+  attr(:field, Phoenix.HTML.FormField, required: true)
+  attr(:label, :string, default: nil)
+
+  attr(:wrapper_class, :any, default: nil, doc: "Additional classes for the wrapper div.")
+  attr(:textarea_class, :any, default: nil, doc: "Additional classes for the textarea element.")
+  attr(:label_class, :any, default: nil, doc: "Additional classes for the label element.")
+  attr(:rest, :global, include: ~w(rows placeholder))
+
+  def textarea(assigns) do
+    ~H"""
+    <div class={["flex flex-col gap-2" | List.wrap(@wrapper_class)]}>
+      <label :if={@label} for={@field.id} class={["font-medium text-sm" | List.wrap(@label_class)]}>
+        <%= @label %>
+      </label>
+      <textarea
+        id={@field.id}
+        name={@field.name}
+        class={[
+          "w-full rounded bg-surface-0-bg border border-default-border text-xs placeholder:text-ui-muted resize-y"
+          | List.wrap(@textarea_class)
+        ]}
+        {@rest}
+      ><%= @field.value %></textarea>
+    </div>
+    """
+  end
+
+  @doc """
   Button component with customizable variant and size.
   """
   attr(:variant, :string, default: "primary", values: ["primary", "secondary"])
@@ -558,20 +675,22 @@ defmodule LiveDebugger.App.Web.Components do
         | List.wrap(@class)
       ]}
     >
-      <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border">
-        <div class="flex justify-between items-center w-full font-semibold text-primary-text text-base">
-          <%= @title %>
-          <div class="mr-2 font-normal"><%= render_slot(@search_bar_slot) %></div>
+      <div phx-click-away={JS.dispatch("close", to: "##{@id}")}>
+        <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border">
+          <div class="flex justify-between items-center w-full font-semibold text-primary-text text-base">
+            <%= @title %>
+            <div class="mr-2 font-normal"><%= render_slot(@search_bar_slot) %></div>
+          </div>
+          <.icon_button
+            id={"#{@id}-close"}
+            phx-click={JS.dispatch("close", to: "##{@id}")}
+            icon="icon-cross"
+            variant="secondary"
+          />
         </div>
-        <.icon_button
-          id={"#{@id}-close"}
-          phx-click={JS.dispatch("close", to: "##{@id}")}
-          icon="icon-cross"
-          variant="secondary"
-        />
-      </div>
-      <div class="overflow-auto flex flex-col gap-2 text-primary-text">
-        <%= render_slot(@inner_block) %>
+        <div class="overflow-auto flex flex-col gap-2 text-primary-text">
+          <%= render_slot(@inner_block) %>
+        </div>
       </div>
     </dialog>
     """
