@@ -1,9 +1,12 @@
 import { EditorView, basicSetup } from 'codemirror';
 import { elixir } from 'codemirror-lang-elixir';
-import { oneDark } from '@codemirror/theme-one-dark';
+
+import { githubLight } from '@fsegurai/codemirror-theme-github-light';
+import { githubDark } from '@fsegurai/codemirror-theme-github-dark';
 
 const CodeMirrorTextarea = {
   mounted() {
+    const theme = localStorage.getItem('theme');
     const targetDivId = this.el.id.replace('-codearea-wrapper', '-codemirror');
     const textareaId = this.el.id.replace('-codearea-wrapper', '');
 
@@ -19,8 +22,15 @@ const CodeMirrorTextarea = {
       }
     });
 
+    const extensions = [basicSetup, elixir(), syncToTextarea];
+    if (theme === 'dark') {
+      extensions.push(githubDark);
+    } else {
+      extensions.push(githubLight);
+    }
+
     let editor = new EditorView({
-      extensions: [basicSetup, elixir(), oneDark, syncToTextarea],
+      extensions: extensions,
       parent: targetDiv,
     });
 
