@@ -119,7 +119,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         <input type="radio" name={@group_name} id={@id <> "-tab-3"} class="peer/raw hidden" />
 
         <div class={[
-          "flex flex-row gap-6 border-b border-default-border mb-2 text-sm select-none sticky top-0 z-10 bg-navbar-bg",
+          "flex flex-row gap-6 border-b border-default-border mb-2 text-sm select-none sticky top-0 z-10 bg-navbar-bg min-w-[420px]",
           "items-center",
           "pr-12, px-4",
           "peer-checked/content:[&_.tab-content]:text-navbar-selected-bg peer-checked/content:[&_.tab-content]:border-navbar-selected-bg",
