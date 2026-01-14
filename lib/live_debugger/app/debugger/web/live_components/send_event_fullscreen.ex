@@ -97,6 +97,14 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   end
 
   @impl true
+  def handle_event("change", %{"_target" => ["handler"]} = params, socket) do
+    params = Map.put(params, "payload", default_payload(params["handler"]))
+
+    socket
+    |> assign_form(params)
+    |> noreply()
+  end
+
   def handle_event("change", params, socket) do
     socket
     |> assign_form(params)
@@ -123,7 +131,12 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   end
 
   defp assign_form(socket, params \\ %{}) do
-    defaults = %{"handler" => "handle_event/3", "payload" => "", "event" => ""}
+    defaults = %{
+      "handler" => "handle_event/3",
+      "payload" => default_payload("handle_event/3"),
+      "event" => ""
+    }
+
     params = Map.merge(defaults, params)
     form = to_form(params, id: socket.assigns.id <> "-form")
 
@@ -137,7 +150,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   defp payload_label("handle_event/3"), do: "Unsigned params"
   defp payload_label(_), do: "Message"
 
-  defp payload_placeholder("update/2"), do: ~s|%{my_assign: "value"}|
-  defp payload_placeholder("handle_event/3"), do: ~s|%{my_param: "value"}|
-  defp payload_placeholder(_), do: ~s|{:my, "message"}|
+  defp default_payload("update/2"), do: ~s|%{\n  "my_assign" => "value"\n}|
+  defp default_payload("handle_event/3"), do: ~s|%{\n  "my_param" => "value"\n}|
+  defp default_payload(_), do: ~s|{:my, "message"}|
 end

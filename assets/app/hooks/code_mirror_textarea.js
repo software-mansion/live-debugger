@@ -1,7 +1,6 @@
 import { EditorView, basicSetup } from 'codemirror';
 import { elixir } from 'codemirror-lang-elixir';
 import { oneDark } from '@codemirror/theme-one-dark';
-import { placeholder } from '@codemirror/view';
 
 const CodeMirrorTextarea = {
   mounted() {
@@ -24,6 +23,16 @@ const CodeMirrorTextarea = {
       extensions: [basicSetup, elixir(), oneDark, syncToTextarea],
       parent: targetDiv,
     });
+
+    if (textarea.value) {
+      editor.dispatch({
+        changes: {
+          from: 0,
+          to: editor.state.doc.length,
+          insert: textarea.value,
+        },
+      });
+    }
 
     this.editor = editor;
   },
