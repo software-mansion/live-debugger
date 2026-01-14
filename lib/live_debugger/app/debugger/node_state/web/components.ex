@@ -113,7 +113,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   defp section_title(assigns) do
     ~H"""
     <div class="bg-surface-1-bg flex items-center h-10 gap-2 p-4 border-b border-default-border font-semibold text-secondary-text">
-      <.icon :if={@icon} name={"icon-#{@icon}"} class="h-4 w-4" />
+      <.icon :if={@icon} name={@icon} class="h-4 w-4" />
       <p><%= @name %></p>
     </div>
     """
@@ -128,7 +128,10 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
     ~H"""
     <div id={@id}>
-      <.section_title name={if(@empty?, do: "No pinned assigns", else: "Pinned assigns")} icon="pin" />
+      <.section_title
+        name={if(@empty?, do: "No pinned assigns", else: "Pinned assigns")}
+        icon="icon-pin"
+      />
       <div :if={not @empty?} class="p-4 border-b border-default-border overflow-x-auto">
         <div
           :for={{key, pinned} <- @pinned_assigns}
@@ -168,7 +171,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         name={
           if(Enum.empty?(@temporary_assigns), do: "No temporary assigns", else: "Temporary assigns")
         }
-        icon="history"
+        icon="icon-clock-3"
       />
       <div
         :if={not Enum.empty?(@temporary_assigns)}
