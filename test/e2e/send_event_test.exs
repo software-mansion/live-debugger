@@ -27,10 +27,6 @@ defmodule LiveDebugger.E2E.SendEventTest do
     # Send :increment message to LiveView via handle_info/2
     debugger
     |> click(send_event_button())
-
-    Process.sleep(300)
-
-    debugger
     |> assert_has(send_event_fullscreen_visible())
     |> set_value(handler_select(), "handle_info/2")
     |> fill_in(payload_textarea(), with: ":increment")
@@ -46,16 +42,8 @@ defmodule LiveDebugger.E2E.SendEventTest do
     # Switch to Conditional LiveComponent
     debugger
     |> click(conditional_component_node_button())
-
-    Process.sleep(300)
-
-    debugger
     |> assert_has(assigns_entry(key: "show_child?", value: "false"))
     |> click(send_event_button())
-
-    Process.sleep(300)
-
-    debugger
     |> assert_has(send_event_fullscreen_visible())
     |> set_value(handler_select(), "handle_event/3")
     |> fill_in(event_input(), with: "show_child")
@@ -90,8 +78,6 @@ defmodule LiveDebugger.E2E.SendEventTest do
     # Navigate in dev app to kill the LiveView
     dev_app
     |> click(link("Side"))
-
-    Process.sleep(500)
 
     # Debugger should show disconnected state
     debugger
