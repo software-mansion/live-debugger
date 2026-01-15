@@ -150,7 +150,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen do
   defp payload_label("handle_event/3"), do: "Unsigned params"
   defp payload_label(_), do: "Message"
 
-  defp default_payload("update/2"), do: ~s|%{\n  "my_assign" => "value"\n}|
+  defp default_payload("update/2"), do: ~s|%{\n  my_assign: "value"\n}|
   defp default_payload("handle_event/3"), do: ~s|%{\n  "my_param" => "value"\n}|
   defp default_payload(_), do: ~s|{:my, "message"}|
 end
