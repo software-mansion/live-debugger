@@ -11,7 +11,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.Traces do
     |> Enum.map(fn {_, ref} -> :ets.first(ref) end)
     |> Enum.filter(fn id -> id != :"$end_of_table" end)
     |> case do
-      [] -> 0
+      [] -> 1
       ids -> Enum.min(ids)
     end
   end
