@@ -132,6 +132,12 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
     |> noreply()
   end
 
+  def handle_event("open-stream_element", %{"dom_id" => dom_id}, socket) do
+    socket
+    |> push_event(dom_id <> "-fullscreen-open", %{})
+    |> noreply()
+  end
+
   defp highlight_element(%{assigns: %{lv_process: %LvProcess{alive?: true}}} = socket, params) do
     if SettingsStorage.get(:highlight_in_browser) do
       payload = %{
