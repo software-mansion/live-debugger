@@ -12,9 +12,11 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     |> visit(@dev_app_url)
     |> refute_has(css("div.live-debugger-inspect-mode"))
 
+    dev_pid = get_dev_pid(dev_app1)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(switch_inspect_mode_button())
 
     dev_app1
@@ -51,9 +53,11 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     |> visit(@dev_app_url)
     |> refute_has(css("div.live-debugger-inspect-mode"))
 
+    dev_pid = get_dev_pid(dev_app1)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(switch_inspect_mode_button())
 
     dev_app1
@@ -77,9 +81,11 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     |> visit(@dev_app_url)
     |> refute_has(css("div.live-debugger-inspect-mode"))
 
+    dev_pid = get_dev_pid(dev_app1)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(switch_inspect_mode_button())
 
     dev_app1
@@ -99,19 +105,21 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     |> visit(@dev_app_url)
     |> refute_has(css("div.live-debugger-inspect-mode"))
 
+    dev_pid = get_dev_pid(dev_app1)
+
     debugger1
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(switch_inspect_mode_button())
 
     debugger2
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(switch_inspect_mode_button())
 
     debugger3
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
 
     dev_app1
     |> click(live_component(2))
