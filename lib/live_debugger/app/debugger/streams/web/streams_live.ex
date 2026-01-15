@@ -143,9 +143,8 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
       payload = %{
         attr: params["search-attribute"],
         val: params["search-value"],
-        type: if(params["type"] == "live_view", do: "LiveView", else: "LiveComponent"),
-        id_value: params["id"],
-        id_key: if(params["type"] == "live_view", do: "PID", else: "CID")
+        type: params["type"],
+        id_value: params["id"]
       }
 
       Client.push_event!(socket.assigns.lv_process.root_socket_id, "highlight", payload)

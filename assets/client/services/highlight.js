@@ -9,7 +9,7 @@ const liveComponentsColors = [
   '#87CCE830',
   '#87CCE800',
 ];
-const streamItemColors = ['#8FE38880', '#8FE38860', '#8FE38830', '#8FE38800'];
+const streamItemColors = ['#8bca8480'];
 
 const isElementVisible = (element) => {
   if (!element) return false;
