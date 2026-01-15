@@ -211,7 +211,7 @@ defmodule LiveDebugger.App.Web.Components do
       <label :if={@label} for={@field.id} class={["font-medium text-sm" | List.wrap(@label_class)]}>
         <%= @label %>
       </label>
-      <textarea id={@field.id} name={@field.name} {@rest} class="hidden"><%= @field.value %></textarea>
+      <textarea id={@field.id} name={@field.name} class="hidden" {@rest}><%= @field.value %></textarea>
       <div id={"#{@field.id}-codemirror"} phx-update="ignore"></div>
     </div>
     """
