@@ -588,4 +588,44 @@ defmodule LiveDebugger.API.TracesStorageTest do
       assert TracesStorageImpl.table_size(table) == 0
     end
   end
+
+  describe "get_latest_function_trace/1" do
+    test "returns the latest function trace for a given table", %{pid: pid, table: table} do
+      trace1 = Fakes.trace(id: -1, function: :handle_info, pid: pid)
+      trace2 = Fakes.trace(id: -2, function: :render, pid: pid)
+
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+
+      {_ok, {_key, latest_trace}} = TracesStorageImpl.get_latest_function_trace(table)
+
+      assert trace2 == latest_trace
+      :ets.delete(table)
+    end
+
+    test "returns nil if there are no function traces in the table", %{pid: pid, table: table} do
+      :ets.insert(@processes_table_name, {pid, table})
+
+      latest_trace = TracesStorageImpl.get_latest_function_trace(pid)
+
+      assert latest_trace == nil
+      :ets.delete(table)
+    end
+
+    test "returns latest function trace and skips diff traces", %{pid: pid, table: table} do
+      trace1 = Fakes.trace(id: -1, function: :handle_info, pid: pid)
+      trace2 = Fakes.trace(id: -2, function: :render, pid: pid)
+      trace3 = Fakes.diff_trace(id: -3, pid: pid, body: %{diff: "content"})
+
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+      :ets.insert(table, {trace3.id, trace3})
+      {_ok, {_key, latest_trace}} = TracesStorageImpl.get_latest_function_trace(table)
+
+      assert trace2 == latest_trace
+      :ets.delete(table)
+    end
+  end
 end

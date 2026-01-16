@@ -78,7 +78,7 @@ defmodule LiveDebugger.E2E.DeadViewModeTest do
   defp global_traces(opts), do: css("#global-traces-stream details", opts)
 
   defp global_traces_with_error(opts) do
-    css("#global-traces-stream details.border-error-icon", opts)
+    css("#global-traces-stream details.border-error-border", opts)
   end
 
   defp global_callback_traces_button(), do: css("#global-traces-navbar-item a")

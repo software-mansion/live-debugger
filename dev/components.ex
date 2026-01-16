@@ -10,7 +10,8 @@ defmodule LiveDebuggerDev.Components do
     {"/embedded_in_controller", "EmbeddedInController"},
     {"/endless_crash_reload", "EndlessCrashReload"},
     {"/stream", "Stream"},
-    {"/async_demo", "AsyncDemo"}
+    {"/async_demo", "AsyncDemo"},
+    {"/callback_crash", "CallbackCrash"}
   ]
 
   attr(:routes, :list, default: @routes)
