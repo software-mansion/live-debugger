@@ -20,9 +20,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     """
   end
 
+  attr(:heading, :string, required: true)
+
   def failed(assigns) do
     ~H"""
-    <.alert class="w-full" with_icon heading="Error while fetching node state">
+    <.alert class="w-full" with_icon heading={@heading}>
       Check logs for more
     </.alert>
     """
@@ -35,7 +37,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:assigns_search_phrase, :string, default: "")
   attr(:pinned_assigns, :map, default: %{})
   attr(:node_assigns_status, :atom, required: true)
-  attr(:temporary_assigns, :map, required: true)
+  attr(:temporary_assigns, AsyncResult, required: true)
 
   def assigns_section(assigns) do
     opened_term_node =
@@ -158,7 +160,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   end
 
   attr(:id, :string, required: true)
-  attr(:temporary_assigns, :map, required: true)
+  attr(:temporary_assigns, AsyncResult, required: true)
 
   defp temporary_assigns_section(assigns) do
     assigns =
@@ -168,19 +170,27 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     ~H"""
     <div id={@id}>
       <.section_title
-        name={
-          if(Enum.empty?(@temporary_assigns), do: "No temporary assigns", else: "Temporary assigns")
-        }
+        name={if(@temporary_assigns.result, do: "Temporary assigns", else: "No temporary assigns")}
         icon="icon-clock-3"
       />
-      <div
-        :if={not Enum.empty?(@temporary_assigns)}
-        class="pl-8 p-4 border-b border-default-border overflow-x-auto"
-      >
-        <div :for={{_key, term_node} <- @entries}>
-          <ElixirDisplay.term id={@id} node={term_node} />
+      <.async_result :let={temporary_assigns} assign={@temporary_assigns}>
+        <:loading>
+          <div class="p-4">
+            <.loading />
+          </div>
+        </:loading>
+        <:failed>
+          <div class="p-4">
+            <.failed heading="Error while fetching temporary assigns" />
+          </div>
+        </:failed>
+
+        <div :if={temporary_assigns} class="pl-8 p-4 border-b border-default-border overflow-x-auto">
+          <div :for={{_key, term_node} <- TermParser.term_to_display_tree(temporary_assigns).children}>
+            <ElixirDisplay.term id={@id} node={term_node} />
+          </div>
         </div>
-      </div>
+      </.async_result>
     </div>
     """
   end

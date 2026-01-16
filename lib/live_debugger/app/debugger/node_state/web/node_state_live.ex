@@ -82,7 +82,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
           <NodeStateComponents.loading />
         </:loading>
         <:failed>
-          <NodeStateComponents.failed />
+          <NodeStateComponents.failed heading="Error while fetching node state" />
         </:failed>
 
         <NodeStateComponents.assigns_section

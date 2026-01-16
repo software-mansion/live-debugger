@@ -91,7 +91,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.QueriesTest do
     end
   end
 
-  test "returns empty map when no temporary assigns for given node" do
+  test "returns nil when no temporary assigns for given node" do
     pid = :c.pid(0, 11, 0)
     node_id = pid
 
@@ -106,11 +106,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.QueriesTest do
       {[Fakes.trace(args: [assigns])], nil}
     end)
 
-    assert {:ok, %{}} =
+    assert {:ok, nil} =
              NodeStateQueries.fetch_node_temporary_assigns(pid, node_id)
   end
 
-  test "return errror when no render traces recorded" do
+  test "returns nil when no render traces recorded" do
     pid = :c.pid(0, 11, 0)
     node_id = pid
 
@@ -119,11 +119,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.QueriesTest do
       :end_of_table
     end)
 
-    assert {:error, :no_render_trace} =
+    assert {:ok, nil} =
              NodeStateQueries.fetch_node_temporary_assigns(pid, node_id)
   end
 
-  test "return errror when traces storage fails" do
+  test "returns error when traces storage fails" do
     pid = :c.pid(0, 11, 0)
     node_id = pid
 

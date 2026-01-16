@@ -66,8 +66,9 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
          %{temporary_assigns: temporary_assigns} <- node_assigns.socket.private do
       {:ok, Map.take(node_assigns, Map.keys(temporary_assigns))}
     else
+      {:error, :no_render_trace} -> {:ok, nil}
       {:error, error} -> {:error, error}
-      _ -> {:ok, %{}}
+      _ -> {:ok, nil}
     end
   end
 
