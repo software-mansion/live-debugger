@@ -9,6 +9,7 @@ const liveComponentsColors = [
   '#87CCE830',
   '#87CCE800',
 ];
+const streamItemColors = ['#8bca8480'];
 
 const isElementVisible = (element) => {
   if (!element) return false;
@@ -26,7 +27,16 @@ const isElementVisible = (element) => {
 };
 
 function getHighlightColors(type) {
-  return type === 'LiveComponent' ? liveComponentsColors : liveViewColors;
+  switch (type) {
+    case 'LiveComponent':
+      return liveComponentsColors;
+    case 'LiveView':
+      return liveViewColors;
+    case 'StreamItem':
+      return streamItemColors;
+    default:
+      return liveViewColors;
+  }
 }
 
 function createHighlightElement(activeElement, detail, id) {

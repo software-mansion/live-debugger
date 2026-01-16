@@ -101,6 +101,11 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
       chevron_class="w-5 h-5 text-accent-icon"
       class="max-w-full border rounded last:mb-1 border-default-border"
       label_class="font-semibold bg-surface-1-bg p-1 py-1 rounded"
+      phx-hook="Highlight"
+      phx-value-search-attribute="id"
+      phx-value-search-value={@dom_id}
+      phx-value-type="StreamItem"
+      phx-value-id={@dom_id}
     >
       <:label>
         <p class="font-semibold whitespace-nowrap break-keep grow-0 shrink-0">
@@ -116,10 +121,9 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
         </div>
       </:label>
       <div class="flex flex-col gap-4 w-full overflow-auto p-2">
-        <ElixirDisplay.term
-          id={"#{@dom_id}-term"}
-          node={TermParser.term_to_display_tree(@stream_element)}
-        />
+        <.stream_element_body stream_element={@stream_element} dom_id={@dom_id} />
+
+        <.stream_element_fullscreen stream_element={@stream_element} dom_id={@dom_id} />
       </div>
     </.collapsible>
     """
@@ -136,6 +140,54 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
     >
       <.icon name="icon-info" class="w-4 h-4 bg-button-secondary-content" />
     </.tooltip>
+    """
+  end
+
+  @doc """
+  Displays the fullscreen of the stream element.
+  """
+  attr(:stream_element, :any, required: true)
+  attr(:dom_id, :string, required: true)
+
+  def stream_element_fullscreen(assigns) do
+    ~H"""
+    <.fullscreen id={@dom_id <> "-fullscreen"} title={@dom_id}>
+      <div class="p-4 flex flex-col gap-4 items-start justify-center [&_.absolute_>_:last-child]:hidden">
+        <.stream_element_body stream_element={@stream_element} dom_id={@dom_id} />
+      </div>
+    </.fullscreen>
+    """
+  end
+
+  @doc """
+  Displays the body of the stream element.
+  """
+
+  attr(:stream_element, :any, required: true)
+  attr(:dom_id, :string, required: true)
+
+  def stream_element_body(assigns) do
+    ~H"""
+    <div class="relative w-full group">
+      <div class="absolute top-0 right-0 z-10 flex gap-1">
+        <.copy_button
+          id={"#{@dom_id}-copy-button"}
+          variant="icon-button"
+          value={inspect(@stream_element)}
+        />
+        <.fullscreen_button
+          id={@dom_id <> "-fullscreen-button"}
+          phx-click="open-stream_element"
+          phx-value-dom_id={@dom_id}
+        />
+      </div>
+      <div class="w-full overflow-x-auto pt-1 pr-12">
+        <ElixirDisplay.term
+          id={"#{@dom_id}-term"}
+          node={TermParser.term_to_display_tree(@stream_element)}
+        />
+      </div>
+    </div>
     """
   end
 end
