@@ -18,6 +18,7 @@ import ChartHook from './hooks/chart_hook';
 import CollapsedSectionPulse from './hooks/collapsed_section_pulse';
 
 import topbar from './vendor/topbar';
+import CodeMirrorTextarea from './hooks/code_mirror_textarea';
 
 Alpine.start();
 Alpine.plugin(collapse);
@@ -44,6 +45,7 @@ function createHooks() {
     DiffPulse,
     ChartHook,
     CollapsedSectionPulse,
+    CodeMirrorTextarea,
   };
 }
 
