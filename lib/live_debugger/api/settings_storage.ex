@@ -106,7 +106,6 @@ defmodule LiveDebugger.API.SettingsStorage do
       |> Enum.map(fn setting ->
         {setting, Application.get_env(:live_debugger, setting, fetch_setting(setting))}
       end)
-      |> Enum.into(%{})
       |> Enum.each(fn {setting, value} -> save(setting, value) end)
 
       :ok
