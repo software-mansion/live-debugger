@@ -48,6 +48,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
     const [showIndicator, setShowIndicator] = useState(false);
     const [activeTheme, setActiveTheme] = useState("dark");
     const [latestNewsId, setLatestNewsId] = useState(DEFAULT_LATEST_NEWS_ID);
+    const [bannerHeight, setBannerHeight] = useState(0);
 
     const localHeaderRef = useRef<HTMLElement>(null);
     useImperativeHandle(ref, () => localHeaderRef.current!);
@@ -110,7 +111,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
       <header
         ref={localHeaderRef}
         className={cn(
-          "sticky top-0 z-50 w-full transition-all duration-300 ease-in-out",
+          "sticky top-0 z-50 w-full transition-all duration-500 ease-in-out",
           activeTheme === "dark"
             ? "bg-primary text-primary-foreground"
             : "text-primary bg-white",
@@ -121,9 +122,17 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
             : "border-b border-transparent",
           className,
         )}
+        style={{
+          transform:
+            bannerHeight > 0 ? `translateY(${bannerHeight}px)` : undefined,
+        }}
         {...props}
       >
-        <AdBanner zoneId="3" contentId="ea15c4216158c4097b65fe6504a4b3b7" />
+        <AdBanner
+          zoneId="3"
+          contentId="ea15c4216158c4097b65fe6504a4b3b7"
+          setBannerHeight={setBannerHeight}
+        />
         <div className="mx-auto flex h-20 w-full max-w-[1360px] items-center justify-between px-7 sm:px-8">
           <a href="#hero" className="mr-6 flex items-center gap-2">
             <Logo className="size-36 sm:size-42 md:size-45" />
