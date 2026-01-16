@@ -71,7 +71,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
   def static_term(assigns) do
     assigns =
       assigns
-      |> assign(:text_items_id, if(assigns.id, do: assigns.id <> assigns.node.id))
+      |> assign(:text_items_id, if(assigns.id, do: assigns.id <> "-" <> assigns.node.id))
       |> assign(:has_children?, TermNode.has_children?(assigns.node))
 
     ~H"""
