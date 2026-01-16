@@ -24,6 +24,17 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
     plug :put_secure_browser_headers, %{"content-security-policy" => @csp}
 ```
 
+## Update checks
+
+LiveDebugger comes with optional update checks that inform about newer versions when the debugger interface loads. By default, this feature is enabled and will fetch version information, displaying a notification popup if a newer version is available. You can disable this feature by setting `:update_checks?` to `false` in your configuration:
+
+```elixir
+# config/dev.exs
+
+config :live_debugger, :update_checks?, false
+```
+
+
 ## Disabling LiveDebugger
 
 In case you need LiveDebugger to not run at the start of your application but want to keep the dependency, you can disable it manually in your config:

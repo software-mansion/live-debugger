@@ -70,6 +70,8 @@ if config_env() == :dev do
 
   config :live_debugger, LiveDebugger.App.Web.Endpoint, debug_errors: true
 
+  config :live_debugger, update_checks?: false
+
   config :phoenix_live_view, enable_expensive_runtime_checks: true
 end
 
@@ -86,6 +88,8 @@ if config_env() == :test do
   config :live_debugger,
     server: true,
     port: 4008
+
+  config :live_debugger, update_checks?: false
 
   # Print only warnings and errors during test
   config :logger, level: :warning

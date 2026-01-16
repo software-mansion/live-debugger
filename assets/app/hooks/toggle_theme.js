@@ -1,14 +1,14 @@
 const ToggleTheme = {
   mounted() {
     this.handleClick = () => {
-      switch (localStorage.theme) {
+      switch (localStorage.getItem('lvdbg:theme')) {
         case 'light':
           document.documentElement.classList.add('dark');
-          localStorage.theme = 'dark';
+          localStorage.setItem('lvdbg:theme', 'dark');
           break;
         case 'dark':
           document.documentElement.classList.remove('dark');
-          localStorage.theme = 'light';
+          localStorage.setItem('lvdbg:theme', 'light');
           break;
         default:
           break;
