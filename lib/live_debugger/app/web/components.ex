@@ -663,6 +663,7 @@ defmodule LiveDebugger.App.Web.Components do
 
   slot(:inner_block, required: true)
   slot(:search_bar_slot)
+  slot(:header, doc: "Optional custom header slot to replace the default one")
 
   def fullscreen(assigns) do
     ~H"""
@@ -671,23 +672,27 @@ defmodule LiveDebugger.App.Web.Components do
       phx-hook="Fullscreen"
       data-send-close-event={@send_close_event}
       class={[
-        "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg pt-1 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
+        "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
       ]}
     >
       <div phx-click-away={JS.dispatch("close", to: "##{@id}")}>
-        <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border">
-          <div class="flex justify-between items-center w-full font-semibold text-primary-text text-base">
-            <%= @title %>
-            <div class="mr-2 font-normal"><%= render_slot(@search_bar_slot) %></div>
+        <%= if @header != [] do %>
+          <%= render_slot(@header) %>
+        <% else %>
+          <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border pt-1">
+            <div class="flex justify-between items-center w-full font-semibold text-primary-text text-base">
+              <%= @title %>
+              <div class="mr-2 font-normal"><%= render_slot(@search_bar_slot) %></div>
+            </div>
+            <.icon_button
+              id={"#{@id}-close"}
+              phx-click={JS.dispatch("close", to: "##{@id}")}
+              icon="icon-cross"
+              variant="secondary"
+            />
           </div>
-          <.icon_button
-            id={"#{@id}-close"}
-            phx-click={JS.dispatch("close", to: "##{@id}")}
-            icon="icon-cross"
-            variant="secondary"
-          />
-        </div>
+        <% end %>
         <div class="overflow-auto flex flex-col gap-2 text-primary-text">
           <%= render_slot(@inner_block) %>
         </div>

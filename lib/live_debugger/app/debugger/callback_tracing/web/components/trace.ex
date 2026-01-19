@@ -14,6 +14,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   alias LiveDebugger.Structs.Trace.ErrorTrace
 
+  alias Phoenix.LiveView.JS
+
   @doc """
   Displays the label of the trace with a polymorphic composition.
   """
@@ -23,6 +25,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   attr(:show_subtitle?, :boolean, default: false)
   attr(:search_phrase, :string, default: nil)
   attr(:short_content_full?, :boolean, default: false)
+  attr(:fullscreen?, :boolean, default: false)
 
   def trace_label(assigns) do
     short_content = TraceDisplay.short_content(assigns.trace_display, assigns.short_content_full?)
@@ -30,7 +33,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
     ~H"""
     <div class="flex flex-col">
-      <div id={@id} class="w-[90%] grow grid items-center gap-x-3 ml-2 grid-cols-[auto_1fr_auto]">
+      <div id={@id} class="w-full grow grid items-center gap-x-3 ml-2 grid-cols-[auto_1fr_auto]">
         <.trace_subtitle
           :if={@show_subtitle? and not is_nil(@trace_display.subtitle)}
           id={@id <> "-subtitle"}
@@ -41,6 +44,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         <.trace_title title={@trace_display.title} />
 
         <.trace_short_content
+          :if={!@fullscreen?}
           id={@id <> "-short-content"}
           short_content={@short_content}
           search_phrase={@search_phrase}
@@ -98,6 +102,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   attr(:id, :string, required: true)
   attr(:trace_display, TraceDisplay, required: true)
   attr(:search_phrase, :string, required: true)
+  attr(:fullscreen?, :boolean, default: false)
 
   def trace_body_navbar_wrapper(assigns) do
     assigns =
@@ -121,7 +126,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         <div class={[
           "flex flex-row gap-6 border-b border-default-border mb-2 text-sm select-none sticky top-0 z-10 bg-navbar-bg min-w-[420px]",
           "items-center",
-          "pr-12, px-4",
+          if(@fullscreen?, do: "px-4", else: "pl-4"),
           "peer-checked/content:[&_.tab-content]:text-navbar-selected-bg peer-checked/content:[&_.tab-content]:border-navbar-selected-bg",
           "peer-checked/stack:[&_.tab-stack]:text-navbar-selected-bg peer-checked/stack:[&_.tab-stack]:border-navbar-selected-bg",
           "peer-checked/raw:[&_.tab-raw]:text-navbar-selected-bg peer-checked/raw:[&_.tab-raw]:border-navbar-selected-bg",
@@ -152,14 +157,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
               Raw Error
             </label>
           </div>
-          <div class="flex items-center gap-1 ml-auto">
-            <.fullscreen_button
-              id={"trace-fullscreen-#{@id}"}
-              class="m-2"
-              phx-click="open-trace"
-              phx-value-trace-id={@trace_display.id}
-            />
-
+          <div class="flex items-center ml-auto">
             <div class="copy-btn-stack hidden">
               <.copy_button
                 id={"#{@id}-copy-stack"}
@@ -179,6 +177,13 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
                 class="text-secondary-text hover:text-primary-text"
               />
             </div>
+
+            <.fullscreen_button
+              id={"trace-fullscreen-#{@id}"}
+              class="m-2"
+              phx-click="open-trace"
+              phx-value-trace-id={@trace_display.id}
+            />
           </div>
         </div>
 
@@ -224,14 +229,32 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   def trace_fullscreen(assigns) do
     ~H"""
     <.fullscreen id={@id} title={@displayed_trace.title}>
+      <:header :if={@displayed_trace.error}>
+        <div class="font-semibold p-4 rounded bg-error-bg flex items-center flex col justify-between border-b border-error-border">
+          <.trace_label
+            id={@id <> "-fullscreen-label"}
+            trace_display={@displayed_trace}
+            short_content_full?={false}
+            show_subtitle?={true}
+            fullscreen?={true}
+          />
+          <.icon_button
+            id={"#{@id}-close-error"}
+            phx-click={JS.dispatch("close", to: "##{@id}")}
+            icon="icon-cross"
+            variant="secondary"
+          />
+        </div>
+      </:header>
       <div class={[
         "flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden",
-        if(is_nil(@displayed_trace.error), do: "p-4", else: "")
+        if(is_nil(@displayed_trace.error), do: "p-4", else: "[&>div>div>div>div>button]:hidden")
       ]}>
         <.trace_body_navbar_wrapper
           id={@id <> "-fullscreen"}
           trace_display={@displayed_trace}
           search_phrase={@search_phrase}
+          fullscreen?={true}
         />
       </div>
     </.fullscreen>
@@ -355,7 +378,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   defp trace_error_message(assigns) do
     ~H"""
-    <div class="flex flex-row gap-2 mt-2 text-error-text items-center">
+    <div class="flex flex-row gap-2 mt-2 text-error-text items-center ml-2">
       <.icon name="icon-info" class="w-4 h-4 shrink-0" />
       <p :if={@error}><%= clean_error_message(@error.message) %></p>
     </div>
