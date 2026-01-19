@@ -432,11 +432,13 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     debugger
     |> visit("/")
     |> select_live_view(dev_pid)
-    |> click(toggle_tracing_button())
 
     dev_app
     |> click(button("increment-button"))
     |> click(button("send-button"))
+
+    debugger
+    |> click(refresh_history_button())
 
     Process.sleep(250)
 
