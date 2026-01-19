@@ -6,16 +6,19 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
 
   alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
   alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
+  alias LiveDebugger.Services.CallbackTracer.Queries.Paths, as: PathQueries
+  alias LiveDebugger.Services.CallbackTracer.Queries.Traces, as: TraceQueries
   alias LiveDebugger.Services.CallbackTracer.Process.Tracer
-  alias LiveDebugger.API.System.Dbg
   alias LiveDebugger.API.System.FileSystem, as: FileSystemAPI
   alias LiveDebugger.API.System.Module, as: ModuleAPI
   alias LiveDebugger.Utils.Modules, as: UtilsModules
-  alias LiveDebugger.Services.CallbackTracer.Queries.Paths, as: PathQueries
+  alias LiveDebugger.API.System.Dbg
 
   @spec setup_tracing!(TracingManager.state()) :: pid() | nil
   def setup_tracing!(state) do
-    case Dbg.tracer({&Tracer.handle_trace/2, 0}) do
+    last_id = TraceQueries.get_last_trace_id()
+
+    case Dbg.tracer({&Tracer.handle_trace/2, last_id - 1}) do
       {:ok, pid} ->
         Process.monitor(pid)
 
