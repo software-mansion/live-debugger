@@ -80,7 +80,7 @@ module.exports = {
         'status-dot-error-bg': 'var(--status-dot-error-bg)',
         'navbar-selected-bg': 'var(--navbar-selected-bg)',
       },
-      screens: { xs: '380px' },
+      screens: { xs: '380px', md_ct: '860px' },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         code: [

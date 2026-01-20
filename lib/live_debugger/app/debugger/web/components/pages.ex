@@ -192,4 +192,11 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
       hidden?: true
     )
   end
+
+  def node_inspector_module_pulse() do
+    Phoenix.LiveView.send_update(NodeBasicInfo,
+      id: "node-inspector-basic-info",
+      module_pulse?: true
+    )
+  end
 end

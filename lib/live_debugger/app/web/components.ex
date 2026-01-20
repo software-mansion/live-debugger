@@ -615,16 +615,16 @@ defmodule LiveDebugger.App.Web.Components do
         id={@id}
         class={[
           (@sidebar_hidden? && "hidden") || "flex",
-          "fixed inset-0 bg-black/25 justify-end items-start lg:flex lg:static lg:inset-auto lg:bg-transparent z-20"
+          "fixed inset-0 bg-black/25 justify-end items-start md_ct:flex md_ct:static md_ct:inset-auto md_ct:bg-transparent z-20"
         ]}
       >
         <div
-          class="w-full h-full lg:hidden"
+          class="w-full h-full md_ct:hidden"
           phx-click="close-sidebar"
           {@event_target && %{:"phx-target" => @event_target} || %{}}
         >
         </div>
-        <div class="shrink-0 h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border lg:border-l">
+        <div class="shrink-0 h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border md_ct:border-l">
           <.icon_button
             :if={!@sidebar_hidden?}
             icon="icon-cross"
