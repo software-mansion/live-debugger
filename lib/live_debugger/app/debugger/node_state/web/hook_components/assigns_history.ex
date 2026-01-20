@@ -86,7 +86,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
 
     ~H"""
     <.tooltip id="open-assigns-history-tooltip" content="Assigns history" position="top-center">
-      <.fullscreen_button id={@id} icon="icon-history" phx-click="open-assigns-history" />
+      <.icon_button
+        id={"#{@id}-button"}
+        phx-click="open-assigns-history"
+        icon="icon-history"
+        data-fullscreen-id={@id}
+        variant="secondary"
+      />
     </.tooltip>
     """
   end
@@ -103,7 +109,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
 
   defp failed(assigns) do
     ~H"""
-    <NodeStateComponents.failed />
+    <NodeStateComponents.failed heading="Failed to fetch Assigns History" />
     """
   end
 
