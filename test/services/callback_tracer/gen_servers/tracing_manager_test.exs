@@ -7,6 +7,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIFileSystem
   alias LiveDebugger.MockAPIModule
+  alias LiveDebugger.MockAPITracesStorage
   alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
 
   alias LiveDebugger.App.Events.UserRefreshedTrace
@@ -39,6 +40,9 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
 
   describe "handle_info/2" do
     test "handles :setup_tracing event" do
+      MockAPITracesStorage
+      |> expect(:get_all_tables, fn -> [] end)
+
       MockAPIModule
       |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path/Module.beam", true}] end)
       |> expect(:loaded?, fn _ -> true end)

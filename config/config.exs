@@ -8,7 +8,7 @@ if config_env() == :dev do
     version: "0.18.6",
     build_app_js_deploy: [
       args:
-        ~w(app.js --bundle --minify --sourcemap=external --target=es2020 --outdir=../../priv/static/),
+        ~w(app.js favicon.svg --bundle --loader:.svg=copy --minify --sourcemap=external --target=es2020 --outdir=../../priv/static/),
       cd: Path.expand("../assets/app", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ],
@@ -25,7 +25,7 @@ if config_env() == :dev do
     ],
     build_app_js_dev: [
       args:
-        ~w(app.js --bundle --sourcemap=external --target=es2020 --outdir=../../priv/static/dev),
+        ~w(app.js favicon.svg --bundle --loader:.svg=copy --sourcemap=external --target=es2020 --outdir=../../priv/static/dev),
       cd: Path.expand("../assets/app", __DIR__),
       env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
     ],
@@ -78,7 +78,10 @@ if config_env() == :test do
     driver: Wallaby.Chrome,
     otp_app: :live_debugger,
     chrome: [headless: true],
-    js_logger: nil
+    js_logger: nil,
+    screenshot_on_failure: true,
+    screenshot_dir: "tmp/screenshots",
+    max_wait_time: 5_000
 
   config :live_debugger,
     server: true,

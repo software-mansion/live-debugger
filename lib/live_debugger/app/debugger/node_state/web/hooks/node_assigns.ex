@@ -15,6 +15,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   alias LiveDebugger.App.Utils.TermNode
   alias LiveDebugger.Utils.Memory
 
+  alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
+
   @required_assigns [
     :node_id,
     :lv_process
@@ -31,6 +33,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> check_assigns!(@required_assigns)
     |> attach_hook(:node_assigns, :handle_async, &handle_async/3)
     |> attach_hook(:node_assigns, :handle_event, &handle_event/3)
+    |> attach_hook(:node_assigns, :handle_info, &handle_info/2)
     |> register_hook(:node_assigns)
     |> assign(:node_assigns_info, AsyncResult.loading(stage: :init))
     |> assign(:assigns_sizes, AsyncResult.loading(stage: :init))
@@ -154,6 +157,14 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   end
 
   defp handle_async(_, _, socket), do: {:cont, socket}
+
+  defp handle_info(%StateChanged{}, socket) do
+    socket
+    |> assign_async_node_assigns()
+    |> cont()
+  end
+
+  defp handle_info(_, socket), do: {:cont, socket}
 
   defp update_node_assigns_info(old_node_assigns_info, node_assigns) do
     %AsyncResult{result: {old_assigns, _, _, _}} = old_node_assigns_info

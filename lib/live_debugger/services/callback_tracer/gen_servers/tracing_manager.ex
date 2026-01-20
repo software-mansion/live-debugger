@@ -11,8 +11,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
 
-  @telemetry_event_name [:phoenix, :live_view, :mount, :start]
-
   @type state() :: %{dbg_pid: pid() | nil}
 
   def start_link(opts \\ []) do
@@ -30,7 +28,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   def init(_opts) do
     Bus.receive_events!()
     TracingActions.monitor_recompilation()
-    attach_telemetry_handler()
+
+    :net_kernel.monitor_nodes(true, %{node_type: :visible})
 
     send(self(), :setup_tracing)
 
@@ -82,25 +81,14 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
     {:noreply, state}
   end
 
-  def handle_info(_, state) do
+  def handle_info({:nodeup, _name, _}, state) do
+    send(self(), :refresh_tracing)
+
     {:noreply, state}
   end
 
-  def handle_telemetry(@telemetry_event_name, _measurements, metadata, manager_pid) do
-    if not LiveDebugger.Utils.Modules.debugger_module?(metadata.socket.endpoint) do
-      send(manager_pid, :refresh_tracing)
-
-      :telemetry.detach({__MODULE__, @telemetry_event_name, manager_pid})
-    end
-  end
-
-  defp attach_telemetry_handler() do
-    :telemetry.attach(
-      {__MODULE__, @telemetry_event_name, self()},
-      @telemetry_event_name,
-      &__MODULE__.handle_telemetry/4,
-      self()
-    )
+  def handle_info(_, state) do
+    {:noreply, state}
   end
 
   defp correct_event?(events) do

@@ -15,9 +15,11 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(assigns_entry(key: "counter", value: "0"))
     |> assert_has(traces(count: 2))
 
@@ -33,6 +35,8 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> click(button("increment-button"))
     |> click(button("increment-button"))
+
+    Process.sleep(250)
 
     debugger
     |> assert_has(traces(count: 6))
@@ -90,9 +94,11 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(css("div#traces", text: "Callback traces"))
     |> assert_has(settings_button())
     |> click(settings_button())
@@ -109,9 +115,11 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(css("div#traces", text: "Callback traces"))
     |> click(return_button())
     |> assert_has(css("h1", text: "Active LiveViews"))
@@ -124,9 +132,11 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> click(conditional_component_5_node_button())
     |> find(sidebar_basic_info(), fn info ->
       info
@@ -155,9 +165,11 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(traces(count: 2))
     |> click(toggle_tracing_button())
 
@@ -258,9 +270,11 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
     Process.sleep(1105)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_traces(6, [
       "render/1",
       "handle_event/3",
@@ -303,9 +317,11 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(traces(count: 2))
     |> click(toggle_tracing_button())
 
@@ -411,14 +427,20 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
-    |> click(toggle_tracing_button())
+    |> select_live_view(dev_pid)
 
     dev_app
     |> click(button("increment-button"))
     |> click(button("send-button"))
+
+    debugger
+    |> click(refresh_history_button())
+
+    Process.sleep(250)
 
     [render3_trace, send_trace, render2_trace, increment_trace, render1_trace, _] =
       debugger
@@ -457,9 +479,11 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> find(sidebar_basic_info())
     |> assert_text("LiveDebuggerDev.LiveViews.Main")
 
@@ -487,9 +511,11 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_text("LiveDebuggerDev.LiveViews.Main")
     |> execute_script("""
       window._copiedText = null;
@@ -519,9 +545,11 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> hover(name_component_2_node_button())
 
     Process.sleep(400)
@@ -539,9 +567,11 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(traces(count: 2))
     |> click(toggle_tracing_button())
 
@@ -597,9 +627,11 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     dev_app
     |> visit(@dev_app_url)
 
+    dev_pid = get_dev_pid(dev_app)
+
     debugger
     |> visit("/")
-    |> select_live_view()
+    |> select_live_view(dev_pid)
     |> assert_has(traces(count: 2))
     |> fill_in(search_bar(), with: ":new_datetime")
 

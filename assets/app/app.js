@@ -87,6 +87,15 @@ function handleStorage(e) {
   if (e.key !== 'theme') return;
   document.documentElement.classList.toggle('dark', e.newValue === 'dark');
 }
+//This is needed only for Chrome to refresh the icon after changing the theme.
+function handleFaviconRefresh() {
+  const favicon = document.querySelector('link[rel="icon"]');
+  if (favicon) {
+    const cleanHref = favicon.href.split('?')[0];
+
+    favicon.href = `${cleanHref}?v=${new Date().getTime()}`;
+  }
+}
 
 window.addEventListener('storage', handleStorage);
 
@@ -94,3 +103,7 @@ window.createHooks = createHooks;
 window.setTheme = setTheme;
 window.getCsrfToken = getCsrfToken;
 window.saveDialogAndDetailsState = saveDialogAndDetailsState;
+
+window
+  .matchMedia('(prefers-color-scheme: dark)')
+  .addEventListener('change', handleFaviconRefresh);
