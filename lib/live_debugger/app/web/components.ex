@@ -953,6 +953,7 @@ defmodule LiveDebugger.App.Web.Components do
       />
       <.button
         :if={@variant == "button"}
+        id={@id}
         variant="secondary"
         size="sm"
         class={["h-7!" | List.wrap(@class)]}
