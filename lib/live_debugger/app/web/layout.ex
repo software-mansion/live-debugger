@@ -12,7 +12,7 @@ defmodule LiveDebugger.App.Web.Layout do
   def render("root.html", assigns) do
     assigns =
       assigns
-      |> assign(:update_checks?, Application.get_env(:live_debugger, :update_checks?, true))
+      |> assign(:update_checks?, Application.get_env(:live_debugger, :update_checks?, false))
       |> assign(:current_version, Application.spec(:live_debugger)[:vsn] |> to_string())
 
     ~H"""
