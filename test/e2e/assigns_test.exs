@@ -36,8 +36,6 @@ defmodule LiveDebugger.E2E.AssignsTest do
 
   @sessions 2
   feature "user can pin and unpin specific assigns", %{sessions: [dev_app, debugger]} do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
 
@@ -46,7 +44,7 @@ defmodule LiveDebugger.E2E.AssignsTest do
     debugger
     |> visit("/")
     |> select_live_view(dev_pid)
-    |> assert_has(css("#pinned-assigns", text: "You have no pinned assigns."))
+    |> assert_has(css("#pinned-assigns", text: "No pinned assigns"))
 
     debugger
     |> click_pin_button("counter")
@@ -63,13 +61,46 @@ defmodule LiveDebugger.E2E.AssignsTest do
 
     debugger
     |> click_unpin_button("counter")
-    |> assert_has(css("#pinned-assigns", text: "You have no pinned assigns."))
+    |> assert_has(css("#pinned-assigns", text: "No pinned assigns"))
+  end
+
+  @sessions 2
+  feature "user can see temporary assigns", %{sessions: [dev_app, debugger]} do
+    LiveDebugger.API.SettingsStorage.save(:dead_view_mode, false)
+
+    dev_app
+    |> visit(@dev_app_url)
+
+    dev_pid = get_dev_pid(dev_app)
+
+    debugger
+    |> visit("/")
+    |> select_live_view(dev_pid)
+    |> assert_has(term_entry("temporary-assigns", key: "message", value: "nil"))
+
+    dev_app
+    |> click(button("append-message"))
+
+    debugger
+    |> assert_has(term_entry("temporary-assigns", key: "message", value: "%{...}"))
+
+    dev_app
+    |> click(button("increment-button"))
+
+    debugger
+    |> assert_has(term_entry("temporary-assigns", key: "message", value: "nil"))
+
+    dev_app
+    |> visit(@dev_app_url <> "/nested")
+
+    Process.sleep(200)
+
+    debugger
+    |> assert_has(css("#temporary-assigns", text: "No temporary assigns"))
   end
 
   @sessions 2
   feature "user can go through assigns change history", %{sessions: [dev_app, debugger]} do
-    LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
-
     dev_app
     |> visit(@dev_app_url)
     |> click(button("increment-button"))

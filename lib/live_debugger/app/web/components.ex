@@ -194,6 +194,29 @@ defmodule LiveDebugger.App.Web.Components do
     """
   end
 
+  attr(:field, Phoenix.HTML.FormField, required: true)
+  attr(:label, :string, default: nil)
+  attr(:wrapper_class, :any, default: nil, doc: "Additional classes for the wrapper div.")
+  attr(:label_class, :any, default: nil, doc: "Additional classes for the label element.")
+  attr(:rest, :global)
+
+  def codearea(assigns) do
+    ~H"""
+    <div
+      id={"#{@field.id}-codearea-wrapper"}
+      phx-hook="CodeMirrorTextarea"
+      data-value={@field.value}
+      class={["flex flex-col gap-2" | List.wrap(@wrapper_class)]}
+    >
+      <label :if={@label} for={@field.id} class={["font-medium text-sm" | List.wrap(@label_class)]}>
+        <%= @label %>
+      </label>
+      <textarea id={@field.id} name={@field.name} class="hidden" phx-debounce="250" {@rest}><%= @field.value %></textarea>
+      <div id={"#{@field.id}-codemirror"} phx-update="ignore"></div>
+    </div>
+    """
+  end
+
   @doc """
   Button component with customizable variant and size.
   """
@@ -1103,6 +1126,57 @@ defmodule LiveDebugger.App.Web.Components do
 
   defp info_block_icon_name("info"), do: "icon-info"
   defp info_block_icon_name("warning"), do: "icon-triangle-alert"
+
+  @doc """
+  Renders a simple popup dialog.
+
+  ## Examples
+
+      <.popup id="new-version-popup" title="New Version Available">
+        A new version is available!
+      </.popup>
+  """
+  attr(:id, :string, required: true)
+  attr(:title, :string, default: nil)
+  attr(:show, :boolean, default: true)
+  attr(:class, :any, default: nil)
+  attr(:wrapper_class, :any, default: nil)
+  attr(:on_close, :any, default: nil)
+
+  slot(:inner_block, required: true)
+
+  def popup(assigns) do
+    ~H"""
+    <div :if={@show} id={@id} class={["fixed inset-0 z-50", @wrapper_class]}>
+      <div class="fixed inset-0 bg-black/50" phx-click={@on_close}></div>
+      <dialog
+        open
+        class={[
+          "fixed inset-0 max-w-md bg-surface-0-bg rounded-lg shadow-xl border border-default-border"
+          | List.wrap(@class)
+        ]}
+      >
+        <div class="flex flex-col">
+          <div
+            :if={@title}
+            class="px-4 py-3 border-b border-default-border flex justify-between items-center"
+          >
+            <h2 class="font-semibold text-sm text-primary-text"><%= @title %></h2>
+            <.icon_button
+              id={"#{@id}-close"}
+              phx-click={@on_close}
+              icon="icon-cross"
+              variant="secondary"
+            />
+          </div>
+          <div class="p-4 text-primary-text">
+            <%= render_slot(@inner_block) %>
+          </div>
+        </div>
+      </dialog>
+    </div>
+    """
+  end
 
   defp button_color_classes(variant) do
     case variant do
