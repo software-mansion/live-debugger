@@ -194,6 +194,29 @@ defmodule LiveDebugger.App.Web.Components do
     """
   end
 
+  attr(:field, Phoenix.HTML.FormField, required: true)
+  attr(:label, :string, default: nil)
+  attr(:wrapper_class, :any, default: nil, doc: "Additional classes for the wrapper div.")
+  attr(:label_class, :any, default: nil, doc: "Additional classes for the label element.")
+  attr(:rest, :global)
+
+  def codearea(assigns) do
+    ~H"""
+    <div
+      id={"#{@field.id}-codearea-wrapper"}
+      phx-hook="CodeMirrorTextarea"
+      data-value={@field.value}
+      class={["flex flex-col gap-2" | List.wrap(@wrapper_class)]}
+    >
+      <label :if={@label} for={@field.id} class={["font-medium text-sm" | List.wrap(@label_class)]}>
+        <%= @label %>
+      </label>
+      <textarea id={@field.id} name={@field.name} class="hidden" phx-debounce="250" {@rest}><%= @field.value %></textarea>
+      <div id={"#{@field.id}-codemirror"} phx-update="ignore"></div>
+    </div>
+    """
+  end
+
   @doc """
   Button component with customizable variant and size.
   """
