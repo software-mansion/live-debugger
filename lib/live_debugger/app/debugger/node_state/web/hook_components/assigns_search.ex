@@ -66,9 +66,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch d
 
   defp update_term_node_in_socket(socket, update_function) do
     case socket.assigns.node_assigns_info do
-      %AsyncResult{result: {assigns, term_node, copy_string}} = node_assigns_info ->
+      %AsyncResult{result: {assigns, term_node, copy_string, json_string}} = node_assigns_info ->
+        update_term_node = update_function.(term_node)
+
         updated_node_assigns_info =
-          AsyncResult.ok(node_assigns_info, {assigns, update_function.(term_node), copy_string})
+          AsyncResult.ok(node_assigns_info, {assigns, update_term_node, copy_string, json_string})
 
         assign(socket, node_assigns_info: updated_node_assigns_info)
 
