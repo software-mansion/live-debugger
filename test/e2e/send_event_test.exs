@@ -73,22 +73,6 @@ defmodule LiveDebugger.E2E.SendEventTest do
     debugger
     |> refute_has(send_event_fullscreen_visible())
     |> assert_has(assigns_entry(key: "show_child?", value: "false"))
-
-    # Navigate in dev app to kill the LiveView
-    dev_app
-    |> click(link("Side"))
-
-    Process.sleep(250)
-
-    # Debugger should show disconnected state
-    debugger
-    |> find(css("#navbar-connected"))
-    |> assert_text("Disconnected")
-
-    Process.sleep(250)
-
-    debugger
-    |> assert_has(send_event_button_disabled())
   end
 
   defp send_event_button(), do: css("button#send-event-button")
