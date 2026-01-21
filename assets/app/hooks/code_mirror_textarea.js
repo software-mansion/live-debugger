@@ -44,6 +44,14 @@ const CodeMirrorTextarea = {
       });
     }
 
+    // Prevent clicks inside CodeMirror from propagating to parent elements
+    // This prevents collapsible elements (chevrons, three dots) from closing modals
+    const stopPropagation = (event) => {
+      event.stopPropagation();
+    };
+    targetDiv.addEventListener('click', stopPropagation);
+    this.stopPropagationHandler = stopPropagation;
+
     this.editor = editor;
   },
   updated() {
@@ -58,6 +66,15 @@ const CodeMirrorTextarea = {
           insert: currentTextareaValue,
         },
       });
+    }
+  },
+  destroyed() {
+    if (this.stopPropagationHandler) {
+      const targetDivId = this.el.id.replace('-codearea-wrapper', '-codemirror');
+      const targetDiv = document.getElementById(targetDivId);
+      if (targetDiv) {
+        targetDiv.removeEventListener('click', this.stopPropagationHandler);
+      }
     }
   },
 };
