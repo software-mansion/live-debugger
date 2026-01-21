@@ -187,7 +187,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
           </div>
         </div>
 
-        <div class="hidden peer-checked/content:block px-4 pt-4 max-h-[30vh] overflow-y-auto">
+        <div class="hidden peer-checked/content:block px-4 pt-4 overflow-y-auto pb-4">
           <.trace_body id={@id} trace_display={@trace_display} search_phrase={@search_phrase} />
         </div>
 
