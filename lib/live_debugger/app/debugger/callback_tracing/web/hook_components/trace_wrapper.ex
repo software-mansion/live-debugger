@@ -80,7 +80,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
           <%= if @trace_display.render_body? do %>
             <%= render_slot(@body) %>
           <% else %>
-            <div class="w-full flex items-center justify-center">
+            <div class={[
+              "w-full flex items-center justify-center",
+              if(is_nil(@trace_display.error), do: "", else: "p-4")
+            ]}>
               <.spinner size="sm" />
             </div>
           <% end %>

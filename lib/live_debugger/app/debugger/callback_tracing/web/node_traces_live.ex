@@ -171,6 +171,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
         id="trace-fullscreen"
         displayed_trace={@displayed_trace}
         search_phrase={@trace_search_phrase}
+        page={:node_inspector}
       />
     </div>
     """

@@ -195,6 +195,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                   id="trace-fullscreen"
                   displayed_trace={@displayed_trace}
                   search_phrase={@trace_search_phrase}
+                  page={:global_callbacks}
                 />
               </div>
             </div>

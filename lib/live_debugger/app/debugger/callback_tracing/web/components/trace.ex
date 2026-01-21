@@ -34,21 +34,23 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
     ~H"""
     <div class="flex flex-col">
       <div id={@id} class="w-full grow grid items-center gap-x-3 ml-2 grid-cols-[auto_1fr_auto]">
-        <.trace_subtitle
-          :if={@show_subtitle? and not is_nil(@trace_display.subtitle)}
-          id={@id <> "-subtitle"}
-          subtitle={@trace_display.subtitle}
-          subtitle_link_data={@trace_display.subtitle_link_data}
-        />
+        <div class="flex items-center gap-x-3 min-w-0">
+          <.trace_subtitle
+            :if={@show_subtitle? and not is_nil(@trace_display.subtitle)}
+            id={@id <> "-subtitle"}
+            subtitle={@trace_display.subtitle}
+            subtitle_link_data={@trace_display.subtitle_link_data}
+          />
 
-        <.trace_title title={@trace_display.title} />
+          <.trace_title title={@trace_display.title} />
 
-        <.trace_short_content
-          :if={!@fullscreen?}
-          id={@id <> "-short-content"}
-          short_content={@short_content}
-          search_phrase={@search_phrase}
-        />
+          <.trace_short_content
+            :if={!@fullscreen?}
+            id={@id <> "-short-content"}
+            short_content={@short_content}
+            search_phrase={@search_phrase}
+          />
+        </div>
 
         <.trace_side_section_wrapper>
           <.trace_side_section_left
@@ -225,17 +227,21 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   attr(:id, :string, required: true)
   attr(:displayed_trace, TraceDisplay, required: true)
   attr(:search_phrase, :string, required: true)
+  attr(:page, :atom, required: true, values: [:node_inspector, :global_callbacks])
 
   def trace_fullscreen(assigns) do
     ~H"""
     <.fullscreen id={@id} title={@displayed_trace.title}>
-      <:header :if={@displayed_trace.error}>
-        <div class="font-semibold p-4 rounded bg-error-bg flex items-center flex col justify-between border-b border-error-border">
+      <:header>
+        <div class={[
+          "text-primary-text font-semibold p-4 rounded flex items-center flex col justify-between border-b",
+          header_type(@displayed_trace)
+        ]}>
           <.trace_label
             id={@id <> "-fullscreen-label"}
             trace_display={@displayed_trace}
             short_content_full?={false}
-            show_subtitle?={true}
+            show_subtitle?={if @page == :global_callbacks, do: true, else: false}
             fullscreen?={true}
           />
           <.icon_button
@@ -413,4 +419,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       true -> ""
     end
   end
+
+  defp header_type(%{error: error}) when not is_nil(error), do: "bg-error-bg border-error-border"
+  defp header_type(%{type: :diff}), do: "bg-surface-1-bg border-diff-border"
+  defp header_type(_), do: "bg-surface-1-bg border-default-border"
 end
