@@ -144,7 +144,6 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
       {:ok, node_id} ->
         Bus.broadcast_event!(%NodeIdParamChanged{node_id: node_id, debugger_pid: self()}, self())
         Pages.close_node_inspector_sidebar()
-        Pages.node_inspector_module_pulse()
 
         assign(socket, :node_id, node_id)
 

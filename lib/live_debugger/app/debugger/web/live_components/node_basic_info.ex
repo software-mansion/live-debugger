@@ -53,12 +53,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
         <div class="flex flex-row gap-8 max-md_ct:flex-col max-md_ct:gap-2 md_ct:items-center p-3">
           <div class="min-w-0 flex flex-col gap-2 max-md_ct:border-b max-md_ct:border-default-border">
             <span class="font-medium">Module:</span>
-            <div
-              class="flex gap-2 min-w-0 w-max"
-              id={@id <> "-module-name"}
-              phx-hook="DiffPulse"
-              data-pulse={@module_pulse?}
-            >
+            <div class="flex gap-2 min-w-0 w-max">
               <.tooltip id={@id <> "-current-node-module"} content={node_module} class="truncate">
                 <%= node_module %>
               </.tooltip>
