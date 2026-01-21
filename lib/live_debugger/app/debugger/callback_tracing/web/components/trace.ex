@@ -243,7 +243,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
             fullscreen?={true}
           />
           <.icon_button
-            id={"#{@id}-close-error"}
+            id={"#{@id}-close"}
             phx-click={JS.dispatch("close", to: "##{@id}")}
             icon="icon-cross"
             variant="secondary"
