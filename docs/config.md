@@ -24,6 +24,17 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
     plug :put_secure_browser_headers, %{"content-security-policy" => @csp}
 ```
 
+## Update checks
+
+LiveDebugger comes with optional update checks that inform about newer versions when the debugger interface loads. By default, this feature is enabled and will fetch version information, displaying a notification popup if a newer version is available. You can disable this feature by setting `:update_checks?` to `false` in your configuration:
+
+```elixir
+# config/dev.exs
+
+config :live_debugger, :update_checks?, false
+```
+
+
 ## Disabling LiveDebugger
 
 In case you need LiveDebugger to not run at the start of your application but want to keep the dependency, you can disable it manually in your config:
@@ -32,6 +43,21 @@ In case you need LiveDebugger to not run at the start of your application but wa
 # config/dev.exs
 
 config :live_debugger, :disabled?, true
+```
+
+## Default Settings
+
+In LiveDebugger, you can set the default values of settings (available in the settings panel) through your application's config. When starting LiveDebugger, settings will always be set to the values defined in the config, but you can still change them temporarily in the settings panel. However, keep in mind that these changes will reset to the config-defined values when you restart the application. This configuration should be used when you want to explicitly force a given behavior of LiveDebugger always in your project. If you want settings to persist across restarts (not reset to config values), you need to remove those entries from your application's config file.
+
+```elixir
+# config/dev.exs
+
+config :live_debugger,
+  dead_view_mode: true,
+  garbage_collection: true,
+  debug_button: false,
+  tracing_enabled_on_start: true,
+  highlight_in_browser: true
 ```
 
 ## Other Settings
