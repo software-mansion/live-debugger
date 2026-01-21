@@ -32,40 +32,38 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
     assigns = assign(assigns, :short_content, short_content)
 
     ~H"""
-    <div class="flex flex-col">
-      <div id={@id} class="w-full grow grid items-center gap-x-3 ml-2 grid-cols-[auto_1fr_auto]">
-        <div class="flex items-center gap-x-3 min-w-0">
-          <.trace_subtitle
-            :if={@show_subtitle? and not is_nil(@trace_display.subtitle)}
-            id={@id <> "-subtitle"}
-            subtitle={@trace_display.subtitle}
-            subtitle_link_data={@trace_display.subtitle_link_data}
-          />
+    <div id={@id} class="w-[90%] grow grid items-center gap-x-3 ml-2 grid-cols-[auto_1fr_auto]">
+      <.trace_subtitle
+        :if={@show_subtitle? and not is_nil(@trace_display.subtitle)}
+        id={@id <> "-subtitle"}
+        subtitle={@trace_display.subtitle}
+        subtitle_link_data={@trace_display.subtitle_link_data}
+      />
+      <.trace_title title={@trace_display.title} />
 
-          <.trace_title title={@trace_display.title} />
+      <.trace_short_content
+        :if={!@fullscreen?}
+        id={@id <> "-short-content"}
+        short_content={@short_content}
+        search_phrase={@search_phrase}
+      />
 
-          <.trace_short_content
-            :if={!@fullscreen?}
-            id={@id <> "-short-content"}
-            short_content={@short_content}
-            search_phrase={@search_phrase}
-          />
-        </div>
+      <.trace_side_section_wrapper>
+        <.trace_side_section_left
+          id={@id <> "-side-section-left"}
+          side_section_left={@trace_display.side_section_left}
+        />
+        <.trace_side_section_separator />
+        <.trace_side_section_right
+          id={@id <> "-side-section-right"}
+          side_section_right={@trace_display.side_section_right}
+          from_event?={@trace_display.from_event?}
+        />
+      </.trace_side_section_wrapper>
 
-        <.trace_side_section_wrapper>
-          <.trace_side_section_left
-            id={@id <> "-side-section-left"}
-            side_section_left={@trace_display.side_section_left}
-          />
-          <.trace_side_section_separator />
-          <.trace_side_section_right
-            id={@id <> "-side-section-right"}
-            side_section_right={@trace_display.side_section_right}
-            from_event?={@trace_display.from_event?}
-          />
-        </.trace_side_section_wrapper>
+      <div :if={@trace_display.error} class="col-span-full w-full">
+        <.trace_error_message error={@trace_display.error} />
       </div>
-      <.trace_error_message :if={@trace_display.error} error={@trace_display.error} />
     </div>
     """
   end
@@ -384,7 +382,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   defp trace_error_message(assigns) do
     ~H"""
-    <div class="flex flex-row gap-2 mt-2 text-error-text items-center ml-2">
+    <div class="flex flex-row gap-2 mt-1 text-error-text items-center">
       <.icon name="icon-info" class="w-4 h-4 shrink-0" />
       <p :if={@error}><%= clean_error_message(@error.message) %></p>
     </div>
