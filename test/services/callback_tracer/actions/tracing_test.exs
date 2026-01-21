@@ -11,11 +11,15 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIFileSystem
   alias LiveDebugger.MockAPIModule
+  alias LiveDebugger.MockAPITracesStorage
 
   setup :verify_on_exit!
 
   describe "setup_tracing!/0" do
     test "successfully sets up tracing" do
+      MockAPITracesStorage
+      |> expect(:get_all_tables, fn -> [] end)
+
       MockAPIModule
       |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)
       |> expect(:loaded?, fn _ -> true end)
@@ -30,6 +34,9 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
     end
 
     test "raises error when tracer fails to start" do
+      MockAPITracesStorage
+      |> expect(:get_all_tables, fn -> [] end)
+
       MockAPIDbg
       |> expect(:tracer, fn {_handler, 0} -> {:error, :already_started} end)
 
@@ -45,6 +52,9 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
             _ -> :ok
           end
         end)
+
+      MockAPITracesStorage
+      |> expect(:get_all_tables, fn -> [] end)
 
       MockAPIModule
       |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)

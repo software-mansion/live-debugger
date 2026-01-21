@@ -29,7 +29,7 @@ defmodule LiveDebugger.App.Web.Layout do
         <meta name="csrf-token" content={Phoenix.Controller.get_csrf_token()} />
         <title>LiveDebugger</title>
         <link rel="stylesheet" href="/assets/live_debugger/app.css" />
-
+        <link rel="icon" type="image/svg+xml" href="/assets/live_debugger/favicon.svg" />
         <%= custom_head_tags(assigns, :before_closing_head_tag) %>
       </head>
       <body class="theme-light dark:theme-dark text-primary-text bg-main-bg text-xs font-normal">
