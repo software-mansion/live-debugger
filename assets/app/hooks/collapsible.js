@@ -12,7 +12,7 @@ function setOpen(el) {
 }
 
 function setOpenFromLocalStorage(el) {
-  const open_state = localStorage.getItem(`collapsible-open-${el.id}`);
+  const open_state = localStorage.getItem(`lvdbg:collapsible-open-${el.id}`);
 
   if (open_state !== null) {
     el.open = open_state === 'true';
@@ -21,21 +21,24 @@ function setOpenFromLocalStorage(el) {
 
   if (el.dataset.open === 'true') {
     el.open = true;
-    localStorage.setItem(`collapsible-open-${el.id}`, 'true');
+    localStorage.setItem(`lvdbg:collapsible-open-${el.id}`, 'true');
   } else {
     el.open = false;
-    localStorage.setItem(`collapsible-open-${el.id}`, 'false');
+    localStorage.setItem(`lvdbg:collapsible-open-${el.id}`, 'false');
   }
 }
 
 function maybeSaveStateOnChange(el) {
   if (el.dataset.saveStateInBrowser === 'true') {
     el.addEventListener('toggle', () => {
-      localStorage.setItem(`collapsible-open-${el.id}`, el.open.toString());
+      localStorage.setItem(
+        `lvdbg:collapsible-open-${el.id}`,
+        el.open.toString()
+      );
     });
 
     window.addEventListener('storage', ({ key }) => {
-      if (key !== `collapsible-open-${el.id}`) return;
+      if (key !== `lvdbg:collapsible-open-${el.id}`) return;
       setOpenFromLocalStorage(el);
     });
   }

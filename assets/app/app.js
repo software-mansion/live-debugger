@@ -59,7 +59,7 @@ function saveDialogAndDetailsState() {
 
 function setTheme() {
   // Check system preferences for dark mode, and add the .dark class to the body if it's dark
-  switch (localStorage.theme) {
+  switch (localStorage.getItem('lvdbg:theme')) {
     case 'light':
       document.documentElement.classList.remove('dark');
       break;
@@ -72,9 +72,51 @@ function setTheme() {
       ).matches;
 
       document.documentElement.classList.toggle('dark', prefersDarkScheme);
-      localStorage.theme = prefersDarkScheme ? 'dark' : 'light';
+      localStorage.setItem('lvdbg:theme', prefersDarkScheme ? 'dark' : 'light');
       break;
   }
+}
+
+async function checkForUpdate(currentVersion) {
+  const shouldShowPopup = (latestVersion) => {
+    return (
+      currentVersion !== latestVersion &&
+      localStorage.getItem('lvdbg:ignored-version') !== latestVersion
+    );
+  };
+
+  const showPopup = (latestVersion) => {
+    const versionSpan = document.getElementById('new-version-popup-version');
+    const ignoreCheckbox = document.getElementById('ignore-checkbox');
+    const newVersionPopup = document.getElementById('new-version-popup');
+
+    versionSpan.innerText = latestVersion;
+    ignoreCheckbox.checked = false;
+    ignoreCheckbox.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        localStorage.setItem('lvdbg:ignored-version', latestVersion);
+      } else {
+        localStorage.removeItem('lvdbg:ignored-version');
+      }
+    });
+
+    newVersionPopup.classList.remove('hidden');
+  };
+
+  if (sessionStorage.getItem('lvdbg:latest-version')) {
+    return;
+  }
+
+  const response = await fetch('http://localhost:3000/');
+
+  const data = await response.json();
+  const latestVersion = data.version;
+
+  if (shouldShowPopup(latestVersion)) {
+    showPopup(latestVersion);
+  }
+
+  sessionStorage.setItem('lvdbg:latest-version', latestVersion);
 }
 
 function getCsrfToken() {
@@ -84,7 +126,7 @@ function getCsrfToken() {
 }
 
 function handleStorage(e) {
-  if (e.key !== 'theme') return;
+  if (e.key !== 'lvdbg:theme') return;
   document.documentElement.classList.toggle('dark', e.newValue === 'dark');
 }
 //This is needed only for Chrome to refresh the icon after changing the theme.
@@ -101,6 +143,7 @@ window.addEventListener('storage', handleStorage);
 
 window.createHooks = createHooks;
 window.setTheme = setTheme;
+window.checkForUpdate = checkForUpdate;
 window.getCsrfToken = getCsrfToken;
 window.saveDialogAndDetailsState = saveDialogAndDetailsState;
 
