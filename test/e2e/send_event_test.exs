@@ -76,7 +76,6 @@ defmodule LiveDebugger.E2E.SendEventTest do
   end
 
   defp send_event_button(), do: css("button#send-event-button")
-  defp send_event_button_disabled(), do: css("button#send-event-button[disabled]")
   defp send_event_fullscreen_visible(), do: css("dialog#send-event-fullscreen[open]")
   defp handler_select(), do: css("select#send-event-fullscreen-form_handler")
   defp event_input(), do: css("input#send-event-fullscreen-form_event")
