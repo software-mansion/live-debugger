@@ -70,7 +70,10 @@ const CodeMirrorTextarea = {
   },
   destroyed() {
     if (this.stopPropagationHandler) {
-      const targetDivId = this.el.id.replace('-codearea-wrapper', '-codemirror');
+      const targetDivId = this.el.id.replace(
+        '-codearea-wrapper',
+        '-codemirror'
+      );
       const targetDiv = document.getElementById(targetDivId);
       if (targetDiv) {
         targetDiv.removeEventListener('click', this.stopPropagationHandler);
