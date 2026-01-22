@@ -144,6 +144,8 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
     dev_app
     |> click(error_button(crash_name))
 
+    Process.sleep(200)
+
     debugger
     |> assert_trace_exception(error_name, stacktrace_content)
 
