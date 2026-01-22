@@ -8,6 +8,8 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Utils.TermParser
 
+  alias Phoenix.LiveView.JS
+
   def loading(assigns) do
     ~H"""
     <div class="w-full flex items-center justify-center p-4">
@@ -152,8 +154,30 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
   def stream_element_fullscreen(assigns) do
     ~H"""
     <.fullscreen id={@dom_id <> "-fullscreen"} title={@dom_id}>
+      <:header>
+        <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border">
+          <div class="flex justify-between items-center w-full font-semibold text-primary-text text-base">
+            <%= @dom_id %>
+          </div>
+
+          <div class="flex flex-row gap-2">
+            <.copy_button
+              id={"#{@dom_id}-copy-button"}
+              variant="icon-button"
+              value={TermParser.term_to_copy_string(@stream_element)}
+            />
+
+            <.icon_button
+              id={"#{@dom_id}-close"}
+              phx-click={JS.dispatch("close", to: "##{@dom_id}-fullscreen")}
+              icon="icon-cross"
+              variant="secondary"
+            />
+          </div>
+        </div>
+      </:header>
       <div class="p-4 flex flex-col gap-4 items-start justify-center [&_.absolute_>_:last-child]:hidden">
-        <.stream_element_body stream_element={@stream_element} dom_id={@dom_id} />
+        <.stream_element_body stream_element={@stream_element} dom_id={@dom_id} in_fullscreen={true} />
       </div>
     </.fullscreen>
     """
@@ -165,15 +189,17 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
 
   attr(:stream_element, :any, required: true)
   attr(:dom_id, :string, required: true)
+  attr(:in_fullscreen, :boolean, default: false)
 
   def stream_element_body(assigns) do
     ~H"""
     <div class="relative w-full group">
-      <div class="absolute top-0 right-0 z-10 flex gap-1">
+      <div class="absolute top-0 right-0 z-10 flex gap-2">
         <.copy_button
+          :if={!@in_fullscreen}
           id={"#{@dom_id}-copy-button"}
           variant="icon-button"
-          value={inspect(@stream_element)}
+          value={TermParser.term_to_copy_string(@stream_element)}
         />
         <.fullscreen_button
           id={@dom_id <> "-fullscreen-button"}
