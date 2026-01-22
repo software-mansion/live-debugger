@@ -25,7 +25,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   attr(:show_subtitle?, :boolean, default: false)
   attr(:search_phrase, :string, default: nil)
   attr(:short_content_full?, :boolean, default: false)
-  attr(:in_fullscreen, :boolean, default: false)
+  attr(:fullscreen?, :boolean, default: false)
 
   def trace_label(assigns) do
     short_content = TraceDisplay.short_content(assigns.trace_display, assigns.short_content_full?)
@@ -38,12 +38,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         id={@id <> "-subtitle"}
         subtitle={@trace_display.subtitle}
         subtitle_link_data={@trace_display.subtitle_link_data}
-        in_fullscreen={@in_fullscreen}
+        fullscreen?={@fullscreen?}
       />
       <.trace_title title={@trace_display.title} />
 
       <.trace_short_content
-        :if={!@in_fullscreen}
+        :if={!@fullscreen?}
         id={@id <> "-short-content"}
         short_content={@short_content}
         search_phrase={@search_phrase}
@@ -53,14 +53,14 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         <.trace_side_section_left
           id={@id <> "-side-section-left"}
           side_section_left={@trace_display.side_section_left}
-          in_fullscreen={@in_fullscreen}
+          fullscreen?={@fullscreen?}
         />
         <.trace_side_section_separator />
         <.trace_side_section_right
           id={@id <> "-side-section-right"}
           side_section_right={@trace_display.side_section_right}
           from_event?={@trace_display.from_event?}
-          in_fullscreen={@in_fullscreen}
+          fullscreen?={@fullscreen?}
         />
       </.trace_side_section_wrapper>
 
@@ -105,7 +105,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   attr(:id, :string, required: true)
   attr(:trace_display, TraceDisplay, required: true)
   attr(:search_phrase, :string, required: true)
-  attr(:in_fullscreen, :boolean, default: false)
+  attr(:fullscreen?, :boolean, default: false)
 
   def trace_body_navbar_wrapper(assigns) do
     assigns =
@@ -129,7 +129,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         <div class={[
           "flex flex-row gap-6 border-b border-default-border mb-2 text-sm select-none sticky top-0 z-10 bg-navbar-bg min-w-[420px]",
           "items-center",
-          if(@in_fullscreen, do: "px-4", else: "pl-4"),
+          if(@fullscreen?, do: "px-4", else: "pl-4"),
           "peer-checked/content:[&_.tab-content]:text-navbar-selected-bg peer-checked/content:[&_.tab-content]:border-navbar-selected-bg",
           "peer-checked/stack:[&_.tab-stack]:text-navbar-selected-bg peer-checked/stack:[&_.tab-stack]:border-navbar-selected-bg",
           "peer-checked/raw:[&_.tab-raw]:text-navbar-selected-bg peer-checked/raw:[&_.tab-raw]:border-navbar-selected-bg",
@@ -168,7 +168,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
                 variant="icon-button"
                 title="Copy Stacktrace"
                 class="text-secondary-text hover:text-primary-text"
-                in_fullscreen={@in_fullscreen}
+                fullscreen?={@fullscreen?}
               />
             </div>
 
@@ -179,7 +179,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
                 variant="icon-button"
                 title="Copy Raw Error"
                 class="text-secondary-text hover:text-primary-text"
-                in_fullscreen={@in_fullscreen}
+                fullscreen?={@fullscreen?}
               />
             </div>
 
@@ -245,7 +245,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
             trace_display={@displayed_trace}
             short_content_full?={false}
             show_subtitle?={if @page == :global_callbacks, do: true, else: false}
-            in_fullscreen={true}
+            fullscreen?={true}
           />
           <.icon_button
             id={"#{@id}-close"}
@@ -263,7 +263,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
           id={@id <> "-fullscreen"}
           trace_display={@displayed_trace}
           search_phrase={@search_phrase}
-          in_fullscreen={true}
+          fullscreen?={true}
         />
       </div>
     </.fullscreen>
@@ -273,7 +273,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   attr(:id, :string, required: true)
   attr(:subtitle, :string, required: true)
   attr(:subtitle_link_data, :map, default: nil)
-  attr(:in_fullscreen, :boolean, default: false)
+  attr(:fullscreen?, :boolean, default: false)
 
   defp trace_subtitle(assigns) do
     ~H"""
@@ -282,7 +282,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         id={@id <> "-tooltip"}
         content="See in Node Inspector"
         class="w-max"
-        in_fullscreen={@in_fullscreen}
+        fullscreen?={@fullscreen?}
       >
         <.link
           class="block hover:underline"
@@ -346,7 +346,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   attr(:id, :string, required: true)
   attr(:side_section_left, :any, required: true)
-  attr(:in_fullscreen, :boolean, default: false)
+  attr(:fullscreen?, :boolean, default: false)
 
   defp trace_side_section_left(%{side_section_left: {:timestamp, timestamp}} = assigns) do
     assigns = assign(assigns, :timestamp, timestamp)
@@ -356,7 +356,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       id={@id <> "-tooltip"}
       content="Timestamp"
       class="min-w-12"
-      in_fullscreen={@in_fullscreen}
+      fullscreen?={@fullscreen?}
     >
       <%= Parsers.parse_timestamp(@timestamp) %>
     </.tooltip>
@@ -366,7 +366,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   attr(:id, :string, required: true)
   attr(:side_section_right, :any, required: true)
   attr(:from_event?, :boolean, required: true)
-  attr(:in_fullscreen, :boolean, default: false)
+  attr(:fullscreen?, :boolean, default: false)
 
   defp trace_side_section_right(%{side_section_right: {:execution_time, time}} = assigns) do
     assigns = assign(assigns, :execution_time, time)
@@ -376,7 +376,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       id={@id <> "-tooltip"}
       content="Execution time of the callback"
       class="min-w-11"
-      in_fullscreen={@in_fullscreen}
+      fullscreen?={@fullscreen?}
     >
       <span
         id={@id <> "-value"}
@@ -397,7 +397,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       id={@id <> "-tooltip"}
       content="Size of the diff sent to browser"
       class="min-w-11"
-      in_fullscreen={@in_fullscreen}
+      fullscreen?={@fullscreen?}
     >
       <span class={["text-nowrap", get_size_warning_class(@size)]}>
         <%= Memory.bytes_to_pretty_string(@size) %>

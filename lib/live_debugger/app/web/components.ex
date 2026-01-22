@@ -874,7 +874,7 @@ defmodule LiveDebugger.App.Web.Components do
 
   attr(:rest, :global)
 
-  attr(:in_fullscreen, :boolean,
+  attr(:fullscreen?, :boolean,
     default: false,
     doc: "Whether the tooltip is in fullscreen mode"
   )
@@ -885,9 +885,9 @@ defmodule LiveDebugger.App.Web.Components do
     ~H"""
     <div
       id={@id}
-      phx-hook={if @in_fullscreen, do: nil, else: "Tooltip"}
-      data-tooltip={if @in_fullscreen, do: nil, else: @content}
-      data-position={if @in_fullscreen, do: nil, else: @position}
+      phx-hook={if @fullscreen?, do: nil, else: "Tooltip"}
+      data-tooltip={if @fullscreen?, do: nil, else: @content}
+      data-position={if @fullscreen?, do: nil, else: @position}
       {@rest}
     >
       <%= render_slot(@inner_block) %>
@@ -968,17 +968,12 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:id, :string, required: true)
   attr(:value, :string, required: true)
   attr(:variant, :string, default: "icon", values: ["icon", "icon-button"])
-  attr(:in_fullscreen, :boolean, default: false)
+  attr(:fullscreen?, :boolean, default: false)
   attr(:rest, :global)
 
   def copy_button(assigns) do
     ~H"""
-    <.tooltip
-      id={@id <> "-tooltip"}
-      content="Copy"
-      position="top-center"
-      in_fullscreen={@in_fullscreen}
-    >
+    <.tooltip id={@id <> "-tooltip"} content="Copy" position="top-center" fullscreen?={@fullscreen?}>
       <.icon_button
         id={@id}
         icon="icon-copy"
