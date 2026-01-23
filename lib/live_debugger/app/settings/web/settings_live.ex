@@ -117,6 +117,15 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
             <.button variant="secondary" phx-click="restart">Refresh&nbsp;Tracing</.button>
           </div>
         </div>
+        <div class="mt-6">
+          <p class="flex-1 text-center">
+            Share a feedback, take a <.link
+              href="https://docs.google.com/forms/d/1-VdPBCDZ5oDxxSbgpyM9Yri3xhMvzNWA4wvQrXkbpzw/viewform"
+              target="_blank"
+              class="text-link-primary hover:text-link-primary-hover"
+            >survey</.link>.
+          </p>
+        </div>
       </div>
     </div>
     """

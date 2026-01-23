@@ -16,9 +16,10 @@ import AssignsBodySearchHighlight from './hooks/assigns_body_search_highlight';
 import DiffPulse from './hooks/diff_pulse';
 import ChartHook from './hooks/chart_hook';
 import CollapsedSectionPulse from './hooks/collapsed_section_pulse';
+import CodeMirrorTextarea from './hooks/code_mirror_textarea';
+import SurveyBanner from './hooks/survey_banner';
 
 import topbar from './vendor/topbar';
-import CodeMirrorTextarea from './hooks/code_mirror_textarea';
 
 Alpine.start();
 Alpine.plugin(collapse);
@@ -46,6 +47,7 @@ function createHooks() {
     ChartHook,
     CollapsedSectionPulse,
     CodeMirrorTextarea,
+    SurveyBanner,
   };
 }
 
