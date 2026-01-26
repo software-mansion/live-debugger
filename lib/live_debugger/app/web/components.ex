@@ -647,7 +647,10 @@ defmodule LiveDebugger.App.Web.Components do
           {@event_target && %{:"phx-target" => @event_target} || %{}}
         >
         </div>
-        <div class="shrink-0 h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border md_ct:border-l" id ="components-tree-sidebar-container">
+        <div
+          class="shrink-0 h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border md_ct:border-l"
+          id="components-tree-sidebar-container"
+        >
           <.icon_button
             :if={!@sidebar_hidden?}
             icon="icon-cross"
