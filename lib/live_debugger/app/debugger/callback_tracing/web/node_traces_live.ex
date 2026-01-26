@@ -59,6 +59,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
       ) do
     if connected?(socket) do
       Bus.receive_events!(parent_pid)
+      Bus.receive_events!(lv_process.pid)
     end
 
     socket
@@ -148,7 +149,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
                 </:label>
 
                 <:body>
-                  <.trace_body
+                  <.trace_body_navbar_wrapper
                     id={id <> "-body"}
                     trace_display={trace_display}
                     search_phrase={@trace_search_phrase}
@@ -170,6 +171,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
         id="trace-fullscreen"
         displayed_trace={@displayed_trace}
         search_phrase={@trace_search_phrase}
+        page={:node_inspector}
       />
     </div>
     """

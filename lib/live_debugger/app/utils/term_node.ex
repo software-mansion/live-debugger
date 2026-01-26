@@ -192,6 +192,14 @@ defmodule LiveDebugger.App.Utils.TermNode do
     end
   end
 
+  def close_all(%__MODULE__{children: children} = term_node) do
+    %__MODULE__{
+      term_node
+      | open?: false,
+        children: Enum.map(children, fn {key, child} -> {key, close_all(child)} end)
+    }
+  end
+
   @spec set_pulse(t(), boolean(), recursive: boolean()) :: t()
   def set_pulse(%__MODULE__{} = term_node, pulse?, opts \\ []) do
     content = Enum.map(term_node.content, &DisplayElement.set_pulse(&1, pulse?))

@@ -5,6 +5,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
 
   use LiveDebugger.App.Web, :hook
 
+  alias LiveDebugger.App.Utils.TermSanitizer
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
   alias LiveDebugger.App.Utils.TermDiffer
@@ -12,6 +13,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   alias LiveDebugger.App.Utils.TermParser
   alias LiveDebugger.App.Utils.TermNode
   alias LiveDebugger.Utils.Memory
+
+  alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
 
   @required_assigns [
     :node_id,
@@ -29,6 +32,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> check_assigns!(@required_assigns)
     |> attach_hook(:node_assigns, :handle_async, &handle_async/3)
     |> attach_hook(:node_assigns, :handle_event, &handle_event/3)
+    |> attach_hook(:node_assigns, :handle_info, &handle_info/2)
     |> register_hook(:node_assigns)
     |> assign(:node_assigns_info, AsyncResult.loading(stage: :init))
     |> assign(:assigns_sizes, AsyncResult.loading(stage: :init))
@@ -114,10 +118,14 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   defp handle_async(:fetch_node_assigns, {:ok, {:ok, node_assigns}}, socket) do
     term_node = TermParser.term_to_display_tree(node_assigns)
     copy_string = TermParser.term_to_copy_string(node_assigns)
+    json_string = node_assigns |> TermSanitizer.sanitize() |> Jason.encode!()
     pinned_assigns = node_assigns |> Map.keys() |> Map.new(&{to_string(&1), false})
 
     socket
-    |> assign(:node_assigns_info, AsyncResult.ok({node_assigns, term_node, copy_string}))
+    |> assign(
+      :node_assigns_info,
+      AsyncResult.ok({node_assigns, term_node, copy_string, json_string})
+    )
     |> assign(:pinned_assigns, pinned_assigns)
     |> assign_size_async(node_assigns)
     |> halt()
@@ -149,8 +157,16 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
 
   defp handle_async(_, _, socket), do: {:cont, socket}
 
+  defp handle_info(%StateChanged{}, socket) do
+    socket
+    |> assign_async_node_assigns()
+    |> cont()
+  end
+
+  defp handle_info(_, socket), do: {:cont, socket}
+
   defp update_node_assigns_info(old_node_assigns_info, node_assigns) do
-    %AsyncResult{result: {old_assigns, _, _}} = old_node_assigns_info
+    %AsyncResult{result: {old_assigns, _, _, _}} = old_node_assigns_info
 
     case TermDiffer.diff(old_assigns, node_assigns) do
       %Diff{type: :equal} -> AsyncResult.ok(old_node_assigns_info.result)
@@ -159,12 +175,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
   end
 
   defp update_node_assigns_info_by_diff(old_node_assigns_info, node_assigns, diff) do
-    %AsyncResult{result: {_, old_term_node, _}} = old_node_assigns_info
+    %AsyncResult{result: {_, old_term_node, _, _}} = old_node_assigns_info
 
     copy_string = TermParser.term_to_copy_string(node_assigns)
+    json_string = node_assigns |> TermSanitizer.sanitize() |> Jason.encode!()
 
     case TermParser.update_by_diff(old_term_node, diff) do
-      {:ok, term_node} -> AsyncResult.ok({node_assigns, term_node, copy_string})
+      {:ok, term_node} -> AsyncResult.ok({node_assigns, term_node, copy_string, json_string})
       {:error, reason} -> AsyncResult.failed(old_node_assigns_info, reason)
     end
   end
@@ -218,12 +235,15 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
 
   defp maybe_clear_term_node_pulse(%{private: %{pulse_cleared?: false}} = socket) do
     case socket.assigns.node_assigns_info do
-      %AsyncResult{ok?: true, result: {node_assigns, term_node, copy_string}} ->
+      %AsyncResult{ok?: true, result: {node_assigns, term_node, copy_string, json_string}} ->
         term_node = TermNode.set_pulse(term_node, false, recursive: true)
 
         socket
         |> put_private(:pulse_cleared?, true)
-        |> assign(:node_assigns_info, AsyncResult.ok({node_assigns, term_node, copy_string}))
+        |> assign(
+          :node_assigns_info,
+          AsyncResult.ok({node_assigns, term_node, copy_string, json_string})
+        )
 
       _ ->
         socket

@@ -5,13 +5,15 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   use GenServer
 
-  require Logger
-
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace, as: TraceActions
   alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
   alias LiveDebugger.Services.CallbackTracer.Actions.DiffTrace, as: DiffActions
   alias LiveDebugger.Structs.Trace.FunctionTrace
+
+  alias LiveDebugger.API.TracesStorage
+
+  alias LiveDebugger.Services.CallbackTracer.TraceUtils
 
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
 
@@ -154,13 +156,41 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
     {:noreply, state}
   end
 
+  def handle_cast({:new_trace, {_, _, :exit, :normal, _}, _}, state),
+    do: {:noreply, state}
+
+  def handle_cast({:new_trace, {_, _, :exit, :shutdown, _}, _}, state),
+    do: {:noreply, state}
+
+  def handle_cast({:new_trace, {_, _, :exit, {:shutdown, _}, _}, _}, state),
+    do: {:noreply, state}
+
+  def handle_cast(
+        {:new_trace, {_, pid, :exit, reason, ts}, _n},
+        state
+      ) do
+    timestamp_str = ts |> TraceUtils.format_ts()
+    raw_error_banner = "#{timestamp_str} [exit] GenServer #{inspect(pid)} terminating \n"
+
+    {message, stacktrace_str} = TraceUtils.normalize_error(reason)
+
+    with table <- TracesStorage.get_table(pid),
+         {:ok, {_key, trace}} <- TracesStorage.get_latest_function_trace(table),
+         new_trace <-
+           TraceUtils.add_error_to_trace(trace, message, stacktrace_str, raw_error_banner),
+         {:ok, ref} <- TraceActions.persist_trace(new_trace),
+         {:ok} <- TraceActions.publish_trace_exception(new_trace, ref) do
+      :ok
+    end
+
+    {:noreply, state}
+  end
+
   #########################################################
   # Handling unknown traces
   #########################################################
 
-  def handle_cast({:new_trace, trace, _n}, state) do
-    Logger.info("Ignoring unexpected trace: #{inspect(trace)}")
-
+  def handle_cast({:new_trace, _trace, _n}, state) do
     {:noreply, state}
   end
 

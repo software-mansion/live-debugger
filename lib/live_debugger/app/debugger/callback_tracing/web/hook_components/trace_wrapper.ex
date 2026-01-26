@@ -49,8 +49,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
       id={@id}
       icon="icon-chevron-right"
       chevron_class="w-5 h-5 text-accent-icon"
-      class={["max-w-full border rounded last:mb-4", border_color_class(@trace_display)]}
-      label_class="font-semibold bg-surface-1-bg p-2 py-3 rounded"
+      class={[
+        "max-w-full border rounded last:mb-4",
+        border_color_class(@trace_display)
+      ]}
+      label_class={["font-semibold p-2 py-3 rounded", bg_color_class(@trace_display)]}
       phx-click="toggle-collapsible"
       phx-value-trace-id={@trace_display.id}
       phx-value-render-body={@trace_display.render_body?}
@@ -59,7 +62,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
         <%= render_slot(@label) %>
       </:label>
       <div class="relative">
-        <div :if={@trace_display.render_body?} class="absolute right-0 top-0 z-10">
+        <div
+          :if={@trace_display.render_body? && is_nil(@trace_display.error)}
+          class="absolute right-0 top-0 z-10"
+        >
           <.fullscreen_button
             id={"trace-fullscreen-#{@id}"}
             class="m-2"
@@ -67,11 +73,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
             phx-value-trace-id={@trace_display.id}
           />
         </div>
-        <div class="overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto p-4">
+        <div class={[
+          "overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto",
+          if(is_nil(@trace_display.error), do: "p-4", else: "")
+        ]}>
           <%= if @trace_display.render_body? do %>
             <%= render_slot(@body) %>
           <% else %>
-            <div class="w-full flex items-center justify-center">
+            <div class={[
+              "w-full flex items-center justify-center",
+              if(is_nil(@trace_display.error), do: "", else: "p-4")
+            ]}>
               <.spinner size="sm" />
             </div>
           <% end %>
@@ -144,7 +156,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
     )
   end
 
-  defp border_color_class(%{type: :error}), do: "border-error-icon"
+  defp border_color_class(%{type: :error}), do: "border-error-border"
   defp border_color_class(%{type: :diff}), do: "border-diff-border"
   defp border_color_class(%{type: :normal}), do: "border-default-border"
+
+  defp bg_color_class(%{type: :error}), do: "bg-error-bg"
+  defp bg_color_class(%{type: :diff}), do: "bg-surface-1-bg"
+  defp bg_color_class(%{type: :normal}), do: "bg-surface-1-bg"
 end

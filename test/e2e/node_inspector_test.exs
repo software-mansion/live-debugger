@@ -4,6 +4,7 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   setup_all do
     LiveDebugger.Services.CallbackTracer.GenServers.TracingManager.ping!()
     LiveDebugger.API.SettingsStorage.save(:tracing_enabled_on_start, false)
+    LiveDebugger.API.SettingsStorage.save(:dead_view_mode, true)
 
     :ok
   end
