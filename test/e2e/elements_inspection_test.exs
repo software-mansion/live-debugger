@@ -177,4 +177,36 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
       )
     )
   end
+
+  @sessions 2
+  feature "sidebar with components tree opens automatically on small screens when node is inspected",
+          %{
+            sessions: [dev_app, debugger]
+          } do
+    close_btn = css("button[phx-click=\"close-sidebar\"]")
+
+    dev_app
+    |> visit(@dev_app_url)
+
+    dev_pid = get_dev_pid(dev_app)
+
+    debugger
+    |> resize_window(800, 1000)
+    |> visit("/")
+    |> select_live_view(dev_pid)
+
+    debugger
+    |> refute_has(css("#components-tree-sidebar-container"))
+    |> refute_has(close_btn)
+
+    debugger
+    |> click(switch_inspect_mode_button())
+
+    dev_app
+    |> click(live_component(2))
+
+    debugger
+    |> assert_has(css("#components-tree-sidebar-container"))
+    |> assert_has(close_btn)
+  end
 end
