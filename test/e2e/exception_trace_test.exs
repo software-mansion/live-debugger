@@ -149,6 +149,8 @@ defmodule LiveDebugger.E2E.ExceptionTraceTest do
     debugger
     |> assert_trace_exception(error_name, stacktrace_content)
 
+    Process.sleep(100)
+
     debugger
     |> navigate_to_new_process()
   end
