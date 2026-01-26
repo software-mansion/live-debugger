@@ -6,9 +6,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch d
 
   use LiveDebugger.App.Web, :hook_component
 
+  alias Phoenix.LiveView.AsyncResult
+  alias LiveDebugger.App.Utils.TermNode
   alias LiveDebugger.App.Debugger.Components
 
-  @required_assigns [:assigns_search_phrase]
+  @required_assigns [:assigns_search_phrase, :node_assigns_info]
 
   @impl true
   def init(socket) do
@@ -36,12 +38,44 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch d
     """
   end
 
+  defp handle_event("search", %{"search_phrase" => ""}, socket) do
+    socket
+    |> assign(assigns_search_phrase: "")
+    |> update_term_node_in_socket(fn term_node ->
+      term_node
+      |> TermNode.close_all()
+      |> TermNode.open_with_settings(:default)
+    end)
+    |> halt()
+  end
+
   defp handle_event("search", %{"search_phrase" => search_phrase}, socket) do
     socket
     |> assign(assigns_search_phrase: search_phrase)
+    |> update_term_node_in_socket(fn term_node ->
+      term_node
+      |> TermNode.close_all()
+      |> TermNode.open_with_settings(:minimal)
+      |> TermNode.open_with_search_phrase(search_phrase)
+    end)
     |> halt()
   end
 
   defp handle_event("search-submit", _params, socket), do: {:halt, socket}
   defp handle_event(_, _, socket), do: {:cont, socket}
+
+  defp update_term_node_in_socket(socket, update_function) do
+    case socket.assigns.node_assigns_info do
+      %AsyncResult{result: {assigns, term_node, copy_string, json_string}} = node_assigns_info ->
+        update_term_node = update_function.(term_node)
+
+        updated_node_assigns_info =
+          AsyncResult.ok(node_assigns_info, {assigns, update_term_node, copy_string, json_string})
+
+        assign(socket, node_assigns_info: updated_node_assigns_info)
+
+      _ ->
+        socket
+    end
+  end
 end
