@@ -58,8 +58,6 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   end
 
   defp handle_info({"element-inspected", %{"pid" => pid, "url" => url}}, socket) do
-    dbg(url)
-
     if pid == inspect(self()) do
       socket
       |> redirect(external: append_query_param(url, "from", "inspect_button"))
@@ -109,6 +107,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
     uri = URI.parse(url)
     query = URI.decode_query(uri.query || "")
     new_query = Map.put(query, key, value)
+
     uri
     |> Map.put(:query, URI.encode_query(new_query))
     |> URI.to_string()
