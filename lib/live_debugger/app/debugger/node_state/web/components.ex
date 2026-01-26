@@ -32,6 +32,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   attr(:term_node, TermNode, required: true)
   attr(:copy_string, :string, required: true)
+  attr(:json_string, :string, required: true)
   attr(:fullscreen_id, :string, required: true)
   attr(:assigns_sizes, AsyncResult, required: true)
   attr(:assigns_search_phrase, :string, default: "")
@@ -40,11 +41,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:temporary_assigns, AsyncResult, required: true)
 
   def assigns_section(assigns) do
-    opened_term_node =
-      TermNode.open_with_search_phrase(assigns.term_node, assigns.assigns_search_phrase)
-
-    assigns = assign(assigns, term_node: opened_term_node)
-
     ~H"""
     <div id="assigns-section-container" phx-hook="AssignsBodySearchHighlight">
       <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns" title_class="!min-w-18">
@@ -59,7 +55,21 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
               input_id="assigns-search-input"
             />
             <AssignsHistory.button />
-            <.copy_button id="assigns-copy-button" variant="icon-button" value={@copy_string} />
+            <div class="flex">
+              <.copy_button
+                id="assigns-copy-button"
+                variant="icon-button"
+                value={@copy_string}
+                class="rounded-e-none! border-r-0!"
+              />
+              <.copy_button
+                id="json-assigns-copy-button"
+                variant="button"
+                text="JSON"
+                value={@json_string}
+                class="rounded-s-none!"
+              />
+            </div>
             <.fullscreen_button id={@fullscreen_id} />
           </div>
         </:right_panel>

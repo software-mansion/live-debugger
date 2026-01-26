@@ -10,6 +10,11 @@ defmodule LiveDebugger.App.Web.Layout do
   def render(template, assigns)
 
   def render("root.html", assigns) do
+    assigns =
+      assigns
+      |> assign(:update_checks?, Application.get_env(:live_debugger, :update_checks?, false))
+      |> assign(:current_version, Application.spec(:live_debugger)[:vsn] |> to_string())
+
     ~H"""
     <!DOCTYPE html>
     <html lang="en">
@@ -48,12 +53,21 @@ defmodule LiveDebugger.App.Web.Layout do
           });
 
           window.setTheme();
+
+          const checkForUpdate = <%= @update_checks? %>;
+          const currentVersion = "<%= @current_version %>";
+
+          if (checkForUpdate) {
+            window.checkForUpdate(currentVersion);
+          }
+
           liveSocket.connect();
 
           window.liveSocket = liveSocket;
         </script>
         <span id="tooltip" class="absolute hidden p-2 text-xs rounded bg-tooltip-bg text-tooltip-text">
         </span>
+        <.new_version_popup />
         <%= @inner_content %>
       </body>
     </html>
@@ -83,5 +97,69 @@ defmodule LiveDebugger.App.Web.Layout do
       _ ->
         nil
     end
+  end
+
+  defp new_version_popup(assigns) do
+    ~H"""
+    <LiveDebugger.App.Web.Components.popup
+      id="new-version-popup"
+      title="New Version Available"
+      wrapper_class="hidden"
+      on_close={Phoenix.LiveView.JS.add_class("hidden", to: "#new-version-popup")}
+    >
+      <div class="flex flex-col gap-4">
+        <p class="text-xs">
+          The
+          <.link
+            href="https://hex.pm/packages/live_debugger"
+            target="_blank"
+            class="text-xs text-link-primary hover:text-link-primary-hover"
+          >
+            <span id="new-version-popup-version" class="font-medium"></span>
+          </.link>
+          version of LiveDebugger is available! Update to get the latest features and improvements.
+        </p>
+
+        <div class="flex flex-col gap-2">
+          <p class="text-xs font-medium text-primary-text">
+            Update your <code class="text-xs font-mono text-primary-text">mix.exs</code>
+            file if needed and run:
+          </p>
+          <div class="relative group">
+            <div class="bg-surface-1-bg border border-default-border rounded px-3 py-2 pr-10">
+              <code class="text-xs font-mono text-primary-text">
+                mix deps.update live_debugger
+              </code>
+            </div>
+            <div class="absolute right-2 top-1/2 -translate-y-1/2">
+              <LiveDebugger.App.Web.Components.copy_button
+                id="update-command-copy"
+                value="mix deps.update live_debugger"
+                variant="icon"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <input
+              id="ignore-checkbox"
+              type="checkbox"
+              class="w-4 h-4 text-ui-accent border border-default-border"
+            />
+            <label for="ignore-checkbox" class="text-xs">
+              Don't remind me about this version
+            </label>
+          </div>
+          <LiveDebugger.App.Web.Components.button phx-click={
+            Phoenix.LiveView.JS.add_class("hidden", to: "#new-version-popup")
+          }>
+            Close
+          </LiveDebugger.App.Web.Components.button>
+        </div>
+      </div>
+    </LiveDebugger.App.Web.Components.popup>
+    """
   end
 end

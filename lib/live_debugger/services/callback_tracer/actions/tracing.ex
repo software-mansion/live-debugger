@@ -22,7 +22,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
       {:ok, pid} ->
         Process.monitor(pid)
 
-        Dbg.process([:c, :timestamp])
+        Dbg.process([:c, :timestamp, :procs])
         apply_trace_patterns()
 
         %{state | dbg_pid: pid}

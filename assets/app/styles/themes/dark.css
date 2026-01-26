@@ -67,8 +67,8 @@
     --code-4: var(--swm-sea-blue-60);
 
     /* Error */
-    --error-bg: var(--gray-900);
-    --error-border: var(--gray-700);
+    --error-bg: var(--red-error-dark);
+    --error-border: var(--red-error);
     --error-icon: var(--swm-pink-80);
     --error-text: var(--swm-pink-80);
 

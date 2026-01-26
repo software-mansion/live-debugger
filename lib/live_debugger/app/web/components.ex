@@ -194,6 +194,29 @@ defmodule LiveDebugger.App.Web.Components do
     """
   end
 
+  attr(:field, Phoenix.HTML.FormField, required: true)
+  attr(:label, :string, default: nil)
+  attr(:wrapper_class, :any, default: nil, doc: "Additional classes for the wrapper div.")
+  attr(:label_class, :any, default: nil, doc: "Additional classes for the label element.")
+  attr(:rest, :global)
+
+  def codearea(assigns) do
+    ~H"""
+    <div
+      id={"#{@field.id}-codearea-wrapper"}
+      phx-hook="CodeMirrorTextarea"
+      data-value={@field.value}
+      class={["flex flex-col gap-2" | List.wrap(@wrapper_class)]}
+    >
+      <label :if={@label} for={@field.id} class={["font-medium text-sm" | List.wrap(@label_class)]}>
+        <%= @label %>
+      </label>
+      <textarea id={@field.id} name={@field.name} class="hidden" phx-debounce="250" {@rest}><%= @field.value %></textarea>
+      <div id={"#{@field.id}-codemirror"} phx-update="ignore"></div>
+    </div>
+    """
+  end
+
   @doc """
   Button component with customizable variant and size.
   """
@@ -663,6 +686,7 @@ defmodule LiveDebugger.App.Web.Components do
 
   slot(:inner_block, required: true)
   slot(:search_bar_slot)
+  slot(:header, doc: "Optional custom header slot to replace the default one")
 
   def fullscreen(assigns) do
     ~H"""
@@ -671,23 +695,27 @@ defmodule LiveDebugger.App.Web.Components do
       phx-hook="Fullscreen"
       data-send-close-event={@send_close_event}
       class={[
-        "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg pt-1 overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
+        "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
       ]}
     >
       <div phx-click-away={JS.dispatch("close", to: "##{@id}")}>
-        <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border">
-          <div class="flex justify-between items-center w-full font-semibold text-primary-text text-base">
-            <%= @title %>
-            <div class="mr-2 font-normal"><%= render_slot(@search_bar_slot) %></div>
+        <%= if @header != [] do %>
+          <%= render_slot(@header) %>
+        <% else %>
+          <div class="w-full h-12 py-auto px-3 flex justify-between items-center border-b border-default-border pt-1">
+            <div class="flex justify-between items-center w-full font-semibold text-primary-text text-base">
+              <%= @title %>
+              <div class="mr-2 font-normal"><%= render_slot(@search_bar_slot) %></div>
+            </div>
+            <.icon_button
+              id={"#{@id}-close"}
+              phx-click={JS.dispatch("close", to: "##{@id}")}
+              icon="icon-cross"
+              variant="secondary"
+            />
           </div>
-          <.icon_button
-            id={"#{@id}-close"}
-            phx-click={JS.dispatch("close", to: "##{@id}")}
-            icon="icon-cross"
-            variant="secondary"
-          />
-        </div>
+        <% end %>
         <div class="overflow-auto flex flex-col gap-2 text-primary-text">
           <%= render_slot(@inner_block) %>
         </div>
@@ -845,11 +873,23 @@ defmodule LiveDebugger.App.Web.Components do
   )
 
   attr(:rest, :global)
+
+  attr(:fullscreen?, :boolean,
+    default: false,
+    doc: "Whether the tooltip is in fullscreen mode"
+  )
+
   slot(:inner_block, required: true)
 
   def tooltip(assigns) do
     ~H"""
-    <div id={@id} phx-hook="Tooltip" data-tooltip={@content} data-position={@position} {@rest}>
+    <div
+      id={@id}
+      phx-hook={if @fullscreen?, do: nil, else: "Tooltip"}
+      data-tooltip={if @fullscreen?, do: nil, else: @content}
+      data-position={if @fullscreen?, do: nil, else: @position}
+      {@rest}
+    >
       <%= render_slot(@inner_block) %>
     </div>
     """
@@ -927,26 +967,44 @@ defmodule LiveDebugger.App.Web.Components do
   """
   attr(:id, :string, required: true)
   attr(:value, :string, required: true)
-  attr(:variant, :string, default: "icon", values: ["icon", "icon-button"])
+  attr(:fullscreen?, :boolean, default: false)
+  attr(:variant, :string, default: "icon", values: ["icon", "icon-button", "button"])
+  attr(:text, :string, default: "Copy")
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
   attr(:rest, :global)
 
   def copy_button(assigns) do
     ~H"""
-    <.tooltip id={@id <> "-tooltip"} content="Copy" position="top-center">
+    <.tooltip id={@id <> "-tooltip"} content="Copy" position="top-center" fullscreen?={@fullscreen?}>
       <.icon_button
+        :if={@variant == "icon" or @variant == "icon-button"}
         id={@id}
         icon="icon-copy"
         variant="secondary"
-        class={
+        class={[
           if(@variant == "icon",
             do: "w-max! h-max! p-0! bg-inherit border-none hover:text-secondary-text"
           )
-        }
+          | List.wrap(@class)
+        ]}
         phx-hook="CopyButton"
         data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
         data-value={@value}
         {@rest}
       />
+      <.button
+        :if={@variant == "button"}
+        id={@id}
+        variant="secondary"
+        size="sm"
+        class={["h-7!" | List.wrap(@class)]}
+        phx-hook="CopyButton"
+        data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
+        data-value={@value}
+        {@rest}
+      >
+        <%= @text %>
+      </.button>
     </.tooltip>
     """
   end
@@ -1098,6 +1156,57 @@ defmodule LiveDebugger.App.Web.Components do
 
   defp info_block_icon_name("info"), do: "icon-info"
   defp info_block_icon_name("warning"), do: "icon-triangle-alert"
+
+  @doc """
+  Renders a simple popup dialog.
+
+  ## Examples
+
+      <.popup id="new-version-popup" title="New Version Available">
+        A new version is available!
+      </.popup>
+  """
+  attr(:id, :string, required: true)
+  attr(:title, :string, default: nil)
+  attr(:show, :boolean, default: true)
+  attr(:class, :any, default: nil)
+  attr(:wrapper_class, :any, default: nil)
+  attr(:on_close, :any, default: nil)
+
+  slot(:inner_block, required: true)
+
+  def popup(assigns) do
+    ~H"""
+    <div :if={@show} id={@id} class={["fixed inset-0 z-50", @wrapper_class]}>
+      <div class="fixed inset-0 bg-black/50" phx-click={@on_close}></div>
+      <dialog
+        open
+        class={[
+          "fixed inset-0 max-w-md bg-surface-0-bg rounded-lg shadow-xl border border-default-border"
+          | List.wrap(@class)
+        ]}
+      >
+        <div class="flex flex-col">
+          <div
+            :if={@title}
+            class="px-4 py-3 border-b border-default-border flex justify-between items-center"
+          >
+            <h2 class="font-semibold text-sm text-primary-text"><%= @title %></h2>
+            <.icon_button
+              id={"#{@id}-close"}
+              phx-click={@on_close}
+              icon="icon-cross"
+              variant="secondary"
+            />
+          </div>
+          <div class="p-4 text-primary-text">
+            <%= render_slot(@inner_block) %>
+          </div>
+        </div>
+      </dialog>
+    </div>
+    """
+  end
 
   defp button_color_classes(variant) do
     case variant do
