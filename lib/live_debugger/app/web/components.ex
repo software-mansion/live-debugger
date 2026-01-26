@@ -967,27 +967,44 @@ defmodule LiveDebugger.App.Web.Components do
   """
   attr(:id, :string, required: true)
   attr(:value, :string, required: true)
-  attr(:variant, :string, default: "icon", values: ["icon", "icon-button"])
   attr(:fullscreen?, :boolean, default: false)
+  attr(:variant, :string, default: "icon", values: ["icon", "icon-button", "button"])
+  attr(:text, :string, default: "Copy")
+  attr(:class, :any, default: nil, doc: "Additional classes to add to the button.")
   attr(:rest, :global)
 
   def copy_button(assigns) do
     ~H"""
     <.tooltip id={@id <> "-tooltip"} content="Copy" position="top-center" fullscreen?={@fullscreen?}>
       <.icon_button
+        :if={@variant == "icon" or @variant == "icon-button"}
         id={@id}
         icon="icon-copy"
         variant="secondary"
-        class={
+        class={[
           if(@variant == "icon",
             do: "w-max! h-max! p-0! bg-inherit border-none hover:text-secondary-text"
           )
-        }
+          | List.wrap(@class)
+        ]}
         phx-hook="CopyButton"
         data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
         data-value={@value}
         {@rest}
       />
+      <.button
+        :if={@variant == "button"}
+        id={@id}
+        variant="secondary"
+        size="sm"
+        class={["h-7!" | List.wrap(@class)]}
+        phx-hook="CopyButton"
+        data-info="<span class='icon-check mr-[0.1rem] w-4 h-4'></span>Copied"
+        data-value={@value}
+        {@rest}
+      >
+        <%= @text %>
+      </.button>
     </.tooltip>
     """
   end
