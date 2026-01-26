@@ -5,7 +5,6 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
 
   use LiveDebugger.App.Web, :hook
 
-  require Logger
   alias LiveDebugger.App.Utils.TermSanitizer
   alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.App.Debugger.NodeState.Queries, as: NodeStateQueries
