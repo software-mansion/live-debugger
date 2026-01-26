@@ -165,6 +165,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
               id={"#{@dom_id}-copy-button"}
               variant="icon-button"
               value={TermParser.term_to_copy_string(@stream_element)}
+              fullscreen?={true}
             />
 
             <.icon_button
