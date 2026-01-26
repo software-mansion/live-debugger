@@ -1,48 +1,33 @@
 const SurveyBanner = {
-  dismissDuration: 1000 * 60 * 60 * 24, // 1 day in miliseconds
+  counterThreshold: 100,
   mounted() {
     this.handleVersion(this.el.dataset.currentVersion);
 
-    if (this.exceededDismissCounter()) return;
-    if (this.exceededDismissDuration()) return;
+    if (localStorage.getItem('lvdbg:survey-dismissed')) return;
 
-    this.el
-      .querySelector('button')
-      .addEventListener('click', this.saveDismissed);
+    const counter = Number(localStorage.getItem('lvdbg:survey-counter'));
 
-    this.el.classList.remove('hidden');
+    if (counter < this.counterThreshold) {
+      localStorage.setItem('lvdbg:survey-counter', counter + 1);
+    } else {
+      this.showBanner();
+    }
   },
   handleVersion(currentVersion) {
     const lastVersion = localStorage.getItem('lvdbg:last-version');
 
     if (currentVersion !== lastVersion) {
       localStorage.setItem('lvdbg:last-version', currentVersion);
-      localStorage.removeItem('lvdbg:survey-dismissed-date', currentVersion);
-      localStorage.removeItem('lvdbg:survey-dismissed-counter', currentVersion);
+      localStorage.setItem('lvdbg:survey-counter', 0);
+      localStorage.removeItem('lvdbg:survey-dismissed');
     }
   },
-  exceededDismissCounter() {
-    const dismissedCounter = localStorage.getItem(
-      'lvdbg:survey-dismissed-counter'
-    );
+  showBanner() {
+    this.el.querySelector('button').addEventListener('click', () => {
+      localStorage.setItem('lvdbg:survey-dismissed', true);
+    });
 
-    return dismissedCounter ? Number(dismissedCounter) >= 3 : false;
-  },
-  exceededDismissDuration() {
-    const lastDismissed = localStorage.getItem('lvdbg:survey-dismissed-date');
-
-    return lastDismissed
-      ? Date.now() - Number(lastDismissed) > this.dismissDuration
-      : false;
-  },
-  saveDismissed() {
-    const dismissedCounter = localStorage.getItem(
-      'lvdbg:survey-dismissed-counter'
-    );
-    const newCounterValue = dismissedCounter ? Number(dismissedCounter) + 1 : 1;
-
-    localStorage.setItem('lvdbg:survey-dismissed-counter', newCounterValue);
-    localStorage.setItem('lvdbg:survey-dismissed-date', Date.now());
+    this.el.classList.remove('hidden');
   },
 };
 
