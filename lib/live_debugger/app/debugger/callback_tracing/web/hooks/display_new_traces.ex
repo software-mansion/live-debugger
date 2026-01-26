@@ -19,6 +19,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceExceptionUpdated
   alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
 
   @debounce_timeout_ms 10
@@ -74,6 +75,15 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
 
     socket
     |> stream_insert_trace(diff)
+    |> halt()
+  end
+
+  defp handle_info(%TraceExceptionUpdated{trace_id: trace_id, ets_ref: table}, socket) do
+    trace = TracesStorage.get_by_id!(table, trace_id)
+
+    socket
+    |> stream_update_trace(trace)
+    |> push_event("stop-timer", %{})
     |> halt()
   end
 

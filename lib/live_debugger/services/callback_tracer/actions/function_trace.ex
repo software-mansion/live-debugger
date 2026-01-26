@@ -12,6 +12,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace do
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
+  alias LiveDebugger.Services.CallbackTracer.Events.TraceExceptionUpdated
 
   @spec create_trace(
           n :: non_neg_integer(),
@@ -102,6 +103,16 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace do
       {:error, err}
   end
 
+  @spec publish_trace_exception(FunctionTrace.t(), reference() | nil) :: :ok | {:error, term()}
+  def publish_trace_exception(%FunctionTrace{pid: pid} = trace, ref \\ nil) do
+    trace
+    |> get_exception_event(ref)
+    |> Bus.broadcast_event!(pid)
+  rescue
+    err ->
+      {:error, err}
+  end
+
   defp get_event(%FunctionTrace{type: :call} = trace, ref) do
     %TraceCalled{
       trace_id: trace.id,
@@ -130,6 +141,19 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace do
 
   defp get_event(%FunctionTrace{type: :exception_from} = trace, ref) do
     %TraceErrored{
+      trace_id: trace.id,
+      ets_ref: ref,
+      module: trace.module,
+      function: trace.function,
+      arity: trace.arity,
+      pid: trace.pid,
+      cid: trace.cid,
+      transport_pid: trace.transport_pid
+    }
+  end
+
+  defp get_exception_event(%FunctionTrace{type: :exception_from} = trace, ref) do
+    %TraceExceptionUpdated{
       trace_id: trace.id,
       ets_ref: ref,
       module: trace.module,
