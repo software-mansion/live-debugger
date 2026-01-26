@@ -628,7 +628,7 @@ defmodule LiveDebugger.App.Web.Components do
           <.icon_button
             :if={!@sidebar_hidden?}
             icon="icon-cross"
-            class="absolute top-4 right-4 lg:hidden"
+            class="absolute top-4 right-4 md_ct:hidden"
             variant="secondary"
             phx-click="close-sidebar"
             {@event_target && %{:"phx-target" => @event_target} || %{}}

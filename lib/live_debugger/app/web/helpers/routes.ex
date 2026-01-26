@@ -23,38 +23,47 @@ defmodule LiveDebugger.App.Web.Helpers.Routes do
 
   @spec debugger_node_inspector(
           pid :: pid() | String.t(),
-          cid :: CommonTypes.cid() | String.t() | nil
+          cid :: CommonTypes.cid() | String.t() | nil,
+          opts :: keyword()
         ) ::
           String.t()
-  def debugger_node_inspector(pid, nil) do
-    debugger_node_inspector(pid)
-  end
 
-  def debugger_node_inspector(pid, cid) do
-    pid =
+  def debugger_node_inspector(pid, cid, opts) do
+    pid_str =
       cond do
         is_pid(pid) -> Parsers.pid_to_string(pid)
         is_binary(pid) -> pid
       end
 
-    cid =
-      case cid do
-        %Phoenix.LiveComponent.CID{} -> Parsers.cid_to_string(cid)
-        cid when is_binary(cid) -> cid
+    params =
+      if cid do
+        cid_str =
+          case cid do
+            %Phoenix.LiveComponent.CID{} -> Parsers.cid_to_string(cid)
+            cid when is_binary(cid) -> cid
+          end
+
+        [node_id: cid_str] ++ opts
+      else
+        opts
       end
 
-    ~p"/pid/#{pid}?node_id=#{cid}"
+    ~p"/pid/#{pid_str}?#{params}"
   end
 
-  @spec debugger_node_inspector(pid :: pid() | String.t()) :: String.t()
-  def debugger_node_inspector(pid) when is_pid(pid) do
-    pid
-    |> Parsers.pid_to_string()
-    |> debugger_node_inspector()
+  @spec debugger_node_inspector(pid(), keyword()) :: String.t()
+  def debugger_node_inspector(pid, opts) when is_list(opts) do
+    debugger_node_inspector(pid, nil, opts)
   end
 
-  def debugger_node_inspector(pid) when is_binary(pid) do
-    ~p"/pid/#{pid}"
+  @spec debugger_node_inspector(pid(), CommonTypes.cid() | String.t() | nil) :: String.t()
+  def debugger_node_inspector(pid, cid) do
+    debugger_node_inspector(pid, cid, [])
+  end
+
+  @spec debugger_node_inspector(pid()) :: String.t()
+  def debugger_node_inspector(pid) do
+    debugger_node_inspector(pid, nil, [])
   end
 
   @spec debugger_global_traces(pid :: pid() | String.t()) :: String.t()

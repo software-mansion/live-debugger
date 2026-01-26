@@ -46,6 +46,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
   def handle_params(params, _url, socket) do
     socket
     |> assign_and_broadcast_node_id(params)
+    |> handle_from(params)
     |> noreply()
   end
 
@@ -74,7 +75,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             <Navbar.garbage_collection_warning />
 
             <Navbar.settings_button return_to={@url} />
-            <span :if={@show_sidebar_icon?} class="h-5 border-r border-default-border lg:hidden">
+            <span :if={@show_sidebar_icon?} class="h-5 border-r border-default-border md_ct:hidden">
             </span>
 
             <.nav_icon
@@ -85,7 +86,13 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             />
           </div>
         </Navbar.navbar>
-
+        <span
+          :if={@trigger_sidebar}
+          hidden
+          id="sidebar-auto-opener"
+          phx-mounted={Pages.get_open_sidebar_js(:node_inspector)}
+        >
+        </span>
         <div class="flex overflow-auto w-full">
           <Pages.node_inspector
             :if={@live_action == :node_inspector}
@@ -154,5 +161,13 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   defp assign_and_broadcast_node_id(socket, _) do
     assign(socket, :node_id, socket.private.pid)
+  end
+
+  defp handle_from(socket, %{"from" => "inspect_button"}) do
+    assign(socket, :trigger_sidebar, true)
+  end
+
+  defp handle_from(socket, _params) do
+    assign(socket, :trigger_sidebar, false)
   end
 end
