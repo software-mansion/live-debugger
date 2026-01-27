@@ -3,6 +3,7 @@ defmodule LiveDebugger.App.Controllers.SocketDiscoveryController do
 
   alias LiveDebugger.API.LiveViewDiscovery
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.App.Utils.URL
 
   require Logger
 
@@ -19,7 +20,9 @@ defmodule LiveDebugger.App.Controllers.SocketDiscoveryController do
       [lv_process] ->
         conn
         |> Phoenix.Controller.redirect(
-          to: RoutesHelper.debugger_node_inspector(lv_process.pid, node_id, from: from)
+          to:
+            RoutesHelper.debugger_node_inspector(lv_process.pid, node_id)
+            |> URL.upsert_query_param("from", from)
         )
 
       result ->

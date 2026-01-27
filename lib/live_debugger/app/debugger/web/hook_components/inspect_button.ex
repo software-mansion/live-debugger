@@ -10,6 +10,8 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   alias LiveDebugger.Client
   alias LiveDebugger.Structs.LvProcess
 
+  alias LiveDebugger.App.Utils.URL
+
   @impl true
   def init(socket) do
     Client.receive_events()
@@ -60,7 +62,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   defp handle_info({"element-inspected", %{"pid" => pid, "url" => url}}, socket) do
     if pid == inspect(self()) do
       socket
-      |> redirect(external: append_query_param(url, "from", "inspect_button"))
+      |> redirect(external: URL.upsert_query_param(url, "from", "inspect_button"))
       |> halt()
     else
       {:halt, socket}
@@ -101,15 +103,5 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
     socket
     |> assign(:inspect_mode?, !socket.assigns.inspect_mode?)
     |> halt()
-  end
-
-  defp append_query_param(url, key, value) do
-    uri = URI.parse(url)
-    query = URI.decode_query(uri.query || "")
-    new_query = Map.put(query, key, value)
-
-    uri
-    |> Map.put(:query, URI.encode_query(new_query))
-    |> URI.to_string()
   end
 end
