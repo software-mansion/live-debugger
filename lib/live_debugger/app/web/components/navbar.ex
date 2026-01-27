@@ -138,7 +138,9 @@ defmodule LiveDebugger.App.Web.Components.Navbar do
       class="hidden bg-accent-text text-survey-text flex items-center py-2 px-4"
     >
       <p class="flex-1 text-center">
-        Help shape <b>LiveDebugger</b>, take a <.link
+        Let's shape <b>LiveDebugger</b>
+        future together - take a feedback <.link
+          phx-click={Phoenix.LiveView.JS.add_class("hidden", to: "#survey-banner")}
           href="https://docs.google.com/forms/d/1-VdPBCDZ5oDxxSbgpyM9Yri3xhMvzNWA4wvQrXkbpzw/viewform"
           target="_blank"
           class="text-survey-link hover:text-survey-link-hover"
