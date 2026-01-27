@@ -12,19 +12,11 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   alias LiveDebugger.App.Debugger.Web.Components.Pages
 
-  @impl true
-  def update(%{module_pulse?: pulse}, socket) do
-    socket
-    |> assign(:module_pulse?, pulse)
-    |> ok()
-  end
-
   def update(assigns, socket) do
     socket
     |> assign(:id, assigns.id)
     |> assign(:node_id, assigns.node_id)
     |> assign(:lv_process, assigns.lv_process)
-    |> assign(:module_pulse?, false)
     |> assign_node_type()
     |> assign_async_node_module()
     |> ok()
