@@ -27,6 +27,8 @@ jobs:
               run: npm install
             - name: Build landing page
               working-directory: landing
+              env:
+                ENABLE_ANALYTICS: ${{ vars.ENABLE_ANALYTICS || 'false' }}
               run: npm run build
 
             - name: Publish generated content to GitHub Pages

@@ -14,6 +14,9 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
   alias LiveDebugger.Services.CallbackTracer.Events.StreamUpdated
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
 
+  alias LiveDebugger.API.SettingsStorage
+  alias LiveDebugger.Client
+
   @streams_section_id "streams-section-container"
 
   @doc """
@@ -121,4 +124,34 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
   end
 
   def handle_info(_, socket), do: {:noreply, socket}
+
+  @impl true
+  def handle_event("highlight", params, socket) do
+    socket
+    |> highlight_element(params)
+    |> noreply()
+  end
+
+  def handle_event("open-stream_element", %{"dom_id" => dom_id}, socket) do
+    socket
+    |> push_event(dom_id <> "-fullscreen-open", %{})
+    |> noreply()
+  end
+
+  defp highlight_element(%{assigns: %{lv_process: %LvProcess{alive?: true}}} = socket, params) do
+    if SettingsStorage.get(:highlight_in_browser) do
+      payload = %{
+        attr: params["search-attribute"],
+        val: params["search-value"],
+        type: params["type"],
+        id_value: params["id"]
+      }
+
+      Client.push_event!(socket.assigns.lv_process.root_socket_id, "highlight", payload)
+    end
+
+    socket
+  end
+
+  defp highlight_element(socket, _), do: socket
 end
