@@ -19,6 +19,9 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
 
+  alias Phoenix.LiveView.JS
+  alias LiveDebugger.App.Utils.URL
+
   @views_with_sidebar [
     "node_inspector",
     "global_traces"
@@ -52,6 +55,9 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   @impl true
   def render(assigns) do
+    # remove the 'from' query parameter from the URL to avoid opening sidebar after navigate
+    assigns = assign(assigns, :url, URL.remove_query_param(assigns.url, "from"))
+
     assigns =
       assign(assigns,
         show_sidebar_icon?: NavigationMenu.get_current_view(assigns.url) in @views_with_sidebar
@@ -88,9 +94,13 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
         </Navbar.navbar>
         <span
           :if={@trigger_sidebar}
-          hidden
+          class="
+            hidden
+            [--open-sidebar:1]
+            md_ct:[--open-sidebar:0]"
           id="sidebar-auto-opener"
-          phx-mounted={Pages.get_open_sidebar_js(:node_inspector)}
+          phx-hook="OpenComponentsTree"
+          data-cmd={Pages.get_open_sidebar_js(:node_inspector)}
         >
         </span>
         <div class="flex overflow-auto w-full">

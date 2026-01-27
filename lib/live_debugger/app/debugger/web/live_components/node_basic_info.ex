@@ -12,6 +12,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   alias LiveDebugger.App.Debugger.Web.Components.Pages
 
+  @impl true
   def update(assigns, socket) do
     socket
     |> assign(:id, assigns.id)

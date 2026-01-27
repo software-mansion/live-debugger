@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Web.Components do
   use Phoenix.Component
 
   alias LiveDebugger.App.Utils.Format
+  alias LiveDebugger.App.Debugger.Web.Components.Pages
   alias Phoenix.LiveView.JS
 
   @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
@@ -636,9 +637,13 @@ defmodule LiveDebugger.App.Web.Components do
     <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
       <div
         id={@id}
+        phx-hook="CloseSidebarOnResize"
+        data-cmd={Pages.get_close_sidebar_js(:node_inspector)}
         class={[
           (@sidebar_hidden? && "hidden") || "flex",
-          "fixed inset-0 bg-black/25 justify-end items-start md_ct:flex md_ct:static md_ct:inset-auto md_ct:bg-transparent z-20"
+          "fixed inset-0 bg-black/25 justify-end items-start md_ct:flex md_ct:static md_ct:inset-auto md_ct:bg-transparent z-20",
+          "[--sidebar-open:1]",
+          "md_ct:[--sidebar-open:0]"
         ]}
       >
         <div
