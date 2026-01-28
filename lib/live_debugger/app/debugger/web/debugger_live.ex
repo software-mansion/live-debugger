@@ -54,7 +54,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   @impl true
   def render(assigns) do
-    # remove the 'from' query parameter from the URL to avoid opening sidebar after navigate
+    # remove the 'from' query parameter from the URL to avoid opening sidebar after returning to this page
     assigns = assign(assigns, :url, URL.remove_query_param(assigns.url, "from"))
 
     assigns =
