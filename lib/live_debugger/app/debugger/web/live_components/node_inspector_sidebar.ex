@@ -37,7 +37,12 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeInspectorSidebar do
   def render(assigns) do
     ~H"""
     <aside id={@id <> "-container"}>
-      <.sidebar_slide_over id={@id} sidebar_hidden?={@hidden?} event_target={@myself}>
+      <.sidebar_slide_over
+        id={@id}
+        sidebar_hidden?={@hidden?}
+        event_target={@myself}
+        page={:node_inspector}
+      >
         <div class="grid grid-rows-[auto_auto_1fr_auto] h-full">
           <%= render_slot(@inner_block) %>
         </div>

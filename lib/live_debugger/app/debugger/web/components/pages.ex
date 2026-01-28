@@ -186,6 +186,15 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
     end
   end
 
+  @spec get_close_sidebar_js(live_action :: atom()) :: JS.t()
+  def get_close_sidebar_js(live_action) when is_atom(live_action) do
+    case live_action do
+      :node_inspector -> JS.push("close-sidebar", target: "##{@node_inspector_sidebar_id}")
+      :global_traces -> JS.push("close-sidebar", target: "##{@global_traces_id}")
+      :resources -> JS.push("close-sidebar", target: "##{@resources_id}")
+    end
+  end
+
   def close_node_inspector_sidebar() do
     Phoenix.LiveView.send_update(NodeInspectorSidebar,
       id: @node_inspector_sidebar_id,

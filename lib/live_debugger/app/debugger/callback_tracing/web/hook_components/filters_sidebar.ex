@@ -28,7 +28,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersSi
   @impl true
   def render(assigns) do
     ~H"""
-    <.sidebar_slide_over id="filters-sidebar" sidebar_hidden?={@sidebar_hidden?}>
+    <.sidebar_slide_over id="filters-sidebar" sidebar_hidden?={@sidebar_hidden?} page={:global_traces}>
       <div class="flex flex-col justify-between h-full">
         <div>
           <div class="text-secondary-text font-semibold pt-6 pb-2 px-4">Filters</div>
