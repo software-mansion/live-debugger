@@ -1,18 +1,18 @@
 const CloseSidebarOnResize = {
   mounted() {
-    this.wasMobile = this.isMobileLayout();
+    this.wasNarrow = this.isNarrowView();
 
     this.observer = new ResizeObserver(() => {
-      const currentlyMobile = this.isMobileLayout();
+      const currentlyNarrow = this.isNarrowView();
 
-      if (this.wasMobile && !currentlyMobile) {
+      if (this.wasNarrow && !currentlyNarrow) {
         const cmd = this.el.dataset.cmd;
         if (cmd) {
           this.liveSocket.execJS(this.el, cmd);
         }
       }
 
-      this.wasMobile = currentlyMobile;
+      this.wasNarrow = currentlyNarrow;
     });
 
     this.observer.observe(document.body);
@@ -24,10 +24,10 @@ const CloseSidebarOnResize = {
     }
   },
 
-  isMobileLayout() {
+  isNarrowView() {
     const styles = getComputedStyle(this.el);
     const value = styles
-      .getPropertyValue('--mobile-layout')
+      .getPropertyValue('--narrow-view')
       .trim()
       .replace(/['"]/g, '');
 

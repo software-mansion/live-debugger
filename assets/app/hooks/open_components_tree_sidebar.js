@@ -2,9 +2,12 @@ const OpenComponentsTree = {
   mounted() {
     const styles = getComputedStyle(this.el);
 
-    const open = styles.getPropertyValue('--open-sidebar').trim();
+    const open = styles
+      .getPropertyValue('--open-sidebar')
+      .trim()
+      .replace(/['"]/g, '');
 
-    if (open === '"1"' || open === '1') {
+    if (open === '1') {
       const cmd = this.el.dataset.cmd;
       if (cmd) {
         this.liveSocket.execJS(this.el, cmd);

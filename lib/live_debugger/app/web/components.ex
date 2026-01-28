@@ -629,7 +629,7 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:id, :string, required: true)
   attr(:sidebar_hidden?, :boolean, default: true, doc: "The default state of the sidebar")
   attr(:event_target, :any, default: nil, doc: "The target of the closing sidebar event")
-
+  attr(:page, :atom, required: true, values: [:node_inspector, :global_traces])
   slot(:inner_block)
 
   def sidebar_slide_over(assigns) do
@@ -638,12 +638,12 @@ defmodule LiveDebugger.App.Web.Components do
       <div
         id={@id}
         phx-hook="CloseSidebarOnResize"
-        data-cmd={Pages.get_close_sidebar_js(:node_inspector)}
+        data-cmd={Pages.get_close_sidebar_js(@page)}
         class={[
           (@sidebar_hidden? && "hidden") || "flex",
           "fixed inset-0 bg-black/25 justify-end items-start md_ct:flex md_ct:static md_ct:inset-auto md_ct:bg-transparent z-20",
-          "[--mobile-layout:1]",
-          "md_ct:[--mobile-layout:0]"
+          "[--narrow-view:1]",
+          "md_ct:[--narrow-view:0]"
         ]}
       >
         <div
