@@ -19,7 +19,6 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
 
-  alias Phoenix.LiveView.JS
   alias LiveDebugger.App.Utils.URL
 
   @views_with_sidebar [
