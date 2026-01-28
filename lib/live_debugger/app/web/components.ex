@@ -642,8 +642,8 @@ defmodule LiveDebugger.App.Web.Components do
         class={[
           (@sidebar_hidden? && "hidden") || "flex",
           "fixed inset-0 bg-black/25 justify-end items-start md_ct:flex md_ct:static md_ct:inset-auto md_ct:bg-transparent z-20",
-          "[--sidebar-open:1]",
-          "md_ct:[--sidebar-open:0]"
+          "[--mobile-layout:1]",
+          "md_ct:[--mobile-layout:0]"
         ]}
       >
         <div

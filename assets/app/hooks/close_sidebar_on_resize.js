@@ -1,22 +1,21 @@
 const CloseSidebarOnResize = {
   mounted() {
-    this.wasOpen = this.isOpen();
+    this.wasMobile = this.isMobileLayout();
 
     this.observer = new ResizeObserver(() => {
-      const nowOpen = this.isOpen();
-      if (this.wasOpen && !nowOpen) {
+      const currentlyMobile = this.isMobileLayout();
+
+      if (this.wasMobile && !currentlyMobile) {
         const cmd = this.el.dataset.cmd;
         if (cmd) {
           this.liveSocket.execJS(this.el, cmd);
         }
       }
 
-      this.wasOpen = nowOpen;
+      this.wasMobile = currentlyMobile;
     });
 
     this.observer.observe(document.body);
-
-    window.addEventListener('resize', this.checkBreakpoint);
   },
 
   destroyed() {
@@ -25,10 +24,10 @@ const CloseSidebarOnResize = {
     }
   },
 
-  isOpen() {
+  isMobileLayout() {
     const styles = getComputedStyle(this.el);
     const value = styles
-      .getPropertyValue('--sidebar-open')
+      .getPropertyValue('--mobile-layout')
       .trim()
       .replace(/['"]/g, '');
 
