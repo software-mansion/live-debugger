@@ -183,21 +183,19 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
           %{
             sessions: [dev_app, debugger]
           } do
-    close_btn = css("button[phx-click=\"close-sidebar\"]")
-
     dev_app
     |> visit(@dev_app_url)
 
     dev_pid = get_dev_pid(dev_app)
 
     debugger
-    |> resize_window(800, 1000)
+    |> resize_window(600, 1000)
     |> visit("/")
     |> select_live_view(dev_pid)
 
     debugger
-    |> refute_has(css("#components-tree-sidebar-container"))
-    |> refute_has(close_btn)
+    |> refute_has(sidebar_container())
+    |> refute_has(close_button())
 
     debugger
     |> click(switch_inspect_mode_button())
@@ -206,7 +204,47 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
     |> click(live_component(2))
 
     debugger
-    |> assert_has(css("#components-tree-sidebar-container"))
-    |> assert_has(close_btn)
+    |> assert_has(sidebar_container())
+    |> assert_has(close_button())
   end
+
+  @sessions 2
+  feature "sidebar closes automatically when resized to desktop and stays closed when resized back",
+          %{
+            sessions: [dev_app, debugger]
+          } do
+    dev_app
+    |> visit(@dev_app_url)
+
+    dev_pid = get_dev_pid(dev_app)
+
+    debugger
+    |> resize_window(600, 1000)
+    |> visit("/")
+    |> select_live_view(dev_pid)
+
+    debugger
+    |> refute_has(sidebar_container())
+
+    debugger
+    |> click(switch_inspect_mode_button())
+
+    dev_app
+    |> click(live_component(2))
+
+    debugger
+    |> assert_has(sidebar_container())
+    |> assert_has(close_button())
+
+    debugger
+    |> resize_window(1200, 1000)
+    |> resize_window(600, 1000)
+
+    debugger
+    |> refute_has(sidebar_container())
+    |> refute_has(close_button())
+  end
+
+  defp close_button(), do: css("button[phx-click=\"close-sidebar\"]")
+  defp sidebar_container(), do: css("#components-tree-sidebar-container")
 end
