@@ -102,5 +102,9 @@
     --status-dot-error-bg: var(--swm-pink-100);
 
     --navbar-selected-bg: var(--swm-sea-blue-60);
+
+    --survey-text: var(--slate-900);
+    --survey-link: var(--swm-brand);
+    --survey-link-hover: var(--swm-sea-blue-100);
   }
 }
