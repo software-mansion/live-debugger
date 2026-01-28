@@ -4,6 +4,8 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
   from render traces and mapping them into a list of functions.
   """
 
+  @live_view_vsn Application.spec(:phoenix_live_view, :vsn) |> to_string()
+
   @type live_stream_item :: %Phoenix.LiveView.LiveStream{
           name: atom(),
           dom_id: (any() -> String.t()),
@@ -61,10 +63,17 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
         reset?: reset?,
         consumable?: _consumable?
       }) do
+    # streams changed ordering in 1.0.2 so we don't need to reverse the inserts before this version
+    inserts =
+      if Version.match?(@live_view_vsn, ">= 1.0.2") do
+        Enum.reverse(inserts)
+      else
+        inserts
+      end
+
     []
     |> maybe_add_reset(reset?, name)
-    # Reverse to preserve the order of inserts
-    |> maybe_add_inserts(Enum.reverse(inserts), name)
+    |> maybe_add_inserts(inserts, name)
     |> maybe_add_deletes(deletes, name)
   end
 
