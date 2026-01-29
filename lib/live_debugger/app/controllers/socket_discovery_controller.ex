@@ -20,9 +20,7 @@ defmodule LiveDebugger.App.Controllers.SocketDiscoveryController do
       [lv_process] ->
         conn
         |> Phoenix.Controller.redirect(
-          to:
-            RoutesHelper.debugger_node_inspector(lv_process.pid, node_id)
-            |> URL.upsert_query_param("from", from)
+          to: RoutesHelper.debugger_node_inspector(lv_process.pid, cid: node_id, from: from)
         )
 
       result ->
