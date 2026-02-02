@@ -91,17 +91,6 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             />
           </div>
         </Navbar.navbar>
-        <%!-- <span
-          :if={@trigger_sidebar}
-          class="
-            hidden
-            [--open-sidebar:1]
-            md_ct:[--open-sidebar:0]"
-          id="sidebar-auto-opener"
-          phx-hook="OpenComponentsTree"
-          data-cmd={Pages.get_open_sidebar_js(:node_inspector)}
-        >
-        </span> --%>
         <div class="flex overflow-auto w-full">
           <Pages.node_inspector
             :if={@live_action == :node_inspector}
