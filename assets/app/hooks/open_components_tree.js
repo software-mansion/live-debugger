@@ -12,12 +12,12 @@ const OpenComponentsTree = {
       if (cmd) {
         this.liveSocket.execJS(this.el, cmd);
       }
-      //Remove the 'from' query parameter from the URL to avoid opening sidebar on refresh
-      const url = new URL(window.location);
-      if (url.searchParams.has('from')) {
-        url.searchParams.delete('from');
-        window.history.replaceState({}, '', url);
-      }
+    }
+    //Remove the 'from' query parameter from the URL to avoid opening sidebar on refresh
+    const url = new URL(window.location);
+    if (url.searchParams.has('from')) {
+      url.searchParams.delete('from');
+      window.history.replaceState({}, '', url);
     }
   },
 };
