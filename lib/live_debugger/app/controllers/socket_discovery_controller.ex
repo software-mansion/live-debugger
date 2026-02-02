@@ -3,7 +3,6 @@ defmodule LiveDebugger.App.Controllers.SocketDiscoveryController do
 
   alias LiveDebugger.API.LiveViewDiscovery
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
-  alias LiveDebugger.App.Utils.URL
 
   require Logger
 

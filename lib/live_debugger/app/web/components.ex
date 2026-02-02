@@ -630,10 +630,23 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:sidebar_hidden?, :boolean, default: true, doc: "The default state of the sidebar")
   attr(:event_target, :any, default: nil, doc: "The target of the closing sidebar event")
   attr(:page, :atom, required: true, values: [:node_inspector, :global_traces])
+  attr(:trigger_sidebar, :boolean, default: false)
+
   slot(:inner_block)
 
   def sidebar_slide_over(assigns) do
     ~H"""
+    <span
+      :if={@trigger_sidebar}
+      class="
+              hidden
+              [--open-sidebar:1]
+              md_ct:[--open-sidebar:0]"
+      id="sidebar-auto-opener"
+      phx-hook="OpenComponentsTree"
+      data-cmd={Pages.get_open_sidebar_js(@page)}
+    >
+    </span>
     <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
       <div
         id={@id}

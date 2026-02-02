@@ -46,8 +46,6 @@ defmodule LiveDebugger.App.Web.Helpers.Routes do
         rest_opts
       end
 
-    dbg(query_params)
-
     ~p"/pid/#{pid}?#{query_params}"
   end
 

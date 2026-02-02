@@ -91,7 +91,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             />
           </div>
         </Navbar.navbar>
-        <span
+        <%!-- <span
           :if={@trigger_sidebar}
           class="
             hidden
@@ -101,7 +101,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
           phx-hook="OpenComponentsTree"
           data-cmd={Pages.get_open_sidebar_js(:node_inspector)}
         >
-        </span>
+        </span> --%>
         <div class="flex overflow-auto w-full">
           <Pages.node_inspector
             :if={@live_action == :node_inspector}
@@ -111,6 +111,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             node_id={@node_id}
             inspect_mode?={@inspect_mode?}
             return_link={RoutesHelper.discovery()}
+            trigger_sidebar={@trigger_sidebar}
           />
 
           <Pages.global_traces

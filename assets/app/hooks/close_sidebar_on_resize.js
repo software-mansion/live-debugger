@@ -1,27 +1,26 @@
 const CloseSidebarOnResize = {
   mounted() {
     this.wasNarrow = this.isNarrowView();
+    this.onResize = this.onResize.bind(this);
 
-    this.observer = new ResizeObserver(() => {
-      const currentlyNarrow = this.isNarrowView();
-
-      if (this.wasNarrow && !currentlyNarrow) {
-        const cmd = this.el.dataset.cmd;
-        if (cmd) {
-          this.liveSocket.execJS(this.el, cmd);
-        }
-      }
-
-      this.wasNarrow = currentlyNarrow;
-    });
-
-    this.observer.observe(document.body);
+    window.addEventListener('resize', this.onResize);
   },
 
   destroyed() {
-    if (this.observer) {
-      this.observer.disconnect();
+    window.removeEventListener('resize', this.onResize);
+  },
+
+  onResize() {
+    const currentlyNarrow = this.isNarrowView();
+
+    if (this.wasNarrow && !currentlyNarrow) {
+      const cmd = this.el.dataset.cmd;
+      if (cmd) {
+        this.liveSocket.execJS(this.el, cmd);
+      }
     }
+
+    this.wasNarrow = currentlyNarrow;
   },
 
   isNarrowView() {

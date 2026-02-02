@@ -287,7 +287,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         <.link
           class="block hover:underline"
           patch={
-            RoutesHelper.debugger_node_inspector(@subtitle_link_data.pid, cid: @subtitle_link_data.cid)
+            RoutesHelper.debugger_node_inspector(@subtitle_link_data.pid,
+              cid: @subtitle_link_data.cid
+            )
           }
         >
           <%= @subtitle %>

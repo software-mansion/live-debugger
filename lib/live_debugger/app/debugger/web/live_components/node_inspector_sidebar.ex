@@ -26,6 +26,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeInspectorSidebar do
     socket
     |> assign(:id, assigns.id)
     |> assign(:inner_block, assigns.inner_block)
+    |> assign(:trigger_sidebar, assigns.trigger_sidebar)
     |> ok()
   end
 
@@ -42,6 +43,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeInspectorSidebar do
         sidebar_hidden?={@hidden?}
         event_target={@myself}
         page={:node_inspector}
+        trigger_sidebar={@trigger_sidebar}
       >
         <div class="grid grid-rows-[auto_auto_1fr_auto] h-full">
           <%= render_slot(@inner_block) %>
