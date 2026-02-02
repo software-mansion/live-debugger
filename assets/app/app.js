@@ -18,9 +18,10 @@ import ChartHook from './hooks/chart_hook';
 import CollapsedSectionPulse from './hooks/collapsed_section_pulse';
 import OpenComponentsTree from './hooks/open_components_tree';
 import CloseSidebarOnResize from './hooks/close_sidebar_on_resize';
+import CodeMirrorTextarea from './hooks/code_mirror_textarea';
+import SurveyBanner from './hooks/survey_banner';
 
 import topbar from './vendor/topbar';
-import CodeMirrorTextarea from './hooks/code_mirror_textarea';
 
 Alpine.start();
 Alpine.plugin(collapse);
@@ -50,6 +51,7 @@ function createHooks() {
     CodeMirrorTextarea,
     OpenComponentsTree,
     CloseSidebarOnResize,
+    SurveyBanner,
   };
 }
 
@@ -113,7 +115,7 @@ async function checkForUpdate(currentVersion) {
     return;
   }
 
-  const response = await fetch('http://localhost:3000/');
+  const response = await fetch('https://live-debugger.swmansion.com/');
 
   const data = await response.json();
   const latestVersion = data.version;

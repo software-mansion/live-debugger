@@ -79,6 +79,9 @@ module.exports = {
         'status-dot-warning-bg': 'var(--status-dot-warning-bg)',
         'status-dot-error-bg': 'var(--status-dot-error-bg)',
         'navbar-selected-bg': 'var(--navbar-selected-bg)',
+        'survey-text': 'var(--survey-text)',
+        'survey-link': 'var(--survey-link)',
+        'survey-link-hover': 'var(--survey-link-hover)',
       },
       screens: { xs: '380px', md_ct: '860px' },
       fontFamily: {

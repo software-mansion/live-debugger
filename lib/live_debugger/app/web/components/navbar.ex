@@ -17,12 +17,15 @@ defmodule LiveDebugger.App.Web.Components.Navbar do
 
   def navbar(assigns) do
     ~H"""
-    <navbar class={[
-      "w-full min-w-max h-12 shrink-0 py-auto px-4 gap-2 items-center bg-navbar-bg text-navbar-logo border-b border-navbar-border",
-      @class
-    ]}>
-      <%= render_slot(@inner_block) %>
-    </navbar>
+    <div>
+      <.survey_banner />
+      <navbar class={[
+        "w-full min-w-max h-12 shrink-0 py-auto px-4 gap-2 items-center bg-navbar-bg text-navbar-logo border-b border-navbar-border",
+        @class
+      ]}>
+        <%= render_slot(@inner_block) %>
+      </navbar>
+    </div>
     """
   end
 
@@ -120,6 +123,33 @@ defmodule LiveDebugger.App.Web.Components.Navbar do
     <.garbage_collection_warning garbage_collection_enabled?={
       SettingsStorage.get(:garbage_collection)
     } />
+    """
+  end
+
+  defp survey_banner(assigns) do
+    assigns =
+      assign(assigns, :current_version, Application.spec(:live_debugger)[:vsn] |> to_string())
+
+    ~H"""
+    <div
+      id="survey-banner"
+      phx-hook="SurveyBanner"
+      data-current-version={@current_version}
+      class="hidden bg-accent-text text-survey-text flex items-center py-2 px-4"
+    >
+      <p class="flex-1 text-center">
+        Let's shape <b>LiveDebugger</b>
+        future together - take a feedback <.link
+          phx-click={Phoenix.LiveView.JS.add_class("hidden", to: "#survey-banner")}
+          href="https://docs.google.com/forms/d/1-VdPBCDZ5oDxxSbgpyM9Yri3xhMvzNWA4wvQrXkbpzw/viewform"
+          target="_blank"
+          class="text-survey-link hover:text-survey-link-hover"
+        >survey</.link>.
+      </p>
+      <button phx-click={Phoenix.LiveView.JS.add_class("hidden", to: "#survey-banner")}>
+        <.icon name="icon-cross" class="w-5 h-5" />
+      </button>
+    </div>
     """
   end
 end
