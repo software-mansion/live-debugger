@@ -111,7 +111,9 @@ async function checkForUpdate(currentVersion) {
     return;
   }
 
-  const response = await fetch('https://live-debugger.swmansion.com/');
+  const response = await fetch(
+    'https://live-debugger.swmansion.com/version/latest'
+  );
 
   const data = await response.json();
   const latestVersion = data.version;
