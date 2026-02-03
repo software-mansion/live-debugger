@@ -537,22 +537,6 @@ defmodule LiveDebugger.App.Web.Components do
   end
 
   @doc """
-  Typography component to render headings.
-  """
-  attr(:class, :any, default: nil, doc: "Additional classes to add to the heading.")
-  attr(:rest, :global)
-
-  slot(:inner_block, required: true)
-
-  def h2(assigns) do
-    ~H"""
-    <h2 class={["text-xl font-semibold" | List.wrap(@class)]} {@rest}>
-      <%= render_slot(@inner_block) %>
-    </h2>
-    """
-  end
-
-  @doc """
   Renders an icon.
   Not all icons are available. If you want to use an icon check if it exists in the `assets/icons` folder.
   `name` must start with `icon-`
