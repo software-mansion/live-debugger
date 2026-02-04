@@ -53,7 +53,10 @@ defmodule LiveDebugger.MixProject do
       ],
       test: ["test --exclude e2e"],
       e2e: [&e2e_tests_setup/1, "test --only e2e"],
-      e2e_playwright: ["cmd --cd e2e npx playwright test"],
+      e2e_playwright: [
+        "cmd --cd e2e npx playwright test --grep @settings --workers 1",
+        "cmd --cd e2e npx playwright test --grep-invert @settings"
+      ],
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
       "assets.build:deploy": [
         "esbuild build_app_js_deploy",
