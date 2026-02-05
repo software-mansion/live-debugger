@@ -39,6 +39,10 @@ jobs:
         with:
           node-version: lts/*
 
+      - name: Check prettier
+        working-directory: ./e2e
+        run: npx prettier . --check
+
       - name: Install Dependencies
         run: mix deps.get
 

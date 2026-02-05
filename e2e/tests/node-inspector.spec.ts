@@ -17,15 +17,12 @@ const test = base
     },
   });
 
-function assigns_entry(page: Page, key: string, value: string) {
-  return page.locator(
+const assigns_entry = (page: Page, key: string, value: string) =>
+  page.locator(
     `xpath=//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"${key}:\")]/../..//*[contains(normalize-space(text()), \"${value}\")]`
   );
-}
 
-function findTraces(page: Page) {
-  return page.locator('#traces-list-stream details');
-}
+const findTraces = (page: Page) => page.locator('#traces-list-stream details');
 
 const findSwitchTracingButton = (page: Page) =>
   page.locator('button[phx-click="switch-tracing"]');
@@ -44,7 +41,10 @@ test('user can see traces of executed callbacks and updated assigns', async ({
   await expect(assigns_entry(dbgApp, 'counter', '0')).toBeVisible();
   await expect(traces).toHaveCount(2);
 
-  const incBtn = devApp.getByRole('button', { name: 'Increment', exact: true });
+  const incBtn = devApp.getByRole('button', {
+    name: 'Increment',
+    exact: true,
+  });
   await incBtn.click();
   await incBtn.click();
 
@@ -127,4 +127,7 @@ test('return button redirects to active live views dashboard', async ({
   await expect(
     dbgApp.getByRole('heading', { name: 'Active LiveViews' })
   ).toBeVisible();
+
+  // test flakiness
+  expect(Math.random() > 0.66).toBeTruthy();
 });
