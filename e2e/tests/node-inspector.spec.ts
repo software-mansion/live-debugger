@@ -127,7 +127,4 @@ test('return button redirects to active live views dashboard', async ({
   await expect(
     dbgApp.getByRole('heading', { name: 'Active LiveViews' })
   ).toBeVisible();
-
-  // test flakiness
-  expect(Math.random() > 0.66).toBeTruthy();
 });
