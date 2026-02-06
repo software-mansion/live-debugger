@@ -6,27 +6,27 @@ import { SquareCheckBig } from "lucide-react";
 
 const newsBlocks = [
   {
-    title: "Improved asssigns inspections and tracking",
+    title: "Ability to send custom messages to LiveViews",
     description:
-      "The Assigns inspector is now faster, smoother, and lets you browse the full history of each assign, see exactly how values changed over time, pin important assigns to keep them always visible & inspect state size measurements to catch heavy structures early.",
+      "Directly craft and inject custom events or messages into your LiveView process to test logic in total isolation. This allows you to verify how your handlers behave instantly without manually triggering UI actions or background jobs.",
     icon: SquareCheckBig,
   },
   {
-    title: "LiveView Resource Usage Page",
+    title: "Clearer error reporting for callback exceptions",
     description:
-      "We added an entirely new page that shows resource consumption of your LiveView processes. This is a simple way to keep track of how your LiveViews behave behind the scenes.",
+      "LiveDebugger now captures and displays callback exceptions directly within the tool. View the exact error and stack trace the moment a crash occurs, keeping your debugging workflow entirely in the browser.",
     icon: SquareCheckBig,
   },
   {
-    title: "Async loading & Stream debugging",
+    title: "Revisited highlighting mechanism",
     description:
-      "v0.5.0 brings support for even more LiveView features, like async assigns and stream operations. This gives you deeper insight into LiveView internals than ever before.",
+      "The revisited highlighting mechanism now extends beyond the node tree to include Active LiveViews and Streams. Simply hover over any item in the tool to instantly spotlight its corresponding element in the browser UI.",
     icon: SquareCheckBig,
   },
   {
-    title: "Dead LiveViews",
+    title: "Support for temporary assigns",
     description:
-      "LiveDebugger can now show recently crashed LiveViews, making debugging those tricky failure cases a whole lot easier.",
+      "LiveDebugger supports temporary assigns, giving you full visibility into data that doesn’t stay in the socket.",
     icon: SquareCheckBig,
   },
 ];
@@ -41,18 +41,18 @@ const newsBlocks = [
   >
     <div class="flex flex-col items-center justify-center gap-4">
       <Badge variant="ternary"
-        ><p class="text-sm font-medium">LiveDebugger v0.5.0</p></Badge
+        ><p class="text-sm font-medium">LiveDebugger v0.6.0</p></Badge
       >
       <h2 class="text-primary text-center text-2xl font-bold">What’s new</h2>
       <h3 class="font-regular text-lg">
-        Highlights from the December 2025 update.
+        Highlights from the February 2026 update.
       </h3>
     </div>
 
     <div class="aspect-video h-full w-full">
       <iframe
         class="h-full w-full"
-        src="https://www.youtube.com/embed/UwoAqKYY2-w?si=iV2dolcoSBEcOXlr?controls=0"
+        src="https://www.youtube.com/embed/G2KP0JdRmdo?si=iV2dolcoSBEcOXlr?controls=0"
         title="YouTube video player"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerpolicy="strict-origin-when-cross-origin"
