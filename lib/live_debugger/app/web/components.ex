@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Web.Components do
   use Phoenix.Component
 
   alias LiveDebugger.App.Utils.Format
+  alias LiveDebugger.App.Debugger.Web.Components.Pages
   alias Phoenix.LiveView.JS
 
   @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
@@ -628,30 +629,47 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:id, :string, required: true)
   attr(:sidebar_hidden?, :boolean, default: true, doc: "The default state of the sidebar")
   attr(:event_target, :any, default: nil, doc: "The target of the closing sidebar event")
+  attr(:page, :atom, required: true, values: [:node_inspector, :global_traces])
+  attr(:trigger_sidebar, :boolean, default: false)
 
   slot(:inner_block)
 
   def sidebar_slide_over(assigns) do
     ~H"""
+    <span
+      :if={@trigger_sidebar}
+      class="hidden [--open-sidebar:1] md_ct:[--open-sidebar:0]"
+      id="sidebar-auto-opener"
+      phx-hook="OpenComponentsTree"
+      data-cmd={Pages.get_open_sidebar_js(@page)}
+    >
+    </span>
     <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
       <div
         id={@id}
+        phx-hook="CloseSidebarOnResize"
+        data-cmd={Pages.get_close_sidebar_js(@page)}
         class={[
           (@sidebar_hidden? && "hidden") || "flex",
-          "fixed inset-0 bg-black/25 justify-end items-start lg:flex lg:static lg:inset-auto lg:bg-transparent z-20"
+          "fixed inset-0 bg-black/25 justify-end items-start md_ct:flex md_ct:static md_ct:inset-auto md_ct:bg-transparent z-20",
+          "[--narrow-view:1]",
+          "md_ct:[--narrow-view:0]"
         ]}
       >
         <div
-          class="w-full h-full lg:hidden"
+          class="w-full h-full md_ct:hidden"
           phx-click="close-sidebar"
           {@event_target && %{:"phx-target" => @event_target} || %{}}
         >
         </div>
-        <div class="shrink-0 h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border lg:border-l">
+        <div
+          class="shrink-0 h-full w-80 bg-sidebar-bg flex flex-col gap-1 justify-between border-x border-default-border md_ct:border-l"
+          id="components-tree-sidebar-container"
+        >
           <.icon_button
             :if={!@sidebar_hidden?}
             icon="icon-cross"
-            class="absolute top-4 right-4 lg:hidden"
+            class="absolute top-4 right-4 md_ct:hidden"
             variant="secondary"
             phx-click="close-sidebar"
             {@event_target && %{:"phx-target" => @event_target} || %{}}

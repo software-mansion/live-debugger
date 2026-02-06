@@ -19,6 +19,8 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
 
+  alias LiveDebugger.App.Utils.URL
+
   @views_with_sidebar [
     "node_inspector",
     "global_traces"
@@ -46,11 +48,15 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
   def handle_params(params, _url, socket) do
     socket
     |> assign_and_broadcast_node_id(params)
+    |> handle_from(params)
     |> noreply()
   end
 
   @impl true
   def render(assigns) do
+    # remove the 'from' query parameter from the URL to avoid opening sidebar after returning to this page
+    assigns = assign(assigns, :url, URL.remove_query_param(assigns.url, "from"))
+
     assigns =
       assign(assigns,
         show_sidebar_icon?: NavigationMenu.get_current_view(assigns.url) in @views_with_sidebar
@@ -74,18 +80,17 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             <Navbar.garbage_collection_warning />
 
             <Navbar.settings_button return_to={@url} />
-            <span :if={@show_sidebar_icon?} class="h-5 border-r border-default-border lg:hidden">
+            <span :if={@show_sidebar_icon?} class="h-5 border-r border-default-border md_ct:hidden">
             </span>
 
             <.nav_icon
               :if={@show_sidebar_icon?}
               phx-click={if @lv_process.ok?, do: Pages.get_open_sidebar_js(@live_action)}
-              class="flex lg:hidden"
+              class="flex md_ct:hidden"
               icon="icon-panel-right"
             />
           </div>
         </Navbar.navbar>
-
         <div class="flex overflow-auto w-full">
           <Pages.node_inspector
             :if={@live_action == :node_inspector}
@@ -95,6 +100,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             node_id={@node_id}
             inspect_mode?={@inspect_mode?}
             return_link={RoutesHelper.discovery()}
+            trigger_sidebar={@trigger_sidebar}
           />
 
           <Pages.global_traces
@@ -154,5 +160,13 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   defp assign_and_broadcast_node_id(socket, _) do
     assign(socket, :node_id, socket.private.pid)
+  end
+
+  defp handle_from(socket, %{"from" => "inspect_button"}) do
+    assign(socket, :trigger_sidebar, true)
+  end
+
+  defp handle_from(socket, _params) do
+    assign(socket, :trigger_sidebar, false)
   end
 end

@@ -10,6 +10,8 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   alias LiveDebugger.Client
   alias LiveDebugger.Structs.LvProcess
 
+  alias LiveDebugger.App.Utils.URL
+
   @impl true
   def init(socket) do
     Client.receive_events()
@@ -60,7 +62,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   defp handle_info({"element-inspected", %{"pid" => pid, "url" => url}}, socket) do
     if pid == inspect(self()) do
       socket
-      |> redirect(external: url)
+      |> redirect(external: URL.upsert_query_param(url, "from", "inspect_button"))
       |> halt()
     else
       {:halt, socket}
