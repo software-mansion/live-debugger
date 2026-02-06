@@ -32,6 +32,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   attr(:node_id, :any, required: true)
   attr(:return_link, :string, required: true)
   attr(:inspect_mode?, :boolean, required: true)
+  attr(:trigger_sidebar, :boolean, required: true)
 
   def node_inspector(assigns) do
     assigns = assign(assigns, :sidebar_id, @node_inspector_sidebar_id)
@@ -86,7 +87,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
         />
       </div>
     </div>
-    <.live_component module={NodeInspectorSidebar} id={@sidebar_id}>
+    <.live_component module={NodeInspectorSidebar} id={@sidebar_id} trigger_sidebar={@trigger_sidebar}>
       <NestedLiveViewLinksLive.live_render
         id="nested-live-view-links"
         lv_process={@lv_process}
@@ -183,6 +184,15 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
       :node_inspector -> JS.push("open-sidebar", target: "##{@node_inspector_sidebar_id}")
       :global_traces -> JS.push("open-sidebar", target: "##{@global_traces_id}")
       :resources -> JS.push("open-sidebar", target: "##{@resources_id}")
+    end
+  end
+
+  @spec get_close_sidebar_js(live_action :: atom()) :: JS.t()
+  def get_close_sidebar_js(live_action) when is_atom(live_action) do
+    case live_action do
+      :node_inspector -> JS.push("close-sidebar", target: "##{@node_inspector_sidebar_id}")
+      :global_traces -> JS.push("close-sidebar", target: "##{@global_traces_id}")
+      :resources -> JS.push("close-sidebar", target: "##{@resources_id}")
     end
   end
 

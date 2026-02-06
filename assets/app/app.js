@@ -16,6 +16,8 @@ import AssignsBodySearchHighlight from './hooks/assigns_body_search_highlight';
 import DiffPulse from './hooks/diff_pulse';
 import ChartHook from './hooks/chart_hook';
 import CollapsedSectionPulse from './hooks/collapsed_section_pulse';
+import OpenComponentsTree from './hooks/open_components_tree';
+import CloseSidebarOnResize from './hooks/close_sidebar_on_resize';
 import CodeMirrorTextarea from './hooks/code_mirror_textarea';
 import SurveyBanner from './hooks/survey_banner';
 
@@ -47,6 +49,8 @@ function createHooks() {
     ChartHook,
     CollapsedSectionPulse,
     CodeMirrorTextarea,
+    OpenComponentsTree,
+    CloseSidebarOnResize,
     SurveyBanner,
   };
 }

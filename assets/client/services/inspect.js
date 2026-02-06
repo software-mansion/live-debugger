@@ -239,7 +239,7 @@ function getElementURL(baseURL, { element, type, phxRootId, phxId }) {
   if (type === 'LiveComponent') {
     url.searchParams.set('node_id', element.dataset.phxComponent);
   }
-
+  url.searchParams.set('from', 'inspect_button');
   return url;
 }
 
