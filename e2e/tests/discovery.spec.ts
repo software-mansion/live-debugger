@@ -18,16 +18,13 @@ test('user can see active live views and their highlights which are refreshed au
 
   await expect(dbgApp.getByText(devPidString1)).toBeVisible();
 
-  // const devApp2 = await context.newPage();
-  // devApp2.goto('/');
+  const devApp2 = await context.newPage();
+  devApp2.goto('/');
 
-  // await devApp2.screenshot({ path: 'tmp/screenshot1.png' });
+  await devApp2.waitForTimeout(200);
 
-  // const devPidString2 =
-  //   (await devApp2.locator('#current-pid').textContent()) ?? '';
+  const devPidString2 =
+    (await devApp2.locator('#current-pid').textContent()) ?? '';
 
-  // console.log(devPidString2);
-
-  // await dbgApp.screenshot({ path: 'tmp/screenshot2.png' });
-  // await expect(dbgApp.getByText(devPidString2)).toBeVisible();
+  await expect(dbgApp.getByText(devPidString2)).toBeVisible();
 });
