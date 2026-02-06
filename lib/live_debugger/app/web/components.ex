@@ -638,10 +638,7 @@ defmodule LiveDebugger.App.Web.Components do
     ~H"""
     <span
       :if={@trigger_sidebar}
-      class="
-              hidden
-              [--open-sidebar:1]
-              md_ct:[--open-sidebar:0]"
+      class="hidden [--open-sidebar:1] md_ct:[--open-sidebar:0]"
       id="sidebar-auto-opener"
       phx-hook="OpenComponentsTree"
       data-cmd={Pages.get_open_sidebar_js(@page)}
