@@ -80,7 +80,7 @@ const testException = async (
   });
 };
 
-test('debugger captures runtime errors and exceptions in global callbacks', async ({
+test('debugger captures runtime errors and exceptions in global callbacks 1', async ({
   devApp,
   dbgApp,
 }) => {

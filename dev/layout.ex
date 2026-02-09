@@ -2,6 +2,7 @@ defmodule LiveDebuggerDev.Layout do
   use Phoenix.Component
 
   import LiveDebuggerDev.Components
+  import Phoenix.LiveView
 
   @doc false
   def render(template, assigns)
@@ -75,7 +76,10 @@ defmodule LiveDebuggerDev.Layout do
     ~H"""
     <main class="p-5">
       <.navbar />
-      <p>Current PID: <span id="current-pid"><%= pid_to_string(self()) %></span></p>
+      <p>
+        Current PID:
+        <span :if={connected?(@socket)} id="current-pid"><%= pid_to_string(self()) %></span>
+      </p>
       <%= @inner_content %>
     </main>
     """
