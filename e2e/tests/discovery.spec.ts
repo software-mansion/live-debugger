@@ -21,7 +21,7 @@ test('user can see active live views and their highlights which are refreshed au
   const devApp2 = await context.newPage();
   devApp2.goto('/');
 
-  await devApp2.waitForTimeout(200);
+  await devApp2.waitForTimeout(400);
 
   const devPidString2 =
     (await devApp2.locator('#current-pid').textContent()) ?? '';
