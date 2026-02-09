@@ -12,6 +12,13 @@ defmodule LiveDebugger.App.Web.Hooks.Flash do
     {:cont, attach_hook(socket, :flash, :handle_info, &maybe_receive_flash/2)}
   end
 
+  @type flash_data :: %{
+          text: String.t(),
+          module: String.t(),
+          label: String.t(),
+          url: String.t()
+        }
+
   @doc """
   Extended Phoenix.LiveView.put_flash/3 which works inside nested LiveViews/LiveComponents.
   If used in nested LiveView use root LiveView's pid.
@@ -19,23 +26,23 @@ defmodule LiveDebugger.App.Web.Hooks.Flash do
   @spec push_flash(
           socket :: Phoenix.LiveView.Socket.t(),
           key :: String.t() | atom(),
-          message :: String.t()
+          message :: String.t() | flash_data()
         ) ::
           Phoenix.LiveView.Socket.t()
   def push_flash(socket, key, message)
-      when is_binary(message) and key in [:error, :info] do
+      when is_binary(message) or is_map(message) or key in [:error, :info] do
     push_flash(socket, key, message, self())
   end
 
   @spec push_flash(
           socket :: Phoenix.LiveView.Socket.t(),
           key :: String.t() | atom(),
-          message :: String.t(),
+          message :: String.t() | flash_data(),
           pid :: pid()
         ) ::
           Phoenix.LiveView.Socket.t()
   def push_flash(socket, key, message, pid)
-      when is_pid(pid) and is_binary(message) and key in [:error, :info] do
+      when is_binary(message) or is_map(message) or (is_pid(pid) and key in [:error, :info]) do
     send(pid, {:put_flash, key, message})
 
     socket

@@ -63,6 +63,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
     arity: non_neg_integer(),
     pid: pid(),
     cid: CommonTypes.cid() | nil,
-    transport_pid: pid()
+    transport_pid: pid(),
+    error: ErrorTrace.t()
   )
 end

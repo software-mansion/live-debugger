@@ -395,7 +395,19 @@ defmodule LiveDebugger.App.Web.Components do
           <.icon :if={@kind == :info} name="icon-info" class="text-info-icon w-3 h-3" />
         </div>
         <p>
-          <%= @message %>
+          <%= if is_map(@message) do %>
+            <strong><%= @message.module %></strong>
+            <span><%= @message.text %></span>
+            <.link
+              href={@message.url}
+              target="_blank"
+              class="font-bold underline hover:opacity-80 ml-1"
+            >
+              <%= Map.get(@message, :label, "Link") %>
+            </.link>
+          <% else %>
+            <%= @message %>
+          <% end %>
         </p>
       </div>
       <button

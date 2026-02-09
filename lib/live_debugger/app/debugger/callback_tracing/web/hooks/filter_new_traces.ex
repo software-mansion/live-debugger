@@ -5,17 +5,20 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
 
   use LiveDebugger.App.Web, :hook
 
-  alias LiveDebugger.API.TracesStorage
+  import LiveDebugger.App.Web.Hooks.Flash, only: [push_flash: 4]
 
+  alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebugger.Services.CallbackTracer.Events.TraceReturned
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
   alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
   alias LiveDebugger.Services.CallbackTracer.Events.TraceExceptionUpdated
+  alias LiveDebugger.App.Web.Helpers.Routes
 
   @required_assigns [
     :current_filters,
-    :node_id
+    :node_id,
+    :parent_pid
   ]
 
   @doc """
@@ -61,7 +64,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
          true <- matches_search_phrase?(socket, trace_event) do
       {:cont, socket}
     else
-      _ -> {:halt, socket}
+      _ ->
+        socket =
+          case trace_event do
+            %TraceExceptionUpdated{} = trace_exception ->
+              push_exception_flash(socket, trace_exception)
+
+            _ ->
+              socket
+          end
+
+        {:halt, socket}
     end
   end
 
@@ -98,5 +111,21 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
 
   defp diff_traces_filter_enabled?(socket) do
     socket.assigns.current_filters.other_filters["trace_diffs"]
+  end
+
+  defp push_exception_flash(socket, trace_exception) do
+    flash_data = %{
+      text: trace_exception.error.message,
+      module: trace_exception.module,
+      label: "Open in Node Inspector",
+      url: Routes.debugger_node_inspector(trace_exception.pid, cid: trace_exception.cid)
+    }
+
+    push_flash(
+      socket,
+      :error,
+      flash_data,
+      socket.assigns.parent_pid
+    )
   end
 end
