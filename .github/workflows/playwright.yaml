@@ -39,28 +39,29 @@ jobs:
         with:
           node-version: lts/*
 
-      - name: Get installed Playwright version
-        id: playwright-version
-        working-directory: ./e2e
-        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').packages['node_modules/@playwright/test'].version)")" >> $GITHUB_ENV
-
       - name: Cache playwright binaries
         uses: actions/cache@v3
         id: playwright-cache
         with:
           path: |
             ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+          key: ${{ runner.os }}-playwright-${{ hashFiles('./e2e/package-lock.json') }}
 
       - name: Check prettier
         working-directory: ./e2e
         run: npx prettier . --check
 
-      - name: Install Dependencies
+      - name: Install Mix Dependencies
         run: mix deps.get
 
-      - name: Setup playwright tests
-        run: mix e2e_playwright.setup
+      - name: Install Node Dependencies
+        working-directory: ./e2e
+        run: npm ci
+
+      - name: Install Playwright Dependencies
+        working-directory: ./e2e
+        run: npx playwright install --with-deps
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
 
       - name: Run Playwright tests
         run: mix e2e_playwright
