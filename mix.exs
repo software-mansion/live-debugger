@@ -57,10 +57,7 @@ defmodule LiveDebugger.MixProject do
         "cmd --cd e2e npm ci",
         "cmd --cd e2e npx playwright install --with-deps"
       ],
-      e2e_playwright: [
-        # "cmd --cd e2e npx playwright test --grep @settings --workers 1",
-        "cmd --cd e2e npx playwright test --grep-invert @settings"
-      ],
+      e2e_playwright: ["cmd --cd e2e npx playwright test"],
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
       "assets.build:deploy": [
         "esbuild build_app_js_deploy",

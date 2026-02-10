@@ -39,6 +39,19 @@ jobs:
         with:
           node-version: lts/*
 
+      - name: Get installed Playwright version
+        id: playwright-version
+        working-directory: ./e2e
+        run: echo "PLAYWRIGHT_VERSION=$(node -e "console.log(require('./package-lock.json').dependencies['@playwright/test'].version)")" >> $GITHUB_ENV
+
+      - name: Cache playwright binaries
+        uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
+
       - name: Check prettier
         working-directory: ./e2e
         run: npx prettier . --check

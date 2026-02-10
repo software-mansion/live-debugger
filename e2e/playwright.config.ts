@@ -20,7 +20,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 3 : undefined,
+  workers: process.env.CI ? 4 : undefined,
   maxFailures: process.env.CI ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
@@ -33,16 +33,28 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
 
-  /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      testIgnore: '**/*.serial.spec.ts',
     },
-
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
+      testIgnore: '**/*.serial.spec.ts',
+    },
+    {
+      name: 'serial-tests chromium',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: '**/*.serial.spec.ts',
+      dependencies: ['chromium', 'firefox'],
+    },
+    {
+      name: 'serial-tests firefox',
+      use: { ...devices['Desktop Firefox'] },
+      testMatch: '**/*.serial.spec.ts',
+      dependencies: ['chromium', 'firefox', 'serial-tests chromium'],
     },
 
     // {
