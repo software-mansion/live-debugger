@@ -66,7 +66,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               phx-value-file={node_module.module_path}
               phx-value-line={node_module.line}
             >
-              Open in Editor 
+              Open in Editor
             </.button>
 
             <div class="flex gap-2 min-w-0">
@@ -167,10 +167,24 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     end)
   end
 
-  # :os.type()
 
   defp open_editor(socket, file, line) when is_binary(file) and is_integer(line) do
-    # IO.write(IEx.color(:eval_info, :os.cmd(String.to_charlist("open #{inspect(file)}")))) 
+    # IO.write(IEx.color(:eval_info, :os.cmd(String.to_charlist("open #{inspect(file)}"))))
+    try do
+      open_in_term_program_editor(file, line)
+      socket
+    rescue
+      _ -> open_in_elixir_editor(socket, file, line)
+    end
+  end
+
+  defp open_in_term_program_editor(file, line) do
+    editor = System.get_env("TERM_PROGRAM")
+    command = ["#{file}:#{line}"]
+    System.cmd(editor, command, stderr_to_stdout: true)
+  end
+
+  defp open_in_elixir_editor(socket, file, line) do
     cond do
       editor = System.get_env("ELIXIR_EDITOR") || System.get_env("EDITOR") ->
         command =
@@ -182,17 +196,15 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
             "#{editor} #{inspect(file)}:#{line}"
           end
 
-        IO.write(IEx.color(:eval_info, :os.cmd(String.to_charlist(command))))
+        :os.cmd(String.to_charlist(command))
         socket
 
       true ->
         push_flash(
           socket,
           :error,
-          "You need to set ELIXIR_EDITOR or EDITOR environment variable to open editor." <>
-            "`export ELIXIR_EDITOR=\"your_editor\"`"
+          "You need to set ELIXIR_EDITOR or EDITOR environment variable to open editor or use your editor's terminal"
         )
     end
-
   end
 end
