@@ -5,6 +5,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   use LiveDebugger.App.Web, :live_component
 
+  import LiveDebugger.App.Web.Hooks.Flash, only: [push_flash: 3]
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
   alias LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen
@@ -47,11 +48,34 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
           <div class="min-w-0 flex flex-col gap-2 max-md_ct:border-b max-md_ct:border-default-border">
             <span class="font-medium">Module:</span>
             <div class="flex gap-2 min-w-0">
-              <.tooltip id={@id <> "-current-node-module"} content={node_module} class="truncate">
-                <%= node_module %>
+              <.tooltip
+                id={@id <> "-current-node-module"}
+                content={node_module.module_name}
+                class="truncate"
+              >
+                <%= node_module.module_name %>
               </.tooltip>
-              <.copy_button id="copy-button-module-name" value={node_module} />
+              <.copy_button id="copy-button-module-name" value={node_module.module_name} />
             </div>
+            <span class="font-medium">Path:</span>
+
+            <.button
+              id="open-in-editor"
+              phx-click="open-in-editor"
+              phx-target={@myself}
+              phx-value-file={node_module.module_path}
+              phx-value-line={node_module.line}
+            >
+              Open in Editor 
+            </.button>
+
+            <div class="flex gap-2 min-w-0">
+              <span>
+                <%= node_module.module_path <> ":" <> Integer.to_string(node_module.line) %>
+              </span>
+              <.copy_button id="copy-button-module-path" value={node_module.module_path} />
+            </div>
+
             <.button
               class="shrink-0 md_ct:ml-auto md_ct:hidden mb-3"
               variant="secondary"
@@ -97,6 +121,12 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     |> noreply()
   end
 
+  def handle_event("open-in-editor", %{"file" => file, "line" => line}, socket) do
+    socket
+    |> open_editor(file, line |> String.to_integer())
+    |> noreply()
+  end
+
   defp assign_node_type(socket) do
     node_type =
       socket.assigns.node_id
@@ -116,12 +146,53 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     assign_async(socket, :node_module, fn ->
       case NodeQueries.get_module_from_id(node_id, pid) do
         {:ok, module} ->
-          node_module = Parsers.module_to_string(module)
-          {:ok, %{node_module: node_module}}
+          {_, _, _, _, _, %{source_annos: [{line, _column}]}, _} = Code.fetch_docs(module)
+
+          path = module.__info__(:compile) |> Keyword.get(:source) |> List.to_string()
+
+          module_name = Parsers.module_to_string(module)
+
+          {:ok,
+           %{
+             node_module: %{
+               module_name: module_name,
+               module_path: path,
+               line: line
+             }
+           }}
 
         :error ->
           {:error, "Failed to get node module"}
       end
     end)
+  end
+
+  # :os.type()
+
+  defp open_editor(socket, file, line) when is_binary(file) and is_integer(line) do
+    # IO.write(IEx.color(:eval_info, :os.cmd(String.to_charlist("open #{inspect(file)}")))) 
+    cond do
+      editor = System.get_env("ELIXIR_EDITOR") || System.get_env("EDITOR") ->
+        command =
+          if editor =~ "__FILE__" or editor =~ "__LINE__" do
+            editor
+            |> String.replace("__FILE__", inspect(file))
+            |> String.replace("__LINE__", Integer.to_string(line))
+          else
+            "#{editor} #{inspect(file)}:#{line}"
+          end
+
+        IO.write(IEx.color(:eval_info, :os.cmd(String.to_charlist(command))))
+        socket
+
+      true ->
+        push_flash(
+          socket,
+          :error,
+          "You need to set ELIXIR_EDITOR or EDITOR environment variable to open editor." <>
+            "`export ELIXIR_EDITOR=\"your_editor\"`"
+        )
+    end
+
   end
 end
