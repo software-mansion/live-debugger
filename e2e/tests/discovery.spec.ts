@@ -2,6 +2,7 @@ import { test, expect, Page } from '@playwright/test';
 
 const findInspectTooltipModuleText = (page: Page) =>
   page.locator('div#live-debugger-tooltip div.live-debugger-tooltip-module');
+
 const findInspectTooltipTypeText = (page: Page) =>
   page.locator('div#live-debugger-tooltip span.type-text');
 

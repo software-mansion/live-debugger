@@ -1,3 +1,7 @@
+/**
+ * This file export common helpers for "debugged app <-> debugger" test flow.
+ */
+
 import { test as base, Page } from '@playwright/test';
 
 export const test = base

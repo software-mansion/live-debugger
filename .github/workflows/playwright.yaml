@@ -45,6 +45,7 @@ jobs:
         with:
           path: |
             ~/.cache/ms-playwright
+            node_modules
           key: ${{ runner.os }}-playwright-${{ hashFiles('./e2e/package-lock.json') }}
 
       - name: Check prettier
