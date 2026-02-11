@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Web.Hooks.Flash do
   import Phoenix.LiveView
 
   defmodule ExceptionFlashData do
+    @moduledoc false
     defstruct [:text, :module, :label, :url]
 
     @type t :: %__MODULE__{
