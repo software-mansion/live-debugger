@@ -9,10 +9,28 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix:
+        include:
+          - elixir-version: "1.19.1"
+            otp-version: "28.1.1"
+            backward-compatibility: false
+
+          - elixir-version: "1.16.0"
+            otp-version: "26.0.2"
+            backward-compatibility: true
 
     steps:
       - uses: actions/checkout@v4
@@ -23,8 +41,12 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1.20.4
         with:
-          elixir-version: "1.19.1" # [Required] Define the Elixir version
-          otp-version: "28.1.1" # [Required] Define the Erlang/OTP version
+          elixir-version: ${{ matrix.elixir-version }} # [Required] Define the Elixir version
+          otp-version: ${{ matrix.otp-version }} # [Required] Define the Erlang/OTP version
+
+      - name: Copy mix.lock for backward compatibility
+        if: ${{ matrix.backward-compatibility }}
+        run: cp ./.github/workflows/assets/mix.lock mix.lock
 
       - name: Cache Mix
         uses: actions/cache@v4
@@ -32,14 +54,14 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ runner.os }}-mix-
+          key: ${{ matrix.backward-compatibility && 'backward-compatibility-' || '' }}${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ matrix.backward-compatibility && 'backward-compatibility-' || '' }}${{ runner.os }}-mix-
 
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
 
-      - name: Cache playwright binaries
+      - name: Cache Playwright
         uses: actions/cache@v3
         id: playwright-cache
         with:
@@ -70,6 +92,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: playwright-report
+          name: ${{ matrix.backward-compatibility && 'backward-compatibility-' || '' }}playwright-report
           path: e2e/playwright-report/
           retention-days: 1
