@@ -3,9 +3,12 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
   Basic information about the node.
   """
 
+  @elixir_editor System.get_env("ELIXIR_EDITOR") || nil
+
   use LiveDebugger.App.Web, :live_component
 
   import LiveDebugger.App.Web.Hooks.Flash, only: [push_flash: 3]
+  require Logger
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
   alias LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen
@@ -30,6 +33,8 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   @impl true
   def render(assigns) do
+    assigns = assign(assigns, :elixir_editor, @elixir_editor)
+
     ~H"""
     <div
       id={@id}
@@ -59,21 +64,38 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
             </div>
             <span class="font-medium">Path:</span>
 
-            <.button
-              id="open-in-editor"
-              phx-click="open-in-editor"
-              phx-target={@myself}
-              phx-value-file={node_module.module_path}
-              phx-value-line={node_module.line}
-            >
-              Open in Editor
-            </.button>
-
             <div class="flex gap-2 min-w-0">
-              <span>
+              <.tooltip
+                id={@id <> "-current-node-module-path"}
+                content={node_module.module_path <> ":" <> Integer.to_string(node_module.line)}
+                class="truncate"
+              >
                 <%= node_module.module_path <> ":" <> Integer.to_string(node_module.line) %>
-              </span>
+              </.tooltip>
               <.copy_button id="copy-button-module-path" value={node_module.module_path} />
+            </div>
+
+            <div class="flex flex-row items-center">
+              <.button
+                class="shrink-0 mr-2"
+                variant="secondary"
+                id="open-in-editor"
+                size="sm"
+                phx-click="open-in-editor"
+                phx-target={@myself}
+                phx-value-file={node_module.module_path}
+                phx-value-line={node_module.line}
+              >
+                <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
+              </.button>
+              <.tooltip
+                :if={!@elixir_editor}
+                id={@id <> "-current-node-module"}
+                content="To ensure files open in the correct editor, please set the ELIXIR_EDITOR environment variable."
+                class="truncate"
+              >
+                <.icon name="icon-info" class="text-error-text w-4 h-4" />
+              </.tooltip>
             </div>
 
             <.button
@@ -167,9 +189,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     end)
   end
 
-
   defp open_editor(socket, file, line) when is_binary(file) and is_integer(line) do
-    # IO.write(IEx.color(:eval_info, :os.cmd(String.to_charlist("open #{inspect(file)}"))))
     try do
       open_in_term_program_editor(file, line)
       socket
@@ -186,24 +206,32 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   defp open_in_elixir_editor(socket, file, line) do
     cond do
-      editor = System.get_env("ELIXIR_EDITOR") || System.get_env("EDITOR") ->
+      editor = @elixir_editor || System.get_env("EDITOR") ->
         command =
           if editor =~ "__FILE__" or editor =~ "__LINE__" do
             editor
             |> String.replace("__FILE__", inspect(file))
             |> String.replace("__LINE__", Integer.to_string(line))
           else
-            "#{editor} #{inspect(file)}:#{line}"
+            ["#{file}:#{line}"]
           end
 
-        :os.cmd(String.to_charlist(command))
+        # Some editors may block iex, so we spawn a new process
+        spawn(fn ->
+          try do
+            System.cmd(editor, command, stderr_to_stdout: true, into: IO.stream(:stdio, :line))
+          rescue
+            error -> Logger.error("Failed to open editor: " <> "#{editor} " <> inspect(error))
+          end
+        end)
+
         socket
 
       true ->
         push_flash(
           socket,
           :error,
-          "You need to set ELIXIR_EDITOR or EDITOR environment variable to open editor or use your editor's terminal"
+          "Editor not detected. Run the server in your editor's terminal (e.g., VS Code) or set ELIXIR_EDITOR."
         )
     end
   end
