@@ -9,6 +9,7 @@ defmodule LiveDebugger.App.Web.Components do
   alias LiveDebugger.App.Utils.Format
   alias LiveDebugger.App.Debugger.Web.Components.Pages
   alias Phoenix.LiveView.JS
+  alias LiveDebugger.App.Web.Hooks.Flash.ExceptionFlashData
 
   @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
 
@@ -395,26 +396,21 @@ defmodule LiveDebugger.App.Web.Components do
           <.icon :if={@kind == :info} name="icon-info" class="text-info-icon w-3 h-3" />
         </div>
         <p class="min-w-0">
-        <div class="flex flex-col flex-1 min-w-0">
-          <%= if is_map(@message) do %>
-            <strong><%= @message.text %></strong>
+          <div class="flex flex-col flex-1 min-w-0">
+            <%= if match?(%ExceptionFlashData{}, @message) do %>
+              <strong><%= @message.text %></strong>
 
-            <span class="truncate w-full block">
-              <%= @message.module %>
-            </span>
+              <span class="truncate w-full block">
+                <%= @message.module %>
+              </span>
 
-            <.link
-              href={@message.url}
-              target="_blank"
-              class="font-bold underline hover:opacity-80"
-            >
-              <%= Map.get(@message, :label, "Link") %>
-            </.link>
-          <% else %>
-            <%= @message %>
-          <% end %>
-        </div>
-
+              <.link href={@message.url} target="_blank" class="font-bold underline hover:opacity-80">
+                <%= Map.get(@message, :label, "Link") %>
+              </.link>
+            <% else %>
+              <%= @message %>
+            <% end %>
+          </div>
         </p>
       </div>
       <button

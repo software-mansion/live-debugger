@@ -3,7 +3,21 @@ defmodule LiveDebugger.App.Web.Hooks.Flash do
   Functionalities to make flash messages work inside LiveComponents
   See: https://sevenseacat.net/posts/2023/flash-messages-in-phoenix-liveview-components/
   """
+
   import Phoenix.LiveView
+
+  defmodule ExceptionFlashData do
+    defstruct [:text, :module, :label, :url]
+
+    @type t :: %__MODULE__{
+            text: String.t(),
+            module: module() | String.t(),
+            label: String.t(),
+            url: String.t()
+          }
+  end
+
+  alias __MODULE__.ExceptionFlashData
 
   @doc """
   Attaches hook to handle flash messages
@@ -12,13 +26,6 @@ defmodule LiveDebugger.App.Web.Hooks.Flash do
     {:cont, attach_hook(socket, :flash, :handle_info, &maybe_receive_flash/2)}
   end
 
-  @type flash_data :: %{
-          text: String.t(),
-          module: String.t(),
-          label: String.t(),
-          url: String.t()
-        }
-
   @doc """
   Extended Phoenix.LiveView.put_flash/3 which works inside nested LiveViews/LiveComponents.
   If used in nested LiveView use root LiveView's pid.
@@ -26,23 +33,24 @@ defmodule LiveDebugger.App.Web.Hooks.Flash do
   @spec push_flash(
           socket :: Phoenix.LiveView.Socket.t(),
           key :: String.t() | atom(),
-          message :: String.t() | flash_data()
+          message :: String.t() | ExceptionFlashData.t()
         ) ::
           Phoenix.LiveView.Socket.t()
   def push_flash(socket, key, message)
-      when is_binary(message) or is_map(message) or key in [:error, :info] do
+      when is_binary(message) or is_struct(message, ExceptionFlashData) or key in [:error, :info] do
     push_flash(socket, key, message, self())
   end
 
   @spec push_flash(
           socket :: Phoenix.LiveView.Socket.t(),
           key :: String.t() | atom(),
-          message :: String.t() | flash_data(),
+          message :: String.t() | ExceptionFlashData.t(),
           pid :: pid()
         ) ::
           Phoenix.LiveView.Socket.t()
   def push_flash(socket, key, message, pid)
-      when is_binary(message) or is_map(message) or (is_pid(pid) and key in [:error, :info]) do
+      when is_binary(message) or is_struct(message, ExceptionFlashData) or
+             (is_pid(pid) and key in [:error, :info]) do
     send(pid, {:put_flash, key, message})
 
     socket
