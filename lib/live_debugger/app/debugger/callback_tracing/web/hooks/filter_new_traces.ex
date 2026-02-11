@@ -114,9 +114,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
   end
 
   defp push_exception_flash(socket, trace_exception) do
+
     flash_data = %{
-      text: trace_exception.error.message,
-      module: trace_exception.module,
+      text: if(trace_exception.cid, do: "Live Component crashed.", else: "Live View crashed."),
+      module: trace_exception.module |> to_string() |> String.replace_prefix("Elixir.",""),
       label: "Open in Node Inspector",
       url: Routes.debugger_node_inspector(trace_exception.pid, cid: trace_exception.cid)
     }

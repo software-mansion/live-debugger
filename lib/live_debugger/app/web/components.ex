@@ -389,25 +389,32 @@ defmodule LiveDebugger.App.Web.Components do
       ]}
       {@rest}
     >
-      <div class="flex gap-3 items-start">
+      <div class="flex gap-3 items-start min-w-0">
         <div>
           <.icon :if={@kind == :error} name="icon-x-circle" class="text-error-icon w-3 h-3" />
           <.icon :if={@kind == :info} name="icon-info" class="text-info-icon w-3 h-3" />
         </div>
-        <p>
+        <p class="min-w-0">
+        <div class="flex flex-col flex-1 min-w-0">
           <%= if is_map(@message) do %>
-            <strong><%= @message.module %></strong>
-            <span><%= @message.text %></span>
+            <strong><%= @message.text %></strong>
+
+            <span class="truncate w-full block">
+              <%= @message.module %>
+            </span>
+
             <.link
               href={@message.url}
               target="_blank"
-              class="font-bold underline hover:opacity-80 ml-1"
+              class="font-bold underline hover:opacity-80"
             >
               <%= Map.get(@message, :label, "Link") %>
             </.link>
           <% else %>
             <%= @message %>
           <% end %>
+        </div>
+
         </p>
       </div>
       <button
