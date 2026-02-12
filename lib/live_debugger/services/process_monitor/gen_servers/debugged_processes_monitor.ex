@@ -5,7 +5,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
   For this server to function properly this service must be running and sending events:
   - `LiveDebugger.Services.CallbackTracer` sending `TraceCalled` event
 
-  `LiveViewBorn` event is detected when `TraceCalled` event with functions `:mount`, `:handle_params` or `:render` is received 
+  `LiveViewBorn` event is detected when `TraceCalled` event with functions `:mount`, `:handle_params` or `:render` is received
   and the process is not already registered
 
   `LiveViewDied` event is detected when a monitored LiveView process sends a `:DOWN` message.
@@ -26,6 +26,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
+  alias LiveDebugger.Services.TelemetryHandler.Events.LiveComponentDeleted
 
   import LiveDebugger.Helpers
 
@@ -39,6 +40,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   @impl true
   def init(_opts) do
+    Bus.receive_events!()
     Bus.receive_traces!()
 
     {:ok, %{}}
@@ -59,6 +61,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
     |> noreply()
   end
 
+  # Handling components deletion for :phoenix_live_view versions < 1.1.0
   def handle_info(
         %TraceCalled{
           module: Phoenix.LiveView.Diff,
@@ -68,6 +71,14 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
         },
         state
       )
+      when is_map_key(state, pid) do
+    state
+    |> maybe_register_component_deleted(pid, cid)
+    |> noreply()
+  end
+
+  # Handling components deletion for :phoenix_live_view versions >= 1.1.0
+  def handle_info(%LiveComponentDeleted{pid: pid, cid: cid}, state)
       when is_map_key(state, pid) do
     state
     |> maybe_register_component_deleted(pid, cid)

@@ -13,6 +13,10 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
   alias LiveDebugger.App.Events.UserRefreshedTrace
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
 
+  @live_component_destroyed_telemetry_supported? Application.spec(:phoenix_live_view, :vsn)
+                                                 |> to_string()
+                                                 |> Version.match?(">= 1.1.0-rc.0")
+
   setup :verify_on_exit!
 
   describe "init/1" do
@@ -51,7 +55,11 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
       MockAPIDbg
       |> expect(:tracer, fn _ -> {:ok, self()} end)
       |> expect(:process, fn _ -> :ok end)
-      |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
+      |> expect(
+        :trace_pattern,
+        if(@live_component_destroyed_telemetry_supported?, do: 18, else: 19),
+        fn _, _ -> :ok end
+      )
 
       assert {:noreply, %{dbg_pid: self()}} ==
                TracingManager.handle_info(:setup_tracing, %{dbg_pid: nil})

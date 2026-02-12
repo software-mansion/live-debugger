@@ -13,15 +13,33 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
 
+  alias LiveDebugger.Services.TelemetryHandler.Events.LiveComponentDeleted,
+    as: TelemetryLiveComponentDeleted
+
   setup :verify_on_exit!
 
   test "init/1" do
+    expect(MockBus, :receive_events!, fn -> :ok end)
     expect(MockBus, :receive_traces!, fn -> :ok end)
 
     assert {:ok, %{}} = DebuggedProcessesMonitor.init([])
   end
 
   describe "handle_info/2" do
+    test "with LiveComponentDeleted event" do
+      pid = self()
+      cid = %Phoenix.LiveComponent.CID{cid: 1}
+      state = %{pid => MapSet.new([cid])}
+
+      event = %TelemetryLiveComponentDeleted{cid: cid, pid: pid}
+
+      MockBus
+      |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid, pid: ^pid}, ^pid -> :ok end)
+
+      assert {:noreply, new_state} = DebuggedProcessesMonitor.handle_info(event, state)
+      assert new_state == %{pid => MapSet.new()}
+    end
+
     test "with TraceCalled for render with known cid" do
       pid = self()
       cid = %Phoenix.LiveComponent.CID{cid: 1}

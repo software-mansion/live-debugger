@@ -14,6 +14,9 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   alias LiveDebugger.Utils.Modules, as: UtilsModules
   alias LiveDebugger.API.System.Dbg
 
+  @live_view_vsn Application.spec(:phoenix_live_view, :vsn)
+                 |> to_string()
+
   @spec setup_tracing!(TracingManager.state()) :: pid() | nil
   def setup_tracing!(state) do
     last_id = TraceQueries.get_last_trace_id()
@@ -93,7 +96,10 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   defp apply_trace_patterns() do
     # This is not a callback created by user
     # We trace it to refresh the components tree
-    Dbg.trace_pattern({Phoenix.LiveView.Diff, :delete_component, 2}, [])
+    # This will be replaced with telemetry event added in LiveView 1.1.0
+    if not Version.match?(@live_view_vsn, ">= 1.1.0-rc.0") do
+      Dbg.trace_pattern({Phoenix.LiveView.Diff, :delete_component, 2}, [])
+    end
 
     CallbackQueries.all_callbacks()
     |> Enum.each(fn mfa ->

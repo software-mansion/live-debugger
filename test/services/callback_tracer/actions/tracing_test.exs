@@ -3,6 +3,10 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
 
   import Mox
 
+  @live_component_destroyed_telemetry_supported? Application.spec(:phoenix_live_view, :vsn)
+                                                 |> to_string()
+                                                 |> Version.match?(">= 1.1.0-rc.0")
+
   # These params are defined here to prevent errors associated with String.to_existing_atom/1
   @live_view_module :"Elixir.TracingTestLiveView"
   @live_component_module :"Elixir.TracingTestLiveComponent"
@@ -28,7 +32,11 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       MockAPIDbg
       |> expect(:tracer, fn {_handler, 0} -> {:ok, self()} end)
       |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
-      |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
+      |> expect(
+        :trace_pattern,
+        if(@live_component_destroyed_telemetry_supported?, do: 18, else: 19),
+        fn _, _ -> :ok end
+      )
 
       assert %{dbg_pid: self()} == TracingActions.setup_tracing!(%{dbg_pid: nil})
     end
@@ -64,7 +72,11 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       MockAPIDbg
       |> expect(:tracer, fn {_handler, 0} -> {:ok, tracer_pid} end)
       |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
-      |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
+      |> expect(
+        :trace_pattern,
+        if(@live_component_destroyed_telemetry_supported?, do: 18, else: 19),
+        fn _, _ -> :ok end
+      )
 
       assert %{dbg_pid: ^tracer_pid} = TracingActions.setup_tracing!(%{dbg_pid: nil})
 
