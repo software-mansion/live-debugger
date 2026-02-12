@@ -3,18 +3,14 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
   Basic information about the node.
   """
 
-  @elixir_editor System.get_env("ELIXIR_EDITOR") || nil
-
   use LiveDebugger.App.Web, :live_component
 
-  import LiveDebugger.App.Web.Hooks.Flash, only: [push_flash: 3]
-  require Logger
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
   alias LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen
   alias LiveDebugger.App.Utils.Parsers
-
   alias LiveDebugger.App.Debugger.Web.Components.Pages
+  alias LiveDebugger.App.Debugger.Web.Utils.Editor
 
   @impl true
   def update(assigns, socket) do
@@ -22,6 +18,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     |> assign(:id, assigns.id)
     |> assign(:node_id, assigns.node_id)
     |> assign(:lv_process, assigns.lv_process)
+    |> assign(:elixir_editor, Editor.detect_editor())
     |> assign_node_type()
     |> assign_async_node_module()
     |> ok()
@@ -33,8 +30,6 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :elixir_editor, @elixir_editor)
-
     ~H"""
     <div
       id={@id}
@@ -62,6 +57,16 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               </.tooltip>
               <.copy_button id="copy-button-module-name" value={node_module.module_name} />
             </div>
+
+            <.button
+              class="shrink-0 md_ct:ml-auto md_ct:hidden mb-3"
+              variant="secondary"
+              size="sm"
+              id="show-components-tree-button"
+              phx-click={Pages.get_open_sidebar_js(:node_inspector)}
+            >
+              <.icon name="icon-component" class="w-4 h-4" /> Show Components Tree
+            </.button>
             <span class="font-medium">Path:</span>
 
             <div class="flex gap-2 min-w-0">
@@ -76,8 +81,30 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
             </div>
 
             <div class="flex flex-row items-center">
+              <.tooltip
+                :if={!@elixir_editor}
+                id={@id <> "-env-not-set"}
+                content="To open files in the editor, please set the ELIXIR_EDITOR env or use IDE editor for example VSCode"
+                class="truncate"
+              >
+                <.button
+                  class="shrink-0 mr-2 mb-3"
+                  variant="secondary"
+                  id="open-in-editor"
+                  size="sm"
+                  disabled={!@elixir_editor}
+                  phx-click="open-in-editor"
+                  phx-target={@myself}
+                  phx-value-file={node_module.module_path}
+                  phx-value-line={node_module.line}
+                >
+                  <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
+                </.button>
+              </.tooltip>
+
               <.button
-                class="shrink-0 mr-2"
+                :if={@elixir_editor}
+                class="shrink-0 mr-2 mb-3"
                 variant="secondary"
                 id="open-in-editor"
                 size="sm"
@@ -88,25 +115,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               >
                 <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
               </.button>
-              <.tooltip
-                :if={!@elixir_editor}
-                id={@id <> "-current-node-module"}
-                content="To ensure files open in the correct editor, please set the ELIXIR_EDITOR environment variable."
-                class="truncate"
-              >
-                <.icon name="icon-info" class="text-error-text w-4 h-4" />
-              </.tooltip>
             </div>
-
-            <.button
-              class="shrink-0 md_ct:ml-auto md_ct:hidden mb-3"
-              variant="secondary"
-              size="sm"
-              id="show-components-tree-button"
-              phx-click={Pages.get_open_sidebar_js(:node_inspector)}
-            >
-              <.icon name="icon-component" class="w-4 h-4" /> Show Components Tree
-            </.button>
           </div>
           <div class="shrink-0 flex flex-col gap-2">
             <span class="font-medium">Type:</span>
@@ -144,9 +153,13 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
   end
 
   def handle_event("open-in-editor", %{"file" => file, "line" => line}, socket) do
-    socket
-    |> open_editor(file, line |> String.to_integer())
-    |> noreply()
+    cmd = Editor.get_editor_cmd(socket.assigns.elixir_editor, file, line |> String.to_integer())
+    # Some editors may block iex, so we spawn a new process
+    spawn(fn ->
+      Editor.run_shell_cmd(cmd)
+    end)
+
+    {:noreply, socket}
   end
 
   defp assign_node_type(socket) do
@@ -168,7 +181,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     assign_async(socket, :node_module, fn ->
       case NodeQueries.get_module_from_id(node_id, pid) do
         {:ok, module} ->
-          {_, _, _, _, _, %{source_annos: [{line, _column}]}, _} = Code.fetch_docs(module)
+          line = get_module_line(module)
 
           path = module.__info__(:compile) |> Keyword.get(:source) |> List.to_string()
 
@@ -189,50 +202,13 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     end)
   end
 
-  defp open_editor(socket, file, line) when is_binary(file) and is_integer(line) do
-    try do
-      open_in_term_program_editor(file, line)
-      socket
-    rescue
-      _ -> open_in_elixir_editor(socket, file, line)
-    end
-  end
+  defp get_module_line(module) do
+    case Code.fetch_docs(module) do
+      {:docs_v1, _, _, _, _, %{source_annos: [{line, _column} | _]}, _} ->
+        line
 
-  defp open_in_term_program_editor(file, line) do
-    editor = System.get_env("TERM_PROGRAM")
-    command = ["#{file}:#{line}"]
-    System.cmd(editor, command, stderr_to_stdout: true)
-  end
-
-  defp open_in_elixir_editor(socket, file, line) do
-    cond do
-      editor = @elixir_editor || System.get_env("EDITOR") ->
-        command =
-          if editor =~ "__FILE__" or editor =~ "__LINE__" do
-            editor
-            |> String.replace("__FILE__", inspect(file))
-            |> String.replace("__LINE__", Integer.to_string(line))
-          else
-            ["#{file}:#{line}"]
-          end
-
-        # Some editors may block iex, so we spawn a new process
-        spawn(fn ->
-          try do
-            System.cmd(editor, command, stderr_to_stdout: true, into: IO.stream(:stdio, :line))
-          rescue
-            error -> Logger.error("Failed to open editor: " <> "#{editor} " <> inspect(error))
-          end
-        end)
-
-        socket
-
-      true ->
-        push_flash(
-          socket,
-          :error,
-          "Editor not detected. Run the server in your editor's terminal (e.g., VS Code) or set ELIXIR_EDITOR."
-        )
+      _ ->
+        1
     end
   end
 end
