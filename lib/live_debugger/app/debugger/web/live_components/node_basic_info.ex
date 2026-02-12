@@ -5,6 +5,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   use LiveDebugger.App.Web, :live_component
 
+  import LiveDebugger.App.Web.Hooks.Flash, only: [push_flash: 3]
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
   alias LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen
@@ -13,6 +14,12 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
   alias LiveDebugger.App.Debugger.Web.Utils.Editor
 
   @impl true
+  def update(%{:editor_error => editor_error}, socket) do
+    socket
+    |> push_flash(:error, editor_error)
+    |> ok()
+  end
+
   def update(assigns, socket) do
     socket
     |> assign(:id, assigns.id)
@@ -154,9 +161,22 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   def handle_event("open-in-editor", %{"file" => file, "line" => line}, socket) do
     cmd = Editor.get_editor_cmd(socket.assigns.elixir_editor, file, line |> String.to_integer())
+
     # Some editors may block iex, so we spawn a new process
+    component_id = socket.assigns.id
+    component_pid = self()
+
     spawn(fn ->
-      Editor.run_shell_cmd(cmd)
+      case Editor.run_shell_cmd(cmd) do
+        :ok ->
+          :ok
+
+        {:error, reason} ->
+          send_update(component_pid, __MODULE__,
+            id: component_id,
+            editor_error: "Editor error: #{reason}"
+          )
+      end
     end)
 
     {:noreply, socket}

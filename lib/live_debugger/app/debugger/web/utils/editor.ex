@@ -45,13 +45,10 @@ defmodule LiveDebugger.App.Debugger.Web.Utils.Editor do
       {_output, 0} ->
         :ok
 
-      {path, 127} ->
-        Logger.error("Editor not found at path: #{path}")
-        {:error, :not_found}
-
       {output, status} ->
-        Logger.error("Command failed with status #{status}. Output: #{output}")
-        {:error, status}
+        msg = "#{output} Status: #{status}"
+        Logger.error(msg)
+        {:error, msg}
     end
   end
 end
