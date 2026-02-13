@@ -155,3 +155,17 @@ test('debugger captures runtime errors and exceptions in global callbacks 3', as
     );
   }
 });
+
+test('flash message appears when other node crashes', async ({
+  devApp,
+  dbgApp,
+}) => {
+  await findErrorButton(devApp, 'crash_argument').click();
+
+  const flash = dbgApp.locator('#flash-error');
+  await expect(flash).toBeVisible();
+  await expect(flash).toContainText('Live Component crashed.');
+
+  await expect(flash).toContainText('LiveDebuggerDev.LiveComponents.Crash');
+  await expect(flash).toContainText('Open in Node Inspector');
+});
