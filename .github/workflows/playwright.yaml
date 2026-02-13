@@ -20,8 +20,8 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         include:
           - elixir-version: "1.19.1"
