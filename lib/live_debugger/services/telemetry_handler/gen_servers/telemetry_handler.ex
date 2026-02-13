@@ -10,9 +10,7 @@ defmodule LiveDebugger.Services.TelemetryHandler.GenServers.TelemetryHandler do
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.TelemetryHandler.Events.LiveComponentDeleted
 
-  @live_view_vsn? Application.spec(:phoenix_live_view, :vsn)
-                  |> to_string()
-                  |> Version.match?(">= 1.1.0-rc.0")
+  @live_view_vsn Application.spec(:phoenix_live_view, :vsn) |> to_string()
 
   @spec start_link(opts :: list()) :: GenServer.on_start()
   def start_link(opts \\ []) do
@@ -29,12 +27,12 @@ defmodule LiveDebugger.Services.TelemetryHandler.GenServers.TelemetryHandler do
   defp attach() do
     :telemetry.attach_many(
       "live-debugger-telemetry-handlers",
-      [
-        # Telemetry for destroyed components was introduced in Phoenix LiveView 1.1.0.
-        if(Version.match?(@live_view_vsn?, ">= 1.1.0-rc.0"),
-          do: [:phoenix, :live_component, :destroyed]
-        )
-      ],
+      # Telemetry for destroyed components was introduced in Phoenix LiveView 1.1.0.
+      if Version.match?(@live_view_vsn, ">= 1.1.0-rc.0") do
+        [[:phoenix, :live_component, :destroyed]]
+      else
+        []
+      end,
       &__MODULE__.handle_telemetry/4,
       nil
     )

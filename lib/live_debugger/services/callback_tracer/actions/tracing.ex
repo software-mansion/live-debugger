@@ -14,8 +14,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   alias LiveDebugger.Utils.Modules, as: UtilsModules
   alias LiveDebugger.API.System.Dbg
 
-  @live_view_vsn Application.spec(:phoenix_live_view, :vsn)
-                 |> to_string()
+  @live_view_vsn Application.spec(:phoenix_live_view, :vsn) |> to_string()
 
   @spec setup_tracing!(TracingManager.state()) :: pid() | nil
   def setup_tracing!(state) do
