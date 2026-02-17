@@ -197,25 +197,31 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
         </div>
 
         <div class="hidden peer-checked/stack:block">
-          <pre class={[
-            "block w-full",
-            "max-h-[30vh] overflow-y-auto overflow-x-auto",
-            "whitespace-pre",
-            "text-xs p-4",
-            "font-code bg-navbar-bg",
-            "overscroll-y-contain"
-          ]}><%= format_stacktrace(@error.stacktrace) %></pre>
+          <pre
+            data-testid="stacktrace"
+            class={[
+              "block w-full",
+              "max-h-[30vh] overflow-y-auto overflow-x-auto",
+              "whitespace-pre",
+              "text-xs p-4",
+              "font-code bg-navbar-bg",
+              "overscroll-y-contain"
+            ]}
+          ><%= format_stacktrace(@error.stacktrace) %></pre>
         </div>
 
         <div class="hidden peer-checked/raw:block">
-          <pre class={[
-            "block w-full",
-            "whitespace-pre",
-            "text-xs p-4",
-            "overflow-y-auto overflow-x-auto max-h-[30vh]",
-            "font-code bg-navbar-bg",
-            "overscroll-y-contain"
-          ]}><%=@error.raw_error%></pre>
+          <pre
+            data-testid="raw_error"
+            class={[
+              "block w-full",
+              "whitespace-pre",
+              "text-xs p-4",
+              "overflow-y-auto overflow-x-auto max-h-[30vh]",
+              "font-code bg-navbar-bg",
+              "overscroll-y-contain"
+            ]}
+          ><%=@error.raw_error%></pre>
         </div>
       <% else %>
         <.trace_body id={@id} trace_display={@trace_display} search_phrase={@search_phrase} />
