@@ -14,6 +14,7 @@ const findGlobalCallbackTracesButton = (page: Page) =>
 
 const findNodeInspectorButton = (page: Page) =>
   page.locator('#node-inspector-navbar-item a');
+
 const findCrashModule = (page: Page) =>
   page.locator(
     `button[phx-value-module="Elixir.LiveDebuggerDev.LiveComponents.Crash"]`
