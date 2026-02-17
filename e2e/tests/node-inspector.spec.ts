@@ -103,3 +103,10 @@ test('return button redirects to active live views dashboard', async ({
     dbgApp.getByRole('heading', { name: 'Active LiveViews' })
   ).toBeVisible();
 });
+
+test('Open in editor is disabled when envs are not set', async ({ dbgApp }) => {
+  console.log(process.env);
+  const openButton = dbgApp.getByRole('button', { name: 'Open in editor' });
+
+  await expect(openButton).toBeDisabled();
+});

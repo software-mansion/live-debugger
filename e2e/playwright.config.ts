@@ -56,5 +56,10 @@ export default defineConfig({
     url: 'http://localhost:4005',
     reuseExistingServer: !process.env.CI,
     stdout: 'pipe',
+    env: {
+      ELIXIR_EDITOR: '',
+      EDITOR: '',
+      TERM_PROGRAM: '',
+    },
   },
 });
