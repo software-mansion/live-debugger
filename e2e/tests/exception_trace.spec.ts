@@ -12,6 +12,13 @@ const findTraces = (page: Page) =>
 const findGlobalCallbackTracesButton = (page: Page) =>
   page.locator('#global-traces-navbar-item a');
 
+const findNodeInspectorButton = (page: Page) =>
+  page.locator('#node-inspector-navbar-item a');
+const findCrashModule = (page: Page) =>
+  page.locator(
+    `button[phx-value-module="Elixir.LiveDebuggerDev.LiveComponents.Crash"]`
+  );
+
 const findErrorButton = (page: Page, action: string) =>
   page.locator(`button[phx-click="${action}"]`);
 
@@ -160,12 +167,23 @@ test('flash message appears when other node crashes', async ({
   devApp,
   dbgApp,
 }) => {
+  await findNodeInspectorButton(dbgApp).click();
   await findErrorButton(devApp, 'crash_argument').click();
-
   const flash = dbgApp.locator('#flash-error');
   await expect(flash).toBeVisible();
   await expect(flash).toContainText('Live Component crashed.');
 
   await expect(flash).toContainText('LiveDebuggerDev.LiveComponents.Crash');
   await expect(flash).toContainText('Open in Node Inspector');
+});
+
+test("flash message doesn't appear when node crashes", async ({
+  devApp,
+  dbgApp,
+}) => {
+  await findNodeInspectorButton(dbgApp).click();
+  await findCrashModule(dbgApp).click();
+  await findErrorButton(devApp, 'crash_argument').click();
+  const flash = dbgApp.locator('#flash-error');
+  await expect(flash).not.toBeVisible();
 });
