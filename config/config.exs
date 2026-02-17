@@ -96,4 +96,11 @@ if config_env() == :test do
 
   # Initialize plugs at runtime for faster test compilation
   config :phoenix, :plug_init_mode, :runtime
+
+  config :live_debugger,
+    dead_view_mode: true,
+    garbage_collection: true,
+    debug_button: true,
+    tracing_enabled_on_start: true,
+    highlight_in_browser: true
 end
