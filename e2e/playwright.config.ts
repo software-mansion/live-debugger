@@ -52,14 +52,9 @@ export default defineConfig({
   /* Run your local dev server before starting the tests */
   webServer: {
     command:
-      'cd .. && MIX_ENV=test iex -e "Application.put_env(:live_debugger, :e2e?, true)" -S mix',
+      'cd .. && env -u TERM_PROGRAM -u EDITOR -u ELIXIR_EDITOR MIX_ENV=test iex -e "Application.put_env(:live_debugger, :e2e?, true)" -S mix',
     url: 'http://localhost:4005',
     reuseExistingServer: !process.env.CI,
     stdout: 'pipe',
-    env: {
-      ELIXIR_EDITOR: '',
-      EDITOR: '',
-      TERM_PROGRAM: '',
-    },
   },
 });
