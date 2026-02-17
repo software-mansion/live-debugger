@@ -5,10 +5,13 @@ defmodule LiveDebugger.Services.TelemetryHandler.GenServers.TelemetryHandler do
 
   use GenServer
 
+  alias LiveDebugger.API.LiveViewDebug
+  alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.Utils.Modules, as: UtilsModules
 
   alias LiveDebugger.Bus
-  alias LiveDebugger.Services.TelemetryHandler.Events.LiveComponentDeleted
+  alias LiveDebugger.Services.TelemetryHandler.Events.TelemetryEmitted
+  alias LiveDebugger.Services.TelemetryHandler.Events.StateChanged
 
   @live_view_vsn Application.spec(:phoenix_live_view, :vsn) |> to_string()
 
@@ -19,12 +22,26 @@ defmodule LiveDebugger.Services.TelemetryHandler.GenServers.TelemetryHandler do
 
   @impl true
   def init(_opts) do
-    attach()
+    attach_telemetry_handlers()
 
     {:ok, []}
   end
 
-  defp attach() do
+  @impl true
+  def handle_info({:handle_component_destroyed, pid, cid}, state) do
+    save_lv_state!(pid)
+
+    Bus.broadcast_event!(
+      %TelemetryEmitted{source: :live_component, type: :destroyed, pid: pid, cid: cid},
+      pid
+    )
+
+    {:noreply, state}
+  end
+
+  defp attach_telemetry_handlers() do
+    :telemetry.detach("live-debugger-telemetry-handlers")
+
     :telemetry.attach_many(
       "live-debugger-telemetry-handlers",
       # Telemetry for destroyed components was introduced in Phoenix LiveView 1.1.0.
@@ -34,16 +51,29 @@ defmodule LiveDebugger.Services.TelemetryHandler.GenServers.TelemetryHandler do
         []
       end,
       &__MODULE__.handle_telemetry/4,
-      nil
+      self()
     )
   end
 
-  def handle_telemetry([:phoenix, :live_component, :destroyed], _measurements, metadata, _config) do
+  def handle_telemetry(
+        [:phoenix, :live_component, :destroyed],
+        _measurements,
+        metadata,
+        manager_pid
+      ) do
     if not UtilsModules.debugger_module?(metadata.component) do
       pid = self()
       cid = %Phoenix.LiveComponent.CID{cid: metadata.cid}
 
-      Bus.broadcast_event!(%LiveComponentDeleted{pid: pid, cid: cid}, pid)
+      send(manager_pid, {:handle_component_destroyed, pid, cid})
+    end
+  end
+
+  defp save_lv_state!(pid) do
+    with {:ok, lv_state} <- LiveViewDebug.liveview_state(pid) do
+      StatesStorage.save!(lv_state)
+      Bus.broadcast_state!(%StateChanged{pid: pid}, pid)
+      :ok
     end
   end
 end

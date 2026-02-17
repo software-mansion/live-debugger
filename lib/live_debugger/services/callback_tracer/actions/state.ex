@@ -42,6 +42,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
     do_save_initial_state!(pid, socket)
   end
 
+  # Handling components deletion for :phoenix_live_view versions < 1.1.0
   def maybe_save_state!(%FunctionTrace{pid: pid, function: :delete_component, type: :call}) do
     do_save_state!(pid)
   end

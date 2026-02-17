@@ -5,5 +5,12 @@ defmodule LiveDebugger.Services.TelemetryHandler.Events do
 
   use LiveDebugger.Event
 
-  defevent(LiveComponentDeleted, pid: pid(), cid: CommonTypes.cid())
+  defevent(StateChanged, pid: pid())
+
+  defevent(TelemetryEmitted,
+    source: :live_component,
+    type: :destroyed,
+    pid: pid(),
+    cid: CommonTypes.cid()
+  )
 end

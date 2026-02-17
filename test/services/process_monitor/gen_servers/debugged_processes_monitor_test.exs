@@ -12,9 +12,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
-
-  alias LiveDebugger.Services.TelemetryHandler.Events.LiveComponentDeleted,
-    as: TelemetryLiveComponentDeleted
+  alias LiveDebugger.Services.TelemetryHandler.Events.TelemetryEmitted
 
   setup :verify_on_exit!
 
@@ -31,7 +29,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
       cid = %Phoenix.LiveComponent.CID{cid: 1}
       state = %{pid => MapSet.new([cid])}
 
-      event = %TelemetryLiveComponentDeleted{cid: cid, pid: pid}
+      event = %TelemetryEmitted{source: :live_component, type: :destroyed, cid: cid, pid: pid}
 
       MockBus
       |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid, pid: ^pid}, ^pid -> :ok end)
