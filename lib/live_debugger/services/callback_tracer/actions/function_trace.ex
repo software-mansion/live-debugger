@@ -161,8 +161,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace do
       arity: trace.arity,
       pid: trace.pid,
       cid: trace.cid,
-      transport_pid: trace.transport_pid,
-      error: trace.error
+      transport_pid: trace.transport_pid
     }
   end
 end
