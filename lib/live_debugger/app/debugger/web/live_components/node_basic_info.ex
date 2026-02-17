@@ -91,7 +91,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               <.tooltip
                 :if={!@elixir_editor}
                 id={@id <> "-env-not-set"}
-                content="To open files in the editor, please set the ELIXIR_EDITOR env or use IDE editor for example VSCode"
+                content="To open files, set the ELIXIR_EDITOR env or use an IDE terminal (e.g., VS Code)."
                 class="truncate"
               >
                 <.button
