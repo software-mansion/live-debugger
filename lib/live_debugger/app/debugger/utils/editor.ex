@@ -1,4 +1,4 @@
-defmodule LiveDebugger.App.Debugger.Web.Utils.Editor do
+defmodule LiveDebugger.App.Debugger.Utils.Editor do
   @moduledoc """
   Utilities for opening editors
   """
@@ -16,11 +16,11 @@ defmodule LiveDebugger.App.Debugger.Web.Utils.Editor do
       elixir_editor = System.get_env("ELIXIR_EDITOR") ->
         elixir_editor
 
-      system_editor = System.get_env("EDITOR") ->
-        system_editor
-
       mapped_editor = Map.get(@term_to_cmd, System.get_env("TERM_PROGRAM")) ->
         mapped_editor
+
+      system_editor = System.get_env("EDITOR") ->
+        system_editor
 
       true ->
         nil

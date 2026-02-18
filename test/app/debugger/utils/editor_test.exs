@@ -1,7 +1,7 @@
-defmodule LiveDebugger.App.Utils.EditorTest do
+defmodule LiveDebugger.App.Debugger.Utils.EditorTest do
   use ExUnit.Case, async: false
 
-  alias LiveDebugger.App.Debugger.Web.Utils.Editor
+  alias LiveDebugger.App.Debugger.Utils.Editor
 
   describe "creates correct editor command" do
     test "uses ELIXIR_EDITOR when set" do
@@ -13,8 +13,8 @@ defmodule LiveDebugger.App.Utils.EditorTest do
       end)
     end
 
-    test "falls back to EDITOR when ELIXIR_EDITOR is missing" do
-      with_env(%{"ELIXIR_EDITOR" => nil, "EDITOR" => "vim"}, fn ->
+    test "falls back to EDITOR when ELIXIR_EDITOR and TERM_PROGRAM is missing" do
+      with_env(%{"ELIXIR_EDITOR" => nil, "TERM_PROGRAM" => nil, "EDITOR" => "vim"}, fn ->
         editor = Editor.detect_editor()
 
         assert Editor.get_editor_cmd(editor, "lib/app.ex", 15) ==
