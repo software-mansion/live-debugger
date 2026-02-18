@@ -31,8 +31,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
       |> expect(:get_all_tables, fn -> [] end)
 
       MockAPIModule
-      |> expect(:all, 2, fn -> [{~c"Test.LiveViewModule", ~c"/path/Module.beam", true}] end)
-      |> expect(:loaded?, 2, fn _ -> true end)
+      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path/Module.beam", true}] end)
+      |> expect(:loaded?, fn _ -> true end)
       |> expect(:live_module?, fn _ -> true end)
       |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
 
