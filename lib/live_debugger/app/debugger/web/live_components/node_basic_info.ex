@@ -11,7 +11,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
   alias LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Debugger.Web.Components.Pages
-  alias LiveDebugger.App.Debugger.Web.Utils.Editor
+  alias LiveDebugger.App.Debugger.Utils.Editor
 
   @impl true
   def update(%{:editor_error => editor_error}, socket) do
@@ -51,8 +51,8 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
             <p>Couldn't load basic information about the node.</p>
           </.alert>
         </:failed>
-        <div class="flex flex-row gap-8 max-md_ct:flex-col max-md_ct:gap-2 md_ct:items-center p-3">
-          <div class="min-w-0 flex flex-col gap-2 max-md_ct:border-b max-md_ct:border-default-border">
+        <div class="flex flex-row gap-8 max-sm_bi:flex-col max-sm_bi:gap-4 sm_bi:items-center p-3">
+          <div class="min-w-0 flex flex-col gap-2">
             <span class="font-medium">Module:</span>
             <div class="flex gap-2 min-w-0">
               <.tooltip
@@ -64,19 +64,12 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               </.tooltip>
               <.copy_button id="copy-button-module-name" value={node_module.module_name} />
             </div>
+          </div>
 
-            <.button
-              class="shrink-0 md_ct:ml-auto md_ct:hidden mb-3"
-              variant="secondary"
-              size="sm"
-              id="show-components-tree-button"
-              phx-click={Pages.get_open_sidebar_js(:node_inspector)}
-            >
-              <.icon name="icon-component" class="w-4 h-4" /> Show Components Tree
-            </.button>
+          <div class="min-w-0 flex flex-col gap-2">
             <span class="font-medium">Path:</span>
 
-            <div class="flex gap-2 min-w-0">
+            <div class="flex flex-row gap-2">
               <.tooltip
                 id={@id <> "-current-node-module-path"}
                 content={node_module.module_path <> ":" <> Integer.to_string(node_module.line)}
@@ -86,20 +79,34 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               </.tooltip>
               <.copy_button id="copy-button-module-path" value={node_module.module_path} />
             </div>
+          </div>
 
-            <div class="flex flex-row items-center">
-              <.tooltip
-                :if={!@elixir_editor}
-                id={@id <> "-env-not-set"}
-                content="To open files, set the ELIXIR_EDITOR env or use an IDE terminal (e.g., VS Code)."
-                class="truncate"
+          <div class="shrink-0 flex flex-col gap-2 max-sm_bi:border-b max-sm_bi:border-default-border pb-2">
+            <span class="font-medium">Type:</span>
+            <span><%= @node_type %></span>
+          </div>
+
+          <div class="flex flex-row gap-2 max-sm_ct:flex-col sm_bi:ml-auto">
+            <div class="flex flex-row gap-2">
+              <.button
+                class="shrink-0 sm_bi:ml-auto"
+                variant="secondary"
+                size="sm"
+                id="send-event-button"
+                disabled={not @lv_process.alive?}
+                phx-click="open-send-event"
+                phx-target={@myself}
               >
+                <.icon name="icon-send" class="w-4 h-4" /> Send Event
+              </.button>
+
+              <div class="flex flex-row items-center gap-2">
                 <.button
-                  class="shrink-0 mr-2 mb-3"
+                  disabled={!@elixir_editor}
+                  class="shrink-0"
                   variant="secondary"
                   id="open-in-editor"
                   size="sm"
-                  disabled={!@elixir_editor}
                   phx-click="open-in-editor"
                   phx-target={@myself}
                   phx-value-file={node_module.module_path}
@@ -107,39 +114,30 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
                 >
                   <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
                 </.button>
-              </.tooltip>
 
-              <.button
-                :if={@elixir_editor}
-                class="shrink-0 mr-2 mb-3"
-                variant="secondary"
-                id="open-in-editor"
-                size="sm"
-                phx-click="open-in-editor"
-                phx-target={@myself}
-                phx-value-file={node_module.module_path}
-                phx-value-line={node_module.line}
-              >
-                <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
-              </.button>
+                <.tooltip
+                  id={@id <> "-env-not-set"}
+                  content="Cannot open in editor? See the documentation."
+                >
+                  <span :if={!@elixir_editor} class="text-error-text">
+                    <.link href="https://example.com/configure-editor" target="_blank">
+                      <.icon name="icon-info" class="w-4 h-4" />
+                    </.link>
+                  </span>
+                </.tooltip>
+              </div>
             </div>
-          </div>
-          <div class="shrink-0 flex flex-col gap-2">
-            <span class="font-medium">Type:</span>
-            <span><%= @node_type %></span>
-          </div>
 
-          <.button
-            class="shrink-0 md_ct:ml-auto"
-            variant="secondary"
-            size="sm"
-            id="send-event-button"
-            disabled={not @lv_process.alive?}
-            phx-click="open-send-event"
-            phx-target={@myself}
-          >
-            <.icon name="icon-send" class="w-4 h-4" /> Send Event
-          </.button>
+            <.button
+              class="shrink-0 sm_bi:ml-auto md_ct:hidden"
+              variant="secondary"
+              size="sm"
+              id="show-components-tree-button"
+              phx-click={Pages.get_open_sidebar_js(:node_inspector)}
+            >
+              <.icon name="icon-component" class="w-4 h-4" /> Show Components Tree
+            </.button>
+          </div>
         </div>
       </.async_result>
       <.live_component
@@ -232,3 +230,24 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     end
   end
 end
+
+# <.tooltip
+#   :if={!@elixir_editor}
+#   id={@id <> "-env-not-set"}
+#   content="To open files, set the ELIXIR_EDITOR env or use an IDE terminal (e.g., VS Code)."
+#   class="truncate"
+# >
+#   <.button
+#     class="shrink-0 mr-2 mb-3"
+#     variant="secondary"
+#     id="open-in-editor"
+#     size="sm"
+#     disabled={!@elixir_editor}
+#     phx-click="open-in-editor"
+#     phx-target={@myself}
+#     phx-value-file={node_module.module_path}
+#     phx-value-line={node_module.line}
+#   >
+#     <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
+#   </.button>
+# </.tooltip>
