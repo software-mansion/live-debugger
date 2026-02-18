@@ -404,7 +404,7 @@ defmodule LiveDebugger.App.Web.Components do
                 <%= @message.module %>
               </span>
 
-              <.link href={@message.url} target="_blank" class="font-bold underline hover:opacity-80">
+              <.link href={@message.url} class="font-bold underline hover:opacity-80">
                 <%= Map.get(@message, :label, "Link") %>
               </.link>
             <% else %>

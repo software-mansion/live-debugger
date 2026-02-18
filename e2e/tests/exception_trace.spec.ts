@@ -173,7 +173,7 @@ test('flash message appears when other node crashes', async ({
 
   const flash = dbgApp.locator('#flash-error');
   await expect(flash).toBeVisible();
-  await expect(flash).toContainText('Live Component crashed.');
+  await expect(flash).toContainText('LiveComponent crashed.');
   await expect(flash).toContainText('LiveDebuggerDev.LiveComponents.Crash');
   await expect(flash).toContainText('Open in Node Inspector');
 });
