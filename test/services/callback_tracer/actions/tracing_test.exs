@@ -83,7 +83,8 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
       |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
 
-      assert %{dbg_pid: ^tracer_pid} = TracingActions.setup_tracing_with_monitoring!(%{dbg_pid: nil})
+      assert %{dbg_pid: ^tracer_pid} =
+               TracingActions.setup_tracing_with_monitoring!(%{dbg_pid: nil})
 
       # Verify process is monitored
       Process.exit(tracer_pid, :done)
