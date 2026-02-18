@@ -27,7 +27,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   @impl true
   def init(_opts) do
     Bus.receive_events!()
-    TracingActions.monitor_recompilation()
 
     :net_kernel.monitor_nodes(true, %{node_type: :visible})
 
@@ -44,6 +43,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   @impl true
   def handle_info(:setup_tracing, state) do
     new_state = TracingActions.setup_tracing!(state)
+    TracingActions.monitor_recompilation()
 
     {:noreply, new_state}
   end
