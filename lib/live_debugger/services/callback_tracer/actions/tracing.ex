@@ -102,17 +102,21 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
     end)
   end
 
-  # Starts FileSystem monitor for the directories containing live modules
   defp start_file_monitoring(live_modules_with_paths) do
     directories =
       live_modules_with_paths
       |> Enum.map(fn {_, path} -> Path.dirname(path) end)
       |> Enum.uniq()
 
-    FileSystemAPI.start_link(dirs: directories, name: :lvdbg_file_system_monitor)
-    FileSystemAPI.subscribe(:lvdbg_file_system_monitor)
+    case Process.whereis(:lvdbg_file_system_monitor) do
+      nil ->
+        FileSystemAPI.start_link(dirs: directories, name: :lvdbg_file_system_monitor)
+        FileSystemAPI.subscribe(:lvdbg_file_system_monitor)
+        :ok
 
-    :ok
+      _pid ->
+        :ok
+    end
   end
 
   defp beam_file?(path) do
