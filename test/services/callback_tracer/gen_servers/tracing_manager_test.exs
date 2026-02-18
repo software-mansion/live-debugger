@@ -19,19 +19,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
     test "sets up the tracing manager properly" do
       expect(MockBus, :receive_events!, fn -> :ok end)
 
-      MockAPIModule
-      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path/Module.beam", true}] end)
-      |> expect(:loaded?, fn _ -> true end)
-      |> expect(:live_module?, fn _ -> true end)
-
-      MockAPIFileSystem
-      |> expect(:start_link, fn opts ->
-        assert Keyword.get(opts, :name) == :lvdbg_file_system_monitor
-        assert Keyword.get(opts, :dirs) == ["/path"]
-        {:ok, self()}
-      end)
-      |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
-
       assert {:ok, %{dbg_pid: nil}} = TracingManager.init([])
 
       assert_receive :setup_tracing
@@ -44,9 +31,18 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
       |> expect(:get_all_tables, fn -> [] end)
 
       MockAPIModule
-      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path/Module.beam", true}] end)
-      |> expect(:loaded?, fn _ -> true end)
+      |> expect(:all, 2, fn -> [{~c"Test.LiveViewModule", ~c"/path/Module.beam", true}] end)
+      |> expect(:loaded?, 2, fn _ -> true end)
+      |> expect(:live_module?, fn _ -> true end)
       |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
+
+      MockAPIFileSystem
+      |> expect(:start_link, fn opts ->
+        assert Keyword.get(opts, :name) == :lvdbg_file_system_monitor
+        assert Keyword.get(opts, :dirs) == ["/path"]
+        {:ok, self()}
+      end)
+      |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
       MockAPIDbg
       |> expect(:tracer, fn _ -> {:ok, self()} end)
