@@ -38,4 +38,7 @@ export const findClearTracesButton = (page: Page) =>
 export const findRefreshTracesButton = (page: Page) =>
   page.locator('button[phx-click="refresh-history"]');
 
+export const findFiltersButton = (page: Page) =>
+  page.locator('button[aria-label="Open filters"]');
+
 export { expect, Page } from '@playwright/test';
