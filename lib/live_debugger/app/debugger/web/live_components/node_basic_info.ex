@@ -117,7 +117,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
                 <.tooltip
                   id={@id <> "-env-not-set"}
-                  content="Cannot open in editor? See the documentation."
+                  content="Cannot open in editor? Click to see the documentation."
                 >
                   <span :if={!@elixir_editor} class="text-error-text">
                     <.link href="https://example.com/configure-editor" target="_blank">
