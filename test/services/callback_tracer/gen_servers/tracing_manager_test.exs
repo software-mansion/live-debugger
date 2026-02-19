@@ -3,6 +3,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
 
   import Mox
 
+  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.MockBus
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIFileSystem
@@ -13,28 +14,11 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
   alias LiveDebugger.App.Events.UserRefreshedTrace
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
 
-  @live_component_destroyed_telemetry_supported? Application.spec(:phoenix_live_view, :vsn)
-                                                 |> to_string()
-                                                 |> Version.match?(">= 1.1.0-rc.0")
-
   setup :verify_on_exit!
 
   describe "init/1" do
     test "sets up the tracing manager properly" do
       expect(MockBus, :receive_events!, fn -> :ok end)
-
-      MockAPIModule
-      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path/Module.beam", true}] end)
-      |> expect(:loaded?, fn _ -> true end)
-      |> expect(:live_module?, fn _ -> true end)
-
-      MockAPIFileSystem
-      |> expect(:start_link, fn opts ->
-        assert Keyword.get(opts, :name) == :lvdbg_file_system_monitor
-        assert Keyword.get(opts, :dirs) == ["/path"]
-        {:ok, self()}
-      end)
-      |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
       assert {:ok, %{dbg_pid: nil}} = TracingManager.init([])
 
@@ -50,14 +34,23 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
       MockAPIModule
       |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path/Module.beam", true}] end)
       |> expect(:loaded?, fn _ -> true end)
+      |> expect(:live_module?, fn _ -> true end)
       |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
+
+      MockAPIFileSystem
+      |> expect(:start_link, fn opts ->
+        assert Keyword.get(opts, :name) == :lvdbg_file_system_monitor
+        assert Keyword.get(opts, :dirs) == ["/path"]
+        {:ok, self()}
+      end)
+      |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
       MockAPIDbg
       |> expect(:tracer, fn _ -> {:ok, self()} end)
       |> expect(:process, fn _ -> :ok end)
       |> expect(
         :trace_pattern,
-        if(@live_component_destroyed_telemetry_supported?, do: 18, else: 19),
+        if(Versions.live_component_destroyed_telemetry_supported?(), do: 18, else: 19),
         fn _, _ -> :ok end
       )
 

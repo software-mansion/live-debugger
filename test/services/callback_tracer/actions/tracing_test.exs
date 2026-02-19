@@ -3,14 +3,11 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
 
   import Mox
 
-  @live_component_destroyed_telemetry_supported? Application.spec(:phoenix_live_view, :vsn)
-                                                 |> to_string()
-                                                 |> Version.match?(">= 1.1.0-rc.0")
-
   # These params are defined here to prevent errors associated with String.to_existing_atom/1
   @live_view_module :"Elixir.TracingTestLiveView"
   @live_component_module :"Elixir.TracingTestLiveComponent"
 
+  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIFileSystem
@@ -19,26 +16,35 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
 
   setup :verify_on_exit!
 
-  describe "setup_tracing!/0" do
-    test "successfully sets up tracing" do
+  describe "setup_tracing_with_monitoring!/1" do
+    test "successfully sets up tracing and monitoring" do
       MockAPITracesStorage
       |> expect(:get_all_tables, fn -> [] end)
 
       MockAPIModule
-      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)
+      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path/Module.beam", true}] end)
       |> expect(:loaded?, fn _ -> true end)
+      |> expect(:live_module?, fn _ -> true end)
       |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
+
+      MockAPIFileSystem
+      |> expect(:start_link, fn opts ->
+        assert Keyword.get(opts, :name) == :lvdbg_file_system_monitor
+        assert Keyword.get(opts, :dirs) == ["/path"]
+        {:ok, self()}
+      end)
+      |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
       MockAPIDbg
       |> expect(:tracer, fn {_handler, 0} -> {:ok, self()} end)
       |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
       |> expect(
         :trace_pattern,
-        if(@live_component_destroyed_telemetry_supported?, do: 18, else: 19),
+        if(Versions.live_component_destroyed_telemetry_supported?(), do: 18, else: 19),
         fn _, _ -> :ok end
       )
 
-      assert %{dbg_pid: self()} == TracingActions.setup_tracing!(%{dbg_pid: nil})
+      assert %{dbg_pid: self()} == TracingActions.setup_tracing_with_monitoring!(%{dbg_pid: nil})
     end
 
     test "raises error when tracer fails to start" do
@@ -49,11 +55,11 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:tracer, fn {_handler, 0} -> {:error, :already_started} end)
 
       assert_raise RuntimeError, "Couldn't start tracer: :already_started", fn ->
-        TracingActions.setup_tracing!(%{})
+        TracingActions.setup_tracing_with_monitoring!(%{})
       end
     end
 
-    test "links to tracer process when successful" do
+    test "monitors tracer process when successful" do
       tracer_pid =
         spawn(fn ->
           receive do
@@ -65,25 +71,72 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:get_all_tables, fn -> [] end)
 
       MockAPIModule
-      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path", true}] end)
+      |> expect(:all, fn -> [{~c"Test.LiveViewModule", ~c"/path/Module.beam", true}] end)
       |> expect(:loaded?, fn _ -> true end)
+      |> expect(:live_module?, fn _ -> true end)
       |> expect(:behaviours, 2, fn _ -> [Phoenix.LiveView] end)
+
+      MockAPIFileSystem
+      |> expect(:start_link, fn opts ->
+        assert Keyword.get(opts, :name) == :lvdbg_file_system_monitor
+        {:ok, self()}
+      end)
+      |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
       MockAPIDbg
       |> expect(:tracer, fn {_handler, 0} -> {:ok, tracer_pid} end)
       |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
       |> expect(
         :trace_pattern,
-        if(@live_component_destroyed_telemetry_supported?, do: 18, else: 19),
+        if(Versions.live_component_destroyed_telemetry_supported?(), do: 18, else: 19),
         fn _, _ -> :ok end
       )
 
-      assert %{dbg_pid: ^tracer_pid} = TracingActions.setup_tracing!(%{dbg_pid: nil})
+      assert %{dbg_pid: ^tracer_pid} =
+               TracingActions.setup_tracing_with_monitoring!(%{dbg_pid: nil})
 
       # Verify process is monitored
       Process.exit(tracer_pid, :done)
 
       assert_receive {:DOWN, _, :process, ^tracer_pid, :done}
+    end
+
+    test "monitors multiple directories for file changes" do
+      MockAPITracesStorage
+      |> expect(:get_all_tables, fn -> [] end)
+
+      MockAPIModule
+      |> expect(:all, fn ->
+        [
+          {~c"Test.LiveViewModule", ~c"/app/views/view.beam", true},
+          {~c"Test.LiveComponentModule", ~c"/app/components/component.beam", true}
+        ]
+      end)
+      |> stub(:loaded?, fn _ -> true end)
+      |> stub(:live_module?, fn _ -> true end)
+      |> stub(:behaviours, fn _ -> [Phoenix.LiveView] end)
+
+      MockAPIFileSystem
+      |> expect(:start_link, fn opts ->
+        assert Keyword.get(opts, :name) == :lvdbg_file_system_monitor
+        dirs = Keyword.get(opts, :dirs)
+        assert "/app/views" in dirs
+        assert "/app/components" in dirs
+        {:ok, self()}
+      end)
+      |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
+
+      MockAPIDbg
+      |> expect(:tracer, fn {_handler, 0} -> {:ok, self()} end)
+      |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
+      # 2 modules * 9 LiveView callbacks * 2 (return + exception) + [1 delete_component if LiveView version < 1.1.0] = 37
+      |> expect(
+        :trace_pattern,
+        if(Versions.live_component_destroyed_telemetry_supported?(), do: 36, else: 37),
+        fn _, _ -> :ok end
+      )
+
+      assert %{dbg_pid: self()} == TracingActions.setup_tracing_with_monitoring!(%{dbg_pid: nil})
     end
   end
 
@@ -148,32 +201,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:live_module?, fn Enum -> false end)
 
       assert :ok = TracingActions.refresh_tracing("/app/ebin/Elixir.Enum.beam")
-    end
-  end
-
-  describe "monitor_recompilation/0" do
-    test "monitors multiple directories" do
-      MockAPIModule
-      |> expect(:all, fn ->
-        [
-          {~c"Test.LiveViewModule", ~c"/app/views/view.beam", true},
-          {~c"Test.LiveComponentModule", ~c"/app/components/component.beam", true}
-        ]
-      end)
-      |> stub(:loaded?, fn _ -> true end)
-      |> stub(:live_module?, fn _ -> true end)
-
-      MockAPIFileSystem
-      |> expect(:start_link, fn opts ->
-        assert Keyword.get(opts, :name) == :lvdbg_file_system_monitor
-        dirs = Keyword.get(opts, :dirs)
-        assert "/app/views" in dirs
-        assert "/app/components" in dirs
-        {:ok, self()}
-      end)
-      |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
-
-      assert :ok = TracingActions.monitor_recompilation()
     end
   end
 

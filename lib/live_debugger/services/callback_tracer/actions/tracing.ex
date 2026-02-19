@@ -7,7 +7,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   alias LiveDebugger.Utils.Versions
   alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
   alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
-  alias LiveDebugger.Services.CallbackTracer.Queries.Paths, as: PathQueries
   alias LiveDebugger.Services.CallbackTracer.Queries.Traces, as: TraceQueries
   alias LiveDebugger.Services.CallbackTracer.Process.Tracer
   alias LiveDebugger.API.System.FileSystem, as: FileSystemAPI
@@ -15,8 +14,12 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   alias LiveDebugger.Utils.Modules, as: UtilsModules
   alias LiveDebugger.API.System.Dbg
 
-  @spec setup_tracing!(TracingManager.state()) :: pid() | nil
-  def setup_tracing!(state) do
+  @doc """
+  Sets up tracing and monitors recompilation in a single pass.
+  Fetches and processes the module list only once for efficiency.
+  """
+  @spec setup_tracing_with_monitoring!(TracingManager.state()) :: TracingManager.state()
+  def setup_tracing_with_monitoring!(state) do
     last_id = TraceQueries.get_last_trace_id()
 
     case Dbg.tracer({&Tracer.handle_trace/2, last_id - 1}) do
@@ -24,7 +27,18 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
         Process.monitor(pid)
 
         Dbg.process([:c, :timestamp, :procs])
-        apply_trace_patterns()
+
+        # Fetch all live modules once with paths for both operations
+        live_modules_with_paths = CallbackQueries.all_live_modules_with_paths()
+
+        # Extract just the module names for callback queries
+        module_names = Enum.map(live_modules_with_paths, fn {module, _path} -> module end)
+
+        # Apply trace patterns using the fetched modules
+        apply_trace_patterns(module_names)
+
+        # Monitor recompilation using the paths
+        start_file_monitoring(live_modules_with_paths)
 
         %{state | dbg_pid: pid}
 
@@ -53,21 +67,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
     :ok
   end
 
-  @doc """
-  Starts FileSystem monitor and subscribes to it for compiled modules directories.
-  When changes are detected in the monitored directories,
-  process will receive `{:file_event, _pid, {path, events}}` message.
-  """
-
-  @spec monitor_recompilation() :: :ok
-  def monitor_recompilation() do
-    directories = PathQueries.compiled_modules_directories()
-    FileSystemAPI.start_link(dirs: directories, name: :lvdbg_file_system_monitor)
-    FileSystemAPI.subscribe(:lvdbg_file_system_monitor)
-
-    :ok
-  end
-
   @spec start_outgoing_messages_tracing(pid()) :: :ok
   def start_outgoing_messages_tracing(pid) do
     Dbg.process(pid, [:s])
@@ -91,7 +90,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
     end
   end
 
-  defp apply_trace_patterns() do
+  defp apply_trace_patterns(modules) do
     # This is not a callback created by user
     # We trace it to refresh the components tree
     # This will be replaced with telemetry event added in LiveView 1.1.0
@@ -99,11 +98,29 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
       Dbg.trace_pattern({Phoenix.LiveView.Diff, :delete_component, 2}, [])
     end
 
-    CallbackQueries.all_callbacks()
+    modules
+    |> CallbackQueries.all_callbacks()
     |> Enum.each(fn mfa ->
       Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:return_trace))
       Dbg.trace_pattern(mfa, Dbg.flag_to_match_spec(:exception_trace))
     end)
+  end
+
+  defp start_file_monitoring(live_modules_with_paths) do
+    directories =
+      live_modules_with_paths
+      |> Enum.map(fn {_, path} -> Path.dirname(path) end)
+      |> Enum.uniq()
+
+    case Process.whereis(:lvdbg_file_system_monitor) do
+      nil ->
+        FileSystemAPI.start_link(dirs: directories, name: :lvdbg_file_system_monitor)
+        FileSystemAPI.subscribe(:lvdbg_file_system_monitor)
+        :ok
+
+      _pid ->
+        :ok
+    end
   end
 
   defp beam_file?(path) do
