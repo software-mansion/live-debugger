@@ -17,7 +17,11 @@ defmodule LiveDebuggerDev.LiveComponents.StreamComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <.box title="Component with stream" color="yellow"></.box>
+      <.box title="Component with stream" color="yellow">
+        <.button id="create-item-in-component" phx-click="create_another_item">
+          Create Item in Component
+        </.button>
+      </.box>
     </div>
     """
   end

@@ -5,7 +5,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
   For this server to function properly this service must be running and sending events:
   - `LiveDebugger.Services.CallbackTracer` sending `TraceCalled` event
 
-  `LiveViewBorn` event is detected when `TraceCalled` event with functions `:mount`, `:handle_params` or `:render` is received 
+  `LiveViewBorn` event is detected when `TraceCalled` event with functions `:mount`, `:handle_params` or `:render` is received
   and the process is not already registered
 
   `LiveViewDied` event is detected when a monitored LiveView process sends a `:DOWN` message.
@@ -26,6 +26,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
+  alias LiveDebugger.Services.TelemetryHandler.Events.TelemetryEmitted
 
   import LiveDebugger.Helpers
 
@@ -39,25 +40,36 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   @impl true
   def init(_opts) do
+    Bus.receive_events!()
     Bus.receive_traces!()
 
     {:ok, %{}}
   end
 
   @impl true
-  def handle_info(%TraceCalled{function: function, pid: pid, transport_pid: tpid}, state)
-      when not is_map_key(state, pid) and function in [:mount, :handle_params, :render] do
+  def handle_info(
+        %TelemetryEmitted{type: type, stage: :start, pid: pid, transport_pid: tpid},
+        state
+      )
+      when not is_map_key(state, pid) and type in [:mount, :handle_params, :render] do
     state
     |> ProcessMonitorActions.register_live_view_born!(pid, tpid)
     |> noreply()
   end
 
-  def handle_info(%TraceCalled{function: :render, pid: pid, cid: cid}, state)
+  def handle_info(%TelemetryEmitted{stage: :start, pid: pid}, state)
       when is_map_key(state, pid) do
     state
-    |> maybe_register_component_created(pid, cid)
+    |> maybe_register_component_created(pid)
     |> noreply()
   end
+
+  # def handle_info(%TraceCalled{function: :render, pid: pid, cid: cid}, state)
+  #     when is_map_key(state, pid) do
+  #   state
+  #   |> maybe_register_component_created(pid, cid)
+  #   |> noreply()
+  # end
 
   def handle_info(
         %TraceCalled{
@@ -81,6 +93,11 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
   end
 
   def handle_info(_, state), do: {:noreply, state}
+
+  defp maybe_register_component_created(state, pid) do
+    dbg(state[pid])
+    state |> ProcessMonitorActions.maybe_register_component_created!(pid)
+  end
 
   defp maybe_register_component_created(state, _pid, nil) do
     state
