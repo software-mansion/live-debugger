@@ -120,7 +120,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
                   content="Cannot open in editor? Click to see the documentation."
                 >
                   <span :if={!@elixir_editor} class="text-error-text">
-                    <.link href="https://example.com/configure-editor" target="_blank">
+                    <.link href="https://hexdocs.pm/live_debugger/open_in_editor.html" target="_blank">
                       <.icon name="icon-info" class="w-4 h-4" />
                     </.link>
                   </span>
@@ -230,24 +230,3 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     end
   end
 end
-
-# <.tooltip
-#   :if={!@elixir_editor}
-#   id={@id <> "-env-not-set"}
-#   content="To open files, set the ELIXIR_EDITOR env or use an IDE terminal (e.g., VS Code)."
-#   class="truncate"
-# >
-#   <.button
-#     class="shrink-0 mr-2 mb-3"
-#     variant="secondary"
-#     id="open-in-editor"
-#     size="sm"
-#     disabled={!@elixir_editor}
-#     phx-click="open-in-editor"
-#     phx-target={@myself}
-#     phx-value-file={node_module.module_path}
-#     phx-value-line={node_module.line}
-#   >
-#     <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
-#   </.button>
-# </.tooltip>

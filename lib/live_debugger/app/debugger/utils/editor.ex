@@ -3,12 +3,12 @@ defmodule LiveDebugger.App.Debugger.Utils.Editor do
   Utilities for opening editors
   """
 
+  require Logger
+
   @term_to_cmd %{
     "vscode" => "code -g",
     "zed" => "zed"
   }
-
-  require Logger
 
   @spec detect_editor() :: String.t() | nil
   def detect_editor() do
