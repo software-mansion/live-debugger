@@ -398,15 +398,7 @@ defmodule LiveDebugger.App.Web.Components do
         <p class="min-w-0">
           <div class="flex flex-col flex-1 min-w-0">
             <%= if match?(%ExceptionFlashData{}, @message) do %>
-              <strong><%= @message.text %></strong>
-
-              <span class="truncate w-full block">
-                <%= @message.module %>
-              </span>
-
-              <.link href={@message.url} class="font-bold underline hover:opacity-80">
-                <%= Map.get(@message, :label, "Link") %>
-              </.link>
+              <.exception_flash_message message={@message} />
             <% else %>
               <%= @message %>
             <% end %>
@@ -1253,4 +1245,19 @@ defmodule LiveDebugger.App.Web.Components do
 
   defp button_size_classes("md"), do: "py-2 px-3"
   defp button_size_classes("sm"), do: "py-1.5 px-2"
+
+  defp exception_flash_message(assigns) do
+    ~H"""
+    <strong><%= @message.text %></strong>
+
+    <span class="truncate w-full block">
+      <%= @message.module %>
+    </span>
+
+    <.link href={@message.url} class="font-bold underline hover:opacity-80">
+      <%= Map.get(@message, :label, "Link") %>
+    </.link>
+    end
+    """
+  end
 end
