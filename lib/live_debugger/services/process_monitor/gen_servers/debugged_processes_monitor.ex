@@ -25,8 +25,6 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   require Logger
 
-  alias LiveDebugger.Services.TelemetryHandler.Events.TelemetryEmitted
-  alias LiveDebugger.Services.TelemetryHandler.Events.TelemetryEmitted
   alias LiveDebugger.CommonTypes
   alias LiveDebugger.Services.ProcessMonitor.Actions, as: ProcessMonitorActions
 

@@ -512,12 +512,6 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     session
   end
 
-  defp assigns_entry(key: key, value: value) do
-    xpath(
-      ".//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"#{key}:\")]/../..//*[contains(normalize-space(text()), \"#{value}\")]"
-    )
-  end
-
   defp map_entry(key: key, value: value) do
     xpath(
       ".//*[contains(normalize-space(text()), \"#{key}:\")]/../..//*[contains(normalize-space(text()), \"#{value}\")]",
@@ -535,18 +529,6 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   defp name_component_2_node_button() do
     css("#button-tree-node-2-components-tree")
-  end
-
-  defp conditional_component_5_node_button() do
-    css("#button-tree-node-5-components-tree")
-  end
-
-  defp conditional_component_6_node_button() do
-    css("#button-tree-node-6-components-tree")
-  end
-
-  defp many_assigns_15_node_button() do
-    css("#button-tree-node-15-components-tree")
   end
 
   defp reset_group_button(group) do
