@@ -7,33 +7,41 @@ defmodule LiveDebugger.Client.Channel do
   @pubsub_name LiveDebugger.Env.endpoint_pubsub_name()
 
   @impl true
-  def join("client:" <> _debugged_socket_id, _params, socket) do
-    Phoenix.PubSub.subscribe(@pubsub_name, "client:*")
-
-    socket.assigns.root_socket_ids
-    |> Enum.each(fn {_, socket_id} ->
-      Phoenix.PubSub.subscribe(@pubsub_name, "client:#{socket_id}")
-    end)
-
+  def join("client:init", _payload, socket) do
     {:ok, socket}
   end
 
+  def join("client:" <> window_id, _payload, socket) do
+    {:ok, assign(socket, :window_id, window_id)}
+  end
+
   @impl true
-  def handle_in(message, payload, socket) do
-    debugged_socket_id = socket.assigns.debugged_socket_id
+  def handle_in("register", %{"window_id" => window_id, "fingerprint" => fingerprint}, socket) do
+    dbg(%{window_id: window_id, fingerprint: fingerprint})
+    {:reply, :ok, socket}
+  end
 
-    Phoenix.PubSub.broadcast!(
-      @pubsub_name,
-      "client:#{debugged_socket_id}:receive",
-      {message, payload}
-    )
+  def handle_in(
+        "update_fingerprint",
+        %{
+          "window_id" => window_id,
+          "fingerprint" => fingerprint,
+          "previous_fingerprint" => previous_fingerprint
+        },
+        socket
+      ) do
+    dbg(%{
+      window_id: window_id,
+      fingerprint: fingerprint,
+      previous_fingerprint: previous_fingerprint
+    })
 
-    Phoenix.PubSub.broadcast!(
-      @pubsub_name,
-      "client:receive",
-      {message, payload}
-    )
+    {:reply, :ok, socket}
+  end
 
+  def handle_in("client_event", payload, socket) do
+    window_id = socket.assigns.window_id
+    dbg(%{event: "client_event", window_id: window_id, payload: payload})
     {:noreply, socket}
   end
 

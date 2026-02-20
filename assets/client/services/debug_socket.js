@@ -1,28 +1,108 @@
-import pushWindowInitialized from './window_identifier';
+import { v4 as uuidv4 } from 'uuid';
 
-export default function initDebugSocket(baseURL, socketID, rootSocketIDs) {
-  const websocketURL = baseURL.replace(/^http/, 'ws') + '/client';
+export default class DebugSocket {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+    this.debugSocket = null;
+    this.initChannel = null;
+    this.windowChannel = null;
+    this.windowId = this.getWindowId();
+    this.isRegistered = false;
+  }
 
-  const debugSocket = new window.Phoenix.Socket(websocketURL, {
-    params: { socketID, rootSocketIDs },
-  });
+  getWindowId() {
+    if (window.name) {
+      return window.name;
+    }
 
-  debugSocket.connect();
+    const newWindowId = uuidv4();
+    window.name = newWindowId;
+    return newWindowId;
+  }
 
-  const debugChannel = debugSocket.channel(`client:${socketID}`);
+  async connect() {
+    const websocketURL = this.baseURL.replace(/^http/, 'ws') + '/client';
+    this.debugSocket = new window.Phoenix.Socket(websocketURL);
+    this.debugSocket.connect();
 
-  debugChannel
-    .join()
-    .receive('ok', () => {
-      pushWindowInitialized(debugChannel, socketID);
-      console.log('LiveDebugger debug connection established!');
-    })
-    .receive('error', (resp) => {
-      console.error(
-        'LiveDebugger was unable to establish websocket debug connection! Browser features will not work:\n',
-        resp
-      );
+    this.initChannel = this.debugSocket.channel('client:init');
+
+    return new Promise((resolve, reject) => {
+      this.initChannel
+        .join()
+        .receive('ok', () => {
+          console.log('LiveDebugger debug connection established!');
+          resolve();
+        })
+        .receive('error', (resp) => {
+          console.error(
+            'LiveDebugger was unable to establish websocket debug connection! Browser features will not work:\n',
+            resp
+          );
+          reject(new Error('Failed to connect to debug socket'));
+        });
     });
+  }
 
-  return { debugSocket, debugChannel };
+  async register(fingerprint) {
+    if (this.isRegistered) {
+      throw new Error('Window is already registered');
+    }
+
+    return new Promise((resolve, reject) => {
+      this.initChannel
+        .push('register', { window_id: this.windowId, fingerprint })
+        .receive('ok', () => {
+          this.windowChannel = this.debugSocket.channel(`client:${this.windowId}`);
+
+          this.windowChannel
+            .join()
+            .receive('ok', () => {
+              this.isRegistered = true;
+              console.log('Window registered successfully!');
+              resolve(this.windowChannel);
+            })
+            .receive('error', (resp) => {
+              console.error('Failed to join window channel:', resp);
+              reject(new Error('Failed to join window channel'));
+            });
+        })
+        .receive('error', (resp) => {
+          console.error('Failed to register window:', resp);
+          reject(new Error('Failed to register window'));
+        });
+    });
+  }
+
+  async updateFingerprint(fingerprint, previousFingerprint) {
+    if (!this.isRegistered) {
+      throw new Error('Window must be registered before updating fingerprint');
+    }
+
+    return new Promise((resolve, reject) => {
+      this.initChannel
+        .push('update_fingerprint', {
+          window_id: this.windowId,
+          fingerprint,
+          previous_fingerprint: previousFingerprint
+        })
+        .receive('ok', () => {
+          console.log('Fingerprint updated successfully');
+          resolve();
+        })
+        .receive('error', (resp) => {
+          console.error('Failed to update fingerprint:', resp);
+          reject(new Error('Failed to update fingerprint'));
+        });
+    });
+  }
+
+  sendClientEvent(event, payload = {}) {
+    if (!this.windowChannel || !this.isRegistered) {
+      console.warn('Cannot send client event: window channel not ready');
+      return;
+    }
+
+    this.windowChannel.push('client_event', { event, payload });
+  }
 }

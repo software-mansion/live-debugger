@@ -3,46 +3,90 @@
 
 import initDebugMenu from './components/debug_menu';
 import initHighlight from './services/highlight';
-import initDebugSocket from './services/debug_socket';
 import initElementInspection from './services/inspect';
 import initTooltip from './components/tooltip/tooltip';
+import DebugSocket from './services/debug_socket';
 
 import {
   getMetaTag,
   fetchLiveDebuggerBaseURL,
-  fetchDebuggedSocketIDs,
 } from './utils/meta';
 
+import {
+  getLiveViewSocketIds,
+  getMainLiveViewSocketId,
+  createFingerprint,
+  getWindowFingerprint,
+} from './utils/dom';
+
+const missingMetaTagMessage = `
+      LiveDebugger meta tag not found!
+      If you have recently bumped LiveDebugger version, please update your layout according to the instructions in the GitHub README.
+      You can find it here: https://github.com/software-mansion/live-debugger#installation
+      `;
+
 window.document.addEventListener('DOMContentLoaded', async () => {
+  // If meta tag is missing, then LiveDebugger is not configured correctly
   const metaTag = getMetaTag();
+  if (!metaTag) throw new Error(missingMetaTagMessage);
+
+  // If there are no LiveViews, then we have nothing to debug
+  const lvSocketIds = getLiveViewSocketIds();
+  if (lvSocketIds.length === 0) return;
+
   const baseURL = fetchLiveDebuggerBaseURL(metaTag);
-  let { mainSocketID, rootSocketIDs } = await fetchDebuggedSocketIDs();
+  const mainSocketID = getMainLiveViewSocketId();
+  const sessionURL = `${baseURL}/redirect/${mainSocketID}`;
 
-  if (!mainSocketID) {
-    [mainSocketID, ...rootSocketIDs] = rootSocketIDs;
-  } else {
-    rootSocketIDs = [];
-  }
+  // Initialize debug socket
+  const debugSocket = new DebugSocket(baseURL);
 
-  if (mainSocketID) {
-    const sessionURL = `${baseURL}/redirect/${mainSocketID}`;
+  try {
+    await debugSocket.connect();
 
-    const { debugChannel } = initDebugSocket(
-      baseURL,
-      mainSocketID,
-      rootSocketIDs
-    );
+    // Register window with initial fingerprint
+    const fingerprint = createFingerprint(lvSocketIds);
+    await debugSocket.register(fingerprint);
 
-    debugChannel.on('ping', (resp) => {
-      console.log('Received ping', resp);
-      debugChannel.push('pong', resp);
-    });
+    // Send example client event
+    debugSocket.sendClientEvent('ping', { ping: 'ping' });
 
-    initElementInspection({ baseURL, debugChannel, socketID: mainSocketID });
+    // Setup MutationObserver to watch for fingerprint changes
+    setupFingerprintObserver(debugSocket, fingerprint);
+
+    // Initialize other features
+    const windowChannel = debugSocket.windowChannel;
+    initElementInspection({ baseURL, debugChannel: windowChannel, socketID: mainSocketID });
     initTooltip();
-    initDebugMenu(metaTag, sessionURL, debugChannel);
-    initHighlight(debugChannel);
-  }
+    initDebugMenu(metaTag, sessionURL, windowChannel);
+    initHighlight(windowChannel);
 
-  console.info(`LiveDebugger available at: ${baseURL}`);
+    console.info(`LiveDebugger available at: ${baseURL}`);
+  } catch (error) {
+    console.error('Failed to initialize LiveDebugger:', error);
+  }
 });
+
+function setupFingerprintObserver(debugSocket, initialFingerprint) {
+  let lastFingerprint = initialFingerprint;
+  const targetNode = document.body;
+  const config = { childList: true, subtree: true };
+
+  const observer = new MutationObserver(async () => {
+    const currentFingerprint = getWindowFingerprint();
+
+    if (currentFingerprint !== lastFingerprint) {
+      console.log('Fingerprint changed:', currentFingerprint);
+      const previousFingerprint = lastFingerprint;
+      lastFingerprint = currentFingerprint;
+
+      try {
+        await debugSocket.updateFingerprint(currentFingerprint, previousFingerprint);
+      } catch (error) {
+        console.error('Failed to update fingerprint:', error);
+      }
+    }
+  });
+
+  observer.observe(targetNode, config);
+}
