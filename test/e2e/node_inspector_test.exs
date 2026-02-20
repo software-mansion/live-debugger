@@ -10,158 +10,6 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
   end
 
   @sessions 2
-  feature "user can see traces of executed callbacks and updated assigns", %{
-    sessions: [dev_app, debugger]
-  } do
-    dev_app
-    |> visit(@dev_app_url)
-
-    dev_pid = get_dev_pid(dev_app)
-
-    debugger
-    |> visit("/")
-    |> select_live_view(dev_pid)
-    |> assert_has(assigns_entry(key: "counter", value: "0"))
-    |> assert_has(traces(count: 2))
-
-    dev_app
-    |> click(button("increment-button"))
-    |> click(button("increment-button"))
-
-    debugger
-    |> assert_has(traces(count: 2))
-    |> assert_has(assigns_entry(key: "counter", value: "2"))
-    |> click(toggle_tracing_button())
-
-    dev_app
-    |> click(button("increment-button"))
-    |> click(button("increment-button"))
-
-    Process.sleep(250)
-
-    debugger
-    |> assert_has(traces(count: 6))
-    |> assert_has(assigns_entry(key: "counter", value: "4"))
-    |> click(toggle_tracing_button())
-    |> click(clear_traces_button())
-    |> assert_has(traces(count: 0))
-
-    dev_app
-    |> click(button("increment-button"))
-    |> click(button("increment-button"))
-
-    debugger
-    |> assert_has(traces(count: 0))
-    |> click(refresh_history_button())
-    |> assert_has(traces(count: 4))
-    |> click(clear_traces_button())
-
-    # Callback traces have proper execution times displayed
-    dev_app
-    |> click(button("slow-increment-button"))
-
-    debugger
-    |> click(refresh_history_button())
-    |> assert_has(traces(count: 0))
-
-    Process.sleep(405)
-
-    assert debugger
-           |> click(refresh_history_button())
-           |> find(traces(count: 2))
-           |> List.last()
-           |> find(css("span.text-warning-text"))
-           |> Element.text()
-           |> String.match?(~r"^40\d ms$")
-
-    debugger
-    |> click(toggle_tracing_button())
-
-    dev_app
-    |> click(button("very-slow-increment-button"))
-
-    Process.sleep(1105)
-
-    debugger
-    |> find(traces(count: 4))
-    |> Enum.at(1)
-    |> assert_has(css("span.text-error-text", text: "1.10 s"))
-  end
-
-  @sessions 2
-  feature "settings button exists and redirects works as expected", %{
-    sessions: [dev_app, debugger]
-  } do
-    dev_app
-    |> visit(@dev_app_url)
-
-    dev_pid = get_dev_pid(dev_app)
-
-    debugger
-    |> visit("/")
-    |> select_live_view(dev_pid)
-    |> assert_has(css("div#traces", text: "Callback traces"))
-    |> assert_has(settings_button())
-    |> click(settings_button())
-    |> assert_has(css("h1", text: "Settings"))
-    |> assert_has(return_button())
-    |> click(return_button())
-    |> assert_has(css("div#traces", text: "Callback traces"))
-  end
-
-  @sessions 2
-  feature "return button redirects to active live views dashboard", %{
-    sessions: [dev_app, debugger]
-  } do
-    dev_app
-    |> visit(@dev_app_url)
-
-    dev_pid = get_dev_pid(dev_app)
-
-    debugger
-    |> visit("/")
-    |> select_live_view(dev_pid)
-    |> assert_has(css("div#traces", text: "Callback traces"))
-    |> click(return_button())
-    |> assert_has(css("h1", text: "Active LiveViews"))
-  end
-
-  @sessions 2
-  feature "user can change nodes using node tree and see their assigns and callback traces", %{
-    sessions: [dev_app, debugger]
-  } do
-    dev_app
-    |> visit(@dev_app_url)
-
-    dev_pid = get_dev_pid(dev_app)
-
-    debugger
-    |> visit("/")
-    |> select_live_view(dev_pid)
-    |> click(conditional_component_5_node_button())
-    |> find(sidebar_basic_info(), fn info ->
-      info
-      |> assert_text("LiveComponent")
-      |> assert_text("LiveDebuggerDev.LiveComponents.Conditional")
-    end)
-    |> assert_has(assigns_entry(key: "show_child?", value: "false"))
-    |> assert_has(traces(count: 2))
-    |> click(toggle_tracing_button())
-
-    dev_app
-    |> click(button("conditional-button"))
-
-    debugger
-    |> assert_has(many_assigns_15_node_button())
-    |> assert_has(assigns_entry(key: "show_child?", value: "true"))
-    |> assert_has(traces(count: 4))
-    |> click(conditional_component_6_node_button())
-    |> click(conditional_component_5_node_button())
-    |> assert_has(assigns_entry(key: "show_child?", value: "true"))
-    |> assert_has(traces(count: 4))
-  end
-
-  @sessions 2
   feature "user can filter traces by callback name", %{sessions: [dev_app, debugger]} do
     dev_app
     |> visit(@dev_app_url)
@@ -664,12 +512,6 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
     session
   end
 
-  defp assigns_entry(key: key, value: value) do
-    xpath(
-      ".//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"#{key}:\")]/../..//*[contains(normalize-space(text()), \"#{value}\")]"
-    )
-  end
-
   defp map_entry(key: key, value: value) do
     xpath(
       ".//*[contains(normalize-space(text()), \"#{key}:\")]/../..//*[contains(normalize-space(text()), \"#{value}\")]",
@@ -687,18 +529,6 @@ defmodule LiveDebugger.E2E.NodeInspectorTest do
 
   defp name_component_2_node_button() do
     css("#button-tree-node-2-components-tree")
-  end
-
-  defp conditional_component_5_node_button() do
-    css("#button-tree-node-5-components-tree")
-  end
-
-  defp conditional_component_6_node_button() do
-    css("#button-tree-node-6-components-tree")
-  end
-
-  defp many_assigns_15_node_button() do
-    css("#button-tree-node-15-components-tree")
   end
 
   defp reset_group_button(group) do

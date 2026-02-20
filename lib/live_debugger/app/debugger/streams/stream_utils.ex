@@ -3,8 +3,7 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
   Utilities for extracting Phoenix.LiveView.Stream diffs
   from render traces and mapping them into a list of functions.
   """
-
-  @live_view_vsn Application.spec(:phoenix_live_view, :vsn) |> to_string()
+  alias LiveDebugger.Utils.Versions
 
   @type live_stream_item :: %Phoenix.LiveView.LiveStream{
           name: atom(),
@@ -63,17 +62,9 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
         reset?: reset?,
         consumable?: _consumable?
       }) do
-    # streams changed ordering in 1.0.2 so we don't need to reverse the inserts before this version
-    inserts =
-      if Version.match?(@live_view_vsn, ">= 1.0.2") do
-        Enum.reverse(inserts)
-      else
-        inserts
-      end
-
     []
     |> maybe_add_reset(reset?, name)
-    |> maybe_add_inserts(inserts, name)
+    |> maybe_add_inserts(adjust_inserts(inserts), name)
     |> maybe_add_deletes(deletes, name)
   end
 
@@ -244,5 +235,11 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
         Phoenix.LiveView.stream_delete_by_dom_id(socket, name, dom_id)
       end
     end)
+  end
+
+  if Versions.live_view_streams_order_changed?() do
+    defp adjust_inserts(inserts), do: Enum.reverse(inserts)
+  else
+    defp adjust_inserts(inserts), do: inserts
   end
 end

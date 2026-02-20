@@ -21,7 +21,7 @@ export const test = base
     },
   });
 
-export const assigns_entry = (page: Page, key: string, value: string) =>
+export const findAssignsEntry = (page: Page, key: string, value: string) =>
   page.locator(
     `xpath=//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"${key}:\")]/../..//*[contains(normalize-space(text()), \"${value}\")]`
   );
