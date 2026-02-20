@@ -41,7 +41,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   end
 
   @impl true
-
   def handle_call(:ping, _from, state) do
     {:reply, :pong, state}
   end
@@ -75,7 +74,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   # handling dbg tracer stop
   def handle_info({:DOWN, _, _, pid, :done}, %{dbg_pid: pid} = state) do
-    send(self(), :setup_tracing)
+    state = TracingActions.setup_tracing_with_monitoring!(state)
 
     {:noreply, state}
   end
