@@ -42,11 +42,8 @@ window.document.addEventListener('DOMContentLoaded', async () => {
   const debugSocket = new DebugSocket(baseURL);
 
   try {
-    await debugSocket.connect();
-
-    // Register window with initial fingerprint
     const fingerprint = createFingerprint(lvSocketIds);
-    await debugSocket.register(fingerprint);
+    await debugSocket.connect(fingerprint);
 
     // Send example client event
     debugSocket.sendClientEvent('ping', { ping: 'ping' });

@@ -9,6 +9,7 @@ defmodule LiveDebugger.API.WindowsStorage do
   @callback save!(fingerprint :: term(), window_id :: term()) :: true
   @callback get_window_id!(fingerprint :: term()) :: term() | nil
   @callback delete!(fingerprint :: term()) :: true
+  @callback delete_by_window_id!(window_id :: term()) :: non_neg_integer()
 
   @doc """
   Initializes empty ETS table.
@@ -36,6 +37,13 @@ defmodule LiveDebugger.API.WindowsStorage do
   """
   @spec delete!(term()) :: true
   def delete!(fingerprint), do: impl().delete!(fingerprint)
+
+  @doc """
+  Deletes all mappings for given `window_id`.
+  Returns the number of deleted entries.
+  """
+  @spec delete_by_window_id!(term()) :: non_neg_integer()
+  def delete_by_window_id!(window_id), do: impl().delete_by_window_id!(window_id)
 
   defp impl() do
     Application.get_env(
@@ -83,6 +91,11 @@ defmodule LiveDebugger.API.WindowsStorage do
     @impl true
     def delete!(fingerprint) do
       :ets.delete(@table_name, fingerprint)
+    end
+
+    @impl true
+    def delete_by_window_id!(window_id) do
+      :ets.select_delete(@table_name, [{{:_, :"$1"}, [{:"=:=", :"$1", window_id}], [true]}])
     end
   end
 end

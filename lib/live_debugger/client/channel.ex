@@ -9,30 +9,19 @@ defmodule LiveDebugger.Client.Channel do
   # @pubsub_name LiveDebugger.Env.endpoint_pubsub_name()
 
   @impl true
-  def join("client:init", _payload, socket) do
-    {:ok, socket}
-  end
-
-  def join("client:" <> window_id, _payload, socket) do
+  def join("client:" <> window_id, %{"fingerprint" => fingerprint}, socket) do
+    WindowsStorage.save!(fingerprint, window_id)
+    dbg("Joined window #{window_id} with fingerprint #{fingerprint}")
     {:ok, assign(socket, :window_id, window_id)}
   end
 
   @impl true
-  def handle_in("register", %{"window_id" => window_id, "fingerprint" => fingerprint}, socket) do
-    WindowsStorage.save!(fingerprint, window_id)
-    dbg("Registered window #{window_id} with fingerprint #{fingerprint}")
-    {:reply, :ok, socket}
-  end
-
   def handle_in(
         "update_fingerprint",
-        %{
-          "window_id" => window_id,
-          "fingerprint" => fingerprint,
-          "previous_fingerprint" => previous_fingerprint
-        },
+        %{"fingerprint" => fingerprint, "previous_fingerprint" => previous_fingerprint},
         socket
       ) do
+    window_id = socket.assigns.window_id
     WindowsStorage.delete!(previous_fingerprint)
     WindowsStorage.save!(fingerprint, window_id)
 
@@ -43,9 +32,7 @@ defmodule LiveDebugger.Client.Channel do
     {:reply, :ok, socket}
   end
 
-  def handle_in("client_event", payload, socket) do
-    window_id = socket.assigns.window_id
-    dbg(%{event: "client_event", window_id: window_id, payload: payload})
+  def handle_in("client_event", _payload, socket) do
     {:noreply, socket}
   end
 
@@ -54,5 +41,12 @@ defmodule LiveDebugger.Client.Channel do
     push(socket, event, payload)
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def terminate(_reason, socket) do
+    WindowsStorage.delete_by_window_id!(socket.assigns.window_id)
+    dbg("Terminated window #{socket.assigns.window_id}")
+    {:ok, socket}
   end
 end

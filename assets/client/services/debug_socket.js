@@ -4,10 +4,8 @@ export default class DebugSocket {
   constructor(baseURL) {
     this.baseURL = baseURL;
     this.debugSocket = null;
-    this.initChannel = null;
     this.windowChannel = null;
     this.windowId = this.getWindowId();
-    this.isRegistered = false;
   }
 
   getWindowId() {
@@ -20,19 +18,21 @@ export default class DebugSocket {
     return newWindowId;
   }
 
-  async connect() {
+  async connect(fingerprint) {
     const websocketURL = this.baseURL.replace(/^http/, 'ws') + '/client';
     this.debugSocket = new window.Phoenix.Socket(websocketURL);
     this.debugSocket.connect();
 
-    this.initChannel = this.debugSocket.channel('client:init');
+    this.windowChannel = this.debugSocket.channel(`client:${this.windowId}`, {
+      fingerprint
+    });
 
     return new Promise((resolve, reject) => {
-      this.initChannel
+      this.windowChannel
         .join()
         .receive('ok', () => {
           console.log('LiveDebugger debug connection established!');
-          resolve();
+          resolve(this.windowChannel);
         })
         .receive('error', (resp) => {
           console.error(
@@ -44,45 +44,10 @@ export default class DebugSocket {
     });
   }
 
-  async register(fingerprint) {
-    if (this.isRegistered) {
-      throw new Error('Window is already registered');
-    }
-
-    return new Promise((resolve, reject) => {
-      this.initChannel
-        .push('register', { window_id: this.windowId, fingerprint })
-        .receive('ok', () => {
-          this.windowChannel = this.debugSocket.channel(`client:${this.windowId}`);
-
-          this.windowChannel
-            .join()
-            .receive('ok', () => {
-              this.isRegistered = true;
-              console.log('Window registered successfully!');
-              resolve(this.windowChannel);
-            })
-            .receive('error', (resp) => {
-              console.error('Failed to join window channel:', resp);
-              reject(new Error('Failed to join window channel'));
-            });
-        })
-        .receive('error', (resp) => {
-          console.error('Failed to register window:', resp);
-          reject(new Error('Failed to register window'));
-        });
-    });
-  }
-
   async updateFingerprint(fingerprint, previousFingerprint) {
-    if (!this.isRegistered) {
-      throw new Error('Window must be registered before updating fingerprint');
-    }
-
     return new Promise((resolve, reject) => {
-      this.initChannel
+      this.windowChannel
         .push('update_fingerprint', {
-          window_id: this.windowId,
           fingerprint,
           previous_fingerprint: previousFingerprint
         })
@@ -98,7 +63,7 @@ export default class DebugSocket {
   }
 
   sendClientEvent(event, payload = {}) {
-    if (!this.windowChannel || !this.isRegistered) {
+    if (!this.windowChannel) {
       console.warn('Cannot send client event: window channel not ready');
       return;
     }
