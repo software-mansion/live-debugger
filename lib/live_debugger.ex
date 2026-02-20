@@ -36,6 +36,7 @@ defmodule LiveDebugger do
       LiveDebugger.API.SettingsStorage.init()
       LiveDebugger.API.TracesStorage.init()
       LiveDebugger.API.StatesStorage.init()
+      LiveDebugger.API.WindowsStorage.init()
 
       config = Application.get_all_env(@app_name)
       put_endpoint_config(config)

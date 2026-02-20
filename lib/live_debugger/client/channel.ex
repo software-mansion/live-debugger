@@ -4,7 +4,9 @@ defmodule LiveDebugger.Client.Channel do
   """
   use Phoenix.Channel
 
-  @pubsub_name LiveDebugger.Env.endpoint_pubsub_name()
+  alias LiveDebugger.API.WindowsStorage
+
+  # @pubsub_name LiveDebugger.Env.endpoint_pubsub_name()
 
   @impl true
   def join("client:init", _payload, socket) do
@@ -17,7 +19,8 @@ defmodule LiveDebugger.Client.Channel do
 
   @impl true
   def handle_in("register", %{"window_id" => window_id, "fingerprint" => fingerprint}, socket) do
-    dbg(%{window_id: window_id, fingerprint: fingerprint})
+    WindowsStorage.save!(fingerprint, window_id)
+    dbg("Registered window #{window_id} with fingerprint #{fingerprint}")
     {:reply, :ok, socket}
   end
 
@@ -30,11 +33,12 @@ defmodule LiveDebugger.Client.Channel do
         },
         socket
       ) do
-    dbg(%{
-      window_id: window_id,
-      fingerprint: fingerprint,
-      previous_fingerprint: previous_fingerprint
-    })
+    WindowsStorage.delete!(previous_fingerprint)
+    WindowsStorage.save!(fingerprint, window_id)
+
+    dbg(
+      "Updated fingerprint for window #{window_id} from #{previous_fingerprint} to #{fingerprint}"
+    )
 
     {:reply, :ok, socket}
   end
