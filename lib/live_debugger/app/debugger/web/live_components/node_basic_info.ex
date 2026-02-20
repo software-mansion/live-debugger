@@ -12,11 +12,18 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Debugger.Web.Components.Pages
   alias LiveDebugger.App.Debugger.Utils.Editor
+  alias LiveDebugger.App.Web.Hooks.Flash.LinkFlashData
+
+  @editor_docs_url "https://hexdocs.pm/live_debugger/open_in_editor.html"
 
   @impl true
   def update(%{:editor_error => editor_error}, socket) do
     socket
-    |> push_flash(:error, editor_error)
+    |> push_flash(:error, %LinkFlashData{
+      text: editor_error,
+      url: @editor_docs_url,
+      label: "See the docs"
+    })
     |> ok()
   end
 
@@ -26,6 +33,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     |> assign(:node_id, assigns.node_id)
     |> assign(:lv_process, assigns.lv_process)
     |> assign(:elixir_editor, Editor.detect_editor())
+    |> assign(:editor_docs_url, @editor_docs_url)
     |> assign_node_type()
     |> assign_async_node_module()
     |> ok()
@@ -120,7 +128,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
                   content="Cannot open in editor? Click to see the documentation."
                 >
                   <span :if={!@elixir_editor} class="text-error-text">
-                    <.link href="https://hexdocs.pm/live_debugger/open_in_editor.html" target="_blank">
+                    <.link href={@editor_docs_url} target="_blank">
                       <.icon name="icon-info" class="w-4 h-4" />
                     </.link>
                   </span>
@@ -172,7 +180,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
         {:error, reason} ->
           send_update(component_pid, __MODULE__,
             id: component_id,
-            editor_error: "Editor error: #{reason}"
+            editor_error: reason
           )
       end
     end)

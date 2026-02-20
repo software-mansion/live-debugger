@@ -46,9 +46,25 @@ defmodule LiveDebugger.App.Debugger.Utils.Editor do
         :ok
 
       {output, status} ->
-        msg = "#{output} Status: #{status}"
+        msg = format_shell_error(command, output, status)
         Logger.error(msg)
         {:error, msg}
     end
+  end
+
+  defp format_shell_error(command, output, 127) do
+    command_name =
+      output
+      |> String.split(":")
+      |> Enum.at(-2, command)
+      |> String.trim()
+
+    """
+    Error when opening editor: Could not find the "#{command_name}" command.
+    """
+  end
+
+  defp format_shell_error(_command, output, status) do
+    "Error when opening editor: Command failed with status #{status}. Output: #{String.trim(output)}"
   end
 end
