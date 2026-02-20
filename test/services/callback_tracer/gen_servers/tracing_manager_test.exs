@@ -19,9 +19,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
     test "sets up the tracing manager properly" do
       expect(MockBus, :receive_events!, fn -> :ok end)
 
-      assert {:ok, %{dbg_pid: nil}} = TracingManager.init([])
-
-      assert_receive :setup_tracing
+      assert {:ok, %{dbg_pid: nil}, {:continue, :setup_tracing}} = TracingManager.init([])
     end
   end
 
@@ -50,7 +48,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
       |> expect(:trace_pattern, 19, fn _, _ -> :ok end)
 
       assert {:noreply, %{dbg_pid: self()}} ==
-               TracingManager.handle_info(:setup_tracing, %{dbg_pid: nil})
+               TracingManager.handle_continue(:setup_tracing, %{dbg_pid: nil})
     end
 
     test "handles TracingRefreshed event" do
