@@ -97,7 +97,7 @@ defmodule LiveDebugger do
       Logger.warning(
         "LiveDebugger is configured with a Unix socket but no :external_url is set. " <>
           "Browser features (debug button, elements inspection) will be disabled. " <>
-          "Set config :live_debugger, external_url: \"http://localhost:4007\" to enable them."
+          "Set config :live_debugger, external_url: \"http://your_external_url\" to enable them."
       )
 
       Application.put_env(@app_name, :live_debugger_tags, [])
