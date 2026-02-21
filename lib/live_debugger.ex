@@ -4,6 +4,8 @@ defmodule LiveDebugger do
   """
   use Application
 
+  require Logger
+
   alias LiveDebugger.API.SettingsStorage
 
   @app_name :live_debugger
@@ -81,28 +83,44 @@ defmodule LiveDebugger do
   end
 
   defp put_live_debugger_tags(config) do
-    ip_string = config |> Keyword.get(:ip, @default_ip) |> :inet.ntoa() |> List.to_string()
     port = Keyword.get(config, :port, @default_port)
 
-    browser_features? = Keyword.get(config, :browser_features?, true)
-    version = Application.spec(@app_name)[:vsn] |> to_string()
+    default_url =
+      case Keyword.get(config, :ip, @default_ip) do
+        {:local, _path} -> nil
+        ip_tuple -> "http://#{ip_tuple |> :inet.ntoa() |> List.to_string()}:#{port}"
+      end
 
-    live_debugger_url = Keyword.get(config, :external_url, "http://#{ip_string}:#{port}")
-    live_debugger_js_url = "#{live_debugger_url}/#{@js_path}"
-    live_debugger_css_url = "#{live_debugger_url}/#{@css_path}"
-    live_debugger_phoenix_url = "#{live_debugger_url}/#{@phoenix_path}"
+    live_debugger_url = Keyword.get(config, :external_url, default_url)
 
-    assigns = %{
-      url: live_debugger_url,
-      js_url: live_debugger_js_url,
-      css_url: live_debugger_css_url,
-      phoenix_url: live_debugger_phoenix_url,
-      browser_features?: browser_features?,
-      version: version,
-      debug_button?: SettingsStorage.get(:debug_button)
-    }
+    if is_nil(live_debugger_url) do
+      Logger.warning(
+        "LiveDebugger is configured with a Unix socket but no :external_url is set. " <>
+          "Browser features (debug button, elements inspection) will be disabled. " <>
+          "Set config :live_debugger, external_url: \"http://your_external_url\" to enable them."
+      )
 
-    tags = LiveDebugger.Client.ConfigComponent.live_debugger_tags(assigns)
-    Application.put_env(@app_name, :live_debugger_tags, tags)
+      Application.put_env(@app_name, :live_debugger_tags, [])
+    else
+      browser_features? = Keyword.get(config, :browser_features?, true)
+      version = Application.spec(@app_name)[:vsn] |> to_string()
+
+      live_debugger_js_url = "#{live_debugger_url}/#{@js_path}"
+      live_debugger_css_url = "#{live_debugger_url}/#{@css_path}"
+      live_debugger_phoenix_url = "#{live_debugger_url}/#{@phoenix_path}"
+
+      assigns = %{
+        url: live_debugger_url,
+        js_url: live_debugger_js_url,
+        css_url: live_debugger_css_url,
+        phoenix_url: live_debugger_phoenix_url,
+        browser_features?: browser_features?,
+        version: version,
+        debug_button?: SettingsStorage.get(:debug_button)
+      }
+
+      tags = LiveDebugger.Client.ConfigComponent.live_debugger_tags(assigns)
+      Application.put_env(@app_name, :live_debugger_tags, tags)
+    end
   end
 end
