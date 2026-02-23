@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Discovery.Queries do
   alias LiveDebugger.Structs.LvState
   alias LiveDebugger.API.LiveViewDiscovery
   alias LiveDebugger.Structs.LvProcess
+  alias LiveDebugger.API.WindowsStorage
 
   @type grouped_lv_processes() :: %{pid() => %{LvProcess.t() => [LvProcess.t()]}}
 
@@ -47,9 +48,26 @@ defmodule LiveDebugger.App.Discovery.Queries do
   defp fetch_lv_processes_after(milliseconds) do
     Process.sleep(milliseconds)
 
-    LiveViewDiscovery.debugged_lv_processes()
-    |> Enum.map(fn lv_process ->
-      LvProcess.set_root_socket_id(lv_process, LiveViewDiscovery.get_root_socket_id(lv_process))
-    end)
+    # TODO: This is extremely inefficient...
+    lv_processes =
+      LiveViewDiscovery.debugged_lv_processes()
+      |> Enum.map(fn lv_process ->
+        fingerprint =
+          lv_process.transport_pid
+          |> LiveViewDiscovery.debugged_lv_processes()
+          |> Enum.map(fn lv_process -> lv_process.socket_id end)
+          |> Enum.sort()
+          |> Enum.join(";")
+
+        window_id = WindowsStorage.get_window_id!(fingerprint)
+        dbg(window_id)
+        LvProcess.set_window_id(lv_process, window_id)
+      end)
+
+    if Enum.find(lv_processes, fn lv_process -> lv_process.window_id == nil end) do
+      fetch_lv_processes_after(milliseconds)
+    else
+      lv_processes
+    end
   end
 end

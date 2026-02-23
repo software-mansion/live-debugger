@@ -6,7 +6,7 @@ const Highlight = {
     const attr = this.el.attributes;
 
     this.params = {
-      'root-socket-id': attr['phx-value-root-socket-id']?.value,
+      'window-id': attr['phx-value-window-id']?.value,
       'search-attribute': attr['phx-value-search-attribute']?.value,
       'search-value': attr['phx-value-search-value'].value,
       type: attr['phx-value-type']?.value,
