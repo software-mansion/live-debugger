@@ -10,6 +10,7 @@ defmodule LiveDebugger.App.Web.Components do
   alias LiveDebugger.App.Debugger.Web.Components.Pages
   alias Phoenix.LiveView.JS
   alias LiveDebugger.App.Web.Hooks.Flash.ExceptionFlashData
+  alias LiveDebugger.App.Web.Hooks.Flash.LinkFlashData
 
   @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
 
@@ -397,10 +398,13 @@ defmodule LiveDebugger.App.Web.Components do
         </div>
         <p class="min-w-0">
           <div class="flex flex-col flex-1 min-w-0">
-            <%= if match?(%ExceptionFlashData{}, @message) do %>
-              <.exception_flash_message message={@message} />
-            <% else %>
-              <%= @message %>
+            <%= cond do %>
+              <% match?(%ExceptionFlashData{}, @message) -> %>
+                <.exception_flash_message message={@message} />
+              <% match?(%LinkFlashData{}, @message) -> %>
+                <.link_flash_message message={@message} />
+              <% is_binary(@message) -> %>
+                <%= @message %>
             <% end %>
           </div>
         </p>
@@ -1257,7 +1261,15 @@ defmodule LiveDebugger.App.Web.Components do
     <.link href={@message.url} class="font-bold underline hover:opacity-80">
       <%= Map.get(@message, :label, "Link") %>
     </.link>
-    end
+    """
+  end
+
+  defp link_flash_message(assigns) do
+    ~H"""
+    <%= @message.text %>
+    <.link href={@message.url} target="_blank" class="font-bold underline hover:opacity-80">
+      <%= Map.get(@message, :label, "Link") %>
+    </.link>
     """
   end
 end

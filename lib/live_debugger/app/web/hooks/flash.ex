@@ -18,7 +18,19 @@ defmodule LiveDebugger.App.Web.Hooks.Flash do
           }
   end
 
+  defmodule LinkFlashData do
+    @moduledoc false
+    defstruct [:text, :label, :url]
+
+    @type t :: %__MODULE__{
+            text: String.t(),
+            label: String.t(),
+            url: String.t()
+          }
+  end
+
   alias __MODULE__.ExceptionFlashData
+  alias __MODULE__.LinkFlashData
 
   @doc """
   Attaches hook to handle flash messages
@@ -34,7 +46,7 @@ defmodule LiveDebugger.App.Web.Hooks.Flash do
   @spec push_flash(
           socket :: Phoenix.LiveView.Socket.t(),
           key :: String.t() | atom(),
-          message :: String.t() | ExceptionFlashData.t()
+          message :: String.t() | ExceptionFlashData.t() | LinkFlashData.t()
         ) ::
           Phoenix.LiveView.Socket.t()
   def push_flash(socket, key, message)
@@ -45,7 +57,7 @@ defmodule LiveDebugger.App.Web.Hooks.Flash do
   @spec push_flash(
           socket :: Phoenix.LiveView.Socket.t(),
           key :: String.t() | atom(),
-          message :: String.t() | ExceptionFlashData.t(),
+          message :: String.t() | ExceptionFlashData.t() | LinkFlashData.t(),
           pid :: pid()
         ) ::
           Phoenix.LiveView.Socket.t()

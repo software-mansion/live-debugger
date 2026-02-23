@@ -83,7 +83,7 @@ module.exports = {
         'survey-link': 'var(--survey-link)',
         'survey-link-hover': 'var(--survey-link-hover)',
       },
-      screens: { xs: '380px', md_ct: '860px' },
+      screens: { xs: '380px', md_ct: '860px', sm_bi: '1200px', sm_ct: '600px' },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
         code: [
