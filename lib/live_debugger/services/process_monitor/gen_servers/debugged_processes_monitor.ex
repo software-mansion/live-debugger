@@ -31,7 +31,6 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
-  alias LiveDebugger.Services.TelemetryHandler.Events.TelemetryEmitted
 
   import LiveDebugger.Helpers
 
@@ -68,7 +67,12 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   if Versions.live_component_destroyed_telemetry_supported?() do
     def handle_info(
-          %TelemetryEmitted{source: :live_component, type: :destroyed, pid: pid, cid: cid},
+          %LiveDebugger.Services.TelemetryHandler.Events.TelemetryEmitted{
+            source: :live_component,
+            type: :destroyed,
+            pid: pid,
+            cid: cid
+          },
           state
         )
         when is_map_key(state, pid) do
