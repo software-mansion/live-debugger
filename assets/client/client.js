@@ -53,7 +53,7 @@ window.document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize other features
     const windowChannel = debugSocket.windowChannel;
-    initElementInspection({ baseURL, debugChannel: windowChannel, socketID: mainSocketID });
+    initElementInspection(baseURL, windowChannel);
     initTooltip();
     initDebugMenu(metaTag, sessionURL, windowChannel);
     initHighlight(windowChannel);

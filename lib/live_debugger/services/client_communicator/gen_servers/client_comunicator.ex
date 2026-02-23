@@ -13,23 +13,20 @@ defmodule LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
 
   @impl true
   def init(args) do
-    # TODO: retrieve window_id from server (mechanism not implemented yet); subscribe per window when known
-    window_id = "TODO"
-    Client.receive_events(window_id)
+    Client.receive_events()
     {:ok, args}
   end
 
   @impl true
   def handle_info(
-        {"request-node-element",
-         %{"root_socket_id" => root_socket_id, "socket_id" => socket_id} = payload},
+        {"request-node-element", %{"window_id" => window_id, "socket_id" => socket_id} = payload},
         state
       ) do
     socket_id
     |> LvProcess.get_by_socket_id()
     |> case do
       {:ok, lv_process} ->
-        process_node_element_request(lv_process, payload, root_socket_id)
+        process_node_element_request(lv_process, payload, window_id)
         {:noreply, state}
 
       :not_found ->
@@ -41,14 +38,14 @@ defmodule LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
     {:noreply, state}
   end
 
-  defp process_node_element_request(lv_process, %{"type" => "LiveView"}, root_socket_id) do
-    send_live_view_info(lv_process, root_socket_id)
+  defp process_node_element_request(lv_process, %{"type" => "LiveView"}, window_id) do
+    send_live_view_info(lv_process, window_id)
   end
 
   defp process_node_element_request(
          lv_process,
          %{"type" => "LiveComponent", "id" => id},
-         root_socket_id
+         window_id
        ) do
     cid = String.to_integer(id)
 
@@ -56,16 +53,14 @@ defmodule LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
     |> LvProcess.get_live_component(cid)
     |> case do
       {:ok, component} ->
-        send_live_component_info(component, root_socket_id)
+        send_live_component_info(component, window_id)
 
       :not_found ->
         :ok
     end
   end
 
-  defp send_live_view_info(lv_process, _root_socket_id) do
-    # TODO: retrieve window_id from server (mechanism not implemented yet)
-    window_id = "TODO"
+  defp send_live_view_info(lv_process, window_id) do
     Client.push_event!(window_id, "found-node-element", %{
       "module" => Parsers.module_to_string(lv_process.module),
       "type" => "LiveView",
@@ -74,9 +69,7 @@ defmodule LiveDebugger.Services.ClientCommunicator.GenServers.ClientCommunicator
     })
   end
 
-  defp send_live_component_info(component, _root_socket_id) do
-    # TODO: retrieve window_id from server (mechanism not implemented yet)
-    window_id = "TODO"
+  defp send_live_component_info(component, window_id) do
     Client.push_event!(window_id, "found-node-element", %{
       "module" => Parsers.module_to_string(component.module),
       "type" => "LiveComponent",

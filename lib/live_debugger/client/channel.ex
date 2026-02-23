@@ -29,9 +29,9 @@ defmodule LiveDebugger.Client.Channel do
     {:reply, :ok, socket}
   end
 
-  def handle_in(event, payload, socket) do
+  def handle_in(event, payload, socket) when is_map(payload) do
     window_id = socket.assigns.window_id
-    message = {event, payload}
+    message = {event, Map.put(payload, "window_id", window_id)}
     Phoenix.PubSub.broadcast!(@pubsub_name, "client:#{window_id}:receive", message)
     Phoenix.PubSub.broadcast!(@pubsub_name, "client:*:receive", message)
 

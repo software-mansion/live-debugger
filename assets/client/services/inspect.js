@@ -1,10 +1,6 @@
 import { dispatchCustomEvent } from '../utils/dom';
 
-export default function initElementInspection({
-  baseURL,
-  debugChannel,
-  socketID,
-}) {
+export default function initElementInspection(baseURL, debugChannel) {
   let inspectMode = false;
   let lastID = null;
   let sourceLiveViews = [];
@@ -50,7 +46,6 @@ export default function initElementInspection({
         : elementInfo.element.id;
 
     debugChannel.push('request-node-element', {
-      root_socket_id: socketID,
       socket_id: elementInfo.phxId,
       type: elementInfo.type,
       id,
