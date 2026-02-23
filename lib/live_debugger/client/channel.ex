@@ -6,12 +6,13 @@ defmodule LiveDebugger.Client.Channel do
 
   alias LiveDebugger.API.WindowsStorage
 
-  # @pubsub_name LiveDebugger.Env.endpoint_pubsub_name()
+  @pubsub_name LiveDebugger.Env.endpoint_pubsub_name()
 
   @impl true
   def join("client:" <> window_id, %{"fingerprint" => fingerprint}, socket) do
+    Phoenix.PubSub.subscribe(@pubsub_name, "client:#{window_id}")
     WindowsStorage.save!(fingerprint, window_id)
-    dbg("Joined window #{window_id} with fingerprint #{fingerprint}")
+
     {:ok, assign(socket, :window_id, window_id)}
   end
 
@@ -25,14 +26,15 @@ defmodule LiveDebugger.Client.Channel do
     WindowsStorage.delete!(previous_fingerprint)
     WindowsStorage.save!(fingerprint, window_id)
 
-    dbg(
-      "Updated fingerprint for window #{window_id} from #{previous_fingerprint} to #{fingerprint}"
-    )
-
     {:reply, :ok, socket}
   end
 
-  def handle_in("client_event", _payload, socket) do
+  def handle_in(event, payload, socket) do
+    window_id = socket.assigns.window_id
+    message = {event, payload}
+    Phoenix.PubSub.broadcast!(@pubsub_name, "client:#{window_id}:receive", message)
+    Phoenix.PubSub.broadcast!(@pubsub_name, "client:*:receive", message)
+
     {:noreply, socket}
   end
 

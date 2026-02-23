@@ -8,27 +8,21 @@ defmodule LiveDebugger.Client do
   @callback receive_events() :: :ok | {:error, term()}
 
   @doc """
-  Pushes event to the client.
-  Use \"*\" as `debugged_socket_id` to send event to all connected clients.
-
-  ## Examples
-
-      LiveDebugger.Client.push_event!("debugged_socket_id", "event", %{"key" => "value"})
-      LiveDebugger.Client.push_event!("*", "event", %{"key" => "value"})
+  Pushes event to the client for the given `window_id`.
   """
   @spec push_event!(String.t(), String.t(), map()) :: :ok
-  def push_event!(debugged_socket_id, event, payload \\ %{}) do
-    impl().push_event!(debugged_socket_id, event, payload)
+  def push_event!(window_id, event, payload \\ %{}) do
+    impl().push_event!(window_id, event, payload)
   end
 
   @doc """
-  Subscribes to events from the client with specific debugged socket id.
+  Subscribes to events from the client for the given `window_id`.
   You have to prepare `handle_info/2` handler for incoming events.
   Events are in form of tuple `{event :: String.t(), payload :: map()}`.
 
   ## Examples
 
-      LiveDebugger.Client.receive_events("debugged_socket_id")
+      LiveDebugger.Client.receive_events("window_id")
 
       # ...
 
@@ -38,12 +32,12 @@ defmodule LiveDebugger.Client do
       end
   """
   @spec receive_events(String.t()) :: :ok | {:error, term()}
-  def receive_events(debugged_socket_id) do
-    impl().receive_events(debugged_socket_id)
+  def receive_events(window_id) do
+    impl().receive_events(window_id)
   end
 
   @doc """
-  Subscribes to events from the client with any debugged socket id.
+  Subscribes to events from any client (topic `client:*:receive`).
   You have to prepare `handle_info/2` handler for incoming events.
   Events are in form of tuple `{event :: String.t(), payload :: map()}`.
   """
@@ -63,18 +57,18 @@ defmodule LiveDebugger.Client do
     @pubsub_name LiveDebugger.Env.endpoint_pubsub_name()
 
     @impl true
-    def push_event!(debugged_socket_id, event, payload \\ %{}) do
-      Phoenix.PubSub.broadcast!(@pubsub_name, "client:#{debugged_socket_id}", {event, payload})
+    def push_event!(window_id, event, payload \\ %{}) do
+      Phoenix.PubSub.broadcast!(@pubsub_name, "client:#{window_id}", {event, payload})
     end
 
     @impl true
-    def receive_events(debugged_socket_id) do
-      Phoenix.PubSub.subscribe(@pubsub_name, "client:#{debugged_socket_id}:receive")
+    def receive_events(window_id) do
+      Phoenix.PubSub.subscribe(@pubsub_name, "client:#{window_id}:receive")
     end
 
     @impl true
     def receive_events() do
-      Phoenix.PubSub.subscribe(@pubsub_name, "client:receive")
+      Phoenix.PubSub.subscribe(@pubsub_name, "client:*:receive")
     end
   end
 end
