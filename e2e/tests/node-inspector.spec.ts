@@ -153,3 +153,8 @@ test('user can change nodes using node tree and see their assigns and callback t
   await expect(findAssignsEntry(dbgApp, 'show_child?', 'false')).toBeVisible();
   await expect(findTraces(dbgApp)).toHaveCount(6);
 });
+
+test('Open in editor is disabled when envs are not set', async ({ dbgApp }) => {
+  const openButton = dbgApp.getByRole('button', { name: 'Open in editor' });
+  await expect(openButton).toBeDisabled();
+});

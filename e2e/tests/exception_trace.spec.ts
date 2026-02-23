@@ -3,6 +3,7 @@ import {
   expect,
   findClearTracesButton,
   findSwitchTracingButton,
+  findFiltersButton,
   Page,
 } from './dev-dbg-test';
 
@@ -12,8 +13,27 @@ const findTraces = (page: Page) =>
 const findGlobalCallbackTracesButton = (page: Page) =>
   page.locator('#global-traces-navbar-item a');
 
+const findNodeInspectorButton = (page: Page) =>
+  page.locator('#node-inspector-navbar-item a');
+
+const findCrashModule = (page: Page) =>
+  page.locator(
+    `button[phx-value-module="Elixir.LiveDebuggerDev.LiveComponents.Crash"]`
+  );
+
+const findHandleEventFilterCheckbox = (page: Page, type: string) =>
+  page.locator(`input[id="filters-${type}-form_handle_event/3"]`);
+
+const findApplyButton = (page: Page) =>
+  page.getByRole('button', { name: 'Apply', exact: true });
+
 const findErrorButton = (page: Page, action: string) =>
   page.locator(`button[phx-click="${action}"]`);
+
+const fillSearchInput = async (page: Page, text: string) => {
+  const input = page.locator('#trace-search-input');
+  await input.fill(text);
+};
 
 const assertTraceException = async (
   dbgApp: Page,
@@ -154,4 +174,123 @@ test('debugger captures runtime errors and exceptions in global callbacks 3', as
       stacktraceContent
     );
   }
+});
+
+test.describe('exception appears in currently inspected node', () => {
+  test('should not show flash message during crash of currently inspected node', async ({
+    devApp,
+    dbgApp,
+  }) => {
+    await findNodeInspectorButton(dbgApp).click();
+    await findCrashModule(dbgApp).click();
+    await findErrorButton(devApp, 'crash_argument').click();
+
+    const flash = dbgApp.locator('#flash-error');
+    await expect(flash).not.toBeVisible();
+  });
+  test('should show flash message when exception trace is hidden by active filters', async ({
+    devApp,
+    dbgApp,
+  }) => {
+    await findNodeInspectorButton(dbgApp).click();
+    await findCrashModule(dbgApp).click();
+
+    await findSwitchTracingButton(dbgApp).click();
+    await findFiltersButton(dbgApp).click();
+    await findHandleEventFilterCheckbox(dbgApp, 'fullscreen').click();
+    await findApplyButton(dbgApp).click();
+    await findSwitchTracingButton(dbgApp).click();
+
+    await findErrorButton(devApp, 'crash_argument').click();
+
+    const flash = dbgApp.locator('#flash-error');
+    await expect(flash).toBeVisible();
+    await expect(flash).toContainText('LiveComponent crashed.');
+    await expect(flash).toContainText('LiveDebuggerDev.LiveComponents.Crash');
+    await expect(flash).toContainText('Open in Node Inspector');
+  });
+
+  test('should show flash message when exception trace is hidden by active search phrase', async ({
+    devApp,
+    dbgApp,
+  }) => {
+    await findNodeInspectorButton(dbgApp).click();
+    await findCrashModule(dbgApp).click();
+
+    await findSwitchTracingButton(dbgApp).click();
+    await fillSearchInput(dbgApp, '123456789');
+    await findSwitchTracingButton(dbgApp).click();
+    await findErrorButton(devApp, 'crash_argument').click();
+
+    const flash = dbgApp.locator('#flash-error');
+    await expect(flash).toBeVisible();
+    await expect(flash).toContainText('LiveComponent crashed.');
+    await expect(flash).toContainText('LiveDebuggerDev.LiveComponents.Crash');
+    await expect(flash).toContainText('Open in Node Inspector');
+  });
+});
+
+test('should show flash message when a non-inspected node crashes', async ({
+  devApp,
+  dbgApp,
+}) => {
+  await findNodeInspectorButton(dbgApp).click();
+  await findErrorButton(devApp, 'crash_argument').click();
+
+  const flash = dbgApp.locator('#flash-error');
+  await expect(flash).toBeVisible();
+  await expect(flash).toContainText('LiveComponent crashed.');
+  await expect(flash).toContainText('LiveDebuggerDev.LiveComponents.Crash');
+  await expect(flash).toContainText('Open in Node Inspector');
+});
+
+test.describe('exception inspected in global callbacks', () => {
+  test('should not show flash when no filter and no search phrase are applied', async ({
+    devApp,
+    dbgApp,
+  }) => {
+    await findGlobalCallbackTracesButton(dbgApp).click();
+
+    await findErrorButton(devApp, 'crash_argument').click();
+
+    const flash = dbgApp.locator('#flash-error');
+    await expect(flash).not.toBeVisible();
+  });
+
+  test('should show flash message when exception trace is hidden by active filters', async ({
+    devApp,
+    dbgApp,
+  }) => {
+    await findGlobalCallbackTracesButton(dbgApp).click();
+
+    await findSwitchTracingButton(dbgApp).click();
+    await findHandleEventFilterCheckbox(dbgApp, 'sidebar').click();
+    await findApplyButton(dbgApp).click();
+    await findSwitchTracingButton(dbgApp).click();
+    await findErrorButton(devApp, 'crash_argument').click();
+
+    const flash = dbgApp.locator('#flash-error');
+    await expect(flash).toBeVisible();
+    await expect(flash).toContainText('LiveComponent crashed.');
+    await expect(flash).toContainText('LiveDebuggerDev.LiveComponents.Crash');
+    await expect(flash).toContainText('Open in Node Inspector');
+  });
+
+  test('should show flash message when exception trace is hidden by active search phrase', async ({
+    devApp,
+    dbgApp,
+  }) => {
+    await findGlobalCallbackTracesButton(dbgApp).click();
+
+    await findSwitchTracingButton(dbgApp).click();
+    await fillSearchInput(dbgApp, '123456789');
+    await findSwitchTracingButton(dbgApp).click();
+    await findErrorButton(devApp, 'crash_argument').click();
+
+    const flash = dbgApp.locator('#flash-error');
+    await expect(flash).toBeVisible();
+    await expect(flash).toContainText('LiveComponent crashed.');
+    await expect(flash).toContainText('LiveDebuggerDev.LiveComponents.Crash');
+    await expect(flash).toContainText('Open in Node Inspector');
+  });
 });

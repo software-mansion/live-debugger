@@ -9,6 +9,8 @@ defmodule LiveDebugger.App.Web.Components do
   alias LiveDebugger.App.Utils.Format
   alias LiveDebugger.App.Debugger.Web.Components.Pages
   alias Phoenix.LiveView.JS
+  alias LiveDebugger.App.Web.Hooks.Flash.ExceptionFlashData
+  alias LiveDebugger.App.Web.Hooks.Flash.LinkFlashData
 
   @report_issue_url "https://github.com/software-mansion/live-debugger/issues/new/choose"
 
@@ -389,13 +391,22 @@ defmodule LiveDebugger.App.Web.Components do
       ]}
       {@rest}
     >
-      <div class="flex gap-3 items-start">
+      <div class="flex gap-3 items-start min-w-0">
         <div>
           <.icon :if={@kind == :error} name="icon-x-circle" class="text-error-icon w-3 h-3" />
           <.icon :if={@kind == :info} name="icon-info" class="text-info-icon w-3 h-3" />
         </div>
-        <p>
-          <%= @message %>
+        <p class="min-w-0">
+          <div class="flex flex-col flex-1 min-w-0">
+            <%= cond do %>
+              <% match?(%ExceptionFlashData{}, @message) -> %>
+                <.exception_flash_message message={@message} />
+              <% match?(%LinkFlashData{}, @message) -> %>
+                <.link_flash_message message={@message} />
+              <% is_binary(@message) -> %>
+                <%= @message %>
+            <% end %>
+          </div>
         </p>
       </div>
       <button
@@ -1238,4 +1249,27 @@ defmodule LiveDebugger.App.Web.Components do
 
   defp button_size_classes("md"), do: "py-2 px-3"
   defp button_size_classes("sm"), do: "py-1.5 px-2"
+
+  defp exception_flash_message(assigns) do
+    ~H"""
+    <strong><%= @message.text %></strong>
+
+    <span class="truncate w-full block">
+      <%= @message.module %>
+    </span>
+
+    <.link href={@message.url} class="font-bold underline hover:opacity-80">
+      <%= Map.get(@message, :label, "Link") %>
+    </.link>
+    """
+  end
+
+  defp link_flash_message(assigns) do
+    ~H"""
+    <%= @message.text %>
+    <.link href={@message.url} target="_blank" class="font-bold underline hover:opacity-80">
+      <%= Map.get(@message, :label, "Link") %>
+    </.link>
+    """
+  end
 end
