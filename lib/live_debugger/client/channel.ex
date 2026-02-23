@@ -48,7 +48,6 @@ defmodule LiveDebugger.Client.Channel do
   @impl true
   def terminate(_reason, socket) do
     WindowsStorage.delete_by_window_id!(socket.assigns.window_id)
-    dbg("Terminated window #{socket.assigns.window_id}")
     {:ok, socket}
   end
 end
