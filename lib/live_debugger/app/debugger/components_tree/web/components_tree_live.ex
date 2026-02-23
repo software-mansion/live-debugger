@@ -168,9 +168,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
         id_key: if(params["type"] == "live_view", do: "PID", else: "CID")
       }
 
-      # TODO: retrieve window_id from server (mechanism not implemented yet)
-      window_id = "TODO"
-      Client.push_event!(window_id, "highlight", payload)
+      Client.push_event!(socket.assigns.lv_process.window_id, "highlight", payload)
     end
 
     socket
@@ -186,9 +184,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
         type: if(params["type"] == "live_view", do: "LiveView", else: "LiveComponent")
       }
 
-      # TODO: retrieve window_id from server (mechanism not implemented yet)
-      window_id = "TODO"
-      Client.push_event!(window_id, "pulse", payload)
+      Client.push_event!(socket.assigns.lv_process.window_id, "pulse", payload)
     end
 
     socket

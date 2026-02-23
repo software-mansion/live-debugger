@@ -12,7 +12,7 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebugger.API.LiveViewDiscovery
-
+  alias LiveDebugger.API.WindowsStorage
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.DebuggerMounted
 
@@ -61,7 +61,17 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
         nil
 
       %LvProcess{} = lv_process ->
-        LvProcess.set_root_socket_id(lv_process, LiveViewDiscovery.get_root_socket_id(lv_process))
+        fingerprint =
+          lv_process.transport_pid
+          |> LiveViewDiscovery.debugged_lv_processes()
+          |> Enum.map(fn lv_process -> lv_process.socket_id end)
+          |> Enum.sort()
+          |> Enum.join(";")
+
+        window_id = WindowsStorage.get_window_id!(fingerprint)
+        LvProcess.set_window_id(lv_process, window_id)
+
+        # LvProcess.set_root_socket_id(lv_process, LiveViewDiscovery.get_root_socket_id(lv_process))
     end
   end
 end
