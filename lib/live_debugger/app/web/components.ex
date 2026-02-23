@@ -1261,7 +1261,6 @@ defmodule LiveDebugger.App.Web.Components do
     <.link href={@message.url} class="font-bold underline hover:opacity-80">
       <%= Map.get(@message, :label, "Link") %>
     </.link>
-    end
     """
   end
 
