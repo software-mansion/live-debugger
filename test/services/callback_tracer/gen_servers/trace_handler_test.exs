@@ -6,6 +6,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
   setup :verify_on_exit!
   setup :set_mox_from_context
 
+  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler
   alias LiveDebugger.MockAPILiveViewDebug
   alias LiveDebugger.MockBus
@@ -20,52 +21,54 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
   alias LiveDebugger.Structs.Trace.DiffTrace
 
   describe "handle_cast/2" do
-    test "handles LiveComponent deletion traces" do
-      transport_pid = :c.pid(0, 1, 0)
-      pid = :c.pid(0, 2, 0)
-      socket = %{id: "123", transport_pid: transport_pid, view: SomeLiveView}
+    if not Versions.live_component_destroyed_telemetry_supported?() do
+      test "handles LiveComponent deletion traces" do
+        transport_pid = :c.pid(0, 1, 0)
+        pid = :c.pid(0, 2, 0)
+        socket = %{id: "123", transport_pid: transport_pid, view: SomeLiveView}
 
-      # create delete trace
-      MockAPILiveViewDebug
-      |> expect(:socket, fn ^pid -> {:ok, socket} end)
+        # create delete trace
+        MockAPILiveViewDebug
+        |> expect(:socket, fn ^pid -> {:ok, socket} end)
 
-      # save state
-      MockAPILiveViewDebug
-      |> expect(:socket, fn ^pid -> {:ok, socket} end)
-      |> expect(:live_components, fn ^pid -> {:ok, []} end)
+        # save state
+        MockAPILiveViewDebug
+        |> expect(:socket, fn ^pid -> {:ok, socket} end)
+        |> expect(:live_components, fn ^pid -> {:ok, []} end)
 
-      MockAPIStatesStorage
-      |> expect(:save!, fn _ -> true end)
+        MockAPIStatesStorage
+        |> expect(:save!, fn _ -> true end)
 
-      # broadcast state
-      MockBus
-      |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid ->
-        :ok
-      end)
+        # broadcast state
+        MockBus
+        |> expect(:broadcast_state!, fn %StateChanged{pid: ^pid}, ^pid ->
+          :ok
+        end)
 
-      # broadcast trace
-      MockBus
-      |> expect(:broadcast_trace!, fn arg1, ^pid ->
-        assert %TraceCalled{
-                 trace_id: -1,
-                 ets_ref: nil,
-                 module: Phoenix.LiveView.Diff,
-                 function: :delete_component,
-                 pid: ^pid,
-                 cid: %Phoenix.LiveComponent.CID{cid: 15}
-               } = arg1
+        # broadcast trace
+        MockBus
+        |> expect(:broadcast_trace!, fn arg1, ^pid ->
+          assert %TraceCalled{
+                   trace_id: -1,
+                   ets_ref: nil,
+                   module: Phoenix.LiveView.Diff,
+                   function: :delete_component,
+                   pid: ^pid,
+                   cid: %Phoenix.LiveComponent.CID{cid: 15}
+                 } = arg1
 
-        :ok
-      end)
+          :ok
+        end)
 
-      trace =
-        {:new_trace,
-         {:trace_ts, pid, :call, {Phoenix.LiveView.Diff, :delete_component, [15, %{}]},
-          {1753, 176_335, 405_037}}, -1}
+        trace =
+          {:new_trace,
+           {:trace_ts, pid, :call, {Phoenix.LiveView.Diff, :delete_component, [15, %{}]},
+            {1753, 176_335, 405_037}}, -1}
 
-      assert TraceHandler.handle_cast(trace, nil) == {:noreply, nil}
+        assert TraceHandler.handle_cast(trace, nil) == {:noreply, nil}
 
-      Process.sleep(400)
+        Process.sleep(400)
+      end
     end
 
     test "handles callback call traces successfully" do

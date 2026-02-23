@@ -25,6 +25,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   require Logger
 
+  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.CommonTypes
   alias LiveDebugger.Services.ProcessMonitor.Actions, as: ProcessMonitorActions
 
@@ -65,31 +66,31 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
     |> noreply()
   end
 
-  # Handling components deletion for :phoenix_live_view versions < 1.1.0
-  def handle_info(
-        %TraceCalled{
-          module: Phoenix.LiveView.Diff,
-          function: :delete_component,
-          pid: pid,
-          cid: cid
-        },
-        state
-      )
-      when is_map_key(state, pid) do
-    state
-    |> maybe_register_component_deleted(pid, cid)
-    |> noreply()
-  end
-
-  # Handling components deletion for :phoenix_live_view versions >= 1.1.0
-  def handle_info(
-        %TelemetryEmitted{source: :live_component, type: :destroyed, pid: pid, cid: cid},
-        state
-      )
-      when is_map_key(state, pid) do
-    state
-    |> maybe_register_component_deleted(pid, cid)
-    |> noreply()
+  if Versions.live_component_destroyed_telemetry_supported?() do
+    def handle_info(
+          %TelemetryEmitted{source: :live_component, type: :destroyed, pid: pid, cid: cid},
+          state
+        )
+        when is_map_key(state, pid) do
+      state
+      |> maybe_register_component_deleted(pid, cid)
+      |> noreply()
+    end
+  else
+    def handle_info(
+          %TraceCalled{
+            module: Phoenix.LiveView.Diff,
+            function: :delete_component,
+            pid: pid,
+            cid: cid
+          },
+          state
+        )
+        when is_map_key(state, pid) do
+      state
+      |> maybe_register_component_deleted(pid, cid)
+      |> noreply()
+    end
   end
 
   def handle_info({:DOWN, _ref, :process, pid, _reason}, state) do
