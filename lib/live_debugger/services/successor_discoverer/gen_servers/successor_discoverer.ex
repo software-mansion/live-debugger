@@ -55,7 +55,9 @@ defmodule LiveDebugger.Services.SuccessorDiscoverer.GenServers.SuccessorDiscover
 
   @impl true
   def init(_opts) do
-    Client.receive_events()
+    # TODO: retrieve window_id from server (mechanism not implemented yet); subscribe per window when known
+    window_id = "TODO"
+    Client.receive_events(window_id)
     Bus.receive_events()
 
     {:ok, %State{}}

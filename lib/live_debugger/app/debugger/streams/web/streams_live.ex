@@ -147,7 +147,9 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.StreamsLive do
         id_value: params["id"]
       }
 
-      Client.push_event!(socket.assigns.lv_process.root_socket_id, "highlight", payload)
+      # TODO: retrieve window_id from server (mechanism not implemented yet)
+      window_id = "TODO"
+      Client.push_event!(window_id, "highlight", payload)
     end
 
     socket

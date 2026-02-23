@@ -14,7 +14,9 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
 
   @impl true
   def init(socket) do
-    Client.receive_events()
+    # TODO: retrieve window_id from server (mechanism not implemented yet)
+    window_id = "TODO"
+    Client.receive_events(window_id)
 
     socket
     |> check_assigns!([:lv_process])
@@ -49,7 +51,9 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   end
 
   defp handle_info(%DeadViewModeEntered{debugger_pid: pid}, socket) when pid == self() do
-    Client.push_event!(socket.assigns.lv_process.result.root_socket_id, "inspect-mode-changed", %{
+    # TODO: retrieve window_id from server (mechanism not implemented yet)
+    window_id = "TODO"
+    Client.push_event!(window_id, "inspect-mode-changed", %{
       inspect_mode: false,
       pid: inspect(self())
     })
@@ -95,7 +99,9 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
   defp handle_event(_, _, socket), do: {:cont, socket}
 
   defp switch_inspect_mode(socket) do
-    Client.push_event!(socket.assigns.lv_process.result.root_socket_id, "inspect-mode-changed", %{
+    # TODO: retrieve window_id from server (mechanism not implemented yet)
+    window_id = "TODO"
+    Client.push_event!(window_id, "inspect-mode-changed", %{
       inspect_mode: !socket.assigns.inspect_mode?,
       pid: inspect(self())
     })

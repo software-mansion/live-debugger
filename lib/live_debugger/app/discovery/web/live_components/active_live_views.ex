@@ -133,7 +133,9 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.ActiveLiveViews do
         id_key: "PID"
       }
 
-      Client.push_event!(params["root-socket-id"], "highlight", payload)
+      # TODO: retrieve window_id from server (mechanism not implemented yet)
+      window_id = "TODO"
+      Client.push_event!(window_id, "highlight", payload)
     end
 
     socket
