@@ -14,7 +14,7 @@ defmodule LiveDebugger do
   @default_port 4007
   @default_secret_key_base "DEFAULT_SECRET_KEY_BASE_1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcd"
   @default_signing_salt "live_debugger_signing_salt"
-  @default_drainer []
+  @default_drainer [shutdown: 1000]
 
   @js_path "assets/live_debugger/client.js"
   @css_path "assets/live_debugger/client.css"
