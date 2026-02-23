@@ -10,6 +10,7 @@ defmodule LiveDebugger.Client.Channel do
 
   @impl true
   def join("client:" <> window_id, %{"fingerprint" => fingerprint}, socket) do
+    Phoenix.PubSub.subscribe(@pubsub_name, "client:*")
     WindowsStorage.save!(fingerprint, window_id)
 
     {:ok, assign(socket, :window_id, window_id)}

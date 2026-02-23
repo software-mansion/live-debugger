@@ -150,10 +150,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
         if setting == :debug_button do
           LiveDebugger.update_live_debugger_tags()
 
-          # TODO: retrieve window_id from server (mechanism not implemented yet); broadcast to all windows
-          window_id = "TODO"
-
-          Client.push_event!(window_id, "toggle-debug-button", %{
+          Client.push_event_to_all!("toggle-debug-button", %{
             enabled: new_settings[:debug_button]
           })
         end

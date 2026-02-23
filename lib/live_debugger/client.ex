@@ -4,6 +4,7 @@ defmodule LiveDebugger.Client do
   """
 
   @callback push_event!(String.t(), String.t(), map()) :: :ok
+  @callback push_event_to_all!(String.t(), map()) :: :ok
   @callback receive_events(String.t()) :: :ok | {:error, term()}
   @callback receive_events() :: :ok | {:error, term()}
 
@@ -13,6 +14,14 @@ defmodule LiveDebugger.Client do
   @spec push_event!(String.t(), String.t(), map()) :: :ok
   def push_event!(window_id, event, payload \\ %{}) do
     impl().push_event!(window_id, event, payload)
+  end
+
+  @doc """
+  Pushes event to all clients subscribed to the `client:*` topic.
+  """
+  @spec push_event_to_all!(String.t(), map()) :: :ok
+  def push_event_to_all!(event, payload \\ %{}) do
+    impl().push_event_to_all!(event, payload)
   end
 
   @doc """
@@ -59,6 +68,11 @@ defmodule LiveDebugger.Client do
     @impl true
     def push_event!(window_id, event, payload \\ %{}) do
       Phoenix.PubSub.broadcast!(@pubsub_name, "client:#{window_id}", {event, payload})
+    end
+
+    @impl true
+    def push_event_to_all!(event, payload \\ %{}) do
+      Phoenix.PubSub.broadcast!(@pubsub_name, "client:*", {event, payload})
     end
 
     @impl true
