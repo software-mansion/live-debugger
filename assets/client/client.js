@@ -53,6 +53,16 @@ window.document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize other features
     const windowChannel = debugSocket.windowChannel;
+
+    windowChannel.on('find-successor', () => {
+      const mainSocketId = getMainLiveViewSocketId();
+
+      if (mainSocketId) {
+        windowChannel.push('found-successor', { socket_id: mainSocketId });
+      } else {
+        windowChannel.push('found-successor', { socket_id: lvSocketIds[0] });
+      }
+    });
     initElementInspection(baseURL, windowChannel);
     initTooltip();
     initDebugMenu(metaTag, sessionURL, windowChannel);

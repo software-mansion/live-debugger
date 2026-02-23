@@ -14,6 +14,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
 
   alias LiveDebugger.Bus
+  alias LiveDebugger.Client
   alias LiveDebugger.App.Events.FindSuccessor
   alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorFound
   alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorNotFound
@@ -142,11 +143,25 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
     |> halt()
   end
 
+  defp handle_info({"found-successor", params}, socket) do
+    dbg(params)
+
+    socket
+    |> redirect(to: "/redirect/#{params["socket_id"]}")
+    |> halt()
+  end
+
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp handle_event("find-successor", _params, socket) do
+    # socket
+    # |> start_successor_finding()
+    # |> halt()
+
+    Client.push_event!(socket.assigns.lv_process.result.window_id, "find-successor")
+
     socket
-    |> start_successor_finding()
+    |> assign(:lv_process, AsyncResult.loading())
     |> halt()
   end
 
