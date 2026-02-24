@@ -35,6 +35,8 @@ window.document.addEventListener('DOMContentLoaded', async () => {
   if (lvSocketIds.length === 0) return;
 
   const baseURL = fetchLiveDebuggerBaseURL(metaTag);
+  // TODO: We need a fallback here, because currently main LiveView could be undefined
+  // we need to take first socket id, which starts with phx- (but we should probably check if this prefix is mandatory)
   const mainSocketID = getMainLiveViewSocketId();
   const sessionURL = `${baseURL}/redirect/${mainSocketID}`;
 
@@ -76,6 +78,7 @@ window.document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
+// TODO: Also it'd be good to report here about change in the mainSocketId for successor finding
 function setupFingerprintObserver(debugSocket, initialFingerprint) {
   let lastFingerprint = initialFingerprint;
   const targetNode = document.body;
