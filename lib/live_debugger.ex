@@ -14,6 +14,7 @@ defmodule LiveDebugger do
   @default_port 4007
   @default_secret_key_base "DEFAULT_SECRET_KEY_BASE_1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcd"
   @default_signing_salt "live_debugger_signing_salt"
+  @default_drainer [shutdown: 1000]
 
   @js_path "assets/live_debugger/client.js"
   @css_path "assets/live_debugger/client.css"
@@ -67,7 +68,8 @@ defmodule LiveDebugger do
         secret_key_base: Keyword.get(config, :secret_key_base, @default_secret_key_base),
         live_view: [signing_salt: Keyword.get(config, :signing_salt, @default_signing_salt)],
         adapter: Keyword.get(config, :adapter, default_adapter()),
-        live_reload: Keyword.get(config, :live_reload, [])
+        live_reload: Keyword.get(config, :live_reload, []),
+        drainer: Keyword.get(config, :drainer, @default_drainer)
       ]
 
     endpoint_server = Keyword.get(config, :server)
