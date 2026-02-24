@@ -1,119 +1,128 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+
+const MIN_VISIBLE_HEIGHT = 5;
 
 export interface AdBannerProps {
   zoneId: string;
   contentId: string;
+  setBannerHeight?: (height: number) => void;
 }
 
-export const AdBanner = ({ zoneId, contentId }: AdBannerProps) => {
-  const [isAdLoaded, setIsAdLoaded] = useState(false);
-  const adContainerRef = useRef<HTMLDivElement>(null);
-  const adContentRef = useRef<HTMLDivElement>(null);
-  const adDetectedRef = useRef(false);
+export const AdBanner = ({
+  zoneId,
+  contentId,
+  setBannerHeight,
+}: AdBannerProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const insRef = useRef<HTMLModElement | null>(null);
+
+  const [hasBanner, setHasBanner] = useState(false);
 
   useEffect(() => {
-    const adContainer = adContainerRef.current;
-    if (!adContainer) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    const insElement = adContainer.querySelector("ins");
-    if (!insElement) return;
-
-    const checkForAd = () => {
-      if (adDetectedRef.current) return true;
-
-      const isLoaded =
-        insElement.getAttribute("data-content-loaded") === "1" ||
-        insElement.querySelector(".revive-banner") !== null ||
-        insElement.querySelector("a.revive-banner") !== null ||
-        (insElement.children.length > 0 && insElement.offsetHeight > 10);
-
-      if (isLoaded) {
-        adDetectedRef.current = true;
-        setIsAdLoaded(true);
-        return true;
+    const getIns = () => {
+      const current = container.querySelector("ins");
+      if (current && current !== insRef.current) {
+        insRef.current = current as HTMLModElement;
       }
-      return false;
+      return insRef.current;
     };
 
-    const observer = new MutationObserver(() => {
-      checkForAd();
-    });
+    const detectBanner = () => {
+      const ins = getIns();
+      if (!ins) return false;
+      const hasChildren = ins.children.length > 0;
+      const height = ins.offsetHeight;
+      const hasVisible = height >= MIN_VISIBLE_HEIGHT;
+      return hasChildren && hasVisible;
+    };
 
-    observer.observe(insElement, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["data-content-loaded", "style", "class", "id"],
-    });
+    const updateState = () => {
+      setHasBanner(detectBanner());
+    };
 
-    observer.observe(adContainer, {
+    // container observer
+    const containerObserver = new MutationObserver(updateState);
+    containerObserver.observe(container, {
       childList: true,
       subtree: true,
       attributes: true,
     });
 
-    const handleAdLoaded = () => {
-      if (!adDetectedRef.current) {
-        adDetectedRef.current = true;
-        setIsAdLoaded(true);
-      }
-    };
+    // content observer
+    const ins = getIns();
+    let insObserver: MutationObserver | null = null;
+    if (ins) {
+      insObserver = new MutationObserver(updateState);
+      insObserver.observe(ins, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["data-content-loaded", "style", "class", "id"],
+      });
+    }
 
-    const eventName = `content-${contentId}-loaded`;
-    document.addEventListener(eventName, handleAdLoaded);
-
-    checkForAd();
-
-    const intervals = [
-      setTimeout(checkForAd, 500),
-      setTimeout(checkForAd, 1000),
-      setTimeout(checkForAd, 2000),
-      setTimeout(checkForAd, 3000),
-      setTimeout(checkForAd, 5000),
-    ];
+    updateState();
 
     return () => {
-      observer.disconnect();
-      intervals.forEach(clearTimeout);
-      document.removeEventListener(eventName, handleAdLoaded);
+      containerObserver.disconnect();
+      if (insObserver) insObserver.disconnect();
     };
   }, [contentId]);
 
+  // measure height and trigger animation
   useEffect(() => {
-    const container = adContainerRef.current;
-    const content = adContentRef.current;
+    const container = containerRef.current;
+    const content = contentRef.current;
     if (!container || !content) return;
 
-    if (isAdLoaded) {
-      const updateHeight = () => {
-        const height = content.scrollHeight || content.offsetHeight || 100;
-        container.style.maxHeight = `${Math.max(height, 100)}px`;
-        container.style.overflow = "visible";
-      };
-      requestAnimationFrame(updateHeight);
-      setTimeout(updateHeight, 100);
-      setTimeout(updateHeight, 500);
-    } else {
-      container.style.maxHeight = "0px";
+    if (!hasBanner) {
+      container.style.height = "0px";
       container.style.overflow = "hidden";
+      setBannerHeight?.(0);
+      document.documentElement.dataset.bannerLoaded = "false";
+      return;
     }
-  }, [isAdLoaded]);
+
+    requestAnimationFrame(() => {
+      const measuredHeight = Math.max(
+        content.scrollHeight,
+        content.offsetHeight,
+      );
+
+      container.style.height = `${measuredHeight}px`;
+      container.style.overflow = "visible";
+      setBannerHeight?.(measuredHeight);
+      document.documentElement.dataset.bannerLoaded = "true";
+    });
+  }, [hasBanner, setBannerHeight]);
 
   return (
     <div
-      ref={adContainerRef}
-      className="w-full transition-all duration-500 ease-in-out"
+      ref={containerRef}
+      className="absolute top-0 left-0 w-full transition-all duration-500 ease-in-out"
       style={{
-        opacity: isAdLoaded ? 1 : 0,
+        opacity: hasBanner ? 1 : 0,
+        height: hasBanner ? undefined : "0px",
+        overflow: hasBanner ? "visible" : "hidden",
+        transform: "translateY(-100%)",
       }}
     >
-      <div ref={adContentRef} className="w-full">
-        <ins data-content-zoneid={zoneId} data-content-id={contentId}></ins>
+      <div ref={contentRef} className="w-full" suppressHydrationWarning>
+        <ins
+          data-content-zoneid={zoneId}
+          data-content-id={contentId}
+          className="block"
+          suppressHydrationWarning
+        />
       </div>
       <script
         async
         src="//revive-adserver.swmansion.com/www/assets/js/lib.js"
-      ></script>
+      />
     </div>
   );
 };
