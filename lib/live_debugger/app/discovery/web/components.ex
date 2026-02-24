@@ -158,16 +158,28 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
           <.nested_indent />
           <.list_element lv_process={parent_lv_process} remove_event={@remove_event} target={@target} />
         </div>
-        <.lv_processes_tree lv_processes={lv_processes} remove_event={@remove_event} />
+        <div :if={lv_processes} class="flex w-full">
+          <.nested_indent single_entry?={false} />
+          <.lv_processes_tree
+            lv_processes={lv_processes}
+            remove_event={@remove_event}
+            target={@target}
+          />
+        </div>
       </:item>
     </.list>
     """
   end
 
+  attr(:single_entry?, :boolean, default: true)
+
   defp nested_indent(assigns) do
     ~H"""
-    <div class="relative w-8 h-12">
-      <div class="absolute top-0 right-2 w-1/4 h-1/2 border-b border-l-0 group-last:border-l border-default-border">
+    <div class={["relative w-8", if(@single_entry?, do: "h-12")]}>
+      <div
+        :if={@single_entry?}
+        class="absolute top-0 right-2 w-1/4 h-1/2 border-b border-l-0 group-last:border-l border-default-border"
+      >
       </div>
       <div class="group-last:hidden block absolute top-0 right-2 w-1/4 h-full border-l border-default-border">
       </div>
@@ -191,11 +203,11 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
         phx-value-root-socket-id={@lv_process.root_socket_id}
         phx-value-id={Parsers.pid_to_string(@lv_process.pid)}
         phx-target={@target}
-        class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm"
+        class="h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm"
       >
-        <div class="flex flex-col gap-1">
+        <div class="flex flex-col items-start gap-1">
           <div class="text-link-primary flex items-center gap-1">
-            <.icon :if={not @lv_process.nested?} name="icon-liveview" class="w-4 h-4" />
+            <.icon name="icon-liveview" class="w-4 h-4" />
             <p class={if(not @lv_process.nested?, do: "font-medium")}>
               <%= Parsers.module_to_string(@lv_process.module) %>
             </p>
