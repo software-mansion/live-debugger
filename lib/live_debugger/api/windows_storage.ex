@@ -5,6 +5,8 @@ defmodule LiveDebugger.API.WindowsStorage do
   It uses Erlang's ETS (Erlang Term Storage) under the hood.
   """
 
+  alias LiveDebugger.Structs.LvProcess
+
   @callback init() :: :ok
   @callback save!(fingerprint :: term(), window_id :: term()) :: true
   @callback get_window_id!(fingerprint :: term()) :: term() | nil
@@ -44,6 +46,17 @@ defmodule LiveDebugger.API.WindowsStorage do
   """
   @spec delete_by_window_id!(term()) :: non_neg_integer()
   def delete_by_window_id!(window_id), do: impl().delete_by_window_id!(window_id)
+
+  @doc """
+  Creates a fingerprint from a list of `lv_processes`.
+  """
+  @spec create_fingerprint([LvProcess.t()]) :: String.t()
+  def create_fingerprint(lv_processes) do
+    lv_processes
+    |> Enum.map(fn lv_process -> lv_process.socket_id end)
+    |> Enum.sort()
+    |> Enum.join(";")
+  end
 
   defp impl() do
     Application.get_env(

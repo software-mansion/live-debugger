@@ -11,8 +11,6 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
   alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
-  alias LiveDebugger.API.LiveViewDiscovery
-  alias LiveDebugger.API.WindowsStorage
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.DebuggerMounted
 
@@ -22,7 +20,9 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
     |> attach_hook(:async_lv_process, :handle_async, &handle_async/3)
     |> register_hook(:async_lv_process)
     |> assign(:lv_process, AsyncResult.loading())
-    |> start_async(:lv_process, fn -> get_lv_process_with_root_socket_id(pid) end)
+    |> start_async(:lv_process, fn ->
+      LvProcessQueries.get_lv_process_with_retires_and_window_id(pid)
+    end)
   end
 
   defp handle_async(:lv_process, {:ok, %LvProcess{} = lv_process}, socket) do
@@ -54,24 +54,4 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
   end
 
   defp handle_async(_, _, socket), do: {:cont, socket}
-
-  defp get_lv_process_with_root_socket_id(pid) do
-    case LvProcessQueries.get_lv_process_with_retries(pid) do
-      nil ->
-        nil
-
-      %LvProcess{} = lv_process ->
-        fingerprint =
-          lv_process.transport_pid
-          |> LiveViewDiscovery.debugged_lv_processes()
-          |> Enum.map(fn lv_process -> lv_process.socket_id end)
-          |> Enum.sort()
-          |> Enum.join(";")
-
-        window_id = WindowsStorage.get_window_id!(fingerprint)
-        LvProcess.set_window_id(lv_process, window_id)
-
-        # LvProcess.set_root_socket_id(lv_process, LiveViewDiscovery.get_root_socket_id(lv_process))
-    end
-  end
 end

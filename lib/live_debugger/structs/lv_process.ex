@@ -35,7 +35,7 @@ defmodule LiveDebugger.Structs.LvProcess do
           nested?: boolean(),
           embedded?: boolean(),
           debugger?: boolean(),
-          window_id: String.t(),
+          window_id: String.t() | nil,
           alive?: boolean()
         }
 
