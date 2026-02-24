@@ -21,7 +21,7 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
     |> register_hook(:async_lv_process)
     |> assign(:lv_process, AsyncResult.loading())
     |> start_async(:lv_process, fn ->
-      LvProcessQueries.get_lv_process_with_retires_and_window_id(pid)
+      LvProcessQueries.get_lv_process_with_retries_and_window_id(pid)
     end)
   end
 
