@@ -21,7 +21,7 @@ defmodule LiveDebugger.App.Discovery.Queries do
           {grouped_lv_processes :: grouped_lv_processes(),
            lv_processes_count :: non_neg_integer()}
   def fetch_grouped_lv_processes() do
-    retries_timeouts = [200, 400, 800, 1600]
+    retries_timeouts = [0, 200, 400, 800]
 
     lv_processes =
       Enum.reduce_while(retries_timeouts, [], fn timeout, _acc ->

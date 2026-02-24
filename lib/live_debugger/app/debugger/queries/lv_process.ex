@@ -14,7 +14,7 @@ defmodule LiveDebugger.App.Debugger.Queries.LvProcess do
   """
   @spec get_lv_process_with_retries_and_window_id(pid()) :: LvProcess.t() | nil
   def get_lv_process_with_retries_and_window_id(pid) when is_pid(pid) do
-    retries_timeouts = [100, 200, 400, 800]
+    retries_timeouts = [0, 200, 400, 800]
 
     Enum.reduce_while(retries_timeouts, nil, fn timeout, nil ->
       Process.sleep(timeout)

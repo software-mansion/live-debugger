@@ -127,6 +127,8 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
 
     # The problem is that there is a chance that the DOM has not bee updated yet and me may receive old socket id here
     # that is not binded to any active LiveView
+    #
+    # TODO: Isn't it better to just check in the WindowsStorage if there is something new there?
     socket
     |> redirect(to: "/redirect/#{params["socket_id"]}")
     |> halt()
