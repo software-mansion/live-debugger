@@ -274,6 +274,7 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
   test "group_lv_processes/1 groups LvProcesses into proper map" do
     pid_1 = :c.pid(0, 0, 1)
     pid_2 = :c.pid(0, 0, 2)
+    pid_3 = :c.pid(0, 0, 3)
 
     root_pid_1 = :c.pid(0, 1, 1)
     root_pid_2 = :c.pid(0, 1, 2)
@@ -285,40 +286,52 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
     lv_process_1 = %LvProcess{
       pid: root_pid_1,
       root_pid: root_pid_1,
+      parent_pid: nil,
       transport_pid: transport_pid_1
     }
 
     lv_process_2 = %LvProcess{
       pid: pid_1,
       root_pid: root_pid_1,
+      parent_pid: root_pid_1,
       transport_pid: transport_pid_1
     }
 
     lv_process_3 = %LvProcess{
       pid: root_pid_2,
       root_pid: root_pid_2,
+      parent_pid: nil,
       transport_pid: transport_pid_2
     }
 
     lv_process_4 = %LvProcess{
       pid: pid_2,
       root_pid: root_pid_2,
+      parent_pid: root_pid_2,
       transport_pid: transport_pid_2
     }
 
     lv_process_5 = %LvProcess{
+      pid: pid_3,
+      root_pid: root_pid_2,
+      parent_pid: pid_2,
+      transport_pid: transport_pid_2
+    }
+
+    lv_process_6 = %LvProcess{
       pid: root_pid_3,
       root_pid: root_pid_3,
+      parent_pid: nil,
       transport_pid: transport_pid_2
     }
 
     assert %{
              transport_pid_1 => %{
-               lv_process_1 => [lv_process_2]
+               lv_process_1 => %{lv_process_2 => nil}
              },
              transport_pid_2 => %{
-               lv_process_3 => [lv_process_4],
-               lv_process_5 => []
+               lv_process_3 => %{lv_process_4 => %{lv_process_5 => nil}},
+               lv_process_6 => nil
              }
            } ==
              LiveViewDiscoveryImpl.group_lv_processes([
@@ -326,7 +339,8 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
                lv_process_2,
                lv_process_3,
                lv_process_4,
-               lv_process_5
+               lv_process_5,
+               lv_process_6
              ])
   end
 

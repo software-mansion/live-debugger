@@ -134,22 +134,33 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
                 target={@target}
               />
             </div>
-            <.list elements={lv_processes} item_class="group" class="pr-0">
-              <:item :let={lv_process}>
-                <div class="flex items-center w-full">
-                  <.nested_indent />
-                  <.list_element
-                    lv_process={lv_process}
-                    remove_event={@remove_event}
-                    target={@target}
-                  />
-                </div>
-              </:item>
-            </.list>
+            <.lv_processes_tree
+              lv_processes={lv_processes}
+              remove_event={@remove_event}
+              target={@target}
+            />
           </:item>
         </.list>
       </div>
     </div>
+    """
+  end
+
+  attr(:lv_processes, :map, required: true)
+  attr(:remove_event, :string, default: nil)
+  attr(:target, :any, default: nil)
+
+  defp lv_processes_tree(assigns) do
+    ~H"""
+    <.list :if={@lv_processes} elements={@lv_processes} item_class="group" class="pr-0">
+      <:item :let={{parent_lv_process, lv_processes}}>
+        <div class="flex items-center w-full">
+          <.nested_indent />
+          <.list_element lv_process={parent_lv_process} remove_event={@remove_event} target={@target} />
+        </div>
+        <.lv_processes_tree lv_processes={lv_processes} remove_event={@remove_event} />
+      </:item>
+    </.list>
     """
   end
 
@@ -192,13 +203,6 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
           <p class="text-secondary-text">
             <%= Parsers.pid_to_string(@lv_process.pid) %> &middot; <%= @lv_process.socket_id %>
           </p>
-        </div>
-        <div>
-          <.badge
-            :if={@lv_process.embedded? and not @lv_process.nested?}
-            text="Embedded"
-            icon="icon-code"
-          />
         </div>
       </button>
       <div :if={@remove_event} class="pl-3">
