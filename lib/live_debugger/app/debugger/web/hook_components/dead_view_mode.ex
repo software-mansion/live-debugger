@@ -15,12 +15,10 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Client
-  alias LiveDebugger.App.Events.FindSuccessor
-  alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorFound
-  alias LiveDebugger.Services.SuccessorDiscoverer.Events.SuccessorNotFound
   alias LiveDebugger.App.Events.UserChangedSettings
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
   alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
+  alias LiveDebugger.API.LiveViewDiscovery
 
   @impl true
   def init(socket) do
@@ -124,56 +122,67 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
 
   defp handle_info(%LiveViewDied{}, socket), do: {:halt, socket}
 
-  defp handle_info(
-         %SuccessorFound{new_lv_process: new_lv_process, old_socket_id: old_socket_id},
-         %{private: %{old_socket_id: old_socket_id}, assigns: %{live_action: action}} = socket
-       ) do
-    socket
-    |> redirect(to: RoutesHelper.debugger(new_lv_process.pid, action))
-    |> halt()
-  end
-
-  defp handle_info(
-         %SuccessorNotFound{socket_id: socket_id},
-         %{private: %{old_socket_id: socket_id}} = socket
-       ) do
-    socket
-    |> put_flash(:error, "New process couldn't be found")
-    |> push_navigate(to: RoutesHelper.discovery())
-    |> halt()
-  end
-
   defp handle_info({"found-successor", params}, socket) do
-    dbg(params)
-
     socket
     |> redirect(to: "/redirect/#{params["socket_id"]}")
+    |> halt()
+  end
+
+  defp handle_info(:successor_not_found, socket) do
+    socket
+    |> put_flash(:error, "Successor not found")
+    |> push_navigate(to: RoutesHelper.discovery())
     |> halt()
   end
 
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp handle_event("find-successor", _params, socket) do
-    # socket
-    # |> start_successor_finding()
-    # |> halt()
-
-    Client.push_event!(socket.assigns.lv_process.result.window_id, "find-successor")
-
     socket
-    |> assign(:lv_process, AsyncResult.loading())
+    |> start_successor_finding()
     |> halt()
   end
 
   defp handle_event(_, _, socket), do: {:cont, socket}
 
   defp start_successor_finding(socket) do
-    lv_process = socket.assigns.lv_process.result
+    case find_successor_by_transport_pid(socket.assigns.lv_process.result) do
+      nil ->
+        # If no successor is found with transport pid, we're asking browser to find successor.
+        Client.push_event!(socket.assigns.lv_process.result.window_id, "find-successor")
+        Process.send_after(self(), :successor_not_found, 2000)
+        assign(socket, :lv_process, AsyncResult.loading())
 
-    Bus.broadcast_event!(%FindSuccessor{lv_process: lv_process})
+      successor ->
+        redirect(socket, to: RoutesHelper.debugger(successor.pid, socket.assigns.live_action))
+    end
+  end
 
-    socket
-    |> put_private(:old_socket_id, lv_process.socket_id)
-    |> assign(:lv_process, AsyncResult.loading())
+  defp find_successor_by_transport_pid(lv_process) do
+    transport_processes = LiveViewDiscovery.debugged_lv_processes(lv_process.transport_pid)
+
+    find_first_match([
+      # Priority 1: Find a non-nested, non-embedded process with matching transport_pid
+      fn -> find_non_nested_non_embedded(transport_processes) end,
+      # Priority 2: Use single process with matching transport_pid if it exists
+      fn -> find_single_process(transport_processes) end
+    ])
+  end
+
+  defp find_first_match(functions) do
+    Enum.reduce_while(functions, nil, fn fun, _acc ->
+      case fun.() do
+        nil -> {:cont, nil}
+        result -> {:halt, result}
+      end
+    end)
+  end
+
+  defp find_non_nested_non_embedded(processes) do
+    Enum.find(processes, &(not &1.nested? and not &1.embedded?))
+  end
+
+  defp find_single_process(processes) do
+    if length(processes) == 1, do: List.first(processes), else: nil
   end
 end

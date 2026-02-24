@@ -10,8 +10,7 @@ defmodule LiveDebugger.Services do
         {LiveDebugger.Services.CallbackTracer.Supervisor, []},
         {LiveDebugger.Services.GarbageCollector.Supervisor, []},
         {LiveDebugger.Services.ProcessMonitor.Supervisor, []},
-        {LiveDebugger.Services.ClientCommunicator.Supervisor, []},
-        {LiveDebugger.Services.SuccessorDiscoverer.Supervisor, []}
+        {LiveDebugger.Services.ClientCommunicator.Supervisor, []}
       ]
   end
 end
