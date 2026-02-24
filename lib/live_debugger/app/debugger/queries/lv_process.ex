@@ -20,7 +20,7 @@ defmodule LiveDebugger.App.Debugger.Queries.LvProcess do
       Process.sleep(timeout)
 
       with %LvProcess{} = lv_process <- get_lv_process(pid),
-           lv_processes = LiveViewDiscovery.debugged_lv_processes(),
+           lv_processes = LiveViewDiscovery.debugged_lv_processes(lv_process.transport_pid),
            fingerprint when is_binary(fingerprint) <-
              WindowsStorage.create_fingerprint(lv_processes),
            window_id when is_binary(window_id) <-
@@ -51,7 +51,7 @@ defmodule LiveDebugger.App.Debugger.Queries.LvProcess do
 
   @spec get_lv_process(pid()) :: LvProcess.t() | nil
   def get_lv_process(pid) when is_pid(pid) do
-    case StateQueries.get_socket(pid) do
+    case StateQueries.get_socket(pid) |> dbg() do
       {:error, _} ->
         nil
 
