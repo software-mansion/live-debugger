@@ -11,7 +11,6 @@ defmodule LiveDebugger.Structs.LvProcess do
 
   defstruct [
     :socket_id,
-    :root_socket_id,
     :root_pid,
     :parent_pid,
     :pid,
@@ -26,7 +25,6 @@ defmodule LiveDebugger.Structs.LvProcess do
 
   @type t() :: %__MODULE__{
           socket_id: String.t(),
-          root_socket_id: String.t() | nil,
           root_pid: pid(),
           parent_pid: pid() | nil,
           pid: pid(),
@@ -63,12 +61,6 @@ defmodule LiveDebugger.Structs.LvProcess do
   @spec set_alive(t(), boolean()) :: t()
   def set_alive(%__MODULE__{} = lv_process, alive?) when is_boolean(alive?) do
     %__MODULE__{lv_process | alive?: alive?}
-  end
-
-  @spec set_root_socket_id(t(), String.t() | nil) :: t()
-  def set_root_socket_id(%__MODULE__{} = lv_process, root_socket_id)
-      when is_binary(root_socket_id) or is_nil(root_socket_id) do
-    %__MODULE__{lv_process | root_socket_id: root_socket_id}
   end
 
   @spec set_window_id(t(), String.t() | nil) :: t()
