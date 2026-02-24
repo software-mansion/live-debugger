@@ -56,11 +56,13 @@ window.document.addEventListener('DOMContentLoaded', async () => {
 
     windowChannel.on('find-successor', () => {
       const mainSocketId = getMainLiveViewSocketId();
+      const liveSocketIds = getLiveViewSocketIds();
+
 
       if (mainSocketId) {
         windowChannel.push('found-successor', { socket_id: mainSocketId });
       } else {
-        windowChannel.push('found-successor', { socket_id: lvSocketIds[0] });
+        windowChannel.push('found-successor', { socket_id: liveSocketIds[0] });
       }
     });
     initElementInspection(baseURL, windowChannel);

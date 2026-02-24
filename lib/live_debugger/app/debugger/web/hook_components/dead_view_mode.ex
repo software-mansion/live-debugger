@@ -123,6 +123,10 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
   defp handle_info(%LiveViewDied{}, socket), do: {:halt, socket}
 
   defp handle_info({"found-successor", params}, socket) do
+    dbg(params)
+
+    # The problem is that there is a chance that the DOM has not bee updated yet and me may receive old socket id here
+    # that is not binded to any active LiveView
     socket
     |> redirect(to: "/redirect/#{params["socket_id"]}")
     |> halt()
