@@ -39,7 +39,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.ExistingTraces do
   @spec assign_async_existing_traces(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def assign_async_existing_traces(socket) do
     pid = socket.assigns.lv_process.pid
-
+    # TODO add components
     opts =
       [
         limit: socket.private.page_size,

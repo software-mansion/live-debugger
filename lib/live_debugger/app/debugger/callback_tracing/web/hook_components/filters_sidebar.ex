@@ -8,6 +8,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersSi
 
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
+  alias LiveDebugger.Structs.LvProcess
 
   @required_assigns [:current_filters, :sidebar_hidden?, :tracing_started?]
 
@@ -24,6 +25,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersSi
   attr(:current_filters, :map, required: true)
   attr(:sidebar_hidden?, :boolean, required: true)
   attr(:tracing_started?, :boolean, required: true)
+  attr(:lv_process, LvProcess, required: true)
 
   @impl true
   def render(assigns) do
@@ -39,6 +41,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersSi
             filters={@current_filters}
             disabled?={@tracing_started?}
             revert_button_visible?={true}
+            lv_process={@lv_process}
           />
         </div>
         <.report_issue class="border-t border-default-border" />

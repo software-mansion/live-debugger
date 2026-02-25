@@ -6,7 +6,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
   use LiveDebugger.App.Web, :hook_component
 
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.NodeFiltersForm
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
@@ -27,6 +27,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
 
   attr(:node_id, :any, default: nil)
   attr(:current_filters, :map, required: true)
+  # attr(:lv_process, LvProcess, required: true)
 
   @impl true
   def render(assigns) do
@@ -35,7 +36,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
     ~H"""
     <.fullscreen id={@fullscreen_id} title="Filters" class="max-w-112 min-w-[20rem]">
       <.live_component
-        module={FiltersForm}
+        module={NodeFiltersForm}
         id={@form_id}
         node_id={@node_id}
         filters={@current_filters}
@@ -111,7 +112,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp handle_event("open-filters", _, socket) do
-    send_update(FiltersForm,
+    send_update(NodeFiltersForm,
       id: @form_id,
       reset_form?: true
     )
