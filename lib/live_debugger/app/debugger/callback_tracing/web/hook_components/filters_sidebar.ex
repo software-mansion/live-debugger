@@ -31,7 +31,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersSi
   def render(assigns) do
     ~H"""
     <.sidebar_slide_over id="filters-sidebar" sidebar_hidden?={@sidebar_hidden?} page={:global_traces}>
-      <div class="flex flex-col justify-between h-full">
+      <div class="flex flex-col justify-between overflow-auto">
         <div>
           <div class="text-secondary-text font-semibold pt-6 pb-2 px-4">Filters</div>
           <.live_component
@@ -51,6 +51,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersSi
   end
 
   defp handle_info({:filters_updated, filters}, socket) do
+    dbg(filters)
+
     socket
     |> assign(:current_filters, filters)
     |> assign(:sidebar_hidden?, true)

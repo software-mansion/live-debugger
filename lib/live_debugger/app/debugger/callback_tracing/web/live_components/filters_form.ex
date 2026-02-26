@@ -16,9 +16,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Debugger.ComponentsTree.Queries, as: ComponentsTreeQueries
-
   alias LiveDebugger.App.Debugger.Structs.TreeNode
+  alias LiveDebugger.Client
+  alias LiveDebugger.API.SettingsStorage
 
+  alias LiveDebugger.Structs.LvProcess
   @impl true
   def update(%{reset_form?: true}, socket) do
     socket
@@ -40,7 +42,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     revert_button_visible? = Map.get(assigns, :revert_button_visible?, false)
 
     active_filters =
-      assigns.filters |> Map.put(:components, %{})
+      assigns.filters |> Map.put_new(:components, %{})
+
+    dbg(:updated)
 
     socket
     |> assign(:id, assigns.id)
@@ -77,17 +81,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     ~H"""
     <div id={@id <> "-wrapper"} class={if @disabled?, do: "opacity-50 pointer-events-none"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
-        <div class="w-full py-2">
+        <div class="w-full py-2 owerflow-auto">
           <div class="px-4 border-b border-default-border">
             <.collapsible id="filters-component-tree-collapse" open={true}>
               <:label>
                 <FiltersComponents.filters_group_header
                   title="Components tree"
                   class="pt-2"
-                  group_name={:functions}
+                  group_name={:components}
                   target={@myself}
                   group_changed?={
-                    FiltersHelpers.group_changed?(@form.params, @default_filters, :functions)
+                    FiltersHelpers.group_changed?(@form.params, @default_filters, :components)
                   }
                 />
               </:label>
@@ -279,6 +283,13 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   end
 
   @impl true
+  def handle_event("highlight", params, socket) do
+    socket
+    |> highlight_element(params)
+    |> noreply()
+  end
+
+  @impl true
   def handle_async({:tree, filters}, {:ok, {:ok, %{tree: %TreeNode{} = tree}}}, socket) do
     components_filters = Map.get(filters, :components, %{})
     dbg(components_filters)
@@ -286,7 +297,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     flattened_tree =
       flatten_tree(tree)
       |> Map.new(fn {id, _} ->
-        {inspect(id), Map.get(components_filters, id, true)}
+        {inspect(id), Map.get(components_filters, inspect(id), true)}
       end)
 
     new_params = Map.merge(socket.assigns.form.params, flattened_tree)
@@ -296,6 +307,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     |> assign(
       :active_filters,
       Map.put(socket.assigns.active_filters, :components, flattened_tree)
+    )
+    |> assign(
+      :default_filters,
+      Map.put(socket.assigns.default_filters, :components, flattened_tree)
     )
     |> assign(:form, to_form(new_params, id: socket.assigns.id))
     |> noreply()
@@ -325,18 +340,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
       |> Map.merge(components)
       |> to_form(id: socket.assigns.id)
 
-    assign(socket, :form, form)
-  end
-
-  defp assign_form(socket, filters_map) when is_map(filters_map) do
-    form = socket.assigns.form
-
-    form =
-      form.params
-      |> Map.merge(filters_map)
-      |> to_form(id: socket.assigns.id)
-
-    dbg(form)
     assign(socket, :form, form)
   end
 
@@ -420,7 +423,13 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
       |> assign(:node, assigns.node)
 
     ~H"""
-    <div class="flex flex-col w-full">
+    <div class="flex flex-col w-full" phx-hook="Highlight" id="{@node.dom_id}-filters"
+    phx-hook="Highlight"
+    phx-value-search-attribute={@node.dom_id.attribute}
+    phx-value-search-value={@node.dom_id.value}
+    phx-value-module={@node.module}
+    phx-value-type={@node.type}
+    phx-value-id={TreeNode.parse_id(@node)}    >
       <div style={"margin-left: #{@level * 0.25}rem"}>
         <.checkbox 
           field={@field} 
@@ -440,12 +449,30 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   end
 
   defp node_label(%TreeNode{type: :live_component} = node) do
-    "#{short_name(node.module)}"
+    "#{short_name(node.module)} (#{Parsers.cid_to_string(node.id)})"
   end
 
   defp short_name(module) when is_atom(module) do
     module
     |> Module.split()
     |> List.last()
+  end
+
+  defp highlight_element(%{assigns: %{lv_process: %LvProcess{alive?: true}}} = socket, params) do
+    if SettingsStorage.get(:highlight_in_browser) do
+      payload = %{
+        attr: params["search-attribute"],
+        val: params["search-value"],
+        type: if(params["type"] == "live_view", do: "LiveView", else: "LiveComponent"),
+        module: Parsers.module_to_string(params["module"]),
+        id_value: params["id"],
+        id_key: if(params["type"] == "live_view", do: "PID", else: "CID")
+      }
+
+      dbg(payload)
+      Client.push_event!(socket.assigns.lv_process.root_socket_id, "highlight", payload)
+    end
+
+    socket
   end
 end

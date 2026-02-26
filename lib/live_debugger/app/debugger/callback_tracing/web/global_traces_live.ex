@@ -32,6 +32,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
 
+  alias LiveDebugger.Client
   @live_stream_limit 128
   @page_size 25
 

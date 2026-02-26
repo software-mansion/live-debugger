@@ -40,6 +40,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.ExistingTraces do
   def assign_async_existing_traces(socket) do
     pid = socket.assigns.lv_process.pid
     # TODO add components
+    dbg(socket.assigns.current_filters)
+
     opts =
       [
         limit: socket.private.page_size,
