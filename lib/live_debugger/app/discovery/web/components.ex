@@ -208,7 +208,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
         <div class="flex flex-col items-start gap-1">
           <div class="text-link-primary flex items-center gap-1">
             <.icon name="icon-liveview" class="w-4 h-4" />
-            <p class={if(not @lv_process.nested?, do: "font-medium")}>
+            <p class={if(not @lv_process.nested?, do: "font-semibold")}>
               <%= Parsers.module_to_string(@lv_process.module) %>
             </p>
           </div>
