@@ -89,7 +89,10 @@ function setTheme() {
 async function checkForUpdate(currentVersion) {
   const shouldShowPopup = (latestVersion) => {
     const isOlder = lt(currentVersion, latestVersion);
-    const isNotIgnored = localStorage.getItem('lvdbg:ignored-version') !== latestVersion;
+    const isNotIgnored =
+      localStorage.getItem('lvdbg:ignored-version') !== latestVersion;
+
+    console.log(isOlder, isNotIgnored);
 
     return isOlder && isNotIgnored;
   };
