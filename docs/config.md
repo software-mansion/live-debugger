@@ -94,6 +94,8 @@ config :live_debugger,
   signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
   adapter: Bandit.PhoenixAdapter, # Adapter used in LiveDebugger.Endpoint
   server: true, # Forces LiveDebugger to start even if project is not started with the `mix phx.server`
+  drainer: [shutdown: 1000] # Wait a maximum of 1000ms before forcefully terminating connections. You can also switch it off with `false`.
+
 
 # Name for LiveDebugger PubSub (it will create new one so don't put already used name)
 config :live_debugger, :pubsub_name, LiveDebugger.CustomPubSub

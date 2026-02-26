@@ -3,6 +3,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
   Actions responsible for saving LiveView process' state.
   """
 
+  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.API.LiveViewDebug
   alias LiveDebugger.Structs.Trace.FunctionTrace
@@ -42,8 +43,10 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.State do
     do_save_initial_state!(pid, socket)
   end
 
-  def maybe_save_state!(%FunctionTrace{pid: pid, function: :delete_component, type: :call}) do
-    do_save_state!(pid)
+  if not Versions.live_component_destroyed_telemetry_supported?() do
+    def maybe_save_state!(%FunctionTrace{pid: pid, function: :delete_component, type: :call}) do
+      do_save_state!(pid)
+    end
   end
 
   def maybe_save_state!(_), do: :ok
