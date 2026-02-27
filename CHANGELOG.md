@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.6.1 (2026-02-27)
+
+### Features
+* Allow configuring endpoint drainer in [#933](https://github.com/software-mansion/live-debugger/pull/933)
+
+### Bug fixes
+* Use `handle_continue` to continue init instead of sending a message to self in [#929](https://github.com/software-mansion/live-debugger/pull/929)
+* Enhanced performance of LiveDebugger init in [#928](https://github.com/software-mansion/live-debugger/pull/928)
+
+### Enhancements
+* Better version checks in [#935](https://github.com/software-mansion/live-debugger/pull/935)
+* Support Unix socket IP in endpoint configuration in [#924](https://github.com/software-mansion/live-debugger/pull/924)
+
 ## 0.6.0 (2026-02-05)
 
 ### Features
