@@ -125,12 +125,26 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
           root_lv_process = Enum.find(grouped_by_rpid, &(&1.pid == rpid))
           rest = Enum.reject(grouped_by_rpid, &(&1.pid == rpid))
 
-          {root_lv_process, rest}
+          {root_lv_process, make_children_tree(root_lv_process, rest)}
         end)
         |> Enum.into(%{})
         |> then(&{tpid, &1})
       end)
       |> Enum.into(%{})
+    end
+
+    defp make_children_tree(parent, rest) do
+      rest
+      |> Enum.filter(&(&1.parent_pid == parent.pid))
+      |> case do
+        [] ->
+          nil
+
+        children ->
+          children
+          |> Enum.map(&{&1, make_children_tree(&1, rest)})
+          |> Enum.into(%{})
+      end
     end
 
     @impl true

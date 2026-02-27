@@ -18,7 +18,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
   alias LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive
   alias LiveDebugger.App.Debugger.Streams.Web.StreamsLive
 
-  alias LiveDebugger.App.Debugger.NestedLiveViewLinks.Web.NestedLiveViewLinksLive
+  alias LiveDebugger.App.Debugger.AssociatedLiveViews.Web.AssociatedLiveViewsLive
   alias LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive
   alias LiveDebugger.Structs.LvProcess
 
@@ -88,10 +88,11 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
       </div>
     </div>
     <.live_component module={NodeInspectorSidebar} id={@sidebar_id} trigger_sidebar={@trigger_sidebar}>
-      <NestedLiveViewLinksLive.live_render
+      <AssociatedLiveViewsLive.live_render
         id="nested-live-view-links"
         lv_process={@lv_process}
         socket={@socket}
+        class="overflow-x-hidden"
       />
       <ComponentsTreeLive.live_render
         id="components-tree"

@@ -13,6 +13,12 @@ defmodule LiveDebuggerDev.LiveViews.Nested do
     ~H"""
     <.box title="Nested Live Views [LiveView]" color="blue">
       <LiveViews.Simple.live_render socket={@socket} id={@id <> "_inner"} />
+      <.live_component
+        id={"#{@id}_nested_lv_conditional"}
+        module={LiveDebuggerDev.LiveComponents.Conditional}
+      >
+        <LiveViews.Simple.live_render socket={@socket} id={@id <> "_inner2"} />
+      </.live_component>
     </.box>
     """
   end

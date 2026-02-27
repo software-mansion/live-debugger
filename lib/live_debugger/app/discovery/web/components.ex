@@ -134,18 +134,11 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
                 target={@target}
               />
             </div>
-            <.list elements={lv_processes} item_class="group" class="pr-0">
-              <:item :let={lv_process}>
-                <div class="flex items-center w-full">
-                  <.nested_indent />
-                  <.list_element
-                    lv_process={lv_process}
-                    remove_event={@remove_event}
-                    target={@target}
-                  />
-                </div>
-              </:item>
-            </.list>
+            <.lv_processes_tree
+              lv_processes={lv_processes}
+              remove_event={@remove_event}
+              target={@target}
+            />
           </:item>
         </.list>
       </div>
@@ -153,10 +146,40 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
     """
   end
 
+  attr(:lv_processes, :map, required: true)
+  attr(:remove_event, :string, default: nil)
+  attr(:target, :any, default: nil)
+
+  defp lv_processes_tree(assigns) do
+    ~H"""
+    <.list :if={@lv_processes} elements={@lv_processes} item_class="group" class="pr-0">
+      <:item :let={{parent_lv_process, lv_processes}}>
+        <div class="flex items-center w-full">
+          <.nested_indent />
+          <.list_element lv_process={parent_lv_process} remove_event={@remove_event} target={@target} />
+        </div>
+        <div :if={lv_processes} class="flex w-full">
+          <.nested_indent single_entry?={false} />
+          <.lv_processes_tree
+            lv_processes={lv_processes}
+            remove_event={@remove_event}
+            target={@target}
+          />
+        </div>
+      </:item>
+    </.list>
+    """
+  end
+
+  attr(:single_entry?, :boolean, default: true)
+
   defp nested_indent(assigns) do
     ~H"""
-    <div class="relative w-8 h-12">
-      <div class="absolute top-0 right-2 w-1/4 h-1/2 border-b border-l-0 group-last:border-l border-default-border">
+    <div class={["relative w-8", if(@single_entry?, do: "h-12")]}>
+      <div
+        :if={@single_entry?}
+        class="absolute top-0 right-2 w-1/4 h-1/2 border-b border-l-0 group-last:border-l border-default-border"
+      >
       </div>
       <div class="group-last:hidden block absolute top-0 right-2 w-1/4 h-full border-l border-default-border">
       </div>
@@ -180,25 +203,18 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
         phx-value-root-socket-id={@lv_process.root_socket_id}
         phx-value-id={Parsers.pid_to_string(@lv_process.pid)}
         phx-target={@target}
-        class="flex justify-between items-center h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm"
+        class="h-full w-full text-xs p-1.5 hover:bg-surface-0-bg-hover rounded-sm"
       >
-        <div class="flex flex-col gap-1">
+        <div class="flex flex-col items-start gap-1">
           <div class="text-link-primary flex items-center gap-1">
-            <.icon :if={not @lv_process.nested?} name="icon-liveview" class="w-4 h-4" />
-            <p class={if(not @lv_process.nested?, do: "font-medium")}>
+            <.icon name="icon-liveview" class="w-4 h-4" />
+            <p class={if(not @lv_process.nested?, do: "font-semibold")}>
               <%= Parsers.module_to_string(@lv_process.module) %>
             </p>
           </div>
           <p class="text-secondary-text">
             <%= Parsers.pid_to_string(@lv_process.pid) %> &middot; <%= @lv_process.socket_id %>
           </p>
-        </div>
-        <div>
-          <.badge
-            :if={@lv_process.embedded? and not @lv_process.nested?}
-            text="Embedded"
-            icon="icon-code"
-          />
         </div>
       </button>
       <div :if={@remove_event} class="pl-3">
