@@ -1,5 +1,6 @@
 import Alpine from 'alpinejs';
 import collapse from '@alpinejs/collapse';
+import lt from 'semver/functions/lt';
 
 import Collapsible from './hooks/collapsible';
 import Fullscreen from './hooks/fullscreen';
@@ -87,10 +88,11 @@ function setTheme() {
 
 async function checkForUpdate(currentVersion) {
   const shouldShowPopup = (latestVersion) => {
-    return (
-      currentVersion !== latestVersion &&
-      localStorage.getItem('lvdbg:ignored-version') !== latestVersion
-    );
+    const isOlder = lt(currentVersion, latestVersion);
+    const isNotIgnored =
+      localStorage.getItem('lvdbg:ignored-version') !== latestVersion;
+
+    return isOlder && isNotIgnored;
   };
 
   const showPopup = (latestVersion) => {
