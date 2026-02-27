@@ -92,8 +92,6 @@ async function checkForUpdate(currentVersion) {
     const isNotIgnored =
       localStorage.getItem('lvdbg:ignored-version') !== latestVersion;
 
-    console.log(isOlder, isNotIgnored);
-
     return isOlder && isNotIgnored;
   };
 
