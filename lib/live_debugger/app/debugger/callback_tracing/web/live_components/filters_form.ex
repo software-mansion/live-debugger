@@ -44,8 +44,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     active_filters =
       assigns.filters |> Map.put_new(:components, %{})
 
-    dbg(:updated)
-
     socket
     |> assign(:id, assigns.id)
     |> assign(:lv_process, assigns.lv_process)
@@ -98,17 +96,15 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
               <div class="flex flex-col gap-3 pb-4 ">
                 <div class="flex flex-col">
                   <div class="flex flex-col gap-3 pb-4 ">
-
-                     
-          <div class="flex flex-col gap-1 pb-4">
-      <%= if @tree do %>
-        <.tree_node node={@tree} form={@form} level={0} />
-      <% else %>
-        <div class="text-sm text-gray-500 italic animate-pulse">
-          Loading components tree...
-        </div>
-      <% end %>
-    </div>
+                    <div class="flex flex-col gap-1 pb-4">
+                      <%= if @tree do %>
+                        <.tree_node node={@tree} form={@form} level={0} />
+                      <% else %>
+                        <div class="text-sm text-gray-500 italic animate-pulse">
+                          Loading components tree...
+                        </div>
+                      <% end %>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -246,8 +242,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   def handle_event("change", params, socket) do
     case update_filters(socket.assigns.active_filters, params) do
       {:ok, filters} ->
-        dbg(filters)
-
         socket
         |> assign_form(filters)
         |> noreply()
@@ -260,16 +254,18 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   end
 
   def handle_event("reset", _params, socket) do
+    dbg(:reset)
+
     socket
     |> assign_form(socket.assigns.default_filters)
-    |> assign_async_tree_form(socket.assigns.active_filters)
+    # |> assign_async_tree_form(socket.assigns.default_filters)
     |> noreply()
   end
 
   def handle_event("revert", _params, socket) do
     socket
     |> assign_form(socket.assigns.active_filters)
-    |> assign_async_tree_form(socket.assigns.active_filters)
+    # |> assign_async_tree_form(socket.assigns.active_filters)
     |> noreply()
   end
 
@@ -279,6 +275,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
 
     socket
     |> assign_form(group_filters)
+    # |> assign_async_tree_form(group_filters)
     |> noreply()
   end
 
@@ -294,10 +291,16 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     components_filters = Map.get(filters, :components, %{})
     dbg(components_filters)
 
-    flattened_tree =
+    filters_tree =
       flatten_tree(tree)
       |> Map.new(fn {id, _} ->
-        {inspect(id), Map.get(components_filters, inspect(id), true)}
+        {id, Map.get(components_filters, id, true)}
+      end)
+
+    flattened_tree =
+      filters_tree
+      |> Map.new(fn {id, value} ->
+        {inspect(id), value}
       end)
 
     new_params = Map.merge(socket.assigns.form.params, flattened_tree)
@@ -306,18 +309,19 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     |> assign(:tree, tree)
     |> assign(
       :active_filters,
-      Map.put(socket.assigns.active_filters, :components, flattened_tree)
+      Map.put(socket.assigns.active_filters, :components, filters_tree)
     )
     |> assign(
       :default_filters,
-      Map.put(socket.assigns.default_filters, :components, flattened_tree)
+      Map.put(socket.assigns.default_filters, :components, filters_tree)
     )
     |> assign(:form, to_form(new_params, id: socket.assigns.id))
     |> noreply()
   end
 
   @impl true
-  def handle_async({:tree, filters}, {:error, _error}, socket) do
+  def handle_async({:tree, filters}, {:error, error}, socket) do
+    dbg({error, filters})
     {:noreply, socket}
   end
 
@@ -329,15 +333,19 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
            other_filters: other_filters
          } = filters
        ) do
-    dbg(:here)
-
     components = Map.get(filters, :components, %{})
+
+    form_components =
+      components
+      |> Map.new(fn {id, value} ->
+        {inspect(id), value}
+      end)
 
     form =
       functions
       |> Map.merge(execution_time)
       |> Map.merge(other_filters)
-      |> Map.merge(components)
+      |> Map.merge(form_components)
       |> to_form(id: socket.assigns.id)
 
     assign(socket, :form, form)
@@ -345,25 +353,28 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
 
   defp assign_form(socket, filters_map) when is_map(filters_map) do
     form = socket.assigns.form
+    dbg(filters_map)
 
     form =
       form.params
-      |> Map.merge(filters_map)
+      |> Map.merge(
+        filters_map
+        |> Enum.map(fn {name, val} -> {inspect(name), val} end)
+        |> Map.new()
+      )
       |> to_form(id: socket.assigns.id)
+
+    dbg(form)
 
     assign(socket, :form, form)
   end
 
   defp update_filters(active_filters, params) do
-    dbg(params)
-
     components =
       active_filters.components
       |> Enum.reduce(%{}, fn {component, _}, acc ->
-        Map.put(acc, component, Map.has_key?(params, component))
+        Map.put(acc, component, Map.has_key?(params, inspect(component)))
       end)
-
-    dbg(components)
 
     functions =
       active_filters.functions
@@ -423,14 +434,16 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
       |> assign(:node, assigns.node)
 
     ~H"""
-    <div class="flex flex-col w-full" phx-hook="Highlight" id="{@node.dom_id}-filters"
-    phx-hook="Highlight"
+    <div class="flex flex-col w-full" >
+     <div style={"margin-left: #{@level * 0.25}rem"}
+
+    id="{@node.dom_id}-filters"      phx-hook="Highlight"
     phx-value-search-attribute={@node.dom_id.attribute}
     phx-value-search-value={@node.dom_id.value}
     phx-value-module={@node.module}
     phx-value-type={@node.type}
     phx-value-id={TreeNode.parse_id(@node)}    >
-      <div style={"margin-left: #{@level * 0.25}rem"}>
+
         <.checkbox 
           field={@field} 
           label={node_label(@node)}
@@ -469,7 +482,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
         id_key: if(params["type"] == "live_view", do: "PID", else: "CID")
       }
 
-      dbg(payload)
       Client.push_event!(socket.assigns.lv_process.root_socket_id, "highlight", payload)
     end
 

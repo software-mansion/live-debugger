@@ -86,6 +86,7 @@ defmodule LiveDebugger.API.TracesStorage do
     * `:functions` - List of function names to filter traces by e.g ["handle_info/2", "render/1"]
     * `:execution_times` - Map specifying minimum and maximum execution time of a callback in microseconds
                         e.g. %{"exec_time_min" => 0, "exec_time_max" => 100}
+    * `:components` - List of components to filter traces from
     * `:search_phrase` - String to filter traces by, performs a case-insensitive substring search on the entire Trace struct
     * `:trace_diffs` - Boolean flag to include DiffTrace structs in results
   """
@@ -497,12 +498,18 @@ defmodule LiveDebugger.API.TracesStorage do
       node_id = Keyword.get(opts, :node_id)
       trace_diffs = Keyword.get(opts, :trace_diffs, false)
 
+      dbg(opts)
+
+      components =
+        Keyword.get(opts, :components, [])
+
       node_id
-      |> match_spec(functions, execution_times)
+      # here
+      |> match_spec(functions, execution_times, components)
       |> maybe_attach_diff_spec(trace_diffs)
     end
 
-    defp match_spec(node_id, functions, execution_times) when is_pid(node_id) do
+    defp match_spec(node_id, functions, execution_times, _components) when is_pid(node_id) do
       [
         {{:_,
           %{
@@ -512,11 +519,11 @@ defmodule LiveDebugger.API.TracesStorage do
             arity: :"$3",
             pid: node_id,
             cid: nil
-          }}, to_spec(functions, execution_times), [:"$_"]}
+          }}, to_spec(functions, execution_times, []), [:"$_"]}
       ]
     end
 
-    defp match_spec(%CID{} = node_id, functions, execution_times) do
+    defp match_spec(%CID{} = node_id, functions, execution_times, _components) do
       [
         {{:_,
           %{
@@ -525,19 +532,23 @@ defmodule LiveDebugger.API.TracesStorage do
             execution_time: :"$2",
             arity: :"$3",
             cid: node_id
-          }}, to_spec(functions, execution_times), [:"$_"]}
+          }}, to_spec(functions, execution_times, []), [:"$_"]}
       ]
     end
 
-    defp match_spec(nil, functions, execution_times) do
+    defp match_spec(nil, functions, execution_times, components) do
+      dbg(components)
+
       [
         {{:_,
           %{
             __struct__: LiveDebugger.Structs.Trace.FunctionTrace,
             function: :"$1",
             execution_time: :"$2",
-            arity: :"$3"
-          }}, to_spec(functions, execution_times), [:"$_"]}
+            arity: :"$3",
+            pid: :"$4",
+            cid: :"$5"
+          }}, to_spec(functions, execution_times, components), [:"$_"]}
       ]
     end
 
@@ -550,19 +561,49 @@ defmodule LiveDebugger.API.TracesStorage do
 
     defp maybe_attach_diff_spec(trace_spec, false), do: trace_spec
 
-    defp to_spec(functions, []) do
-      [{:andalso, functions_to_spec(functions), {:"/=", :"$2", nil}}]
+    defp to_spec(functions, execution_times, components) do
+      base_guard = {:"/=", :"$2", nil}
+
+      with_funcs =
+        if functions != [],
+          do: {:andalso, functions_to_spec(functions), base_guard},
+          else: base_guard
+
+      with_times =
+        if execution_times != %{},
+          do: {:andalso, execution_times_to_spec(execution_times), with_funcs},
+          else: with_funcs
+
+      dbg(components)
+
+      final_spec =
+        if components != [],
+          do: {:andalso, components_to_spec(components), with_times},
+          else: with_times
+
+      dbg(final_spec)
+      [final_spec]
     end
 
-    defp to_spec(functions, execution_times) do
-      [
-        {:andalso,
-         {:andalso, functions_to_spec(functions), execution_times_to_spec(execution_times)},
-         {:"/=", :"$2", nil}}
-      ]
-    end
+    # defp to_spec(functions, [], []) do
+    #   [{:andalso, functions_to_spec(functions), {:"/=", :"$2", nil}}]
+    # end
 
-    defp functions_to_spec([]), do: false
+    # defp to_spec(functions, execution_times, []) do
+    #   [
+    #     {:andalso,
+    #      {:andalso, functions_to_spec(functions), execution_times_to_spec(execution_times)},
+    #      {:"/=", :"$2", nil}}
+    #   ]
+    # end
+
+    # defp to_spec(functions, execution_times, components) do
+    #   [
+    #     {:andalso,
+    #      {:andalso, functions_to_spec(functions), execution_times_to_spec(execution_times),
+    #       components_to_spec(components)}, {:"/=", :"$2", nil}}
+    #   ]
+    # end
 
     defp functions_to_spec([{single_function, arity}]) do
       {:andalso, {:"=:=", :"$1", single_function}, {:"=:=", :"$3", arity}}
@@ -584,6 +625,17 @@ defmodule LiveDebugger.API.TracesStorage do
       min_time = Map.get(execution_times, "exec_time_min", 0)
       max_time = Map.get(execution_times, "exec_time_max", :infinity)
       {:andalso, {:>=, :"$2", min_time}, {:"=<", :"$2", max_time}}
+    end
+
+    defp components_to_spec([id]) when is_pid(id), do: {:"=:=", :"$4", id}
+    defp components_to_spec([%CID{} = id]), do: {:"=:=", :"$5", id}
+
+    defp components_to_spec([id | rest]) when is_pid(id) do
+      {:orelse, {:"=:=", :"$4", id}, components_to_spec(rest)}
+    end
+
+    defp components_to_spec([%CID{} = id | rest]) do
+      {:orelse, {:"=:=", :"$5", id}, components_to_spec(rest)}
     end
 
     @spec foldl_record_sizes({term(), term()}, non_neg_integer(), non_neg_integer()) ::
