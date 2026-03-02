@@ -146,7 +146,10 @@ defmodule LiveDebugger.App.Utils.Parsers do
 
   defp apply_timezone_diff({:ok, timestamp}) do
     {:ok,
-     DateTime.add(timestamp, get_utc_difference_in_minutes(), :minute,
+     DateTime.add(
+       timestamp,
+       get_utc_difference_in_minutes(),
+       :minute,
        Calendar.UTCOnlyTimeZoneDatabase
      )}
   end
