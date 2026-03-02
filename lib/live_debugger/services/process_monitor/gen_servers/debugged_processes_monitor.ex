@@ -59,7 +59,9 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
     |> noreply()
   end
 
-  @impl true
+
+  # In case of reconnects, there is a chance that tracing will be set up when the debugged LiveView process is already born.
+  # We cover this edge case by registering the LiveView process manually when `DebuggerMounted` event is received.
   def handle_info(
         %DebuggerMounted{debugged_pid: debugged_pid, debugged_transport_pid: transport_pid},
         state
