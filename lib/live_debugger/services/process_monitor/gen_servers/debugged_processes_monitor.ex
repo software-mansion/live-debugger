@@ -31,6 +31,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
+  alias LiveDebugger.App.Events.DebuggerMounted
 
   import LiveDebugger.Helpers
 
@@ -55,6 +56,17 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
       when not is_map_key(state, pid) and function in [:mount, :handle_params, :render] do
     state
     |> ProcessMonitorActions.register_live_view_born!(pid, tpid)
+    |> noreply()
+  end
+
+  @impl true
+  def handle_info(
+        %DebuggerMounted{debugged_pid: debugged_pid, debugged_transport_pid: transport_pid},
+        state
+      )
+      when not is_map_key(state, debugged_pid) do
+    state
+    |> ProcessMonitorActions.register_live_view_born!(debugged_pid, transport_pid)
     |> noreply()
   end
 
