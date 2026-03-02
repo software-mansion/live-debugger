@@ -14,6 +14,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
   alias LiveDebugger.Services.CallbackTracer.Events.TraceCalled
   alias LiveDebugger.Services.TelemetryHandler.Events.TelemetryEmitted
+  alias LiveDebugger.App.Events.DebuggerMounted
 
   setup :verify_on_exit!
 
@@ -265,6 +266,38 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
       assert {:noreply, new_state} = DebuggedProcessesMonitor.handle_info(event, state)
       assert new_state == %{}
+    end
+
+    test "with DebuggerMounted when debugged pid is not in state (reconnect edge case)" do
+      debugged_pid = :c.pid(0, 11, 0)
+      transport_pid = :c.pid(0, 12, 0)
+      state = %{}
+
+      event = %DebuggerMounted{
+        debugged_pid: debugged_pid,
+        debugger_pid: self(),
+        debugged_transport_pid: transport_pid
+      }
+
+      MockBus
+      |> expect(:broadcast_event!, fn %LiveViewBorn{pid: pid, transport_pid: t_pid} ->
+        assert pid == debugged_pid
+        assert t_pid == transport_pid
+        :ok
+      end)
+
+      MockAPILiveViewDebug
+      |> expect(:live_components, fn ^debugged_pid -> {:ok, [%{cid: 1}, %{cid: 2}]} end)
+
+      assert {:noreply, new_state} = DebuggedProcessesMonitor.handle_info(event, state)
+
+      assert new_state == %{
+               debugged_pid =>
+                 MapSet.new([
+                   %Phoenix.LiveComponent.CID{cid: 1},
+                   %Phoenix.LiveComponent.CID{cid: 2}
+                 ])
+             }
     end
   end
 end
