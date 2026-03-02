@@ -124,7 +124,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
         </p>
         <.tooltip
           id={"browser-window-connection-tooltip-#{Parsers.pid_to_string(@transport_pid)}"}
-          content="Connection identifier — one per browser tab or window. Useful for matching sessions when debugging."
+          content="Connection identifier - one per browser tab or window. Useful for matching sessions when debugging."
           position="top"
         >
           <p class="text-secondary-text text-[10px] font-normal">
