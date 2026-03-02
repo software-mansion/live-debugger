@@ -1,13 +1,15 @@
 import {
-  test,
   expect,
   findTraces,
   findAssignsEntry,
   findSwitchTracingButton,
   findRefreshTracesButton,
   findClearTracesButton,
+  prepareDevDebuggerPairTest,
   Page,
 } from './dev-dbg-test';
+
+const test = prepareDevDebuggerPairTest();
 
 const findNodeBasicInfo = (page: Page) =>
   page.locator('#node-inspector-basic-info');

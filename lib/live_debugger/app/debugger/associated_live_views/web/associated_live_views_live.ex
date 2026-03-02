@@ -109,7 +109,8 @@ defmodule LiveDebugger.App.Debugger.AssociatedLiveViews.Web.AssociatedLiveViewsL
 
   @impl true
   def handle_info(%LiveViewBorn{transport_pid: tpid}, socket) do
-    if socket.assigns.lv_process.transport_pid == tpid do
+    if Process.alive?(socket.assigns.lv_process.pid) and
+         socket.assigns.lv_process.transport_pid == tpid do
       assign_async_associated_lv_processes(socket)
     else
       socket
@@ -166,26 +167,6 @@ defmodule LiveDebugger.App.Debugger.AssociatedLiveViews.Web.AssociatedLiveViewsL
         end)
     end
   end
-
-  # defp known_child_lv_process?(socket, pid) do
-  #   case socket.assigns.associated_lv_processes.result do
-  #     nil -> false
-  #     # result -> Enum.any?(result, fn %LvProcess{pid: associated_pid} -> associated_pid == pid end)
-  #     result -> dfs(result, pid)
-  #   end
-  # end
-
-  # defp dfs(nil, _pid) do
-  #   false
-  # end
-
-  # defp dfs(tree, pid) do
-  #   tree
-  #   |> Enum.any?(fn
-  #     {%LvProcess{pid: ^pid}, _} -> true
-  #     {_, children} -> Enum.any?(children, &dfs(&1, pid))
-  #   end)
-  # end
 
   defp highlight_element(socket, params) do
     if SettingsStorage.get(:highlight_in_browser) do

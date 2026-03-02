@@ -89,7 +89,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
     </div>
     <.live_component module={NodeInspectorSidebar} id={@sidebar_id} trigger_sidebar={@trigger_sidebar}>
       <AssociatedLiveViewsLive.live_render
-        id="nested-live-view-links"
+        id="associated-live-views"
         lv_process={@lv_process}
         socket={@socket}
         class="overflow-x-hidden"
