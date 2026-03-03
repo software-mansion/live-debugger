@@ -130,7 +130,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
           </.tooltip>
         </div>
         <p class="text-secondary-text text-[10px] font-normal">
-          Transport pid: <%= Parsers.pid_to_string(@transport_pid) %>
+          Transport PID: <%= Parsers.pid_to_string(@transport_pid) %>
         </p>
       </div>
       <div class="w-full flex bg-surface-0-bg">
