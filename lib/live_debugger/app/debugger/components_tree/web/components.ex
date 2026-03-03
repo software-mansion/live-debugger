@@ -126,21 +126,18 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
       |> assign(:tree_node, assigns.tree_node)
 
     ~H"""
-    <div class="flex flex-col w-full" >
-     <div style={"margin-left: #{@level * 0.25}rem"}
-
-    id="{@tree_node.dom_id}-filters"      phx-hook="Highlight"
-    phx-value-search-attribute={@tree_node.dom_id.attribute}
-    phx-value-search-value={@tree_node.dom_id.value}
-    phx-value-module={@tree_node.module}
-    phx-value-type={@tree_node.type}
-    phx-value-id={TreeNode.parse_id(@tree_node)}    >
-
-        <.checkbox 
-          field={@field} 
-          label={node_label(@tree_node)}
-          wrapper_class={["py-1"]}
-        />
+    <div class="flex flex-col w-full">
+      <div
+        style={"margin-left: #{@level * 0.25}rem"}
+        id="{@tree_node.dom_id}-filters"
+        phx-hook="Highlight"
+        phx-value-search-attribute={@tree_node.dom_id.attribute}
+        phx-value-search-value={@tree_node.dom_id.value}
+        phx-value-module={@tree_node.module}
+        phx-value-type={@tree_node.type}
+        phx-value-id={TreeNode.parse_id(@tree_node)}
+      >
+        <.checkbox field={@field} label={node_label(@tree_node)} wrapper_class={["py-1"]} />
       </div>
       <%= for child <- @tree_node.children do %>
         <.filters_tree_node tree_node={child} form={@form} level={@level + 4} />

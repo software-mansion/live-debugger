@@ -255,8 +255,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   end
 
   def handle_event("reset", _params, socket) do
-    dbg(:reset)
-
     socket
     |> assign_form(socket.assigns.default_filters)
     |> noreply()
@@ -287,7 +285,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   @impl true
   def handle_async({:tree, filters}, {:ok, {:ok, %{tree: %TreeNode{} = tree}}}, socket) do
     components_filters = Map.get(filters, :components, %{})
-    dbg(components_filters)
 
     filters_tree =
       flatten_tree(tree)
@@ -322,8 +319,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   end
 
   @impl true
-  def handle_async({:tree, filters}, {:error, error}, socket) do
-    dbg({error, filters})
+  def handle_async({:tree, _filters}, {:error, _error}, socket) do
     {:noreply, socket}
   end
 
@@ -355,7 +351,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
 
   defp assign_form(socket, filters_map) when is_map(filters_map) do
     form = socket.assigns.form
-    dbg(filters_map)
 
     form =
       form.params
@@ -365,8 +360,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
         |> Map.new()
       )
       |> to_form(id: socket.assigns.id)
-
-    dbg(form)
 
     assign(socket, :form, form)
   end
@@ -434,7 +427,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   defp flatten_tree(nodes) when is_list(nodes) do
     Enum.flat_map(nodes, &flatten_tree/1)
   end
-
 
   defp highlight_element(%{assigns: %{lv_process: %LvProcess{alive?: true}}} = socket, params) do
     if SettingsStorage.get(:highlight_in_browser) do

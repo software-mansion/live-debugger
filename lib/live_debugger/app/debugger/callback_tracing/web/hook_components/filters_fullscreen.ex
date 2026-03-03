@@ -7,7 +7,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
 
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.NodeFiltersForm
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings

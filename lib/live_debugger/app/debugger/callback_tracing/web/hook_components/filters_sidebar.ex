@@ -51,14 +51,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersSi
   end
 
   defp handle_info({:filters_updated, filters}, socket) do
-    dbg(filters)
-
-    # filters =
-    #   Map.get(filters, :components, %{})
-    #   |> Map.new(fn {id, value} ->
-    #     {inspect(id), value}
-    #   end)
-
     socket
     |> assign(:current_filters, filters)
     |> assign(:sidebar_hidden?, true)

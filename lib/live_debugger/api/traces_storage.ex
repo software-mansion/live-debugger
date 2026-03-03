@@ -498,13 +498,10 @@ defmodule LiveDebugger.API.TracesStorage do
       node_id = Keyword.get(opts, :node_id)
       trace_diffs = Keyword.get(opts, :trace_diffs, false)
 
-      dbg(opts)
-
       components =
-        Keyword.get(opts, :components, [])
+        Keyword.get(opts, :components, [:all])
 
       node_id
-      # here
       |> match_spec(functions, execution_times, components)
       |> maybe_attach_diff_spec(trace_diffs)
     end
@@ -537,8 +534,6 @@ defmodule LiveDebugger.API.TracesStorage do
     end
 
     defp match_spec(nil, functions, execution_times, components) do
-      dbg(components)
-
       [
         {{:_,
           %{
@@ -574,11 +569,12 @@ defmodule LiveDebugger.API.TracesStorage do
           do: {:andalso, execution_times_to_spec(execution_times), with_funcs},
           else: with_funcs
 
-      dbg(components)
-
-           final_spec =
+      final_spec =
         case components do
           :ignore ->
+            with_times
+
+          [:all] ->
             with_times
 
           [] ->
@@ -588,7 +584,6 @@ defmodule LiveDebugger.API.TracesStorage do
             {:andalso, components_to_spec(components), with_times}
         end
 
-      dbg(final_spec)
       [final_spec]
     end
 
@@ -634,7 +629,6 @@ defmodule LiveDebugger.API.TracesStorage do
       {:andalso, {:>=, :"$2", min_time}, {:"=<", :"$2", max_time}}
     end
 
-
     defp components_to_spec([pid]) when is_pid(pid) do
       {:andalso, {:"=:=", :"$4", pid}, {:"=:=", :"$5", nil}}
     end
@@ -649,10 +643,6 @@ defmodule LiveDebugger.API.TracesStorage do
 
     defp components_to_spec([%CID{} = cid | rest]) do
       {:orelse, {:"=:=", :"$5", cid}, components_to_spec(rest)}
-    end
-
-    defp components_to_spec([:all]) do
-      true
     end
 
     @spec foldl_record_sizes({term(), term()}, non_neg_integer(), non_neg_integer()) ::

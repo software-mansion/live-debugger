@@ -84,8 +84,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.LoadMoreB
         cont: socket.assigns.traces_continuation
       ]
 
-    dbg(opts)
-
     socket
     |> assign(traces_continuation: :loading)
     |> start_async(:load_more_existing_traces, fn -> TracesStorage.get!(pid, opts) end)
