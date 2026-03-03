@@ -111,7 +111,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   end
 
   attr(:transport_pid, :any, required: true)
-  attr(:grouped_lv_processes, :list, required: true)
+  attr(:grouped_lv_processes, :map, required: true)
   attr(:remove_event, :string, default: nil)
   attr(:target, :any, default: nil)
 

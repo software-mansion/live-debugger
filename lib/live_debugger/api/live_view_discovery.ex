@@ -4,12 +4,14 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
   """
   alias LiveDebugger.Structs.LvProcess
 
+  @type lv_processes_tree() :: %{LvProcess.t() => lv_processes_tree() | nil}
+
   @callback debugged_lv_processes() :: [LvProcess.t()]
   @callback debugged_lv_processes(transport_pid :: pid()) :: [LvProcess.t()]
   @callback debugger_lv_processes() :: [LvProcess.t()]
   @callback lv_process(pid :: pid()) :: LvProcess.t() | nil
   @callback lv_process(socket_id :: String.t()) :: LvProcess.t() | nil
-  @callback group_lv_processes([LvProcess.t()]) :: %{pid() => %{LvProcess.t() => [LvProcess.t()]}}
+  @callback group_lv_processes([LvProcess.t()]) :: %{(tpid :: pid()) => lv_processes_tree()}
   @callback lv_processes() :: [LvProcess.t()]
   @callback children_lv_processes(pid(), searched_lv_processes :: [LvProcess.t()] | nil) ::
               [LvProcess.t()]
@@ -52,7 +54,7 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
     impl().lv_process(socket_id)
   end
 
-  @spec group_lv_processes([LvProcess.t()]) :: %{pid() => %{LvProcess.t() => [LvProcess.t()]}}
+  @spec group_lv_processes([LvProcess.t()]) :: %{(tpid :: pid()) => lv_processes_tree()}
   def group_lv_processes(lv_processes) do
     impl().group_lv_processes(lv_processes)
   end
@@ -120,31 +122,10 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
       |> Enum.group_by(& &1.transport_pid)
       |> Enum.map(fn {tpid, grouped_by_tpid} ->
         grouped_by_tpid
-        |> Enum.group_by(& &1.root_pid)
-        |> Enum.map(fn {rpid, grouped_by_rpid} ->
-          root_lv_process = Enum.find(grouped_by_rpid, &(&1.pid == rpid))
-          rest = Enum.reject(grouped_by_rpid, &(&1.pid == rpid))
-
-          {root_lv_process, make_children_tree(root_lv_process, rest)}
-        end)
-        |> Enum.into(%{})
+        |> group_lv_processes_by_root_pid()
         |> then(&{tpid, &1})
       end)
       |> Enum.into(%{})
-    end
-
-    defp make_children_tree(parent, rest) do
-      rest
-      |> Enum.filter(&(&1.parent_pid == parent.pid))
-      |> case do
-        [] ->
-          nil
-
-        children ->
-          children
-          |> Enum.map(&{&1, make_children_tree(&1, rest)})
-          |> Enum.into(%{})
-      end
     end
 
     @impl true
@@ -210,6 +191,35 @@ defmodule LiveDebugger.API.LiveViewDiscovery do
         %LvProcess{transport_pid: ^transport_pid, embedded?: false, nested?: false} -> true
         _ -> false
       end)
+    end
+
+    defp group_lv_processes_by_root_pid(lv_processes) do
+      lv_processes
+      |> Enum.group_by(& &1.root_pid)
+      |> Enum.flat_map(fn {rpid, grouped_by_rpid} ->
+        root_lv_process = Enum.find(grouped_by_rpid, &(&1.pid == rpid))
+        rest = Enum.reject(grouped_by_rpid, &(&1.pid == rpid))
+
+        case root_lv_process do
+          nil -> Enum.map(rest, &{&1, nil})
+          _ -> [{root_lv_process, make_children_tree(root_lv_process, rest)}]
+        end
+      end)
+      |> Enum.into(%{})
+    end
+
+    defp make_children_tree(parent, rest) do
+      rest
+      |> Enum.filter(&(&1.parent_pid == parent.pid))
+      |> case do
+        [] ->
+          nil
+
+        children ->
+          children
+          |> Enum.map(&{&1, make_children_tree(&1, rest)})
+          |> Enum.into(%{})
+      end
     end
   end
 end

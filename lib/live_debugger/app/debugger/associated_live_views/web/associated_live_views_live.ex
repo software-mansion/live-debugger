@@ -6,7 +6,6 @@ defmodule LiveDebugger.App.Debugger.AssociatedLiveViews.Web.AssociatedLiveViewsL
 
   use LiveDebugger.App.Web, :live_view
 
-  alias Phoenix.LiveView.AsyncResult
   alias LiveDebugger.Client
   alias LiveDebugger.Structs.LvProcess
   alias LiveDebugger.API.LiveViewDiscovery
@@ -14,7 +13,6 @@ defmodule LiveDebugger.App.Debugger.AssociatedLiveViews.Web.AssociatedLiveViewsL
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebugger.App.Debugger.Web.Components, as: DebuggerComponents
-  alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
@@ -60,7 +58,6 @@ defmodule LiveDebugger.App.Debugger.AssociatedLiveViews.Web.AssociatedLiveViewsL
     socket
     |> assign(lv_process: lv_process)
     |> assign_async_associated_lv_processes()
-    |> assign_async_parent_lv_process()
     |> ok()
   end
 
@@ -152,20 +149,6 @@ defmodule LiveDebugger.App.Debugger.AssociatedLiveViews.Web.AssociatedLiveViewsL
         {:ok, %{associated_lv_processes: lv_processes}}
       end
     )
-  end
-
-  defp assign_async_parent_lv_process(socket) do
-    parent_pid = socket.assigns.lv_process.parent_pid
-
-    case parent_pid do
-      nil ->
-        assign(socket, :parent_lv_process, AsyncResult.ok(nil))
-
-      pid ->
-        assign_async(socket, :parent_lv_process, fn ->
-          {:ok, %{parent_lv_process: LvProcessQueries.get_lv_process_with_retries(pid)}}
-        end)
-    end
   end
 
   defp highlight_element(socket, params) do

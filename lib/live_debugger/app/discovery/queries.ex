@@ -8,7 +8,9 @@ defmodule LiveDebugger.App.Discovery.Queries do
   alias LiveDebugger.API.LiveViewDiscovery
   alias LiveDebugger.Structs.LvProcess
 
-  @type grouped_lv_processes() :: %{pid() => %{LvProcess.t() => [LvProcess.t()]}}
+  @type grouped_lv_processes() :: %{
+          (transport_pid :: pid()) => LiveViewDiscovery.lv_processes_tree()
+        }
 
   @doc """
   Fetches all active LiveView processes grouped by their transport PID.
