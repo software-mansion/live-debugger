@@ -519,7 +519,7 @@ defmodule LiveDebugger.API.TracesStorage do
             arity: :"$3",
             pid: node_id,
             cid: nil
-          }}, to_spec(functions, execution_times, []), [:"$_"]}
+          }}, to_spec(functions, execution_times, :ignore), [:"$_"]}
       ]
     end
 
@@ -532,7 +532,7 @@ defmodule LiveDebugger.API.TracesStorage do
             execution_time: :"$2",
             arity: :"$3",
             cid: node_id
-          }}, to_spec(functions, execution_times, []), [:"$_"]}
+          }}, to_spec(functions, execution_times, :ignore), [:"$_"]}
       ]
     end
 
@@ -576,10 +576,17 @@ defmodule LiveDebugger.API.TracesStorage do
 
       dbg(components)
 
-      final_spec =
-        if components != [],
-          do: {:andalso, components_to_spec(components), with_times},
-          else: with_times
+           final_spec =
+        case components do
+          :ignore ->
+            with_times
+
+          [] ->
+            false
+
+          _ ->
+            {:andalso, components_to_spec(components), with_times}
+        end
 
       dbg(final_spec)
       [final_spec]
@@ -627,15 +634,25 @@ defmodule LiveDebugger.API.TracesStorage do
       {:andalso, {:>=, :"$2", min_time}, {:"=<", :"$2", max_time}}
     end
 
-    defp components_to_spec([id]) when is_pid(id), do: {:"=:=", :"$4", id}
-    defp components_to_spec([%CID{} = id]), do: {:"=:=", :"$5", id}
 
-    defp components_to_spec([id | rest]) when is_pid(id) do
-      {:orelse, {:"=:=", :"$4", id}, components_to_spec(rest)}
+    defp components_to_spec([pid]) when is_pid(pid) do
+      {:andalso, {:"=:=", :"$4", pid}, {:"=:=", :"$5", nil}}
     end
 
-    defp components_to_spec([%CID{} = id | rest]) do
-      {:orelse, {:"=:=", :"$5", id}, components_to_spec(rest)}
+    defp components_to_spec([%CID{} = cid]) do
+      {:"=:=", :"$5", cid}
+    end
+
+    defp components_to_spec([pid | rest]) when is_pid(pid) do
+      {:orelse, {:andalso, {:"=:=", :"$4", pid}, {:"=:=", :"$5", nil}}, components_to_spec(rest)}
+    end
+
+    defp components_to_spec([%CID{} = cid | rest]) do
+      {:orelse, {:"=:=", :"$5", cid}, components_to_spec(rest)}
+    end
+
+    defp components_to_spec([:all]) do
+      true
     end
 
     @spec foldl_record_sizes({term(), term()}, non_neg_integer(), non_neg_integer()) ::

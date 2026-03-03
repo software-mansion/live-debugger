@@ -56,8 +56,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
   defp handle_info(_, socket), do: {:cont, socket}
 
   defp filter_trace_event(socket, trace_event) do
+    dbg(matches_components_filter?(socket, trace_event))
+
     with true <- matches_node_id?(socket, trace_event),
          true <- matches_function_filter?(socket, trace_event),
+         true <- matches_components_filter?(socket, trace_event),
          true <- matches_search_phrase?(socket, trace_event) do
       {:cont, socket}
     else
@@ -94,6 +97,30 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
         |> String.downcase()
         |> String.contains?(String.downcase(search))
     end
+  end
+
+  defp matches_components_filter?(
+         %{
+           view: LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive
+         } = socket,
+         %{
+           pid: pid,
+           cid: cid
+         }
+       ) do
+    id = cid || pid
+
+    socket.assigns.current_filters.components[id] ||
+      socket.assigns.current_filters.components[:all]
+  end
+
+  defp matches_components_filter?(
+         %{
+           view: LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive
+         },
+         _trace_event
+       ) do
+    true
   end
 
   defp diff_traces_filter_enabled?(socket) do
