@@ -329,4 +329,119 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
       assert FiltersHelpers.get_trace_diffs(filters) == true
     end
   end
+
+  describe "get_active_components/1" do
+    test "returns currently active component IDs from filters" do
+      pid = :c.pid(0, 100, 0)
+      cid = %Phoenix.LiveComponent.CID{cid: 1}
+
+      filters = %{
+        components: %{
+          pid => true,
+          cid => true,
+          :all => false
+        }
+      }
+
+      active = FiltersHelpers.get_active_components(filters)
+      assert length(active) == 2
+      assert pid in active
+      assert cid in active
+    end
+
+    test "returns empty list if no components are active" do
+      filters = %{
+        components: %{
+          :c.pid(0, 100, 0) => false,
+          :all => false
+        }
+      }
+
+      assert FiltersHelpers.get_active_components(filters) == []
+    end
+  end
+
+  test "count_selected_filters/2 returns number of selected filters including components" do
+    pid = :c.pid(0, 100, 0)
+
+    current_filters = %{
+      # zmiana względem default (true -> false)
+      functions: %{"mount/3" => false},
+      execution_time: %{
+        # zmiana ("" -> "10")
+        "exec_time_min" => "10",
+        "exec_time_max" => "",
+        "min_unit" => "ms",
+        "max_unit" => "ms"
+      },
+      components: %{
+        pid => false
+      },
+      other_filters: %{"trace_diffs" => false}
+    }
+
+    default_filters = %{
+      functions: %{"mount/3" => true},
+      execution_time: %{
+        "exec_time_min" => "",
+        "exec_time_max" => "",
+        "min_unit" => "ms",
+        "max_unit" => "ms"
+      },
+      components: %{
+        pid => true
+      },
+      other_filters: %{"trace_diffs" => true}
+    }
+
+    assert FiltersHelpers.count_selected_filters(default_filters, current_filters) == 4
+  end
+
+  describe "default_filters/1 components logic" do
+    test "always includes :all => true in components map" do
+      assert FiltersHelpers.default_filters(nil).components == %{all: true}
+
+      assert FiltersHelpers.default_filters(:c.pid(0, 1, 0)).components == %{all: true}
+
+      assert FiltersHelpers.default_filters(%Phoenix.LiveComponent.CID{cid: 1}).components == %{
+               all: true
+             }
+    end
+  end
+
+  describe "group_changed?/3 for components" do
+    test "returns true if any component state differs from params" do
+      pid = :c.pid(0, 123, 0)
+      pid_string = inspect(pid)
+
+      params = %{
+        pid_string => "false"
+      }
+
+      filters = %{
+        components: %{
+          pid => true
+        }
+      }
+
+      assert FiltersHelpers.group_changed?(params, filters, :components)
+    end
+
+    test "returns false if component state matches params" do
+      pid = :c.pid(0, 123, 0)
+      pid_string = inspect(pid)
+
+      params = %{
+        pid_string => "true"
+      }
+
+      filters = %{
+        components: %{
+          pid => true
+        }
+      }
+
+      refute FiltersHelpers.group_changed?(params, filters, :components)
+    end
+  end
 end
