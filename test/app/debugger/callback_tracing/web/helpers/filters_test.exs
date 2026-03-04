@@ -338,8 +338,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
       filters = %{
         components: %{
           pid => true,
-          cid => true,
-          :all => false
+          cid => true
         }
       }
 
@@ -352,8 +351,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
     test "returns empty list if no components are active" do
       filters = %{
         components: %{
-          :c.pid(0, 100, 0) => false,
-          :all => false
+          :c.pid(0, 100, 0) => false
         }
       }
 
@@ -364,18 +362,19 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
   test "count_selected_filters/2 returns number of selected filters including components" do
     pid = :c.pid(0, 100, 0)
 
+    cid = %Phoenix.LiveComponent.CID{cid: 1}
+
     current_filters = %{
-      # zmiana względem default (true -> false)
       functions: %{"mount/3" => false},
       execution_time: %{
-        # zmiana ("" -> "10")
         "exec_time_min" => "10",
         "exec_time_max" => "",
         "min_unit" => "ms",
         "max_unit" => "ms"
       },
       components: %{
-        pid => false
+        pid => false,
+        cid => true
       },
       other_filters: %{"trace_diffs" => false}
     }
@@ -394,19 +393,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
       other_filters: %{"trace_diffs" => true}
     }
 
-    assert FiltersHelpers.count_selected_filters(default_filters, current_filters) == 4
-  end
-
-  describe "default_filters/1 components logic" do
-    test "always includes :all => true in components map" do
-      assert FiltersHelpers.default_filters(nil).components == %{all: true}
-
-      assert FiltersHelpers.default_filters(:c.pid(0, 1, 0)).components == %{all: true}
-
-      assert FiltersHelpers.default_filters(%Phoenix.LiveComponent.CID{cid: 1}).components == %{
-               all: true
-             }
-    end
+    assert FiltersHelpers.count_selected_filters(default_filters, current_filters) == 5
   end
 
   describe "group_changed?/3 for components" do
@@ -415,7 +402,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
       pid_string = inspect(pid)
 
       params = %{
-        pid_string => "false"
+        pid_string => false
       }
 
       filters = %{
@@ -432,12 +419,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
       pid_string = inspect(pid)
 
       params = %{
-        pid_string => "true"
+        pid_string => true
       }
 
       filters = %{
         components: %{
-          pid => true
+          pid_string => true
         }
       }
 

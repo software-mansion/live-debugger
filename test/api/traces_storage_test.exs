@@ -425,6 +425,90 @@ defmodule LiveDebugger.API.TracesStorageTest do
       assert [trace4, diff_trace1] == traces2
       assert cont == :end_of_table
     end
+
+    test "returns traces filtered by LiveView PID (explicitly excluding components)", %{
+      pid: pid,
+      table: table
+    } do
+      trace1 = Fakes.trace(id: 1, function: :handle_info, arity: 2, pid: pid, cid: nil)
+
+      cid = %Phoenix.LiveComponent.CID{cid: 1}
+      trace2 = Fakes.trace(id: 2, function: :update, arity: 2, pid: pid, cid: cid)
+
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+
+      assert {[^trace1], _} =
+               TracesStorageImpl.get!(pid, components: [pid], functions: @all_functions)
+    end
+
+    test "returns traces filtered by specific LiveComponent CIDs", %{pid: pid, table: table} do
+      cid1 = %Phoenix.LiveComponent.CID{cid: 10}
+      cid2 = %Phoenix.LiveComponent.CID{cid: 20}
+
+      trace_lv = Fakes.trace(id: 1, pid: pid, cid: nil)
+      trace_c1 = Fakes.trace(id: 2, pid: pid, cid: cid1)
+      trace_c2 = Fakes.trace(id: 3, pid: pid, cid: cid2)
+
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace_lv.id, trace_lv})
+      :ets.insert(table, {trace_c1.id, trace_c1})
+      :ets.insert(table, {trace_c2.id, trace_c2})
+
+      assert {[^trace_c1], _} =
+               TracesStorageImpl.get!(pid, components: [cid1], functions: @all_functions)
+
+      assert {[^trace_c1, ^trace_c2], _} =
+               TracesStorageImpl.get!(pid, components: [cid1, cid2], functions: @all_functions)
+    end
+
+    test "returns all traces when components is set to [:all] (initial state)", %{
+      pid: pid,
+      table: table
+    } do
+      trace1 = Fakes.trace(id: 1, pid: pid, cid: nil)
+      trace2 = Fakes.trace(id: 2, pid: pid, cid: %Phoenix.LiveComponent.CID{cid: 1})
+
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+
+      assert {[^trace1, ^trace2], _} =
+               TracesStorageImpl.get!(pid, components: [:all], functions: @all_functions)
+    end
+
+    test "returns end_of_table when components list is empty [] (unselected all)", %{
+      pid: pid,
+      table: table
+    } do
+      trace1 = Fakes.trace(id: 1, pid: pid)
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace1.id, trace1})
+
+      assert :end_of_table ==
+               TracesStorageImpl.get!(pid,
+                 components: [],
+                 node_id: nil,
+                 functions: @all_functions
+               )
+    end
+
+    test "ignores components filter when node_id is provided (:ignore logic)", %{
+      pid: pid,
+      table: table
+    } do
+      trace1 = Fakes.trace(id: 1, pid: pid, cid: nil)
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace1.id, trace1})
+
+      assert {[^trace1], _} =
+               TracesStorageImpl.get!(pid,
+                 components: [],
+                 node_id: pid,
+                 functions: @all_functions
+               )
+    end
   end
 
   describe "clear!/2" do
@@ -571,7 +655,6 @@ defmodule LiveDebugger.API.TracesStorageTest do
   describe "table_size/1" do
     test "returns the memory size of an ETS table in bytes" do
       table = :ets.new(:test_table, [:public])
-      # Initial size of an empty ETS table
       initial_size = TracesStorageImpl.table_size(table)
 
       assert initial_size >= 0

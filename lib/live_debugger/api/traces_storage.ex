@@ -557,55 +557,32 @@ defmodule LiveDebugger.API.TracesStorage do
     defp maybe_attach_diff_spec(trace_spec, false), do: trace_spec
 
     defp to_spec(functions, execution_times, components) do
-      base_guard = {:"/=", :"$2", nil}
-
-      with_funcs =
-        if functions != [],
-          do: {:andalso, functions_to_spec(functions), base_guard},
-          else: base_guard
-
-      with_times =
-        if execution_times != %{},
-          do: {:andalso, execution_times_to_spec(execution_times), with_funcs},
-          else: with_funcs
-
-      final_spec =
-        case components do
-          :ignore ->
-            with_times
-
-          [:all] ->
-            with_times
-
-          [] ->
-            false
-
-          _ ->
-            {:andalso, components_to_spec(components), with_times}
-        end
-
-      [final_spec]
+      {:"/=", :"$2", nil}
+      |> maybe_add_functions(functions)
+      |> maybe_add_times(execution_times)
+      |> maybe_add_components(components)
+      |> then(&[&1])
     end
 
-    # defp to_spec(functions, [], []) do
-    #   [{:andalso, functions_to_spec(functions), {:"/=", :"$2", nil}}]
-    # end
+    defp maybe_add_functions(acc, []), do: acc
 
-    # defp to_spec(functions, execution_times, []) do
-    #   [
-    #     {:andalso,
-    #      {:andalso, functions_to_spec(functions), execution_times_to_spec(execution_times)},
-    #      {:"/=", :"$2", nil}}
-    #   ]
-    # end
+    defp maybe_add_functions(acc, functions) do
+      {:andalso, functions_to_spec(functions), acc}
+    end
 
-    # defp to_spec(functions, execution_times, components) do
-    #   [
-    #     {:andalso,
-    #      {:andalso, functions_to_spec(functions), execution_times_to_spec(execution_times),
-    #       components_to_spec(components)}, {:"/=", :"$2", nil}}
-    #   ]
-    # end
+    defp maybe_add_times(acc, times) when times == %{}, do: acc
+
+    defp maybe_add_times(acc, times) do
+      {:andalso, execution_times_to_spec(times), acc}
+    end
+
+    defp maybe_add_components(acc, :ignore), do: acc
+    defp maybe_add_components(acc, [:all]), do: acc
+    defp maybe_add_components(_acc, []), do: false
+
+    defp maybe_add_components(acc, components) do
+      {:andalso, components_to_spec(components), acc}
+    end
 
     defp functions_to_spec([{single_function, arity}]) do
       {:andalso, {:"=:=", :"$1", single_function}, {:"=:=", :"$3", arity}}
