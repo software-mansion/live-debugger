@@ -8,11 +8,11 @@ defmodule LiveDebugger.App.Debugger.AssociatedLiveViews.Web.AssociatedLiveViewsL
 
   alias LiveDebugger.Client
   alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.API.LiveViewDiscovery
   alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
   alias LiveDebugger.App.Debugger.Web.Components, as: DebuggerComponents
+  alias LiveDebugger.App.Debugger.AssociatedLiveViews.Queries, as: AssociatedLiveViewsQueries
 
   alias LiveDebugger.Bus
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
@@ -133,21 +133,7 @@ defmodule LiveDebugger.App.Debugger.AssociatedLiveViews.Web.AssociatedLiveViewsL
     assign_async(
       socket,
       :associated_lv_processes,
-      fn ->
-        lv_processes =
-          tpid
-          |> LiveViewDiscovery.debugged_lv_processes()
-          |> Enum.map(fn lv_process ->
-            LvProcess.set_root_socket_id(
-              lv_process,
-              LiveViewDiscovery.get_root_socket_id(lv_process)
-            )
-          end)
-          |> LiveViewDiscovery.group_lv_processes()
-          |> Map.get(tpid, %{})
-
-        {:ok, %{associated_lv_processes: lv_processes}}
-      end
+      fn -> AssociatedLiveViewsQueries.fetch_associated_live_views(tpid) end
     )
   end
 
