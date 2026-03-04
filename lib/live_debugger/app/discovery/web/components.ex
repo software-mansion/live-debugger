@@ -118,9 +118,19 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
   def tab_group(assigns) do
     ~H"""
     <div class="w-full h-max flex flex-col shadow-custom rounded-sm bg-surface-2-bg border border-default-border">
-      <div class="pl-4 p-3 flex items-center h-10 border-b border-default-border">
-        <p class="text-primary-text text-xs font-medium transport-pid">
-          <%= Parsers.pid_to_string(@transport_pid) %>
+      <div class="pl-4 p-3 flex flex-col gap-0.5 border-b border-default-border">
+        <div class="text-primary-text text-xs font-medium flex items-center gap-1">
+          <span>WebSocket connection</span>
+          <.tooltip
+            id={"websocket-connection-tooltip-#{Parsers.pid_to_string(@transport_pid)}"}
+            content="WebSocket connection on which LiveView runs. Typically one per browser tab or window."
+            position="top"
+          >
+            <.icon name="icon-info" class="w-3 h-3 bg-button-secondary-content" />
+          </.tooltip>
+        </div>
+        <p class="text-secondary-text text-[10px] font-normal">
+          Transport PID: <%= Parsers.pid_to_string(@transport_pid) %>
         </p>
       </div>
       <div class="w-full flex bg-surface-0-bg">
