@@ -122,11 +122,16 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:name, :string, required: true)
   attr(:icon, :string, default: nil)
 
+  slot(:right_panel)
+
   defp section_title(assigns) do
     ~H"""
-    <div class="bg-surface-1-bg flex items-center h-10 gap-2 p-4 border-b border-default-border font-semibold text-secondary-text">
-      <.icon :if={@icon} name={@icon} class="h-4 w-4" />
-      <p><%= @name %></p>
+    <div class="bg-surface-1-bg flex items-center justify-between h-10 p-4 border-b border-default-border font-semibold text-secondary-text">
+      <div class="flex gap-2 items-center">
+        <.icon :if={@icon} name={@icon} class="h-4 w-4" />
+        <p><%= @name %></p>
+      </div>
+      <%= render_slot(@right_panel) %>
     </div>
     """
   end
@@ -182,7 +187,17 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       <.section_title
         name={if(@temporary_assigns.result, do: "Temporary assigns", else: "No temporary assigns")}
         icon="icon-clock-3"
-      />
+      >
+        <:right_panel>
+          <.tooltip
+            id={@id <> "-tooltip"}
+            content="Displayed values of temporary assigns are last recorded values of each assign"
+            position="top-center"
+          >
+            <.icon name="icon-info" class="w-4 h-4 bg-button-secondary-content" />
+          </.tooltip>
+        </:right_panel>
+      </.section_title>
       <.async_result :let={temporary_assigns} assign={@temporary_assigns}>
         <:loading>
           <div class="p-4">
@@ -212,7 +227,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   defp all_assigns_section(assigns) do
     ~H"""
     <div id={@id}>
-      <.section_title name="All assigns" />
+      <.section_title name="Current assigns" />
       <div class="relative">
         <.assigns_sizes_section assigns_sizes={@assigns_sizes} id={@id <> "-size-label-container"} />
         <div class="p-4 overflow-x-auto">

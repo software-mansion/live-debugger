@@ -22,6 +22,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.TemporaryAssigns do
     |> check_assigns!(@required_assigns)
     |> attach_hook(:temporary_assigns, :handle_async, &handle_async/3)
     |> attach_hook(:temporary_assigns, :handle_info, &handle_info/2)
+    |> assign(:temporary_assigns, AsyncResult.loading())
     |> assign_async_temporary_assigns()
   end
 
@@ -31,13 +32,31 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.TemporaryAssigns do
     node_id = socket.assigns.node_id
 
     socket
-    |> assign(:temporary_assigns, AsyncResult.loading())
+    |> assign(:temporary_assigns, AsyncResult.loading(socket.assigns.temporary_assigns))
     |> start_async(:fetch_temporary_assigns, fn ->
       NodeStateQueries.fetch_node_temporary_assigns(pid, node_id)
     end)
   end
 
+  defp handle_async(:fetch_temporary_assigns, {:ok, {:ok, nil}}, socket) do
+    socket
+    |> assign(temporary_assigns: AsyncResult.ok(nil))
+    |> halt()
+  end
+
   defp handle_async(:fetch_temporary_assigns, {:ok, {:ok, temporary_assigns}}, socket) do
+    temporary_assigns =
+      case socket.assigns.temporary_assigns do
+        %AsyncResult{result: nil} ->
+          temporary_assigns
+
+        %AsyncResult{result: result} ->
+          Map.merge(result, temporary_assigns, fn
+            _, old, nil -> old
+            _, _old, new -> new
+          end)
+      end
+
     socket
     |> assign(temporary_assigns: AsyncResult.ok(temporary_assigns))
     |> halt()
