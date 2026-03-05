@@ -28,7 +28,8 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
   defp handle_async(:lv_process, {:ok, %LvProcess{} = lv_process}, socket) do
     Bus.broadcast_event!(%DebuggerMounted{
       debugger_pid: self(),
-      debugged_pid: lv_process.pid
+      debugged_pid: lv_process.pid,
+      debugged_transport_pid: lv_process.transport_pid
     })
 
     socket
