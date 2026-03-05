@@ -48,7 +48,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
       functions: callbacks,
       execution_time: execution_time,
       other_filters: other_filters,
-      components: %{:all => true}
+      components: %{"all" => true}
     }
   end
 

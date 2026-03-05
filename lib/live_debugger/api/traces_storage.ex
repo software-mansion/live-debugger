@@ -499,11 +499,22 @@ defmodule LiveDebugger.API.TracesStorage do
       trace_diffs = Keyword.get(opts, :trace_diffs, false)
 
       components =
-        Keyword.get(opts, :components, [:all])
+        Keyword.get(opts, :components, ["all"])
+        |> decode_components()
 
       node_id
       |> match_spec(functions, execution_times, components)
       |> maybe_attach_diff_spec(trace_diffs)
+    end
+
+    defp decode_components(components) do
+      components
+      |> Enum.map(fn encoded_component ->
+        case Base.decode64(encoded_component) do
+          {:ok, decoded} -> :erlang.binary_to_term(decoded)
+          _ -> encoded_component
+        end
+      end)
     end
 
     defp match_spec(node_id, functions, execution_times, _components) when is_pid(node_id) do
@@ -577,7 +588,7 @@ defmodule LiveDebugger.API.TracesStorage do
     end
 
     defp maybe_add_components(acc, :ignore), do: acc
-    defp maybe_add_components(acc, [:all]), do: acc
+    defp maybe_add_components(acc, ["all"]), do: acc
     defp maybe_add_components(_acc, []), do: false
 
     defp maybe_add_components(acc, components) do

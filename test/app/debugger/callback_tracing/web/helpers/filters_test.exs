@@ -69,7 +69,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "min_unit" => "µs",
                  "max_unit" => "µs"
                },
-               components: %{:all => true},
+               components: %{"all" => true},
                other_filters: %{"trace_diffs" => false}
              }
     end
@@ -90,7 +90,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "min_unit" => "µs",
                  "max_unit" => "µs"
                },
-               components: %{:all => true},
+               components: %{"all" => true},
                other_filters: %{"trace_diffs" => false}
              }
     end
@@ -114,7 +114,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "min_unit" => "µs",
                  "max_unit" => "µs"
                },
-               components: %{:all => true},
+               components: %{"all" => true},
                other_filters: %{"trace_diffs" => false}
              }
     end
@@ -331,27 +331,31 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
   end
 
   describe "get_active_components/1" do
-    test "returns currently active component IDs from filters" do
-      pid = :c.pid(0, 100, 0)
-      cid = %Phoenix.LiveComponent.CID{cid: 1}
+    test "returns currently active component IDs (encoded) from filters" do
+      pid_enc = encode_component_id(:c.pid(0, 100, 0))
+      cid_enc = encode_component_id(%Phoenix.LiveComponent.CID{cid: 1})
+      all_enc = encode_component_id("all")
 
       filters = %{
         components: %{
-          pid => true,
-          cid => true
+          pid_enc => true,
+          cid_enc => true,
+          all_enc => false
         }
       }
 
       active = FiltersHelpers.get_active_components(filters)
       assert length(active) == 2
-      assert pid in active
-      assert cid in active
+      assert pid_enc in active
+      assert cid_enc in active
     end
 
     test "returns empty list if no components are active" do
+      pid_enc = encode_component_id(:c.pid(0, 100, 0))
+
       filters = %{
         components: %{
-          :c.pid(0, 100, 0) => false
+          pid_enc => false
         }
       }
 
@@ -359,10 +363,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
     end
   end
 
-  test "count_selected_filters/2 returns number of selected filters including components" do
-    pid = :c.pid(0, 100, 0)
-
-    cid = %Phoenix.LiveComponent.CID{cid: 1}
+  test "count_selected_filters/2 returns number of selected filters including encoded components" do
+    pid_enc = encode_component_id(:c.pid(0, 100, 0))
+    cid_enc = encode_component_id(%Phoenix.LiveComponent.CID{cid: 1})
 
     current_filters = %{
       functions: %{"mount/3" => false},
@@ -373,8 +376,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
         "max_unit" => "ms"
       },
       components: %{
-        pid => false,
-        cid => true
+        pid_enc => false,
+        cid_enc => true
       },
       other_filters: %{"trace_diffs" => false}
     }
@@ -388,7 +391,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
         "max_unit" => "ms"
       },
       components: %{
-        pid => true
+        pid_enc => true
       },
       other_filters: %{"trace_diffs" => true}
     }
@@ -396,18 +399,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
     assert FiltersHelpers.count_selected_filters(default_filters, current_filters) == 5
   end
 
-  describe "group_changed?/3 for components" do
+  describe "group_changed?/3 for encoded components" do
     test "returns true if any component state differs from params" do
-      pid = :c.pid(0, 123, 0)
-      pid_string = inspect(pid)
+      encoded_id = encode_component_id(:c.pid(0, 123, 0))
 
       params = %{
-        pid_string => false
+        encoded_id => false
       }
 
       filters = %{
         components: %{
-          pid => true
+          encoded_id => true
         }
       }
 
@@ -415,20 +417,30 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
     end
 
     test "returns false if component state matches params" do
-      pid = :c.pid(0, 123, 0)
-      pid_string = inspect(pid)
+      encoded_id = encode_component_id(:c.pid(0, 123, 0))
 
       params = %{
-        pid_string => true
+        encoded_id => true
       }
 
       filters = %{
         components: %{
-          pid_string => true
+          encoded_id => true
         }
       }
 
       refute FiltersHelpers.group_changed?(params, filters, :components)
     end
+
+    test "works correctly with encoded 'all' key" do
+      all_enc = encode_component_id("all")
+
+      params = %{all_enc => false}
+      filters = %{components: %{all_enc => true}}
+
+      assert FiltersHelpers.group_changed?(params, filters, :components)
+    end
   end
+
+  defp encode_component_id(id), do: id |> :erlang.term_to_binary() |> Base.encode64()
 end

@@ -118,7 +118,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
   attr(:form, Phoenix.HTML.Form, required: true)
 
   def filters_tree_node(assigns) do
-    field = assigns.form[inspect(assigns.tree_node.id)]
+    field = assigns.form[encode_component_id(assigns.tree_node.id)]
 
     assigns =
       assigns
@@ -145,6 +145,8 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
     </div>
     """
   end
+
+  defp encode_component_id(id), do: id |> :erlang.term_to_binary() |> Base.encode64()
 
   attr(:id, :string, required: true)
   attr(:tree_node, TreeNode, required: true)

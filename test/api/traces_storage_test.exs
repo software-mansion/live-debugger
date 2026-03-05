@@ -426,24 +426,24 @@ defmodule LiveDebugger.API.TracesStorageTest do
       assert cont == :end_of_table
     end
 
-    test "returns traces filtered by LiveView PID (explicitly excluding components)", %{
-      pid: pid,
-      table: table
-    } do
-      trace1 = Fakes.trace(id: 1, function: :handle_info, arity: 2, pid: pid, cid: nil)
+    defp encode_component_id(id), do: id |> :erlang.term_to_binary() |> Base.encode64()
 
+    test "returns traces filtered by LiveView PID using encoded string", %{pid: pid, table: table} do
+      trace1 = Fakes.trace(id: 1, pid: pid, cid: nil)
       cid = %Phoenix.LiveComponent.CID{cid: 1}
-      trace2 = Fakes.trace(id: 2, function: :update, arity: 2, pid: pid, cid: cid)
+      trace2 = Fakes.trace(id: 2, pid: pid, cid: cid)
 
       :ets.insert(@processes_table_name, {pid, table})
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
 
+      encoded_pid = encode_component_id(pid)
+
       assert {[^trace1], _} =
-               TracesStorageImpl.get!(pid, components: [pid], functions: @all_functions)
+               TracesStorageImpl.get!(pid, components: [encoded_pid], functions: @all_functions)
     end
 
-    test "returns traces filtered by specific LiveComponent CIDs", %{pid: pid, table: table} do
+    test "returns traces filtered by specific encoded CID strings", %{pid: pid, table: table} do
       cid1 = %Phoenix.LiveComponent.CID{cid: 10}
       cid2 = %Phoenix.LiveComponent.CID{cid: 20}
 
@@ -457,16 +457,19 @@ defmodule LiveDebugger.API.TracesStorageTest do
       :ets.insert(table, {trace_c2.id, trace_c2})
 
       assert {[^trace_c1], _} =
-               TracesStorageImpl.get!(pid, components: [cid1], functions: @all_functions)
+               TracesStorageImpl.get!(pid,
+                 components: [encode_component_id(cid1)],
+                 functions: @all_functions
+               )
 
       assert {[^trace_c1, ^trace_c2], _} =
-               TracesStorageImpl.get!(pid, components: [cid1, cid2], functions: @all_functions)
+               TracesStorageImpl.get!(pid,
+                 components: [encode_component_id(cid1), encode_component_id(cid2)],
+                 functions: @all_functions
+               )
     end
 
-    test "returns all traces when components is set to [:all] (initial state)", %{
-      pid: pid,
-      table: table
-    } do
+    test "returns all traces when components is set to ['all']", %{pid: pid, table: table} do
       trace1 = Fakes.trace(id: 1, pid: pid, cid: nil)
       trace2 = Fakes.trace(id: 2, pid: pid, cid: %Phoenix.LiveComponent.CID{cid: 1})
 
@@ -475,26 +478,19 @@ defmodule LiveDebugger.API.TracesStorageTest do
       :ets.insert(table, {trace2.id, trace2})
 
       assert {[^trace1, ^trace2], _} =
-               TracesStorageImpl.get!(pid, components: [:all], functions: @all_functions)
+               TracesStorageImpl.get!(pid, components: ["all"], functions: @all_functions)
     end
 
-    test "returns end_of_table when components list is empty [] (unselected all)", %{
-      pid: pid,
-      table: table
-    } do
+    test "returns end_of_table when components list is empty []", %{pid: pid, table: table} do
       trace1 = Fakes.trace(id: 1, pid: pid)
       :ets.insert(@processes_table_name, {pid, table})
       :ets.insert(table, {trace1.id, trace1})
 
       assert :end_of_table ==
-               TracesStorageImpl.get!(pid,
-                 components: [],
-                 node_id: nil,
-                 functions: @all_functions
-               )
+               TracesStorageImpl.get!(pid, components: [], functions: @all_functions)
     end
 
-    test "ignores components filter when node_id is provided (:ignore logic)", %{
+    test "ignores components filter when node_id is provided", %{
       pid: pid,
       table: table
     } do

@@ -43,7 +43,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     revert_button_visible? = Map.get(assigns, :revert_button_visible?, false)
 
     active_filters =
-      assigns.filters |> Map.put_new(:components, %{:all => true})
+      assigns.filters |> Map.put_new(:components, %{"all" => true})
 
     socket
     |> assign(:id, assigns.id)
@@ -289,20 +289,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     filters_tree =
       flatten_tree(tree)
       |> Map.new(fn {id, _} ->
-        {id, Map.get(components_filters, id, true)}
+        encoded_id = encode_component_id(id)
+        {encoded_id, Map.get(components_filters, encoded_id, true)}
       end)
 
     default_filters =
       filters_tree
-      |> Map.new(fn {id, _val} -> {inspect(id), true} end)
-
-    flattened_tree =
-      filters_tree
-      |> Map.new(fn {id, value} ->
-        {inspect(id), value}
+      |> Map.new(fn {id, _val} ->
+        {id, true}
       end)
 
-    new_params = Map.merge(socket.assigns.form.params, flattened_tree)
+    new_params = Map.merge(socket.assigns.form.params, filters_tree)
 
     socket
     |> assign(:tree, tree)
@@ -333,17 +330,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
        ) do
     components = Map.get(filters, :components, %{})
 
-    form_components =
-      components
-      |> Map.new(fn {id, value} ->
-        {stringify_key(id), value}
-      end)
-
     form =
       functions
       |> Map.merge(execution_time)
       |> Map.merge(other_filters)
-      |> Map.merge(form_components)
+      |> Map.merge(components)
       |> to_form(id: socket.assigns.id)
 
     assign(socket, :form, form)
@@ -354,25 +345,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
 
     form =
       form.params
-      |> Map.merge(
-        filters_map
-        |> Enum.map(fn {name, val} -> {stringify_key(name), val} end)
-        |> Map.new()
-      )
+      |> Map.merge(filters_map)
       |> to_form(id: socket.assigns.id)
 
     assign(socket, :form, form)
   end
 
-  defp stringify_key(key) when is_binary(key), do: key
-  defp stringify_key(key) when is_atom(key), do: Atom.to_string(key)
-  defp stringify_key(key), do: inspect(key)
-
   defp update_filters(active_filters, params) do
     components =
       active_filters.components
       |> Enum.reduce(%{}, fn {component, _}, acc ->
-        Map.put(acc, component, Map.has_key?(params, inspect(component)))
+        Map.put(acc, component, Map.has_key?(params, component))
       end)
 
     functions =
@@ -446,4 +429,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   end
 
   defp highlight_element(socket, _), do: socket
+
+  defp encode_component_id(id), do: id |> :erlang.term_to_binary() |> Base.encode64()
 end
