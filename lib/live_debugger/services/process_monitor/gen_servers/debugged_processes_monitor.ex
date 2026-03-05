@@ -35,7 +35,10 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
   import LiveDebugger.Helpers
 
   @type state :: %{
-          pid() => MapSet.t(CommonTypes.cid())
+          pid() => %{
+            transport_pid: pid(),
+            components: MapSet.t(CommonTypes.cid())
+          }
         }
 
   def start_link(opts \\ []) do
@@ -110,7 +113,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
   end
 
   defp maybe_register_component_created(state, pid, cid) do
-    if MapSet.member?(state[pid], cid) do
+    if MapSet.member?(state[pid].components, cid) do
       state
     else
       state |> ProcessMonitorActions.register_component_created!(pid, cid)
@@ -118,7 +121,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
   end
 
   defp maybe_register_component_deleted(state, pid, cid) do
-    if MapSet.member?(state[pid], cid) do
+    if MapSet.member?(state[pid].components, cid) do
       state |> ProcessMonitorActions.register_component_deleted!(pid, cid)
     else
       Logger.info("Component #{inspect(cid)} not found in state for pid #{inspect(pid)}")

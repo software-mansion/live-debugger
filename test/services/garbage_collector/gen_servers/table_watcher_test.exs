@@ -62,17 +62,19 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcherTest do
 
     test "for LiveViewDied event with no watchers" do
       pid = self()
+      tpid = :c.pid(0, 10, 0)
       state = %{pid => %ProcessInfo{alive?: true, watchers: MapSet.new()}}
-      event = %LiveViewDied{pid: pid}
+      event = %LiveViewDied{pid: pid, transport_pid: tpid}
 
       assert {:noreply, %{}} = TableWatcher.handle_info(event, state)
     end
 
     test "for LiveViewDied event with watchers" do
       pid = self()
+      tpid = :c.pid(0, 10, 0)
       watcher_pid = :c.pid(0, 12, 0)
       state = %{pid => %ProcessInfo{alive?: true, watchers: MapSet.new([watcher_pid])}}
-      event = %LiveViewDied{pid: pid}
+      event = %LiveViewDied{pid: pid, transport_pid: tpid}
 
       assert {:noreply, new_state} = TableWatcher.handle_info(event, state)
 

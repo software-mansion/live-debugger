@@ -1,11 +1,13 @@
 import {
-  test,
   expect,
   findClearTracesButton,
   findSwitchTracingButton,
   findFiltersButton,
+  prepareDevDebuggerPairTest,
   Page,
 } from './dev-dbg-test';
+
+const test = prepareDevDebuggerPairTest();
 
 const findTraces = (page: Page) =>
   page.locator('#global-traces-stream details');

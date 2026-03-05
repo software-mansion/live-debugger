@@ -156,8 +156,8 @@ defmodule LiveDebugger.E2E.ElementsInspectionTest do
 
     debugger
     |> visit("/")
-    |> hover(css("#live-sessions p.font-medium", text: "LiveDebuggerDev.LiveViews.Embedded"))
-    |> click(css("#live-sessions p.font-medium", text: "LiveDebuggerDev.LiveViews.Embedded"))
+    |> hover(css("#live-sessions p.font-semibold", text: "LiveDebuggerDev.LiveViews.Embedded"))
+    |> click(css("#live-sessions p.font-semibold", text: "LiveDebuggerDev.LiveViews.Embedded"))
     |> click(switch_inspect_mode_button())
 
     Process.sleep(200)
