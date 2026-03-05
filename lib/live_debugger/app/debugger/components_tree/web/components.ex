@@ -7,6 +7,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
 
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Utils.Parsers
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
   @doc """
   Renders a TreeNode component with its children recursively.
@@ -118,7 +119,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
   attr(:form, Phoenix.HTML.Form, required: true)
 
   def filters_tree_node(assigns) do
-    field = assigns.form[encode_component_id(assigns.tree_node.id)]
+    field = assigns.form[FiltersHelpers.encode_component_id(assigns.tree_node.id)]
 
     assigns =
       assigns
@@ -145,8 +146,6 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
     </div>
     """
   end
-
-  defp encode_component_id(id), do: id |> :erlang.term_to_binary() |> Base.encode64()
 
   attr(:id, :string, required: true)
   attr(:tree_node, TreeNode, required: true)

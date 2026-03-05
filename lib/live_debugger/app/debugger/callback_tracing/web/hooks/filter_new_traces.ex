@@ -12,6 +12,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
   alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
   alias LiveDebugger.Services.CallbackTracer.Events.TraceExceptionUpdated
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
   @required_assigns [
     :current_filters,
@@ -106,10 +107,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
            cid: cid
          }
        ) do
-    id = cid || pid
-
-    socket.assigns.current_filters.components[id] ||
-      socket.assigns.current_filters.components[:all]
+    id = cid || pid || "all"
+    encoded_id = FiltersHelpers.encode_component_id(id)
+    socket.assigns.current_filters.components[encoded_id]
   end
 
   defp matches_components_filter?(

@@ -20,8 +20,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   alias LiveDebugger.Client
   alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Debugger.ComponentsTree.Web.Components
-
   alias LiveDebugger.Structs.LvProcess
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
+
   @impl true
   def update(%{reset_form?: true}, socket) do
     socket
@@ -289,7 +290,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     filters_tree =
       flatten_tree(tree)
       |> Map.new(fn {id, _} ->
-        encoded_id = encode_component_id(id)
+        encoded_id = FiltersHelpers.encode_component_id(id)
+
         {encoded_id, Map.get(components_filters, encoded_id, true)}
       end)
 
@@ -429,6 +431,4 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   end
 
   defp highlight_element(socket, _), do: socket
-
-  defp encode_component_id(id), do: id |> :erlang.term_to_binary() |> Base.encode64()
 end
