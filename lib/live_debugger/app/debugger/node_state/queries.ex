@@ -13,13 +13,15 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
   @type history_length :: non_neg_integer()
   @type history_entries :: {assigns1 :: map(), assigns2 :: map()} | {assigns :: map()}
 
+  @exclude_from_assigns [:__changed__]
+
   @spec fetch_node_assigns(pid(), TreeNode.id(), [atom()]) :: {:ok, map()} | {:error, term()}
   def fetch_node_assigns(pid, node_id, exclude \\ [])
 
   def fetch_node_assigns(pid, node_id, exclude) when is_pid(node_id) do
     case fetch_node_state(pid) do
       {:ok, %LvState{socket: %{assigns: assigns}}} ->
-        {:ok, Map.drop(assigns, exclude)}
+        {:ok, Map.drop(assigns, exclude ++ @exclude_from_assigns)}
 
       {:error, reason} ->
         {:error, reason}
@@ -32,7 +34,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
         components
         |> get_component_assigns(cid)
         |> case do
-          {:ok, assigns} -> {:ok, Map.drop(assigns, exclude)}
+          {:ok, assigns} -> {:ok, Map.drop(assigns, exclude ++ @exclude_from_assigns)}
           other -> other
         end
 
@@ -59,7 +61,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
         result =
           render_traces
           |> Enum.slice(index, 2)
-          |> Enum.map(&(&1.args |> hd() |> Map.delete(:socket)))
+          |> Enum.map(&(&1.args |> hd() |> Map.drop([:socket | @exclude_from_assigns])))
 
         {:ok, {result, history_length}}
     end
