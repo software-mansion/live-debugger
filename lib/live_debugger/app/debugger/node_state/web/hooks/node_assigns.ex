@@ -18,7 +18,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
 
   @required_assigns [
     :node_id,
-    :lv_process
+    :lv_process,
+    :temporary_assigns
   ]
 
   @assigns_size_events [:assigns_size_1, :assigns_size_2]
@@ -77,7 +78,14 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> start_async(:fetch_node_assigns, fn ->
       # Small sleep serves here as a debounce mechanism
       Process.sleep(100)
-      NodeStateQueries.fetch_node_assigns(pid, node_id)
+
+      exclude_assigns =
+        case NodeStateQueries.fetch_node_temporary_assigns(pid, node_id) do
+          {:ok, temp_assigns} when is_map(temp_assigns) -> Map.keys(temp_assigns)
+          _ -> []
+        end
+
+      NodeStateQueries.fetch_node_assigns(pid, node_id, exclude_assigns)
     end)
   end
 

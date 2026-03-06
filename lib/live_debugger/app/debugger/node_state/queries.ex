@@ -13,28 +13,35 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
   @type history_length :: non_neg_integer()
   @type history_entries :: {assigns1 :: map(), assigns2 :: map()} | {assigns :: map()}
 
-  @spec fetch_node_assigns(pid(), TreeNode.id()) :: {:ok, map()} | {:error, term()}
-  def fetch_node_assigns(pid, node_id) when is_pid(node_id) do
+  @spec fetch_node_assigns(pid(), TreeNode.id(), [atom()]) :: {:ok, map()} | {:error, term()}
+  def fetch_node_assigns(pid, node_id, exclude \\ [])
+
+  def fetch_node_assigns(pid, node_id, exclude) when is_pid(node_id) do
     case fetch_node_state(pid) do
       {:ok, %LvState{socket: %{assigns: assigns}}} ->
-        {:ok, assigns}
+        {:ok, Map.drop(assigns, exclude)}
 
       {:error, reason} ->
         {:error, reason}
     end
   end
 
-  def fetch_node_assigns(pid, %Phoenix.LiveComponent.CID{} = cid) do
+  def fetch_node_assigns(pid, %Phoenix.LiveComponent.CID{} = cid, exclude) do
     case fetch_node_state(pid) do
       {:ok, %LvState{components: components}} ->
-        get_component_assigns(components, cid)
+        components
+        |> get_component_assigns(cid)
+        |> case do
+          {:ok, assigns} -> {:ok, Map.drop(assigns, exclude)}
+          other -> other
+        end
 
       {:error, reason} ->
         {:error, reason}
     end
   end
 
-  def fetch_node_assigns(_, _) do
+  def fetch_node_assigns(_, _, _) do
     {:error, "Invalid node ID"}
   end
 
@@ -60,7 +67,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
     error -> {:error, error}
   end
 
-  @spec fetch_node_temporary_assigns(pid(), TreeNode.id()) :: {:ok, map()} | {:error, term()}
+  @spec fetch_node_temporary_assigns(pid(), TreeNode.id()) ::
+          {:ok, map() | nil} | {:error, term()}
   def fetch_node_temporary_assigns(pid, node_id) do
     with {:ok, node_assigns} <- fetch_last_render_assigns(pid, node_id),
          %{temporary_assigns: temporary_assigns} <- node_assigns.socket.private do
