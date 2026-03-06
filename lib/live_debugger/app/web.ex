@@ -4,6 +4,7 @@ defmodule LiveDebugger.App.Web do
   def live_view do
     quote do
       use Phoenix.LiveView,
+        log: false,
         layout: {unquote(__MODULE__).Layout, :app}
 
       on_mount({unquote(__MODULE__).Hooks.Flash, :add_hook})
