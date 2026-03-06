@@ -6,6 +6,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   use LiveDebugger.App.Web, :component
 
   alias LiveDebugger.App.Utils.TermParser
+  alias LiveDebugger.App.Utils.TermSanitizer
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory
@@ -42,34 +43,22 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   def assigns_section(assigns) do
     ~H"""
-    <div id="assigns-section-container" phx-hook="AssignsBodySearchHighlight">
+    <div
+      id="assigns-section-container"
+      class="@container/assigns"
+      phx-hook="AssignsBodySearchHighlight"
+    >
       <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns" title_class="!min-w-18">
         <:title_sub_panel>
           <.assigns_status_indicator node_assigns_status={@node_assigns_status} />
         </:title_sub_panel>
 
         <:right_panel>
-          <div class="flex gap-2">
+          <div class="flex gap-2 !h-7">
             <AssignsSearch.render
               assigns_search_phrase={@assigns_search_phrase}
               input_id="assigns-search-input"
             />
-            <AssignsHistory.button />
-            <div class="flex">
-              <.copy_button
-                id="assigns-copy-button"
-                variant="icon-button"
-                value={@copy_string}
-                class="rounded-e-none! border-r-0!"
-              />
-              <.copy_button
-                id="json-assigns-copy-button"
-                variant="button"
-                text="JSON"
-                value={@json_string}
-                class="rounded-s-none!"
-              />
-            </div>
             <.fullscreen_button id={@fullscreen_id} />
           </div>
         </:right_panel>
@@ -88,6 +77,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
             id="all-assigns"
             term_node={@term_node}
             assigns_sizes={@assigns_sizes}
+            copy_string={@copy_string}
+            json_string={@json_string}
           />
         </div>
       </.section>
@@ -112,6 +103,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
             id="all-assigns-fullscreen"
             term_node={@term_node}
             assigns_sizes={@assigns_sizes}
+            copy_string={@copy_string}
+            json_string={@json_string}
           />
         </div>
       </.fullscreen>
@@ -121,12 +114,18 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   attr(:name, :string, required: true)
   attr(:icon, :string, default: nil)
+  slot(:right)
 
   defp section_title(assigns) do
     ~H"""
-    <div class="bg-surface-1-bg flex items-center h-10 gap-2 p-4 border-b border-default-border font-semibold text-secondary-text">
-      <.icon :if={@icon} name={@icon} class="h-4 w-4" />
-      <p><%= @name %></p>
+    <div class="bg-surface-1-bg flex items-center justify-between h-10 gap-2 p-4 border-b border-default-border font-semibold text-secondary-text w-full">
+      <div class="flex items-center gap-2">
+        <.icon :if={@icon} name={@icon} class="h-4 w-4" />
+        <p><%= @name %></p>
+      </div>
+      <div :if={@right != []} class="flex items-center gap-2">
+        <%= render_slot(@right) %>
+      </div>
     </div>
     """
   end
@@ -173,16 +172,50 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:temporary_assigns, AsyncResult, required: true)
 
   defp temporary_assigns_section(assigns) do
+    has_temporary_assigns? =
+      assigns.temporary_assigns.ok? and not is_nil(assigns.temporary_assigns.result)
+
+    copy_string =
+      if has_temporary_assigns? do
+        TermParser.term_to_copy_string(assigns.temporary_assigns.result)
+      end
+
+    json_string =
+      if has_temporary_assigns? do
+        assigns.temporary_assigns.result |> TermSanitizer.sanitize() |> Jason.encode!()
+      end
+
     assigns =
       assigns
       |> assign(entries: TermParser.term_to_display_tree(assigns.temporary_assigns).children)
+      |> assign(has_temporary_assigns: has_temporary_assigns?)
+      |> assign(:temporary_assigns_copy_string, copy_string)
+      |> assign(:temporary_assigns_json_string, json_string)
 
     ~H"""
     <div id={@id}>
       <.section_title
         name={if(@temporary_assigns.result, do: "Temporary assigns", else: "No temporary assigns")}
         icon="icon-clock-3"
-      />
+      >
+        <:right :if={@has_temporary_assigns}>
+          <div class="flex">
+            <.copy_button
+              id={"temporary-assigns-copy-button" <> "-" <> @id}
+              variant="icon-button"
+              value={@temporary_assigns_copy_string}
+              class="rounded-e-none! border-r-0!"
+            />
+            <.copy_button
+              id={"temporary-assigns-json-copy-button" <> "-" <> @id}
+              variant="button"
+              text="JSON"
+              value={@temporary_assigns_json_string}
+              class="rounded-s-none!"
+            />
+          </div>
+        </:right>
+      </.section_title>
       <.async_result :let={temporary_assigns} assign={@temporary_assigns}>
         <:loading>
           <div class="p-4">
@@ -208,11 +241,32 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:id, :string, required: true)
   attr(:term_node, TermNode, required: true)
   attr(:assigns_sizes, AsyncResult, required: true)
+  attr(:copy_string, :string, required: true)
+  attr(:json_string, :string, required: true)
 
   defp all_assigns_section(assigns) do
     ~H"""
     <div id={@id}>
-      <.section_title name="All assigns" />
+      <.section_title name="All assigns">
+        <:right>
+          <AssignsHistory.button />
+          <div class="flex">
+            <.copy_button
+              id="assigns-copy-button"
+              variant="icon-button"
+              value={@copy_string}
+              class="rounded-e-none! border-r-0!"
+            />
+            <.copy_button
+              id="json-assigns-copy-button"
+              variant="button"
+              text="JSON"
+              value={@json_string}
+              class="rounded-s-none!"
+            />
+          </div>
+        </:right>
+      </.section_title>
       <div class="relative">
         <.assigns_sizes_section assigns_sizes={@assigns_sizes} id={@id <> "-size-label-container"} />
         <div class="p-4 overflow-x-auto">

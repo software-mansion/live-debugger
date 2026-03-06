@@ -33,7 +33,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch d
       search_phrase={@assigns_search_phrase}
       input_id={@input_id}
       debounce={250}
-      class="h-7!"
+      class="h-7! w-full! @[47rem]/assigns:w-64!"
     />
     """
   end
