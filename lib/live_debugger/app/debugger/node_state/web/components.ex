@@ -6,6 +6,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   use LiveDebugger.App.Web, :component
 
   alias LiveDebugger.App.Utils.TermParser
+  alias LiveDebugger.App.Utils.TermSanitizer
   alias LiveDebugger.App.Debugger.Web.Components.ElixirDisplay
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsSearch
   alias LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory
@@ -171,16 +172,50 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:temporary_assigns, AsyncResult, required: true)
 
   defp temporary_assigns_section(assigns) do
+    has_temporary_assigns? =
+      assigns.temporary_assigns.ok? and not is_nil(assigns.temporary_assigns.result)
+
+    copy_string =
+      if has_temporary_assigns? do
+        TermParser.term_to_copy_string(assigns.temporary_assigns.result)
+      end
+
+    json_string =
+      if has_temporary_assigns? do
+        assigns.temporary_assigns.result |> TermSanitizer.sanitize() |> Jason.encode!()
+      end
+
     assigns =
       assigns
       |> assign(entries: TermParser.term_to_display_tree(assigns.temporary_assigns).children)
+      |> assign(has_temporary_assigns: has_temporary_assigns?)
+      |> assign(:temporary_assigns_copy_string, copy_string)
+      |> assign(:temporary_assigns_json_string, json_string)
 
     ~H"""
     <div id={@id}>
       <.section_title
         name={if(@temporary_assigns.result, do: "Temporary assigns", else: "No temporary assigns")}
         icon="icon-clock-3"
-      />
+      >
+        <:right :if={@has_temporary_assigns}>
+          <div class="flex">
+            <.copy_button
+              id={"temporary-assigns-copy-button" <> "-" <> @id}
+              variant="icon-button"
+              value={@temporary_assigns_copy_string}
+              class="rounded-e-none! border-r-0!"
+            />
+            <.copy_button
+              id={"temporary-assigns-json-copy-button" <> "-" <> @id}
+              variant="button"
+              text="JSON"
+              value={@temporary_assigns_json_string}
+              class="rounded-s-none!"
+            />
+          </div>
+        </:right>
+      </.section_title>
       <.async_result :let={temporary_assigns} assign={@temporary_assigns}>
         <:loading>
           <div class="p-4">
