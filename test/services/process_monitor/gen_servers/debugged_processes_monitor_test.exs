@@ -302,11 +302,14 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
       assert {:noreply, new_state} = DebuggedProcessesMonitor.handle_info(event, state)
 
       assert new_state == %{
-               debugged_pid =>
-                 MapSet.new([
-                   %Phoenix.LiveComponent.CID{cid: 1},
-                   %Phoenix.LiveComponent.CID{cid: 2}
-                 ])
+               debugged_pid => %{
+                 transport_pid: transport_pid,
+                 components:
+                   MapSet.new([
+                     %Phoenix.LiveComponent.CID{cid: 1},
+                     %Phoenix.LiveComponent.CID{cid: 2}
+                   ])
+               }
              }
     end
   end
