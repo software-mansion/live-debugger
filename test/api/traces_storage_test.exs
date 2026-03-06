@@ -7,6 +7,8 @@ defmodule LiveDebugger.API.TracesStorageTest do
   alias LiveDebugger.Fakes
   alias LiveDebugger.API.TracesStorage.Impl, as: TracesStorageImpl
 
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
+
   @all_functions LiveDebugger.Utils.Callbacks.all_callbacks()
                  |> Enum.map(fn {function, arity} -> "#{function}/#{arity}" end)
 
@@ -425,6 +427,89 @@ defmodule LiveDebugger.API.TracesStorageTest do
       assert [trace4, diff_trace1] == traces2
       assert cont == :end_of_table
     end
+
+    defp encode_component_id(id), do: id |> :erlang.term_to_binary() |> Base.encode64()
+
+    test "returns traces filtered by LiveView PID using encoded string", %{pid: pid, table: table} do
+      trace1 = Fakes.trace(id: 1, pid: pid, cid: nil)
+      cid = %Phoenix.LiveComponent.CID{cid: 1}
+      trace2 = Fakes.trace(id: 2, pid: pid, cid: cid)
+
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+
+      encoded_pid = encode_component_id(pid)
+
+      assert {[^trace1], _} =
+               TracesStorageImpl.get!(pid, components: [encoded_pid], functions: @all_functions)
+    end
+
+    test "returns traces filtered by specific encoded CID strings", %{pid: pid, table: table} do
+      cid1 = %Phoenix.LiveComponent.CID{cid: 10}
+      cid2 = %Phoenix.LiveComponent.CID{cid: 20}
+
+      trace_lv = Fakes.trace(id: 1, pid: pid, cid: nil)
+      trace_c1 = Fakes.trace(id: 2, pid: pid, cid: cid1)
+      trace_c2 = Fakes.trace(id: 3, pid: pid, cid: cid2)
+
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace_lv.id, trace_lv})
+      :ets.insert(table, {trace_c1.id, trace_c1})
+      :ets.insert(table, {trace_c2.id, trace_c2})
+
+      assert {[^trace_c1], _} =
+               TracesStorageImpl.get!(pid,
+                 components: [encode_component_id(cid1)],
+                 functions: @all_functions
+               )
+
+      assert {[^trace_c1, ^trace_c2], _} =
+               TracesStorageImpl.get!(pid,
+                 components: [encode_component_id(cid1), encode_component_id(cid2)],
+                 functions: @all_functions
+               )
+    end
+
+    test "returns all traces when components is set to ['all']", %{pid: pid, table: table} do
+      trace1 = Fakes.trace(id: 1, pid: pid, cid: nil)
+      trace2 = Fakes.trace(id: 2, pid: pid, cid: %Phoenix.LiveComponent.CID{cid: 1})
+
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace1.id, trace1})
+      :ets.insert(table, {trace2.id, trace2})
+
+      assert {[^trace1, ^trace2], _} =
+               TracesStorageImpl.get!(pid,
+                 components: [FiltersHelpers.all_components()],
+                 functions: @all_functions
+               )
+    end
+
+    test "returns end_of_table when components list is empty []", %{pid: pid, table: table} do
+      trace1 = Fakes.trace(id: 1, pid: pid)
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace1.id, trace1})
+
+      assert :end_of_table ==
+               TracesStorageImpl.get!(pid, components: [], functions: @all_functions)
+    end
+
+    test "ignores components filter when node_id is provided", %{
+      pid: pid,
+      table: table
+    } do
+      trace1 = Fakes.trace(id: 1, pid: pid, cid: nil)
+      :ets.insert(@processes_table_name, {pid, table})
+      :ets.insert(table, {trace1.id, trace1})
+
+      assert {[^trace1], _} =
+               TracesStorageImpl.get!(pid,
+                 components: [],
+                 node_id: pid,
+                 functions: @all_functions
+               )
+    end
   end
 
   describe "clear!/2" do
@@ -571,7 +656,6 @@ defmodule LiveDebugger.API.TracesStorageTest do
   describe "table_size/1" do
     test "returns the memory size of an ETS table in bytes" do
       table = :ets.new(:test_table, [:public])
-      # Initial size of an empty ETS table
       initial_size = TracesStorageImpl.table_size(table)
 
       assert initial_size >= 0

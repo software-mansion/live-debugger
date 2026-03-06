@@ -44,7 +44,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
       "trace_diffs" => false
     }
 
-    %{functions: callbacks, execution_time: execution_time, other_filters: other_filters}
+    %{
+      functions: callbacks,
+      execution_time: execution_time,
+      other_filters: other_filters,
+      components: %{encode_component_id(:all) => true}
+    }
   end
 
   @doc """
@@ -130,6 +135,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
   end
 
   @doc """
+  Returns the active components from the current filters.
+  It uses the `current_filters` assigns to determine the active components.
+  """
+  @spec get_active_components(current_filters :: %{components: map()}) :: [String.t()]
+  def get_active_components(current_filters) do
+    current_filters.components
+    |> Enum.filter(fn {_, active?} -> active? end)
+    |> Enum.map(fn {component, _} -> component end)
+  end
+
+  @doc """
   Returns the execution times from the current filters.
   It uses the `current_filters` assigns to determine the execution times.
   """
@@ -155,6 +171,14 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
   @spec get_trace_diffs(%{other_filters: map()}) :: boolean()
   def get_trace_diffs(%{other_filters: %{"trace_diffs" => trace_diffs}}) do
     trace_diffs
+  end
+
+  @spec encode_component_id(pid() | Phoenix.LiveComponent.CID.t() | atom()) :: binary()
+  def encode_component_id(id), do: id |> :erlang.term_to_binary() |> Base.encode64()
+
+  @spec all_components() :: String.t()
+  def all_components do
+    encode_component_id(:all)
   end
 
   defp maybe_put_exec_time(execution_times, key, value, unit) do
