@@ -59,12 +59,19 @@ defmodule LiveDebugger do
   end
 
   defp put_endpoint_config(config) do
+    ip = Keyword.get(config, :ip, @default_ip)
+    port = Keyword.get(config, :port, @default_port)
+
+    host =
+      case Keyword.get(config, :external_url) do
+        nil -> ip |> :inet.ntoa() |> List.to_string()
+        url -> URI.parse(url).host
+      end
+
     endpoint_config =
       [
-        http: [
-          ip: Keyword.get(config, :ip, @default_ip),
-          port: Keyword.get(config, :port, @default_port)
-        ],
+        http: [ip: ip, port: port],
+        url: [host: host, port: port],
         secret_key_base: Keyword.get(config, :secret_key_base, @default_secret_key_base),
         live_view: [signing_salt: Keyword.get(config, :signing_salt, @default_signing_salt)],
         adapter: Keyword.get(config, :adapter, default_adapter()),
