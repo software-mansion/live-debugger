@@ -2,7 +2,7 @@ defmodule LiveDebugger.Client.Channel do
   @moduledoc """
   This is channel for communication between LiveDebugger processes and debugged LiveView browser.
   """
-  use Phoenix.Channel
+  use Phoenix.Channel, log_join: false, log_handle_in: false
 
   @pubsub_name LiveDebugger.Env.endpoint_pubsub_name()
 
