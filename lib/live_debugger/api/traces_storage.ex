@@ -8,6 +8,8 @@ defmodule LiveDebugger.API.TracesStorage do
   alias LiveDebugger.CommonTypes
   alias LiveDebugger.Structs.Trace.DiffTrace
 
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
+
   import Trace, only: [is_trace: 1, is_trace_id: 1]
 
   @typedoc """
@@ -499,7 +501,7 @@ defmodule LiveDebugger.API.TracesStorage do
       trace_diffs = Keyword.get(opts, :trace_diffs, false)
 
       components =
-        Keyword.get(opts, :components, ["all"])
+        Keyword.get(opts, :components, [FiltersHelpers.all_components()])
         |> decode_components()
 
       node_id
@@ -588,7 +590,7 @@ defmodule LiveDebugger.API.TracesStorage do
     end
 
     defp maybe_add_components(acc, :ignore), do: acc
-    defp maybe_add_components(acc, ["all"]), do: acc
+    defp maybe_add_components(acc, [:all]), do: acc
     defp maybe_add_components(_acc, []), do: false
 
     defp maybe_add_components(acc, components) do

@@ -48,7 +48,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
       functions: callbacks,
       execution_time: execution_time,
       other_filters: other_filters,
-      components: %{"all" => true}
+      components: %{encode_component_id(:all) => true}
     }
   end
 
@@ -173,8 +173,13 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
     trace_diffs
   end
 
-  @spec encode_component_id(pid() | Phoenix.LiveComponent.CID.t() | String.t()) :: binary()
+  @spec encode_component_id(pid() | Phoenix.LiveComponent.CID.t() | atom()) :: binary()
   def encode_component_id(id), do: id |> :erlang.term_to_binary() |> Base.encode64()
+
+  @spec all_components() :: String.t()
+  def all_components do
+    encode_component_id(:all)
+  end
 
   defp maybe_put_exec_time(execution_times, key, value, unit) do
     case value do

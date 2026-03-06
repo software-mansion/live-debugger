@@ -44,7 +44,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     revert_button_visible? = Map.get(assigns, :revert_button_visible?, false)
 
     active_filters =
-      assigns.filters |> Map.put_new(:components, %{"all" => true})
+      assigns.filters |> Map.put_new(:components, %{FiltersHelpers.all_components() => true})
 
     socket
     |> assign(:id, assigns.id)
