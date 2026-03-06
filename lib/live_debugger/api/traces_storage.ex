@@ -577,7 +577,7 @@ defmodule LiveDebugger.API.TracesStorage do
       |> then(&[&1])
     end
 
-    defp maybe_add_functions(acc, []), do: acc
+    defp maybe_add_functions(_acc, []), do: false
 
     defp maybe_add_functions(acc, functions) do
       {:andalso, functions_to_spec(functions), acc}
