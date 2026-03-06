@@ -42,7 +42,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   def assigns_section(assigns) do
     ~H"""
-    <div id="assigns-section-container" class="@container/assigns" phx-hook="AssignsBodySearchHighlight">
+    <div
+      id="assigns-section-container"
+      class="@container/assigns"
+      phx-hook="AssignsBodySearchHighlight"
+    >
       <.section id="assigns" class="h-max overflow-y-hidden" title="Assigns" title_class="!min-w-18">
         <:title_sub_panel>
           <.assigns_status_indicator node_assigns_status={@node_assigns_status} />
