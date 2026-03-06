@@ -7,6 +7,8 @@ defmodule LiveDebugger.API.TracesStorageTest do
   alias LiveDebugger.Fakes
   alias LiveDebugger.API.TracesStorage.Impl, as: TracesStorageImpl
 
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
+
   @all_functions LiveDebugger.Utils.Callbacks.all_callbacks()
                  |> Enum.map(fn {function, arity} -> "#{function}/#{arity}" end)
 
@@ -478,7 +480,10 @@ defmodule LiveDebugger.API.TracesStorageTest do
       :ets.insert(table, {trace2.id, trace2})
 
       assert {[^trace1, ^trace2], _} =
-               TracesStorageImpl.get!(pid, components: ["all"], functions: @all_functions)
+               TracesStorageImpl.get!(pid,
+                 components: [FiltersHelpers.all_components()],
+                 functions: @all_functions
+               )
     end
 
     test "returns end_of_table when components list is empty []", %{pid: pid, table: table} do

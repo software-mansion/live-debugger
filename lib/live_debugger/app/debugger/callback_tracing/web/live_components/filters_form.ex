@@ -21,7 +21,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Debugger.ComponentsTree.Web.Components
   alias LiveDebugger.Structs.LvProcess
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
   @impl true
   def update(%{reset_form?: true}, socket) do
@@ -81,7 +80,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     ~H"""
     <div id={@id <> "-wrapper"} class={if @disabled?, do: "opacity-50 pointer-events-none"}>
       <.form for={@form} phx-submit="submit" phx-change="change" phx-target={@myself}>
-        <div class="w-full py-2 owerflow-auto">
+        <div class="w-full py-2 overflow-auto">
           <div :if={!@node_id} class="px-4 border-b border-default-border">
             <.collapsible id="filters-component-tree-collapse" open={true}>
               <:label>
@@ -136,7 +135,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
             </.collapsible>
           </div>
           <div class="px-4 border-b border-default-border">
-            <.collapsible id="filters-callbacks-collapse" open={true}>
+            <.collapsible id="filters-execution-time-collapse" open={true}>
               <:label>
                 <FiltersComponents.filters_group_header
                   title="Execution Time"

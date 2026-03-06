@@ -69,7 +69,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "min_unit" => "µs",
                  "max_unit" => "µs"
                },
-               components: %{"all" => true},
+               components: %{encode_component_id(:all) => true},
                other_filters: %{"trace_diffs" => false}
              }
     end
@@ -90,7 +90,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "min_unit" => "µs",
                  "max_unit" => "µs"
                },
-               components: %{"all" => true},
+               components: %{FiltersHelpers.all_components() => true},
                other_filters: %{"trace_diffs" => false}
              }
     end
@@ -114,7 +114,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "min_unit" => "µs",
                  "max_unit" => "µs"
                },
-               components: %{"all" => true},
+               components: %{FiltersHelpers.all_components() => true},
                other_filters: %{"trace_diffs" => false}
              }
     end
@@ -334,7 +334,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
     test "returns currently active component IDs (encoded) from filters" do
       pid_enc = encode_component_id(:c.pid(0, 100, 0))
       cid_enc = encode_component_id(%Phoenix.LiveComponent.CID{cid: 1})
-      all_enc = encode_component_id("all")
+      all_enc = FiltersHelpers.all_components()
 
       filters = %{
         components: %{
@@ -433,7 +433,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
     end
 
     test "works correctly with encoded 'all' key" do
-      all_enc = encode_component_id("all")
+      all_enc = FiltersHelpers.all_components()
 
       params = %{all_enc => false}
       filters = %{components: %{all_enc => true}}
