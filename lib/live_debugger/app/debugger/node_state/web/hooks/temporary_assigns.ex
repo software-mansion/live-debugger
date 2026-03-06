@@ -27,12 +27,19 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.TemporaryAssigns do
   end
 
   @spec assign_async_temporary_assigns(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
-  def assign_async_temporary_assigns(socket) do
+  def assign_async_temporary_assigns(socket, opts \\ []) do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id
 
+    temporary_assigns =
+      if Keyword.get(opts, :reset, false) do
+        AsyncResult.loading()
+      else
+        AsyncResult.loading(socket.assigns.temporary_assigns)
+      end
+
     socket
-    |> assign(:temporary_assigns, AsyncResult.loading(socket.assigns.temporary_assigns))
+    |> assign(:temporary_assigns, temporary_assigns)
     |> start_async(:fetch_temporary_assigns, fn ->
       NodeStateQueries.fetch_node_temporary_assigns(pid, node_id)
     end)
