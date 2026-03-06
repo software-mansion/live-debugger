@@ -21,6 +21,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
           :"Test.LiveComponentModule" -> true
         end
       end)
+      |> stub(:live_module?, fn _module -> true end)
       |> stub(:behaviours, fn module ->
         case module do
           :"Test.LiveViewModule" -> [Phoenix.LiveView]
@@ -65,6 +66,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
         ]
       end)
       |> stub(:loaded?, fn _module -> true end)
+      |> stub(:live_module?, fn _module -> true end)
       |> stub(:behaviours, fn _module -> [Phoenix.LiveView] end)
 
       assert Callbacks.all_callbacks() == []
@@ -84,6 +86,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
           :"Test.LiveComponentModule" -> false
         end
       end)
+      |> stub(:live_module?, fn _module -> true end)
       |> stub(:behaviours, fn module ->
         case module do
           :"Test.LiveViewModule" -> [Phoenix.LiveView]
@@ -112,6 +115,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
         ]
       end)
       |> stub(:loaded?, fn _module -> true end)
+      |> stub(:live_module?, fn _module -> false end)
       |> stub(:behaviours, fn _module -> [] end)
 
       assert Callbacks.all_callbacks() == []
@@ -125,6 +129,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
         ]
       end)
       |> stub(:loaded?, fn _module -> true end)
+      |> stub(:live_module?, fn _module -> true end)
       |> stub(:behaviours, fn module ->
         case module do
           :"Test.LiveViewModule" -> [Phoenix.LiveView, :SomeOtherBehaviour]
@@ -153,6 +158,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
         ]
       end)
       |> stub(:loaded?, fn _module -> true end)
+      |> stub(:live_module?, fn _module -> true end)
       |> stub(:behaviours, fn module ->
         case module do
           :"Test.LiveViewModule1" -> [Phoenix.LiveView]
@@ -191,6 +197,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
         ]
       end)
       |> stub(:loaded?, fn _module -> true end)
+      |> stub(:live_module?, fn _module -> true end)
       |> stub(:behaviours, fn module ->
         case module do
           :"Test.LiveComponentModule1" -> [Phoenix.LiveComponent]
@@ -230,6 +237,13 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
           :"Test.RegularModule" -> true
         end
       end)
+      |> stub(:live_module?, fn module ->
+        case module do
+          :"Test.LiveViewModule" -> true
+          :"Test.LiveComponentModule" -> true
+          :"Test.RegularModule" -> false
+        end
+      end)
       |> stub(:behaviours, fn module ->
         case module do
           :"Test.LiveViewModule" -> [Phoenix.LiveView]
@@ -265,6 +279,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Queries.CallbacksTest do
           :"Test.LiveComponentModule" -> false
         end
       end)
+      |> stub(:live_module?, fn _module -> true end)
       |> stub(:behaviours, fn module ->
         case module do
           :"Test.LiveViewModule" -> [Phoenix.LiveView]

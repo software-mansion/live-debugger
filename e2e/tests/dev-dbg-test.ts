@@ -4,24 +4,26 @@
 
 import { test as base, Page } from '@playwright/test';
 
-export const test = base
-  .extend<{ devApp: Page }>({
-    devApp: async ({ page }, use) => {
-      await page.goto('/');
-      await use(page);
-    },
-  })
-  .extend<{ dbgApp: Page }>({
-    dbgApp: async ({ devApp }, use) => {
-      await devApp.locator('#live-debugger-debug-button').click();
-      const dbgAppPromise = devApp.waitForEvent('popup');
-      await devApp.getByText('Open in new tab').click();
-      const dbgApp = await dbgAppPromise;
-      await use(dbgApp);
-    },
-  });
+export const prepareDevDebuggerPairTest = (devUrl: string = '/') => {
+  return base
+    .extend<{ devApp: Page }>({
+      devApp: async ({ page }, use) => {
+        await page.goto(devUrl);
+        await use(page);
+      },
+    })
+    .extend<{ dbgApp: Page }>({
+      dbgApp: async ({ devApp }, use) => {
+        await devApp.locator('#live-debugger-debug-button').click();
+        const dbgAppPromise = devApp.waitForEvent('popup');
+        await devApp.getByText('Open in new tab').click();
+        const dbgApp = await dbgAppPromise;
+        await use(dbgApp);
+      },
+    });
+};
 
-export const assigns_entry = (page: Page, key: string, value: string) =>
+export const findAssignsEntry = (page: Page, key: string, value: string) =>
   page.locator(
     `xpath=//*[@id=\"assigns\"]//*[contains(normalize-space(text()), \"${key}:\")]/../..//*[contains(normalize-space(text()), \"${value}\")]`
   );
@@ -37,5 +39,8 @@ export const findClearTracesButton = (page: Page) =>
 
 export const findRefreshTracesButton = (page: Page) =>
   page.locator('button[phx-click="refresh-history"]');
+
+export const findFiltersButton = (page: Page) =>
+  page.locator('button[aria-label="Open filters"]');
 
 export { expect, Page } from '@playwright/test';

@@ -11,7 +11,8 @@ defmodule LiveDebugger.Services do
         {LiveDebugger.Services.GarbageCollector.Supervisor, []},
         {LiveDebugger.Services.ProcessMonitor.Supervisor, []},
         {LiveDebugger.Services.ClientCommunicator.Supervisor, []},
-        {LiveDebugger.Services.SuccessorDiscoverer.Supervisor, []}
+        {LiveDebugger.Services.SuccessorDiscoverer.Supervisor, []},
+        {LiveDebugger.Services.TelemetryHandler.Supervisor, []}
       ]
   end
 end

@@ -112,7 +112,8 @@ defmodule LiveDebugger.MixProject do
         "docs/callback_tracing.md": [title: "Callback Tracing"],
         "docs/components_highlighting.md": [title: "Components Highlighting"],
         "docs/dead_view_mode.md": [title: "DeadView Mode"],
-        "docs/elements_inspection.md": [title: "Elements Inspection"]
+        "docs/elements_inspection.md": [title: "Elements Inspection"],
+        "docs/open_in_editor.md": [title: "Open in Editor"]
       ],
       groups_for_extras: [
         Features: [
@@ -122,7 +123,8 @@ defmodule LiveDebugger.MixProject do
           "docs/callback_tracing.md",
           "docs/components_highlighting.md",
           "docs/dead_view_mode.md",
-          "docs/elements_inspection.md"
+          "docs/elements_inspection.md",
+          "docs/open_in_editor.md"
         ]
       ],
       source_url: "https://github.com/software-mansion/live-debugger",

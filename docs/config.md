@@ -60,6 +60,27 @@ config :live_debugger,
   highlight_in_browser: true
 ```
 
+## Unix Socket Support
+
+LiveDebugger can listen on a Unix domain socket instead of a TCP ip/port. To do this, set `ip` to `{:local, "/path/to/socket"}` and `port` to `0`:
+
+```elixir
+# config/dev.exs
+
+config :live_debugger,
+  ip: {:local, "/tmp/live_debugger.sock"},
+  port: 0
+```
+
+Note: when using a Unix socket, browser features (debug button, elements inspection) require an `:external_url` to be set, since the socket path cannot be used as a URL:
+
+```elixir
+config :live_debugger,
+  ip: {:local, "/tmp/live_debugger.sock"},
+  port: 0,
+  external_url: "http://your_external_url"
+```
+
 ## Other Settings
 
 ```elixir
@@ -73,6 +94,8 @@ config :live_debugger,
   signing_salt: "your_signing_salt", # Signing salt used for LiveDebugger.Endpoint
   adapter: Bandit.PhoenixAdapter, # Adapter used in LiveDebugger.Endpoint
   server: true, # Forces LiveDebugger to start even if project is not started with the `mix phx.server`
+  drainer: [shutdown: 1000] # Wait a maximum of 1000ms before forcefully terminating connections. You can also switch it off with `false`.
+
 
 # Name for LiveDebugger PubSub (it will create new one so don't put already used name)
 config :live_debugger, :pubsub_name, LiveDebugger.CustomPubSub

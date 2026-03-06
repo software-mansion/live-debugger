@@ -271,63 +271,113 @@ defmodule LiveDebugger.API.LiveViewDiscoveryTest do
     end
   end
 
-  test "group_lv_processes/1 groups LvProcesses into proper map" do
-    pid_1 = :c.pid(0, 0, 1)
-    pid_2 = :c.pid(0, 0, 2)
+  describe "group_lv_processes/1" do
+    test "groups LvProcesses into proper map" do
+      pid_1 = :c.pid(0, 0, 1)
+      pid_2 = :c.pid(0, 0, 2)
+      pid_3 = :c.pid(0, 0, 3)
 
-    root_pid_1 = :c.pid(0, 1, 1)
-    root_pid_2 = :c.pid(0, 1, 2)
-    root_pid_3 = :c.pid(0, 1, 3)
+      root_pid_1 = :c.pid(0, 1, 1)
+      root_pid_2 = :c.pid(0, 1, 2)
+      root_pid_3 = :c.pid(0, 1, 3)
 
-    transport_pid_1 = :c.pid(0, 7, 1)
-    transport_pid_2 = :c.pid(0, 7, 2)
+      transport_pid_1 = :c.pid(0, 7, 1)
+      transport_pid_2 = :c.pid(0, 7, 2)
 
-    lv_process_1 = %LvProcess{
-      pid: root_pid_1,
-      root_pid: root_pid_1,
-      transport_pid: transport_pid_1
-    }
+      lv_process_1 = %LvProcess{
+        pid: root_pid_1,
+        root_pid: root_pid_1,
+        parent_pid: nil,
+        transport_pid: transport_pid_1
+      }
 
-    lv_process_2 = %LvProcess{
-      pid: pid_1,
-      root_pid: root_pid_1,
-      transport_pid: transport_pid_1
-    }
+      lv_process_2 = %LvProcess{
+        pid: pid_1,
+        root_pid: root_pid_1,
+        parent_pid: root_pid_1,
+        transport_pid: transport_pid_1
+      }
 
-    lv_process_3 = %LvProcess{
-      pid: root_pid_2,
-      root_pid: root_pid_2,
-      transport_pid: transport_pid_2
-    }
+      lv_process_3 = %LvProcess{
+        pid: root_pid_2,
+        root_pid: root_pid_2,
+        parent_pid: nil,
+        transport_pid: transport_pid_2
+      }
 
-    lv_process_4 = %LvProcess{
-      pid: pid_2,
-      root_pid: root_pid_2,
-      transport_pid: transport_pid_2
-    }
+      lv_process_4 = %LvProcess{
+        pid: pid_2,
+        root_pid: root_pid_2,
+        parent_pid: root_pid_2,
+        transport_pid: transport_pid_2
+      }
 
-    lv_process_5 = %LvProcess{
-      pid: root_pid_3,
-      root_pid: root_pid_3,
-      transport_pid: transport_pid_2
-    }
+      lv_process_5 = %LvProcess{
+        pid: pid_3,
+        root_pid: root_pid_2,
+        parent_pid: pid_2,
+        transport_pid: transport_pid_2
+      }
 
-    assert %{
-             transport_pid_1 => %{
-               lv_process_1 => [lv_process_2]
-             },
-             transport_pid_2 => %{
-               lv_process_3 => [lv_process_4],
-               lv_process_5 => []
-             }
-           } ==
-             LiveViewDiscoveryImpl.group_lv_processes([
-               lv_process_1,
-               lv_process_2,
-               lv_process_3,
-               lv_process_4,
-               lv_process_5
-             ])
+      lv_process_6 = %LvProcess{
+        pid: root_pid_3,
+        root_pid: root_pid_3,
+        parent_pid: nil,
+        transport_pid: transport_pid_2
+      }
+
+      assert %{
+               transport_pid_1 => %{
+                 lv_process_1 => %{lv_process_2 => nil}
+               },
+               transport_pid_2 => %{
+                 lv_process_3 => %{lv_process_4 => %{lv_process_5 => nil}},
+                 lv_process_6 => nil
+               }
+             } ==
+               LiveViewDiscoveryImpl.group_lv_processes([
+                 lv_process_1,
+                 lv_process_2,
+                 lv_process_3,
+                 lv_process_4,
+                 lv_process_5,
+                 lv_process_6
+               ])
+    end
+
+    test "handles missing root LvProcess" do
+      pid_1 = :c.pid(0, 0, 1)
+      pid_2 = :c.pid(0, 0, 2)
+
+      root_pid = :c.pid(0, 1, 1)
+
+      transport_pid = :c.pid(0, 7, 1)
+
+      lv_process_1 = %LvProcess{
+        pid: pid_1,
+        root_pid: root_pid,
+        parent_pid: root_pid,
+        transport_pid: transport_pid
+      }
+
+      lv_process_2 = %LvProcess{
+        pid: pid_2,
+        root_pid: root_pid,
+        parent_pid: pid_1,
+        transport_pid: transport_pid
+      }
+
+      assert %{
+               transport_pid => %{
+                 lv_process_1 => nil,
+                 lv_process_2 => nil
+               }
+             } ==
+               LiveViewDiscoveryImpl.group_lv_processes([
+                 lv_process_1,
+                 lv_process_2
+               ])
+    end
   end
 
   test "lv_processes/0 returns all LiveView processes" do

@@ -1,5 +1,5 @@
 const SurveyBanner = {
-  counterThreshold: 100,
+  counterThreshold: 20,
   mounted() {
     if (localStorage.getItem('lvdbg:survey-dismissed-permanently')) return;
 

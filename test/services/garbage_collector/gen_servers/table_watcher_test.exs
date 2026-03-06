@@ -62,17 +62,19 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcherTest do
 
     test "for LiveViewDied event with no watchers" do
       pid = self()
+      tpid = :c.pid(0, 10, 0)
       state = %{pid => %ProcessInfo{alive?: true, watchers: MapSet.new()}}
-      event = %LiveViewDied{pid: pid}
+      event = %LiveViewDied{pid: pid, transport_pid: tpid}
 
       assert {:noreply, %{}} = TableWatcher.handle_info(event, state)
     end
 
     test "for LiveViewDied event with watchers" do
       pid = self()
+      tpid = :c.pid(0, 10, 0)
       watcher_pid = :c.pid(0, 12, 0)
       state = %{pid => %ProcessInfo{alive?: true, watchers: MapSet.new([watcher_pid])}}
-      event = %LiveViewDied{pid: pid}
+      event = %LiveViewDied{pid: pid, transport_pid: tpid}
 
       assert {:noreply, new_state} = TableWatcher.handle_info(event, state)
 
@@ -86,7 +88,11 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcherTest do
       debugger_pid = :c.pid(0, 12, 0)
       state = %{debugged_pid => %ProcessInfo{alive?: true, watchers: MapSet.new()}}
 
-      event = %DebuggerMounted{debugged_pid: debugged_pid, debugger_pid: debugger_pid}
+      event = %DebuggerMounted{
+        debugged_pid: debugged_pid,
+        debugger_pid: debugger_pid,
+        debugged_transport_pid: nil
+      }
 
       assert {:noreply, new_state} = TableWatcher.handle_info(event, state)
 
@@ -100,7 +106,11 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcherTest do
       debugger_pid = :c.pid(0, 12, 0)
       state = %{}
 
-      event = %DebuggerMounted{debugged_pid: debugged_pid, debugger_pid: debugger_pid}
+      event = %DebuggerMounted{
+        debugged_pid: debugged_pid,
+        debugger_pid: debugger_pid,
+        debugged_transport_pid: nil
+      }
 
       assert {:noreply, new_state} = TableWatcher.handle_info(event, state)
 
@@ -113,7 +123,12 @@ defmodule LiveDebugger.Services.GarbageCollector.GenServers.TableWatcherTest do
       debugged_pid = spawn(fn -> :ok end)
       debugger_pid = :c.pid(0, 12, 0)
       state = %{}
-      event = %DebuggerMounted{debugged_pid: debugged_pid, debugger_pid: debugger_pid}
+
+      event = %DebuggerMounted{
+        debugged_pid: debugged_pid,
+        debugger_pid: debugger_pid,
+        debugged_transport_pid: nil
+      }
 
       Process.exit(debugged_pid, :normal)
       Process.sleep(100)

@@ -5,6 +5,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   use GenServer
 
+  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace, as: TraceActions
   alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
@@ -64,27 +65,28 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   #
   #########################################################
 
-  @impl true
-  def handle_cast(
-        {:new_trace,
-         {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, ts}, n},
-        state
-      ) do
-    Task.start(fn ->
-      with {:ok, trace} <- TraceActions.create_delete_component_trace(n, args, pid, cid, ts),
-           :ok <- StateActions.maybe_save_state!(trace),
-           :ok <- TraceActions.publish_trace(trace) do
-        :ok
-      else
-        :live_debugger_trace ->
+  if not Versions.live_component_destroyed_telemetry_supported?() do
+    def handle_cast(
+          {:new_trace,
+           {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, ts}, n},
+          state
+        ) do
+      Task.start(fn ->
+        with {:ok, trace} <- TraceActions.create_delete_component_trace(n, args, pid, cid, ts),
+             :ok <- StateActions.maybe_save_state!(trace),
+             :ok <- TraceActions.publish_trace(trace) do
           :ok
+        else
+          :live_debugger_trace ->
+            :ok
 
-        {:error, err} ->
-          raise "Error while handling trace: #{inspect(err)}"
-      end
-    end)
+          {:error, err} ->
+            raise "Error while handling trace: #{inspect(err)}"
+        end
+      end)
 
-    {:noreply, state}
+      {:noreply, state}
+    end
   end
 
   #########################################################
@@ -97,6 +99,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   #
   #########################################################
 
+  @impl true
   def handle_cast({:new_trace, {_, pid, :call, {module, fun, args}, ts}, n}, state)
       when fun in @allowed_callbacks do
     with {:ok, trace} <- TraceActions.create_trace(n, module, fun, args, pid, ts),
