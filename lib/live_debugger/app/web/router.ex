@@ -19,7 +19,7 @@ defmodule LiveDebugger.App.Web.Router do
     plug(App.Web.Plugs.AllowIframe)
   end
 
-  scope "/", App do
+  scope "/", App, log: false do
     pipe_through([:dbg_browser])
 
     get("/redirect/:socket_id", Controllers.SocketDiscoveryController, :redirect)
