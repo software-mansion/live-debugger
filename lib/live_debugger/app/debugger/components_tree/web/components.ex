@@ -141,7 +141,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
         <.checkbox field={@field} label={node_label(@tree_node)} wrapper_class={["py-1"]} />
       </div>
       <%= for child <- @tree_node.children do %>
-        <.filters_tree_node tree_node={child} form={@form} level={@level + 4} />
+        <.filters_tree_node tree_node={child} form={@form} level={@level + 3} />
       <% end %>
     </div>
     """

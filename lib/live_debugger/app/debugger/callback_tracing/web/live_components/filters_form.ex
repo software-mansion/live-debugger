@@ -54,7 +54,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     |> assign(:revert_button_visible?, revert_button_visible?)
     |> assign(:default_filters, FiltersHelpers.default_filters(assigns.node_id))
     |> assign(:tree, nil)
-    |> assign_form(assigns.filters)
+    |> assign_form(active_filters)
     |> maybe_assign_async_tree_form(active_filters, assigns.node_id)
     |> ok()
   end
@@ -94,20 +94,14 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
                   }
                 />
               </:label>
-              <div class="flex flex-col gap-3 pb-4 ">
-                <div class="flex flex-col">
-                  <div class="flex flex-col gap-3 pb-4 ">
-                    <div class="flex flex-col gap-1 pb-4">
-                      <%= if @tree do %>
-                        <Components.filters_tree_node tree_node={@tree} form={@form} level={0} />
-                      <% else %>
-                        <div class="text-sm text-gray-500 italic animate-pulse">
-                          Loading components tree...
-                        </div>
-                      <% end %>
-                    </div>
+              <div class="flex flex-col gap-1 pb-4">
+                <%= if @tree do %>
+                  <Components.filters_tree_node tree_node={@tree} form={@form} level={0} />
+                <% else %>
+                  <div class="text-sm text-secondary-text animate-pulse">
+                    Loading components tree...
                   </div>
-                </div>
+                <% end %>
               </div>
             </.collapsible>
           </div>

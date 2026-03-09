@@ -511,10 +511,10 @@ defmodule LiveDebugger.API.TracesStorage do
 
     defp decode_components(components) do
       components
-      |> Enum.map(fn encoded_component ->
+      |> Enum.flat_map(fn encoded_component ->
         case Base.decode64(encoded_component) do
-          {:ok, decoded} -> :erlang.binary_to_term(decoded)
-          _ -> encoded_component
+          {:ok, decoded} -> [:erlang.binary_to_term(decoded)]
+          _ -> []
         end
       end)
     end

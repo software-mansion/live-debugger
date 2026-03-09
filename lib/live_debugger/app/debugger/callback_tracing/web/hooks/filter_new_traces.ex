@@ -121,11 +121,16 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
            cid: cid
          }
        ) do
+    components = socket.assigns.current_filters.components
     id = cid || pid
     encoded_id = FiltersHelpers.encode_component_id(id)
+    all = FiltersHelpers.all_components()
 
-    socket.assigns.current_filters.components[encoded_id] ||
-      socket.assigns.current_filters.components[FiltersHelpers.all_components()]
+    case components do
+      %{^encoded_id => val} -> val
+      %{^all => val} -> val
+      _ -> true
+    end
   end
 
   defp matches_components_filter?(
