@@ -5,8 +5,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
 
   use LiveDebugger.App.Web, :hook_component
 
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
 
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.TraceSettings
@@ -27,7 +27,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
 
   attr(:node_id, :any, default: nil)
   attr(:current_filters, :map, required: true)
-  # attr(:lv_process, LvProcess, required: true)
 
   @impl true
   def render(assigns) do

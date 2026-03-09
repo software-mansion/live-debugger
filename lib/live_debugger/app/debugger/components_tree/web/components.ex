@@ -102,21 +102,20 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
   ## Examples
 
       <.ComponentsTree.Web.Components.filters_tree_node
-        id="tree-id"
         tree_node={@tree}
-        selected_node_id={@selected_node_id}
-        max_opened_node_level={2}
+        form={@form}
+        level={3}
       />
 
   """
+
+  attr(:tree_node, TreeNode, required: true, doc: "TreeNode struct")
+  attr(:form, Phoenix.HTML.Form, required: true)
 
   attr(:level, :integer,
     default: 0,
     doc: "The level of the node in the tree. Used for indentation and recursive rendering."
   )
-
-  attr(:tree_node, TreeNode, required: true, doc: "TreeNode struct")
-  attr(:form, Phoenix.HTML.Form, required: true)
 
   def filters_tree_node(assigns) do
     field = assigns.form[FiltersHelpers.encode_component_id(assigns.tree_node.id)]
