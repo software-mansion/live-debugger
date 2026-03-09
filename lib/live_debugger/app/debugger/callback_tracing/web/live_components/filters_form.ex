@@ -119,7 +119,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
                   }
                 />
               </:label>
-              <div class="flex flex-col gap-3 pb-4 ">
+              <div class="flex flex-col gap-3 pb-4">
                 <.checkbox
                   :for={callback <- FiltersHelpers.get_callbacks(@node_id)}
                   field={@form[callback]}
@@ -296,11 +296,16 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
 
     new_params = Map.merge(socket.assigns.form.params, filters_tree)
 
+    active_filters =
+      Map.put(socket.assigns.active_filters, :components, filters_tree)
+
+    send(self(), {:filters_updated, active_filters})
+
     socket
     |> assign(:tree, tree)
     |> assign(
       :active_filters,
-      Map.put(socket.assigns.active_filters, :components, filters_tree)
+      active_filters
     )
     |> assign(
       :default_filters,
