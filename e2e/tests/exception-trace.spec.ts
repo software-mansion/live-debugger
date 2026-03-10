@@ -3,6 +3,7 @@ import {
   findClearTracesButton,
   findSwitchTracingButton,
   findFiltersButton,
+  findNodeInspectorButton,
   prepareDevDebuggerPairTest,
   Page,
 } from './dev-dbg-test';
@@ -14,9 +15,6 @@ const findTraces = (page: Page) =>
 
 const findGlobalCallbackTracesButton = (page: Page) =>
   page.locator('#global-traces-navbar-item a');
-
-const findNodeInspectorButton = (page: Page) =>
-  page.locator('#node-inspector-navbar-item a');
 
 const findCrashModule = (page: Page) =>
   page.locator(
