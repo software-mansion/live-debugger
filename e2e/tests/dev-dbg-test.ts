@@ -43,4 +43,10 @@ export const findRefreshTracesButton = (page: Page) =>
 export const findFiltersButton = (page: Page) =>
   page.locator('button[aria-label="Open filters"]');
 
+export const getDevPid = async (page: Page) => {
+  const text = await page.getByText(/Current PID:/).innerText();
+  return text.replace('Current PID:', '').trim();
+};
+
+export const returnButton = (page: Page) => page.locator('#return-button');
 export { expect, Page } from '@playwright/test';
