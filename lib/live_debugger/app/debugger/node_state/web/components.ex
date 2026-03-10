@@ -258,16 +258,16 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
     <div id={@id}>
       <.section_title name="Current assigns">
         <:right>
-          <AssignsHistory.button />
+          <AssignsHistory.button id={@id <> "-history"} />
           <div class="flex">
             <.copy_button
-              id="assigns-copy-button"
+              id={"assigns-copy-button" <> "-" <> @id}
               variant="icon-button"
               value={@copy_string}
               class="rounded-e-none! border-r-0!"
             />
             <.copy_button
-              id="json-assigns-copy-button"
+              id={"json-assigns-copy-button" <> "-" <> @id}
               variant="button"
               text="JSON"
               value={@json_string}

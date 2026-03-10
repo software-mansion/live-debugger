@@ -81,11 +81,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.HookComponents.AssignsHistory 
     """
   end
 
+  attr(:id, :string, default: nil)
+
   def button(assigns) do
-    assigns = assign(assigns, id: @assigns_history_id)
+    assigns = assign(assigns, id: if(assigns.id, do: assigns.id, else: @assigns_history_id))
 
     ~H"""
-    <.tooltip id="open-assigns-history-tooltip" content="Assigns history" position="top-center">
+    <.tooltip id={@id <> "-tooltip"} content="Assigns history" position="top-center">
       <.icon_button
         id={"#{@id}-button"}
         phx-click="open-assigns-history"
