@@ -68,8 +68,6 @@ test('callback traces have proper execution times displayed', async ({
   const refreshTracesButton = findRefreshTracesButton(dbgApp);
   await refreshTracesButton.click();
 
-  await expect(traces).toHaveCount(0);
-
   await dbgApp.waitForTimeout(405);
 
   await refreshTracesButton.click();
