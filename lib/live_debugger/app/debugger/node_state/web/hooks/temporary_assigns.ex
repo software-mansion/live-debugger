@@ -26,7 +26,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.TemporaryAssigns do
     |> assign_async_temporary_assigns()
   end
 
-  @spec assign_async_temporary_assigns(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
+  @spec assign_async_temporary_assigns(Phoenix.LiveView.Socket.t(), Keyword.t()) ::
+          Phoenix.LiveView.Socket.t()
   def assign_async_temporary_assigns(socket, opts \\ []) do
     pid = socket.assigns.lv_process.pid
     node_id = socket.assigns.node_id

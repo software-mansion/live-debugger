@@ -114,9 +114,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   attr(:name, :string, required: true)
   attr(:icon, :string, default: nil)
-  slot(:right)
 
-  slot(:right_panel)
+  slot(:right)
 
   defp section_title(assigns) do
     ~H"""
@@ -203,7 +202,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         <:right :if={@has_temporary_assigns}>
           <.tooltip
             id={@id <> "-tooltip"}
-            content="Displayed values of temporary assigns are last recorded values of each assign"
+            content="Displayed temporary assigns values are the last recorded values for each assign"
             position="top-center"
           >
             <.icon name="icon-info" class="w-4 h-4 bg-button-secondary-content" />
