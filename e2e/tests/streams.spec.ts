@@ -5,27 +5,41 @@ const testStream = prepareDevDebuggerPairTest('/stream');
 const testRoot = prepareDevDebuggerPairTest('/');
 
 const createItemBtn = (page: Page) => page.locator('button#create-item');
-const createAnotherItemBtn = (page: Page) => page.locator('button#create-another-item');
+const createAnotherItemBtn = (page: Page) =>
+  page.locator('button#create-another-item');
 const resetItemsBtn = (page: Page) => page.locator('button#reset-items');
 const deleteItemBtn = (page: Page) => page.locator('button#delete-item');
 const addNewStreamBtn = (page: Page) => page.locator('button#add-new-stream');
 
-const streamsDisplay = (page: Page) => page.locator('#streams-display-container');
-const streamsCollapsible = (page: Page) => page.locator('summary#streams-section-container-summary');
+const streamsDisplay = (page: Page) =>
+  page.locator('#streams-display-container');
+const streamsCollapsible = (page: Page) =>
+  page.locator('summary#streams-section-container-summary');
 
 const itemsDisplay = (page: Page) => page.locator('#items-display');
-const anotherItemsDisplay = (page: Page) => page.locator('#another_items-display');
+const anotherItemsDisplay = (page: Page) =>
+  page.locator('#another_items-display');
 const newItemsDisplay = (page: Page) => page.locator('#new_items-display');
-const componentItemsDisplay = (page: Page) => page.locator('#component_items-display');
+const componentItemsDisplay = (page: Page) =>
+  page.locator('#component_items-display');
 
-const itemsStreamDetails = (page: Page) => page.locator('#items-stream > details');
-const anotherItemsStreamDetails = (page: Page) => page.locator('#another_items-stream > details');
-const componentItemsStreamDetails = (page: Page) => page.locator('#component_items-stream > details');
+const itemsStreamDetails = (page: Page) =>
+  page.locator('#items-stream > details');
+const anotherItemsStreamDetails = (page: Page) =>
+  page.locator('#another_items-stream > details');
+const componentItemsStreamDetails = (page: Page) =>
+  page.locator('#component_items-stream > details');
 
-const componentTreeNode = (page: Page, cid: number) => page.locator(`#button-tree-node-${cid}-components-tree`);
-const nodeModuleInfo = (page: Page) => page.locator('#node-inspector-basic-info-current-node-module');
+const componentTreeNode = (page: Page, cid: number) =>
+  page.locator(`#button-tree-node-${cid}-components-tree`);
+const nodeModuleInfo = (page: Page) =>
+  page.locator('#node-inspector-basic-info-current-node-module');
 
-const setCollapsibleOpenState = async (page: Page, sectionId: string, state: string) => {
+const setCollapsibleOpenState = async (
+  page: Page,
+  sectionId: string,
+  state: string
+) => {
   await page.evaluate(
     ([id, st]) => localStorage.setItem(`lvdbg:collapsible-open-${id}`, st),
     [sectionId, state]
@@ -33,112 +47,123 @@ const setCollapsibleOpenState = async (page: Page, sectionId: string, state: str
 };
 
 testStream.describe('LiveDebugger Streams', () => {
-  
   testStream.beforeEach(async ({ dbgApp }) => {
     await setCollapsibleOpenState(dbgApp, 'streams-section-container', 'true');
-    await dbgApp.reload(); 
+    await dbgApp.reload();
   });
 
-  testStream('User can see modifications of the stream updates', async ({ devApp, dbgApp }) => {
-    await expect(itemsDisplay(dbgApp)).toBeVisible();
-    await itemsDisplay(dbgApp).click();
-    
-    await expect(anotherItemsDisplay(dbgApp)).toBeVisible();
-    await anotherItemsDisplay(dbgApp).click();
+  testStream(
+    'User can see modifications of the stream updates',
+    async ({ devApp, dbgApp }) => {
+      await expect(itemsDisplay(dbgApp)).toBeVisible();
+      await itemsDisplay(dbgApp).click();
 
-    await createItemBtn(devApp).click();
-    await createItemBtn(devApp).click();
-    await createAnotherItemBtn(devApp).click();
+      await expect(anotherItemsDisplay(dbgApp)).toBeVisible();
+      await anotherItemsDisplay(dbgApp).click();
 
-    await expect(anotherItemsStreamDetails(dbgApp)).toHaveCount(1);
-    await expect(itemsStreamDetails(dbgApp)).toHaveCount(2);
+      await createItemBtn(devApp).click();
+      await createItemBtn(devApp).click();
+      await createAnotherItemBtn(devApp).click();
 
-    await resetItemsBtn(devApp).click();
+      await expect(anotherItemsStreamDetails(dbgApp)).toHaveCount(1);
+      await expect(itemsStreamDetails(dbgApp)).toHaveCount(2);
 
-    await expect(itemsStreamDetails(dbgApp)).toHaveCount(0);
+      await resetItemsBtn(devApp).click();
 
-    await createItemBtn(devApp).click();
-    await createItemBtn(devApp).click();
-    await createItemBtn(devApp).click();
-    await createItemBtn(devApp).click();
-    await deleteItemBtn(devApp).click();
+      await expect(itemsStreamDetails(dbgApp)).toHaveCount(0);
 
-    await expect(itemsStreamDetails(dbgApp)).toHaveCount(3);
+      await createItemBtn(devApp).click();
+      await createItemBtn(devApp).click();
+      await createItemBtn(devApp).click();
+      await createItemBtn(devApp).click();
+      await deleteItemBtn(devApp).click();
 
-    await addNewStreamBtn(devApp).click();
+      await expect(itemsStreamDetails(dbgApp)).toHaveCount(3);
 
-    await expect(newItemsDisplay(dbgApp)).toBeVisible();
-  });
+      await addNewStreamBtn(devApp).click();
 
-  testStream('User can see streams in LiveView and LiveComponents', async ({ devApp, dbgApp }) => {
-    await createItemBtn(devApp).click();
+      await expect(newItemsDisplay(dbgApp)).toBeVisible();
+    }
+  );
 
-    await expect(itemsDisplay(dbgApp)).toBeVisible();
-    await itemsDisplay(dbgApp).click();
-    
-    await expect(anotherItemsDisplay(dbgApp)).toBeVisible();
-    await anotherItemsDisplay(dbgApp).click();
+  testStream(
+    'User can see streams in LiveView and LiveComponents',
+    async ({ devApp, dbgApp }) => {
+      await createItemBtn(devApp).click();
 
-    await componentTreeNode(dbgApp, 1).click();
-    
-    await expect(nodeModuleInfo(dbgApp)).toContainText('StreamComponent');
-    await expect(componentItemsDisplay(dbgApp)).toBeVisible();
-    
-    await componentItemsDisplay(dbgApp).click();
-    
-    await expect(componentItemsStreamDetails(dbgApp)).toHaveCount(3);
-  });
+      await expect(itemsDisplay(dbgApp)).toBeVisible();
+      await itemsDisplay(dbgApp).click();
+
+      await expect(anotherItemsDisplay(dbgApp)).toBeVisible();
+      await anotherItemsDisplay(dbgApp).click();
+
+      await componentTreeNode(dbgApp, 1).click();
+
+      await expect(nodeModuleInfo(dbgApp)).toContainText('StreamComponent');
+      await expect(componentItemsDisplay(dbgApp)).toBeVisible();
+
+      await componentItemsDisplay(dbgApp).click();
+
+      await expect(componentItemsStreamDetails(dbgApp)).toHaveCount(3);
+    }
+  );
 
   testStream('collapsible state stays after navigation', async ({ dbgApp }) => {
     await expect(streamsDisplay(dbgApp)).toBeVisible();
-    
+
     await streamsCollapsible(dbgApp).click();
     await expect(streamsDisplay(dbgApp)).not.toBeVisible();
 
-    await dbgApp.reload(); 
+    await dbgApp.reload();
     await expect(streamsDisplay(dbgApp)).not.toBeVisible();
-    
+
     await streamsCollapsible(dbgApp).click();
     await expect(streamsDisplay(dbgApp)).toBeVisible();
   });
 });
 
-baseTest('User can see modifications to the stream that occurred before it was rendered in debugger.', async ({ page, context }) => {
-  const devApp = page;
-  await devApp.goto('/stream');
+baseTest(
+  'User can see modifications to the stream that occurred before it was rendered in debugger.',
+  async ({ page, context }) => {
+    const devApp = page;
+    await devApp.goto('/stream');
 
-  await createItemBtn(devApp).click();
-  await createItemBtn(devApp).click();
-  await resetItemsBtn(devApp).click();
-  await createItemBtn(devApp).click();
-  await createItemBtn(devApp).click();
-  await deleteItemBtn(devApp).click();
-  await createAnotherItemBtn(devApp).click();
-  await createAnotherItemBtn(devApp).click();
-  await addNewStreamBtn(devApp).click();
+    await createItemBtn(devApp).click();
+    await createItemBtn(devApp).click();
+    await resetItemsBtn(devApp).click();
+    await createItemBtn(devApp).click();
+    await createItemBtn(devApp).click();
+    await deleteItemBtn(devApp).click();
+    await createAnotherItemBtn(devApp).click();
+    await createAnotherItemBtn(devApp).click();
+    await addNewStreamBtn(devApp).click();
 
-  await devApp.locator('#live-debugger-debug-button').click();
-  const dbgAppPromise = context.waitForEvent('page');
-  await devApp.getByText('Open in new tab').click();
-  const dbgApp = await dbgAppPromise;
+    await devApp.locator('#live-debugger-debug-button').click();
+    const dbgAppPromise = context.waitForEvent('page');
+    await devApp.getByText('Open in new tab').click();
+    const dbgApp = await dbgAppPromise;
 
-  await setCollapsibleOpenState(dbgApp, 'streams-section-container', 'true');
-  await dbgApp.reload();
+    await setCollapsibleOpenState(dbgApp, 'streams-section-container', 'true');
+    await dbgApp.reload();
 
-  await expect(itemsDisplay(dbgApp)).toBeVisible();
-  await itemsDisplay(dbgApp).click();
-  
-  await expect(anotherItemsDisplay(dbgApp)).toBeVisible();
-  await anotherItemsDisplay(dbgApp).click();
-  
-  await expect(newItemsDisplay(dbgApp)).toBeVisible();
+    await expect(itemsDisplay(dbgApp)).toBeVisible();
+    await itemsDisplay(dbgApp).click();
 
-  await expect(anotherItemsStreamDetails(dbgApp)).toHaveCount(2);
-  await expect(itemsStreamDetails(dbgApp)).toHaveCount(1);
-});
+    await expect(anotherItemsDisplay(dbgApp)).toBeVisible();
+    await anotherItemsDisplay(dbgApp).click();
+
+    await expect(newItemsDisplay(dbgApp)).toBeVisible();
+
+    await expect(anotherItemsStreamDetails(dbgApp)).toHaveCount(2);
+    await expect(itemsStreamDetails(dbgApp)).toHaveCount(1);
+  }
+);
 
 testRoot.describe('LiveDebugger Default Root', () => {
-  testRoot('User dont see streams section if there are no streams', async ({ dbgApp }) => {
-    await expect(streamsDisplay(dbgApp)).not.toBeVisible();
-  });
+  testRoot(
+    'User dont see streams section if there are no streams',
+    async ({ dbgApp }) => {
+      await expect(streamsDisplay(dbgApp)).not.toBeVisible();
+    }
+  );
 });
