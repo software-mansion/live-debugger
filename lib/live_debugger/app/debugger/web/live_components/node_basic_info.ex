@@ -109,29 +109,24 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               </.button>
 
               <div class="flex flex-row items-center gap-2">
-                <.button
-                  disabled={!@elixir_editor}
-                  class="shrink-0"
-                  variant="secondary"
-                  id="open-in-editor"
-                  size="sm"
-                  phx-click="open-in-editor"
-                  phx-target={@myself}
-                  phx-value-file={node_module.module_path}
-                  phx-value-line={node_module.line}
-                >
-                  <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
-                </.button>
-
                 <.tooltip
+                  :if={!@elixir_editor}
                   id={@id <> "-env-not-set"}
                   content="Cannot open in editor? Click to see the documentation."
                 >
-                  <span :if={!@elixir_editor} class="text-error-text">
-                    <.link href={@editor_docs_url} target="_blank">
-                      <.icon name="icon-info" class="w-4 h-4" />
-                    </.link>
-                  </span>
+                  <.button
+                    disabled={!@elixir_editor}
+                    class="shrink-0"
+                    variant="secondary"
+                    id="open-in-editor"
+                    size="sm"
+                    phx-click="open-in-editor"
+                    phx-target={@myself}
+                    phx-value-file={node_module.module_path}
+                    phx-value-line={node_module.line}
+                  >
+                    <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
+                  </.button>
                 </.tooltip>
               </div>
             </div>
