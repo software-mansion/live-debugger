@@ -45,6 +45,8 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   @impl true
   def render(assigns) do
+    assigns = assign(assigns, :elixir_editor, nil)
+
     ~H"""
     <div
       id={@id}
@@ -116,7 +118,11 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
                 >
                   <.open_in_editor_button node_module={node_module} myself={@myself} disabled?={true} />
                 </.tooltip>
-                <.open_in_editor_button node_module={node_module} myself={@myself} />
+                <.open_in_editor_button
+                  :if={@elixir_editor}
+                  node_module={node_module}
+                  myself={@myself}
+                />
               </div>
             </div>
 
