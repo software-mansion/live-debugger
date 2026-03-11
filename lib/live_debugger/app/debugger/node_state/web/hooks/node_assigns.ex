@@ -77,14 +77,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Hooks.NodeAssigns do
     |> start_async(:fetch_node_assigns, fn ->
       # Small sleep serves here as a debounce mechanism
       Process.sleep(100)
-
-      temporary_assigns_keys =
-        case NodeStateQueries.fetch_node_temporary_assigns(pid, node_id) do
-          {:ok, temp_assigns} when is_map(temp_assigns) -> Map.keys(temp_assigns)
-          _ -> []
-        end
-
-      NodeStateQueries.fetch_node_assigns(pid, node_id, temporary_assigns_keys)
+      NodeStateQueries.fetch_node_assigns(pid, node_id)
     end)
   end
 

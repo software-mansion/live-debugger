@@ -15,26 +15,27 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
 
   @exclude_from_assigns [:__changed__]
 
-  @spec fetch_node_assigns(pid(), TreeNode.id(), [atom()]) :: {:ok, map()} | {:error, term()}
-  def fetch_node_assigns(pid, node_id, exclude \\ [])
-
-  def fetch_node_assigns(pid, node_id, exclude) when is_pid(node_id) do
+  @spec fetch_node_assigns(pid(), TreeNode.id()) :: {:ok, map()} | {:error, term()}
+  def fetch_node_assigns(pid, node_id) when is_pid(node_id) do
     case fetch_node_state(pid) do
       {:ok, %LvState{socket: %{assigns: assigns}}} ->
-        {:ok, Map.drop(assigns, exclude ++ @exclude_from_assigns)}
+        exclude = fetch_temporary_assigns_keys(pid, node_id) ++ @exclude_from_assigns
+        {:ok, Map.drop(assigns, exclude)}
 
       {:error, reason} ->
         {:error, reason}
     end
   end
 
-  def fetch_node_assigns(pid, %Phoenix.LiveComponent.CID{} = cid, exclude) do
+  def fetch_node_assigns(pid, %Phoenix.LiveComponent.CID{} = cid) do
     case fetch_node_state(pid) do
       {:ok, %LvState{components: components}} ->
+        exclude = fetch_temporary_assigns_keys(pid, cid) ++ @exclude_from_assigns
+
         components
         |> get_component_assigns(cid)
         |> case do
-          {:ok, assigns} -> {:ok, Map.drop(assigns, exclude ++ @exclude_from_assigns)}
+          {:ok, assigns} -> {:ok, Map.drop(assigns, exclude)}
           other -> other
         end
 
@@ -110,6 +111,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.Queries do
 
       %{assigns: assigns} ->
         {:ok, assigns}
+    end
+  end
+
+  defp fetch_temporary_assigns_keys(pid, node_id) do
+    case fetch_node_temporary_assigns(pid, node_id) do
+      {:ok, temp_assigns} when is_map(temp_assigns) -> Map.keys(temp_assigns)
+      _ -> []
     end
   end
 end
