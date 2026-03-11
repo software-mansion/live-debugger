@@ -28,7 +28,7 @@ defmodule LiveDebugger do
 
   def update_live_debugger_tags() do
     config = Application.get_all_env(@app_name)
-    endpoint_config = Application.get_env(@app_name, LiveDebugger.App.Web.Endpoint, [])
+    endpoint_config = Keyword.get(config, LiveDebugger.App.Web.Endpoint, [])
 
     resolved_port =
       get_in(endpoint_config, [:http, :port]) || Keyword.get(config, :port, @default_port)
@@ -101,7 +101,7 @@ defmodule LiveDebugger do
     resolved_port
   end
 
-  defp find_available_port(_ip, port) when port > 65535, do: port
+  defp find_available_port(_ip, port) when port > 65_535, do: port
 
   defp find_available_port(ip, port) do
     case :gen_tcp.listen(port, [:inet, {:ip, ip}]) do

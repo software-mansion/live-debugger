@@ -19,13 +19,17 @@ defmodule LiveDebugger.App.Web.EndpointStarter do
         {:ok, pid}
 
       {:error, reason} ->
-        Logger.error(
-          "LiveDebugger failed to start: #{inspect(reason)}. " <>
-            "LiveDebugger will be unavailable. " <>
-            "To disable LiveDebugger entirely, set `config :live_debugger, disabled?: true`."
-        )
+        if Application.get_env(:live_debugger, :ignore_startup_errors, false) do
+          Logger.error(
+            "LiveDebugger failed to start: #{inspect(reason)}. " <>
+              "LiveDebugger will be unavailable. " <>
+              "To disable LiveDebugger entirely, set `config :live_debugger, disabled?: true`."
+          )
 
-        :ignore
+          :ignore
+        else
+          {:error, reason}
+        end
     end
   end
 end
