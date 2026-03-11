@@ -114,20 +114,9 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
                   id={@id <> "-env-not-set"}
                   content="Cannot open in editor? Click to see the documentation."
                 >
-                  <.button
-                    disabled={!@elixir_editor}
-                    class="shrink-0"
-                    variant="secondary"
-                    id="open-in-editor"
-                    size="sm"
-                    phx-click="open-in-editor"
-                    phx-target={@myself}
-                    phx-value-file={node_module.module_path}
-                    phx-value-line={node_module.line}
-                  >
-                    <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
-                  </.button>
+                  <.open_in_editor_button node_module={node_module} myself={@myself} disabled?={true} />
                 </.tooltip>
+                <.open_in_editor_button node_module={node_module} myself={@myself} />
               </div>
             </div>
 
@@ -181,6 +170,28 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
     end)
 
     {:noreply, socket}
+  end
+
+  attr(:node_module, :map, required: true)
+  attr(:disabled?, :boolean, default: false)
+  attr(:myself, :any, required: true)
+
+  defp open_in_editor_button(assigns) do
+    ~H"""
+    <.button
+      disabled={@disabled?}
+      class="shrink-0"
+      variant="secondary"
+      id="open-in-editor"
+      size="sm"
+      phx-click="open-in-editor"
+      phx-target={@myself}
+      phx-value-file={@node_module.module_path}
+      phx-value-line={@node_module.line}
+    >
+      <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
+    </.button>
+    """
   end
 
   defp assign_node_type(socket) do
