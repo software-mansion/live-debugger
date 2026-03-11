@@ -45,8 +45,6 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   @impl true
   def render(assigns) do
-    assigns = assign(assigns, :elixir_editor, nil)
-
     ~H"""
     <div
       id={@id}
