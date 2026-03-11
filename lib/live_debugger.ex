@@ -27,9 +27,13 @@ defmodule LiveDebugger do
   end
 
   def update_live_debugger_tags() do
-    @app_name
-    |> Application.get_all_env()
-    |> put_live_debugger_tags()
+    config = Application.get_all_env(@app_name)
+    endpoint_config = Application.get_env(@app_name, LiveDebugger.App.Web.Endpoint, [])
+
+    resolved_port =
+      get_in(endpoint_config, [:http, :port]) || Keyword.get(config, :port, @default_port)
+
+    put_live_debugger_tags(config, resolved_port)
   end
 
   defp get_children() do
@@ -41,8 +45,8 @@ defmodule LiveDebugger do
       LiveDebugger.API.StatesStorage.init()
 
       config = Application.get_all_env(@app_name)
-      put_endpoint_config(config)
-      put_live_debugger_tags(config)
+      resolved_port = put_endpoint_config(config)
+      put_live_debugger_tags(config, resolved_port)
 
       []
       |> LiveDebugger.App.append_app_children()
@@ -59,11 +63,22 @@ defmodule LiveDebugger do
   end
 
   defp put_endpoint_config(config) do
+    ip = Keyword.get(config, :ip, @default_ip)
+    port = Keyword.get(config, :port, @default_port)
+    auto_port? = Keyword.get(config, :auto_port, false)
+
+    resolved_port =
+      if auto_port? and is_integer(port) and port > 0 do
+        find_available_port(ip, port)
+      else
+        port
+      end
+
     endpoint_config =
       [
         http: [
-          ip: Keyword.get(config, :ip, @default_ip),
-          port: Keyword.get(config, :port, @default_port)
+          ip: ip,
+          port: resolved_port
         ],
         secret_key_base: Keyword.get(config, :secret_key_base, @default_secret_key_base),
         live_view: [signing_salt: Keyword.get(config, :signing_salt, @default_signing_salt)],
@@ -82,15 +97,32 @@ defmodule LiveDebugger do
       end
 
     Application.put_env(@app_name, LiveDebugger.App.Web.Endpoint, endpoint_config)
+
+    resolved_port
   end
 
-  defp put_live_debugger_tags(config) do
-    port = Keyword.get(config, :port, @default_port)
+  defp find_available_port(_ip, port) when port > 65535, do: port
 
+  defp find_available_port(ip, port) do
+    case :gen_tcp.listen(port, [:inet, {:ip, ip}]) do
+      {:ok, socket} ->
+        :gen_tcp.close(socket)
+        port
+
+      {:error, :eaddrinuse} ->
+        Logger.warning("LiveDebugger: port #{port} is already in use, trying #{port + 1}")
+        find_available_port(ip, port + 1)
+
+      {:error, _} ->
+        port
+    end
+  end
+
+  defp put_live_debugger_tags(config, resolved_port) do
     default_url =
       case Keyword.get(config, :ip, @default_ip) do
         {:local, _path} -> nil
-        ip_tuple -> "http://#{ip_tuple |> :inet.ntoa() |> List.to_string()}:#{port}"
+        ip_tuple -> "http://#{ip_tuple |> :inet.ntoa() |> List.to_string()}:#{resolved_port}"
       end
 
     live_debugger_url = Keyword.get(config, :external_url, default_url)
