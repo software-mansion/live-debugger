@@ -13,7 +13,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
   alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
   alias LiveDebugger.Services.CallbackTracer.Events.TraceExceptionUpdated
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
+  alias LiveDebugger.App.Debugger.CallbackTracing.ComponentId
   alias LiveDebugger.App.Web.Helpers.Routes
   alias LiveDebugger.App.Web.Hooks.Flash.ExceptionFlashData
 
@@ -123,8 +123,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
        ) do
     components = socket.assigns.current_filters.components
     id = cid || pid
-    encoded_id = FiltersHelpers.encode_component_id(id)
-    all = FiltersHelpers.all_components()
+    encoded_id = ComponentId.encode(id)
+    all = ComponentId.all()
 
     case components do
       %{^encoded_id => val} -> val

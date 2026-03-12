@@ -8,6 +8,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
   alias LiveDebugger.Utils.Callbacks, as: CallbacksUtils
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Debugger.Structs.TreeNode
+  alias LiveDebugger.App.Debugger.CallbackTracing.ComponentId
 
   @doc """
   Returns a list of formatted callbacks for the given node id.
@@ -48,7 +49,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
       functions: callbacks,
       execution_time: execution_time,
       other_filters: other_filters,
-      components: %{encode_component_id(:all) => true}
+      components: %{ComponentId.all() => true}
     }
   end
 
@@ -171,14 +172,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
   @spec get_trace_diffs(%{other_filters: map()}) :: boolean()
   def get_trace_diffs(%{other_filters: %{"trace_diffs" => trace_diffs}}) do
     trace_diffs
-  end
-
-  @spec encode_component_id(pid() | Phoenix.LiveComponent.CID.t() | atom()) :: binary()
-  def encode_component_id(id), do: id |> :erlang.term_to_binary() |> Base.encode64()
-
-  @spec all_components() :: String.t()
-  def all_components do
-    encode_component_id(:all)
   end
 
   defp maybe_put_exec_time(execution_times, key, value, unit) do

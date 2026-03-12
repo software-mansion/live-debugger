@@ -7,7 +7,7 @@ defmodule LiveDebugger.API.TracesStorageTest do
   alias LiveDebugger.Fakes
   alias LiveDebugger.API.TracesStorage.Impl, as: TracesStorageImpl
 
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
+  alias LiveDebugger.App.Debugger.CallbackTracing.ComponentId
 
   @all_functions LiveDebugger.Utils.Callbacks.all_callbacks()
                  |> Enum.map(fn {function, arity} -> "#{function}/#{arity}" end)
@@ -428,8 +428,6 @@ defmodule LiveDebugger.API.TracesStorageTest do
       assert cont == :end_of_table
     end
 
-    defp encode_component_id(id), do: id |> :erlang.term_to_binary() |> Base.encode64()
-
     test "returns traces filtered by LiveView PID using encoded string", %{pid: pid, table: table} do
       trace1 = Fakes.trace(id: 1, pid: pid, cid: nil)
       cid = %Phoenix.LiveComponent.CID{cid: 1}
@@ -439,7 +437,7 @@ defmodule LiveDebugger.API.TracesStorageTest do
       :ets.insert(table, {trace1.id, trace1})
       :ets.insert(table, {trace2.id, trace2})
 
-      encoded_pid = encode_component_id(pid)
+      encoded_pid = ComponentId.encode(pid)
 
       assert {[^trace1], _} =
                TracesStorageImpl.get!(pid, components: [encoded_pid], functions: @all_functions)
@@ -460,13 +458,13 @@ defmodule LiveDebugger.API.TracesStorageTest do
 
       assert {[^trace_c1], _} =
                TracesStorageImpl.get!(pid,
-                 components: [encode_component_id(cid1)],
+                 components: [ComponentId.encode(cid1)],
                  functions: @all_functions
                )
 
       assert {[^trace_c1, ^trace_c2], _} =
                TracesStorageImpl.get!(pid,
-                 components: [encode_component_id(cid1), encode_component_id(cid2)],
+                 components: [ComponentId.encode(cid1), ComponentId.encode(cid2)],
                  functions: @all_functions
                )
     end
@@ -481,7 +479,7 @@ defmodule LiveDebugger.API.TracesStorageTest do
 
       assert {[^trace1, ^trace2], _} =
                TracesStorageImpl.get!(pid,
-                 components: [FiltersHelpers.all_components()],
+                 components: [ComponentId.all()],
                  functions: @all_functions
                )
     end

@@ -7,7 +7,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
 
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Utils.Parsers
-  alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
+  alias LiveDebugger.App.Debugger.CallbackTracing.ComponentId
 
   @doc """
   Renders a TreeNode component with its children recursively.
@@ -118,18 +118,17 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
   )
 
   def filters_tree_node(assigns) do
-    field = assigns.form[FiltersHelpers.encode_component_id(assigns.tree_node.id)]
-
     assigns =
       assigns
-      |> assign(:field, field)
-      |> assign(:tree_node, assigns.tree_node)
+      |> assign(:field, assigns.form[ComponentId.encode(assigns.tree_node.id)])
+      |> assign(:label, node_label(assigns.tree_node))
+      |> assign(:tooltip_content, node_tooltip(assigns.tree_node))
 
     ~H"""
     <div class="flex flex-col w-full">
       <div
         style={"margin-left: #{@level * 0.25}rem"}
-        id="{@tree_node.dom_id}-filters"
+        id={TreeNode.parse_id(@tree_node) <> "-filters"}
         phx-hook="Highlight"
         phx-value-search-attribute={@tree_node.dom_id.attribute}
         phx-value-search-value={@tree_node.dom_id.value}
@@ -137,7 +136,20 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
         phx-value-type={@tree_node.type}
         phx-value-id={TreeNode.parse_id(@tree_node)}
       >
-        <.checkbox field={@field} label={node_label(@tree_node)} wrapper_class={["py-1"]} />
+        <div class="flex items-center gap-2 py-1">
+          <input
+            id={@field.id}
+            name={@field.name}
+            type="checkbox"
+            checked={@field.value}
+            class="w-4 h-4 text-ui-accent border border-default-border shrink-0"
+          />
+          <label for={@field.id} class="min-w-0 flex-1">
+            <.tooltip id={@field.id <> "-tooltip"} content={@tooltip_content} class="truncate">
+              <span><%= @label %></span>
+            </.tooltip>
+          </label>
+        </div>
       </div>
       <%= for child <- @tree_node.children do %>
         <.filters_tree_node tree_node={child} form={@form} level={@level + 3} />

@@ -10,9 +10,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
 
   use LiveDebugger.App.Web, :live_component
 
+  alias Phoenix.LiveView.AsyncResult
+
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Filters,
     as: FiltersComponents
 
+  alias LiveDebugger.App.Debugger.CallbackTracing.ComponentId
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters, as: FiltersHelpers
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Debugger.ComponentsTree.Queries, as: ComponentsTreeQueries
@@ -43,7 +46,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     revert_button_visible? = Map.get(assigns, :revert_button_visible?, false)
 
     active_filters =
-      assigns.filters |> Map.put_new(:components, %{FiltersHelpers.all_components() => true})
+      assigns.filters |> Map.put_new(:components, %{ComponentId.all() => true})
 
     socket
     |> assign(:id, assigns.id)
@@ -53,7 +56,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     |> assign(:disabled?, disabled?)
     |> assign(:revert_button_visible?, revert_button_visible?)
     |> assign(:default_filters, FiltersHelpers.default_filters(assigns.node_id))
-    |> assign(:tree, nil)
+    |> assign(:tree, AsyncResult.loading())
     |> assign_form(active_filters)
     |> maybe_assign_async_tree_form(active_filters, assigns.node_id)
     |> ok()
@@ -95,13 +98,19 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
                 />
               </:label>
               <div class="flex flex-col gap-1 pb-4">
-                <%= if @tree do %>
-                  <Components.filters_tree_node tree_node={@tree} form={@form} level={0} />
-                <% else %>
-                  <div class="text-sm text-secondary-text animate-pulse">
-                    Loading components tree...
-                  </div>
-                <% end %>
+                <.async_result :let={tree} assign={@tree}>
+                  <:loading>
+                    <div class="text-sm text-secondary-text animate-pulse">
+                      Loading components tree...
+                    </div>
+                  </:loading>
+                  <:failed>
+                    <div class="text-sm text-secondary-text">
+                      Failed to load components tree
+                    </div>
+                  </:failed>
+                  <Components.filters_tree_node tree_node={tree} form={@form} level={0} />
+                </.async_result>
               </div>
             </.collapsible>
           </div>
@@ -281,9 +290,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     components_filters = Map.get(filters, :components, %{})
 
     filters_tree =
-      flatten_tree(tree)
+      tree
+      |> flatten_tree()
       |> Map.new(fn {id, _} ->
-        encoded_id = FiltersHelpers.encode_component_id(id)
+        encoded_id = ComponentId.encode(id)
 
         {encoded_id, Map.get(components_filters, encoded_id, true)}
       end)
@@ -302,7 +312,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     send(self(), {:filters_updated, active_filters})
 
     socket
-    |> assign(:tree, tree)
+    |> assign(:tree, AsyncResult.ok(tree))
     |> assign(
       :active_filters,
       active_filters
@@ -316,8 +326,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
   end
 
   @impl true
-  def handle_async({:tree, _filters}, {:error, _error}, socket) do
-    {:noreply, socket}
+  def handle_async({:tree, _filters}, {:error, error}, socket) do
+    socket
+    |> assign(:tree, AsyncResult.failed(socket.assigns.tree, error))
+    |> noreply()
   end
 
   defp assign_form(
