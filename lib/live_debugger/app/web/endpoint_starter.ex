@@ -26,6 +26,8 @@ defmodule LiveDebugger.App.Web.EndpointStarter do
               "To disable LiveDebugger entirely, set `config :live_debugger, disabled?: true`."
           )
 
+          Application.put_env(:live_debugger, :live_debugger_tags, [])
+
           :ignore
         else
           {:error, reason}

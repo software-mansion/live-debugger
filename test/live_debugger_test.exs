@@ -11,6 +11,7 @@ defmodule LiveDebuggerTest do
     on_exit(fn ->
       Application.delete_env(:live_debugger, :ip)
       Application.delete_env(:live_debugger, :port)
+      Application.delete_env(:live_debugger, :auto_port)
       Application.delete_env(:live_debugger, :external_url)
       Application.delete_env(:live_debugger, :live_debugger_tags)
     end)
@@ -39,6 +40,24 @@ defmodule LiveDebuggerTest do
 
       tags = Application.get_env(:live_debugger, :live_debugger_tags)
       assert tags == []
+    end
+
+    test "uses resolved port from endpoint config" do
+      Application.put_env(:live_debugger, :ip, {127, 0, 0, 1})
+      Application.put_env(:live_debugger, :port, 4007)
+      Application.put_env(:live_debugger, LiveDebugger.App.Web.Endpoint, http: [port: 4009])
+
+      LiveDebugger.MockAPISettingsStorage
+      |> expect(:get, fn :debug_button -> true end)
+
+      LiveDebugger.update_live_debugger_tags()
+
+      tags = Application.get_env(:live_debugger, :live_debugger_tags)
+      rendered = tags |> Phoenix.HTML.Safe.to_iodata() |> IO.iodata_to_binary()
+      assert rendered =~ "http://127.0.0.1:4009"
+      refute rendered =~ "http://127.0.0.1:4007"
+
+      Application.delete_env(:live_debugger, LiveDebugger.App.Web.Endpoint)
     end
 
     test "generates tags when Unix socket IP is used with external_url" do

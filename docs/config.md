@@ -97,7 +97,7 @@ config :live_debugger,
   auto_port: true
 ```
 
-LiveDebugger will scan upward from the configured port until it finds a free one, logging a warning for each port that is skipped.
+LiveDebugger will try up to 3 consecutive ports starting from the configured one, logging a warning for each port that is skipped.
 
 Note: `auto_port` is ignored when using a Unix socket (`ip: {:local, path}`).
 
