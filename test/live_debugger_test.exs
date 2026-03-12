@@ -1,6 +1,4 @@
 defmodule LiveDebuggerTest do
-  @moduledoc false
-
   use ExUnit.Case, async: false
 
   import Mox
@@ -11,7 +9,6 @@ defmodule LiveDebuggerTest do
     on_exit(fn ->
       Application.delete_env(:live_debugger, :ip)
       Application.delete_env(:live_debugger, :port)
-      Application.delete_env(:live_debugger, :auto_port)
       Application.delete_env(:live_debugger, :external_url)
       Application.delete_env(:live_debugger, :live_debugger_tags)
     end)

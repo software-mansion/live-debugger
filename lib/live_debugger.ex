@@ -15,7 +15,6 @@ defmodule LiveDebugger do
   @default_secret_key_base "DEFAULT_SECRET_KEY_BASE_1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcd"
   @default_signing_salt "live_debugger_signing_salt"
   @default_drainer [shutdown: 1000]
-  @max_port_attempts 3
 
   @js_path "assets/live_debugger/client.js"
   @css_path "assets/live_debugger/client.css"
@@ -32,10 +31,7 @@ defmodule LiveDebugger do
     endpoint_config = Keyword.get(config, LiveDebugger.App.Web.Endpoint, [])
 
     resolved_port =
-      case get_in(endpoint_config, [:http, :port]) do
-        nil -> Keyword.get(config, :port, @default_port)
-        port -> port
-      end
+      get_in(endpoint_config, [:http, :port]) || Keyword.get(config, :port, @default_port)
 
     put_live_debugger_tags(config, resolved_port)
   end
@@ -72,11 +68,7 @@ defmodule LiveDebugger do
     port = Keyword.get(config, :port, @default_port)
     auto_port? = Keyword.get(config, :auto_port, false)
 
-    if auto_port? and tcp_ip?(ip) and is_integer(port) and port > 0 do
-      find_available_port(ip, port, @max_port_attempts)
-    else
-      port
-    end
+    LiveDebugger.PortResolver.resolve(ip, port, auto_port?)
   end
 
   defp put_endpoint_config(config, resolved_port) do
@@ -105,36 +97,6 @@ defmodule LiveDebugger do
       end
 
     Application.put_env(@app_name, LiveDebugger.App.Web.Endpoint, endpoint_config)
-  end
-
-  defp tcp_ip?({_, _, _, _}), do: true
-  defp tcp_ip?({_, _, _, _, _, _, _, _}), do: true
-  defp tcp_ip?(_), do: false
-
-  defp find_available_port(_ip, port, 0) do
-    Logger.warning(
-      "LiveDebugger: could not find an available port after #{@max_port_attempts} attempts, " <>
-        "using port #{port}"
-    )
-
-    port
-  end
-
-  defp find_available_port(ip, port, attempts_left) do
-    inet_family = if tuple_size(ip) == 4, do: :inet, else: :inet6
-
-    case :gen_tcp.listen(port, [inet_family, {:ip, ip}]) do
-      {:ok, socket} ->
-        :gen_tcp.close(socket)
-        port
-
-      {:error, :eaddrinuse} ->
-        Logger.warning("LiveDebugger: port #{port} is already in use, trying #{port + 1}")
-        find_available_port(ip, port + 1, attempts_left - 1)
-
-      {:error, _} ->
-        port
-    end
   end
 
   defp put_live_debugger_tags(config, resolved_port) do
