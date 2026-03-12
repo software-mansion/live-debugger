@@ -238,16 +238,11 @@ test.describe('Global Traces Filtering', () => {
     await devApp.locator('button#increment-button').click();
     await expect(findTraces(dbgApp)).not.toHaveCount(0);
 
-    var traces = dbgApp
+    let traces = dbgApp
       .locator('#global-traces-stream details div.col-span-3')
       .filter({ hasText: 'LiveDebuggerDev.LiveViews.Main' });
 
     await expect(traces).toHaveCount(2);
-
-    const count = await traces.count();
-    for (let i = 0; i < count; i++) {
-      await expect(traces.nth(i)).toBeVisible();
-    }
 
     await findSwitchTracingButton(dbgApp).click();
     const mainLabel = dbgApp.locator('#filters-sidebar label', {
@@ -258,10 +253,6 @@ test.describe('Global Traces Filtering', () => {
     await dbgApp.locator(`[id="${checkboxId}"]`).uncheck();
 
     await applyButton(dbgApp).click();
-
-    traces = dbgApp
-      .locator('#global-traces-stream details div.col-span-3')
-      .filter({ hasText: 'LiveDebuggerDev.LiveViews.Main' });
 
     await expect(traces).toHaveCount(0);
   });

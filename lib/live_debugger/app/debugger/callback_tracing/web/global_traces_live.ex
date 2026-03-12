@@ -242,7 +242,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
     {:noreply, socket}
   end
 
-  @impl true
   def handle_info(
         %DeadViewModeEntered{debugger_pid: pid},
         %{assigns: %{parent_pid: pid}} = socket
