@@ -309,8 +309,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersFo
     active_filters =
       Map.put(socket.assigns.active_filters, :components, filters_tree)
 
-    send(self(), {:filters_updated, active_filters})
-
     socket
     |> assign(:tree, AsyncResult.ok(tree))
     |> assign(
