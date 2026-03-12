@@ -109,8 +109,23 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
               </.button>
 
               <div class="flex flex-row items-center gap-2">
+                <.tooltip
+                  :if={!@elixir_editor}
+                  id={@id <> "-env-not-set"}
+                  content="Cannot open in editor? Click to see the documentation."
+                >
+                  <.button_link
+                    href={@editor_docs_url}
+                    id="open-in-editor"
+                    variant="secondary"
+                    size="sm"
+                    class="opacity-50 cursor-pointer"
+                  >
+                    <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
+                  </.button_link>
+                </.tooltip>
                 <.button
-                  disabled={!@elixir_editor}
+                  :if={@elixir_editor}
                   class="shrink-0"
                   variant="secondary"
                   id="open-in-editor"
@@ -122,17 +137,6 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
                 >
                   <.icon name="icon-external-link" class="w-4 h-4" /> Open in Editor
                 </.button>
-
-                <.tooltip
-                  id={@id <> "-env-not-set"}
-                  content="Cannot open in editor? Click to see the documentation."
-                >
-                  <span :if={!@elixir_editor} class="text-error-text">
-                    <.link href={@editor_docs_url} target="_blank">
-                      <.icon name="icon-info" class="w-4 h-4" />
-                    </.link>
-                  </span>
-                </.tooltip>
               </div>
             </div>
 
