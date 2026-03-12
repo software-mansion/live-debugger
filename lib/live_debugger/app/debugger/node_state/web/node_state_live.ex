@@ -131,7 +131,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.NodeStateLive do
     socket
     |> assign(:node_id, node_id)
     |> Hooks.NodeAssigns.assign_async_node_assigns(reset: true)
-    |> Hooks.TemporaryAssigns.assign_async_temporary_assigns()
+    |> Hooks.TemporaryAssigns.assign_async_temporary_assigns(reset: true)
     |> noreply()
   end
 

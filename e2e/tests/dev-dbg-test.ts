@@ -43,4 +43,7 @@ export const findRefreshTracesButton = (page: Page) =>
 export const findFiltersButton = (page: Page) =>
   page.locator('button[aria-label="Open filters"]');
 
+export const findNodeInspectorButton = (page: Page) =>
+  page.locator('#node-inspector-navbar-item a');
+
 export { expect, Page } from '@playwright/test';
