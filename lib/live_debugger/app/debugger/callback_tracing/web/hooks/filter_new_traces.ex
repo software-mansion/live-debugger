@@ -13,6 +13,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
   alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
   alias LiveDebugger.Services.CallbackTracer.Events.TraceExceptionUpdated
+  alias LiveDebugger.App.Debugger.CallbackTracing.ComponentId
   alias LiveDebugger.App.Web.Helpers.Routes
   alias LiveDebugger.App.Web.Hooks.Flash.ExceptionFlashData
 
@@ -62,6 +63,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
   defp filter_trace_event(socket, trace_event) do
     with true <- matches_node_id?(socket, trace_event),
          true <- matches_function_filter?(socket, trace_event),
+         true <- matches_components_filter?(socket, trace_event),
          true <- matches_search_phrase?(socket, trace_event) do
       {:cont, socket}
     else
@@ -108,6 +110,36 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.FilterNewTraces do
         |> String.downcase()
         |> String.contains?(String.downcase(search))
     end
+  end
+
+  defp matches_components_filter?(
+         %{
+           view: LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive
+         } = socket,
+         %{
+           pid: pid,
+           cid: cid
+         }
+       ) do
+    components = socket.assigns.current_filters.components
+    id = cid || pid
+    encoded_id = ComponentId.encode(id)
+    all = ComponentId.all()
+
+    case components do
+      %{^encoded_id => val} -> val
+      %{^all => val} -> val
+      _ -> true
+    end
+  end
+
+  defp matches_components_filter?(
+         %{
+           view: LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive
+         },
+         _trace_event
+       ) do
+    true
   end
 
   defp diff_traces_filter_enabled?(socket) do

@@ -77,6 +77,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.LoadMoreB
       [
         limit: socket.private.page_size,
         functions: FiltersHelpers.get_active_functions(socket.assigns.current_filters),
+        components: FiltersHelpers.get_active_components(socket.assigns.current_filters),
         execution_times: FiltersHelpers.get_execution_times(socket.assigns.current_filters),
         node_id: socket.assigns.node_id,
         search_phrase: Map.get(socket.assigns, :trace_search_phrase, ""),
