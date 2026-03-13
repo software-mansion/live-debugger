@@ -25,7 +25,7 @@ test('user can see active live views and their highlights which are refreshed au
   await expect(dbgApp.getByText(devPidString1)).toBeVisible();
 
   const devApp2 = await context.newPage();
-  devApp2.goto('/');
+  await devApp2.goto('/');
 
   const devPidString2 =
     (await devApp2.locator('#current-pid').textContent()) ?? '';
@@ -62,7 +62,7 @@ test('settings button exists and redirects works as expected', async ({
 
   await dbgApp.getByRole('link', { name: 'Icon settings' }).click();
 
-  await expect(dbgApp.getByRole('heading')).toHaveText('Settings');
+  await expect(dbgApp.getByRole('heading', { name: 'Settings' })).toBeVisible();
 
   await dbgApp.getByRole('link', { name: 'Icon arrow left' }).click();
 
