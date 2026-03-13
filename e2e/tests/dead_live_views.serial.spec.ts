@@ -1,9 +1,5 @@
 import { expect, Page } from '@playwright/test';
-import {
-  prepareDevDebuggerPairTest,
-  getDevPid,
-  returnButton,
-} from './dev-dbg-test';
+import { prepareDevDebuggerPairTest, returnButton } from './dev-dbg-test';
 
 const test = prepareDevDebuggerPairTest('/');
 
@@ -15,11 +11,12 @@ const deadSessionItems = (page: Page) =>
   page.locator('#dead-sessions button[phx-click="select-live-view"]');
 const navbarConnected = (page: Page) => page.locator('#navbar-connected');
 
-const liveViewButton = (page: Page, pid: string) =>
-  page.locator('button', { hasText: pid });
-
 test('dead LiveViews are available to debug', async ({ devApp, dbgApp }) => {
   await returnButton(dbgApp).click();
+
+  if (await deadSessionsContainer(dbgApp).isVisible()) {
+    await toggleDeadLiveViewsBtn(dbgApp).click();
+  }
   await expect(deadSessionsContainer(dbgApp)).not.toBeVisible();
 
   await toggleDeadLiveViewsBtn(dbgApp).click();

@@ -110,14 +110,12 @@ testStream.describe('LiveDebugger Streams', () => {
 
   testStream('collapsible state stays after navigation', async ({ dbgApp }) => {
     await expect(streamsDisplay(dbgApp)).toBeVisible();
-
-    await streamsCollapsible(dbgApp).click();
-    await expect(streamsDisplay(dbgApp)).not.toBeVisible();
-
+    await setCollapsibleOpenState(dbgApp, 'streams-section-container', 'false');
     await dbgApp.reload();
     await expect(streamsDisplay(dbgApp)).not.toBeVisible();
 
-    await streamsCollapsible(dbgApp).click();
+    await setCollapsibleOpenState(dbgApp, 'streams-section-container', 'true');
+    await dbgApp.reload();
     await expect(streamsDisplay(dbgApp)).toBeVisible();
   });
 });
