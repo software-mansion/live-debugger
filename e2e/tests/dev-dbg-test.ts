@@ -49,4 +49,7 @@ export const getDevPid = async (page: Page) => {
 };
 
 export const returnButton = (page: Page) => page.locator('#return-button');
+export const findNodeInspectorButton = (page: Page) =>
+  page.locator('#node-inspector-navbar-item a');
+
 export { expect, Page } from '@playwright/test';

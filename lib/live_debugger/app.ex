@@ -13,7 +13,7 @@ defmodule LiveDebugger.App do
     children ++
       [
         pubsub,
-        {LiveDebugger.App.Web.Endpoint,
+        {LiveDebugger.App.Web.EndpointStarter,
          [
            check_origin: false,
            pubsub_server: @pubsub_name

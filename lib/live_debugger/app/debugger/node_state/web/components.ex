@@ -114,6 +114,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
 
   attr(:name, :string, required: true)
   attr(:icon, :string, default: nil)
+
   slot(:right)
 
   defp section_title(assigns) do
@@ -199,6 +200,13 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         icon="icon-clock-3"
       >
         <:right :if={@has_temporary_assigns}>
+          <.tooltip
+            id={@id <> "-tooltip"}
+            content="Displayed temporary assigns values are the last recorded values for each assign"
+            position="top-center"
+          >
+            <.icon name="icon-info" class="w-4 h-4 bg-button-secondary-content" />
+          </.tooltip>
           <div class="flex">
             <.copy_button
               id={"temporary-assigns-copy-button" <> "-" <> @id}
@@ -247,18 +255,18 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   defp all_assigns_section(assigns) do
     ~H"""
     <div id={@id}>
-      <.section_title name="All assigns">
+      <.section_title name="Current assigns">
         <:right>
-          <AssignsHistory.button />
+          <AssignsHistory.button id={@id <> "-history"} />
           <div class="flex">
             <.copy_button
-              id="assigns-copy-button"
+              id={"assigns-copy-button" <> "-" <> @id}
               variant="icon-button"
               value={@copy_string}
               class="rounded-e-none! border-r-0!"
             />
             <.copy_button
-              id="json-assigns-copy-button"
+              id={"json-assigns-copy-button" <> "-" <> @id}
               variant="button"
               text="JSON"
               value={@json_string}

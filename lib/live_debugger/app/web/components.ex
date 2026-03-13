@@ -249,6 +249,38 @@ defmodule LiveDebugger.App.Web.Components do
   end
 
   @doc """
+  Link styled as a button. Use for external links that should match button appearance.
+  """
+  attr(:href, :string, required: true)
+  attr(:variant, :string, default: "secondary", values: ["primary", "secondary"])
+  attr(:size, :string, default: "sm", values: ["md", "sm"])
+  attr(:target, :string, default: "_blank")
+  attr(:id, :string, default: nil)
+  attr(:class, :any, default: nil, doc: "Additional classes to add.")
+  attr(:rest, :global, include: ~w(rel))
+
+  slot(:inner_block, required: true)
+
+  def button_link(assigns) do
+    ~H"""
+    <.link
+      href={@href}
+      target={@target}
+      id={@id}
+      class={[
+        "inline-flex items-center gap-1.5 shrink-0 w-max h-max rounded text-xs font-semibold",
+        button_size_classes(@size),
+        button_color_classes(@variant),
+        @class
+      ]}
+      {@rest}
+    >
+      <%= render_slot(@inner_block) %>
+    </.link>
+    """
+  end
+
+  @doc """
   Collapsible element that can be toggled open and closed.
   It uses the `details` and `summary` HTML elements.
   `hide-on-open` and `show-on-open` css classes are used to hide or show elements based on the open state of the collapsible.

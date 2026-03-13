@@ -81,6 +81,38 @@ config :live_debugger,
   external_url: "http://your_external_url"
 ```
 
+## Port Conflict Handling
+
+LiveDebugger provides two options for dealing with port conflicts (e.g. when running multiple application instances).
+
+### Auto-select next available port
+
+Set `auto_port: true` to make LiveDebugger automatically find the next free port if the configured port is already in use:
+
+```elixir
+# config/dev.exs
+
+config :live_debugger,
+  port: 4007,
+  auto_port: true
+```
+
+LiveDebugger will try up to 3 consecutive ports starting from the configured one, logging a warning for each port that is skipped.
+
+Note: `auto_port` is ignored when using a Unix socket (`ip: {:local, path}`).
+
+### Ignore startup errors
+
+Set `ignore_startup_errors: true` to allow the host application to continue running even if LiveDebugger fails to start (e.g. due to a port conflict). LiveDebugger will be unavailable, but your application will not crash:
+
+```elixir
+# config/dev.exs
+
+config :live_debugger, :ignore_startup_errors, true
+```
+
+An error will be logged when startup fails. Both options can be combined: `auto_port` is attempted first, and if the endpoint still fails to start, `ignore_startup_errors` prevents the crash.
+
 ## Other Settings
 
 ```elixir

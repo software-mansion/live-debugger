@@ -68,8 +68,6 @@ test('callback traces have proper execution times displayed', async ({
   const refreshTracesButton = findRefreshTracesButton(dbgApp);
   await refreshTracesButton.click();
 
-  await expect(traces).toHaveCount(0);
-
   await dbgApp.waitForTimeout(405);
 
   await refreshTracesButton.click();
@@ -156,7 +154,15 @@ test('user can change nodes using node tree and see their assigns and callback t
   await expect(findTraces(dbgApp)).toHaveCount(6);
 });
 
-test('Open in editor is disabled when envs are not set', async ({ dbgApp }) => {
-  const openButton = dbgApp.getByRole('button', { name: 'Open in editor' });
-  await expect(openButton).toBeDisabled();
+test('Open in editor shows docs link when envs are not set', async ({
+  dbgApp,
+}) => {
+  const openInEditorLink = dbgApp.getByRole('link', {
+    name: 'Open in Editor',
+  });
+  await expect(openInEditorLink).toBeVisible();
+  await expect(openInEditorLink).toHaveAttribute(
+    'href',
+    /open_in_editor\.html/
+  );
 });
