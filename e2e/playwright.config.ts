@@ -4,6 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  globalSetup: './global-setup.ts',
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -38,11 +39,13 @@ export default defineConfig({
     {
       name: 'serial-tests chromium',
       use: { ...devices['Desktop Chrome'] },
+      workers: 1,
       testMatch: '**/*.serial.spec.ts',
       dependencies: ['chromium', 'firefox'],
     },
     {
       name: 'serial-tests firefox',
+      workers: 1,
       use: { ...devices['Desktop Firefox'] },
       testMatch: '**/*.serial.spec.ts',
       dependencies: ['chromium', 'firefox', 'serial-tests chromium'],
