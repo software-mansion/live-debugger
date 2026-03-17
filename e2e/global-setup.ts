@@ -3,7 +3,7 @@
  *
  * TracingManager.handle_continue(:setup_tracing) runs asynchronously after app boot.
  * We open a dev app + debugger pair and check if traces were captured.
- * If not, we wait 5s for TracingManager to finish initializing before tests run.
+ * If not, we trigger callback in dev app and check for traces with timeout (repeated 5 times).
  */
 import { chromium } from '@playwright/test';
 
