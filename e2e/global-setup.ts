@@ -11,7 +11,9 @@ export default async function globalSetup() {
   const browser = await chromium.launch();
   const page = await browser.newPage();
 
-  await page.goto('http://localhost:4005/');
+  await page.goto(
+    process.env.PLAYWRIGHT_TEST_BASE_URL ?? 'http://localhost:4005/'
+  );
 
   await page.locator('#live-debugger-debug-button').click();
   const dbgAppPromise = page.waitForEvent('popup');
