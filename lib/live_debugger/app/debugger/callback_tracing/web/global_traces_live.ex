@@ -28,6 +28,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.DeadViewModeEntered
   alias LiveDebugger.App.Debugger.Web.Components.Pages
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
+  alias LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
 
   @live_stream_limit 128
   @page_size 25
@@ -207,11 +210,38 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
       sidebar_hidden?={@sidebar_hidden?}
       current_filters={@current_filters}
       tracing_started?={@tracing_started?}
+      lv_process={@lv_process}
     />
     """
   end
 
   @impl true
+  def handle_info(
+        %LiveComponentCreated{pid: pid},
+        %{assigns: %{lv_process: %{pid: pid}}} = socket
+      ) do
+    send_update(
+      FiltersForm,
+      id: "filters-sidebar-form",
+      action: :components_tree_updated
+    )
+
+    {:noreply, socket}
+  end
+
+  def handle_info(
+        %LiveComponentDeleted{pid: pid},
+        %{assigns: %{lv_process: %{pid: pid}}} = socket
+      ) do
+    send_update(
+      FiltersForm,
+      id: "filters-sidebar-form",
+      action: :components_tree_updated
+    )
+
+    {:noreply, socket}
+  end
+
   def handle_info(
         %DeadViewModeEntered{debugger_pid: pid},
         %{assigns: %{parent_pid: pid}} = socket

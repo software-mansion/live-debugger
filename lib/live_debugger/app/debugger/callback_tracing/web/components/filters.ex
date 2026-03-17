@@ -17,7 +17,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Filters do
 
   def filters_group_header(assigns) do
     ~H"""
-    <div class={["pb-2 pr-3 h-10 flex items-center justify-between", @class]}>
+    <div class={["w-full pb-2 pr-3 h-10 flex items-center justify-between", @class]}>
       <p class="font-medium"><%= @title %></p>
       <button
         :if={@group_changed?}
