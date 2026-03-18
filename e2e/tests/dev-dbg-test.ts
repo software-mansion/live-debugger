@@ -44,8 +44,9 @@ export const findFiltersButton = (page: Page) =>
   page.locator('button[aria-label="Open filters"]');
 
 export const getDevPid = async (page: Page) => {
-  const text = await page.getByText(/Current PID:/).innerText();
-  return text.replace('Current PID:', '').trim();
+  const pidEl = page.locator('#current-pid');
+  await pidEl.waitFor();
+  return (await pidEl.textContent())?.trim() ?? '';
 };
 
 export const returnButton = (page: Page) => page.locator('#return-button');

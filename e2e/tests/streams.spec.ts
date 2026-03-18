@@ -148,7 +148,7 @@ baseTest(
 
 testRoot.describe('LiveDebugger Default Root', () => {
   testRoot(
-    'User dont see streams section if there are no streams',
+    'User does not see streams section if there are no streams',
     async ({ dbgApp }) => {
       await expect(streamsDisplay(dbgApp)).not.toBeVisible();
     }
