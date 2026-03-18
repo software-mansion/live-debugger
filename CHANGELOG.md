@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.7.0 (2026-03-17)
+
+### Features
+* Add flash message when LiveView crashes in [#923](https://github.com/software-mansion/live-debugger/pull/923)
+* Add `:auto_port` and `:ignore_startup_errors` configs in [#950](https://github.com/software-mansion/live-debugger/pull/950)
+* Add components tree as filter to global callback traces in [#945](https://github.com/software-mansion/live-debugger/pull/945)
+
+### Bug fixes
+* Fix startup error associated with missing timezone in [#938](https://github.com/software-mansion/live-debugger/pull/938)
+* DeadView mode sometimes is not triggered properly in [#939](https://github.com/software-mansion/live-debugger/pull/939)
+* Fix spacing in open in editor button in [#949](https://github.com/software-mansion/live-debugger/pull/949)
+
+### Enhancements
+* Add better indicator of selected node in [#916](https://github.com/software-mansion/live-debugger/pull/916)
+* Allow opening LiveView/LiveComponent in editor in [#925](https://github.com/software-mansion/live-debugger/pull/925)
+* Use telemetry event for updating components tree in [#926](https://github.com/software-mansion/live-debugger/pull/926)
+* Better description in active LiveViews in [#940](https://github.com/software-mansion/live-debugger/pull/940)
+* Improve displaying nested LiveViews in [#936](https://github.com/software-mansion/live-debugger/pull/936)
+* Cleanup LiveDebugger logs in [#942](https://github.com/software-mansion/live-debugger/pull/942)
+* Moved copy and history buttons to all assigns in [#943](https://github.com/software-mansion/live-debugger/pull/943)
+* Assigns section polish in [#946](https://github.com/software-mansion/live-debugger/pull/946)
+
+### Other
+* Docs: Update website after v0.6.0 release in [#922](https://github.com/software-mansion/live-debugger/pull/922)
+* Chore: update version in [#921](https://github.com/software-mansion/live-debugger/pull/921)
+* Chore: fix process monitor reconnect test case in [#944](https://github.com/software-mansion/live-debugger/pull/944)
+* Tests: Setup Playwright in [#919](https://github.com/software-mansion/live-debugger/pull/919)
+
+## 0.6.1 (2026-02-27)
+
+### Features
+* Allow configuring endpoint drainer in [#933](https://github.com/software-mansion/live-debugger/pull/933)
+
+### Bug fixes
+* Use `handle_continue` to continue init instead of sending a message to self in [#929](https://github.com/software-mansion/live-debugger/pull/929)
+* Enhanced performance of LiveDebugger init in [#928](https://github.com/software-mansion/live-debugger/pull/928)
+
+### Enhancements
+* Better version checks in [#935](https://github.com/software-mansion/live-debugger/pull/935)
+* Support Unix socket IP in endpoint configuration in [#924](https://github.com/software-mansion/live-debugger/pull/924)
+
 ## 0.6.0 (2026-02-05)
 
 ### Features
