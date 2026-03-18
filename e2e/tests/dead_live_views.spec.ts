@@ -1,5 +1,9 @@
 import { expect, Page } from '@playwright/test';
-import { prepareDevDebuggerPairTest, returnButton } from './dev-dbg-test';
+import {
+  prepareDevDebuggerPairTest,
+  returnButton,
+  getDevPid,
+} from './dev-dbg-test';
 
 const test = prepareDevDebuggerPairTest('/');
 
@@ -9,7 +13,7 @@ const toggleDeadLiveViewsBtn = (page: Page) =>
 const navbarConnected = (page: Page) => page.locator('#navbar-connected');
 
 test('dead LiveViews are available to debug', async ({ devApp, dbgApp }) => {
-  const pid = (await devApp.locator('#current-pid').textContent()) ?? '';
+  const pid = getDevPid(devApp);
 
   await returnButton(dbgApp).click();
 
