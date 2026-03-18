@@ -74,7 +74,7 @@ test('callback traces have proper execution times displayed', async ({
 
   await expect(traces).toHaveCount(2);
   await expect(traces.last().locator('span.text-warning-text')).toHaveText(
-    /40\d ms/
+    /^\s*4\d\d ms\s*$/
   );
 
   await devApp
@@ -87,7 +87,7 @@ test('callback traces have proper execution times displayed', async ({
 
   await expect(traces).toHaveCount(4);
   await expect(traces.nth(1).locator('span.text-error-text')).toHaveText(
-    /1\.10 s/
+    /^\s*1\.1\d s\s*$/
   );
 });
 

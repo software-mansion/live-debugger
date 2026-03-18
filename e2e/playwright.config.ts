@@ -4,6 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
+  globalSetup: './global-setup.ts',
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -11,7 +12,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  workers: process.env.CI ? 4 : undefined,
   maxFailures: process.env.CI ? 5 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
@@ -21,7 +22,7 @@ export default defineConfig({
     baseURL: 'http://localhost:4005',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
   },
 
   projects: [
@@ -38,11 +39,13 @@ export default defineConfig({
     {
       name: 'serial-tests chromium',
       use: { ...devices['Desktop Chrome'] },
+      workers: 1,
       testMatch: '**/*.serial.spec.ts',
       dependencies: ['chromium', 'firefox'],
     },
     {
       name: 'serial-tests firefox',
+      workers: 1,
       use: { ...devices['Desktop Firefox'] },
       testMatch: '**/*.serial.spec.ts',
       dependencies: ['chromium', 'firefox', 'serial-tests chromium'],

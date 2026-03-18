@@ -8,6 +8,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
   alias LiveDebugger.Utils.Callbacks, as: CallbacksUtils
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Debugger.Structs.TreeNode
+  alias LiveDebugger.App.Debugger.CallbackTracing.ComponentId
 
   @doc """
   Returns a list of formatted callbacks for the given node id.
@@ -44,7 +45,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
       "trace_diffs" => false
     }
 
-    %{functions: callbacks, execution_time: execution_time, other_filters: other_filters}
+    %{
+      functions: callbacks,
+      execution_time: execution_time,
+      other_filters: other_filters,
+      components: %{ComponentId.all() => true}
+    }
   end
 
   @doc """
@@ -127,6 +133,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
     current_filters.functions
     |> Enum.filter(fn {_, active?} -> active? end)
     |> Enum.map(fn {function, _} -> function end)
+  end
+
+  @doc """
+  Returns the active components from the current filters.
+  It uses the `current_filters` assigns to determine the active components.
+  """
+  @spec get_active_components(current_filters :: %{components: map()}) :: [String.t()]
+  def get_active_components(current_filters) do
+    current_filters.components
+    |> Enum.filter(fn {_, active?} -> active? end)
+    |> Enum.map(fn {component, _} -> component end)
   end
 
   @doc """
