@@ -386,12 +386,13 @@ test('user can search for callbacks using the searchbar', async ({
       .locator('pre', { hasText: '"deep value"' })
   ).toHaveCount(2);
   await dbgApp.locator('#trace-fullscreen-close').click();
+  await renderTrace.locator('> summary').click();
 
   const handleEventTrace = traces.nth(1);
   await handleEventTrace.locator('> summary').click();
   await expect(
     handleEventTrace.locator('pre', { hasText: '"deep value"' })
-  ).toHaveCount(2);
+  ).toHaveCount(1);
 
   await findOpenFullscreenTraceButton(dbgApp).first().click();
   await expect(dbgApp.locator('#trace-fullscreen')).toBeVisible();
@@ -399,7 +400,7 @@ test('user can search for callbacks using the searchbar', async ({
     dbgApp
       .locator('#trace-fullscreen')
       .locator('pre', { hasText: '"deep value"' })
-  ).toHaveCount(2);
+  ).toHaveCount(1);
 });
 
 test('user can filter traces by callback name', async ({ devApp, dbgApp }) => {
