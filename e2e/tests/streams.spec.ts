@@ -126,7 +126,7 @@ baseTest(
     await addNewStreamBtn(devApp).click();
 
     await devApp.locator('#live-debugger-debug-button').click();
-    const dbgAppPromise = context.waitForEvent('page');
+    const dbgAppPromise = devApp.waitForEvent('popup');
     await devApp.getByText('Open in new tab').click();
     const dbgApp = await dbgAppPromise;
 
