@@ -6,27 +6,27 @@ import { SquareCheckBig } from "lucide-react";
 
 const newsBlocks = [
   {
-    title: "Ability to send custom messages to LiveViews",
+    title: "Direct Source Code Navigation",
     description:
-      "Directly craft and inject custom events or messages into your LiveView process to test logic in total isolation. This allows you to verify how your handlers behave instantly without manually triggering UI actions or background jobs.",
+      "Jump straight from the Node Inspector to the exact line where your LiveView is defined. A simple shortcut that cuts out the guesswork of finding specific components in your file tree.",
     icon: SquareCheckBig,
   },
   {
-    title: "Clearer error reporting for callback exceptions",
+    title: "Trace Isolation & Filtering",
     description:
-      "LiveDebugger now captures and displays callback exceptions directly within the tool. View the exact error and stack trace the moment a crash occurs, keeping your debugging workflow entirely in the browser.",
+      "Use the new component tree to isolate specific nodes within Global Traces. Easily filter out background noise to focus only on the interactions that matter for your current session.",
     icon: SquareCheckBig,
   },
   {
-    title: "Revisited highlighting mechanism",
+    title: "Tree Structure for Nested LiveViews",
     description:
-      "The revisited highlighting mechanism now extends beyond the node tree to include Active LiveViews and Streams. Simply hover over any item in the tool to instantly spotlight its corresponding element in the browser UI.",
+      "Replaced the flat list with a proper hierarchical Tree Structure for Active LiveViews, making navigation through complex, multi-layered apps feel completely natural and intuitive.",
     icon: SquareCheckBig,
   },
   {
-    title: "Support for temporary assigns",
+    title: "Stability & Workflow Improvements",
     description:
-      "LiveDebugger supports temporary assigns, giving you full visibility into data that doesn’t stay in the socket.",
+      "Dozens of smaller fixes and optimizations to ensure a rock-solid debugging experience.",
     icon: SquareCheckBig,
   },
 ];
@@ -41,7 +41,7 @@ const newsBlocks = [
   >
     <div class="flex flex-col items-center justify-center gap-4">
       <Badge variant="ternary"
-        ><p class="text-sm font-medium">LiveDebugger v0.6.0</p></Badge
+        ><p class="text-sm font-medium">LiveDebugger v0.7.0</p></Badge
       >
       <h2 class="text-primary text-center text-2xl font-bold">What’s new</h2>
       <h3 class="font-regular text-lg">
