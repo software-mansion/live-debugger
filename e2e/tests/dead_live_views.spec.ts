@@ -13,7 +13,7 @@ const toggleDeadLiveViewsBtn = (page: Page) =>
 const navbarConnected = (page: Page) => page.locator('#navbar-connected');
 
 test('dead LiveViews are available to debug', async ({ devApp, dbgApp }) => {
-  const pid = getDevPid(devApp);
+  const pid = await getDevPid(devApp);
 
   await returnButton(dbgApp).click();
 
