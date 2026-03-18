@@ -1,4 +1,8 @@
-import { prepareDevDebuggerPairTest, expect, findNodeModuleInfo } from './dev-dbg-test';
+import {
+  prepareDevDebuggerPairTest,
+  expect,
+  findNodeModuleInfo,
+} from './dev-dbg-test';
 
 const test = prepareDevDebuggerPairTest('/embedded');
 
