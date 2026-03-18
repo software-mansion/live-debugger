@@ -1,5 +1,5 @@
 import { test, expect, Page, BrowserContext } from '@playwright/test';
-import { getDevPid } from './dev-dbg-test';
+import { getDevPid, findNodeModuleInfo } from './dev-dbg-test';
 
 const DBG_URL = 'http://localhost:4008';
 
@@ -21,9 +21,6 @@ const inspectTooltipType = (page: Page) =>
 const inspectTooltipValue = (page: Page) =>
   page.locator('div#live-debugger-tooltip .id-info .value');
 
-const nodeModuleInfo = (page: Page) =>
-  page.locator('#node-inspector-basic-info-current-node-module');
-
 const sidebarContainer = (page: Page) =>
   page.locator('#components-tree-sidebar-container');
 
@@ -36,7 +33,7 @@ const selectLiveViewByPid = async (dbgApp: Page, pid: string) => {
   );
   await btn.hover();
   await btn.click();
-  await expect(nodeModuleInfo(dbgApp)).toBeVisible();
+  await expect(findNodeModuleInfo(dbgApp)).toBeVisible();
 };
 
 const openDbgForLiveView = async (
@@ -74,7 +71,7 @@ test('user can inspect elements after enabling inspect mode', async ({
   await liveComponent(devApp, 2).click();
 
   await expect(inspectModeOverlay(devApp)).not.toBeVisible();
-  await expect(nodeModuleInfo(dbgApp)).toContainText(
+  await expect(findNodeModuleInfo(dbgApp)).toContainText(
     'LiveDebuggerDev.LiveComponents.Name'
   );
 });
@@ -130,13 +127,13 @@ test('selecting node redirects all subscribed debugger windows', async ({
 
   await liveComponent(devApp, 2).click();
 
-  await expect(nodeModuleInfo(dbgApp1)).toContainText(
+  await expect(findNodeModuleInfo(dbgApp1)).toContainText(
     'LiveDebuggerDev.LiveComponents.Name'
   );
-  await expect(nodeModuleInfo(dbgApp2)).toContainText(
+  await expect(findNodeModuleInfo(dbgApp2)).toContainText(
     'LiveDebuggerDev.LiveComponents.Name'
   );
-  await expect(nodeModuleInfo(dbgApp3)).toContainText(
+  await expect(findNodeModuleInfo(dbgApp3)).toContainText(
     'LiveDebuggerDev.LiveViews.Main'
   );
 });
@@ -151,7 +148,7 @@ test('inspection works for nested LiveViews in LiveComponents', async ({
   const dbgAppPromise = devApp.waitForEvent('popup');
   await devApp.getByText('Open in new tab').click();
   const dbgApp = await dbgAppPromise;
-  await expect(nodeModuleInfo(dbgApp)).toBeVisible();
+  await expect(findNodeModuleInfo(dbgApp)).toBeVisible();
 
   await switchInspectModeBtn(dbgApp).click();
 
@@ -162,7 +159,7 @@ test('inspection works for nested LiveViews in LiveComponents', async ({
     .click();
 
   await expect(inspectModeOverlay(devApp)).not.toBeVisible();
-  await expect(nodeModuleInfo(dbgApp)).toContainText(
+  await expect(findNodeModuleInfo(dbgApp)).toContainText(
     'LiveDebuggerDev.LiveViews.Simple'
   );
 });

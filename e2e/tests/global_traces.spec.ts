@@ -3,14 +3,14 @@ import {
   findSwitchTracingButton,
   findRefreshTracesButton,
   findClearTracesButton,
+  findGlobalTracesNavbarItem,
+  findSidebarBasicInfo,
   prepareDevDebuggerPairTest,
   Page,
 } from './dev-dbg-test';
 
 const test = prepareDevDebuggerPairTest();
 
-const globalTracesNavbarItem = (page: Page) =>
-  page.locator('#global-traces-navbar-item a');
 const globalTracesTitle = (page: Page, text: string) =>
   page.locator('h1', { hasText: text });
 const noTracesInfo = (page: Page) =>
@@ -29,8 +29,6 @@ const traceModule = (page: Page, text: string) =>
   });
 const searchBar = (page: Page) => page.locator('#trace-search-input');
 const traceFullscreen = (page: Page) => page.locator('#trace-fullscreen');
-const sidebarBasicInfo = (page: Page) =>
-  page.locator('#node-inspector-basic-info');
 const openFullscreenButton = (page: Page) =>
   page.locator('button[phx-click="open-trace"]');
 
@@ -49,7 +47,7 @@ const resetAllButton = (page: Page) =>
 const filtersSidebar = (page: Page) => page.locator('#filters-sidebar');
 
 test('user can trace callbacks globally', async ({ devApp, dbgApp }) => {
-  await globalTracesNavbarItem(dbgApp).click();
+  await findGlobalTracesNavbarItem(dbgApp).click();
   await expect(
     globalTracesTitle(dbgApp, 'Global Callback Traces')
   ).toBeVisible();
@@ -94,7 +92,7 @@ test('user can go to specific node from global callbacks', async ({
   devApp,
   dbgApp,
 }) => {
-  await globalTracesNavbarItem(dbgApp).click();
+  await findGlobalTracesNavbarItem(dbgApp).click();
   await findSwitchTracingButton(dbgApp).click();
   await findClearTracesButton(dbgApp).click();
   await findSwitchTracingButton(dbgApp).click();
@@ -105,12 +103,12 @@ test('user can go to specific node from global callbacks', async ({
     .first()
     .click();
 
-  await expect(sidebarBasicInfo(dbgApp)).toContainText('LiveView');
-  await expect(sidebarBasicInfo(dbgApp)).toContainText(
+  await expect(findSidebarBasicInfo(dbgApp)).toContainText('LiveView');
+  await expect(findSidebarBasicInfo(dbgApp)).toContainText(
     'LiveDebuggerDev.LiveViews.Main'
   );
 
-  await globalTracesNavbarItem(dbgApp).click();
+  await findGlobalTracesNavbarItem(dbgApp).click();
   await dbgApp
     .getByRole('link', {
       name: 'LiveDebuggerDev.LiveComponents.Send (4)',
@@ -119,8 +117,8 @@ test('user can go to specific node from global callbacks', async ({
     .first()
     .click();
 
-  await expect(sidebarBasicInfo(dbgApp)).toContainText('LiveComponent');
-  await expect(sidebarBasicInfo(dbgApp)).toContainText(
+  await expect(findSidebarBasicInfo(dbgApp)).toContainText('LiveComponent');
+  await expect(findSidebarBasicInfo(dbgApp)).toContainText(
     'LiveDebuggerDev.LiveComponents.Send'
   );
 });
@@ -129,7 +127,7 @@ test('user can search for callbacks using the searchbar', async ({
   devApp,
   dbgApp,
 }) => {
-  await globalTracesNavbarItem(dbgApp).click();
+  await findGlobalTracesNavbarItem(dbgApp).click();
   await findSwitchTracingButton(dbgApp).click();
   await findClearTracesButton(dbgApp).click();
   await findSwitchTracingButton(dbgApp).click();
@@ -166,7 +164,7 @@ test('incoming traces are filtered by search phrase', async ({
   devApp,
   dbgApp,
 }) => {
-  await globalTracesNavbarItem(dbgApp).click();
+  await findGlobalTracesNavbarItem(dbgApp).click();
   await findSwitchTracingButton(dbgApp).click();
   await findClearTracesButton(dbgApp).click();
 
@@ -182,7 +180,7 @@ test('user can enable diff tracing and see diff traces', async ({
   dbgApp,
 }) => {
   await dbgApp.setViewportSize({ width: 1920, height: 1080 });
-  await globalTracesNavbarItem(dbgApp).click();
+  await findGlobalTracesNavbarItem(dbgApp).click();
   await expect(
     globalTracesTitle(dbgApp, 'Global Callback Traces')
   ).toBeVisible();
@@ -225,7 +223,7 @@ test('user can enable diff tracing and see diff traces', async ({
 
 test.describe('Global Traces Filtering', () => {
   test.beforeEach(async ({ dbgApp }) => {
-    await globalTracesNavbarItem(dbgApp).click();
+    await findGlobalTracesNavbarItem(dbgApp).click();
     await findSwitchTracingButton(dbgApp).click();
     await findClearTracesButton(dbgApp).click();
     await findSwitchTracingButton(dbgApp).click();

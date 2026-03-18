@@ -1,15 +1,12 @@
-import { prepareDevDebuggerPairTest, expect, Page } from './dev-dbg-test';
+import { prepareDevDebuggerPairTest, expect, findNodeModuleInfo } from './dev-dbg-test';
 
 const test = prepareDevDebuggerPairTest('/embedded');
-
-const findCurrentNodeModule = (page: Page) =>
-  page.locator('#node-inspector-basic-info-current-node-module');
 
 test('user can see all associated LiveViews to currently debugged LiveView', async ({
   devApp,
   dbgApp,
 }) => {
-  await expect(findCurrentNodeModule(dbgApp)).toHaveText(
+  await expect(findNodeModuleInfo(dbgApp)).toHaveText(
     'LiveDebuggerDev.LiveViews.Embedded'
   );
 
@@ -22,7 +19,7 @@ test('user can see all associated LiveViews to currently debugged LiveView', asy
   await nestedLiveViewNode.hover();
   await nestedLiveViewNode.click();
 
-  await expect(findCurrentNodeModule(dbgApp)).toHaveText(
+  await expect(findNodeModuleInfo(dbgApp)).toHaveText(
     'LiveDebuggerDev.LiveViews.Nested'
   );
 

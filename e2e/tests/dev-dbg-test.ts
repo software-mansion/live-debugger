@@ -52,4 +52,27 @@ export const returnButton = (page: Page) => page.locator('#return-button');
 export const findNodeInspectorButton = (page: Page) =>
   page.locator('#node-inspector-navbar-item a');
 
+export const findNodeModuleInfo = (page: Page) =>
+  page.locator('#node-inspector-basic-info-current-node-module');
+
+export const findComponentTreeNode = (page: Page, cid: number) =>
+  page.locator(`#button-tree-node-${cid}-components-tree`);
+
+export const findSidebarBasicInfo = (page: Page) =>
+  page.locator('#node-inspector-basic-info');
+
+export const findGlobalTracesNavbarItem = (page: Page) =>
+  page.locator('#global-traces-navbar-item a');
+
+export const setCollapsibleOpenState = async (
+  page: Page,
+  sectionId: string,
+  state: string
+) => {
+  await page.evaluate(
+    ([id, st]) => localStorage.setItem(`lvdbg:collapsible-open-${id}`, st),
+    [sectionId, state]
+  );
+};
+
 export { expect, Page } from '@playwright/test';

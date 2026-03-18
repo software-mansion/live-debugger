@@ -1,5 +1,10 @@
 import { test as baseTest, expect, Page } from '@playwright/test';
-import { prepareDevDebuggerPairTest } from './dev-dbg-test';
+import {
+  prepareDevDebuggerPairTest,
+  findComponentTreeNode,
+  findNodeModuleInfo,
+  setCollapsibleOpenState,
+} from './dev-dbg-test';
 
 const testStream = prepareDevDebuggerPairTest('/stream');
 const testRoot = prepareDevDebuggerPairTest('/');
@@ -29,22 +34,6 @@ const anotherItemsStreamDetails = (page: Page) =>
   page.locator('#another_items-stream > details');
 const componentItemsStreamDetails = (page: Page) =>
   page.locator('#component_items-stream > details');
-
-const componentTreeNode = (page: Page, cid: number) =>
-  page.locator(`#button-tree-node-${cid}-components-tree`);
-const nodeModuleInfo = (page: Page) =>
-  page.locator('#node-inspector-basic-info-current-node-module');
-
-const setCollapsibleOpenState = async (
-  page: Page,
-  sectionId: string,
-  state: string
-) => {
-  await page.evaluate(
-    ([id, st]) => localStorage.setItem(`lvdbg:collapsible-open-${id}`, st),
-    [sectionId, state]
-  );
-};
 
 testStream.describe('LiveDebugger Streams', () => {
   testStream.beforeEach(async ({ dbgApp }) => {
@@ -97,9 +86,9 @@ testStream.describe('LiveDebugger Streams', () => {
       await expect(anotherItemsDisplay(dbgApp)).toBeVisible();
       await anotherItemsDisplay(dbgApp).click();
 
-      await componentTreeNode(dbgApp, 1).click();
+      await findComponentTreeNode(dbgApp, 1).click();
 
-      await expect(nodeModuleInfo(dbgApp)).toContainText('StreamComponent');
+      await expect(findNodeModuleInfo(dbgApp)).toContainText('StreamComponent');
       await expect(componentItemsDisplay(dbgApp)).toBeVisible();
 
       await componentItemsDisplay(dbgApp).click();
