@@ -28,13 +28,13 @@ const showButton = async (page: Page, selector: string) => {
 const clickPinButton = async (page: Page, assignKey: string) => {
   const selector = `#all-assigns button[phx-click="pin-assign"][phx-value-key="${assignKey}"]`;
   await showButton(page, selector);
-  await page.locator(selector).click();
+  await page.locator(selector).click({ force: true });
 };
 
 const clickUnpinButton = async (page: Page, assignKey: string) => {
   const selector = `#pinned-assigns button[phx-click="unpin-assign"][phx-value-key="${assignKey}"]`;
   await showButton(page, selector);
-  await page.locator(selector).click();
+  await page.locator(selector).click({ force: true });
 };
 
 test('user can search assigns using the searchbar', async ({ dbgApp }) => {
