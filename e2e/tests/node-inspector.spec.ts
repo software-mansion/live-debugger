@@ -19,7 +19,6 @@ const findNodeBasicInfo = (page: Page) =>
 const findComponentsTreeButton = (page: Page, name: string) =>
   page.getByRole('button', { name });
 
-// Filter form helpers
 const FILTERS_FORM = '#filters-fullscreen-form';
 
 const findCallbackCheckbox = (page: Page, name: string) =>
@@ -51,10 +50,8 @@ const findResetGroupButton = (page: Page, group: string) =>
 const findResetFiltersButton = (page: Page) =>
   page.locator('button[phx-click="reset-filters"]');
 
-// Search
 const findSearchBar = (page: Page) => page.locator('#trace-search-input');
 
-// Fullscreen trace
 const findOpenFullscreenTraceButton = (page: Page) =>
   page.locator('button[phx-click="open-trace"]');
 
@@ -305,7 +302,6 @@ test('user can inspect arguments of executed callback', async ({
 
   await expect(traces).toHaveCount(6);
 
-  // Traces order (newest first): render, handle_info, render, handle_event, render, mount
   const render3 = traces.nth(0);
   const handleInfo = traces.nth(1);
   const render2 = traces.nth(2);
@@ -345,7 +341,6 @@ test('incoming traces are filtered by search phrase', async ({
   await findSearchBar(dbgApp).fill(':new_datetime');
   await expect(traces).toHaveCount(0);
 
-  // Re-enable tracing, incoming traces should be filtered
   await findSwitchTracingButton(dbgApp).click();
   await devApp.locator('button#send-button').click();
   await expect(traces).toHaveCount(1);
@@ -355,29 +350,24 @@ test('user can search for callbacks using the searchbar', async ({
   devApp,
   dbgApp,
 }) => {
-  // Stop tracing, clear traces for clean slate
   await findSwitchTracingButton(dbgApp).click();
   await findClearTracesButton(dbgApp).click();
 
-  // Re-enable tracing, generate handle_info trace, stop tracing
   await findSwitchTracingButton(dbgApp).click();
   await devApp.locator('button#send-button').click();
   await findSwitchTracingButton(dbgApp).click();
 
-  // Search for :new_datetime
   await findSearchBar(dbgApp).fill(':new_datetime');
 
   const traces = findTraces(dbgApp);
   await expect(traces).toHaveCount(1);
   await expect(traces.first()).toContainText(':new_datetime');
 
-  // Clear traces, enable tracing, generate handle_event trace, stop
   await findClearTracesButton(dbgApp).click();
   await findSwitchTracingButton(dbgApp).click();
   await devApp.locator('button#increment-button').click();
   await findSwitchTracingButton(dbgApp).click();
 
-  // Search for "deep value"
   await findSearchBar(dbgApp).fill('deep value');
 
   await expect(traces).toHaveCount(2);
@@ -416,7 +406,6 @@ test('user can filter traces by callback name', async ({ devApp, dbgApp }) => {
   const traces = findTraces(dbgApp);
   await expect(traces).toHaveCount(2);
 
-  // Generate more traces
   await devApp.locator('button#send-button').click();
   await devApp.locator('button#send-button').click();
 
@@ -432,7 +421,6 @@ test('user can filter traces by callback name', async ({ devApp, dbgApp }) => {
     'mount/3',
   ]);
 
-  // Open filters, uncheck mount and render, apply
   await findFiltersButton(dbgApp).click();
   await expect(dbgApp.locator('dialog#filters-fullscreen')).toBeVisible();
   await findCallbackCheckbox(dbgApp, 'mount/3').uncheck();
@@ -441,7 +429,6 @@ test('user can filter traces by callback name', async ({ devApp, dbgApp }) => {
 
   await assertTraceNames(dbgApp, ['handle_info/2', 'handle_info/2']);
 
-  // Click increment x2 in devApp, refresh history
   await devApp.locator('button#increment-button').click();
   await devApp.locator('button#increment-button').click();
   await findRefreshTracesButton(dbgApp).click();
@@ -453,7 +440,6 @@ test('user can filter traces by callback name', async ({ devApp, dbgApp }) => {
     'handle_info/2',
   ]);
 
-  // Re-enable tracing, click send x2
   await findSwitchTracingButton(dbgApp).click();
   await devApp.locator('button#send-button').click();
   await devApp.locator('button#send-button').click();
@@ -467,7 +453,6 @@ test('user can filter traces by callback name', async ({ devApp, dbgApp }) => {
     'handle_info/2',
   ]);
 
-  // Stop tracing, reset all, apply → all 14 traces
   await findSwitchTracingButton(dbgApp).click();
   await findFiltersButton(dbgApp).click();
   await findResetAllButton(dbgApp).click();
@@ -490,7 +475,6 @@ test('user can filter traces by callback name', async ({ devApp, dbgApp }) => {
     'mount/3',
   ]);
 
-  // Open filters, uncheck ALL callbacks, apply → 0 traces
   await findFiltersButton(dbgApp).click();
   await findCallbackCheckbox(dbgApp, 'mount/3').uncheck();
   await findCallbackCheckbox(dbgApp, 'handle_params/3').uncheck();
@@ -507,14 +491,11 @@ test('user can filter traces by callback name', async ({ devApp, dbgApp }) => {
 });
 
 test('user can filter traces by execution time', async ({ devApp, dbgApp }) => {
-  // Stop tracing, clear traces
   await findSwitchTracingButton(dbgApp).click();
   await findClearTracesButton(dbgApp).click();
 
-  // Click slow-increment (400ms)
   await devApp.locator('button#slow-increment-button').click();
 
-  // Wait and refresh until slow traces appear
   const refreshBtn = findRefreshTracesButton(dbgApp);
   await refreshBtn.click();
   await dbgApp.waitForTimeout(405);
@@ -523,7 +504,6 @@ test('user can filter traces by execution time', async ({ devApp, dbgApp }) => {
   const traces = findTraces(dbgApp);
   await expect(traces).toHaveCount(2);
 
-  // Click very-slow-increment (1100ms)
   await devApp.locator('button#very-slow-increment-button').click();
   await dbgApp.waitForTimeout(1110);
   await refreshBtn.click();
@@ -545,7 +525,6 @@ test('user can filter traces by execution time', async ({ devApp, dbgApp }) => {
     /^\s*4\d\d ms\s*$/
   );
 
-  // Re-enable tracing, click increment + slow-increment
   await findSwitchTracingButton(dbgApp).click();
   await devApp.locator('button#increment-button').click();
   await devApp.locator('button#slow-increment-button').click();
@@ -563,12 +542,10 @@ test('user can filter traces by names and execution time', async ({
   devApp,
   dbgApp,
 }) => {
-  // Stop tracing, clear traces, re-enable tracing
   await findSwitchTracingButton(dbgApp).click();
   await findClearTracesButton(dbgApp).click();
   await findSwitchTracingButton(dbgApp).click();
 
-  // Generate traces: slow-increment, increment, send
   await devApp.locator('button#slow-increment-button').click();
   await devApp.locator('button#increment-button').click();
   await devApp.locator('button#send-button').click();
@@ -598,7 +575,6 @@ test('user can filter traces by names and execution time', async ({
   // Only the slow handle_event (>100ms) passes
   await assertTraceNames(dbgApp, ['handle_event/3']);
 
-  // Click slow-increment + send, refresh
   await devApp.locator('button#slow-increment-button').click();
   await devApp.locator('button#send-button').click();
   await dbgApp.waitForTimeout(405);
@@ -607,7 +583,6 @@ test('user can filter traces by names and execution time', async ({
   // 2 slow handle_events pass the filter
   await assertTraceNames(dbgApp, ['handle_event/3', 'handle_event/3']);
 
-  // Open filters, reset execution_time group, apply
   await findFiltersButton(dbgApp).click();
   await findResetGroupButton(dbgApp, 'execution_time').click();
   await findApplyButton(dbgApp).click();
@@ -621,7 +596,7 @@ test('user can filter traces by names and execution time', async ({
     'handle_event/3',
   ]);
 
-  // Open filters, set exec_time_max=100, reset functions group, apply
+  // Open filters, set exec_time_max=100µs, reset functions group, apply
   await findFiltersButton(dbgApp).click();
   await findExecTimeMaxInput(dbgApp).fill('100');
   await findResetGroupButton(dbgApp, 'functions').click();
@@ -640,7 +615,6 @@ test('user can filter traces by names and execution time', async ({
     'render/1',
   ]);
 
-  // Open filters, uncheck handle_info, apply
   await findFiltersButton(dbgApp).click();
   await findCallbackCheckbox(dbgApp, 'handle_info/2').uncheck();
   await findApplyButton(dbgApp).click();
