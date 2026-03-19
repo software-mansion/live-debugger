@@ -66,10 +66,8 @@ const findInspectTooltipValueText = (page: Page) =>
 // Trace name assertions helper
 const assertTraceNames = async (page: Page, expectedNames: string[]) => {
   const traces = findTraces(page);
+  await expect(traces).toContainText(expectedNames);
   await expect(traces).toHaveCount(expectedNames.length);
-  for (let i = 0; i < expectedNames.length; i++) {
-    await expect(traces.nth(i)).toContainText(expectedNames[i]);
-  }
 };
 
 // Map entry in trace details (scoped to a trace element)
