@@ -25,8 +25,7 @@ test.describe('LiveDebugger Dead View Mode', () => {
   test('dead view mode with navigation', async ({ devApp, dbgApp }) => {
     await expect(navbarConnected(dbgApp)).toContainText('Monitored PID');
 
-    await devApp.evaluate(() => window.location.reload());
-
+    await devApp.reload();
     await expect(navbarConnected(dbgApp)).toContainText('Disconnected');
 
     await expect(componentsTree(dbgApp)).toBeVisible();
@@ -38,8 +37,6 @@ test.describe('LiveDebugger Dead View Mode', () => {
 
     await findGlobalTracesNavbarItem(dbgApp).click();
     await expect(globalTracesDetails(dbgApp)).toHaveCount(25);
-
-    await findNodeInspectorButton(dbgApp).click();
   });
 
   test('traces ended with exception are visible in dead view mode', async ({
