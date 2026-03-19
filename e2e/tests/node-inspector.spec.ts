@@ -7,6 +7,7 @@ import {
   findRefreshTracesButton,
   findClearTracesButton,
   findFiltersButton,
+  restartTracing,
   prepareDevDebuggerPairTest,
   Page,
 } from './dev-dbg-test';
@@ -350,10 +351,7 @@ test('user can search for callbacks using the searchbar', async ({
   devApp,
   dbgApp,
 }) => {
-  await findSwitchTracingButton(dbgApp).click();
-  await findClearTracesButton(dbgApp).click();
-
-  await findSwitchTracingButton(dbgApp).click();
+  await restartTracing(dbgApp);
   await devApp.locator('button#send-button').click();
   await findSwitchTracingButton(dbgApp).click();
 
@@ -543,9 +541,7 @@ test('user can filter traces by names and execution time', async ({
   devApp,
   dbgApp,
 }) => {
-  await findSwitchTracingButton(dbgApp).click();
-  await findClearTracesButton(dbgApp).click();
-  await findSwitchTracingButton(dbgApp).click();
+  await restartTracing(dbgApp);
 
   await devApp.locator('button#slow-increment-button').click();
   await devApp.locator('button#increment-button').click();

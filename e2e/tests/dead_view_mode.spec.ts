@@ -1,10 +1,9 @@
 import { expect, Page } from '@playwright/test';
 import {
-  findSwitchTracingButton,
-  findClearTracesButton,
   findSidebarBasicInfo,
   findGlobalTracesNavbarItem,
   findNodeInspectorButton,
+  restartTracing,
   prepareDevDebuggerPairTest,
 } from './dev-dbg-test';
 
@@ -45,9 +44,7 @@ test.describe('LiveDebugger Dead View Mode', () => {
   }) => {
     await findGlobalTracesNavbarItem(dbgApp).click();
 
-    await findSwitchTracingButton(dbgApp).click();
-    await findClearTracesButton(dbgApp).click();
-    await findSwitchTracingButton(dbgApp).click();
+    await restartTracing(dbgApp);
 
     await devCrashBtn(devApp).click();
 

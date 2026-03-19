@@ -26,39 +26,39 @@ const codeMirrorTextbox = (page: Page) =>
 const sendButton = (page: Page) =>
   page.locator('dialog#send-event-fullscreen button[type="submit"]');
 
+const dispatchEvent = async (
+  page: Page,
+  handler: string,
+  opts: { event?: string; payload?: string }
+) => {
+  await sendEventButton(page).click();
+  await expect(sendEventFullscreen(page)).toBeVisible();
+  await handlerSelect(page).selectOption(handler);
+  if (opts.event) {
+    await eventInput(page).fill(opts.event);
+  }
+  if (opts.payload) {
+    await codeMirrorTextbox(page).fill(opts.payload);
+  }
+  await sendButton(page).click();
+  await expect(sendEventFullscreen(page)).not.toBeVisible();
+};
+
 test('user can send events to LiveView and LiveComponent', async ({
   dbgApp,
 }) => {
   await expect(findSidebarBasicInfo(dbgApp)).toBeVisible();
   await expect(findAssignsEntry(dbgApp, 'counter', '0')).toBeVisible();
 
-  await sendEventButton(dbgApp).click();
-  await expect(sendEventFullscreen(dbgApp)).toBeVisible();
-  await handlerSelect(dbgApp).selectOption('handle_info/2');
-  await codeMirrorTextbox(dbgApp).fill(':increment');
-  await sendButton(dbgApp).click();
-
-  await expect(sendEventFullscreen(dbgApp)).not.toBeVisible();
+  await dispatchEvent(dbgApp, 'handle_info/2', { payload: ':increment' });
   await expect(findAssignsEntry(dbgApp, 'counter', '1')).toBeVisible();
 
   await findComponentTreeNode(dbgApp, 5).click();
   await expect(findAssignsEntry(dbgApp, 'show_child?', 'false')).toBeVisible();
 
-  await sendEventButton(dbgApp).click();
-  await expect(sendEventFullscreen(dbgApp)).toBeVisible();
-  await handlerSelect(dbgApp).selectOption('handle_event/3');
-  await eventInput(dbgApp).fill('show_child');
-  await sendButton(dbgApp).click();
-
-  await expect(sendEventFullscreen(dbgApp)).not.toBeVisible();
+  await dispatchEvent(dbgApp, 'handle_event/3', { event: 'show_child' });
   await expect(findAssignsEntry(dbgApp, 'show_child?', 'true')).toBeVisible();
 
-  await sendEventButton(dbgApp).click();
-  await expect(sendEventFullscreen(dbgApp)).toBeVisible();
-  await handlerSelect(dbgApp).selectOption('update/2');
-  await codeMirrorTextbox(dbgApp).fill('%{show_child?: false}');
-  await sendButton(dbgApp).click();
-
-  await expect(sendEventFullscreen(dbgApp)).not.toBeVisible();
+  await dispatchEvent(dbgApp, 'update/2', { payload: '%{show_child?: false}' });
   await expect(findAssignsEntry(dbgApp, 'show_child?', 'false')).toBeVisible();
 });

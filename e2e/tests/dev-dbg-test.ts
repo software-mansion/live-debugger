@@ -65,6 +65,12 @@ export const findSidebarBasicInfo = (page: Page) =>
 export const findGlobalTracesNavbarItem = (page: Page) =>
   page.locator('#global-traces-navbar-item a');
 
+export const restartTracing = async (page: Page) => {
+  await findSwitchTracingButton(page).click();
+  await findClearTracesButton(page).click();
+  await findSwitchTracingButton(page).click();
+};
+
 export const setCollapsibleOpenState = async (
   page: Page,
   sectionId: string,

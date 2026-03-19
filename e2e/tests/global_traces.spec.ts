@@ -5,6 +5,7 @@ import {
   findClearTracesButton,
   findGlobalTracesNavbarItem,
   findSidebarBasicInfo,
+  restartTracing,
   prepareDevDebuggerPairTest,
   Page,
 } from './dev-dbg-test';
@@ -93,9 +94,7 @@ test('user can go to specific node from global callbacks', async ({
   dbgApp,
 }) => {
   await findGlobalTracesNavbarItem(dbgApp).click();
-  await findSwitchTracingButton(dbgApp).click();
-  await findClearTracesButton(dbgApp).click();
-  await findSwitchTracingButton(dbgApp).click();
+  await restartTracing(dbgApp);
   await devApp.locator('button#send-button').click();
 
   await dbgApp
@@ -128,9 +127,7 @@ test('user can search for callbacks using the searchbar', async ({
   dbgApp,
 }) => {
   await findGlobalTracesNavbarItem(dbgApp).click();
-  await findSwitchTracingButton(dbgApp).click();
-  await findClearTracesButton(dbgApp).click();
-  await findSwitchTracingButton(dbgApp).click();
+  await restartTracing(dbgApp);
   await devApp.locator('button#send-button').click();
   await findSwitchTracingButton(dbgApp).click();
 
@@ -224,9 +221,7 @@ test('user can enable diff tracing and see diff traces', async ({
 test.describe('Global Traces Filtering', () => {
   test.beforeEach(async ({ dbgApp }) => {
     await findGlobalTracesNavbarItem(dbgApp).click();
-    await findSwitchTracingButton(dbgApp).click();
-    await findClearTracesButton(dbgApp).click();
-    await findSwitchTracingButton(dbgApp).click();
+    await restartTracing(dbgApp);
   });
 
   test('user can filter existing traces by component', async ({

@@ -46,6 +46,22 @@ const openDbgForLiveView = async (
   return dbgApp;
 };
 
+const openMobileDbgForLiveView = async (
+  context: BrowserContext,
+  pid: string
+): Promise<Page> => {
+  const dbgApp = await context.newPage();
+  await dbgApp.setViewportSize({ width: 600, height: 1000 });
+  await dbgApp.goto(DBG_URL);
+  const btn = dbgApp.locator(
+    `button[id="${pid}"][phx-click="select-live-view"]`
+  );
+  await btn.hover();
+  await btn.click();
+  await expect(switchInspectModeBtn(dbgApp)).toBeVisible();
+  return dbgApp;
+};
+
 test('user can inspect elements after enabling inspect mode', async ({
   page: devApp,
   context,
@@ -170,17 +186,7 @@ test('sidebar opens automatically on small screens', async ({
 }) => {
   await devApp.goto('/');
   const pid = await getDevPid(devApp);
-
-  const dbgApp = await context.newPage();
-  await dbgApp.setViewportSize({ width: 600, height: 1000 });
-  await dbgApp.goto(DBG_URL);
-
-  const btn = dbgApp.locator(
-    `button[id="${pid}"][phx-click="select-live-view"]`
-  );
-  await btn.hover();
-  await btn.click();
-  await expect(switchInspectModeBtn(dbgApp)).toBeVisible();
+  const dbgApp = await openMobileDbgForLiveView(context, pid);
 
   await expect(sidebarContainer(dbgApp)).not.toBeVisible();
   await expect(closeSidebarBtn(dbgApp)).not.toBeVisible();
@@ -198,17 +204,7 @@ test('sidebar closes on desktop resize and stays closed', async ({
 }) => {
   await devApp.goto('/');
   const pid = await getDevPid(devApp);
-
-  const dbgApp = await context.newPage();
-  await dbgApp.setViewportSize({ width: 600, height: 1000 });
-  await dbgApp.goto(DBG_URL);
-
-  const btn = dbgApp.locator(
-    `button[id="${pid}"][phx-click="select-live-view"]`
-  );
-  await btn.hover();
-  await btn.click();
-  await expect(switchInspectModeBtn(dbgApp)).toBeVisible();
+  const dbgApp = await openMobileDbgForLiveView(context, pid);
 
   await expect(sidebarContainer(dbgApp)).not.toBeVisible();
 
