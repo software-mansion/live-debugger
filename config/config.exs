@@ -76,15 +76,6 @@ if config_env() == :dev do
 end
 
 if config_env() == :test do
-  config :wallaby,
-    driver: Wallaby.Chrome,
-    otp_app: :live_debugger,
-    chrome: [headless: true],
-    js_logger: nil,
-    screenshot_on_failure: true,
-    screenshot_dir: "tmp/screenshots",
-    max_wait_time: 5_000
-
   config :live_debugger,
     server: true,
     port: 4008
