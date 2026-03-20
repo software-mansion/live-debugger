@@ -990,7 +990,7 @@ defmodule LiveDebugger.App.Web.Components do
   Based on [Tailwind CSS Toggle - Flowbite](https://flowbite.com/docs/forms/toggle)
   """
   attr(:checked, :boolean, default: false, doc: "Whether the switch is checked.")
-  attr(:label, :string, default: "", doc: "Label for the switch.")
+  attr(:label, :string, default: nil, doc: "Label for the switch.")
   attr(:wrapper_class, :any, default: nil, doc: "Additional classes to add to the switch.")
   attr(:id, :string, required: true, doc: "ID of the switch.")
   attr(:disabled, :boolean, default: false, doc: "Whether the switch is disabled.")
@@ -1004,7 +1004,7 @@ defmodule LiveDebugger.App.Web.Components do
         if(@disabled, do: "opacity-50 pointer-events-none", else: "cursor-pointer")
       ] ++ List.wrap(@wrapper_class)
     }>
-      <span class="text-xs font-normal text-primary-text mx-2">
+      <span :if={@label} class="text-xs font-normal text-primary-text mx-2">
         <%= @label %>
       </span>
       <form>
