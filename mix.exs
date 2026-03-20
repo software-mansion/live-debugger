@@ -51,8 +51,7 @@ defmodule LiveDebugger.MixProject do
         "assets.setup",
         "assets.build:dev"
       ],
-      test: ["test --exclude e2e"],
-      e2e: [&e2e_tests_setup/1, "test --only e2e"],
+      test: ["test"],
       "e2e_playwright.setup": [
         "cmd --cd e2e npm ci",
         "cmd --cd e2e npx playwright install --with-deps"
@@ -74,10 +73,6 @@ defmodule LiveDebugger.MixProject do
     ]
   end
 
-  defp e2e_tests_setup(_) do
-    Application.put_env(:live_debugger, :e2e?, true)
-  end
-
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
@@ -92,8 +87,7 @@ defmodule LiveDebugger.MixProject do
       {:mox, "~> 1.2", only: :test},
       {:phx_new, "~> 1.7", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.34", only: :dev, runtime: false},
-      {:wallaby, "~> 0.30", runtime: false, only: :test}
+      {:ex_doc, "~> 0.34", only: :dev, runtime: false}
     ]
   end
 
