@@ -7,7 +7,7 @@ import {
 } from './dev-dbg-test';
 
 const testStream = prepareDevDebuggerPairTest('/stream');
-const testRoot = prepareDevDebuggerPairTest('/');
+const testMain = prepareDevDebuggerPairTest('/');
 
 const createItemBtn = (page: Page) => page.locator('button#create-item');
 const createAnotherItemBtn = (page: Page) =>
@@ -18,8 +18,6 @@ const addNewStreamBtn = (page: Page) => page.locator('button#add-new-stream');
 
 const streamsDisplay = (page: Page) =>
   page.locator('#streams-display-container');
-const streamsCollapsible = (page: Page) =>
-  page.locator('summary#streams-section-container-summary');
 
 const itemsDisplay = (page: Page) => page.locator('#items-display');
 const anotherItemsDisplay = (page: Page) =>
@@ -146,11 +144,9 @@ baseTest(
   }
 );
 
-testRoot.describe('LiveDebugger Default Root', () => {
-  testRoot(
-    'User does not see streams section if there are no streams',
-    async ({ dbgApp }) => {
-      await expect(streamsDisplay(dbgApp)).not.toBeVisible();
-    }
-  );
-});
+testMain(
+  'User does not see streams section if there are no streams',
+  async ({ dbgApp }) => {
+    await expect(streamsDisplay(dbgApp)).not.toBeVisible();
+  }
+);
