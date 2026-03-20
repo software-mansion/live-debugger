@@ -15,11 +15,11 @@ defmodule LiveDebugger.App.Settings.Web.Components do
 
   def settings_switch(assigns) do
     ~H"""
-    <div class="flex items-center">
+    <div class="flex items-start">
       <.toggle_switch
         id={@id}
         checked={@checked}
-        wrapper_class="pr-3 py-0"
+        wrapper_class="!pr-3 !py-1"
         {@rest}
         phx-change={clear_flash("#flash-info", :info)}
       />
