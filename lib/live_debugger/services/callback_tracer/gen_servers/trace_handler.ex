@@ -105,6 +105,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
     with {:ok, trace} <- TraceActions.create_trace(n, module, fun, args, pid, ts),
          {:ok, ref} <- TraceActions.persist_trace(trace),
          :ok <- TraceActions.publish_trace(trace, ref) do
+      dbg({module, fun, args})
+      dbg({LiveDebugger.Utils.FunctionMatcher.find_clause_location(module, fun, args)})
       {:noreply, put_trace_record(state, trace, ref, ts)}
     else
       {:error, "Transport PID is nil"} ->
