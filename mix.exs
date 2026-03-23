@@ -52,11 +52,11 @@ defmodule LiveDebugger.MixProject do
         "assets.build:dev"
       ],
       test: ["test"],
-      "e2e_playwright.setup": [
+      "e2e.setup": [
         "cmd --cd e2e npm ci",
         "cmd --cd e2e npx playwright install --with-deps"
       ],
-      e2e_playwright: ["cmd --cd e2e npx playwright test"],
+      e2e: ["cmd --cd e2e npx playwright test"],
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
       "assets.build:deploy": [
         "esbuild build_app_js_deploy",
