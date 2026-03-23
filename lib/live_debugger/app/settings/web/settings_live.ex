@@ -62,7 +62,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
             <SettingsComponents.settings_switch
               id="highlight-in-browser-switch"
               label="Highlight components"
-              description="When enabled, it will highlight LiveViews and LiveComponent in the browser using Components Tree and Active LiveViews. For this feature to work, you must have enabled browser features (See docs for config)."
+              description="When enabled, it will highlight LiveViews and LiveComponents in the browser using Components Tree and Active LiveViews. For this feature to work, you must have enabled browser features (See docs for config)."
               checked={@settings[:highlight_in_browser]}
               phx-click="update"
               phx-value-setting="highlight_in_browser"
@@ -99,7 +99,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
             <div class="flex gap-3 mb-3 items-center">
               <p class="font-semibold text-sm">Performance & memory</p>
               <div class="flex gap-1 items-center bg-warning-bg border border-warning-border rounded-full text-warning-text py-1 px-2">
-                <.icon name="icon-triangle-alert w-3 h-3" />
+                <.icon name="icon-triangle-alert" class="w-3 h-3" />
                 <span class="text-[11px] font-semibold">High impact</span>
               </div>
             </div>
