@@ -9,9 +9,11 @@ defmodule LiveDebugger.App.Settings.Web.Components do
 
   attr(:id, :string, required: true)
   attr(:label, :string, required: true)
-  attr(:description, :string, required: true)
+  attr(:description_text, :string)
   attr(:checked, :boolean, default: false)
   attr(:rest, :global)
+
+  slot(:description)
 
   def settings_switch(assigns) do
     ~H"""
@@ -25,7 +27,9 @@ defmodule LiveDebugger.App.Settings.Web.Components do
       />
       <div class="flex flex-col gap-0.5">
         <p class="font-semibold"><%= @label %></p>
-        <p class="text-secondary-text"><%= @description %></p>
+        <p class="text-secondary-text">
+          <%= if(@description != [], do: render_slot(@description), else: @description_text) %>
+        </p>
       </div>
     </div>
     """

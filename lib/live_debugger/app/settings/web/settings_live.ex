@@ -16,6 +16,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserRefreshedTrace
 
+  @config_browser_features_docs_url "https://hexdocs.pm/live_debugger/config.html#browser-features"
   @available_settings SettingsStorage.available_settings() |> Enum.map(&Atom.to_string/1)
 
   @impl true
@@ -27,6 +28,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
     socket
     |> assign(return_to: params["return_to"])
     |> assign(settings: SettingsStorage.get_all())
+    |> assign(config_browser_features_docs_url: @config_browser_features_docs_url)
     |> noreply()
   end
 
@@ -62,15 +64,27 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
             <SettingsComponents.settings_switch
               id="highlight-in-browser-switch"
               label="Highlight components"
-              description="When enabled, it will highlight LiveViews and LiveComponents in the browser using Components Tree and Active LiveViews. For this feature to work, you must have enabled browser features (See docs for config)."
               checked={@settings[:highlight_in_browser]}
               phx-click="update"
               phx-value-setting="highlight_in_browser"
-            />
+            >
+              <:description>
+                When enabled, it will highlight LiveViews and LiveComponents in the browser using Components Tree and Active LiveViews.
+                For this feature to work, you must have enabled browser features (See
+                <.link
+                  href={@config_browser_features_docs_url}
+                  target="_blank"
+                  class="text-link-primary hover:text-link-primary-hover"
+                >
+                  docs
+                </.link>
+                for config).
+              </:description>
+            </SettingsComponents.settings_switch>
             <SettingsComponents.settings_switch
               id="debug-button-switch"
               label="Show Debug Button"
-              description="When enabled, a debug button will be added to every LiveView page, allowing you to quickly open LiveDebugger for the current page."
+              description_text="When enabled, a debug button will be added to every LiveView page, allowing you to quickly open LiveDebugger for the current page."
               checked={@settings[:debug_button]}
               phx-click="update"
               phx-value-setting="debug_button"
@@ -81,7 +95,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
             <SettingsComponents.settings_switch
               id="dead-view-mode-switch"
               label="Enable DeadView mode"
-              description="When enabled, LiveDebugger won't redirect to new LiveView after page redirect or reload, allowing you to browse assigns and traces of dead LiveViews."
+              description_text="When enabled, LiveDebugger won't redirect to new LiveView after page redirect or reload, allowing you to browse assigns and traces of dead LiveViews."
               checked={@settings[:dead_view_mode]}
               phx-click="update"
               phx-value-setting="dead_view_mode"
@@ -89,7 +103,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
             <SettingsComponents.settings_switch
               id="tracing-enabled-on-start-switch"
               label="Tracing enabled on start"
-              description="When enabled, LiveDebugger will start tracing as soon as you open the debugger. When disabled, LiveDebugger still records all traces, but you will need to manually start tracing to see new traces coming."
+              description_text="When enabled, LiveDebugger will start tracing as soon as you open the debugger. When disabled, LiveDebugger still records all traces, but you will need to manually start tracing to see new traces coming."
               checked={@settings[:tracing_enabled_on_start]}
               phx-click="update"
               phx-value-setting="tracing_enabled_on_start"
@@ -106,7 +120,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
             <SettingsComponents.settings_switch
               id="garbage-collection-switch"
               label="Garbage Collection"
-              description="When enabled, LiveDebugger will remove old data to free up memory. Disabling this option will lead to increased memory usage."
+              description_text="When enabled, LiveDebugger will remove old data to free up memory. Disabling this option will lead to increased memory usage."
               checked={@settings[:garbage_collection]}
               phx-click="update"
               phx-value-setting="garbage_collection"
