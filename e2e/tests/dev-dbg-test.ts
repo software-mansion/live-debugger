@@ -43,7 +43,43 @@ export const findRefreshTracesButton = (page: Page) =>
 export const findFiltersButton = (page: Page) =>
   page.locator('button[aria-label="Open filters"]');
 
+export const getDevPid = async (page: Page) => {
+  const pidEl = page.locator('#current-pid');
+  await pidEl.waitFor();
+  return (await pidEl.textContent())?.trim() ?? '';
+};
+
+export const returnButton = (page: Page) => page.locator('#return-button');
 export const findNodeInspectorButton = (page: Page) =>
   page.locator('#node-inspector-navbar-item a');
+
+export const findNodeModuleInfo = (page: Page) =>
+  page.locator('#node-inspector-basic-info-current-node-module');
+
+export const findComponentTreeNode = (page: Page, cid: number) =>
+  page.locator(`#button-tree-node-${cid}-components-tree`);
+
+export const findSidebarBasicInfo = (page: Page) =>
+  page.locator('#node-inspector-basic-info');
+
+export const findGlobalTracesNavbarItem = (page: Page) =>
+  page.locator('#global-traces-navbar-item a');
+
+export const restartTracing = async (page: Page) => {
+  await findSwitchTracingButton(page).click();
+  await findClearTracesButton(page).click();
+  await findSwitchTracingButton(page).click();
+};
+
+export const setCollapsibleOpenState = async (
+  page: Page,
+  sectionId: string,
+  state: string
+) => {
+  await page.evaluate(
+    ([id, st]) => localStorage.setItem(`lvdbg:collapsible-open-${id}`, st),
+    [sectionId, state]
+  );
+};
 
 export { expect, Page } from '@playwright/test';
