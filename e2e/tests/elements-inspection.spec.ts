@@ -1,5 +1,14 @@
-import { test, expect, Page, BrowserContext } from '@playwright/test';
-import { getDevPid, findNodeModuleInfo } from './dev-dbg-test';
+import {
+  expect,
+  findNodeModuleInfo,
+  prepareDevDebuggerPairTest,
+  getDevPid,
+  Page,
+} from './dev-dbg-test';
+import { BrowserContext } from '@playwright/test';
+
+const test = prepareDevDebuggerPairTest();
+const embeddedTest = prepareDevDebuggerPairTest('/embedded');
 
 const DBG_URL = 'http://localhost:4008';
 
@@ -58,15 +67,14 @@ const openMobileDbgForLiveView = async (
   );
   await btn.hover();
   await btn.click();
-  await expect(switchInspectModeBtn(dbgApp)).toBeVisible();
+  await expect(findNodeModuleInfo(dbgApp)).toBeVisible();
   return dbgApp;
 };
 
 test('user can inspect elements after enabling inspect mode', async ({
-  page: devApp,
+  devApp,
   context,
 }) => {
-  await devApp.goto('/');
   await expect(inspectModeOverlay(devApp)).not.toBeVisible();
 
   const pid = await getDevPid(devApp);
@@ -93,10 +101,9 @@ test('user can inspect elements after enabling inspect mode', async ({
 });
 
 test('user can disable inspect mode from debugger', async ({
-  page: devApp,
+  devApp,
   context,
 }) => {
-  await devApp.goto('/');
   await expect(inspectModeOverlay(devApp)).not.toBeVisible();
 
   const pid = await getDevPid(devApp);
@@ -110,10 +117,9 @@ test('user can disable inspect mode from debugger', async ({
 });
 
 test('user can disable inspect mode by right clicking', async ({
-  page: devApp,
+  devApp,
   context,
 }) => {
-  await devApp.goto('/');
   await expect(inspectModeOverlay(devApp)).not.toBeVisible();
 
   const pid = await getDevPid(devApp);
@@ -127,10 +133,9 @@ test('user can disable inspect mode by right clicking', async ({
 });
 
 test('selecting node redirects all subscribed debugger windows', async ({
-  page: devApp,
+  devApp,
   context,
 }) => {
-  await devApp.goto('/');
   const pid = await getDevPid(devApp);
 
   const dbgApp1 = await openDbgForLiveView(context, pid);
@@ -154,37 +159,30 @@ test('selecting node redirects all subscribed debugger windows', async ({
   );
 });
 
-test('inspection works for nested LiveViews in LiveComponents', async ({
-  page: devApp,
-}) => {
-  await devApp.goto('/embedded');
-  await expect(inspectModeOverlay(devApp)).not.toBeVisible();
+embeddedTest(
+  'inspection works for nested LiveViews in LiveComponents',
+  async ({ devApp, dbgApp }) => {
+    await expect(inspectModeOverlay(devApp)).not.toBeVisible();
 
-  await devApp.locator('#live-debugger-debug-button').click();
-  const dbgAppPromise = devApp.waitForEvent('popup');
-  await devApp.getByText('Open in new tab').click();
-  const dbgApp = await dbgAppPromise;
-  await expect(findNodeModuleInfo(dbgApp)).toBeVisible();
+    await switchInspectModeBtn(dbgApp).click();
 
-  await switchInspectModeBtn(dbgApp).click();
+    await devApp
+      .locator('div[data-phx-id*="embedded_wrapper_inner"] span', {
+        hasText: 'Simple [LiveView]',
+      })
+      .click();
 
-  await devApp
-    .locator('div[data-phx-id*="embedded_wrapper_inner"] span', {
-      hasText: 'Simple [LiveView]',
-    })
-    .click();
-
-  await expect(inspectModeOverlay(devApp)).not.toBeVisible();
-  await expect(findNodeModuleInfo(dbgApp)).toContainText(
-    'LiveDebuggerDev.LiveViews.Simple'
-  );
-});
+    await expect(inspectModeOverlay(devApp)).not.toBeVisible();
+    await expect(findNodeModuleInfo(dbgApp)).toContainText(
+      'LiveDebuggerDev.LiveViews.Simple'
+    );
+  }
+);
 
 test('sidebar opens automatically on small screens', async ({
-  page: devApp,
+  devApp,
   context,
 }) => {
-  await devApp.goto('/');
   const pid = await getDevPid(devApp);
   const dbgApp = await openMobileDbgForLiveView(context, pid);
 
@@ -199,10 +197,9 @@ test('sidebar opens automatically on small screens', async ({
 });
 
 test('sidebar closes on desktop resize and stays closed', async ({
-  page: devApp,
+  devApp,
   context,
 }) => {
-  await devApp.goto('/');
   const pid = await getDevPid(devApp);
   const dbgApp = await openMobileDbgForLiveView(context, pid);
 
