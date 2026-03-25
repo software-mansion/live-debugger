@@ -39,6 +39,41 @@ defmodule LiveDebugger.App.Debugger.Utils.Editor do
     end
   end
 
+  @editor_docs_url "https://hexdocs.pm/live_debugger/open_in_editor.html"
+
+  @doc """
+  Returns the URL to the "Open in Editor" documentation.
+  """
+  @spec editor_docs_url() :: String.t()
+  def editor_docs_url, do: @editor_docs_url
+
+  @doc """
+  Opens a file in the editor. Spawns a separate process to avoid blocking iex.
+  On error, sends a flash message to the given pid.
+  """
+  @spec open_in_editor(String.t(), String.t(), integer(), pid()) :: :ok
+  def open_in_editor(editor, file, line, flash_pid) do
+    alias LiveDebugger.App.Web.Hooks.Flash.LinkFlashData
+
+    cmd = get_editor_cmd(editor, file, line)
+
+    spawn(fn ->
+      case run_shell_cmd(cmd) do
+        :ok ->
+          :ok
+
+        {:error, reason} ->
+          send(flash_pid, {:put_flash, :error, %LinkFlashData{
+            text: reason,
+            url: @editor_docs_url,
+            label: "See the docs"
+          }})
+      end
+    end)
+
+    :ok
+  end
+
   @spec run_shell_cmd(String.t()) :: :ok | {:error, term()}
   def run_shell_cmd(command) do
     case System.shell(command, stderr_to_stdout: true) do

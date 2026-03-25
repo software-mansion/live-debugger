@@ -12,6 +12,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
 
   alias LiveDebugger.Structs.LvProcess
 
+  alias LiveDebugger.App.Debugger.Utils.Editor
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
 
@@ -74,7 +75,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
       displayed_trace: nil,
       tracing_started?: false,
       trace_callback_running?: false,
-      trace_search_phrase: ""
+      trace_search_phrase: "",
+      elixir_editor: Editor.detect_editor()
     )
     |> stream(:existing_traces, [], reset: true)
     |> put_private(:page_size, @page_size)
@@ -138,7 +140,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
             existing_traces={@streams.existing_traces}
           >
             <:trace :let={{id, trace_display}}>
-              <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
+              <HookComponents.TraceWrapper.render
+                id={id}
+                trace_display={trace_display}
+                elixir_editor={@elixir_editor}
+              >
                 <:label>
                   <.trace_label
                     id={id <> "-label"}
@@ -153,6 +159,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
                     id={id <> "-body"}
                     trace_display={trace_display}
                     search_phrase={@trace_search_phrase}
+                    elixir_editor={@elixir_editor}
                   />
                 </:body>
               </HookComponents.TraceWrapper.render>
@@ -172,6 +179,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
         displayed_trace={@displayed_trace}
         search_phrase={@trace_search_phrase}
         page={:node_inspector}
+        elixir_editor={@elixir_editor}
       />
     </div>
     """
@@ -200,4 +208,5 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
   end
 
   def handle_info(_, socket), do: {:noreply, socket}
+
 end

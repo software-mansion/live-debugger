@@ -2,12 +2,13 @@ defmodule LiveDebugger.Utils.FunctionMatcher do
   @moduledoc """
   https://github.com/elixir-lang/elixir/blob/v1.20.0-rc.3/lib/elixir/lib/exception.ex#L245
   """
+  alias LiveDebugger.Structs.Trace.FunctionTrace.SourceLocation
 
   def find_matching_clause_line(module, function_name, args) do
     with {:ok, clauses} <- get_function_clauses(module, function_name, length(args)),
          {:ok, matching} <- find_matching(clauses, args),
          {:ok, file_path} <- get_module_file(module) do
-      {:ok, %{file: file_path, line: matching.line}}
+      {:ok, %SourceLocation{source_file: file_path, line: matching.line}}
     end
   end
 
