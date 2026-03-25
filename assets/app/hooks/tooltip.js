@@ -71,13 +71,19 @@ const Tooltip = {
       tooltipEl.style.display = 'none';
     };
 
+    this.handleScroll = () => {
+      tooltipEl.style.display = 'none';
+    };
+
     this.el.addEventListener('mouseenter', this.handleMouseEnter);
     this.el.addEventListener('mouseleave', this.handleMouseLeave);
+    window.addEventListener('scroll', this.handleScroll, true);
   },
   destroyed() {
     document.querySelector('#tooltip').style.display = 'none';
     this.el.removeEventListener('mouseenter', this.handleMouseEnter);
     this.el.removeEventListener('mouseleave', this.handleMouseLeave);
+    window.removeEventListener('scroll', this.handleScroll, true);
   },
 };
 
