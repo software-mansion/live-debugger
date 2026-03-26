@@ -52,7 +52,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
       id={@id}
       class={[
         if(@dead_liveviews? and @dead_view_mode?, do: "flex-1"),
-        if(not @dead_view_mode?, do: "opacity-50 ")
+        if(not @dead_view_mode?, do: "opacity-50")
       ]}
     >
       <.tooltip

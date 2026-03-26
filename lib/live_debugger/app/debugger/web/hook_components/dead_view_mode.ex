@@ -166,12 +166,15 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
   defp handle_event(_, _, socket), do: {:cont, socket}
 
   defp start_successor_finding(socket) do
-    with nil <- socket.assigns.lv_process.result,
-         nil <- LvProcessQueries.get_lv_process(socket.private.pid) do
-      socket
-      |> put_flash(:error, "New process couldn't be found")
-      |> push_navigate(to: RoutesHelper.discovery())
-    else
+    lv_process =
+      socket.assigns.lv_process.result || LvProcessQueries.get_lv_process(socket.private.pid)
+
+    case lv_process do
+      nil ->
+        socket
+        |> put_flash(:error, "New process couldn't be found")
+        |> push_navigate(to: RoutesHelper.discovery())
+
       %LvProcess{} = lv_process ->
         Bus.broadcast_event!(%FindSuccessor{lv_process: lv_process})
 
