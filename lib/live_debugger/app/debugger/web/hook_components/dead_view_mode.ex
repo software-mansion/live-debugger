@@ -12,6 +12,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
   alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.App.Debugger.Queries.LvProcess, as: LvProcessQueries
 
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.FindSuccessor
@@ -29,6 +30,18 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
     |> attach_hook(:dead_view_mode, :handle_event, &handle_event/3)
     |> register_hook(:dead_view_mode)
     |> put_private(:dead_view_mode?, SettingsStorage.get(:dead_view_mode))
+    |> case do
+      %{private: %{dead_view_mode?: true}} = socket ->
+        socket
+
+      %{private: %{dead_view_mode?: false, pid: pid}} = socket ->
+        if Process.alive?(pid) do
+          socket
+        else
+          socket
+          |> start_successor_finding()
+        end
+    end
   end
 
   attr(:id, :string, required: true)
@@ -153,12 +166,21 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
   defp handle_event(_, _, socket), do: {:cont, socket}
 
   defp start_successor_finding(socket) do
-    lv_process = socket.assigns.lv_process.result
+    lv_process =
+      socket.assigns.lv_process.result || LvProcessQueries.get_lv_process(socket.private.pid)
 
-    Bus.broadcast_event!(%FindSuccessor{lv_process: lv_process})
+    case lv_process do
+      nil ->
+        socket
+        |> put_flash(:error, "New process couldn't be found")
+        |> push_navigate(to: RoutesHelper.discovery())
 
-    socket
-    |> put_private(:old_socket_id, lv_process.socket_id)
-    |> assign(:lv_process, AsyncResult.loading())
+      %LvProcess{} = lv_process ->
+        Bus.broadcast_event!(%FindSuccessor{lv_process: lv_process})
+
+        socket
+        |> put_private(:old_socket_id, lv_process.socket_id)
+        |> assign(:lv_process, AsyncResult.loading())
+    end
   end
 end
