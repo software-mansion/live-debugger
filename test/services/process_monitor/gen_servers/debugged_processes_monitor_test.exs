@@ -279,7 +279,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
     end
 
     test "with DebuggerMounted when debugged pid is not in state (reconnect edge case)" do
-      debugged_pid = :c.pid(0, 11, 0)
+      debugged_pid = spawn(fn -> Process.sleep(:infinity) end)
       transport_pid = :c.pid(0, 12, 0)
       state = %{}
 
