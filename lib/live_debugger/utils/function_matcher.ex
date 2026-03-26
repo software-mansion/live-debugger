@@ -1,5 +1,10 @@
 defmodule LiveDebugger.Utils.FunctionMatcher do
   @moduledoc """
+  Matches function calls to their defining clause by replaying pattern matching
+  against BEAM debug info. Given a module, function name, and actual arguments,
+  it identifies which clause would handle the call and returns its source location.
+
+  Inspired by Elixir's exception logic:
   https://github.com/elixir-lang/elixir/blob/v1.20.0-rc.3/lib/elixir/lib/exception.ex#L245
   """
   alias LiveDebugger.Structs.Trace.FunctionTrace.SourceLocation
