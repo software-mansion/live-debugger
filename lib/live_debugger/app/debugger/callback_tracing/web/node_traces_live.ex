@@ -208,5 +208,4 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
   end
 
   def handle_info(_, socket), do: {:noreply, socket}
-
 end

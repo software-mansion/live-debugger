@@ -270,5 +270,4 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
     |> assign(:inspect_mode?, !socket.assigns.inspect_mode?)
     |> noreply()
   end
-
 end

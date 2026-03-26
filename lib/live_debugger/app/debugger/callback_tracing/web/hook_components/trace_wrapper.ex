@@ -20,7 +20,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
   use LiveDebugger.App.Web, :hook_component
 
   import LiveDebugger.App.Web.Hooks.Flash, only: [push_flash: 4]
-  import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace, only: [open_in_editor_button: 1]
+
+  import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace,
+    only: [open_in_editor_button: 1]
 
   alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay
@@ -166,7 +168,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
 
   defp handle_info(_, socket), do: {:cont, socket}
 
-  defp maybe_resolve_source(%{source: nil, module: module, function: function, args: args} = trace) do
+  defp maybe_resolve_source(
+         %{source: nil, module: module, function: function, args: args} = trace
+       ) do
     case FunctionMatcher.find_matching_clause_line(module, function, args) do
       {:ok, source} ->
         new_trace = %{trace | source: source}

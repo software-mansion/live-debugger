@@ -63,11 +63,15 @@ defmodule LiveDebugger.App.Debugger.Utils.Editor do
           :ok
 
         {:error, reason} ->
-          send(flash_pid, {:put_flash, :error, %LinkFlashData{
-            text: reason,
-            url: @editor_docs_url,
-            label: "See the docs"
-          }})
+          send(
+            flash_pid,
+            {:put_flash, :error,
+             %LinkFlashData{
+               text: reason,
+               url: @editor_docs_url,
+               label: "See the docs"
+             }}
+          )
       end
     end)
 
