@@ -36,6 +36,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
     socket
     |> assign(assigns)
     |> assign(dead_liveviews?: SettingsStorage.get(:dead_liveviews))
+    |> assign(dead_view_mode?: SettingsStorage.get(:dead_view_mode))
     |> assign(lv_processes_count: 0)
     |> assign(dead_grouped_lv_processes: AsyncResult.loading())
     |> start_async_dead_grouped_lv_processes()
@@ -47,42 +48,59 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id} class={if(@dead_liveviews?, do: "flex-1")}>
-      <.static_collapsible
-        chevron_class="mr-2"
-        class="h-full flex! flex-col max-lg:p-8 py-8 lg:w-[60rem] lg:mx-auto"
-        open={@dead_liveviews?}
-        phx-click="toggle-dead-liveviews"
-        phx-target={@myself}
+    <div
+      id={@id}
+      class={[
+        if(@dead_liveviews? and @dead_view_mode?, do: "flex-1"),
+        if(not @dead_view_mode?, do: "opacity-50 ")
+      ]}
+    >
+      <.tooltip
+        id={@id <> "-header-tooltip"}
+        position="top-center"
+        content={
+          if(not @dead_view_mode?,
+            do: "To inspect dead LiveViews you must enable DeadView mode in your settings"
+          )
+        }
+        class="h-full"
       >
-        <:label :let={open?}>
-          <DiscoveryComponents.header
-            title="Dead LiveViews"
-            lv_processes_count={@lv_processes_count}
-            refresh_event="refresh-dead"
-            disabled?={!open?}
-            target={@myself}
-          />
-        </:label>
+        <.static_collapsible
+          chevron_class="mr-2"
+          class="h-full flex! flex-col max-lg:p-8 py-8 lg:w-[60rem] lg:mx-auto"
+          open={@dead_liveviews? and @dead_view_mode?}
+          phx-click="toggle-dead-liveviews"
+          phx-target={@myself}
+        >
+          <:label :let={open?}>
+            <DiscoveryComponents.header
+              title="Dead LiveViews"
+              lv_processes_count={@lv_processes_count}
+              refresh_event="refresh-dead"
+              disabled?={!open?}
+              target={@myself}
+            />
+          </:label>
 
-        <div class="flex flex-col flex-1">
-          <DiscoveryComponents.garbage_collection_info />
+          <div class="flex flex-col flex-1">
+            <DiscoveryComponents.garbage_collection_info />
 
-          <div class="mt-6 flex-[1_0_0] overflow-y-scroll">
-            <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
-              <:loading><DiscoveryComponents.loading /></:loading>
-              <:failed><DiscoveryComponents.failed /></:failed>
-              <DiscoveryComponents.liveview_sessions
-                id="dead-sessions"
-                grouped_lv_processes={dead_grouped_lv_processes}
-                empty_info="No dead LiveViews"
-                remove_event="remove-lv-state"
-                target={@myself}
-              />
-            </.async_result>
+            <div class="mt-6 flex-[1_0_0] overflow-y-scroll">
+              <.async_result :let={dead_grouped_lv_processes} assign={@dead_grouped_lv_processes}>
+                <:loading><DiscoveryComponents.loading /></:loading>
+                <:failed><DiscoveryComponents.failed /></:failed>
+                <DiscoveryComponents.liveview_sessions
+                  id="dead-sessions"
+                  grouped_lv_processes={dead_grouped_lv_processes}
+                  empty_info="No dead LiveViews"
+                  remove_event="remove-lv-state"
+                  target={@myself}
+                />
+              </.async_result>
+            </div>
           </div>
-        </div>
-      </.static_collapsible>
+        </.static_collapsible>
+      </.tooltip>
     </div>
     """
   end
@@ -101,7 +119,20 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews do
     |> noreply()
   end
 
-  def handle_event("toggle-dead-liveviews", _params, socket) do
+  def handle_event(
+        "toggle-dead-liveviews",
+        _params,
+        %{assigns: %{dead_view_mode?: false}} = socket
+      ) do
+    socket
+    |> noreply()
+  end
+
+  def handle_event(
+        "toggle-dead-liveviews",
+        _params,
+        %{assigns: %{dead_view_mode?: true}} = socket
+      ) do
     new_value = !socket.assigns.dead_liveviews?
 
     DiscoveryActions.update_dead_liveviews_setting(new_value)

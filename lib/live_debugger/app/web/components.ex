@@ -943,12 +943,14 @@ defmodule LiveDebugger.App.Web.Components do
   slot(:inner_block, required: true)
 
   def tooltip(assigns) do
+    assigns = assign(assigns, disabled?: assigns.fullscreen? or assigns.content == nil)
+
     ~H"""
     <div
       id={@id}
-      phx-hook={if @fullscreen?, do: nil, else: "Tooltip"}
-      data-tooltip={if @fullscreen?, do: nil, else: @content}
-      data-position={if @fullscreen?, do: nil, else: @position}
+      phx-hook={if @disabled?, do: nil, else: "Tooltip"}
+      data-tooltip={if @disabled?, do: nil, else: @content}
+      data-position={if @disabled?, do: nil, else: @position}
       {@rest}
     >
       <%= render_slot(@inner_block) %>
