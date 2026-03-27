@@ -1,3 +1,5 @@
+const HOVER_DELAY_MS = 200;
+
 export function setTooltipPosition(tooltipEl, referencedElement) {
   const tooltipRect = tooltipEl.getBoundingClientRect();
   const rect = referencedElement.getBoundingClientRect();
@@ -43,7 +45,17 @@ export function setTooltipPosition(tooltipEl, referencedElement) {
     } else if (rect.left + tooltipEl.clientWidth > window.innerWidth) {
       tooltipEl.style.right = '10px';
       tooltipEl.style.left = 'auto';
+    } else if (parseFloat(tooltipEl.style.left) < 0) {
+      tooltipEl.style.left = '10px';
     }
+  }
+
+  // Handle top-edge overflow: flip tooltip below element
+  if (
+    ['top', 'top-center'].includes(referencedElement.dataset.position) &&
+    parseFloat(tooltipEl.style.top) < 0
+  ) {
+    tooltipEl.style.top = `${rect.bottom + 5}px`;
   }
 
   // Handle vertical overflow for left/right positions
@@ -60,14 +72,18 @@ const Tooltip = {
   mounted() {
     const tooltipEl = document.querySelector('#tooltip');
     tooltipEl.style.pointerEvents = 'none';
+    this._hoverTimeout = null;
 
     this.handleMouseEnter = () => {
-      tooltipEl.style.display = 'block';
-      tooltipEl.innerHTML = this.el.dataset.tooltip;
-      setTooltipPosition(tooltipEl, this.el);
+      this._hoverTimeout = setTimeout(() => {
+        tooltipEl.style.display = 'block';
+        tooltipEl.textContent = this.el.dataset.tooltip;
+        setTooltipPosition(tooltipEl, this.el);
+      }, HOVER_DELAY_MS);
     };
 
     this.handleMouseLeave = () => {
+      clearTimeout(this._hoverTimeout);
       tooltipEl.style.display = 'none';
     };
 
@@ -75,6 +91,7 @@ const Tooltip = {
     this.el.addEventListener('mouseleave', this.handleMouseLeave);
   },
   destroyed() {
+    clearTimeout(this._hoverTimeout);
     document.querySelector('#tooltip').style.display = 'none';
     this.el.removeEventListener('mouseenter', this.handleMouseEnter);
     this.el.removeEventListener('mouseleave', this.handleMouseLeave);

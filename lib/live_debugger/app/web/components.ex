@@ -896,6 +896,7 @@ defmodule LiveDebugger.App.Web.Components do
   Renders a status dot with a tooltip.
   """
 
+  attr(:id, :string, default: "status-dot")
   attr(:status, :atom, required: true)
   attr(:pulse?, :boolean, default: false)
   attr(:tooltip, :string, required: true)
@@ -909,7 +910,7 @@ defmodule LiveDebugger.App.Web.Components do
       end
 
     ~H"""
-    <.tooltip id="loading-dot-tooltip" content={@tooltip}>
+    <.tooltip id={@id <> "-tooltip"} content={@tooltip}>
       <span class="relative flex size-2">
         <span
           :if={@pulse?}
@@ -943,12 +944,16 @@ defmodule LiveDebugger.App.Web.Components do
   slot(:inner_block, required: true)
 
   def tooltip(assigns) do
+    assigns =
+      assign(assigns, :enabled?, assigns.content not in [nil, ""] and not assigns.fullscreen?)
+
     ~H"""
     <div
       id={@id}
-      phx-hook={if @fullscreen?, do: nil, else: "Tooltip"}
-      data-tooltip={if @fullscreen?, do: nil, else: @content}
-      data-position={if @fullscreen?, do: nil, else: @position}
+      phx-hook={if @enabled?, do: "Tooltip"}
+      data-tooltip={if @enabled?, do: @content}
+      data-position={if @enabled?, do: @position}
+      aria-describedby={if @enabled?, do: "tooltip"}
       {@rest}
     >
       <%= render_slot(@inner_block) %>

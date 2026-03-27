@@ -65,7 +65,7 @@ defmodule LiveDebugger.App.Web.Layout do
 
           window.liveSocket = liveSocket;
         </script>
-        <span id="tooltip" class="absolute hidden p-2 text-xs rounded bg-tooltip-bg text-tooltip-text">
+        <span id="tooltip" role="tooltip" class="absolute hidden p-2 text-xs rounded bg-tooltip-bg text-tooltip-text">
         </span>
         <.new_version_popup />
         <%= @inner_content %>

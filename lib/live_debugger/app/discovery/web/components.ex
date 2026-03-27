@@ -124,7 +124,7 @@ defmodule LiveDebugger.App.Discovery.Web.Components do
           <.tooltip
             id={"websocket-connection-tooltip-#{Parsers.pid_to_string(@transport_pid)}"}
             content="WebSocket connection on which LiveView runs. Typically one per browser tab or window."
-            position="top"
+            position="top-center"
           >
             <.icon name="icon-info" class="w-3 h-3 bg-button-secondary-content" />
           </.tooltip>

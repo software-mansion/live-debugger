@@ -202,7 +202,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         <:right :if={@has_temporary_assigns}>
           <.tooltip
             id={@id <> "-tooltip"}
-            content="Displayed temporary assigns values are the last recorded values for each assign"
+            content="Values shown are the last recorded before reset"
             position="top-center"
           >
             <.icon name="icon-info" class="w-4 h-4 bg-button-secondary-content" />
