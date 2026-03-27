@@ -5,35 +5,21 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
 
   use LiveDebugger.App.Web, :live_component
 
-  import LiveDebugger.App.Web.Hooks.Flash, only: [push_flash: 3]
   alias LiveDebugger.App.Debugger.Structs.TreeNode
   alias LiveDebugger.App.Debugger.Queries.Node, as: NodeQueries
   alias LiveDebugger.App.Debugger.Web.LiveComponents.SendEventFullscreen
   alias LiveDebugger.App.Utils.Parsers
   alias LiveDebugger.App.Debugger.Web.Components.Pages
   alias LiveDebugger.App.Debugger.Utils.Editor
-  alias LiveDebugger.App.Web.Hooks.Flash.LinkFlashData
-
-  @editor_docs_url "https://hexdocs.pm/live_debugger/open_in_editor.html"
 
   @impl true
-  def update(%{:editor_error => editor_error}, socket) do
-    socket
-    |> push_flash(:error, %LinkFlashData{
-      text: editor_error,
-      url: @editor_docs_url,
-      label: "See the docs"
-    })
-    |> ok()
-  end
-
   def update(assigns, socket) do
     socket
     |> assign(:id, assigns.id)
     |> assign(:node_id, assigns.node_id)
     |> assign(:lv_process, assigns.lv_process)
     |> assign(:elixir_editor, Editor.detect_editor())
-    |> assign(:editor_docs_url, @editor_docs_url)
+    |> assign(:editor_docs_url, Editor.editor_docs_url())
     |> assign_node_type()
     |> assign_async_node_module()
     |> ok()
@@ -170,24 +156,7 @@ defmodule LiveDebugger.App.Debugger.Web.LiveComponents.NodeBasicInfo do
   end
 
   def handle_event("open-in-editor", %{"file" => file, "line" => line}, socket) do
-    cmd = Editor.get_editor_cmd(socket.assigns.elixir_editor, file, line |> String.to_integer())
-
-    # Some editors may block iex, so we spawn a new process
-    component_id = socket.assigns.id
-    component_pid = self()
-
-    spawn(fn ->
-      case Editor.run_shell_cmd(cmd) do
-        :ok ->
-          :ok
-
-        {:error, reason} ->
-          send_update(component_pid, __MODULE__,
-            id: component_id,
-            editor_error: reason
-          )
-      end
-    end)
+    Editor.open_in_editor(socket.assigns.elixir_editor, file, String.to_integer(line), self())
 
     {:noreply, socket}
   end

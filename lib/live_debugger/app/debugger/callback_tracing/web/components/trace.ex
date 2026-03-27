@@ -14,7 +14,63 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
 
   alias LiveDebugger.Structs.Trace.ErrorTrace
 
+  alias LiveDebugger.App.Debugger.Utils.Editor
   alias Phoenix.LiveView.JS
+
+  @doc """
+  Button to open the trace source in an external editor.
+  """
+  attr(:id, :string, required: true)
+  attr(:elixir_editor, :string, default: nil)
+  attr(:source, :any, default: nil)
+  attr(:fullscreen?, :boolean, default: false)
+
+  def open_in_editor_button(%{elixir_editor: nil} = assigns) do
+    assigns = assign(assigns, :editor_docs_url, Editor.editor_docs_url())
+
+    ~H"""
+    <.tooltip
+      :if={@source}
+      id={@id <> "-open-in-editor-tooltip"}
+      class="my-2"
+      content="Editor not configured. Click to see docs."
+      position="top-center"
+      fullscreen?={@fullscreen?}
+    >
+      <.button_link
+        href={@editor_docs_url}
+        id={"#{@id}-open-in-editor"}
+        variant="secondary"
+        size="sm"
+        class="opacity-50 cursor-pointer"
+      >
+        <.icon name="icon-external-link" class="w-4 h-4" />
+      </.button_link>
+    </.tooltip>
+    """
+  end
+
+  def open_in_editor_button(assigns) do
+    ~H"""
+    <.tooltip
+      :if={@source}
+      id={@id <> "-open-in-editor-tooltip"}
+      class="my-2"
+      content="Open in editor"
+      position="top-center"
+      fullscreen?={@fullscreen?}
+    >
+      <.icon_button
+        id={"#{@id}-open-in-editor-button"}
+        icon="icon-external-link"
+        phx-click="open-in-editor"
+        phx-value-file={@source.source_file}
+        phx-value-line={@source.line}
+        variant="secondary"
+      />
+    </.tooltip>
+    """
+  end
 
   @doc """
   Displays the label of the trace with a polymorphic composition.
@@ -106,6 +162,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   attr(:trace_display, TraceDisplay, required: true)
   attr(:search_phrase, :string, required: true)
   attr(:fullscreen?, :boolean, default: false)
+  attr(:elixir_editor, :string, default: nil)
 
   def trace_body_navbar_wrapper(assigns) do
     assigns =
@@ -133,6 +190,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
           "peer-checked/content:[&_.tab-content]:text-navbar-selected-bg peer-checked/content:[&_.tab-content]:border-navbar-selected-bg",
           "peer-checked/stack:[&_.tab-stack]:text-navbar-selected-bg peer-checked/stack:[&_.tab-stack]:border-navbar-selected-bg",
           "peer-checked/raw:[&_.tab-raw]:text-navbar-selected-bg peer-checked/raw:[&_.tab-raw]:border-navbar-selected-bg",
+          "peer-checked/content:[&_.editor-btn-content]:block",
           "peer-checked/stack:[&_.copy-btn-stack]:block",
           "peer-checked/raw:[&_.copy-btn-raw]:block"
         ]}>
@@ -179,6 +237,15 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
                 variant="icon-button"
                 title="Copy Raw Error"
                 class="text-secondary-text hover:text-primary-text"
+                fullscreen?={@fullscreen?}
+              />
+            </div>
+
+            <div class="editor-btn-content hidden">
+              <.open_in_editor_button
+                id={@id}
+                elixir_editor={@elixir_editor}
+                source={@trace_display.source}
                 fullscreen?={@fullscreen?}
               />
             </div>
@@ -237,6 +304,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   attr(:displayed_trace, TraceDisplay, required: true)
   attr(:search_phrase, :string, required: true)
   attr(:page, :atom, required: true, values: [:node_inspector, :global_callbacks])
+  attr(:elixir_editor, :string, default: nil)
 
   def trace_fullscreen(assigns) do
     ~H"""
@@ -261,16 +329,31 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
           />
         </div>
       </:header>
-      <div class={[
-        "flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden",
-        if(is_nil(@displayed_trace.error), do: "p-4", else: "[&>div>div>div>div>button]:hidden")
-      ]}>
-        <.trace_body_navbar_wrapper
-          id={@id <> "-fullscreen"}
-          trace_display={@displayed_trace}
-          search_phrase={@search_phrase}
-          fullscreen?={true}
-        />
+
+      <div class="relative">
+        <div
+          :if={is_nil(@displayed_trace.error)}
+          class="absolute right-4 top-0 z-10"
+        >
+          <.open_in_editor_button
+            id={@id <> "-fullscreen"}
+            elixir_editor={@elixir_editor}
+            source={@displayed_trace.source}
+            fullscreen?={true}
+          />
+        </div>
+        <div class={[
+          "max-h-[70vh] overflow-y-auto overflow-x-auto flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden",
+          if(is_nil(@displayed_trace.error), do: "p-4", else: "[&>div>div>div>div>button]:hidden")
+        ]}>
+          <.trace_body_navbar_wrapper
+            id={@id <> "-fullscreen"}
+            trace_display={@displayed_trace}
+            search_phrase={@search_phrase}
+            fullscreen?={true}
+            elixir_editor={@elixir_editor}
+          />
+        </div>
       </div>
     </.fullscreen>
     """
