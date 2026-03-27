@@ -756,7 +756,7 @@ defmodule LiveDebugger.App.Web.Components do
       phx-hook="Fullscreen"
       data-send-close-event={@send_close_event}
       class={[
-        "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg overflow-hidden hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
+        "relative h-max w-full xl:w-max xl:min-w-[50rem] bg-surface-0-bg overflow-auto hidden flex-col rounded-md backdrop:bg-black backdrop:opacity-50"
         | List.wrap(@class)
       ]}
     >
