@@ -45,7 +45,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
 
   attr(:id, :string, required: true)
   attr(:trace_display, TraceDisplay, required: true)
-  attr(:elixir_editor, :string, required: true)
+  attr(:elixir_editor, :string, default: nil)
 
   slot(:body, required: true)
   slot(:label, required: true)
@@ -139,7 +139,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
         stream_insert_trace(socket, diff_trace, !render_body?)
 
       trace ->
-        trace = maybe_resolve_source(trace)
+        trace = maybe_resolve_and_persist_source(trace)
         stream_insert_trace(socket, trace, !render_body?)
     end
     |> halt()
@@ -168,7 +168,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
 
   defp handle_info(_, socket), do: {:cont, socket}
 
-  defp maybe_resolve_source(
+  defp maybe_resolve_and_persist_source(
          %{source: nil, module: module, function: function, args: args} = trace
        ) do
     case FunctionMatcher.find_matching_clause_line(module, function, args) do
@@ -182,7 +182,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
     end
   end
 
-  defp maybe_resolve_source(trace), do: trace
+  defp maybe_resolve_and_persist_source(trace), do: trace
 
   defp get_trace(socket, string_trace_id) do
     TracesStorage.get_by_id!(socket.assigns.lv_process.pid, String.to_integer(string_trace_id))

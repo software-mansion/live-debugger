@@ -37,14 +37,15 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       position="top-center"
       fullscreen?={@fullscreen?}
     >
-      <a href={@editor_docs_url} target="_blank">
-        <.icon_button
-          id={"#{@id}-open-in-editor-button"}
-          icon="icon-external-link"
-          variant="secondary"
-          class="opacity-50"
-        />
-      </a>
+      <.button_link
+        href={@editor_docs_url}
+        id={"#{@id}-open-in-editor"}
+        variant="secondary"
+        size="sm"
+        class="opacity-50 cursor-pointer"
+      >
+        <.icon name="icon-external-link" class="w-4 h-4" />
+      </.button_link>
     </.tooltip>
     """
   end

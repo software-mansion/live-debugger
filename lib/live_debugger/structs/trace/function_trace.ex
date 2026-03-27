@@ -19,7 +19,7 @@ defmodule LiveDebugger.Structs.Trace.FunctionTrace do
 
     @type t :: %__MODULE__{
             source_file: String.t(),
-            line: Integer.t()
+            line: non_neg_integer()
           }
   end
 
@@ -57,7 +57,7 @@ defmodule LiveDebugger.Structs.Trace.FunctionTrace do
           type: :call | :return_from | :exception_from,
           return_value: term() | nil,
           error: ErrorTrace.t() | nil,
-          source: SourceLocation | nil
+          source: SourceLocation.t() | nil
         }
 
   @doc """

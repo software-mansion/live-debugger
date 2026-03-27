@@ -46,7 +46,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
           side_section_left: side_section_left(),
           side_section_right: side_section_right(),
           error: ErrorTrace.t() | nil,
-          source: SourceLocation.t() | nil
+          source: FunctionTrace.SourceLocation.t() | nil
         }
 
   @spec from_trace(Trace.t(), boolean()) :: t()
