@@ -329,28 +329,31 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
           />
         </div>
       </:header>
-      <div
-        :if={is_nil(@displayed_trace.error)}
-        class="flex justify-end px-4 pt-2"
-      >
-        <.open_in_editor_button
-          id={@id <> "-fullscreen"}
-          elixir_editor={@elixir_editor}
-          source={@displayed_trace.source}
-          fullscreen?={true}
-        />
-      </div>
-      <div class={[
-        "flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden",
-        if(is_nil(@displayed_trace.error), do: "p-4", else: "[&>div>div>div>div>button]:hidden")
-      ]}>
-        <.trace_body_navbar_wrapper
-          id={@id <> "-fullscreen"}
-          trace_display={@displayed_trace}
-          search_phrase={@search_phrase}
-          fullscreen?={true}
-          elixir_editor={@elixir_editor}
-        />
+
+      <div class="relative">
+        <div
+          :if={is_nil(@displayed_trace.error)}
+          class="absolute right-4 top-0 z-10"
+        >
+          <.open_in_editor_button
+            id={@id <> "-fullscreen"}
+            elixir_editor={@elixir_editor}
+            source={@displayed_trace.source}
+            fullscreen?={true}
+          />
+        </div>
+        <div class={[
+          "max-h-[70vh] overflow-y-auto overflow-x-auto flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden",
+          if(is_nil(@displayed_trace.error), do: "p-4", else: "[&>div>div>div>div>button]:hidden")
+        ]}>
+          <.trace_body_navbar_wrapper
+            id={@id <> "-fullscreen"}
+            trace_display={@displayed_trace}
+            search_phrase={@search_phrase}
+            fullscreen?={true}
+            elixir_editor={@elixir_editor}
+          />
+        </div>
       </div>
     </.fullscreen>
     """
