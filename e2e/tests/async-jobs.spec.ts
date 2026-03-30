@@ -62,6 +62,7 @@ test('user can see and track async jobs in LiveView and LiveComponent', async ({
     'No active async jobs found'
   );
 
+  await devApp.locator('#component-long-load-toggle').click();
   await devApp.locator('#component-start-cancelable-async-button').click();
   await expect(
     asyncJobName(dbgApp, ':component_cancelable_fetch')
