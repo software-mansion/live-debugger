@@ -36,11 +36,7 @@ defmodule LiveDebugger.Utils.FunctionMatcher do
               scope
             )
 
-          erl_guards =
-            Enum.map(guards, fn guard ->
-              {erl_guard, _scope} = :elixir_erl_pass.translate(guard, ann, scope)
-              erl_guard
-            end)
+          erl_guards = translate_guards(guards, ann, scope)
 
           %{
             line: Keyword.get(meta, :line, 0),
@@ -95,6 +91,13 @@ defmodule LiveDebugger.Utils.FunctionMatcher do
       catch
         _, _ -> false
       end
+    end)
+  end
+
+  defp translate_guards(guards, ann, scope) do
+    Enum.map(guards, fn guard ->
+      {erl_guard, _scope} = :elixir_erl_pass.translate(guard, ann, scope)
+      erl_guard
     end)
   end
 
