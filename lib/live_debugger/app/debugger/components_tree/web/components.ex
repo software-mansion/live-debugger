@@ -46,7 +46,7 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.Components do
       assigns
       |> assign(:parsed_node_id, parsed_node_id)
       |> assign(:label_id, "tree-node-#{parsed_node_id}-#{assigns.id}")
-      |> assign(:collapsible?, length(assigns.tree_node.children) > 0)
+      |> assign(:collapsible?, assigns.tree_node.children != [])
       |> assign(:selected?, assigns.tree_node.id == assigns.selected_node_id)
       |> assign(:open, assigns.level < assigns.max_opened_node_level)
 
