@@ -55,6 +55,9 @@ export function setTooltipPosition(tooltipEl, referencedElement) {
     if (rect.top + tooltipRect.height > window.innerHeight) {
       tooltipEl.style.top = `${window.innerHeight - tooltipRect.height}px`;
     }
+    if (rect.left - tooltipRect.width < 0) {
+      tooltipEl.style.left = '10px';
+    }
   }
 
   tooltipEl.style.zIndex = 100;

@@ -93,7 +93,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
   end
 
   defp tooltip_content(false) do
-    "Process terminated — last known state is still available"
+    "Process terminated - last known state is still available"
   end
 
   defp handle_info(%UserChangedSettings{key: :dead_view_mode, value: value}, socket) do
