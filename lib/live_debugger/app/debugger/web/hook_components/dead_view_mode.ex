@@ -102,11 +102,11 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.DeadViewMode do
   end
 
   defp tooltip_content(true) do
-    "LiveView process is alive"
+    "Process is alive and being monitored"
   end
 
   defp tooltip_content(false) do
-    "LiveView process is dead - you can still debug the last state"
+    "Process terminated - last known state is still available"
   end
 
   defp handle_info(%UserChangedSettings{key: :dead_view_mode, value: value}, socket) do

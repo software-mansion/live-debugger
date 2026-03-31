@@ -74,7 +74,9 @@ defmodule LiveDebugger.App.Web.Components.Navbar do
   def return_link(assigns) do
     ~H"""
     <.link patch={@return_link} class={@class} id="return-button">
-      <.nav_icon icon="icon-arrow-left" />
+      <.tooltip id="return-button-tooltip" content="Back" position="bottom">
+        <.nav_icon icon="icon-arrow-left" />
+      </.tooltip>
     </.link>
     """
   end
@@ -88,7 +90,9 @@ defmodule LiveDebugger.App.Web.Components.Navbar do
   def settings_button(assigns) do
     ~H"""
     <.link navigate={RoutesHelper.settings(@return_to)} class={@class} id="settings-button">
-      <.nav_icon icon="icon-settings" />
+      <.tooltip id="settings-button-tooltip" content="Settings" position="bottom">
+        <.nav_icon icon="icon-settings" />
+      </.tooltip>
     </.link>
     """
   end
