@@ -69,9 +69,14 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
         state
       )
       when not is_map_key(state, debugged_pid) do
-    state
-    |> ProcessMonitorActions.register_live_view_born!(debugged_pid, transport_pid)
-    |> noreply()
+    if Process.alive?(debugged_pid) do
+      state
+      |> ProcessMonitorActions.register_live_view_born!(debugged_pid, transport_pid)
+      |> noreply()
+    else
+      state
+      |> noreply()
+    end
   end
 
   def handle_info(%TraceCalled{function: :render, pid: pid, cid: cid}, state)

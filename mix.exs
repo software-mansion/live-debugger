@@ -19,7 +19,8 @@ defmodule LiveDebugger.MixProject do
       docs: docs(),
       test_coverage: [
         ignore_modules: [~r/^LiveDebuggerDev\./, DevWeb]
-      ]
+      ],
+      listeners: [Phoenix.CodeReloader]
     ]
   end
 
