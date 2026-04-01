@@ -117,7 +117,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components do
     <div class="flex w-full items-center overflow-x-hidden">
       <.tooltip
         id={Parsers.pid_to_string(@lv_process.pid) <> "_tooltip"}
-        content={"#{@module_string} | #{@lv_process.socket_id} | #{Parsers.pid_to_string(@lv_process.pid)}"}
+        content={"#{@module_string} | #{@lv_process.socket_id}"}
         position="left"
         class="w-full"
       >

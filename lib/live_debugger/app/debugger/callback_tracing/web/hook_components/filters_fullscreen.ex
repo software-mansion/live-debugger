@@ -89,13 +89,19 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
           </span>
         </.button>
       </TraceSettings.maybe_add_tooltip>
-      <.icon_button
+      <.tooltip
         :if={@applied_filters_number > 0}
-        icon="icon-cross"
-        variant="secondary"
-        phx-click="reset-filters"
-        class="rounded-l-none border-l-0 h-[30px]! w-[30px]!"
-      />
+        id="reset-filters-tooltip"
+        content="Reset filters"
+        position="top-center"
+      >
+        <.icon_button
+          icon="icon-cross"
+          variant="secondary"
+          phx-click="reset-filters"
+          class="rounded-l-none border-l-0 h-[30px]! w-[30px]!"
+        />
+      </.tooltip>
     </div>
     """
   end
