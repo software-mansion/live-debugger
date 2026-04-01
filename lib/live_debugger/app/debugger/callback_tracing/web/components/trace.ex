@@ -22,10 +22,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
   """
   attr(:id, :string, required: true)
   attr(:elixir_editor, :string, default: nil)
-  attr(:source, :any, default: nil)
+  attr(:source, SourceLocation, default: nil)
   attr(:fullscreen?, :boolean, default: false)
 
-  def open_in_editor_button(%{elixir_editor: nil} = assigns) do
+  def open_in_editor_button(assigns) do
     assigns = assign(assigns, :editor_docs_url, Editor.editor_docs_url())
 
     ~H"""
@@ -33,11 +33,23 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       :if={@source}
       id={@id <> "-open-in-editor-tooltip"}
       class="my-2"
-      content="Editor not configured. Click to see docs."
+      content={
+        if(@elixir_editor, do: "Open in editor", else: "Editor not configured. Click to see docs.")
+      }
       position="top-center"
       fullscreen?={@fullscreen?}
     >
+      <.icon_button
+        :if={@elixir_editor}
+        id={"#{@id}-open-in-editor-button"}
+        icon="icon-external-link"
+        phx-click="open-in-editor"
+        phx-value-file={@source.source_file}
+        phx-value-line={@source.line}
+        variant="secondary"
+      />
       <.button_link
+        :if={@elixir_editor == nil}
         href={@editor_docs_url}
         id={"#{@id}-open-in-editor"}
         variant="secondary"
@@ -46,28 +58,6 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       >
         <.icon name="icon-external-link" class="w-4 h-4" />
       </.button_link>
-    </.tooltip>
-    """
-  end
-
-  def open_in_editor_button(assigns) do
-    ~H"""
-    <.tooltip
-      :if={@source}
-      id={@id <> "-open-in-editor-tooltip"}
-      class="my-2"
-      content="Open in editor"
-      position="top-center"
-      fullscreen?={@fullscreen?}
-    >
-      <.icon_button
-        id={"#{@id}-open-in-editor-button"}
-        icon="icon-external-link"
-        phx-click="open-in-editor"
-        phx-value-file={@source.source_file}
-        phx-value-line={@source.line}
-        variant="secondary"
-      />
     </.tooltip>
     """
   end

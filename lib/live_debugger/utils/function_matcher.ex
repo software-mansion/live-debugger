@@ -15,6 +15,8 @@ defmodule LiveDebugger.Utils.FunctionMatcher do
          {:ok, file_path} <- get_module_file(module) do
       {:ok, %SourceLocation{source_file: file_path, line: matching.line}}
     end
+  rescue
+    _ -> :error
   end
 
   defp get_function_clauses(module, function_name, arity) do

@@ -18,7 +18,7 @@ defmodule LiveDebugger.Utils.FunctionMatcherTest do
       assert is_binary(file)
       assert String.ends_with?(file, "dev/live_views/main.ex")
       assert is_integer(line)
-      assert line > 0
+      assert line == 40
     end
 
     test "matches the correct clause when guards are present" do
