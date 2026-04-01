@@ -34,7 +34,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       id={@id <> "-open-in-editor-tooltip"}
       class="my-2"
       content={
-        if(@elixir_editor, do: "Open in editor", else: "Editor not configured. Click to see docs.")
+        if(@elixir_editor,
+          do: "Open in editor",
+          else: "Editor not configured. Click for setup instructions."
+        )
       }
       position="top-center"
       fullscreen?={@fullscreen?}
