@@ -45,11 +45,18 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
       "trace_diffs" => false
     }
 
+    components =
+      if node_id == nil do
+        %{ComponentId.all() => true}
+      else
+        %{}
+      end
+
     %{
       functions: callbacks,
       execution_time: execution_time,
       other_filters: other_filters,
-      components: %{ComponentId.all() => true}
+      components: components
     }
   end
 
