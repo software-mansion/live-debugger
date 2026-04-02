@@ -8,7 +8,6 @@ defmodule LiveDebugger.Client.ConfigComponent do
 
   attr(:url, :string, required: true)
   attr(:js_url, :string, required: true)
-  attr(:css_url, :string, required: true)
   attr(:phoenix_url, :string, required: true)
   attr(:browser_features?, :boolean, default: true)
   attr(:version, :string, default: nil)
@@ -20,7 +19,6 @@ defmodule LiveDebugger.Client.ConfigComponent do
     <%= if @browser_features? do %>
       <script src={@js_url}>
       </script>
-      <link rel="stylesheet" href={@css_url} />
       <script src={@phoenix_url}>
       </script>
     <% end %>
