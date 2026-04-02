@@ -3,13 +3,13 @@
 
 <div align="center" dir="auto">
     <p dir="auto">
-        <a href="https://hexdocs.pm/live_debugger" rel="nofollow"
+        <a href="https://hexdocs.pm/live_debugger" rel="nofollow" target="_blank"
             ><img
                 src="https://img.shields.io/github/v/release/software-mansion/live-debugger?color=lawn-green"
                 alt="Version Badge"
                 style="max-width: 100%"
         /></a>
-        <a href="https://hex.pm/packages/live_debugger" rel="nofollow"
+        <a href="https://hex.pm/packages/live_debugger" rel="nofollow" target="_blank"
             ><img
                 src="https://img.shields.io/hexpm/dw/live_debugger?style=flat&amp;label=downloads&amp;color=blue"
                 alt="Hex.pm Downloads"
