@@ -1,11 +1,15 @@
 ![LiveDebugger_Chrome_WebStore](https://github.com/user-attachments/assets/cf9aee3b-58ab-4c45-8a43-d73182cb3e02)
 
 <div align="center">
-
-[![Version Badge](https://img.shields.io/github/v/release/software-mansion/live-debugger?color=lawn-green)](https://hexdocs.pm/live_debugger)
-[![Hex.pm Downloads](https://img.shields.io/hexpm/dw/live_debugger?style=flat&label=downloads&color=blue)](https://hex.pm/packages/live_debugger)
-[![GitHub License](https://img.shields.io/github/license/software-mansion/live-debugger)](https://github.com/software-mansion/live-debugger/blob/main/LICENSE)
-
+  <a href="https://hexdocs.pm/live_debugger">
+    <img src="https://img.shields.io/github/v/release/software-mansion/live-debugger?color=lawn-green" alt="Version Badge">
+  </a>
+  <a href="https://hex.pm/packages/live_debugger">
+    <img src="https://img.shields.io/hexpm/dw/live_debugger?style=flat&label=downloads&color=blue" alt="Hex.pm Downloads">
+  </a>
+  <a href="https://github.com/software-mansion/live-debugger/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/software-mansion/live-debugger" alt="GitHub License">
+  </a>
 </div>
 
 [LiveDebugger](https://docs.swmansion.com/live-debugger/) is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
