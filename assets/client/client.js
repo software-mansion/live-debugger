@@ -39,14 +39,12 @@ window.document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const shadowHost = document.createElement('div');
-    // Highlight/tooltip overlays use `position: absolute` with scroll offsets.
-    // Using a non-fixed host keeps the same coordinate system as before.
     shadowHost.style.position = 'absolute';
     shadowHost.style.width = '0px';
     shadowHost.style.height = '0px';
     shadowHost.style.left = '0px';
     shadowHost.style.top = '0px';
-    shadowHost.style.zIndex = '2147483647'; // Ensure it's above app z-indexes.
+    shadowHost.style.zIndex = '2147483647';
     document.body.appendChild(shadowHost);
 
     const shadowRoot = shadowHost.attachShadow({ mode: 'closed' });
