@@ -49,7 +49,6 @@ window.document.addEventListener('DOMContentLoaded', async () => {
 
     const shadowRoot = shadowHost.attachShadow({ mode: 'closed' });
 
-    // Keep LiveDebugger styling fully encapsulated from user CSS.
     const cssLink = document.createElement('link');
     cssLink.rel = 'stylesheet';
     cssLink.href = `${baseURL}/assets/live_debugger/client.css`;
