@@ -5,25 +5,25 @@ import { addTooltipArrow } from './tooltip_arrow';
 const tooltipID = 'live-debugger-tooltip';
 const highlightElementID = 'live-debugger-highlight-element';
 
-function getHighlightElement() {
-  return document.getElementById(highlightElementID);
+function getHighlightElement(shadowRoot) {
+  return shadowRoot.querySelector(`#${highlightElementID}`);
 }
 
-function removeTooltip() {
-  const existingTooltip = document.getElementById(tooltipID);
+function removeTooltip(shadowRoot) {
+  const existingTooltip = shadowRoot.querySelector(`#${tooltipID}`);
   if (existingTooltip) {
     existingTooltip.remove();
   }
 }
 
-function showTooltip(data) {
-  const highlightElement = getHighlightElement();
+function showTooltip(data, shadowRoot) {
+  const highlightElement = getHighlightElement(shadowRoot);
   if (!highlightElement) {
     return;
   }
 
-  removeTooltip();
-  const tooltip = createTooltip(data);
+  removeTooltip(shadowRoot);
+  const tooltip = createTooltip(data, shadowRoot);
   const positionData = positionTooltip(tooltip, highlightElement);
 
   if (positionData) {
@@ -36,9 +36,9 @@ function showTooltip(data) {
   }
 }
 
-function handleTooltipResize() {
-  const tooltip = document.getElementById(tooltipID);
-  const highlightElement = getHighlightElement();
+function handleTooltipResize(shadowRoot) {
+  const tooltip = shadowRoot.querySelector(`#${tooltipID}`);
+  const highlightElement = getHighlightElement(shadowRoot);
 
   if (tooltip && highlightElement) {
     const positionData = positionTooltip(tooltip, highlightElement);
@@ -54,22 +54,26 @@ function handleTooltipResize() {
   }
 }
 
-function handleShowTooltipEvent(event) {
-  showTooltip(event.detail);
+function handleShowTooltipEvent(event, shadowRoot) {
+  showTooltip(event.detail, shadowRoot);
 }
 
-function handleRemoveTooltipEvent() {
-  removeTooltip();
+function handleRemoveTooltipEvent(shadowRoot) {
+  removeTooltip(shadowRoot);
 }
 
-function setupEventListeners() {
-  window.addEventListener('resize', handleTooltipResize);
-  window.addEventListener('scroll', handleTooltipResize);
+function setupEventListeners(shadowRoot) {
+  window.addEventListener('resize', () => handleTooltipResize(shadowRoot));
+  window.addEventListener('scroll', () => handleTooltipResize(shadowRoot));
 
-  document.addEventListener('lvdbg:show-tooltip', handleShowTooltipEvent);
-  document.addEventListener('lvdbg:remove-tooltip', handleRemoveTooltipEvent);
+  document.addEventListener('lvdbg:show-tooltip', (event) =>
+    handleShowTooltipEvent(event, shadowRoot)
+  );
+  document.addEventListener('lvdbg:remove-tooltip', () =>
+    handleRemoveTooltipEvent(shadowRoot)
+  );
 }
 
-export default function initTooltip() {
-  setupEventListeners();
+export default function initTooltip(shadowRoot) {
+  setupEventListeners(shadowRoot);
 }

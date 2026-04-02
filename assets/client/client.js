@@ -38,10 +38,39 @@ window.document.addEventListener('DOMContentLoaded', async () => {
       debugChannel.push('pong', resp);
     });
 
-    initElementInspection({ baseURL, debugChannel, socketID: mainSocketID });
-    initTooltip();
-    initDebugMenu(metaTag, sessionURL, debugChannel);
-    initHighlight(debugChannel);
+    const shadowHost = document.createElement('div');
+    // Highlight/tooltip overlays use `position: absolute` with scroll offsets.
+    // Using a non-fixed host keeps the same coordinate system as before.
+    shadowHost.style.position = 'absolute';
+    shadowHost.style.width = '0px';
+    shadowHost.style.height = '0px';
+    shadowHost.style.left = '0px';
+    shadowHost.style.top = '0px';
+    shadowHost.style.zIndex = '2147483647'; // Ensure it's above app z-indexes.
+    document.body.appendChild(shadowHost);
+
+    const shadowRoot = shadowHost.attachShadow({ mode: 'closed' });
+
+    // Keep LiveDebugger styling fully encapsulated from user CSS.
+    const cssLink = document.createElement('link');
+    cssLink.rel = 'stylesheet';
+    cssLink.href = `${baseURL}/assets/live_debugger/client.css`;
+    shadowRoot.appendChild(cssLink);
+
+    const { debugButton } = initDebugMenu(
+      metaTag,
+      sessionURL,
+      debugChannel,
+      shadowRoot
+    );
+    initElementInspection({
+      baseURL,
+      debugChannel,
+      socketID: mainSocketID,
+      debugButton,
+    });
+    initTooltip(shadowRoot);
+    initHighlight(debugChannel, shadowRoot);
   }
 
   console.info(`LiveDebugger available at: ${baseURL}`);

@@ -41,13 +41,13 @@ function setModuleName(tooltip, data) {
   moduleName.textContent = data.module || 'Element';
 }
 
-export function createTooltip(data) {
+export function createTooltip(data, shadowRoot) {
   const tooltip = createElement(tooltipHtml);
 
   setModuleName(tooltip, data);
   setTypeIcon(tooltip, data);
   populateInfoSection(tooltip, data);
 
-  document.body.appendChild(tooltip);
+  shadowRoot.appendChild(tooltip);
   return tooltip;
 }
