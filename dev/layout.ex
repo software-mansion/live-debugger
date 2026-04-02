@@ -28,7 +28,38 @@ defmodule LiveDebuggerDev.Layout do
         <script>
           // Set global hooks and uploaders objects to be used by the LiveSocket,
           // so they can be overwritten in user provided templates.
-          window.hooks = {}
+          window.hooks = {
+            MemoryExplosionSpam: {
+              mounted() {
+                this.interval = null
+                this.start()
+              },
+              updated() {
+                this.start()
+              },
+              destroyed() {
+                this.stop()
+              },
+              start() {
+                this.stop()
+
+                const running = this.el.dataset.running === "true"
+                const interval = parseInt(this.el.dataset.interval || "170", 10)
+
+                if (!running) return
+
+                this.interval = setInterval(() => {
+                  this.pushEvent("tick", {})
+                }, interval)
+              },
+              stop() {
+                if (this.interval) {
+                  clearInterval(this.interval)
+                  this.interval = null
+                }
+              }
+            }
+          }
           window.uploaders = {}
 
           let liveSocket =
