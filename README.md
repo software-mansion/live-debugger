@@ -1,15 +1,27 @@
 ![LiveDebugger_Chrome_WebStore](https://github.com/user-attachments/assets/cf9aee3b-58ab-4c45-8a43-d73182cb3e02)
 
-<div align="center">
-  <a href="https://hexdocs.pm/live_debugger">
-    <img src="https://img.shields.io/github/v/release/software-mansion/live-debugger?color=lawn-green" alt="Version Badge">
-  </a>
-  <a href="https://hex.pm/packages/live_debugger">
-    <img src="https://img.shields.io/hexpm/dw/live_debugger?style=flat&label=downloads&color=blue" alt="Hex.pm Downloads">
-  </a>
-  <a href="https://github.com/software-mansion/live-debugger/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/software-mansion/live-debugger" alt="GitHub License">
-  </a>
+
+<div align="center" dir="auto">
+    <p dir="auto">
+        <a href="https://hexdocs.pm/live_debugger" rel="nofollow"
+            ><img
+                src="https://img.shields.io/github/v/release/software-mansion/live-debugger?color=lawn-green"
+                alt="Version Badge"
+                style="max-width: 100%"
+        /></a>
+        <a href="https://hex.pm/packages/live_debugger" rel="nofollow"
+            ><img
+                src="https://img.shields.io/hexpm/dw/live_debugger?style=flat&amp;label=downloads&amp;color=blue"
+                alt="Hex.pm Downloads"
+                style="max-width: 100%"
+        /></a>
+        <a href="https://github.com/software-mansion/live-debugger/blob/main/LICENSE"
+            ><img
+                src="https://img.shields.io/github/license/software-mansion/live-debugger"
+                alt="GitHub License"
+                style="max-width: 100%"
+        /></a>
+    </p>
 </div>
 
 [LiveDebugger](https://docs.swmansion.com/live-debugger/) is a browser-based tool for debugging applications written in [Phoenix LiveView](https://github.com/phoenixframework/phoenix_live_view) - an Elixir library designed for building rich, interactive online experiences with server-rendered HTML.
