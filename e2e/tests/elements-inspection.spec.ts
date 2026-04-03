@@ -1,6 +1,7 @@
 import {
   expect,
   findNodeModuleInfo,
+  findSidebarBasicInfo,
   prepareDevDebuggerPairTest,
   getDevPid,
   Page,
@@ -42,7 +43,7 @@ const selectLiveViewByPid = async (dbgApp: Page, pid: string) => {
   );
   await btn.hover();
   await btn.click();
-  await expect(findNodeModuleInfo(dbgApp)).toBeVisible();
+  await expect(findSidebarBasicInfo(dbgApp)).toBeVisible();
 };
 
 const openDbgForLiveView = async (
@@ -67,7 +68,7 @@ const openMobileDbgForLiveView = async (
   );
   await btn.hover();
   await btn.click();
-  await expect(findNodeModuleInfo(dbgApp)).toBeVisible();
+  await expect(findSidebarBasicInfo(dbgApp)).toBeVisible();
   return dbgApp;
 };
 

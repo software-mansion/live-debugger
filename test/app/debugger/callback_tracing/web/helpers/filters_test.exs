@@ -91,7 +91,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "min_unit" => "µs",
                  "max_unit" => "µs"
                },
-               components: %{ComponentId.all() => true},
+               components: %{},
                other_filters: %{"trace_diffs" => false}
              }
     end
@@ -115,7 +115,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
                  "min_unit" => "µs",
                  "max_unit" => "µs"
                },
-               components: %{ComponentId.all() => true},
+               components: %{},
                other_filters: %{"trace_diffs" => false}
              }
     end

@@ -45,11 +45,18 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
       "trace_diffs" => false
     }
 
+    components =
+      if node_id == nil do
+        %{ComponentId.all() => true}
+      else
+        %{}
+      end
+
     %{
       functions: callbacks,
       execution_time: execution_time,
       other_filters: other_filters,
-      components: %{ComponentId.all() => true}
+      components: components
     }
   end
 
@@ -114,10 +121,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
           integer()
   def count_selected_filters(default_filters, current_filters) do
     current_flattened_filters =
-      flattened_filters(current_filters, [:min_unit, :max_unit, :other_filters])
+      flattened_filters(current_filters, ["min_unit", "max_unit"])
 
     default_flattened_filters =
-      flattened_filters(default_filters, [:min_unit, :max_unit, :other_filters])
+      flattened_filters(default_filters, ["min_unit", "max_unit"])
 
     Enum.count(current_flattened_filters, fn {key, value} ->
       value != Map.get(default_flattened_filters, key)

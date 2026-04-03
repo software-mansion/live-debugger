@@ -184,6 +184,10 @@ defmodule LiveDebuggerDev.LiveViews.Main do
     {:noreply, assign(socket, :message, %{name: "message name", text: "some text"})}
   end
 
+  def handle_event("increment", _, socket) when is_binary(socket) do
+    {:noreply, update(socket, :counter, &(&1 + 1))}
+  end
+
   def handle_event("increment", _, socket) do
     {:noreply, update(socket, :counter, &(&1 + 1))}
   end
