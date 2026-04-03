@@ -47,7 +47,8 @@ window.document.addEventListener('DOMContentLoaded', async () => {
     shadowHost.style.zIndex = '2147483647';
     document.body.appendChild(shadowHost);
 
-    const shadowRoot = shadowHost.attachShadow({ mode: 'closed' });
+    const mode = metaTag.getAttribute('e2e') === 'true' ? 'open' : 'closed';
+    const shadowRoot = shadowHost.attachShadow({ mode });
 
     const cssLink = document.createElement('link');
     cssLink.rel = 'stylesheet';

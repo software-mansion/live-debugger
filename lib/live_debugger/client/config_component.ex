@@ -12,10 +12,21 @@ defmodule LiveDebugger.Client.ConfigComponent do
   attr(:browser_features?, :boolean, default: true)
   attr(:version, :string, default: nil)
   attr(:debug_button?, :boolean, default: true)
+  attr(:e2e?, :boolean, default: false)
 
   def live_debugger_tags(assigns) do
     ~H"""
-    <meta name="live-debugger-config" url={@url} version={@version} debug-button={@debug_button?} />
+    <%= if @e2e? do %>
+      <meta
+        name="live-debugger-config"
+        url={@url}
+        version={@version}
+        debug-button={@debug_button?}
+        e2e="true"
+      />
+    <% else %>
+      <meta name="live-debugger-config" url={@url} version={@version} debug-button={@debug_button?} />
+    <% end %>
     <%= if @browser_features? do %>
       <script src={@js_url}>
       </script>
