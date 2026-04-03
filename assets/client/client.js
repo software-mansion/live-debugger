@@ -38,37 +38,26 @@ window.document.addEventListener('DOMContentLoaded', async () => {
       debugChannel.push('pong', resp);
     });
 
-    const shadowHost = document.createElement('div');
-    shadowHost.style.position = 'absolute';
-    shadowHost.style.width = '0px';
-    shadowHost.style.height = '0px';
-    shadowHost.style.left = '0px';
-    shadowHost.style.top = '0px';
-    shadowHost.style.zIndex = '2147483647';
-    document.body.appendChild(shadowHost);
+    initElementInspection({ baseURL, debugChannel, socketID: mainSocketID });
+    initTooltip();
+    initDebugMenu(metaTag, sessionURL, debugChannel);
+    initHighlight(debugChannel);
 
-    const mode = metaTag.getAttribute('e2e') === 'true' ? 'open' : 'closed';
-    const shadowRoot = shadowHost.attachShadow({ mode });
-
-    const cssLink = document.createElement('link');
-    cssLink.rel = 'stylesheet';
-    cssLink.href = `${baseURL}/assets/live_debugger/client.css`;
-    shadowRoot.appendChild(cssLink);
-
-    const { debugButton } = initDebugMenu(
-      metaTag,
-      sessionURL,
-      debugChannel,
-      shadowRoot
-    );
-    initElementInspection({
-      baseURL,
-      debugChannel,
-      socketID: mainSocketID,
-      debugButton,
+    document.addEventListener('lvdbg:tour-action', (e) => {
+      debugChannel.push('tour:action', e.detail);
     });
-    initTooltip(shadowRoot);
-    initHighlight(debugChannel, shadowRoot);
+
+    debugChannel.on('step-completed', (payload) => {
+      console.log('step-completed');
+    });
+    debugChannel.on('fetch-current-tour-step', (payload) => {
+      console.log('fetch-current-step');
+      debugChannel.push('tour:action', {
+        action: 'spotlight',
+        target: 'send-event-button',
+        dismiss: 'click-target',
+      });
+    });
   }
 
   console.info(`LiveDebugger available at: ${baseURL}`);
