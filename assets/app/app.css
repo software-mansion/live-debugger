@@ -82,7 +82,7 @@ body {
 
 /* Tour */
 .tour-highlight {
-  outline: 3px solid var( --swm-pink-100);
+  outline: 3px solid var(--swm-pink-100);
   outline-offset: -3px;
 }
 
