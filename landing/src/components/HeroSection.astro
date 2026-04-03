@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
     className="font-aeonik text-primary-foreground flex flex-col items-center justify-center gap-10 py-12 md:py-16"
   >
     <div
-      class="animate-fade-in-down z-10 flex w-full flex-col items-center justify-center gap-8 sm:h-1/2"
+      class="hero-banner-padding animate-fade-in-down z-10 flex w-full flex-col items-center justify-center gap-8 sm:h-1/2"
     >
       <div class="flex flex-col items-center justify-center gap-5 md:gap-6">
         <a href="https://swmansion.com/" target="_blank" rel="noopener">
@@ -81,3 +81,16 @@ import { Button } from "@/components/ui/button";
     />
   </div>
 </section>
+
+<style>
+  :root {
+    --hero-banner-pad: 0;
+  }
+  :root[data-banner-loaded="true"] {
+    --hero-banner-pad: 2rem;
+  }
+  .hero-banner-padding {
+    padding-top: var(--hero-banner-pad);
+    transition: padding-top 500ms ease;
+  }
+</style>
