@@ -42,6 +42,22 @@ window.document.addEventListener('DOMContentLoaded', async () => {
     initTooltip();
     initDebugMenu(metaTag, sessionURL, debugChannel);
     initHighlight(debugChannel);
+
+    document.addEventListener('lvdbg:tour-action', (e) => {
+      debugChannel.push('tour:action', e.detail);
+    });
+
+    debugChannel.on('step-completed', (payload) => {
+      console.log('step-completed');
+    });
+    debugChannel.on('fetch-current-tour-step', (payload) => {
+      console.log('fetch-current-step');
+      debugChannel.push('tour:action', {
+        action: 'spotlight',
+        target: 'send-event-button',
+        dismiss: 'click-target',
+      });
+    });
   }
 
   console.info(`LiveDebugger available at: ${baseURL}`);

@@ -46,6 +46,67 @@ defmodule LiveDebuggerDev.LiveViews.Main do
         </p>
       </div>
       <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-1 border-2 border-purple-300 rounded p-2">
+          <span class="text-sm font-bold text-purple-600">Tour Demo:</span>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs text-gray-500">click-anywhere:</span>
+            <button
+              class="bg-purple-500 text-white py-1 px-2 rounded text-sm"
+              phx-click={
+                Phoenix.LiveView.JS.dispatch("lvdbg:tour-action",
+                  detail: %{action: "spotlight", target: "navbar", dismiss: "click-anywhere"}
+                )
+              }
+            >
+              Spotlight Navbar
+            </button>
+            <button
+              class="bg-purple-500 text-white py-1 px-2 rounded text-sm"
+              phx-click={
+                Phoenix.LiveView.JS.dispatch("lvdbg:tour-action",
+                  detail: %{action: "highlight", target: "navbar-connected", dismiss: "click-anywhere"}
+                )
+              }
+            >
+              Highlight PID
+            </button>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs text-gray-500">click-target (sends back):</span>
+            <button
+              class="bg-indigo-600 text-white py-1 px-2 rounded text-sm"
+              phx-click={
+                Phoenix.LiveView.JS.dispatch("lvdbg:tour-action",
+                  detail: %{action: "spotlight", target: "send-event-button", dismiss: "click-target"}
+                )
+              }
+            >
+              Click "Send Event"
+            </button>
+            <button
+              class="bg-indigo-600 text-white py-1 px-2 rounded text-sm"
+              phx-click={
+                Phoenix.LiveView.JS.dispatch("lvdbg:tour-action",
+                  detail: %{action: "spotlight", target: "open-in-editor", dismiss: "click-target"}
+                )
+              }
+            >
+              Click "Open in Editor"
+            </button>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              class="bg-gray-400 text-white py-1 px-2 rounded text-sm"
+              phx-click={
+                Phoenix.LiveView.JS.dispatch("lvdbg:tour-action",
+                  detail: %{action: "clear"}
+                )
+              }
+            >
+              Clear
+            </button>
+          </div>
+        </div>
         <div class="flex items-center gap-2">
           <.button id="append-message" phx-click="append-message" color="green">
             Append message
