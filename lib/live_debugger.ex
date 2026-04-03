@@ -128,7 +128,8 @@ defmodule LiveDebugger do
         phoenix_url: live_debugger_phoenix_url,
         browser_features?: browser_features?,
         version: version,
-        debug_button?: SettingsStorage.get(:debug_button)
+        debug_button?: SettingsStorage.get(:debug_button),
+        e2e?: Keyword.get(config, :e2e?, false)
       }
 
       tags = LiveDebugger.Client.ConfigComponent.live_debugger_tags(assigns)
