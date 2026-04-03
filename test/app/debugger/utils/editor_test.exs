@@ -50,6 +50,25 @@ defmodule LiveDebugger.App.Debugger.Utils.EditorTest do
     end)
   end
 
+  test "sends flash error on command failure" do
+    alias LiveDebugger.App.Web.Hooks.Flash.LinkFlashData
+
+    Editor.open_in_editor("1234", "lib/app.ex", 15, self())
+
+    assert_receive {:put_flash, :error, %LinkFlashData{text: text, url: url, label: label}},
+                   5_000
+
+    assert text =~ "Error when opening editor"
+    assert url =~ "open_in_editor"
+    assert label == "See the docs"
+  end
+
+  test "does not send flash on success" do
+    Editor.open_in_editor("echo", "lib/app.ex", 15, self())
+
+    refute_receive {:put_flash, _, _}, 1_000
+  end
+
   # Sets envs only for the duration of the test
   defp with_env(env_map, fun) do
     original_state = Map.new(env_map, fn {k, _} -> {k, System.get_env(k)} end)

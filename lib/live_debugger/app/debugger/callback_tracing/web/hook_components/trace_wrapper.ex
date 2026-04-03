@@ -21,10 +21,17 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
 
   import LiveDebugger.App.Web.Hooks.Flash, only: [push_flash: 4]
 
+  import LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace,
+    only: [open_in_editor_button: 1]
+
   alias LiveDebugger.API.TracesStorage
   alias LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay
+  alias LiveDebugger.App.Debugger.Utils.Editor
+  alias LiveDebugger.Utils.FunctionMatcher
+  alias LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace
+  alias LiveDebugger.Structs.Trace.DiffTrace
 
-  @required_assigns [:lv_process, :displayed_trace, :parent_pid]
+  @required_assigns [:lv_process, :displayed_trace, :parent_pid, :elixir_editor]
   @trace_not_found_close_delay_ms 200
 
   @impl true
@@ -38,6 +45,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
 
   attr(:id, :string, required: true)
   attr(:trace_display, TraceDisplay, required: true)
+  attr(:elixir_editor, :string, default: nil)
 
   slot(:body, required: true)
   slot(:label, required: true)
@@ -66,12 +74,20 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
           :if={@trace_display.render_body? && is_nil(@trace_display.error)}
           class="absolute right-0 top-0 z-10"
         >
-          <.fullscreen_button
-            id={"trace-fullscreen-#{@id}"}
-            class="m-2"
-            phx-click="open-trace"
-            phx-value-trace-id={@trace_display.id}
-          />
+          <div class="flex flex-row">
+            <.open_in_editor_button
+              id={@id}
+              elixir_editor={@elixir_editor}
+              source={@trace_display.source}
+            />
+
+            <.fullscreen_button
+              id={"trace-fullscreen-#{@id}"}
+              class="m-2"
+              phx-click="open-trace"
+              phx-value-trace-id={@trace_display.id}
+            />
+          </div>
         </div>
         <div class={[
           "overflow-x-auto max-w-full max-h-[30vh] overflow-y-auto",
@@ -119,9 +135,25 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
         handle_trace_not_found(string_trace_id)
         socket
 
+      diff_trace = %DiffTrace{} ->
+        stream_insert_trace(socket, diff_trace, !render_body?)
+
       trace ->
+        trace = maybe_resolve_and_persist_source(trace)
         stream_insert_trace(socket, trace, !render_body?)
     end
+    |> halt()
+  end
+
+  defp handle_event("open-in-editor", %{"file" => file, "line" => line}, socket) do
+    Editor.open_in_editor(
+      socket.assigns.elixir_editor,
+      file,
+      String.to_integer(line),
+      socket.assigns.parent_pid
+    )
+
+    socket
     |> halt()
   end
 
@@ -135,6 +167,22 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
   end
 
   defp handle_info(_, socket), do: {:cont, socket}
+
+  defp maybe_resolve_and_persist_source(
+         %{source: nil, module: module, function: function, args: args} = trace
+       ) do
+    case FunctionMatcher.find_matching_clause_line(module, function, args) do
+      {:ok, source} ->
+        new_trace = %{trace | source: source}
+        FunctionTrace.persist_trace(new_trace)
+        new_trace
+
+      _ ->
+        trace
+    end
+  end
+
+  defp maybe_resolve_and_persist_source(trace), do: trace
 
   defp get_trace(socket, string_trace_id) do
     TracesStorage.get_by_id!(socket.assigns.lv_process.pid, String.to_integer(string_trace_id))
