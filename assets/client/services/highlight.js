@@ -59,8 +59,8 @@ function createHighlightElement(activeElement, detail, id) {
   return highlight;
 }
 
-function removeHighlightElement() {
-  const highlightElement = document.getElementById(highlightElementID);
+function removeHighlightElement(shadowRoot) {
+  const highlightElement = shadowRoot.querySelector(`#${highlightElementID}`);
 
   if (highlightElement) {
     highlightElement.remove();
@@ -69,8 +69,8 @@ function removeHighlightElement() {
   dispatchCustomEvent('lvdbg:remove-tooltip');
 }
 
-function handleHighlight({ detail }) {
-  let highlightElement = document.getElementById(highlightElementID);
+function handleHighlight({ detail }, shadowRoot) {
+  let highlightElement = shadowRoot.querySelector(`#${highlightElementID}`);
 
   if (highlightElement) {
     highlightElement.remove();
@@ -95,13 +95,13 @@ function handleHighlight({ detail }) {
       highlightElementID
     );
 
-    document.body.appendChild(highlightElement);
+    shadowRoot.appendChild(highlightElement);
     showTooltip(detail);
   }
 }
 
-function handleHighlightResize() {
-  const highlight = document.getElementById(highlightElementID);
+function handleHighlightResize(shadowRoot) {
+  const highlight = shadowRoot.querySelector(`#${highlightElementID}`);
   if (highlight) {
     const activeElement = document.querySelector(
       `[${highlight.dataset.attr}="${highlight.dataset.val}"]`
@@ -115,7 +115,7 @@ function handleHighlightResize() {
   }
 }
 
-function handlePulse({ detail }) {
+function handlePulse({ detail }, shadowRoot) {
   const activeElement = document.querySelector(
     `[${detail.attr}="${detail.val}"]`
   );
@@ -127,7 +127,7 @@ function handlePulse({ detail }) {
       highlightPulseElementID
     );
 
-    document.body.appendChild(highlightPulse);
+    shadowRoot.appendChild(highlightPulse);
 
     const w = highlightPulse.offsetWidth;
     const h = highlightPulse.offsetHeight;
@@ -186,13 +186,21 @@ function showTooltip(detail) {
   dispatchCustomEvent('lvdbg:show-tooltip', props);
 }
 
-export default function initHighlight(debugChannel) {
-  document.addEventListener('lvdbg:inspect-highlight', handleHighlight);
-  document.addEventListener('lvdbg:inspect-pulse', handlePulse);
-  document.addEventListener('lvdbg:inspect-clear', removeHighlightElement);
+export default function initHighlight(debugChannel, shadowRoot) {
+  document.addEventListener('lvdbg:inspect-highlight', (event) =>
+    handleHighlight(event, shadowRoot)
+  );
+  document.addEventListener('lvdbg:inspect-pulse', (event) =>
+    handlePulse(event, shadowRoot)
+  );
+  document.addEventListener('lvdbg:inspect-clear', () =>
+    removeHighlightElement(shadowRoot)
+  );
 
-  debugChannel.on('highlight', (e) => handleHighlight({ detail: e }));
-  debugChannel.on('pulse', (e) => handlePulse({ detail: e }));
+  debugChannel.on('highlight', (e) =>
+    handleHighlight({ detail: e }, shadowRoot)
+  );
+  debugChannel.on('pulse', (e) => handlePulse({ detail: e }, shadowRoot));
 
-  window.addEventListener('resize', handleHighlightResize);
+  window.addEventListener('resize', () => handleHighlightResize(shadowRoot));
 }

@@ -4,6 +4,7 @@ export default function initElementInspection({
   baseURL,
   debugChannel,
   socketID,
+  debugButton,
 }) {
   let inspectMode = false;
   let lastID = null;
@@ -141,7 +142,6 @@ export default function initElementInspection({
     inspectMode = false;
     lastID = null;
 
-    const debugButton = document.getElementById('live-debugger-debug-button');
     if (debugButton) debugButton.classList.remove('live-debugger-inspect-mode');
 
     pushClearEvent();
@@ -162,7 +162,6 @@ export default function initElementInspection({
 
     inspectMode = true;
 
-    const debugButton = document.getElementById('live-debugger-debug-button');
     if (debugButton) debugButton.classList.add('live-debugger-inspect-mode');
 
     document.body.classList.add('live-debugger-inspect-mode');

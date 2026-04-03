@@ -2,6 +2,7 @@
   position: fixed;
   height: 40px;
   width: 40px;
+  box-sizing: border-box;
   padding-left: 5px;
   padding-right: 5px;
   border-radius: 10px;
@@ -40,11 +41,26 @@
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
+  box-sizing: border-box;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   min-width: 160px;
   z-index: 10000;
   display: none;
   font-size: 14px;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+#live-debugger-debug-tooltip p {
+  margin: 0;
 }
 
 #live-debugger-debug-tooltip .live-debugger-tooltip-option {
@@ -82,6 +98,16 @@
   pointer-events: none;
   padding: 8px 12px;
   color: #333;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
 }
 
 .live-debugger-tooltip-content {
