@@ -14,11 +14,12 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
   alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
-
+  alias LiveDebugger.Client
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Bus.receive_events!()
+      Client.receive_tour_events()
     end
 
     {:ok, socket}
@@ -62,6 +63,15 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
   def handle_info(%UserChangedSettings{key: :dead_liveviews, value: value}, socket) do
     send_update(DeadLiveViews, id: "dead-live-views", dead_liveviews?: value)
+    {:noreply, socket}
+  end
+
+  def handle_info({"tour:" <> _, payload}, socket) do
+    socket =
+      socket
+      |> assign(:tour_step, payload)
+      |> push_event("tour-action", payload)
+
     {:noreply, socket}
   end
 

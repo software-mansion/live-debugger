@@ -6,6 +6,7 @@ import initHighlight from './services/highlight';
 import initDebugSocket from './services/debug_socket';
 import initElementInspection from './services/inspect';
 import initTooltip from './components/tooltip/tooltip';
+import { initTour, tour } from './services/tour';
 
 import {
   getMetaTag,
@@ -42,6 +43,15 @@ window.document.addEventListener('DOMContentLoaded', async () => {
     initTooltip();
     initDebugMenu(metaTag, sessionURL, debugChannel);
     initHighlight(debugChannel);
+    initTour(debugChannel);
+
+    // Expose tour API on window for client app usage
+    window.LiveDebuggerTour = tour;
+
+    // Also support DOM events for LiveView JS.dispatch usage
+    document.addEventListener('lvdbg:tour-action', (e) => {
+      debugChannel.push('tour:action', e.detail);
+    });
   }
 
   console.info(`LiveDebugger available at: ${baseURL}`);

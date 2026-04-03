@@ -79,3 +79,23 @@ body {
   background-color: var(--search-highlight-bg);
   color: var(--search-highlight-text);
 }
+
+/* Tour */
+.tour-highlight {
+  outline: 3px solid var(--swm-pink-100);
+  outline-offset: -3px;
+}
+
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+}
+
+.tour-spotlight-target {
+  position: relative;
+  z-index: 9999;
+  pointer-events: auto;
+}
