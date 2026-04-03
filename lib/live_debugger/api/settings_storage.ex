@@ -131,19 +131,7 @@ defmodule LiveDebugger.API.SettingsStorage do
     end
 
     defp fetch_setting(setting) do
-      with {:error, :not_saved} <- get_from_dets(setting) do
-        @default_settings[setting]
-      end
-    end
-
-    defp get_from_dets(setting) do
-      case :dets.lookup(@table_name, setting) do
-        [{^setting, value}] ->
-          value
-
-        _ ->
-          {:error, :not_saved}
-      end
+      @default_settings[setting]
     end
 
     defp file_path() do
