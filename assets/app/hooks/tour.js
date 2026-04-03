@@ -63,10 +63,7 @@ const Tour = {
       dismiss: this.el.dataset.tourDismiss,
     };
 
-    console.log({ payload });
-
     const key = `${action}:${payload.target}:${payload.dismiss}`;
-    console.log({ key });
     if (this._appliedKey === key) return;
 
     this._applyAction(payload);

@@ -2,6 +2,8 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   use DevWeb, :live_view
 
   alias LiveDebuggerDev.LiveComponents
+  alias LiveDebugger.Tour
+  alias LiveDebugger.TourElements
 
   @long_text """
     Lorem ipsum dolor sit amet, consectetur adipiscing elit.
@@ -33,6 +35,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       |> assign(long_assign: @long_text)
       |> assign(deep_assign: %{b: %{c: %{d: %{e: %{f: %{g: "deep value"}}}}}})
       |> assign(message: nil)
+      |> assign(current_step: "clear")
 
     {:ok, socket, temporary_assigns: [message: nil]}
   end
@@ -47,64 +50,34 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       </div>
       <div class="flex flex-col gap-2">
         <div class="flex flex-col gap-1 border-2 border-purple-300 rounded p-2">
-          <span class="text-sm font-bold text-purple-600">Tour Demo:</span>
+          <span class="text-sm font-bold text-purple-600">Tour API Demo</span>
           <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-xs text-gray-500">click-anywhere:</span>
-            <button
-              class="bg-purple-500 text-white py-1 px-2 rounded text-sm"
-              phx-click={
-                Phoenix.LiveView.JS.dispatch("lvdbg:tour-action",
-                  detail: %{action: "spotlight", target: "navbar", dismiss: "click-anywhere"}
-                )
-              }
+            <span class="text-xs text-gray-500">Actions:</span>
+            <.button
+              color="purple"
+              phx-click={:navbar |> TourElements.id() |> Tour.spotlight("click-anywhere")}
             >
               Spotlight Navbar
-            </button>
-            <button
-              class="bg-purple-500 text-white py-1 px-2 rounded text-sm"
-              phx-click={
-                Phoenix.LiveView.JS.dispatch("lvdbg:tour-action",
-                  detail: %{action: "highlight", target: "navbar-connected", dismiss: "click-anywhere"}
-                )
-              }
-            >
+            </.button>
+            <.button color="purple" phx-click={Tour.highlight(:navbar_connected)}>
               Highlight PID
-            </button>
-          </div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-xs text-gray-500">click-target (sends back):</span>
-            <button
-              class="bg-indigo-600 text-white py-1 px-2 rounded text-sm"
-              phx-click={
-                Phoenix.LiveView.JS.dispatch("lvdbg:tour-action",
-                  detail: %{action: "spotlight", target: "send-event-button", dismiss: "click-target"}
-                )
-              }
-            >
-              Click "Send Event"
-            </button>
-            <button
-              class="bg-indigo-600 text-white py-1 px-2 rounded text-sm"
-              phx-click={
-                Phoenix.LiveView.JS.dispatch("lvdbg:tour-action",
-                  detail: %{action: "spotlight", target: "open-in-editor", dismiss: "click-target"}
-                )
-              }
-            >
-              Click "Open in Editor"
-            </button>
-          </div>
-          <div class="flex items-center gap-2">
-            <button
-              class="bg-gray-400 text-white py-1 px-2 rounded text-sm"
-              phx-click={
-                Phoenix.LiveView.JS.dispatch("lvdbg:tour-action",
-                  detail: %{action: "clear"}
-                )
-              }
-            >
+            </.button>
+            <.button color="blue" phx-click={Tour.spotlight(:send_event_button)}>
+              Spotlight "Send Event"
+            </.button>
+            <.button color="gray" phx-click={Tour.clear()}>
               Clear
-            </button>
+            </.button>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs text-gray-500">Settings:</span>
+            <.button color="green" phx-click={Tour.enable_settings()}>
+              Enable Settings
+            </.button>
+            <.button color="red" phx-click={Tour.disable_settings()}>
+              Disable Settings
+            </.button>
           </div>
         </div>
         <div class="flex items-center gap-2">
