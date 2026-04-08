@@ -14,13 +14,18 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
   alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
-  alias LiveDebugger.Client
+
+  alias LiveDebugger.App.Web.HookComponents.Tour, as: TourHook
+
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Bus.receive_events!()
-      Client.receive_tour_events()
     end
+
+    socket =
+      socket
+      |> TourHook.init()
 
     {:ok, socket}
   end
@@ -28,7 +33,12 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="h-full flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
+    <div
+      class="h-full flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]"
+      id="discovery_live"
+      phx-hook="Tour"
+      {TourHook.data_attrs(@tour_step)}
+    >
       <NavbarComponents.navbar class="flex justify-between">
         <NavbarComponents.live_debugger_logo />
         <div class="flex items-center gap-2">
@@ -63,15 +73,6 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
   def handle_info(%UserChangedSettings{key: :dead_liveviews, value: value}, socket) do
     send_update(DeadLiveViews, id: "dead-live-views", dead_liveviews?: value)
-    {:noreply, socket}
-  end
-
-  def handle_info({"tour:" <> _, payload}, socket) do
-    socket =
-      socket
-      |> assign(:tour_step, payload)
-      |> push_event("tour-action", payload)
-
     {:noreply, socket}
   end
 

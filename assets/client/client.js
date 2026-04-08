@@ -48,9 +48,11 @@ window.document.addEventListener('DOMContentLoaded', async () => {
     // Expose tour API on window for client app usage
     window.LiveDebuggerTour = tour;
 
-    // Also support DOM events for LiveView JS.dispatch usage
-    document.addEventListener('lvdbg:tour-action', (e) => {
-      debugChannel.push('tour:action', e.detail);
+    // Support DOM events from Elixir Tour API (JS.dispatch)
+    // The detail contains {command, ...payload} — command becomes the channel message name
+    document.addEventListener('lvdbg:tour', (e) => {
+      const { command, ...payload } = e.detail;
+      debugChannel.push(command, payload);
     });
   }
 

@@ -1,31 +1,22 @@
 /**
  * Tour API — allows the client app to control the LiveDebugger tour UI.
  *
- * All actions are sent via the WebSocket debug channel to the debugger,
- * where the Tour JS hook applies them to the debugger UI.
+ * All commands are sent as `tour:<command>` messages via the WebSocket channel.
+ * The Channel routes all `tour:*` messages to the `client:tour:receive` PubSub topic.
  *
- * ## Actions
+ * ## Message convention
  *
- * - spotlight(target, dismiss) — dims everything except the target element
- * - highlight(target, dismiss) — outlines the target element
- * - clear() — removes all tour effects
- *
- * ## Dismiss modes
- *
- * - "click-anywhere" — clears on any click, no callback
- * - "click-target"   — clears only when user clicks the target element,
- *                       triggers "step-completed" callback
+ * Each API call maps to a channel message:
+ *   spotlight(target, dismiss)  → push("tour:spotlight", {target, dismiss})
+ *   highlight(target, dismiss)  → push("tour:highlight", {target, dismiss})
+ *   clear()                     → push("tour:clear", {})
+ *   enableSettings()            → push("tour:settings-enabled", {})
+ *   disableSettings()           → push("tour:settings-disabled", {})
  *
  * ## Callbacks
  *
  * - onStepCompleted(fn) — called when user completes a "click-target" step
  * - onFetchCurrentStep(fn) — called when debugger requests the current step
- *                            (e.g. after page reload)
- *
- * ## Settings control
- *
- * - enableSettings() — unlocks settings toggles in debugger
- * - disableSettings() — locks settings toggles in debugger
  */
 
 let _channel = null;
@@ -37,11 +28,6 @@ function assertReady() {
     console.warn('[LiveDebugger Tour] Not initialized. Tour API is unavailable.');
   }
   return !!_channel;
-}
-
-function sendAction(action, target, dismiss) {
-  if (!assertReady()) return;
-  _channel.push('tour:action', { action, target, dismiss });
 }
 
 export function initTour(debugChannel) {
@@ -58,15 +44,18 @@ export function initTour(debugChannel) {
 
 export const tour = {
   spotlight(target, dismiss = 'click-target') {
-    sendAction('spotlight', target, dismiss);
+    if (!assertReady()) return;
+    _channel.push('tour:spotlight', { target, dismiss });
   },
 
   highlight(target, dismiss = 'click-anywhere') {
-    sendAction('highlight', target, dismiss);
+    if (!assertReady()) return;
+    _channel.push('tour:highlight', { target, dismiss });
   },
 
   clear() {
-    sendAction('clear');
+    if (!assertReady()) return;
+    _channel.push('tour:clear', {});
   },
 
   enableSettings() {
