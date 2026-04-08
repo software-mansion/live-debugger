@@ -104,7 +104,7 @@ defmodule LiveDebugger.API.SettingsStorage do
       # User still can change it in settings, and until next app restart it will be used.
       SettingsStorage.available_settings()
       |> Enum.map(fn setting ->
-        {setting, Application.get_env(:live_debugger, setting, fetch_setting(setting))}
+        {setting, fetch_setting(setting)}
       end)
       |> Enum.each(fn {setting, value} -> save(setting, value) end)
 

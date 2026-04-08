@@ -2,24 +2,27 @@ defmodule LiveDebugger.Tour do
   @moduledoc """
   Elixir API for controlling the LiveDebugger tour.
 
-  Returns `Phoenix.LiveView.JS` commands that can be used directly in templates
-  with `phx-click`, `phx-mounted`, etc.
+  Returns `Phoenix.LiveView.JS` commands that dispatch DOM events picked up
+  by the injected client JS (`assets/client/services/tour.js`), which forwards
+  them through the WebSocket channel as `tour:<command>` messages.
+
+  ## Message convention
+
+  Each function maps to a channel message:
+
+      spotlight/2  → "tour:spotlight"  {target, dismiss}
+      highlight/2  → "tour:highlight"  {target, dismiss}
+      clear/0      → "tour:clear"      {}
+      enable_settings/0  → "tour:settings-enabled"  {}
+      disable_settings/0 → "tour:settings-disabled"  {}
 
   ## Usage in templates
 
-      <button phx-click={Tour.spotlight(:send_event_button)}>
-        Click Send Event
-      </button>
+      alias LiveDebugger.Tour
 
-      <button phx-click={Tour.clear()}>
-        Clear
-      </button>
-
-  ## Usage with raw element IDs
-
-      <button phx-click={Tour.highlight("my-custom-id", "click-target")}>
-        Highlight
-      </button>
+      <button phx-click={Tour.spotlight(:send_event_button)}>Click Send Event</button>
+      <button phx-click={Tour.highlight(:navbar_connected)}>Highlight PID</button>
+      <button phx-click={Tour.clear()}>Clear</button>
   """
 
   alias Phoenix.LiveView.JS
@@ -35,7 +38,9 @@ defmodule LiveDebugger.Tour do
   """
   @spec spotlight(atom() | String.t(), dismiss()) :: JS.t()
   def spotlight(target, dismiss \\ "click-target") do
-    dispatch("spotlight", resolve_target(target), dismiss)
+    JS.dispatch("lvdbg:tour",
+      detail: %{command: "tour:spotlight", target: resolve_target(target), dismiss: dismiss}
+    )
   end
 
   @doc """
@@ -44,7 +49,9 @@ defmodule LiveDebugger.Tour do
   """
   @spec highlight(atom() | String.t(), dismiss()) :: JS.t()
   def highlight(target, dismiss \\ "click-anywhere") do
-    dispatch("highlight", resolve_target(target), dismiss)
+    JS.dispatch("lvdbg:tour",
+      detail: %{command: "tour:highlight", target: resolve_target(target), dismiss: dismiss}
+    )
   end
 
   @doc """
@@ -52,7 +59,7 @@ defmodule LiveDebugger.Tour do
   """
   @spec clear() :: JS.t()
   def clear do
-    JS.dispatch("lvdbg:tour-action", detail: %{action: "clear"})
+    JS.dispatch("lvdbg:tour", detail: %{command: "tour:clear"})
   end
 
   @doc """
@@ -60,7 +67,7 @@ defmodule LiveDebugger.Tour do
   """
   @spec enable_settings() :: JS.t()
   def enable_settings do
-    JS.dispatch("lvdbg:tour-action", detail: %{action: "settings-enabled"})
+    JS.dispatch("lvdbg:tour", detail: %{command: "tour:settings-enabled"})
   end
 
   @doc """
@@ -68,13 +75,7 @@ defmodule LiveDebugger.Tour do
   """
   @spec disable_settings() :: JS.t()
   def disable_settings do
-    JS.dispatch("lvdbg:tour-action", detail: %{action: "settings-disabled"})
-  end
-
-  defp dispatch(action, target, dismiss) do
-    JS.dispatch("lvdbg:tour-action",
-      detail: %{action: action, target: target, dismiss: dismiss}
-    )
+    JS.dispatch("lvdbg:tour", detail: %{command: "tour:settings-disabled"})
   end
 
   defp resolve_target(name) when is_atom(name), do: TourElements.id!(name)

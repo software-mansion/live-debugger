@@ -12,10 +12,10 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   alias LiveDebugger.App.Settings.Web.Components, as: SettingsComponents
   alias LiveDebugger.App.Web.Components.Navbar, as: NavbarComponents
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.App.Web.HookComponents.Tour, as: TourHook
 
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserRefreshedTrace
-  alias LiveDebugger.Client
 
   @config_browser_features_docs_url "https://hexdocs.pm/live_debugger/config.html#browser-features"
   @available_settings SettingsStorage.available_settings() |> Enum.map(&Atom.to_string/1)
@@ -24,10 +24,10 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   def handle_params(params, _url, socket) do
     if connected?(socket) do
       Bus.receive_events!()
-      Client.receive_tour_events()
     end
 
     socket
+    |> TourHook.init()
     |> assign(return_to: params["return_to"])
     |> assign(settings: SettingsStorage.get_all())
     |> assign(config_browser_features_docs_url: @config_browser_features_docs_url)
@@ -38,7 +38,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
+    <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]" id="settings_live" phx-hook="Tour">
       <NavbarComponents.navbar class="flex pl-2 justify-between">
         <div class="flex items-center gap-2">
           <NavbarComponents.return_link return_link={@return_to || RoutesHelper.discovery()} />
@@ -53,7 +53,10 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
           <.h1>Settings</.h1>
         </div>
 
-        <div :if={not @settings_enabled} class="mt-6 flex items-center gap-2 rounded border border-blue-300 bg-blue-50 dark:bg-blue-950 dark:border-blue-800 p-4 text-sm text-blue-800 dark:text-blue-200">
+        <div
+          :if={not @settings_enabled}
+          class="mt-6 flex items-center gap-2 rounded border border-blue-300 bg-blue-50 dark:bg-blue-950 dark:border-blue-800 p-4 text-sm text-blue-800 dark:text-blue-200"
+        >
           <.icon name="icon-info" class="w-4 h-4 shrink-0" />
           <p>Settings are disabled during the tour. They will be unlocked when the tour allows it.</p>
         </div>
@@ -217,13 +220,10 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
     |> noreply()
   end
 
-  def handle_info({"tour:" <> _, payload}, socket) do
-    socket =
-      socket
-      |> assign(:tour_step, payload)
-      |> push_event("tour-action", payload)
-
-    {:noreply, socket}
+  def handle_info({"tour:settings-disabled", _payload}, socket) do
+    socket
+    |> assign(settings_enabled: false)
+    |> noreply()
   end
 
   def handle_info(_, socket), do: noreply(socket)
