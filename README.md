@@ -1,5 +1,8 @@
-![LiveDebugger_Chrome_WebStore](https://github.com/user-attachments/assets/cf9aee3b-58ab-4c45-8a43-d73182cb3e02)
+[![Ad](https://swm-delivery.com/www/images/zone-gh-live-debugger-1?n=1)](https://swm-delivery.com/www/delivery/ck.php?zoneid=zone-gh-live-debugger-1&n=1)
+[![Ad](https://swm-delivery.com/www/images/zone-gh-live-debugger-2?n=1)](https://swm-delivery.com/www/delivery/ck.php?zoneid=zone-gh-live-debugger-2&n=1)
+[![Ad](https://swm-delivery.com/www/images/zone-gh-live-debugger-3?n=1)](https://swm-delivery.com/www/delivery/ck.php?zoneid=zone-gh-live-debugger-3&n=1)
 
+![LiveDebugger_Chrome_WebStore](https://github.com/user-attachments/assets/cf9aee3b-58ab-4c45-8a43-d73182cb3e02)
 
 <div align="center" dir="auto">
     <p dir="auto">
