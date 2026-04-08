@@ -1,13 +1,5 @@
 const OVERLAY_ID = 'tour-overlay';
 
-function getTarget(id) {
-  const el = document.getElementById(id);
-  if (!el) {
-    console.warn(`[Tour] Element #${id} not found`);
-  }
-  return el;
-}
-
 function clearAll() {
   const overlay = document.getElementById(OVERLAY_ID);
   if (overlay) overlay.remove();
@@ -41,15 +33,22 @@ const Tour = {
   mounted() {
     this._cleanup = null;
     this._appliedKey = null;
+    this._handledViaEvent = false;
 
     this._applyFromData();
 
     this.handleEvent('tour-action', (payload) => {
+      this._handledViaEvent = true;
       this._applyAction(payload);
     });
   },
 
   updated() {
+    // Skip if handleEvent already processed this in the same render cycle
+    if (this._handledViaEvent) {
+      this._handledViaEvent = false;
+      return;
+    }
     this._applyFromData();
   },
 
@@ -139,14 +138,25 @@ const Tour = {
   },
 
   _setupClickAnywhereDismiss() {
+    const controller = new AbortController();
+
     const handler = () => {
       clearAll();
       this._cleanup = null;
+      this.pushEvent('step-completed', { target: 'anywhere' });
     };
 
+    // Set cleanup synchronously so _cleanupListeners() works
+    // even if called before the deferred addEventListener fires.
+    this._cleanup = () => controller.abort();
+
     setTimeout(() => {
-      document.addEventListener('click', handler, { once: true });
-      this._cleanup = () => document.removeEventListener('click', handler);
+      if (!controller.signal.aborted) {
+        document.addEventListener('click', handler, {
+          once: true,
+          signal: controller.signal,
+        });
+      }
     }, 0);
   },
 

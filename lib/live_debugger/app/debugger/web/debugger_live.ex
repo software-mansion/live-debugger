@@ -21,7 +21,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   alias LiveDebugger.App.Utils.URL
 
-  alias LiveDebugger.Client
+  alias LiveDebugger.App.Web.HookComponents.Tour, as: TourHook
 
   @views_with_sidebar [
     "node_inspector",
@@ -32,7 +32,6 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
   def mount(%{"pid" => string_pid}, _session, socket) do
     if connected?(socket) do
       Bus.receive_events!()
-      Client.receive_tour_events()
     end
 
     string_pid
@@ -69,9 +68,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
     <div
       id="lv-process-live"
       phx-hook="Tour"
-      data-tour-action={@tour_step && @tour_step["action"]}
-      data-tour-target={@tour_step && @tour_step["target"]}
-      data-tour-dismiss={@tour_step && @tour_step["dismiss"]}
+      {TourHook.data_attrs(@tour_step)}
       class="w-screen h-screen grid grid-rows-[auto_1fr]"
     >
       <.async_result :let={lv_process} assign={@lv_process}>
@@ -137,32 +134,11 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
   end
 
   @impl true
-  def handle_event("step-completed", %{"target" => _target} = payload, socket) do
-    if socket.assigns.lv_process.ok? do
-      root_socket = socket.assigns.lv_process.result.root_socket_id
-      Client.push_event!(root_socket, "step-completed", payload)
-    else
-      Client.push_event!("*", "step-completed", payload)
-    end
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_info({"tour:" <> _, payload}, socket) do
-    socket =
-      socket
-      |> assign(:tour_step, payload)
-      |> push_event("tour-action", payload)
-
-    {:noreply, socket}
-  end
-
   def handle_info(_, socket), do: {:noreply, socket}
 
   defp init_debugger(socket, pid) when is_pid(pid) do
     socket
-    |> assign(:tour_step, nil)
+    |> TourHook.init()
     |> Hooks.AsyncLvProcess.init(pid)
     |> put_private(:pid, pid)
     |> HookComponents.DeadViewMode.init()
