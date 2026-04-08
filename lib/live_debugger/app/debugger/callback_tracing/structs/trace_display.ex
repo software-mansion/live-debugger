@@ -25,7 +25,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
     :body,
     :side_section_left,
     :side_section_right,
-    :error
+    :error,
+    :source
   ]
 
   @type type() :: :normal | :diff | :error
@@ -44,7 +45,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
           body: list({String.t(), term()}),
           side_section_left: side_section_left(),
           side_section_right: side_section_right(),
-          error: ErrorTrace.t() | nil
+          error: ErrorTrace.t() | nil,
+          source: FunctionTrace.SourceLocation.t() | nil
         }
 
   @spec from_trace(Trace.t(), boolean()) :: t()
@@ -60,7 +62,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
       body: get_body(trace),
       side_section_left: get_side_section_left(trace),
       side_section_right: get_side_section_right(trace),
-      error: get_error(trace)
+      error: get_error(trace),
+      source: get_source(trace)
     }
   end
 
@@ -121,4 +124,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Structs.TraceDisplay do
   defp get_error(%FunctionTrace{error: error}), do: error
 
   defp get_error(_), do: nil
+
+  defp get_source(%FunctionTrace{source: source}), do: source
+
+  defp get_source(_), do: nil
 end

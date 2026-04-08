@@ -137,7 +137,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
     ~H"""
     <.tooltip
       id={@id <> "-tooltip"}
-      content="Streams are built from render traces. You won’t be able to reconstruct the entire stream if those traces are garbage collected."
+      content="Streams are reconstructed from render traces. If traces are garbage collected, the stream may be incomplete."
       position="top-center"
     >
       <.icon name="icon-info" class="w-4 h-4 bg-button-secondary-content" />

@@ -34,7 +34,7 @@ defmodule LiveDebugger.App.Debugger.Web.HookComponents.InspectButton do
     ~H"""
     <div class="flex items-center pr-1">
       <div class="border-r-2 border-default-border pr-2">
-        <.tooltip id="inspect-button-tooltip" position="bottom" content="Inspect element on the page">
+        <.tooltip id="inspect-button-tooltip" position="bottom" content="Inspect element">
           <.nav_icon
             icon="icon-inspect"
             selected?={@inspect_mode?}

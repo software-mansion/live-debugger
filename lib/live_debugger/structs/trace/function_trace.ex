@@ -13,6 +13,16 @@ defmodule LiveDebugger.Structs.Trace.FunctionTrace do
   alias LiveDebugger.Structs.Trace
   alias LiveDebugger.Structs.Trace.ErrorTrace
 
+  defmodule SourceLocation do
+    @moduledoc false
+    defstruct [:source_file, :line]
+
+    @type t :: %__MODULE__{
+            source_file: String.t(),
+            line: non_neg_integer()
+          }
+  end
+
   defstruct [
     :id,
     :pid,
@@ -27,7 +37,8 @@ defmodule LiveDebugger.Structs.Trace.FunctionTrace do
     :execution_time,
     :type,
     :return_value,
-    :error
+    :error,
+    :source
   ]
 
   @type t() :: %__MODULE__{
@@ -45,7 +56,8 @@ defmodule LiveDebugger.Structs.Trace.FunctionTrace do
           execution_time: non_neg_integer() | nil,
           type: :call | :return_from | :exception_from,
           return_value: term() | nil,
-          error: ErrorTrace.t() | nil
+          error: ErrorTrace.t() | nil,
+          source: SourceLocation.t() | nil
         }
 
   @doc """

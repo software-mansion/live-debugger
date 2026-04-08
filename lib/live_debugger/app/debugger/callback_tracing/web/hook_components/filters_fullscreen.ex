@@ -75,7 +75,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
           aria-label="Open filters"
           size="sm"
           class={[
-            "flex !w-7 !h-7 px-[0.2rem] py-[0.2rem] items-center justify-center",
+            "flex gap-1 !h-7 px-[0.4rem] py-[0.2rem] items-center justify-center",
             if(@applied_filters_number > 0, do: "rounded-r-none"),
             @label_class,
             @display_mode == :dropdown && "!w-full !border-none !h-full"
@@ -89,13 +89,19 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.FiltersFu
           </span>
         </.button>
       </TraceSettings.maybe_add_tooltip>
-      <.icon_button
+      <.tooltip
         :if={@applied_filters_number > 0}
-        icon="icon-cross"
-        variant="secondary"
-        phx-click="reset-filters"
-        class="rounded-l-none border-l-0 h-[30px]! w-[30px]!"
-      />
+        id="reset-filters-tooltip"
+        content="Reset filters"
+        position="top-center"
+      >
+        <.icon_button
+          icon="icon-cross"
+          variant="secondary"
+          phx-click="reset-filters"
+          class="rounded-l-none border-l-0"
+        />
+      </.tooltip>
     </div>
     """
   end

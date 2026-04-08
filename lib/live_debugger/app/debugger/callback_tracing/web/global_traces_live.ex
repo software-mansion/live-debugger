@@ -31,6 +31,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentCreated
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveComponentDeleted
   alias LiveDebugger.App.Debugger.CallbackTracing.Web.LiveComponents.FiltersForm
+  alias LiveDebugger.App.Debugger.Utils.Editor
 
   @live_stream_limit 128
   @page_size 25
@@ -97,7 +98,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
       node_id: nil,
       url: url,
       inspect_mode?: inspect_mode?,
-      return_link: return_link
+      return_link: return_link,
+      elixir_editor: Editor.detect_editor()
     )
     |> stream(:existing_traces, [], reset: true)
     |> put_private(:page_size, @page_size)
@@ -168,7 +170,11 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                   existing_traces={@streams.existing_traces}
                 >
                   <:trace :let={{id, trace_display}}>
-                    <HookComponents.TraceWrapper.render id={id} trace_display={trace_display}>
+                    <HookComponents.TraceWrapper.render
+                      id={id}
+                      trace_display={trace_display}
+                      elixir_editor={@elixir_editor}
+                    >
                       <:label>
                         <.trace_label
                           id={id <> "-label"}
@@ -184,6 +190,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                           id={id <> "-body"}
                           trace_display={trace_display}
                           search_phrase={@trace_search_phrase}
+                          elixir_editor={@elixir_editor}
                         />
                       </:body>
                     </HookComponents.TraceWrapper.render>
@@ -199,6 +206,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
                   displayed_trace={@displayed_trace}
                   search_phrase={@trace_search_phrase}
                   page={:global_callbacks}
+                  elixir_editor={@elixir_editor}
                 />
               </div>
             </div>

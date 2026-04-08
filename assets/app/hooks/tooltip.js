@@ -1,3 +1,5 @@
+const HOVER_DELAY_MS = 200;
+
 export function setTooltipPosition(tooltipEl, referencedElement) {
   const tooltipRect = tooltipEl.getBoundingClientRect();
   const rect = referencedElement.getBoundingClientRect();
@@ -43,6 +45,8 @@ export function setTooltipPosition(tooltipEl, referencedElement) {
     } else if (rect.left + tooltipEl.clientWidth > window.innerWidth) {
       tooltipEl.style.right = '10px';
       tooltipEl.style.left = 'auto';
+    } else if (rect.right - tooltipEl.clientWidth < 0) {
+      tooltipEl.style.left = '10px';
     }
   }
 
@@ -50,6 +54,9 @@ export function setTooltipPosition(tooltipEl, referencedElement) {
   if (['left', 'right'].includes(referencedElement.dataset.position)) {
     if (rect.top + tooltipRect.height > window.innerHeight) {
       tooltipEl.style.top = `${window.innerHeight - tooltipRect.height}px`;
+    }
+    if (rect.left - tooltipRect.width < 0) {
+      tooltipEl.style.left = '10px';
     }
   }
 
@@ -60,24 +67,35 @@ const Tooltip = {
   mounted() {
     const tooltipEl = document.querySelector('#tooltip');
     tooltipEl.style.pointerEvents = 'none';
+    this._hoverTimeout = null;
 
     this.handleMouseEnter = () => {
-      tooltipEl.style.display = 'block';
-      tooltipEl.innerHTML = this.el.dataset.tooltip;
-      setTooltipPosition(tooltipEl, this.el);
+      this._hoverTimeout = setTimeout(() => {
+        tooltipEl.style.display = 'block';
+        tooltipEl.textContent = this.el.dataset.tooltip;
+        setTooltipPosition(tooltipEl, this.el);
+      }, HOVER_DELAY_MS);
     };
 
     this.handleMouseLeave = () => {
+      clearTimeout(this._hoverTimeout);
+      tooltipEl.style.display = 'none';
+    };
+
+    this.handleScroll = () => {
       tooltipEl.style.display = 'none';
     };
 
     this.el.addEventListener('mouseenter', this.handleMouseEnter);
     this.el.addEventListener('mouseleave', this.handleMouseLeave);
+    window.addEventListener('scroll', this.handleScroll, true);
   },
   destroyed() {
+    clearTimeout(this._hoverTimeout);
     document.querySelector('#tooltip').style.display = 'none';
     this.el.removeEventListener('mouseenter', this.handleMouseEnter);
     this.el.removeEventListener('mouseleave', this.handleMouseLeave);
+    window.removeEventListener('scroll', this.handleScroll, true);
   },
 };
 
