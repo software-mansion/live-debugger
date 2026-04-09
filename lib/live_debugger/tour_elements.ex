@@ -8,7 +8,7 @@ defmodule LiveDebugger.TourElements do
     # Navbar
     navbar: "navbar",
     navbar_return_button: "return-button",
-    navbar_settings_button: "settings-button",
+    navbar_settings_button: "settings-button-container",
     navbar_connected: "navbar-connected",
     navbar_connected_tooltip: "navbar-connected-tooltip",
     navbar_gc_warning: "gc-disabled-warning-tooltip",
@@ -25,7 +25,10 @@ defmodule LiveDebugger.TourElements do
     send_event_fullscreen: "send-event-fullscreen",
 
     # Inspect Button
-    inspect_button: "inspect-button-tooltip"
+    inspect_button: "inspect-button-tooltip",
+
+    # Settings
+    refresh_tracing_button: "refresh_tracing_button"
   }
 
   @doc """

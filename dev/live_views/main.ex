@@ -37,6 +37,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       |> assign(message: nil)
       |> assign(current_step: "clear")
 
+    Tour.redirect("/settings")
     {:ok, socket, temporary_assigns: [message: nil]}
   end
 
@@ -67,6 +68,28 @@ defmodule LiveDebuggerDev.LiveViews.Main do
             </.button>
             <.button color="gray" phx-click={Tour.clear()}>
               Clear
+            </.button>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs text-gray-500">Redirect:</span>
+            <.button
+              color="purple"
+              phx-click={
+                Tour.redirect_JS("/settings", then: Tour.step(:highlight, :refresh_tracing_button))
+              }
+            >
+              Redirect to Settings + Highlight
+            </.button>
+            <.button
+              color="purple"
+              phx-click={
+                Tour.redirect_JS("/",
+                  then: Tour.step(:spotlight, :navbar, "click-anywhere")
+                )
+              }
+            >
+              Redirect to Discovery + Spotlight
             </.button>
           </div>
 
