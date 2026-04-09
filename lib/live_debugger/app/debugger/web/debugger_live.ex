@@ -21,6 +21,8 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   alias LiveDebugger.App.Utils.URL
 
+  alias LiveDebugger.App.Web.HookComponents.Tour, as: TourHook
+
   @views_with_sidebar [
     "node_inspector",
     "global_traces"
@@ -63,7 +65,11 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
       )
 
     ~H"""
-    <div id="lv-process-live" class="w-screen h-screen grid grid-rows-[auto_1fr]">
+    <div
+      id="lv-process-live"
+      phx-hook="Tour"
+      class="w-screen h-screen grid grid-rows-[auto_1fr]"
+    >
       <.async_result :let={lv_process} assign={@lv_process}>
         <:loading>
           <div class="flex h-screen items-center justify-center">
@@ -131,6 +137,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   defp init_debugger(socket, pid) when is_pid(pid) do
     socket
+    |> TourHook.init()
     |> Hooks.AsyncLvProcess.init(pid)
     |> put_private(:pid, pid)
     |> HookComponents.DeadViewMode.init()

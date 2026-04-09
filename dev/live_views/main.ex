@@ -2,6 +2,8 @@ defmodule LiveDebuggerDev.LiveViews.Main do
   use DevWeb, :live_view
 
   alias LiveDebuggerDev.LiveComponents
+  alias LiveDebugger.Tour
+  alias LiveDebugger.TourElements
 
   @long_text """
     Lorem ipsum dolor sit amet, consectetur adipiscing elit.
@@ -33,7 +35,9 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       |> assign(long_assign: @long_text)
       |> assign(deep_assign: %{b: %{c: %{d: %{e: %{f: %{g: "deep value"}}}}}})
       |> assign(message: nil)
+      |> assign(current_step: "clear")
 
+    Tour.redirect("/settings")
     {:ok, socket, temporary_assigns: [message: nil]}
   end
 
@@ -46,6 +50,59 @@ defmodule LiveDebuggerDev.LiveViews.Main do
         </p>
       </div>
       <div class="flex flex-col gap-2">
+        <div class="flex flex-col gap-1 border-2 border-purple-300 rounded p-2">
+          <span class="text-sm font-bold text-purple-600">Tour API Demo</span>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs text-gray-500">Actions:</span>
+            <.button
+              color="purple"
+              phx-click={:navbar |> TourElements.id() |> Tour.spotlight_JS("click-anywhere")}
+            >
+              Spotlight Navbar
+            </.button>
+            <.button color="purple" phx-click={Tour.highlight_JS(:navbar_connected)}>
+              Highlight PID
+            </.button>
+            <.button color="blue" phx-click={Tour.spotlight_JS(:send_event_button)}>
+              Spotlight "Send Event"
+            </.button>
+            <.button color="gray" phx-click={Tour.clear_JS()}>
+              Clear
+            </.button>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs text-gray-500">Redirect:</span>
+            <.button
+              color="purple"
+              phx-click={
+                Tour.redirect_JS("/settings", then: Tour.step(:highlight, :refresh_tracing_button))
+              }
+            >
+              Redirect to Settings + Highlight
+            </.button>
+            <.button
+              color="purple"
+              phx-click={
+                Tour.redirect_JS("/",
+                  then: Tour.step(:spotlight, :navbar, "click-anywhere")
+                )
+              }
+            >
+              Redirect to Discovery + Spotlight
+            </.button>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs text-gray-500">Settings:</span>
+            <.button color="green" phx-click={Tour.enable_settings_JS()}>
+              Enable Settings
+            </.button>
+            <.button color="red" phx-click={Tour.disable_settings_JS()}>
+              Disable Settings
+            </.button>
+          </div>
+        </div>
         <div class="flex items-center gap-2">
           <.button id="append-message" phx-click="append-message" color="green">
             Append message
