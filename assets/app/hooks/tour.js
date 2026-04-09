@@ -1,4 +1,5 @@
 const OVERLAY_ID = 'tour-overlay';
+const PENDING_ACTION_KEY = 'lvdbg-tour-pending';
 
 function clearAll() {
   const overlay = document.getElementById(OVERLAY_ID);
@@ -12,6 +13,10 @@ function clearAll() {
 }
 
 function highlight(target) {
+  target.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+  });
   target.classList.add('tour-highlight');
 }
 
@@ -26,57 +31,50 @@ function createOverlay() {
 
 function spotlight(target) {
   createOverlay();
+
+  target.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+  });
   target.classList.add('tour-spotlight-target');
 }
 
 const Tour = {
   mounted() {
     this._cleanup = null;
-    this._appliedKey = null;
-    this._handledViaEvent = false;
 
-    this._applyFromData();
+    const pending = sessionStorage.getItem(PENDING_ACTION_KEY);
+    if (pending) {
+      sessionStorage.removeItem(PENDING_ACTION_KEY);
+      this._applyAction(JSON.parse(pending));
+    }
 
     this.handleEvent('tour-action', (payload) => {
-      this._handledViaEvent = true;
       this._applyAction(payload);
     });
   },
 
-  updated() {
-    // Skip if handleEvent already processed this in the same render cycle
-    if (this._handledViaEvent) {
-      this._handledViaEvent = false;
-      return;
-    }
-    this._applyFromData();
-  },
-
-  _applyFromData() {
-    const action = this.el.dataset.tourAction;
-    if (!action) return;
-
-    const payload = {
-      action,
-      target: this.el.dataset.tourTarget,
-      dismiss: this.el.dataset.tourDismiss,
-    };
-
-    const key = `${action}:${payload.target}:${payload.dismiss}`;
-    if (this._appliedKey === key) return;
-
-    this._applyAction(payload);
-  },
-
   _applyAction(payload) {
-    const { action, target: targetId, dismiss } = payload;
+    const {
+      action,
+      target: targetId,
+      dismiss,
+      url,
+      then: nextAction,
+    } = payload;
 
     this._cleanupListeners();
     clearAll();
 
-    this._appliedKey = `${action}:${targetId}:${dismiss}`;
-
     if (action === 'clear') return;
+
+    if (action === 'redirect') {
+      if (nextAction) {
+        sessionStorage.setItem(PENDING_ACTION_KEY, JSON.stringify(nextAction));
+      }
+      this.pushEvent('tour-redirect', { url });
+      return;
+    }
 
     const target = document.getElementById(targetId);
     if (!target) {
@@ -146,8 +144,6 @@ const Tour = {
       this.pushEvent('step-completed', { target: 'anywhere' });
     };
 
-    // Set cleanup synchronously so _cleanupListeners() works
-    // even if called before the deferred addEventListener fires.
     this._cleanup = () => controller.abort();
 
     setTimeout(() => {

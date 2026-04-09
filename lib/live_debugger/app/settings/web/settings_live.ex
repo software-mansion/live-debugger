@@ -154,7 +154,9 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
                 Manually refresh traced modules and callbacks. Use this when you don't see traces from your application.
               </p>
             </div>
-            <.button variant="secondary" phx-click="restart">Refresh&nbsp;Tracing</.button>
+            <.button variant="secondary" phx-click="restart" id="refresh_tracing_button">
+              Refresh&nbsp;Tracing
+            </.button>
           </div>
         </div>
         <div class="mt-6">
