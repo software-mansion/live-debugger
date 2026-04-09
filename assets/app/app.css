@@ -127,7 +127,6 @@ body {
   outline: 3px solid var(--swm-pink-100);
   outline-offset: -3px;
   animation: tour-highlight-pulse 1.5s ease-in-out infinite;
-  border-radius: 4px;
 }
 
 .tour-overlay {
@@ -144,6 +143,5 @@ body {
   z-index: 9999;
   pointer-events: auto;
   animation: tour-spotlight-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  border-radius: 6px;
   box-shadow: 0 0 12px 4px rgba(255, 98, 89, 0.15);
 }
