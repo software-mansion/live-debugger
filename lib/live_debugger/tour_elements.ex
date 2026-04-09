@@ -23,6 +23,11 @@ defmodule LiveDebugger.TourElements do
     open_in_editor: "open-in-editor",
     show_components_tree: "show-components-tree-button",
     send_event_fullscreen: "send-event-fullscreen",
+    # Callback Traces
+    callback_traces_section: "traces-list",
+    callback_traces_search_bar: "callback-traces-search-bar",
+    callback_traces_toggle_tracing: "tracing-tooltip",
+    callback_traces_filters_button: "filters-tooltip",
 
     # Inspect Button
     inspect_button: "inspect-button-tooltip",
