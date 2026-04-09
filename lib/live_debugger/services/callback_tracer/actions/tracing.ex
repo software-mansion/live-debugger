@@ -22,9 +22,11 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   def setup_tracing_with_monitoring!(state) do
     last_id = TraceQueries.get_last_trace_id()
 
-    case Dbg.tracer({&Tracer.handle_trace/2, last_id - 1}) do
+    case Dbg.tracer({&Tracer.handle_trace/2, {:init, last_id - 1}}) do
       {:ok, pid} ->
         Process.monitor(pid)
+
+        IO.inspect("Dbg started")
 
         Dbg.process([:c, :timestamp, :procs])
 

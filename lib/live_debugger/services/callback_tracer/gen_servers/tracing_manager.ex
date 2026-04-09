@@ -30,6 +30,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
     :net_kernel.monitor_nodes(true, %{node_type: :visible})
 
+    IO.inspect("TracingManager started")
+
     {:ok, %{dbg_pid: nil}, {:continue, :setup_tracing}}
   end
 
@@ -73,7 +75,11 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   end
 
   # handling dbg tracer stop
-  def handle_info({:DOWN, _, _, pid, :done}, %{dbg_pid: pid} = state) do
+  def handle_info({:DOWN, _, _, pid, :done} = info, %{dbg_pid: pid} = state) do
+    IO.inspect(info, label: "Dbg tracer stopped")
+
+    GenServer.stop(LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler)
+
     state = TracingActions.setup_tracing_with_monitoring!(state)
 
     {:noreply, state}
