@@ -550,9 +550,13 @@ defmodule LiveDebugger.App.Web.Components do
     >
       <:label>
         <div class="ml-1 flex justify-between items-center w-full gap-2">
-          <div class={["font-medium text-sm min-w-26" | List.wrap(@title_class)]}><%= @title %>
-
-            <%= render_slot(@title_sub_panel) %></div>
+          <div class={[
+            "font-medium text-sm min-w-26 flex items-center gap-2"
+            | List.wrap(@title_class)
+          ]}>
+            <p><%= @title %></p>
+            <%= render_slot(@title_sub_panel) %>
+          </div>
           <div class="w-max">
             <%= render_slot(@right_panel) %>
           </div>
