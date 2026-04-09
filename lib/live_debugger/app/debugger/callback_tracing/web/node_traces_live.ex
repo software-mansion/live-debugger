@@ -102,6 +102,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.NodeTracesLive do
     ~H"""
     <div class="max-w-full @container/traces flex flex-1">
       <.section title="Callback traces" id="traces" inner_class="mx-0 my-4 px-4" class="flex-1">
+        <:title_sub_panel>
+          <.section_info_tooltip
+            id="traces-info"
+            content="Records the execution of LiveView/LiveComponent lifecycle callbacks and handlers"
+          />
+        </:title_sub_panel>
         <:right_panel>
           <div class="flex gap-2 !h-7">
             <HookComponents.SearchInput.render

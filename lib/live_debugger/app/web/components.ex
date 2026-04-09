@@ -533,6 +533,7 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:inner_class, :any, default: nil)
 
   slot(:right_panel)
+  slot(:title_sub_panel)
   slot(:inner_block)
 
   def collapsible_section(assigns) do
@@ -549,7 +550,9 @@ defmodule LiveDebugger.App.Web.Components do
     >
       <:label>
         <div class="ml-1 flex justify-between items-center w-full gap-2">
-          <div class={["font-medium text-sm min-w-26" | List.wrap(@title_class)]}><%= @title %></div>
+          <div class={["font-medium text-sm min-w-26" | List.wrap(@title_class)]}><%= @title %>
+
+            <%= render_slot(@title_sub_panel) %></div>
           <div class="w-max">
             <%= render_slot(@right_panel) %>
           </div>
@@ -561,6 +564,28 @@ defmodule LiveDebugger.App.Web.Components do
         <%= render_slot(@inner_block) %>
       </div>
     </.collapsible>
+    """
+  end
+
+  @doc """
+  Info tooltip for sections
+  """
+
+  attr(:id, :string, required: true)
+  attr(:content, :string, required: true)
+  attr(:position, :string, default: "top-center")
+
+  def section_info_tooltip(assigns) do
+    ~H"""
+    <.tooltip
+      id={@id <> "-tooltip"}
+      content={@content}
+      position={@position}
+    >
+      <span class="flex items-center justify-center h-full">
+        <.icon name="icon-info" class="w-4 h-4 bg-button-secondary-content" />
+      </span>
+    </.tooltip>
     """
   end
 
