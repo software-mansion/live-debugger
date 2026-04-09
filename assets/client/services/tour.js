@@ -10,6 +10,7 @@
  *   spotlight(target, dismiss)  → push("tour:spotlight", {target, dismiss})
  *   highlight(target, dismiss)  → push("tour:highlight", {target, dismiss})
  *   clear()                     → push("tour:clear", {})
+ *   redirect(url, nextStep)     → push("tour:redirect", {url, then: nextStep})
  *   enableSettings()            → push("tour:settings-enabled", {})
  *   disableSettings()           → push("tour:settings-disabled", {})
  *
@@ -56,6 +57,13 @@ export const tour = {
   clear() {
     if (!assertReady()) return;
     _channel.push('tour:clear', {});
+  },
+
+  redirect(url, nextStep = null) {
+    if (!assertReady()) return;
+    const payload = { url };
+    if (nextStep) payload.then = nextStep;
+    _channel.push('tour:redirect', payload);
   },
 
   enableSettings() {

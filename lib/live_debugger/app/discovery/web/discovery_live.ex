@@ -37,7 +37,6 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
       class="h-full flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]"
       id="discovery_live"
       phx-hook="Tour"
-      {TourHook.data_attrs(@tour_step)}
     >
       <NavbarComponents.navbar class="flex justify-between">
         <NavbarComponents.live_debugger_logo />

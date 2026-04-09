@@ -68,7 +68,6 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
     <div
       id="lv-process-live"
       phx-hook="Tour"
-      {TourHook.data_attrs(@tour_step)}
       class="w-screen h-screen grid grid-rows-[auto_1fr]"
     >
       <.async_result :let={lv_process} assign={@lv_process}>
