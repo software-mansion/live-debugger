@@ -28,13 +28,15 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.SearchInp
   @impl true
   def render(assigns) do
     ~H"""
-    <Components.search_bar
-      disabled?={@disabled?}
-      search_phrase={@trace_search_phrase}
-      input_id="trace-search-input"
-      debounce={250}
-      class={@class}
-    />
+    <div id="callback-traces-search-bar">
+      <Components.search_bar
+        disabled?={@disabled?}
+        search_phrase={@trace_search_phrase}
+        input_id="trace-search-input"
+        debounce={250}
+        class={@class}
+      />
+    </div>
     """
   end
 
