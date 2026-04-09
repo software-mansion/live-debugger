@@ -56,17 +56,17 @@ defmodule LiveDebuggerDev.LiveViews.Main do
             <span class="text-xs text-gray-500">Actions:</span>
             <.button
               color="purple"
-              phx-click={:navbar |> TourElements.id() |> Tour.spotlight("click-anywhere")}
+              phx-click={:navbar |> TourElements.id() |> Tour.spotlight_JS("click-anywhere")}
             >
               Spotlight Navbar
             </.button>
-            <.button color="purple" phx-click={Tour.highlight(:navbar_connected)}>
+            <.button color="purple" phx-click={Tour.highlight_JS(:navbar_connected)}>
               Highlight PID
             </.button>
-            <.button color="blue" phx-click={Tour.spotlight(:send_event_button)}>
+            <.button color="blue" phx-click={Tour.spotlight_JS(:send_event_button)}>
               Spotlight "Send Event"
             </.button>
-            <.button color="gray" phx-click={Tour.clear()}>
+            <.button color="gray" phx-click={Tour.clear_JS()}>
               Clear
             </.button>
           </div>
@@ -95,10 +95,10 @@ defmodule LiveDebuggerDev.LiveViews.Main do
 
           <div class="flex items-center gap-2 flex-wrap">
             <span class="text-xs text-gray-500">Settings:</span>
-            <.button color="green" phx-click={Tour.enable_settings()}>
+            <.button color="green" phx-click={Tour.enable_settings_JS()}>
               Enable Settings
             </.button>
-            <.button color="red" phx-click={Tour.disable_settings()}>
+            <.button color="red" phx-click={Tour.disable_settings_JS()}>
               Disable Settings
             </.button>
           </div>
