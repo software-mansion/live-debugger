@@ -10,8 +10,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Process.Tracer do
 
   @spec handle_trace(trace :: term(), n :: integer()) :: integer()
   def handle_trace(trace, {:init, n}) do
-    Process.flag(:trap_exit, true)
-
     Memory.set_max_heap_size(@max_heap_size)
 
     do_handle_trace(trace, n)

@@ -54,17 +54,9 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   @impl true
   def init(_opts) do
-    Process.flag(:trap_exit, true)
     Memory.set_max_heap_size(@max_heap_size)
 
-    IO.inspect("TraceHandler started")
-
     {:ok, %{}}
-  end
-
-  @impl true
-  def terminate(reason, _) do
-    IO.inspect("TraceHandler terminating with reason: #{inspect(reason)}")
   end
 
   #########################################################

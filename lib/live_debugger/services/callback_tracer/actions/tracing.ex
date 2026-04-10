@@ -22,11 +22,13 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   def setup_tracing_with_monitoring!(state) do
     last_id = TraceQueries.get_last_trace_id()
 
+    if state.dbg_pid do
+      Dbg.stop()
+    end
+
     case Dbg.tracer({&Tracer.handle_trace/2, {:init, last_id - 1}}) do
       {:ok, pid} ->
         Process.monitor(pid)
-
-        IO.inspect("Dbg started")
 
         Dbg.process([:c, :timestamp, :procs])
 
@@ -42,22 +44,15 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
         # Monitor recompilation using the paths
         start_file_monitoring(live_modules_with_paths)
 
-        %{state | dbg_pid: pid}
+        %{dbg_pid: pid}
 
       {:error, error} ->
         raise "Couldn't start tracer: #{inspect(error)}"
     end
   end
 
-  @spec refresh_tracing() :: :ok
-  def refresh_tracing() do
-    Dbg.stop()
-
-    :ok
-  end
-
   @spec refresh_tracing(String.t()) :: :ok
-  def refresh_tracing(path) do
+  def refresh_tracing(path) when is_binary(path) do
     with true <- beam_file?(path),
          module <- path |> Path.basename(".beam") |> String.to_existing_atom(),
          true <- ModuleAPI.loaded?(module),

@@ -30,8 +30,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
     :net_kernel.monitor_nodes(true, %{node_type: :visible})
 
-    IO.inspect("TracingManager started")
-
     {:ok, %{dbg_pid: nil}, {:continue, :setup_tracing}}
   end
 
@@ -48,20 +46,14 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   end
 
   @impl true
-  def handle_info(:refresh_tracing, state) do
-    TracingActions.refresh_tracing()
-
-    {:noreply, state}
+  def handle_info(event, state) when event in [:refresh_tracing, %UserRefreshedTrace{}] do
+    state
+    |> TracingActions.setup_tracing_with_monitoring!()
+    |> then(&{:noreply, &1})
   end
 
   def handle_info(%LiveViewBorn{pid: pid}, state) do
     TracingActions.start_outgoing_messages_tracing(pid)
-
-    {:noreply, state}
-  end
-
-  def handle_info(%UserRefreshedTrace{}, state) do
-    TracingActions.refresh_tracing()
 
     {:noreply, state}
   end
@@ -75,14 +67,16 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   end
 
   # handling dbg tracer stop
-  def handle_info({:DOWN, _, _, pid, :done} = info, %{dbg_pid: pid} = state) do
-    IO.inspect(info, label: "Dbg tracer stopped")
+  def handle_info({:DOWN, _, _, pid, :done}, %{dbg_pid: pid} = state) do
+    case GenServer.whereis(LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler) do
+      pid when is_pid(pid) ->
+        Process.exit(pid, :normal)
 
-    GenServer.stop(LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler)
+      _ ->
+        :ok
+    end
 
-    state = TracingActions.setup_tracing_with_monitoring!(state)
-
-    {:noreply, state}
+    {:noreply, %{state | dbg_pid: nil}}
   end
 
   def handle_info({:nodeup, _name, _}, state) do
