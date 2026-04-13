@@ -336,7 +336,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
           />
         </div>
         <div class={[
-          "max-h-[70vh] overflow-y-auto overflow-x-auto flex flex-col gap-4 items-start justify-center hover:[&>div>div>div>button]:hidden",
+          "max-h-[70vh] overflow-y-auto overflow-x-auto flex flex-col gap-4 items-start justify-start hover:[&>div>div>div>button]:hidden",
           if(is_nil(@displayed_trace.error), do: "p-4", else: "[&>div>div>div>div>button]:hidden")
         ]}>
           <.trace_body_navbar_wrapper
