@@ -63,7 +63,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
             <.button color="purple" phx-click={Tour.highlight_JS(:navbar_connected)}>
               Highlight PID
             </.button>
-            <.button color="blue" phx-click={Tour.spotlight_JS(:send_event_button)}>
+            <.button color="blue" phx-click={Tour.spotlight_JS(:callback_traces_first_trace)}>
               Spotlight "Send Event"
             </.button>
             <.button color="gray" phx-click={Tour.clear_JS()}>

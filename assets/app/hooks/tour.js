@@ -57,7 +57,7 @@ const Tour = {
   _applyAction(payload) {
     const {
       action,
-      target: targetId,
+      target: selector,
       dismiss,
       url,
       then: nextAction,
@@ -76,20 +76,20 @@ const Tour = {
       return;
     }
 
-    const target = document.getElementById(targetId);
+    const target = document.querySelector(selector);
     if (!target) {
-      this._waitForTarget(targetId, () =>
-        this._applyToTarget(targetId, payload)
+      this._waitForTarget(selector, () =>
+        this._applyToTarget(selector, payload)
       );
       return;
     }
 
-    this._applyToTarget(targetId, payload);
+    this._applyToTarget(selector, payload);
   },
 
-  _applyToTarget(targetId, payload) {
+  _applyToTarget(selector, payload) {
     const { action, dismiss } = payload;
-    const target = document.getElementById(targetId);
+    const target = document.querySelector(selector);
     if (!target) return;
 
     switch (action) {
@@ -107,13 +107,14 @@ const Tour = {
     if (dismiss === 'click-anywhere') {
       this._setupClickAnywhereDismiss();
     } else if (dismiss === 'click-target') {
-      this._setupClickTargetDismiss(target, targetId);
+      this._setupClickTargetDismiss(target, selector);
     }
   },
 
-  _waitForTarget(targetId, callback) {
+  _waitForTarget(selector, callback) {
     const observer = new MutationObserver(() => {
-      if (document.getElementById(targetId)) {
+      // Szukamy elementu używając selektora CSS
+      if (document.querySelector(selector)) {
         observer.disconnect();
         callback();
       }
@@ -156,13 +157,13 @@ const Tour = {
     }, 0);
   },
 
-  _setupClickTargetDismiss(target, targetId) {
+  _setupClickTargetDismiss(target, selector) {
     const overlay = document.getElementById(OVERLAY_ID);
 
     const handler = () => {
       clearAll();
       this._cleanup = null;
-      this.pushEvent('step-completed', { target: targetId });
+      this.pushEvent('step-completed', { target: selector });
     };
 
     const overlayHandler = (e) => e.stopPropagation();
