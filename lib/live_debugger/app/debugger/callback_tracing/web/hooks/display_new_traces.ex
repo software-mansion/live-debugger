@@ -102,7 +102,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
 
   defp handle_info(_, socket), do: {:cont, socket}
 
-  defp stream_update_trace(socket, trace) when is_struct(trace) do
+  defp stream_update_trace(socket, nil), do: socket
+
+  defp stream_update_trace(socket, trace) when is_struct(trace, FunctionTrace) do
     if matches_execution_time_filter?(socket, trace) do
       socket
       |> stream_insert_trace(trace)
@@ -115,7 +117,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
     |> put_private(:trace_insertion_canceled, true)
   end
 
-  defp stream_insert_trace(socket, trace) when is_struct(trace) do
+  defp stream_insert_trace(socket, nil), do: socket
+
+  defp stream_insert_trace(socket, trace) when is_struct(trace, FunctionTrace) do
     stream_insert(
       socket,
       :existing_traces,
