@@ -44,7 +44,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
         # Monitor recompilation using the paths
         start_file_monitoring(live_modules_with_paths)
 
-        %{dbg_pid: pid}
+        %{state | dbg_pid: pid}
 
       {:error, error} ->
         raise "Couldn't start tracer: #{inspect(error)}"

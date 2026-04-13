@@ -25,11 +25,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
     GenServer.call(__MODULE__, :ping)
   end
 
-  @doc """
-  Checks if tracing is currently started
-  """
-  def tracing_started?() do
-    GenServer.call(__MODULE__, :tracing_started?, 10000)
+  def tracer_started?() do
+    GenServer.call(__MODULE__, :tracer_started?, 10000)
   end
 
   @impl true
@@ -53,7 +50,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
     {:reply, :pong, state}
   end
 
-  def handle_call(:tracing_started?, _from, state) do
+  def handle_call(:tracer_started?, _from, state) do
     {:reply, state.dbg_pid != nil, state}
   end
 

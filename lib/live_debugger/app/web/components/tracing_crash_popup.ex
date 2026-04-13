@@ -6,6 +6,8 @@ defmodule LiveDebugger.App.Web.Components.TracingCrashPopup do
   It requires subscribing to `Bus` events in the parent LiveView.
   """
 
+  alias LiveDebugger.App.Events.UserRefreshedTrace
+  alias LiveDebugger.Bus
   alias LiveDebugger.Services.CallbackTracer.Events.DbgKilled
   alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
 
@@ -13,7 +15,7 @@ defmodule LiveDebugger.App.Web.Components.TracingCrashPopup do
 
   @impl true
   def init(socket) do
-    tracing_enabled? = TracingManager.tracing_started?()
+    tracing_enabled? = TracingManager.tracer_started?()
 
     socket
     |> assign(:tracing_enabled?, tracing_enabled?)
@@ -55,7 +57,8 @@ defmodule LiveDebugger.App.Web.Components.TracingCrashPopup do
   end
 
   defp handle_event("enable-tracing", _, socket) do
-    send(TracingManager, :refresh_tracing)
+    Bus.broadcast_event!(%UserRefreshedTrace{})
+
     {:halt, assign(socket, :tracing_enabled?, true)}
   end
 
