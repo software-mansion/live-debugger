@@ -29,7 +29,7 @@ defmodule LiveDebugger.App.Web.Components.TracingCrashPopup do
   @impl true
   def render(assigns) do
     ~H"""
-    <LiveDebugger.App.Web.Components.popup
+    <.popup
       id="tracing-disabled-modal"
       title="Tracing Disabled"
       show={not @tracing_enabled?}
@@ -44,15 +44,15 @@ defmodule LiveDebugger.App.Web.Components.TracingCrashPopup do
           Click the button below to restart tracing and continue debugging.
         </p>
         <div class="flex justify-center mt-2">
-          <LiveDebugger.App.Web.Components.button
+          <.button
             phx-click="enable-tracing"
             variant="primary"
           >
             Enable Tracing
-          </LiveDebugger.App.Web.Components.button>
+          </.button>
         </div>
       </div>
-    </LiveDebugger.App.Web.Components.popup>
+    </.popup>
     """
   end
 

@@ -13,7 +13,10 @@ defmodule LiveDebuggerDev.LiveViews.MemoryExplosion do
     {profile, profile_defaults} = profile_defaults(params["profile"] || "medium")
     interval_ms = int_param(params, "interval_ms", profile_defaults.interval_ms, 10, 10_000)
     list_size = int_param(params, "list_size", profile_defaults.list_size, 100, 5_000)
-    payload_bytes = int_param(params, "payload_bytes", profile_defaults.payload_bytes, 1_000, 50_000)
+
+    payload_bytes =
+      int_param(params, "payload_bytes", profile_defaults.payload_bytes, 1_000, 50_000)
+
     burst = int_param(params, "burst", profile_defaults.burst, 1, 20)
     heavy_items = build_heavy_items(list_size, payload_bytes)
 
@@ -53,9 +56,7 @@ defmodule LiveDebuggerDev.LiveViews.MemoryExplosion do
           <p>Payload complexity: <%= @payload_bytes %></p>
           <p>Burst per interval: <%= @burst_per_interval %></p>
           <p>
-            Timers:
-            <%= @clock_1 %>, <%= @clock_2 %>, <%= @clock_3 %>, <%= @clock_4 %>, <%= @clock_5 %>,
-            <%= @clock_6 %>
+            Timers: <%= @clock_1 %>, <%= @clock_2 %>, <%= @clock_3 %>, <%= @clock_4 %>, <%= @clock_5 %>, <%= @clock_6 %>
           </p>
           <div class="flex gap-2">
             <.button phx-click="start" color="green">Start Spam</.button>
@@ -63,10 +64,10 @@ defmodule LiveDebuggerDev.LiveViews.MemoryExplosion do
             <.button phx-click="tick_once">Tick Once</.button>
           </div>
           <p class="text-sm">
-            Quick presets:
-            <a class="text-blue-600 underline" href="?profile=mild">mild</a>,
-            <a class="text-blue-600 underline" href="?profile=medium">medium</a>,
-            <a class="text-blue-600 underline" href="?profile=aggressive">aggressive</a>
+            Quick presets: <a class="text-blue-600 underline" href="?profile=mild">mild</a>, <a
+              class="text-blue-600 underline"
+              href="?profile=medium"
+            >medium</a>, <a class="text-blue-600 underline" href="?profile=aggressive">aggressive</a>
           </p>
         </div>
       </.box>
@@ -127,7 +128,10 @@ defmodule LiveDebuggerDev.LiveViews.MemoryExplosion do
     |> assign(:clock_4, rem(tick + 3, 10_000))
     |> assign(:clock_5, rem(tick + 4, 10_000))
     |> assign(:clock_6, rem(tick + 5, 10_000))
-    |> assign(:heavy_items, rebuild_items(tick, socket.assigns.list_size, socket.assigns.payload_bytes))
+    |> assign(
+      :heavy_items,
+      rebuild_items(tick, socket.assigns.list_size, socket.assigns.payload_bytes)
+    )
   end
 
   defp rebuild_items(tick, list_size, payload_bytes) do
@@ -190,5 +194,12 @@ defmodule LiveDebuggerDev.LiveViews.MemoryExplosion do
     do: {"aggressive", %{interval_ms: 80, list_size: 900, payload_bytes: 14_000, burst: 3}}
 
   defp profile_defaults(_),
-    do: {"medium", %{interval_ms: @event_interval_ms, list_size: @list_size, payload_bytes: @payload_bytes, burst: @burst_per_interval}}
+    do:
+      {"medium",
+       %{
+         interval_ms: @event_interval_ms,
+         list_size: @list_size,
+         payload_bytes: @payload_bytes,
+         burst: @burst_per_interval
+       }}
 end

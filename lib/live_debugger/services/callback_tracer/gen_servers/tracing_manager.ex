@@ -26,7 +26,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   end
 
   def tracer_started?() do
-    GenServer.call(__MODULE__, :tracer_started?, 10000)
+    GenServer.call(__MODULE__, :tracer_started?, 10_000)
   end
 
   @impl true
