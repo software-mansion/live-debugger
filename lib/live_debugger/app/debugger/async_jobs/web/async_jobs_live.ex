@@ -84,7 +84,15 @@ defmodule LiveDebugger.App.Debugger.AsyncJobs.Web.AsyncJobsLive do
         inner_class="mx-0 p-4"
         class="flex-1"
         save_state_in_browser={true}
+        title_class="flex flex-row justify-between min-w-max gap-2"
       >
+        <:title_sub_panel>
+          <.section_info_tooltip
+            id="async-jobs-info"
+            content="Background operations spawned via start_async or assign_async"
+          />
+        </:title_sub_panel>
+
         <div class="w-full h-full flex flex-col gap-2">
           <.async_result :let={async_jobs} assign={@async_jobs}>
             <:failed>
