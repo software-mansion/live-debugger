@@ -22,7 +22,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   def setup_tracing_with_monitoring!(state) do
     last_id = TraceQueries.get_last_trace_id()
 
-    if state.dbg_pid do
+    if Map.get(state, :dbg_pid) do
       Dbg.stop()
     end
 
