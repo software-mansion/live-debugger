@@ -5,35 +5,36 @@ defmodule LiveDebugger.TourElements do
   """
 
   @elements %{
-    # Navbar
-    navbar: "navbar",
-    navbar_return_button: "return-button",
-    navbar_settings_button: "settings-button-container",
-    navbar_connected: "navbar-connected",
-    navbar_connected_tooltip: "navbar-connected-tooltip",
-    navbar_gc_warning: "gc-disabled-warning-tooltip",
+    navbar: "#navbar",
+    navbar_return_button: "#return-button",
+    navbar_settings_button: "#settings-button-container",
+    navbar_connected: "#navbar-connected",
+    navbar_connected_tooltip: "#navbar-connected-tooltip",
+    navbar_gc_warning: "#gc-disabled-warning-tooltip",
 
     # Node Basic Info
-    node_basic_info: "node-inspector-basic-info",
-    node_module_name: "node-inspector-basic-info-current-node-module",
-    node_module_path: "node-inspector-basic-info-current-node-module-path",
-    copy_module_name: "copy-button-module-name",
-    copy_module_path: "copy-button-module-path",
-    send_event_button: "send-event-button",
-    open_in_editor: "open-in-editor",
-    show_components_tree: "show-components-tree-button",
-    send_event_fullscreen: "send-event-fullscreen",
+    node_basic_info: "#node-inspector-basic-info",
+    node_module_name: "#node-inspector-basic-info-current-node-module",
+    node_module_path: "#node-inspector-basic-info-current-node-module-path",
+    copy_module_name: "#copy-button-module-name",
+    copy_module_path: "#copy-button-module-path",
+    send_event_button: "#send-event-button",
+    open_in_editor: "#open-in-editor",
+    show_components_tree: "#show-components-tree-button",
+    send_event_fullscreen: "#send-event-fullscreen",
+
     # Callback Traces
-    callback_traces_section: "traces-list",
-    callback_traces_search_bar: "callback-traces-search-bar",
-    callback_traces_toggle_tracing: "tracing-tooltip",
-    callback_traces_filters_button: "filters-tooltip",
+    callback_traces_section: "#traces-list",
+    callback_traces_search_bar: "#callback-traces-search-bar",
+    callback_traces_toggle_tracing: "#tracing-tooltip",
+    callback_traces_filters_button: "#filters-tooltip",
+    callback_traces_first_trace: "#traces-list-stream > :first-child",
 
     # Inspect Button
-    inspect_button: "inspect-button-tooltip",
+    inspect_button: "#inspect-button-tooltip",
 
     # Settings
-    refresh_tracing_button: "refresh_tracing_button"
+    refresh_tracing_button: "#refresh_tracing_button"
   }
 
   @doc """
