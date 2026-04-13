@@ -1259,6 +1259,7 @@ defmodule LiveDebugger.App.Web.Components do
           >
             <h2 class="font-semibold text-sm text-primary-text"><%= @title %></h2>
             <.icon_button
+              :if={@on_close}
               id={"#{@id}-close"}
               phx-click={@on_close}
               icon="icon-cross"
