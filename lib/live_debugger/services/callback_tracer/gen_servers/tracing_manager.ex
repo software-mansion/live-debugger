@@ -8,6 +8,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserRefreshedTrace
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.Services.CallbackTracer.Events.DbgKilled
 
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
 
@@ -22,6 +23,13 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   """
   def ping!() do
     GenServer.call(__MODULE__, :ping)
+  end
+
+  @doc """
+  Checks if tracing is currently started
+  """
+  def tracing_started?() do
+    GenServer.call(__MODULE__, :tracing_started?, 10000)
   end
 
   @impl true
@@ -43,6 +51,10 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   @impl true
   def handle_call(:ping, _from, state) do
     {:reply, :pong, state}
+  end
+
+  def handle_call(:tracing_started?, _from, state) do
+    {:reply, state.dbg_pid != nil, state}
   end
 
   @impl true
@@ -68,13 +80,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   # handling dbg tracer stop
   def handle_info({:DOWN, _, _, pid, :done}, %{dbg_pid: pid} = state) do
-    case GenServer.whereis(LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler) do
-      pid when is_pid(pid) ->
-        Process.exit(pid, :normal)
-
-      _ ->
-        :ok
-    end
+    Bus.broadcast_event!(%DbgKilled{})
 
     {:noreply, %{state | dbg_pid: nil}}
   end

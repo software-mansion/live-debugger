@@ -5,12 +5,14 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   use GenServer
 
+  alias LiveDebugger.Bus
   alias LiveDebugger.Utils.Versions
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Utils.Memory
   alias LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace, as: TraceActions
   alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
   alias LiveDebugger.Services.CallbackTracer.Actions.DiffTrace, as: DiffActions
+  alias LiveDebugger.Services.CallbackTracer.Events.DbgKilled
   alias LiveDebugger.Structs.Trace.FunctionTrace
 
   alias LiveDebugger.API.TracesStorage
@@ -54,6 +56,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   @impl true
   def init(_opts) do
+    Bus.receive_events!()
     Memory.set_max_heap_size(@max_heap_size)
 
     {:ok, %{}}
@@ -198,6 +201,15 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   #########################################################
 
   def handle_cast({:new_trace, _trace, _n}, state) do
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_info(%DbgKilled{}, state) do
+    {:stop, :normal, state}
+  end
+
+  def handle_info(_msg, state) do
     {:noreply, state}
   end
 

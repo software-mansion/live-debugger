@@ -16,6 +16,8 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserRefreshedTrace
 
+  alias LiveDebugger.App.Web.Components.TracingCrashPopup
+
   @config_browser_features_docs_url "https://hexdocs.pm/live_debugger/config.html#browser-features"
   @available_settings SettingsStorage.available_settings() |> Enum.map(&Atom.to_string/1)
 
@@ -29,6 +31,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
     |> assign(return_to: params["return_to"])
     |> assign(settings: SettingsStorage.get_all())
     |> assign(config_browser_features_docs_url: @config_browser_features_docs_url)
+    |> TracingCrashPopup.init()
     |> noreply()
   end
 
@@ -36,6 +39,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   def render(assigns) do
     ~H"""
     <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
+      <TracingCrashPopup.render tracing_enabled?={@tracing_enabled?} />
       <NavbarComponents.navbar class="flex pl-2 justify-between">
         <div class="flex items-center gap-2">
           <NavbarComponents.return_link return_link={@return_to || RoutesHelper.discovery()} />

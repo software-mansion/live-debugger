@@ -18,6 +18,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
+  alias LiveDebugger.App.Web.Components.TracingCrashPopup
 
   alias LiveDebugger.App.Utils.URL
 
@@ -121,13 +122,12 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
             return_link={RoutesHelper.discovery()}
           />
         </div>
+
+        <TracingCrashPopup.render tracing_enabled?={@tracing_enabled?} />
       </.async_result>
     </div>
     """
   end
-
-  @impl true
-  def handle_info(_, socket), do: {:noreply, socket}
 
   defp init_debugger(socket, pid) when is_pid(pid) do
     socket
@@ -135,6 +135,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
     |> put_private(:pid, pid)
     |> HookComponents.DeadViewMode.init()
     |> HookComponents.InspectButton.init()
+    |> TracingCrashPopup.init()
   end
 
   defp assign_and_broadcast_node_id(socket, %{"node_id" => node_id}) do

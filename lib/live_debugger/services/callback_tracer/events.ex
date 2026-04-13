@@ -65,4 +65,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
     cid: CommonTypes.cid() | nil,
     transport_pid: pid()
   )
+
+  defevent(DbgKilled, [])
 end
