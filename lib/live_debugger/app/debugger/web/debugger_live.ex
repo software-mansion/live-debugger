@@ -129,6 +129,9 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
     """
   end
 
+  @impl true
+  def handle_info(_, socket), do: {:noreply, socket}
+
   defp init_debugger(socket, pid) when is_pid(pid) do
     socket
     |> Hooks.AsyncLvProcess.init(pid)
