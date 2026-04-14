@@ -25,6 +25,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
     GenServer.call(__MODULE__, :ping)
   end
 
+  @spec tracer_started?() :: boolean()
   def tracer_started?() do
     GenServer.call(__MODULE__, :tracer_started?, 10_000)
   end
@@ -55,7 +56,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   end
 
   @impl true
-  def handle_info(event, state) when event in [:refresh_tracing, %UserRefreshedTrace{}] do
+  def handle_info(:refresh_tracing, state) do
     state = TracingActions.setup_tracing_with_monitoring!(state)
 
     {:noreply, state}
