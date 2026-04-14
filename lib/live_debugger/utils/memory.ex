@@ -40,6 +40,8 @@ defmodule LiveDebugger.Utils.Memory do
       error_logger: false,
       size: trunc(size * @gigabyte / @wordsize)
     })
+
+    :ok
   end
 
   @doc """

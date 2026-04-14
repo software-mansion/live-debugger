@@ -1,6 +1,6 @@
 defmodule LiveDebugger.App.Web.Components.TracingCrashPopup do
   @moduledoc """
-  Popup component that is shown when the traced LiveView process crashes.
+  Popup component that is shown when the tracer process crashes or is killed.
 
   It assigns `:tracing_enabled?` to the socket, which is used to show or hide the popup.
   It requires subscribing to `Bus` events in the parent LiveView.

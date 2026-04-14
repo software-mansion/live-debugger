@@ -56,9 +56,15 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   @impl true
   def handle_info(event, state) when event in [:refresh_tracing, %UserRefreshedTrace{}] do
-    state
-    |> TracingActions.setup_tracing_with_monitoring!()
-    |> then(&{:noreply, &1})
+    state = TracingActions.setup_tracing_with_monitoring!(state)
+
+    {:noreply, state}
+  end
+
+  def handle_info(%UserRefreshedTrace{}, state) do
+    state = TracingActions.setup_tracing_with_monitoring!(state)
+
+    {:noreply, state}
   end
 
   def handle_info(%LiveViewBorn{pid: pid}, state) do
