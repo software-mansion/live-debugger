@@ -428,12 +428,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
   end
 
   describe "handle_info/2" do
-    test "stops normally on DbgKilled event" do
-      state = %{}
-      assert TraceHandler.handle_info(%DbgKilled{}, state) == {:stop, :normal, state}
-    end
-
-    test "stops normally on DbgKilled event with non-empty state" do
+    test "stops normally on `DbgKilled` event" do
       pid = :c.pid(0, 1, 0)
       ref = make_ref()
       trace = %LiveDebugger.Structs.Trace.FunctionTrace{id: 1}

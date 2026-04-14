@@ -13,6 +13,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
 
   alias LiveDebugger.App.Events.UserRefreshedTrace
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.Services.CallbackTracer.Events.DbgKilled
 
   setup :verify_on_exit!
 
@@ -68,6 +69,26 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
       event = {:file_event, self(), {"/app/ebin/Elixir.Enum.beam", [:modified]}}
 
       assert {:noreply, []} = TracingManager.handle_info(event, [])
+    end
+
+    test "handles {:DOWN, _, _, pid, :done} — broadcasts `DbgKilled` and clears dbg_pid" do
+      dbg_pid = :c.pid(0, 1, 0)
+      state = %{dbg_pid: dbg_pid}
+
+      MockBus
+      |> expect(:broadcast_event!, fn %DbgKilled{} -> :ok end)
+
+      assert {:noreply, %{dbg_pid: nil}} =
+               TracingManager.handle_info({:DOWN, make_ref(), :process, dbg_pid, :done}, state)
+    end
+
+    test "ignores {:DOWN, _, _, pid, :done} when pid does not match dbg_pid" do
+      dbg_pid = :c.pid(0, 1, 0)
+      other_pid = :c.pid(0, 2, 0)
+      state = %{dbg_pid: dbg_pid}
+
+      assert {:noreply, ^state} =
+               TracingManager.handle_info({:DOWN, make_ref(), :process, other_pid, :done}, state)
     end
 
     test "handles unknown event" do
