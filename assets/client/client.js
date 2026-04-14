@@ -6,7 +6,6 @@ import initHighlight from './services/highlight';
 import initDebugSocket from './services/debug_socket';
 import initElementInspection from './services/inspect';
 import initTooltip from './components/tooltip/tooltip';
-import { initTour, tour } from './services/tour';
 
 import {
   getMetaTag,
@@ -43,13 +42,7 @@ window.document.addEventListener('DOMContentLoaded', async () => {
     initTooltip();
     initDebugMenu(metaTag, sessionURL, debugChannel);
     initHighlight(debugChannel);
-    initTour(debugChannel);
 
-    // Expose tour API on window for client app usage
-    window.LiveDebuggerTour = tour;
-
-    // Support DOM events from Elixir Tour API (JS.dispatch)
-    // The detail contains {command, ...payload} — command becomes the channel message name
     document.addEventListener('lvdbg:tour', (e) => {
       const { command, ...payload } = e.detail;
       debugChannel.push(command, payload);

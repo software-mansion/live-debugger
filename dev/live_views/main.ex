@@ -56,11 +56,11 @@ defmodule LiveDebuggerDev.LiveViews.Main do
             <span class="text-xs text-gray-500">Actions:</span>
             <.button
               color="purple"
-              phx-click={:navbar |> TourElements.id() |> Tour.spotlight_JS("click-anywhere")}
+              phx-click={:navbar |> TourElements.id() |> Tour.spotlight_JS(dismiss: "click-anywhere")}
             >
               Spotlight Navbar
             </.button>
-            <.button color="purple" phx-click={Tour.highlight_JS(:navbar_connected)}>
+            <.button color="purple" phx-click={Tour.highlight_JS(:navbar_connected, clear: false)}>
               Highlight PID
             </.button>
             <.button color="blue" phx-click={Tour.spotlight_JS(:callback_traces_first_trace)}>
@@ -85,7 +85,7 @@ defmodule LiveDebuggerDev.LiveViews.Main do
               color="purple"
               phx-click={
                 Tour.redirect_JS("/",
-                  then: Tour.step(:spotlight, :navbar, "click-anywhere")
+                  then: Tour.step(:spotlight, :navbar, dismiss: "click-anywhere")
                 )
               }
             >
