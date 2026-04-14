@@ -9,7 +9,6 @@ defmodule LiveDebugger.Utils.Memory do
   @kilobyte 1024
   @megabyte 1_048_576
   @gigabyte 1_073_741_824
-  @wordsize :erlang.system_info(:wordsize)
 
   @doc """
   Returns the number of bytes in a kilobyte (1024).

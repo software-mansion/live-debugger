@@ -22,16 +22,22 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   @available_settings SettingsStorage.available_settings() |> Enum.map(&Atom.to_string/1)
 
   @impl true
-  def handle_params(params, _url, socket) do
+  def mount(_params, _session, socket) do
     if connected?(socket) do
       Bus.receive_events!()
     end
 
     socket
+    |> TracingCrashPopup.init()
+    |> ok()
+  end
+
+  @impl true
+  def handle_params(params, _url, socket) do
+    socket
     |> assign(return_to: params["return_to"])
     |> assign(settings: SettingsStorage.get_all())
     |> assign(config_browser_features_docs_url: @config_browser_features_docs_url)
-    |> TracingCrashPopup.init()
     |> noreply()
   end
 

@@ -18,6 +18,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
   alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
+  alias LiveDebugger.Services.CallbackTracer.Events.DbgKilled
   alias LiveDebugger.Structs.Trace.DiffTrace
 
   describe "handle_cast/2" do
@@ -423,6 +424,23 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
       assert_raise RuntimeError, fn ->
         TraceHandler.handle_cast(trace, %{})
       end
+    end
+  end
+
+  describe "handle_info/2" do
+    test "stops normally on DbgKilled event" do
+      state = %{}
+      assert TraceHandler.handle_info(%DbgKilled{}, state) == {:stop, :normal, state}
+    end
+
+    test "stops normally on DbgKilled event with non-empty state" do
+      pid = :c.pid(0, 1, 0)
+      ref = make_ref()
+      trace = %LiveDebugger.Structs.Trace.FunctionTrace{id: 1}
+      ts = {1753, 174_270, 660_820}
+      state = %{{pid, TestModule, :render} => {ref, trace, ts}}
+
+      assert TraceHandler.handle_info(%DbgKilled{}, state) == {:stop, :normal, state}
     end
   end
 end
