@@ -1,9 +1,14 @@
 const OVERLAY_ID = 'tour-overlay';
 const PENDING_ACTION_KEY = 'lvdbg-tour-pending';
 
+const classGuardians = new Set();
+
 function clearAll() {
   const overlay = document.getElementById(OVERLAY_ID);
   if (overlay) overlay.remove();
+
+  classGuardians.forEach((guardian) => guardian.disconnect());
+  classGuardians.clear();
 
   document
     .querySelectorAll('.tour-highlight, .tour-spotlight-target')
@@ -12,12 +17,29 @@ function clearAll() {
     });
 }
 
+function guardClass(target, className) {
+  const observer = new MutationObserver(() => {
+    if (!target.classList.contains(className)) {
+      target.classList.add(className);
+    }
+  });
+
+  observer.observe(target, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+
+  classGuardians.add(observer);
+}
+
 function highlight(target) {
   target.scrollIntoView({
     behavior: 'smooth',
     block: 'center',
   });
   target.classList.add('tour-highlight');
+
+  guardClass(target, 'tour-highlight');
 }
 
 function createOverlay() {
@@ -37,12 +59,13 @@ function spotlight(target) {
     block: 'center',
   });
   target.classList.add('tour-spotlight-target');
+
+  guardClass(target, 'tour-spotlight-target');
 }
 
 const Tour = {
   mounted() {
-    this._cleanup = null;
-
+    this._cleanups = new Set();
     const pending = sessionStorage.getItem(PENDING_ACTION_KEY);
     if (pending) {
       sessionStorage.removeItem(PENDING_ACTION_KEY);
@@ -61,10 +84,13 @@ const Tour = {
       dismiss,
       url,
       then: nextAction,
+      clear = true,
     } = payload;
 
-    this._cleanupListeners();
-    clearAll();
+    if (clear || action === 'clear') {
+      this._cleanupListeners();
+      clearAll();
+    }
 
     if (action === 'clear') return;
 
@@ -113,27 +139,22 @@ const Tour = {
 
   _waitForTarget(selector, callback) {
     const observer = new MutationObserver(() => {
-      // Szukamy elementu używając selektora CSS
       if (document.querySelector(selector)) {
         observer.disconnect();
+        this._cleanups.delete(cleanup);
         callback();
       }
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
 
-    const prevCleanup = this._cleanup;
-    this._cleanup = () => {
-      observer.disconnect();
-      if (prevCleanup) prevCleanup();
-    };
+    const cleanup = () => observer.disconnect();
+    this._cleanups.add(cleanup);
   },
 
   _cleanupListeners() {
-    if (this._cleanup) {
-      this._cleanup();
-      this._cleanup = null;
-    }
+    this._cleanups.forEach((cleanup) => cleanup());
+    this._cleanups.clear();
   },
 
   _setupClickAnywhereDismiss() {
@@ -141,11 +162,12 @@ const Tour = {
 
     const handler = () => {
       clearAll();
-      this._cleanup = null;
+      this._cleanupListeners();
       this.pushEvent('step-completed', { target: 'anywhere' });
     };
 
-    this._cleanup = () => controller.abort();
+    const cleanup = () => controller.abort();
+    this._cleanups.add(cleanup);
 
     setTimeout(() => {
       if (!controller.signal.aborted) {
@@ -162,7 +184,7 @@ const Tour = {
 
     const handler = () => {
       clearAll();
-      this._cleanup = null;
+      this._cleanupListeners();
       this.pushEvent('step-completed', { target: selector });
     };
 
@@ -173,10 +195,12 @@ const Tour = {
 
     target.addEventListener('click', handler, { once: true });
 
-    this._cleanup = () => {
+    const cleanup = () => {
       target.removeEventListener('click', handler);
       if (overlay) overlay.removeEventListener('click', overlayHandler);
     };
+
+    this._cleanups.add(cleanup);
   },
 
   destroyed() {

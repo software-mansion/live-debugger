@@ -499,10 +499,13 @@ defmodule LiveDebugger.App.Web.Components do
     >
       <div class="px-4 flex items-center h-12 p-2 border-b border-default-border">
         <div class="flex justify-between items-center w-full gap-2">
-          <div class={[
-            "font-medium text-sm min-w-26 flex items-center gap-2"
-            | List.wrap(@title_class)
-          ]}>
+          <div
+            id={@id <> "-title-section"}
+            class={[
+              "font-medium text-sm min-w-26 flex items-center gap-2"
+              | List.wrap(@title_class)
+            ]}
+          >
             <p><%= @title %></p>
             <%= render_slot(@title_sub_panel) %>
           </div>

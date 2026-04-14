@@ -13,13 +13,16 @@ defmodule LiveDebugger.App.Debugger.Components do
 
   def search_bar(assigns) do
     ~H"""
-    <div class={[
-      "sm:w-64 w-32",
-      "flex shrink items-center rounded-[7px] outline outline-1 -outline-offset-1",
-      "has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2",
-      "outline-default-border has-[input:focus-within]:outline-ui-accent",
-      @class
-    ]}>
+    <div
+      id={@input_id <> "-search-bar"}
+      class={[
+        "sm:w-64 w-32",
+        "flex shrink items-center rounded-[7px] outline outline-1 -outline-offset-1",
+        "has-[input:focus-within]:outline-2 has-[input:focus-within]:-outline-offset-2",
+        "outline-default-border has-[input:focus-within]:outline-ui-accent",
+        @class
+      ]}
+    >
       <form phx-change="search" phx-submit="search-submit" class="flex items-center w-full h-full">
         <.icon
           name="icon-search"

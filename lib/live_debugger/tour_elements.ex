@@ -23,6 +23,12 @@ defmodule LiveDebugger.TourElements do
     show_components_tree: "#show-components-tree-button",
     send_event_fullscreen: "#send-event-fullscreen",
 
+    # Assigns
+    assigns_section: "#node-state-lv",
+    assigns_search_bar: "#assigns-search-input-search-bar",
+    assigns_pinned: "#pinned-assigns",
+    assigns_history_button: "#all-assigns-history-button",
+
     # Callback Traces
     callback_traces_section: "#traces-list",
     callback_traces_search_bar: "#callback-traces-search-bar",
