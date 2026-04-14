@@ -32,7 +32,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   def render(assigns) do
     ~H"""
     <div class="h-full flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
-      <TracingCrashPopup.render tracing_enabled?={@tracing_enabled?} />
+      <TracingCrashPopup.render tracing_status={@tracing_status} />
       <NavbarComponents.navbar class="flex justify-between">
         <NavbarComponents.live_debugger_logo />
         <div class="flex items-center gap-2">

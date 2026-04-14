@@ -4,15 +4,17 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   """
   require Logger
 
-  alias LiveDebugger.Utils.Versions
-  alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
-  alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
-  alias LiveDebugger.Services.CallbackTracer.Queries.Traces, as: TraceQueries
-  alias LiveDebugger.Services.CallbackTracer.Process.Tracer
+  alias LiveDebugger.API.System.Dbg
   alias LiveDebugger.API.System.FileSystem, as: FileSystemAPI
   alias LiveDebugger.API.System.Module, as: ModuleAPI
+  alias LiveDebugger.Bus
+  alias LiveDebugger.Services.CallbackTracer.Events.DbgStarted
+  alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
+  alias LiveDebugger.Services.CallbackTracer.Process.Tracer
+  alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
+  alias LiveDebugger.Services.CallbackTracer.Queries.Traces, as: TraceQueries
   alias LiveDebugger.Utils.Modules, as: UtilsModules
-  alias LiveDebugger.API.System.Dbg
+  alias LiveDebugger.Utils.Versions
 
   @doc """
   Sets up tracing and monitors recompilation in a single pass.
@@ -43,6 +45,9 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
 
         # Monitor recompilation using the paths
         start_file_monitoring(live_modules_with_paths)
+
+        # Broadcast information
+        Bus.broadcast_event!(%DbgStarted{})
 
         %{state | dbg_pid: pid}
 

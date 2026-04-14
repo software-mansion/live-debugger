@@ -3,17 +3,17 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
 
   import Mox
 
-  alias LiveDebugger.Utils.Versions
-  alias LiveDebugger.MockBus
+  alias LiveDebugger.App.Events.UserRefreshedTrace
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIFileSystem
   alias LiveDebugger.MockAPIModule
   alias LiveDebugger.MockAPITracesStorage
-  alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
-
-  alias LiveDebugger.App.Events.UserRefreshedTrace
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.MockBus
   alias LiveDebugger.Services.CallbackTracer.Events.DbgKilled
+  alias LiveDebugger.Services.CallbackTracer.Events.DbgStarted
+  alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.Utils.Versions
 
   setup :verify_on_exit!
 
@@ -123,5 +123,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
       if(Versions.live_component_destroyed_telemetry_supported?(), do: 18, else: 19),
       fn _, _ -> :ok end
     )
+
+    MockBus
+    |> expect(:broadcast_event!, fn %DbgStarted{} -> :ok end)
   end
 end

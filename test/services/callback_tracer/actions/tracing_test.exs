@@ -7,12 +7,14 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
   @live_view_module :"Elixir.TracingTestLiveView"
   @live_component_module :"Elixir.TracingTestLiveComponent"
 
-  alias LiveDebugger.Utils.Versions
-  alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIFileSystem
   alias LiveDebugger.MockAPIModule
   alias LiveDebugger.MockAPITracesStorage
+  alias LiveDebugger.MockBus
+  alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
+  alias LiveDebugger.Services.CallbackTracer.Events.DbgStarted
+  alias LiveDebugger.Utils.Versions
 
   setup :verify_on_exit!
 
@@ -43,6 +45,9 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
         if(Versions.live_component_destroyed_telemetry_supported?(), do: 18, else: 19),
         fn _, _ -> :ok end
       )
+
+      MockBus
+      |> expect(:broadcast_event!, fn %DbgStarted{} -> :ok end)
 
       assert %{dbg_pid: self()} == TracingActions.setup_tracing_with_monitoring!(%{dbg_pid: nil})
     end
@@ -92,6 +97,9 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
         fn _, _ -> :ok end
       )
 
+      MockBus
+      |> expect(:broadcast_event!, fn %DbgStarted{} -> :ok end)
+
       assert %{dbg_pid: ^tracer_pid} =
                TracingActions.setup_tracing_with_monitoring!(%{dbg_pid: nil})
 
@@ -135,6 +143,9 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
         if(Versions.live_component_destroyed_telemetry_supported?(), do: 36, else: 37),
         fn _, _ -> :ok end
       )
+
+      MockBus
+      |> expect(:broadcast_event!, fn %DbgStarted{} -> :ok end)
 
       assert %{dbg_pid: self()} == TracingActions.setup_tracing_with_monitoring!(%{dbg_pid: nil})
     end

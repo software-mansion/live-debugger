@@ -45,7 +45,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   def render(assigns) do
     ~H"""
     <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
-      <TracingCrashPopup.render tracing_enabled?={@tracing_enabled?} />
+      <TracingCrashPopup.render tracing_status={@tracing_status} />
       <NavbarComponents.navbar class="flex pl-2 justify-between">
         <div class="flex items-center gap-2">
           <NavbarComponents.return_link return_link={@return_to || RoutesHelper.discovery()} />

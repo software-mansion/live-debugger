@@ -123,7 +123,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
           />
         </div>
 
-        <TracingCrashPopup.render tracing_enabled?={@tracing_enabled?} />
+        <TracingCrashPopup.render tracing_status={@tracing_status} />
       </.async_result>
     </div>
     """

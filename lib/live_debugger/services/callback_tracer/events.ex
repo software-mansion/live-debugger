@@ -66,5 +66,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
     transport_pid: pid()
   )
 
-  defevent(DbgKilled, [])
+  defevent(DbgKilled)
+  defevent(DbgStarted)
 end
