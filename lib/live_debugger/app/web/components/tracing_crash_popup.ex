@@ -25,7 +25,7 @@ defmodule LiveDebugger.App.Web.Components.TracingCrashPopup do
     |> register_hook(:tracing_crash_popup)
   end
 
-  attr(:tracing_enabled?, :boolean, required: true)
+  attr(:tracing_enabled?, AsyncResult, required: true)
 
   @impl true
   def render(assigns) do
