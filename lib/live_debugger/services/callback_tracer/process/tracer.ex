@@ -6,7 +6,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Process.Tracer do
   alias LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler
   alias LiveDebugger.Utils.Memory
 
-  @max_heap_size 5
+  @max_heap_size Application.compile_env(:live_debugger, :tracer_max_heap_size, 5)
 
   @spec handle_trace(trace :: term(), state :: integer() | {:init, integer()}) :: integer()
   def handle_trace(trace, {:init, n}) do
