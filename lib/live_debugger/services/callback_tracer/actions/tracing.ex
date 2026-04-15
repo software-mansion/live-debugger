@@ -4,7 +4,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   """
   require Logger
 
-  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
   alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
   alias LiveDebugger.Services.CallbackTracer.Queries.Traces, as: TraceQueries
@@ -91,13 +90,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   end
 
   defp apply_trace_patterns(modules) do
-    # This is not a callback created by user
-    # We trace it to refresh the components tree
-    # This will be replaced with telemetry event added in LiveView 1.1.0
-    if not Versions.live_component_destroyed_telemetry_supported?() do
-      Dbg.trace_pattern({Phoenix.LiveView.Diff, :delete_component, 2}, [])
-    end
-
     modules
     |> CallbackQueries.all_callbacks()
     |> Enum.each(fn mfa ->

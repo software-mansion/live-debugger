@@ -5,7 +5,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   use GenServer
 
-  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
   alias LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace, as: TraceActions
   alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
@@ -53,40 +52,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   @impl true
   def init(_opts) do
     {:ok, %{}}
-  end
-
-  #########################################################
-  # Handling component deletion traces
-  #
-  # We catch this trace to know when components are deleted.
-  # We do not display this trace to user, so we do not have to care about order
-  # This will be replaced in the future with telemetry event added in LiveView 1.1.0
-  # https://hexdocs.pm/phoenix_live_view/1.1.0-rc.3/telemetry.html
-  #
-  #########################################################
-
-  if not Versions.live_component_destroyed_telemetry_supported?() do
-    def handle_cast(
-          {:new_trace,
-           {_, pid, _, {Phoenix.LiveView.Diff, :delete_component, [cid | _] = args}, ts}, n},
-          state
-        ) do
-      Task.start(fn ->
-        with {:ok, trace} <- TraceActions.create_delete_component_trace(n, args, pid, cid, ts),
-             :ok <- StateActions.maybe_save_state!(trace),
-             :ok <- TraceActions.publish_trace(trace) do
-          :ok
-        else
-          :live_debugger_trace ->
-            :ok
-
-          {:error, err} ->
-            raise "Error while handling trace: #{inspect(err)}"
-        end
-      end)
-
-      {:noreply, state}
-    end
   end
 
   #########################################################
