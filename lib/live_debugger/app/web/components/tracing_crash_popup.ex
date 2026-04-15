@@ -88,5 +88,6 @@ defmodule LiveDebugger.App.Web.Components.TracingCrashPopup do
     end
   end
 
-  defp initial_status(started?), do: if(started?, do: :started, else: :stopped)
+  defp initial_status(true), do: :started
+  defp initial_status(false), do: :stopped
 end
