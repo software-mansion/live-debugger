@@ -3,7 +3,6 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
   Utilities for extracting Phoenix.LiveView.Stream diffs
   from render traces and mapping them into a list of functions.
   """
-  alias LiveDebugger.Utils.Versions
 
   @type live_stream_item :: %Phoenix.LiveView.LiveStream{
           name: atom(),
@@ -237,9 +236,5 @@ defmodule LiveDebugger.App.Debugger.Streams.StreamUtils do
     end)
   end
 
-  if Versions.live_view_streams_order_changed?() do
-    defp adjust_inserts(inserts), do: Enum.reverse(inserts)
-  else
-    defp adjust_inserts(inserts), do: inserts
-  end
+  defp adjust_inserts(inserts), do: Enum.reverse(inserts)
 end
