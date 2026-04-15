@@ -92,7 +92,7 @@ defmodule LiveDebugger.API.LiveViewDebug do
       @impl true
       def live_components(pid) do
         case ProcessAPI.state(pid) do
-          {:ok, %{components: {components, _, _}}} when is_list(components) ->
+          {:ok, %{components: {components, _, _}}} ->
             component_info =
               Enum.map(components, fn {cid, {mod, id, assigns, private, _prints}} ->
                 %{
