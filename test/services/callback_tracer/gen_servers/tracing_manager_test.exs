@@ -3,7 +3,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
 
   import Mox
 
-  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.MockBus
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIFileSystem
@@ -48,7 +47,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
       |> expect(:process, fn _ -> :ok end)
       |> expect(
         :trace_pattern,
-        if(Versions.live_component_destroyed_telemetry_supported?(), do: 18, else: 19),
+        18,
         fn _, _ -> :ok end
       )
 

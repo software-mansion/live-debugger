@@ -7,7 +7,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
   @live_view_module :"Elixir.TracingTestLiveView"
   @live_component_module :"Elixir.TracingTestLiveComponent"
 
-  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.MockAPIDbg
   alias LiveDebugger.MockAPIFileSystem
@@ -40,7 +39,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
       |> expect(
         :trace_pattern,
-        if(Versions.live_component_destroyed_telemetry_supported?(), do: 18, else: 19),
+        18,
         fn _, _ -> :ok end
       )
 
@@ -88,7 +87,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
       |> expect(
         :trace_pattern,
-        if(Versions.live_component_destroyed_telemetry_supported?(), do: 18, else: 19),
+        18,
         fn _, _ -> :ok end
       )
 
@@ -129,10 +128,10 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       MockAPIDbg
       |> expect(:tracer, fn {_handler, 0} -> {:ok, self()} end)
       |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
-      # 2 modules * 9 LiveView callbacks * 2 (return + exception) + [1 delete_component if LiveView version < 1.1.0] = 37
+      # 2 modules * 9 LiveView callbacks * 2 (return + exception) = 36 
       |> expect(
         :trace_pattern,
-        if(Versions.live_component_destroyed_telemetry_supported?(), do: 36, else: 37),
+        36,
         fn _, _ -> :ok end
       )
 
