@@ -20,6 +20,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
   describe "init/1" do
     test "sets up the tracing manager properly" do
       expect(MockBus, :receive_events!, fn -> :ok end)
+      expect(MockAPIDbg, :stop, fn -> :ok end)
 
       assert {:ok, %{dbg_pid: nil}, {:continue, :setup_tracing}} = TracingManager.init([])
     end

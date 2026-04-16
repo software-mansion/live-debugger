@@ -55,7 +55,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   @impl true
   def init(_opts) do
-    Process.flag(:trap_exit, true)
     Memory.set_max_heap_size(@max_heap_size)
 
     {:ok, %{}}
@@ -201,11 +200,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   def handle_cast({:new_trace, _trace, _n}, state) do
     {:noreply, state}
-  end
-
-  @impl true
-  def handle_info({:EXIT, _, _}, state) do
-    {:stop, :normal, state}
   end
 
   defp put_trace_record(state, trace, ref, timestamp) do

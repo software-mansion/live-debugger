@@ -5,12 +5,13 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   use GenServer
 
-  alias LiveDebugger.Bus
+  alias LiveDebugger.API.System.Dbg
   alias LiveDebugger.App.Events.UserRefreshedTrace
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
-  alias LiveDebugger.Services.CallbackTracer.Events.DbgKilled
-
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
+
+  alias LiveDebugger.Bus
+  alias LiveDebugger.Services.CallbackTracer.Events.DbgKilled
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
 
   @type state() :: %{dbg_pid: pid() | nil}
 
@@ -33,6 +34,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   @impl true
   def init(_opts) do
     Bus.receive_events!()
+    # Ensure no tracer is running (GenServer restart)
+    Dbg.stop()
 
     :net_kernel.monitor_nodes(true, %{node_type: :visible})
 
