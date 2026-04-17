@@ -169,13 +169,14 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
             class="w-4 h-4 text-info-icon flex-shrink-0 mt-0.5"
           />
           <p>
-            This may be caused by handling an excessive amount of traces with huge sizes - LiveDebugger has a maximum heap size set for tracing. See <.link
+            This may be caused by handling an excessive amount of traces with huge sizes - LiveDebugger has a maximum heap size set for tracing. See
+            <.link
               href={@documentation_url}
               target="_blank"
               class="text-link-primary hover:text-link-primary-hover"
             >
               configuration
-            </.link>.
+            </.link>
           </p>
         </div>
 
