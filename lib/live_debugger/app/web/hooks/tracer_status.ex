@@ -3,7 +3,7 @@ defmodule LiveDebugger.App.Web.Hooks.TracerStatus do
   This hook manages the tracing status and handles the case when the tracer crashes.
   It listens for `DbgKilled` and `DbgStarted` events and updates the `:tracing_status` assign accordingly.
 
-  ###973 Important
+  ### Important
   It requires subscribing to events `Bus.receive_events!()` in LiveView.
   """
 
@@ -16,6 +16,8 @@ defmodule LiveDebugger.App.Web.Hooks.TracerStatus do
   alias LiveDebugger.Services.CallbackTracer.Events.DbgStarted
 
   require Logger
+
+  @tracer_state_request_timeout 3000
 
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()
   def init(socket) do
@@ -71,7 +73,9 @@ defmodule LiveDebugger.App.Web.Hooks.TracerStatus do
   defp handle_async(_, _, socket), do: {:cont, socket}
 
   defp tracer_status() do
-    %{:dbg_pid => dbg_pid} = GenServer.call(TracingManager, :get_state, 10_000)
+    %{:dbg_pid => dbg_pid} =
+      GenServer.call(TracingManager, :get_state, @tracer_state_request_timeout)
+
     dbg_pid != nil
   end
 end
