@@ -12,7 +12,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserRefreshedTrace
 
-  @documentation_url "https://hexdocs.pm/live_debugger/config.html#browser-features"
+  @documentation_url "https://hexdocs.pm/live_debugger/config.html#maximum-memory-size"
 
   @impl true
   def mount(socket) do
