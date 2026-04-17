@@ -56,18 +56,8 @@ defmodule LiveDebugger.App.Web.Hooks.TracerStatus do
     {:halt, assign(socket, :tracer_started?, AsyncResult.ok(started?))}
   end
 
-  defp handle_async(:tracer_started?, {:exit, {:timeout, _}}, socket) do
-    tracer_started? = socket.assigns.tracer_started?
-
-    {:halt, assign(socket, :tracer_started?, AsyncResult.failed(tracer_started?, :timeout))}
-  end
-
   defp handle_async(:tracer_started?, _, socket) do
-    tracer_started? = socket.assigns.tracer_started?
-
-    Logger.error("Failed to get tracer status")
-
-    {:halt, assign(socket, :tracer_started?, AsyncResult.failed(tracer_started?, :error))}
+    {:halt, assign(socket, :tracer_started?, AsyncResult.ok(false))}
   end
 
   defp handle_async(_, _, socket), do: {:cont, socket}

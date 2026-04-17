@@ -39,34 +39,6 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
     ~H"""
     <div id={@id}>
       <.async_result :let={started?} assign={@tracer_started?}>
-        <:loading>
-          <.status_dot
-            status={:warning}
-            pulse?={true}
-            tooltip={
-              %{
-                content: "Fetching Tracer Status",
-                position: "bottom"
-              }
-            }
-          />
-        </:loading>
-        <:failed>
-          <div class="flex items-center gap-1">
-            <.status_dot
-              status={:error}
-              pulse?={true}
-              tooltip={
-                %{
-                  content: "Error Fetching Tracer Status. Click to retry",
-                  position: "bottom"
-                }
-              }
-              phx-click="refetch"
-              phx-target={@myself}
-            />
-          </div>
-        </:failed>
         <.tracer_crash_info
           :if={!started?}
           restarting?={@restarting?}
