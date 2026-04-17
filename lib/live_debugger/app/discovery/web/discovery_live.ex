@@ -5,17 +5,16 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
   use LiveDebugger.App.Web, :live_view
 
-  alias LiveDebugger.App.Web.Components.Navbar, as: NavbarComponents
   alias LiveDebugger.App.Discovery.Web.LiveComponents.ActiveLiveViews
   alias LiveDebugger.App.Discovery.Web.LiveComponents.DeadLiveViews
-
-  alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserChangedSettings
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.App.Web.Components.Navbar, as: NavbarComponents
+  alias LiveDebugger.App.Web.Hooks.TracerStatus, as: TracerStatusHook
+  alias LiveDebugger.App.Web.LiveComponents.TracerStatus
+  alias LiveDebugger.Bus
   alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
-
-  alias LiveDebugger.App.Web.Components.TracingCrashPopup
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
 
   @impl true
   def mount(_params, _session, socket) do
@@ -24,7 +23,7 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
     end
 
     socket
-    |> TracingCrashPopup.init()
+    |> TracerStatusHook.init()
     |> ok()
   end
 
@@ -32,14 +31,20 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   def render(assigns) do
     ~H"""
     <div class="h-full flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
-      <TracingCrashPopup.render tracing_status={@tracing_status} />
-      <NavbarComponents.navbar class="flex justify-between">
-        <NavbarComponents.live_debugger_logo />
-        <div class="flex items-center gap-2">
-          <NavbarComponents.garbage_collection_warning />
-          <NavbarComponents.settings_button return_to={@url} />
-        </div>
-      </NavbarComponents.navbar>
+      <div>
+        <.live_component
+          module={TracerStatus}
+          id="tracer-status"
+          tracer_started?={@tracer_started?}
+        />
+        <NavbarComponents.navbar class="flex justify-between">
+          <NavbarComponents.live_debugger_logo />
+          <div class="flex items-center gap-2">
+            <NavbarComponents.garbage_collection_warning />
+            <NavbarComponents.settings_button return_to={@url} />
+          </div>
+        </NavbarComponents.navbar>
+      </div>
       <div class="h-full flex flex-col">
         <.live_component module={ActiveLiveViews} id="active-live-views" />
         <.live_component module={DeadLiveViews} id="dead-live-views" />
