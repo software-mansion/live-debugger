@@ -1,6 +1,7 @@
 defmodule LiveDebuggerDev.Router do
   use Phoenix.Router
   import Phoenix.LiveView.Router
+  import Phoenix.LiveDashboard.Router
 
   pipeline :browser do
     plug(:accepts, ["html"])
@@ -21,6 +22,8 @@ defmodule LiveDebuggerDev.Router do
     live("/stream", LiveDebuggerDev.LiveViews.Stream)
     live("/async_demo", LiveDebuggerDev.LiveViews.AsyncDemo)
     live("/callback_crash", LiveDebuggerDev.LiveViews.CallbackCrash)
+    live("/memory_explosion", LiveDebuggerDev.LiveViews.MemoryExplosion)
     get("/embedded_in_controller", LiveDebuggerDev.EmbeddedLiveViewController, :embedded)
+    live_dashboard("/dashboard")
   end
 end

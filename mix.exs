@@ -83,6 +83,7 @@ defmodule LiveDebugger.MixProject do
       {:igniter, "~> 0.5 and >= 0.5.40", optional: true},
       {:bandit, "~> 1.6", only: [:dev, :test]},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
+      {:phoenix_live_dashboard, "~> 0.8", only: [:dev, :test]},
       {:esbuild, "~> 0.7", only: :dev},
       {:tailwind, "~> 0.3", only: :dev},
       {:mox, "~> 1.2", only: :test},

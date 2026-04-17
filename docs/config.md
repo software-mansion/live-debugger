@@ -24,6 +24,18 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
     plug :put_secure_browser_headers, %{"content-security-policy" => @csp}
 ```
 
+## Maximum memory size
+
+There are 2 memory consuming processes which are running in the background `Tracer` and `TraceHandler`. You can set maximum size of heap (in Gigabytes) which these processes can take. Default value for both is `5`.
+
+```elixir
+# config/dev.exs
+
+config :live_debugger, 
+  tracer_max_heap_size: 5,
+  trace_handler_max_heap_size: 5
+```
+
 ## Update checks
 
 LiveDebugger comes with optional update checks that inform about newer versions when the debugger interface loads. By default, this feature is enabled and will fetch version information, displaying a notification popup if a newer version is available. You can disable this feature by setting `:update_checks?` to `false` in your configuration:
@@ -33,7 +45,6 @@ LiveDebugger comes with optional update checks that inform about newer versions 
 
 config :live_debugger, :update_checks?, false
 ```
-
 
 ## Disabling LiveDebugger
 
