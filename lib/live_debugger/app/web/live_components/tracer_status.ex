@@ -130,26 +130,26 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
               The tracer process has crashed
             </p>
             <p class="text-xs text-secondary-text leading-relaxed">
-              LiveDebugger's tracer has stopped unexpectedly. Core functionalities like Assigns and Callback Tracing won't have newest information and may be misleading.
+              LiveDebugger's tracer has stopped unexpectedly.
             </p>
           </div>
         </div>
 
-        <div class="flex items-start gap-3 border border-info-border bg-info-bg rounded p-3">
-          <.icon
-            name="icon-info"
-            class="w-4 h-4 text-info-icon flex-shrink-0 mt-0.5"
-          />
-          <p>
-            This may be caused by handling an excessive amount of traces with huge sizes - LiveDebugger has a maximum heap size set for tracing. See
-            <.link
-              href={@documentation_url}
-              target="_blank"
-              class="text-link-primary hover:text-link-primary-hover"
-            >
-              configuration
-            </.link>
-          </p>
+        <div class="px-3">
+          Core functionalities like <b>Assigns</b>
+          and <b>Callback Tracing</b>
+          won't have newest information and may be misleading.
+        </div>
+        <div class="px-3">
+          This may be caused by <b>debugged application</b>
+          having an excessive amount of traces  with huge sizes from - LiveDebugger has a max heap size set for tracing. See
+          <.link
+            href={@documentation_url}
+            target="_blank"
+            class="text-link-primary hover:text-link-primary-hover"
+          >
+            configuration
+          </.link>
         </div>
 
         <div class="flex justify-center">
