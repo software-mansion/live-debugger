@@ -130,7 +130,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
               The tracer process has crashed
             </p>
             <p class="text-xs text-secondary-text leading-relaxed">
-              LiveDebugger's tracer has stopped unexpectedly. Core functionalities won't work until restart.
+              LiveDebugger's tracer has stopped unexpectedly. Core functionalities like Assigns and Callback Tracing won't have newest information and may be misleading.
             </p>
           </div>
         </div>
