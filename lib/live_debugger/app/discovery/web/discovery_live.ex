@@ -15,11 +15,17 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
   alias LiveDebugger.Services.GarbageCollector.Events.TableTrimmed
 
+  alias LiveDebugger.App.Web.HookComponents.Tour, as: TourHook
+
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Bus.receive_events!()
     end
+
+    socket =
+      socket
+      |> TourHook.init()
 
     {:ok, socket}
   end
@@ -27,7 +33,11 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="h-full flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
+    <div
+      class="h-full flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]"
+      id="discovery_live"
+      phx-hook="Tour"
+    >
       <NavbarComponents.navbar class="flex justify-between">
         <NavbarComponents.live_debugger_logo />
         <div class="flex items-center gap-2">

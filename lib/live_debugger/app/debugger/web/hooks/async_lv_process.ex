@@ -16,6 +16,8 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.DebuggerMounted
 
+  alias LiveDebugger.Client
+
   @spec init(Phoenix.LiveView.Socket.t(), pid()) :: Phoenix.LiveView.Socket.t()
   def init(socket, pid) do
     socket
@@ -31,6 +33,8 @@ defmodule LiveDebugger.App.Debugger.Web.Hooks.AsyncLvProcess do
       debugged_pid: lv_process.pid,
       debugged_transport_pid: lv_process.transport_pid
     })
+
+    Client.push_event!(lv_process.root_socket_id, "fetch-current-tour-step", %{})
 
     socket
     |> assign(:lv_process, AsyncResult.ok(lv_process))

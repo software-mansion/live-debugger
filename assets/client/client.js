@@ -69,6 +69,11 @@ window.document.addEventListener('DOMContentLoaded', async () => {
     });
     initTooltip(shadowRoot);
     initHighlight(debugChannel, shadowRoot);
+
+    document.addEventListener('lvdbg:tour', (e) => {
+      const { command, ...payload } = e.detail;
+      debugChannel.push(command, payload);
+    });
   }
 
   console.info(`LiveDebugger available at: ${baseURL}`);

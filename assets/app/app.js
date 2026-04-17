@@ -21,6 +21,7 @@ import OpenComponentsTree from './hooks/open_components_tree';
 import CloseSidebarOnResize from './hooks/close_sidebar_on_resize';
 import CodeMirrorTextarea from './hooks/code_mirror_textarea';
 import SurveyBanner from './hooks/survey_banner';
+import Tour from './hooks/tour';
 
 import topbar from './vendor/topbar';
 
@@ -53,6 +54,7 @@ function createHooks() {
     OpenComponentsTree,
     CloseSidebarOnResize,
     SurveyBanner,
+    Tour,
   };
 }
 

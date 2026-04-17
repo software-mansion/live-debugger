@@ -19,6 +19,16 @@ defmodule LiveDebugger.Client.Channel do
   end
 
   @impl true
+  def handle_in("tour:" <> _ = message, payload, socket) do
+    Phoenix.PubSub.broadcast!(
+      @pubsub_name,
+      "client:tour:receive",
+      {message, payload}
+    )
+
+    {:noreply, socket}
+  end
+
   def handle_in(message, payload, socket) do
     debugged_socket_id = socket.assigns.debugged_socket_id
 
