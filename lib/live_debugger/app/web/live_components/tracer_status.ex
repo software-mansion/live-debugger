@@ -12,6 +12,8 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserRefreshedTrace
 
+  @documentation_url "https://hexdocs.pm/live_debugger/config.html#browser-features"
+
   @impl true
   def mount(socket) do
     socket
@@ -136,8 +138,10 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
   attr(:myself, :any, required: true)
 
   defp tracer_crashed_popup(assigns) do
+    assigns = assign(assigns, :documentation_url, @documentation_url)
+
     ~H"""
-    <LiveDebugger.App.Web.Components.popup
+    <.popup
       id="tracer-crashed-popup"
       title="Tracer Crashed"
       show={!@dismissed?}
@@ -145,7 +149,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
     >
       <div class="flex flex-col gap-4">
         <div class="flex items-start gap-3 border border-error-border bg-error-bg rounded p-3">
-          <LiveDebugger.App.Web.Components.icon
+          <.icon
             name="icon-exclamation-circle"
             class="w-4 h-4 text-error-icon flex-shrink-0 mt-0.5"
           />
@@ -159,22 +163,38 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
           </div>
         </div>
 
+        <div class="flex items-start gap-3 border border-info-border bg-info-bg rounded p-3">
+          <.icon
+            name="icon-info"
+            class="w-4 h-4 text-info-icon flex-shrink-0 mt-0.5"
+          />
+          <p>
+            This may be caused by handling an excessive amount of traces with huge sizes - LiveDebugger has a maximum heap size set for tracing. See <.link
+              href={@documentation_url}
+              target="_blank"
+              class="text-link-primary hover:text-link-primary-hover"
+            >
+              configuration
+            </.link>.
+          </p>
+        </div>
+
         <div class="flex justify-center">
-          <LiveDebugger.App.Web.Components.button
+          <.button
             phx-click="restart_tracing"
             phx-target={@myself}
             disabled={@restarting?}
             class="flex items-center gap-2"
           >
-            <LiveDebugger.App.Web.Components.spinner
+            <.spinner
               :if={@restarting?}
               size="xs"
               class="text-button-primary-content"
             /> Restart Tracing
-          </LiveDebugger.App.Web.Components.button>
+          </.button>
         </div>
       </div>
-    </LiveDebugger.App.Web.Components.popup>
+    </.popup>
     """
   end
 end

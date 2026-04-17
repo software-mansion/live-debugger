@@ -26,7 +26,7 @@ In `router.ex` of your Phoenix app, make sure your locally running Phoenix app c
 
 ## Maximum memory size
 
-There are 2 memory consuming processes which are running in the background `Tracer` and `TraceHandler`. You can set maximum size of heap (in Gigabytes) which these processes can take:
+There are 2 memory consuming processes which are running in the background `Tracer` and `TraceHandler`. You can set maximum size of heap (in Gigabytes) which these processes can take. Default value for both is `5`.
 
 ```elixir
 # config/dev.exs
