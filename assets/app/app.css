@@ -79,3 +79,69 @@ body {
   background-color: var(--search-highlight-bg);
   color: var(--search-highlight-text);
 }
+
+/* Tour */
+@keyframes tour-highlight-pulse {
+  0% {
+    outline-color: var(--swm-pink-100);
+    outline-offset: -3px;
+    box-shadow: 0 0 0 0 rgba(255, 98, 89, 0.5);
+  }
+  50% {
+    outline-color: var(--swm-pink-80);
+    outline-offset: 2px;
+    box-shadow: 0 0 16px 4px rgba(255, 98, 89, 0.25);
+  }
+  100% {
+    outline-color: var(--swm-pink-100);
+    outline-offset: -3px;
+    box-shadow: 0 0 0 0 rgba(255, 98, 89, 0.5);
+  }
+}
+
+@keyframes tour-spotlight-pop {
+  0% {
+    transform: scale(0.97);
+    box-shadow: 0 0 0 0 rgba(255, 98, 89, 0.6);
+  }
+  40% {
+    transform: scale(1.02);
+    box-shadow: 0 0 24px 8px rgba(255, 98, 89, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 12px 4px rgba(255, 98, 89, 0.15);
+  }
+}
+
+@keyframes tour-overlay-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+  
+.tour-highlight {
+  outline: 3px solid var(--swm-pink-100);
+  outline-offset: -3px;
+  animation: tour-highlight-pulse 1.5s ease-in-out infinite;
+}
+
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(0, 0, 0, 0.5);
+  pointer-events: auto;
+  animation: tour-overlay-fade 0.3s ease-out;
+}
+
+.tour-spotlight-target {
+  position: relative;
+  z-index: 9999;
+  pointer-events: auto;
+  animation: tour-spotlight-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  box-shadow: 0 0 12px 4px rgba(255, 98, 89, 0.15);
+}

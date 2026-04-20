@@ -6,6 +6,7 @@ defmodule LiveDebugger.Client do
   @callback push_event!(String.t(), String.t(), map()) :: :ok
   @callback receive_events(String.t()) :: :ok | {:error, term()}
   @callback receive_events() :: :ok | {:error, term()}
+  @callback receive_tour_events() :: :ok | {:error, term()}
 
   @doc """
   Pushes event to the client.
@@ -52,6 +53,11 @@ defmodule LiveDebugger.Client do
     impl().receive_events()
   end
 
+  @spec receive_tour_events() :: :ok | {:error, term()}
+  def receive_tour_events() do
+    impl().receive_tour_events()
+  end
+
   defp impl do
     Application.get_env(:live_debugger, :client, __MODULE__.Impl)
   end
@@ -75,6 +81,11 @@ defmodule LiveDebugger.Client do
     @impl true
     def receive_events() do
       Phoenix.PubSub.subscribe(@pubsub_name, "client:receive")
+    end
+
+    @impl true
+    def receive_tour_events() do
+      Phoenix.PubSub.subscribe(@pubsub_name, "client:tour:receive")
     end
   end
 end

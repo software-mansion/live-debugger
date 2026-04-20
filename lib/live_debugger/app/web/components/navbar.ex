@@ -19,10 +19,13 @@ defmodule LiveDebugger.App.Web.Components.Navbar do
     ~H"""
     <div>
       <.survey_banner />
-      <navbar class={[
-        "w-full min-w-max h-12 shrink-0 py-auto px-4 gap-2 items-center bg-navbar-bg text-navbar-logo border-b border-navbar-border",
-        @class
-      ]}>
+      <navbar
+        id="navbar"
+        class={[
+          "w-full min-w-max h-12 shrink-0 py-auto px-4 gap-2 items-center bg-navbar-bg text-navbar-logo border-b border-navbar-border",
+          @class
+        ]}
+      >
         <%= render_slot(@inner_block) %>
       </navbar>
     </div>

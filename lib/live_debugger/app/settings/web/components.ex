@@ -11,6 +11,7 @@ defmodule LiveDebugger.App.Settings.Web.Components do
   attr(:label, :string, required: true)
   attr(:description_text, :string)
   attr(:checked, :boolean, default: false)
+  attr(:disabled, :boolean, default: false)
   attr(:rest, :global)
 
   slot(:description)
@@ -21,6 +22,7 @@ defmodule LiveDebugger.App.Settings.Web.Components do
       <.toggle_switch
         id={@id}
         checked={@checked}
+        disabled={@disabled}
         wrapper_class="!pr-3 !py-1"
         {@rest}
         phx-change={clear_flash("#flash-info", :info)}

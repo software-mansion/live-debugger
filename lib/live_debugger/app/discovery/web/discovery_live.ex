@@ -16,6 +16,8 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewDied
 
+  alias LiveDebugger.App.Web.HookComponents.Tour, as: TourHook
+
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
@@ -24,13 +26,18 @@ defmodule LiveDebugger.App.Discovery.Web.DiscoveryLive do
 
     socket
     |> TracerStatusHook.init()
+    |> TourHook.init()
     |> ok()
   end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="h-full flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
+    <div
+      class="h-full flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]"
+      id="discovery_live"
+      phx-hook="Tour"
+    >
       <div>
         <.live_component module={TracerStatus} id="tracer-status" tracer_started?={@tracer_started?} />
         <NavbarComponents.navbar class="flex justify-between">

@@ -22,6 +22,7 @@ import CloseSidebarOnResize from './hooks/close_sidebar_on_resize';
 import CodeMirrorTextarea from './hooks/code_mirror_textarea';
 import SurveyBanner from './hooks/survey_banner';
 import TracerPopupDismissed from './hooks/tracer_popup_dismissed';
+import Tour from './hooks/tour';
 
 import topbar from './vendor/topbar';
 
@@ -55,6 +56,7 @@ function createHooks() {
     CloseSidebarOnResize,
     SurveyBanner,
     TracerPopupDismissed,
+    Tour,
   };
 }
 

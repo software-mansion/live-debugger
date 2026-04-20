@@ -147,7 +147,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         name={if(@empty?, do: "No pinned assigns", else: "Pinned assigns")}
         icon="icon-pin"
       />
-      <div :if={not @empty?} class="p-4 border-b border-default-border overflow-x-auto">
+      <div
+        :if={not @empty?}
+        style="background-color: var(--surface-0-bg) !important;"
+        class="p-4 border-b border-default-border overflow-x-auto"
+      >
         <div
           :for={{key, pinned} <- @pinned_assigns}
           :if={pinned}
@@ -241,7 +245,11 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           </div>
         </:failed>
 
-        <div :if={temporary_assigns} class="pl-8 p-4 border-b border-default-border overflow-x-auto">
+        <div
+          :if={temporary_assigns}
+          style="background-color: var(--surface-0-bg) !important;"
+          class="pl-8 p-4 border-b border-default-border overflow-x-auto"
+        >
           <div :for={{_key, term_node} <- TermParser.term_to_display_tree(temporary_assigns).children}>
             <ElixirDisplay.term id={@id} node={term_node} />
           </div>
