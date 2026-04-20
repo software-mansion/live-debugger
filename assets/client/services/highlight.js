@@ -11,36 +11,31 @@ const liveComponentsColors = [
 ];
 const streamItemColors = ['#8bca8480'];
 
-const isElementVisible = (element) => {
-  if (!element) return false;
-
-  if (element.checkVisibility) {
-    return element.checkVisibility();
-  }
-
-  const style = window.getComputedStyle(element);
-  return (
-    style.display !== 'none' &&
-    style.visibility !== 'hidden' &&
-    style.opacity !== '0'
-  );
-};
-
 function getHighlightRect(element) {
   if (!element) return null;
 
-  const rects = [element, ...element.children]
-    .map((el) => el.getBoundingClientRect())
-    .filter((r) => r.width !== 0 || r.height !== 0);
+  const rect = element.getBoundingClientRect();
+  if (rect.width !== 0 || rect.height !== 0) return rect;
 
-  if (rects.length === 0) return null;
+  const childRects = [...element.children]
+    .map((child) => getHighlightRect(child))
+    .filter(Boolean);
 
-  const top = Math.min(...rects.map((r) => r.top));
-  const left = Math.min(...rects.map((r) => r.left));
-  const right = Math.max(...rects.map((r) => r.right));
-  const bottom = Math.max(...rects.map((r) => r.bottom));
+  if (childRects.length === 0) return null;
 
-  return { top, left, width: right - left, height: bottom - top };
+  const top = Math.min(...childRects.map((r) => r.top));
+  const left = Math.min(...childRects.map((r) => r.left));
+  const right = Math.max(...childRects.map((r) => r.right));
+  const bottom = Math.max(...childRects.map((r) => r.bottom));
+
+  return {
+    top,
+    left,
+    right,
+    bottom,
+    width: right - left,
+    height: bottom - top,
+  };
 }
 
 function getHighlightColors(type) {
@@ -99,9 +94,11 @@ function handleHighlight({ detail }, shadowRoot) {
     `[${detail.attr}="${detail.val}"]`
   );
 
-  if (!isElementVisible(activeElement)) return;
+  if (!activeElement) return;
 
   const rect = getHighlightRect(activeElement);
+
+  if (!rect) return;
 
   highlightElement = createHighlightElement(rect, detail, highlightElementID);
 
@@ -117,9 +114,11 @@ function handleHighlightResize(shadowRoot) {
     `[${highlight.dataset.attr}="${highlight.dataset.val}"]`
   );
 
-  if (!isElementVisible(activeElement)) return;
+  if (!activeElement) return;
 
   const rect = getHighlightRect(activeElement);
+
+  if (!rect) return;
 
   highlight.style.top = `${rect.top + window.scrollY}px`;
   highlight.style.left = `${rect.left + window.scrollX}px`;
@@ -132,9 +131,11 @@ function handlePulse({ detail }, shadowRoot) {
     `[${detail.attr}="${detail.val}"]`
   );
 
-  if (!isElementVisible(activeElement)) return null;
+  if (!activeElement) return;
 
   const rect = getHighlightRect(activeElement);
+
+  if (!rect) return;
 
   const highlightPulse = createHighlightElement(
     rect,
