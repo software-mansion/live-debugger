@@ -108,6 +108,7 @@ defmodule LiveDebugger.App.Debugger.Web.Components.ElixirDisplay do
           <ol class="m-0 ml-[2ch] block list-none p-0">
             <li
               :for={{key, child} <- @node.children}
+              id={if key, do: "#{@id}_#{key}", else: @id}
               class={"flex flex-col #{child_diff_class(@diff, key, @diff_class)}"}
             >
               <.static_term

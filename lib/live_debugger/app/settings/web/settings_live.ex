@@ -12,6 +12,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   alias LiveDebugger.App.Settings.Web.Components, as: SettingsComponents
   alias LiveDebugger.App.Web.Components.Navbar, as: NavbarComponents
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.App.Web.HookComponents.Tour, as: TourHook
 
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserRefreshedTrace
@@ -26,16 +27,18 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
     end
 
     socket
+    |> TourHook.init()
     |> assign(return_to: params["return_to"])
     |> assign(settings: SettingsStorage.get_all())
     |> assign(config_browser_features_docs_url: @config_browser_features_docs_url)
+    |> assign(settings_enabled: false)
     |> noreply()
   end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
+    <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]" id="settings_live" phx-hook="Tour">
       <NavbarComponents.navbar class="flex pl-2 justify-between">
         <div class="flex items-center gap-2">
           <NavbarComponents.return_link return_link={@return_to || RoutesHelper.discovery()} />
@@ -48,6 +51,14 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
         <div class="flex items-center justify-between">
           <.h1>Settings</.h1>
+        </div>
+
+        <div
+          :if={not @settings_enabled}
+          class="mt-6 flex items-center gap-2 rounded border border-blue-300 bg-blue-50 dark:bg-blue-950 dark:border-blue-800 p-4 text-sm text-blue-800 dark:text-blue-200"
+        >
+          <.icon name="icon-info" class="w-4 h-4 shrink-0" />
+          <p>Settings are disabled during the tour. They will be unlocked when the tour allows it.</p>
         </div>
 
         <%!-- Upper section --%>
@@ -65,6 +76,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
               id="highlight-in-browser-switch"
               label="Highlight components"
               checked={@settings[:highlight_in_browser]}
+              disabled={not @settings_enabled}
               phx-click="update"
               phx-value-setting="highlight_in_browser"
             >
@@ -86,6 +98,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
               label="Show Debug Button"
               description_text="When enabled, a debug button will be added to every LiveView page, allowing you to quickly open LiveDebugger for the current page."
               checked={@settings[:debug_button]}
+              disabled={not @settings_enabled}
               phx-click="update"
               phx-value-setting="debug_button"
             />
@@ -97,6 +110,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
               label="Enable DeadView mode"
               description_text="When enabled, LiveDebugger won't redirect to new LiveView after page redirect or reload, allowing you to browse assigns and traces of dead LiveViews."
               checked={@settings[:dead_view_mode]}
+              disabled={not @settings_enabled}
               phx-click="update"
               phx-value-setting="dead_view_mode"
             />
@@ -105,6 +119,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
               label="Tracing enabled on start"
               description_text="When enabled, LiveDebugger will start tracing as soon as you open the debugger. When disabled, LiveDebugger still records all traces, but you will need to manually start tracing to see new traces coming."
               checked={@settings[:tracing_enabled_on_start]}
+              disabled={not @settings_enabled}
               phx-click="update"
               phx-value-setting="tracing_enabled_on_start"
             />
@@ -122,6 +137,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
               label="Garbage Collection"
               description_text="When enabled, LiveDebugger will remove old data to free up memory. Disabling this option will lead to increased memory usage."
               checked={@settings[:garbage_collection]}
+              disabled={not @settings_enabled}
               phx-click="update"
               phx-value-setting="garbage_collection"
             />
@@ -138,7 +154,9 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
                 Manually refresh traced modules and callbacks. Use this when you don't see traces from your application.
               </p>
             </div>
-            <.button variant="secondary" phx-click="restart">Refresh&nbsp;Tracing</.button>
+            <.button variant="secondary" phx-click="restart" id="refresh_tracing_button">
+              Refresh&nbsp;Tracing
+            </.button>
           </div>
         </div>
         <div class="mt-6">
@@ -163,6 +181,10 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   end
 
   @impl true
+  def handle_event("update", _params, %{assigns: %{settings_enabled: false}} = socket) do
+    {:noreply, socket}
+  end
+
   def handle_event("update", %{"setting" => setting}, socket)
       when setting in @available_settings do
     setting = String.to_existing_atom(setting)
@@ -191,6 +213,18 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
       when from_pid != socket.root_pid do
     socket
     |> assign(settings: Map.put(socket.assigns.settings, setting, value))
+    |> noreply()
+  end
+
+  def handle_info({"tour:settings-enabled", _payload}, socket) do
+    socket
+    |> assign(settings_enabled: true)
+    |> noreply()
+  end
+
+  def handle_info({"tour:settings-disabled", _payload}, socket) do
+    socket
+    |> assign(settings_enabled: false)
     |> noreply()
   end
 
