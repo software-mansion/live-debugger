@@ -97,7 +97,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
         phx-click="restart_tracing"
         phx-target={@myself}
         disabled={@restarting?}
-        class="inline-flex items-center gap-1.5 ml-2 rounded text-xs font-semibold py-1.5 px-2 bg-error-border text-white hover:opacity-90 disabled:opacity-50 disabled:pointer-events-none"
+        class="inline-flex items-center gap-1.5 ml-2 rounded text-xs font-semibold py-1.5 px-2 bg-error-bg border border-error-border text-button-red-content hover:bg-error-border hover:text-button-red-content-hover disabled:opacity-50 disabled:pointer-events-none"
       >
         <.spinner :if={@restarting?} size="xs" /> Restart Tracing
       </button>
