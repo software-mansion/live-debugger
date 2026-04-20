@@ -128,7 +128,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       MockAPIDbg
       |> expect(:tracer, fn {_handler, 0} -> {:ok, self()} end)
       |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
-      # 2 modules * 9 LiveView callbacks * 2 (return + exception) = 36 
+      # 2 modules * 9 LiveView callbacks * 2 (return + exception) = 36
       |> expect(
         :trace_pattern,
         36,

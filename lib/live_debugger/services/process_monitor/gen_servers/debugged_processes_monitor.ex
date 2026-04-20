@@ -4,7 +4,7 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   For this server to function properly listed services must be running and sending events:
   - `LiveDebugger.Services.CallbackTracer` sending `TraceCalled` event
-  - `LiveDebugger.Services.TelemetryHandler` sending `TelemetryEmitted` event 
+  - `LiveDebugger.Services.TelemetryHandler` sending `TelemetryEmitted` event
 
   `LiveViewBorn` event is detected when `TraceCalled` event with functions `:mount`, `:handle_params` or `:render` is received
   and the process is not already registered
