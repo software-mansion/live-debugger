@@ -26,6 +26,23 @@ const isElementVisible = (element) => {
   );
 };
 
+function getHighlightRect(element) {
+  if (!element) return null;
+
+  const rects = [element, ...element.children]
+    .map((el) => el.getBoundingClientRect())
+    .filter((r) => r.width !== 0 || r.height !== 0);
+
+  if (rects.length === 0) return null;
+
+  const top = Math.min(...rects.map((r) => r.top));
+  const left = Math.min(...rects.map((r) => r.left));
+  const right = Math.max(...rects.map((r) => r.right));
+  const bottom = Math.max(...rects.map((r) => r.bottom));
+
+  return { top, left, width: right - left, height: bottom - top };
+}
+
 function getHighlightColors(type) {
   switch (type) {
     case 'LiveComponent':
@@ -39,8 +56,7 @@ function getHighlightColors(type) {
   }
 }
 
-function createHighlightElement(activeElement, detail, id) {
-  const rect = activeElement.getBoundingClientRect();
+function createHighlightElement(rect, detail, id) {
   const highlight = document.createElement('div');
 
   highlight.id = id;
@@ -50,8 +66,8 @@ function createHighlightElement(activeElement, detail, id) {
   highlight.style.position = 'absolute';
   highlight.style.top = `${rect.top + window.scrollY}px`;
   highlight.style.left = `${rect.left + window.scrollX}px`;
-  highlight.style.width = `${activeElement.offsetWidth}px`;
-  highlight.style.height = `${activeElement.offsetHeight}px`;
+  highlight.style.width = `${rect.width}px`;
+  highlight.style.height = `${rect.height}px`;
   highlight.style.backgroundColor = getHighlightColors(detail.type)[0];
   highlight.style.zIndex = '10000';
   highlight.style.pointerEvents = 'none';
@@ -60,12 +76,7 @@ function createHighlightElement(activeElement, detail, id) {
 }
 
 function removeHighlightElement(shadowRoot) {
-  const highlightElement = shadowRoot.querySelector(`#${highlightElementID}`);
-
-  if (highlightElement) {
-    highlightElement.remove();
-  }
-
+  shadowRoot.querySelector(`#${highlightElementID}`)?.remove();
   dispatchCustomEvent('lvdbg:remove-tooltip');
 }
 
@@ -88,31 +99,32 @@ function handleHighlight({ detail }, shadowRoot) {
     `[${detail.attr}="${detail.val}"]`
   );
 
-  if (isElementVisible(activeElement)) {
-    highlightElement = createHighlightElement(
-      activeElement,
-      detail,
-      highlightElementID
-    );
+  if (!isElementVisible(activeElement)) return;
 
-    shadowRoot.appendChild(highlightElement);
-    showTooltip(detail);
-  }
+  const rect = getHighlightRect(activeElement);
+
+  highlightElement = createHighlightElement(rect, detail, highlightElementID);
+
+  shadowRoot.appendChild(highlightElement);
+  showTooltip(detail);
 }
 
 function handleHighlightResize(shadowRoot) {
   const highlight = shadowRoot.querySelector(`#${highlightElementID}`);
-  if (highlight) {
-    const activeElement = document.querySelector(
-      `[${highlight.dataset.attr}="${highlight.dataset.val}"]`
-    );
-    const rect = activeElement.getBoundingClientRect();
+  if (!highlight) return;
 
-    highlight.style.top = `${rect.top + window.scrollY}px`;
-    highlight.style.left = `${rect.left + window.scrollX}px`;
-    highlight.style.width = `${activeElement.offsetWidth}px`;
-    highlight.style.height = `${activeElement.offsetHeight}px`;
-  }
+  const activeElement = document.querySelector(
+    `[${highlight.dataset.attr}="${highlight.dataset.val}"]`
+  );
+
+  if (!isElementVisible(activeElement)) return;
+
+  const rect = getHighlightRect(activeElement);
+
+  highlight.style.top = `${rect.top + window.scrollY}px`;
+  highlight.style.left = `${rect.left + window.scrollX}px`;
+  highlight.style.width = `${rect.width}px`;
+  highlight.style.height = `${rect.height}px`;
 }
 
 function handlePulse({ detail }, shadowRoot) {
@@ -120,50 +132,45 @@ function handlePulse({ detail }, shadowRoot) {
     `[${detail.attr}="${detail.val}"]`
   );
 
-  if (isElementVisible(activeElement)) {
-    const highlightPulse = createHighlightElement(
-      activeElement,
-      detail,
-      highlightPulseElementID
-    );
+  if (!isElementVisible(activeElement)) return null;
 
-    shadowRoot.appendChild(highlightPulse);
+  const rect = getHighlightRect(activeElement);
 
-    const w = highlightPulse.offsetWidth;
-    const h = highlightPulse.offsetHeight;
+  const highlightPulse = createHighlightElement(
+    rect,
+    detail,
+    highlightPulseElementID
+  );
+  shadowRoot.appendChild(highlightPulse);
 
-    const colors = getHighlightColors(detail.type);
+  const w = highlightPulse.offsetWidth;
+  const h = highlightPulse.offsetHeight;
 
-    highlightPulse.animate(
-      [
-        {
-          width: `${w}px`,
-          height: `${h}px`,
-          transform: 'translate(0, 0)',
-          backgroundColor: colors[1],
-        },
-        {
-          width: `${w + 20}px`,
-          height: `${h + 20}px`,
-          transform: 'translate(-10px, -10px)',
-          backgroundColor: colors[2],
-        },
-        {
-          width: `${w + 40}px`,
-          height: `${h + 40}px`,
-          transform: 'translate(-20px, -20px)',
-          backgroundColor: colors[3],
-        },
-      ],
+  const colors = getHighlightColors(detail.type);
+
+  highlightPulse.animate(
+    [
       {
-        duration: 500,
-        iterations: 1,
-        delay: 200,
-      }
-    ).onfinish = () => {
-      highlightPulse.remove();
-    };
-  }
+        width: `${w}px`,
+        height: `${h}px`,
+        transform: 'translate(0, 0)',
+        backgroundColor: colors[1],
+      },
+      {
+        width: `${w + 20}px`,
+        height: `${h + 20}px`,
+        transform: 'translate(-10px, -10px)',
+        backgroundColor: colors[2],
+      },
+      {
+        width: `${w + 40}px`,
+        height: `${h + 40}px`,
+        transform: 'translate(-20px, -20px)',
+        backgroundColor: colors[3],
+      },
+    ],
+    { duration: 500, iterations: 1, delay: 200 }
+  ).onfinish = () => highlightPulse.remove();
 }
 
 function showTooltip(detail) {
