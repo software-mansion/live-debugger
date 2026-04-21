@@ -14,7 +14,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
   alias LiveDebugger.Services.CallbackTracer.Queries.Traces, as: TraceQueries
   alias LiveDebugger.Utils.Modules, as: UtilsModules
-  alias LiveDebugger.Utils.Versions
 
   @doc """
   Sets up tracing and monitors recompilation in a single pass.
