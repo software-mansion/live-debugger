@@ -114,11 +114,17 @@ function handleHighlightResize(shadowRoot) {
     `[${highlight.dataset.attr}="${highlight.dataset.val}"]`
   );
 
-  if (!activeElement) return;
+  if (!activeElement) {
+    removeHighlightElement(shadowRoot);
+    return;
+  }
 
   const rect = getHighlightRect(activeElement);
 
-  if (!rect) return;
+  if (!rect) {
+    removeHighlightElement(shadowRoot);
+    return;
+  }
 
   highlight.style.top = `${rect.top + window.scrollY}px`;
   highlight.style.left = `${rect.left + window.scrollX}px`;
