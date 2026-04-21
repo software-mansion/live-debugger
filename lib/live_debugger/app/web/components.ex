@@ -924,19 +924,28 @@ defmodule LiveDebugger.App.Web.Components do
   attr(:id, :string, default: "status-dot")
   attr(:status, :atom, required: true)
   attr(:pulse?, :boolean, default: false)
-  attr(:tooltip, :string, required: true)
+  attr(:tooltip, :any, required: true, doc: "Tooltip content or assigns for tooltip component")
+  attr(:rest, :global)
 
   def status_dot(assigns) do
+    tooltip_assigns =
+      if is_binary(assigns.tooltip) do
+        %{content: assigns.tooltip}
+      else
+        assigns.tooltip
+      end
+
     assigns =
       case assigns.status do
         :success -> assign(assigns, :bg_class, "bg-status-dot-success-bg")
         :warning -> assign(assigns, :bg_class, "bg-status-dot-warning-bg")
         :error -> assign(assigns, :bg_class, "bg-status-dot-error-bg")
       end
+      |> assign(:tooltip, tooltip_assigns)
 
     ~H"""
-    <.tooltip id={@id <> "-tooltip"} content={@tooltip}>
-      <span class="relative flex size-2">
+    <.tooltip id={@id <> "-tooltip"} {@tooltip}>
+      <span class="relative flex size-2" {@rest}>
         <span
           :if={@pulse?}
           class={"absolute inline-flex h-full w-full animate-ping rounded-full #{@bg_class} opacity-75"}
@@ -1284,6 +1293,7 @@ defmodule LiveDebugger.App.Web.Components do
           >
             <h2 class="font-semibold text-sm text-primary-text"><%= @title %></h2>
             <.icon_button
+              :if={@on_close}
               id={"#{@id}-close"}
               phx-click={@on_close}
               icon="icon-cross"

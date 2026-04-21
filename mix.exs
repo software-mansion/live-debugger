@@ -1,7 +1,7 @@
 defmodule LiveDebugger.MixProject do
   use Mix.Project
 
-  @version "0.8.0-dev"
+  @version "1.0.0-dev"
 
   def project do
     [
@@ -83,6 +83,7 @@ defmodule LiveDebugger.MixProject do
       {:igniter, "~> 0.5 and >= 0.5.40", optional: true},
       {:bandit, "~> 1.6", only: [:dev, :test]},
       {:phoenix_live_reload, "~> 1.5", only: :dev},
+      {:phoenix_live_dashboard, "~> 0.8", only: [:dev, :test]},
       {:esbuild, "~> 0.7", only: :dev},
       {:tailwind, "~> 0.3", only: :dev},
       {:mox, "~> 1.2", only: :test},
@@ -124,7 +125,7 @@ defmodule LiveDebugger.MixProject do
       ],
       source_url: "https://github.com/software-mansion/live-debugger",
       homepage_url: "https://docs.swmansion.com/live-debugger/",
-      source_ref: @version,
+      source_ref: "v#{@version}",
       api_reference: false,
       assets: %{
         Path.expand("./docs/images") => "images"

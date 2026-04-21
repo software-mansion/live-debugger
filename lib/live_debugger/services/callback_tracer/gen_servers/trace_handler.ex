@@ -6,9 +6,11 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   use GenServer
 
   alias LiveDebugger.Utils.Callbacks, as: CallbackUtils
+  alias LiveDebugger.Utils.Memory
   alias LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace, as: TraceActions
   alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
   alias LiveDebugger.Services.CallbackTracer.Actions.DiffTrace, as: DiffActions
+
   alias LiveDebugger.Structs.Trace.FunctionTrace
 
   alias LiveDebugger.API.TracesStorage
@@ -16,6 +18,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   alias LiveDebugger.Services.CallbackTracer.TraceUtils
 
   @allowed_callbacks Enum.map(CallbackUtils.all_callbacks(), &elem(&1, 0))
+  @max_heap_size Application.compile_env(:live_debugger, :trace_handler_max_heap_size, 5)
 
   @typedoc """
   Trace record is a tuple of:
@@ -51,6 +54,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
 
   @impl true
   def init(_opts) do
+    Memory.set_max_heap_size(@max_heap_size)
+
     {:ok, %{}}
   end
 

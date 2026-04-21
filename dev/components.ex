@@ -11,7 +11,8 @@ defmodule LiveDebuggerDev.Components do
     {"/endless_crash_reload", "EndlessCrashReload"},
     {"/stream", "Stream"},
     {"/async_demo", "AsyncDemo"},
-    {"/callback_crash", "CallbackCrash"}
+    {"/callback_crash", "CallbackCrash"},
+    {"/memory_explosion", "MemoryExplosion"}
   ]
 
   attr(:routes, :list, default: @routes)

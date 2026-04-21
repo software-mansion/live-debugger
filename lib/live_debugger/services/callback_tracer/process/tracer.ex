@@ -4,9 +4,21 @@ defmodule LiveDebugger.Services.CallbackTracer.Process.Tracer do
   """
 
   alias LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler
+  alias LiveDebugger.Utils.Memory
 
-  @spec handle_trace(trace :: term(), n :: integer()) :: integer()
-  def handle_trace(trace, n) do
+  @max_heap_size Application.compile_env(:live_debugger, :tracer_max_heap_size, 5)
+
+  @spec handle_trace(trace :: term(), state :: integer() | {:init, integer()}) :: integer()
+  def handle_trace(trace, {:init, n}) do
+    # Maximum heap size is set inside `:dbg.tracer` process to prevent it from consuming too much memory.
+    Memory.set_max_heap_size(@max_heap_size)
+
+    do_handle_trace(trace, n)
+  end
+
+  def handle_trace(trace, n), do: do_handle_trace(trace, n)
+
+  defp do_handle_trace(trace, n) do
     TraceHandler.handle_trace(trace, n)
 
     n - 1

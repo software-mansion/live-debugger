@@ -5,11 +5,13 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   use GenServer
 
-  alias LiveDebugger.Bus
+  alias LiveDebugger.API.System.Dbg
   alias LiveDebugger.App.Events.UserRefreshedTrace
-  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
-
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
+
+  alias LiveDebugger.Bus
+  alias LiveDebugger.Services.CallbackTracer.Events.DbgKilled
+  alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
 
   @type state() :: %{dbg_pid: pid() | nil}
 
@@ -27,6 +29,8 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   @impl true
   def init(_opts) do
     Bus.receive_events!()
+    # Ensure no tracer is running (GenServer restart)
+    Dbg.stop()
 
     :net_kernel.monitor_nodes(true, %{node_type: :visible})
 
@@ -45,21 +49,25 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
     {:reply, :pong, state}
   end
 
+  def handle_call(:get_state, _from, state) do
+    {:reply, state, state}
+  end
+
   @impl true
   def handle_info(:refresh_tracing, state) do
-    TracingActions.refresh_tracing()
+    state = TracingActions.setup_tracing_with_monitoring!(state)
+
+    {:noreply, state}
+  end
+
+  def handle_info(%UserRefreshedTrace{}, state) do
+    state = TracingActions.setup_tracing_with_monitoring!(state)
 
     {:noreply, state}
   end
 
   def handle_info(%LiveViewBorn{pid: pid}, state) do
     TracingActions.start_outgoing_messages_tracing(pid)
-
-    {:noreply, state}
-  end
-
-  def handle_info(%UserRefreshedTrace{}, state) do
-    TracingActions.refresh_tracing()
 
     {:noreply, state}
   end
@@ -72,11 +80,12 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
     {:noreply, state}
   end
 
-  # handling dbg tracer stop
+  # Handling tracer process stop or crash.
+  # All exit messages are trapped and sent with `:done` reason.
   def handle_info({:DOWN, _, _, pid, :done}, %{dbg_pid: pid} = state) do
-    state = TracingActions.setup_tracing_with_monitoring!(state)
+    Bus.broadcast_event!(%DbgKilled{})
 
-    {:noreply, state}
+    {:noreply, %{state | dbg_pid: nil}}
   end
 
   def handle_info({:nodeup, _name, _}, state) do

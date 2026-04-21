@@ -2,6 +2,8 @@
 
 LiveDebugger provides a comprehensive set of tools designed to improve Phoenix LiveView debugging and development. From real-time state inspection to performance profiling, these features give you deep visibility into your application's behavior.
 
+If you want to learn LiveDebugger quickly, check out [LiveDebugger Tour](https://github.com/software-mansion-labs/live-debugger-tour) on GitHub - it is the easiest and most enjoyable way to get familiar with the tool.
+
 ## Features
 
 ### [Assigns Inspection](assigns_inspection.md)
@@ -32,7 +34,6 @@ Visually identify and locate components rendered in your current debugged LiveVi
 
 **Key capabilities:**
 
-- Toggle highlighting mode on/off
 - Hover-to-highlight functionality
 - Non-intrusive visual feedback
 
