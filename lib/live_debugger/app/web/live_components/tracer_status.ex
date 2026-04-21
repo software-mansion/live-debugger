@@ -17,7 +17,6 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
   @impl true
   def mount(socket) do
     socket
-    |> assign(:dismissed?, nil)
     |> assign(:restarting?, false)
     |> ok()
   end
@@ -37,7 +36,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id} phx-hook="TracerPopupDismissed" phx-target={@myself}>
+    <div id={@id}>
       <.async_result :let={started?} assign={@tracer_started?}>
         <.tracer_crash_info
           :if={!started?}
@@ -45,7 +44,8 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
           myself={@myself}
         />
         <.tracer_crashed_popup
-          :if={!started? and @dismissed? == false}
+          :if={!started?}
+          id={@id <> "-crashed_popup"}
           restarting?={@restarting?}
           myself={@myself}
         />
@@ -58,12 +58,6 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
   def handle_event("dismiss", _params, socket) do
     socket
     |> push_event("set_dismissed", %{})
-    |> noreply()
-  end
-
-  def handle_event("dismissed", %{"dismissed" => dismissed?}, socket) do
-    socket
-    |> assign(:dismissed?, dismissed?)
     |> noreply()
   end
 
@@ -82,9 +76,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
   end
 
   defp maybe_reset_on_started(socket, %AsyncResult{ok?: true, result: true}) do
-    socket
-    |> assign(:dismissed?, false)
-    |> assign(:restarting?, false)
+    assign(socket, :restarting?, false)
   end
 
   defp maybe_reset_on_started(socket, _), do: socket
@@ -115,6 +107,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
     """
   end
 
+  attr(:id, :string, required: true)
   attr(:restarting?, :boolean, required: true)
   attr(:myself, :any, required: true)
 
@@ -122,60 +115,62 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
     assigns = assign(assigns, :documentation_url, @documentation_url)
 
     ~H"""
-    <.popup
-      id="tracer-crashed-popup"
-      title="Tracer Crashed"
-      on_close={JS.push("dismiss", target: @myself)}
-    >
-      <div class="flex flex-col gap-4">
-        <div class="flex items-start gap-3 border border-error-border bg-error-bg rounded p-3">
-          <.icon
-            name="icon-exclamation-circle"
-            class="w-4 h-4 text-error-icon flex-shrink-0 mt-0.5"
-          />
-          <div class="flex flex-col gap-1">
-            <p class="text-xs font-semibold text-primary-text">
-              The tracer process has crashed
-            </p>
-            <p class="text-xs text-secondary-text leading-relaxed">
-              LiveDebugger's tracer has stopped unexpectedly.
-            </p>
+    <div id={@id} phx-hook="TracerPopupDismissed" phx-target={@myself} class="hidden">
+      <.popup
+        id={@id <> "-popup"}
+        title="Tracer Crashed"
+        on_close={JS.push("dismiss", target: @myself)}
+      >
+        <div class="flex flex-col gap-4">
+          <div class="flex items-start gap-3 border border-error-border bg-error-bg rounded p-3">
+            <.icon
+              name="icon-exclamation-circle"
+              class="w-4 h-4 text-error-icon flex-shrink-0 mt-0.5"
+            />
+            <div class="flex flex-col gap-1">
+              <p class="text-xs font-semibold text-primary-text">
+                The tracer process has crashed
+              </p>
+              <p class="text-xs text-secondary-text leading-relaxed">
+                LiveDebugger's tracer has stopped unexpectedly.
+              </p>
+            </div>
+          </div>
+
+          <div class="px-3">
+            Core functionalities like <b>Assigns</b>
+            and <b>Callback Tracing</b>
+            won't have newest information and may be misleading.
+          </div>
+          <div class="px-3">
+            This may be caused by <b>debugged application</b>
+            having an excessive number of traces with huge sizes - LiveDebugger has a max heap size set for tracing. See
+            <.link
+              href={@documentation_url}
+              target="_blank"
+              class="text-link-primary hover:text-link-primary-hover"
+            >
+              configuration
+            </.link>
+          </div>
+
+          <div class="flex justify-center">
+            <.button
+              phx-click="restart_tracing"
+              phx-target={@myself}
+              disabled={@restarting?}
+              class="flex items-center gap-2"
+            >
+              <.spinner
+                :if={@restarting?}
+                size="xs"
+                class="text-button-primary-content"
+              /> Restart Tracing
+            </.button>
           </div>
         </div>
-
-        <div class="px-3">
-          Core functionalities like <b>Assigns</b>
-          and <b>Callback Tracing</b>
-          won't have newest information and may be misleading.
-        </div>
-        <div class="px-3">
-          This may be caused by <b>debugged application</b>
-          having an excessive amount of traces with huge sizes - LiveDebugger has a max heap size set for tracing. See
-          <.link
-            href={@documentation_url}
-            target="_blank"
-            class="text-link-primary hover:text-link-primary-hover"
-          >
-            configuration
-          </.link>
-        </div>
-
-        <div class="flex justify-center">
-          <.button
-            phx-click="restart_tracing"
-            phx-target={@myself}
-            disabled={@restarting?}
-            class="flex items-center gap-2"
-          >
-            <.spinner
-              :if={@restarting?}
-              size="xs"
-              class="text-button-primary-content"
-            /> Restart Tracing
-          </.button>
-        </div>
-      </div>
-    </.popup>
+      </.popup>
+    </div>
     """
   end
 end

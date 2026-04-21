@@ -1,20 +1,24 @@
-const STORAGE_KEY = 'lvdbg:tracer-dismissed';
+const STORAGE_KEY = 'lvdbg:tracer-popup-dismissed';
 
 const TracerPopupDismissed = {
-  sendDismissed(dismissed) {
-    this.pushEventTo(this.el, 'dismissed', { dismissed });
+  updateVisibility(show) {
+    if (show) {
+      this.el.classList.remove('hidden');
+    } else {
+      this.el.classList.add('hidden');
+    }
   },
   mounted() {
-    this.sendDismissed(!!sessionStorage.getItem(STORAGE_KEY));
+    this.updateVisibility(!sessionStorage.getItem(STORAGE_KEY));
 
     this.handleEvent('set_dismissed', () => {
-      sessionStorage.setItem(STORAGE_KEY, true);
-      this.sendDismissed(true);
+      sessionStorage.setItem(STORAGE_KEY, 'true');
+      this.updateVisibility(false);
     });
 
     this.handleEvent('clear_dismissed', () => {
       sessionStorage.removeItem(STORAGE_KEY);
-      this.sendDismissed(false);
+      this.updateVisibility(true);
     });
   },
 };
