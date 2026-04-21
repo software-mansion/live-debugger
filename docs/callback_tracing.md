@@ -29,11 +29,6 @@ Filters are used for both started tracing and refreshing. In `Node Inspector` th
 
 When using `Global Traces` filters will be shown on the right (or in sidebar on small screens). To discard filters change you can click _Revert changes_ button.
 
-To better improve locating specific information you can filter by:
-
-- **Callbacks** - When working in `Node Inspector` you will see **either** `LiveView` or `LiveComponent` callback names. In `Global Traces` there will be all available callbacks to filter. It is useful when some you want to check specific part of your application (typically `handle_event`).
-- **Execution Time** - It is useful for checking bottlenecks in your app. You can set both minimal and maximal value (with unit).
-
 ### Search and highlight
 
 Search is a special filter available only for `GLobal Traces`. It allows to query trace's arguments to filter traces and highlight searched phrase. It will highlight all occurrences inside callback arguments and expand structs to see all of them.
@@ -53,11 +48,7 @@ When you expand a trace you will see detailed list of arguments.
 
 You can copy each one of them if you want to process them in terminal.
 
-![Copy icon inside expanded trace](images/trace_copy_button.png)
-
 You are also able to see them in fullscreen mode.
-
-![Fullscreen view of a trace args](images/trace_fullscreen_button.png)
 
 ### Traced callbacks
 

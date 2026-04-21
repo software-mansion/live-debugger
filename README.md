@@ -36,7 +36,8 @@ Designed to enhance your development experience LiveDebugger gives you:
 - 🔗 Trace and filter callback executions
 - 🔦 Inspect elements
 
-Check out our comprehensive [Features Overview](https://hexdocs.pm/live_debugger/features.html) to explore all capabilities in detail.
+If you want to learn LiveDebugger quickly, start with [LiveDebugger Tour](https://github.com/software-mansion/live-debugger-tour) on GitHub.
+Or check out our comprehensive [Features Overview](https://hexdocs.pm/live_debugger/features.html) to explore all capabilities in detail.
 
 https://github.com/user-attachments/assets/317ab6ad-f9ac-48db-a010-dda5a7a23fd5
 
