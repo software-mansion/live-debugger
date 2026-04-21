@@ -36,7 +36,10 @@ defmodule LiveDebugger.App.Web.Hooks.TracerStatus do
   end
 
   defp handle_info(%DbgKilled{}, socket) do
-    {:halt, assign(socket, :tracer_started?, AsyncResult.ok(false))}
+    socket
+    |> assign(:tracer_started?, AsyncResult.ok(false))
+    |> push_event("clear_dismissed", %{})
+    |> halt()
   end
 
   defp handle_info(%DbgStarted{}, socket) do

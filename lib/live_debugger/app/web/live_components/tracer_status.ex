@@ -17,7 +17,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
   @impl true
   def mount(socket) do
     socket
-    |> assign(:dismissed?, false)
+    |> assign(:dismissed?, nil)
     |> assign(:restarting?, false)
     |> ok()
   end
@@ -37,7 +37,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id}>
+    <div id={@id} phx-hook="TracerPopupDismissed" phx-target={@myself}>
       <.async_result :let={started?} assign={@tracer_started?}>
         <.tracer_crash_info
           :if={!started?}
@@ -45,8 +45,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
           myself={@myself}
         />
         <.tracer_crashed_popup
-          :if={!started?}
-          dismissed?={@dismissed?}
+          :if={!started? and @dismissed? == false}
           restarting?={@restarting?}
           myself={@myself}
         />
@@ -58,7 +57,13 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
   @impl true
   def handle_event("dismiss", _params, socket) do
     socket
-    |> assign(:dismissed?, true)
+    |> push_event("set_dismissed", %{})
+    |> noreply()
+  end
+
+  def handle_event("dismissed", %{"dismissed" => dismissed?}, socket) do
+    socket
+    |> assign(:dismissed?, dismissed?)
     |> noreply()
   end
 
@@ -110,7 +115,6 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
     """
   end
 
-  attr(:dismissed?, :boolean, required: true)
   attr(:restarting?, :boolean, required: true)
   attr(:myself, :any, required: true)
 
@@ -121,7 +125,6 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
     <.popup
       id="tracer-crashed-popup"
       title="Tracer Crashed"
-      show={!@dismissed?}
       on_close={JS.push("dismiss", target: @myself)}
     >
       <div class="flex flex-col gap-4">
