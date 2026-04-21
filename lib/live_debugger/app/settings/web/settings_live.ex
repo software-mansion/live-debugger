@@ -12,6 +12,8 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   alias LiveDebugger.App.Settings.Web.Components, as: SettingsComponents
   alias LiveDebugger.App.Web.Components.Navbar, as: NavbarComponents
   alias LiveDebugger.App.Web.Helpers.Routes, as: RoutesHelper
+  alias LiveDebugger.App.Web.LiveComponents.TracerStatus
+  alias LiveDebugger.App.Web.Hooks.TracerStatus, as: TracerStatusHook
 
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.UserRefreshedTrace
@@ -20,11 +22,18 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   @available_settings SettingsStorage.available_settings() |> Enum.map(&Atom.to_string/1)
 
   @impl true
-  def handle_params(params, _url, socket) do
+  def mount(_params, _session, socket) do
     if connected?(socket) do
       Bus.receive_events!()
     end
 
+    socket
+    |> TracerStatusHook.init()
+    |> ok()
+  end
+
+  @impl true
+  def handle_params(params, _url, socket) do
     socket
     |> assign(return_to: params["return_to"])
     |> assign(settings: SettingsStorage.get_all())
@@ -36,15 +45,22 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
   def render(assigns) do
     ~H"""
     <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
-      <NavbarComponents.navbar class="flex pl-2 justify-between">
-        <div class="flex items-center gap-2">
-          <NavbarComponents.return_link return_link={@return_to || RoutesHelper.discovery()} />
-          <NavbarComponents.live_debugger_logo />
-        </div>
-        <NavbarComponents.garbage_collection_warning garbage_collection_enabled?={
-          @settings[:garbage_collection]
-        } />
-      </NavbarComponents.navbar>
+      <div>
+        <.live_component
+          module={TracerStatus}
+          id="tracer-status"
+          tracer_started?={@tracer_started?}
+        />
+        <NavbarComponents.navbar class="flex pl-2 justify-between">
+          <div class="flex items-center gap-2">
+            <NavbarComponents.return_link return_link={@return_to || RoutesHelper.discovery()} />
+            <NavbarComponents.live_debugger_logo />
+          </div>
+          <NavbarComponents.garbage_collection_warning garbage_collection_enabled?={
+            @settings[:garbage_collection]
+          } />
+        </NavbarComponents.navbar>
+      </div>
       <div class="flex-1 max-lg:p-8 pt-8 lg:w-[60rem] lg:m-auto">
         <div class="flex items-center justify-between">
           <.h1>Settings</.h1>
