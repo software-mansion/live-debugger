@@ -24,11 +24,3 @@ When dealing with either crash or redirection you can:
 
 - Inspect last state of LiveView or LiveComponents
 - See callbacks order and which one was the last
-
-## Configuration
-
-You can enable or disable DeadView Mode either in config file or in settings. By default it will be enabled.
-
-```elixir
-config :live_debugger, :dead_view_mode, true
-```

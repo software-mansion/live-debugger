@@ -116,6 +116,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
   attr(:icon, :string, default: nil)
 
   slot(:right)
+  slot(:subtitle)
 
   defp section_title(assigns) do
     ~H"""
@@ -123,6 +124,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
       <div class="flex items-center gap-2">
         <.icon :if={@icon} name={@icon} class="h-4 w-4" />
         <p><%= @name %></p>
+
+        <%= render_slot(@subtitle) %>
       </div>
       <div :if={@right != []} class="flex items-center gap-2">
         <%= render_slot(@right) %>
@@ -199,7 +202,7 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
         name={if(@temporary_assigns.result, do: "Temporary assigns", else: "No temporary assigns")}
         icon="icon-clock-3"
       >
-        <:right :if={@has_temporary_assigns}>
+        <:subtitle :if={@has_temporary_assigns}>
           <.tooltip
             id={@id <> "-tooltip"}
             content="Values shown are the last recorded before reset"
@@ -207,6 +210,8 @@ defmodule LiveDebugger.App.Debugger.NodeState.Web.Components do
           >
             <.icon name="icon-info" class="w-4 h-4 bg-button-secondary-content" />
           </.tooltip>
+        </:subtitle>
+        <:right :if={@has_temporary_assigns}>
           <div class="flex">
             <.copy_button
               id={"temporary-assigns-copy-button" <> "-" <> @id}

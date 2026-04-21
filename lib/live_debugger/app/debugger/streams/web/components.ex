@@ -38,10 +38,14 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
       class="h-max overflow-y-hidden"
       title="Streams"
       save_state_in_browser={true}
+      title_class="flex flex-row justify-between min-w-max gap-2"
     >
-      <:right_panel>
-        <.streams_info_tooltip id="stream-info" />
-      </:right_panel>
+      <:title_sub_panel>
+        <.section_info_tooltip
+          id="stream-info"
+          content="Streams are reconstructed from render traces. If traces are garbage collected, the stream may be incomplete."
+        />
+      </:title_sub_panel>
       <%= render_slot(@display) %>
     </.collapsible_section>
     """
@@ -128,20 +132,6 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
         <.stream_element_fullscreen stream_element={@stream_element} dom_id={@dom_id} />
       </div>
     </.collapsible>
-    """
-  end
-
-  attr(:id, :string, required: true)
-
-  def streams_info_tooltip(assigns) do
-    ~H"""
-    <.tooltip
-      id={@id <> "-tooltip"}
-      content="Streams are reconstructed from render traces. If traces are garbage collected, the stream may be incomplete."
-      position="top-center"
-    >
-      <.icon name="icon-info" class="w-4 h-4 bg-button-secondary-content" />
-    </.tooltip>
     """
   end
 

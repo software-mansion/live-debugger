@@ -1,21 +1,36 @@
-import { highlightSearchRanges } from '../utils/dom';
+import { highlightSearchRanges, findRanges } from '../utils/dom';
 
-import { findRanges } from '../utils/dom';
+const rangesByElementId = new Map();
+
+function updateGlobalHighlight() {
+  const allRanges = Array.from(rangesByElementId.values()).flat();
+  highlightSearchRanges('traces-search-highlight', allRanges, true);
+}
 
 const TraceBodySearchHighlight = {
   mounted() {
-    const phrase = this.el.dataset.search_phrase;
-    if (phrase === undefined || phrase === '') return;
-
-    const ranges = findRanges(this.el, phrase);
-    highlightSearchRanges('traces-search-highlight', ranges);
+    this.handleHighlight();
   },
-  updated() {
-    const phrase = this.el.dataset.search_phrase;
-    if (phrase === undefined || phrase === '') return;
 
-    const ranges = findRanges(this.el, phrase);
-    highlightSearchRanges('traces-search-highlight', ranges);
+  updated() {
+    this.handleHighlight();
+  },
+
+  destroyed() {
+    rangesByElementId.delete(this.el.id);
+    updateGlobalHighlight();
+  },
+
+  handleHighlight() {
+    const phrase = this.el.dataset.search_phrase;
+
+    if (!phrase) {
+      rangesByElementId.delete(this.el.id);
+    } else {
+      rangesByElementId.set(this.el.id, findRanges(this.el, phrase));
+    }
+
+    updateGlobalHighlight();
   },
 };
 
