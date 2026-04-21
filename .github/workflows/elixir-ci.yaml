@@ -23,8 +23,20 @@ concurrency:
 
 jobs:
   build:
-    name: Build and test
+    name: Build and test (Elixir ${{ matrix.elixir-version }})
     runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - elixir-version: "1.19.1"
+            otp-version: "28.1.1"
+            backward-compatibility: false
+
+          - elixir-version: "1.16.0"
+            otp-version: "26.0.2"
+            backward-compatibility: true
 
     steps:
       - uses: actions/checkout@v4
@@ -35,8 +47,12 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1.20.4
         with:
-          elixir-version: "1.19.1" # [Required] Define the Elixir version
-          otp-version: "28.1.1" # [Required] Define the Erlang/OTP version
+          elixir-version: ${{ matrix.elixir-version }}
+          otp-version: ${{ matrix.otp-version }}
+
+      - name: Copy mix.lock for backward compatibility
+        if: ${{ matrix.backward-compatibility }}
+        run: cp ./.github/workflows/assets/mix.lock mix.lock
 
       - name: Cache Mix
         uses: actions/cache@v4
@@ -44,8 +60,8 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ runner.os }}-mix-
+          key: ${{ runner.os }}-mix-${{ matrix.elixir-version }}-${{ matrix.otp-version }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-${{ matrix.elixir-version }}-${{ matrix.otp-version }}-
 
       - name: Install Dependencies
         run: mix deps.get
