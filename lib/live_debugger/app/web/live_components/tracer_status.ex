@@ -89,15 +89,20 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
 
   defp tracer_crash_info(assigns) do
     ~H"""
-    <div class="bg-error-bg border-b border-error-border text-error-text flex items-center justify-center py-2 px-4 text-xs">
-      <.icon name="icon-exclamation-circle" class="w-3 h-3 inline-block mr-1 align-middle" />
-      <b>Tracer crashed</b>
-      - restart to enable core functionalities
+    <div class="bg-error-bg border-b border-error-border text-error-text flex items-center justify-center gap-2 py-2 px-4 text-xs">
+      <.icon name="icon-exclamation-circle" class="w-4 h-4 inline-block align-middle text-error-icon" />
+      <div><b>Tracer crashed </b> - restart to enable core functionalities</div>
       <button
         phx-click="restart_tracing"
         phx-target={@myself}
         disabled={@restarting?}
-        class="inline-flex items-center gap-1.5 ml-2 rounded text-xs font-semibold py-1.5 px-2 bg-error-bg border border-error-border text-button-red-content hover:bg-error-border hover:text-button-red-content-hover disabled:opacity-50 disabled:pointer-events-none"
+        class={[
+          "inline-flex items-center gap-1.5 py-1.5 px-2",
+          "rounded border border-error-border",
+          "bg-error-bg hover:bg-error-border ",
+          "text-xs font-semibold text-error-text",
+          "disabled:opacity-50 disabled:pointer-events-none"
+        ]}
       >
         <.spinner :if={@restarting?} size="xs" /> Restart Tracing
       </button>
