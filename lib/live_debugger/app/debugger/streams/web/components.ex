@@ -126,7 +126,10 @@ defmodule LiveDebugger.App.Debugger.Streams.Web.Components do
           </p>
         </div>
       </:label>
-      <div class="flex flex-col gap-4 w-full overflow-auto p-2">
+      <div
+        style="background-color: var(--surface-0-bg) !important;"
+        class="flex flex-col gap-4 w-full overflow-auto p-2"
+      >
         <.stream_element_body stream_element={@stream_element} dom_id={@dom_id} />
 
         <.stream_element_fullscreen stream_element={@stream_element} dom_id={@dom_id} />
