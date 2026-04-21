@@ -22,6 +22,8 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
   alias LiveDebugger.Services.CallbackTracer.Events.TraceExceptionUpdated
   alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
 
+  import LiveDebugger.Structs.Trace, only: [is_trace: 1]
+
   @debounce_timeout_ms 10
 
   @required_assigns [
@@ -102,7 +104,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
 
   defp handle_info(_, socket), do: {:cont, socket}
 
-  defp stream_update_trace(socket, trace) do
+  defp stream_update_trace(socket, nil), do: socket
+
+  defp stream_update_trace(socket, trace) when is_struct(trace, FunctionTrace) do
     if matches_execution_time_filter?(socket, trace) do
       socket
       |> stream_insert_trace(trace)
@@ -115,7 +119,9 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Hooks.DisplayNewTraces d
     |> put_private(:trace_insertion_canceled, true)
   end
 
-  defp stream_insert_trace(socket, trace) do
+  defp stream_insert_trace(socket, nil), do: socket
+
+  defp stream_insert_trace(socket, trace) when is_trace(trace) do
     stream_insert(
       socket,
       :existing_traces,

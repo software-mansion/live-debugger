@@ -4,15 +4,17 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   """
   require Logger
 
-  alias LiveDebugger.Utils.Versions
-  alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
-  alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
-  alias LiveDebugger.Services.CallbackTracer.Queries.Traces, as: TraceQueries
-  alias LiveDebugger.Services.CallbackTracer.Process.Tracer
+  alias LiveDebugger.API.System.Dbg
   alias LiveDebugger.API.System.FileSystem, as: FileSystemAPI
   alias LiveDebugger.API.System.Module, as: ModuleAPI
+  alias LiveDebugger.Bus
+  alias LiveDebugger.Services.CallbackTracer.Events.DbgStarted
+  alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
+  alias LiveDebugger.Services.CallbackTracer.Process.Tracer
+  alias LiveDebugger.Services.CallbackTracer.Queries.Callbacks, as: CallbackQueries
+  alias LiveDebugger.Services.CallbackTracer.Queries.Traces, as: TraceQueries
   alias LiveDebugger.Utils.Modules, as: UtilsModules
-  alias LiveDebugger.API.System.Dbg
+  alias LiveDebugger.Utils.Versions
 
   @doc """
   Sets up tracing and monitors recompilation in a single pass.
@@ -22,7 +24,11 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   def setup_tracing_with_monitoring!(state) do
     last_id = TraceQueries.get_last_trace_id()
 
-    case Dbg.tracer({&Tracer.handle_trace/2, last_id - 1}) do
+    if Map.get(state, :dbg_pid) do
+      Dbg.stop()
+    end
+
+    case Dbg.tracer({&Tracer.handle_trace/2, {:init, last_id - 1}}) do
       {:ok, pid} ->
         Process.monitor(pid)
 
@@ -40,6 +46,9 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
         # Monitor recompilation using the paths
         start_file_monitoring(live_modules_with_paths)
 
+        # Broadcast information
+        Bus.broadcast_event!(%DbgStarted{})
+
         %{state | dbg_pid: pid}
 
       {:error, error} ->
@@ -47,15 +56,8 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
     end
   end
 
-  @spec refresh_tracing() :: :ok
-  def refresh_tracing() do
-    Dbg.stop()
-
-    :ok
-  end
-
   @spec refresh_tracing(String.t()) :: :ok
-  def refresh_tracing(path) do
+  def refresh_tracing(path) when is_binary(path) do
     with true <- beam_file?(path),
          module <- path |> Path.basename(".beam") |> String.to_existing_atom(),
          true <- ModuleAPI.loaded?(module),

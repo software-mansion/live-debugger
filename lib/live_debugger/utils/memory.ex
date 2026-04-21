@@ -29,6 +29,21 @@ defmodule LiveDebugger.Utils.Memory do
   def gigabyte, do: @gigabyte
 
   @doc """
+  Sets process flag for `max_heap_size` to the given size in gigabytes.
+  Used to prevent the processes from consuming too much memory.
+  """
+  @spec set_max_heap_size(size :: number()) :: :ok
+  def set_max_heap_size(size) when is_number(size) do
+    Process.flag(:max_heap_size, %{
+      kill: true,
+      error_logger: false,
+      size: trunc(size * @gigabyte / @wordsize)
+    })
+
+    :ok
+  end
+
+  @doc """
   Returns the size of an elixir term serialized to binary in bytes.
   """
   @spec serialized_term_size(term :: term()) :: non_neg_integer()

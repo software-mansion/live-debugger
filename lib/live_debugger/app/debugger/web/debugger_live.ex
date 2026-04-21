@@ -18,6 +18,8 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
 
   alias LiveDebugger.App.Debugger.Events.NodeIdParamChanged
   alias LiveDebugger.App.Debugger.Web.Components.NavigationMenu
+  alias LiveDebugger.App.Web.LiveComponents.TracerStatus
+  alias LiveDebugger.App.Web.Hooks.TracerStatus, as: TracerStatusHook
 
   alias LiveDebugger.App.Utils.URL
 
@@ -71,26 +73,37 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
           </div>
         </:loading>
 
-        <Navbar.navbar class="grid grid-cols-[auto_auto_1fr_auto] pl-2 lg:pr-4">
-          <Navbar.return_link return_link={RoutesHelper.discovery()} />
+        <div>
+          <.live_component
+            module={TracerStatus}
+            id="tracer-status"
+            tracer_started?={@tracer_started?}
+          />
+          <Navbar.navbar class="grid grid-cols-[auto_auto_auto_1fr_auto] pl-2 lg:pr-4">
+            <Navbar.return_link return_link={RoutesHelper.discovery()} />
 
-          <Navbar.live_debugger_logo_icon />
-          <HookComponents.DeadViewMode.render id="navbar-connected" lv_process={lv_process} />
-          <div class="flex items-center gap-2">
-            <Navbar.garbage_collection_warning />
+            <Navbar.live_debugger_logo_icon />
+            <HookComponents.DeadViewMode.render id="navbar-connected" lv_process={lv_process} />
+            <span />
+            <div class="flex items-center gap-2">
+              <Navbar.garbage_collection_warning />
 
-            <Navbar.settings_button return_to={@url} />
-            <span :if={@show_sidebar_icon?} class="h-5 border-r border-default-border md_ct:hidden">
-            </span>
+              <Navbar.settings_button return_to={@url} />
+              <span
+                :if={@show_sidebar_icon?}
+                class="h-5 border-r border-default-border md_ct:hidden"
+              >
+              </span>
 
-            <.nav_icon
-              :if={@show_sidebar_icon?}
-              phx-click={if @lv_process.ok?, do: Pages.get_open_sidebar_js(@live_action)}
-              class="flex md_ct:hidden"
-              icon="icon-panel-right"
-            />
-          </div>
-        </Navbar.navbar>
+              <.nav_icon
+                :if={@show_sidebar_icon?}
+                phx-click={if @lv_process.ok?, do: Pages.get_open_sidebar_js(@live_action)}
+                class="flex md_ct:hidden"
+                icon="icon-panel-right"
+              />
+            </div>
+          </Navbar.navbar>
+        </div>
         <div class="flex overflow-auto w-full">
           <Pages.node_inspector
             :if={@live_action == :node_inspector}
@@ -135,6 +148,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
     |> put_private(:pid, pid)
     |> HookComponents.DeadViewMode.init()
     |> HookComponents.InspectButton.init()
+    |> TracerStatusHook.init()
   end
 
   defp assign_and_broadcast_node_id(socket, %{"node_id" => node_id}) do
