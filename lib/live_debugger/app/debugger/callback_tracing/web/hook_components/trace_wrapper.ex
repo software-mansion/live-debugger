@@ -69,7 +69,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.HookComponents.TraceWrap
       <:label>
         <%= render_slot(@label) %>
       </:label>
-      <div class="relative">
+      <div style="background-color: var(--surface-0-bg) !important;" class="relative">
         <div
           :if={@trace_display.render_body? && is_nil(@trace_display.error)}
           class="absolute right-0 top-0 z-10"
