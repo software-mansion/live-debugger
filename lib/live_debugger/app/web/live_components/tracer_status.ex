@@ -150,7 +150,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
         </div>
         <div class="px-3">
           This may be caused by <b>debugged application</b>
-          having an excessive amount of traces  with huge sizes from - LiveDebugger has a max heap size set for tracing. See
+          having an excessive amount of traces with huge sizes - LiveDebugger has a max heap size set for tracing. See
           <.link
             href={@documentation_url}
             target="_blank"
