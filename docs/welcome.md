@@ -9,7 +9,8 @@ Designed to enhance your development experience LiveDebugger gives you:
 - Trace and filter callback executions
 - Inspect elements
 
-Check out our comprehensive [Features Overview](./features.md) to explore all capabilities in detail.
+If you want to learn LiveDebugger quickly, start with [LiveDebugger Tour](https://github.com/software-mansion/live-debugger-tour) on GitHub.
+Or check out our comprehensive [Features Overview](./features.md) to explore all capabilities in detail.
 
 <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%;">
   <iframe

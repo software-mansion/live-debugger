@@ -17,10 +17,6 @@ Components Tree helps you discover adding and removing of conditionally rendered
 
 ### Nested LiveViews
 
-Nested LiveViews are not shown inside Components Tree since they are separate processes which you can debug. In sidebar you can see list of LiveViews which are children to currently debugged one.
-
-> #### Important {: .info}
->
-> All Nested LiveViews are displayed in a flatten structure, which means that not all of them are direct children of currently debugged LiveView.
+Nested LiveViews are not shown inside Components Tree since they are separate processes which you can debug - they're displayed as a separate tree.
 
 If you are debugging nested LiveView you can return to parent by _Parent LiveView Process_ link shown in Sidebar.
