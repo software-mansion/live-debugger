@@ -1,7 +1,7 @@
 defmodule LiveDebugger.MixProject do
   use Mix.Project
 
-  @version "0.8.0-dev"
+  @version "1.0.0-dev"
 
   def project do
     [
@@ -125,7 +125,7 @@ defmodule LiveDebugger.MixProject do
       ],
       source_url: "https://github.com/software-mansion/live-debugger",
       homepage_url: "https://docs.swmansion.com/live-debugger/",
-      source_ref: @version,
+      source_ref: "v#{@version}",
       api_reference: false,
       assets: %{
         Path.expand("./docs/images") => "images"

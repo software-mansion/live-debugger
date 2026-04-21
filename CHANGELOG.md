@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.8.0 (2026-04-21)
+
+### Features
+* Open callback implementation in editor in [#959](https://github.com/software-mansion/live-debugger/pull/959)
+
+### Bug fixes
+* Fix endless reload loop in [#960](https://github.com/software-mansion/live-debugger/pull/960)
+* Fix filters buttons in [#963](https://github.com/software-mansion/live-debugger/pull/963)
+* Fix highlighting LiveViews by their children bounding boxes in [#976](https://github.com/software-mansion/live-debugger/pull/976)
+* Fix trace fullscreen highlighting in [#971](https://github.com/software-mansion/live-debugger/pull/971)
+* Disable tracing when heap size limit is reached in [#972](https://github.com/software-mansion/live-debugger/pull/972)
+
+### Enhancements
+* Create groups for settings in [#958](https://github.com/software-mansion/live-debugger/pull/958)
+* Isolate LiveDebugger injected assets from debugged app in [#964](https://github.com/software-mansion/live-debugger/pull/964)
+* Refactor tooltips content in [#961](https://github.com/software-mansion/live-debugger/pull/961)
+* Add info to the remaining node inspector sections in [#969](https://github.com/software-mansion/live-debugger/pull/969)
+
+### Other
+* Docs: Update images and feature overview in docs in [#977](https://github.com/software-mansion/live-debugger/pull/977)
+* Docs: Fix urls for LiveDebugger Tour in [#978](https://github.com/software-mansion/live-debugger/pull/978)
+* Docs: Update README with ad servers and fix links in [#968](https://github.com/software-mansion/live-debugger/pull/968), [#965](https://github.com/software-mansion/live-debugger/pull/965)
+* Docs: website updates v0.7.0 in [#955](https://github.com/software-mansion/live-debugger/pull/955)
+* Tests: Migrate remaining e2e tests to Playwright in [#947](https://github.com/software-mansion/live-debugger/pull/947), [#953](https://github.com/software-mansion/live-debugger/pull/953)
+* Tests: Fix flaky e2e tests and adjust shadow dom in [#951](https://github.com/software-mansion/live-debugger/pull/951), [#967](https://github.com/software-mansion/live-debugger/pull/967)
+* Chore: update version in [#954](https://github.com/software-mansion/live-debugger/pull/954)
+
+---
+
 ## 0.7.0 (2026-03-17)
 
 ### Features
