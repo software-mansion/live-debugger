@@ -44,7 +44,7 @@ defmodule LiveDebuggerDev.Layout do
                 this.stop()
 
                 const running = this.el.dataset.running === "true"
-                const interval = parseInt(this.el.dataset.interval || "170", 10)
+                const interval = parseInt(this.el.dataset.interval || "140", 10)
 
                 if (!running) return
 
