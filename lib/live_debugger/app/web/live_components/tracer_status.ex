@@ -69,12 +69,6 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
     |> noreply()
   end
 
-  def handle_event("refetch", _params, socket) do
-    LiveDebugger.App.Web.Hooks.TracerStatus.refresh_tracer_status()
-
-    {:noreply, socket}
-  end
-
   defp maybe_reset_on_started(socket, %AsyncResult{ok?: true, result: true}) do
     assign(socket, :restarting?, false)
   end
@@ -95,9 +89,10 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
         disabled={@restarting?}
         class={[
           "inline-flex items-center gap-1.5 py-1.5 px-2",
-          "rounded border border-error-border",
-          "bg-error-bg hover:bg-error-border ",
-          "text-xs font-semibold text-error-text",
+          "rounded",
+          "bg-red-600 hover:bg-red-700 text-white",
+          "dark:bg-red-800 dark:hover:bg-red-900",
+          "text-xs font-semibold",
           "disabled:opacity-50 disabled:pointer-events-none"
         ]}
       >
