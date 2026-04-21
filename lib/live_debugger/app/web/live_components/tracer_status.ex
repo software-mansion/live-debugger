@@ -89,10 +89,9 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
         disabled={@restarting?}
         class={[
           "inline-flex items-center gap-1.5 py-1.5 px-2",
-          "rounded",
-          "bg-red-600 hover:bg-red-700 text-white",
-          "dark:bg-red-800 dark:hover:bg-red-900",
-          "text-xs font-semibold",
+          "rounded border-2 border-error-text",
+          "bg-error-bg hover:bg-error-text",
+          "text-xs font-semibold text-error-text hover:text-error-bg",
           "disabled:opacity-50 disabled:pointer-events-none"
         ]}
       >
