@@ -9,3 +9,8 @@ html {
   background-color: var(--color-swm-brand-100);
   letter-spacing: 0.0025em;
 }
+
+img,
+svg {
+  user-select: none;
+}
