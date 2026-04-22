@@ -14,6 +14,12 @@ export default defineConfig({
         default: "false",
         optional: true,
       }),
+      YOUTUBE_API_KEY: envField.string({
+        access: "public",
+        context: "server",
+        default: "",
+        optional: true,
+      }),
     },
   },
   vite: {

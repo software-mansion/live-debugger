@@ -1,0 +1,136 @@
+---
+import ContentWrapper from "../components/ContentWrapper.tsx";
+import CTA from "@/components/CTA.astro";
+import { Book, Play } from "lucide-react";
+
+const API_KEY = import.meta.env.PUBLIC_YOUTUBE_API_KEY;
+const playlistId = "PLSk21zn8fFZBOOhmNtBaHhk6N2SJ5_ve4";
+
+type PlaylistVideo = {
+  id: string;
+  title: string;
+  thumbnail: string;
+};
+
+type YouTubePlaylistItem = {
+  snippet?: {
+    title?: string;
+    resourceId?: {
+      videoId?: string;
+    };
+    thumbnails?: {
+      medium?: { url?: string };
+      default?: { url?: string };
+    };
+  };
+};
+
+async function getPlaylistVideos(): Promise<PlaylistVideo[]> {
+  if (!API_KEY) return [];
+
+  const videos: PlaylistVideo[] = [];
+  let nextPageToken: string | undefined;
+
+  do {
+    const params = new URLSearchParams({
+      part: "snippet",
+      maxResults: "50",
+      playlistId,
+      key: API_KEY,
+    });
+
+    if (nextPageToken) {
+      params.set("pageToken", nextPageToken);
+    }
+
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/playlistItems?${params.toString()}`
+    );
+
+    if (!res.ok) {
+      break;
+    }
+
+    const data: { items?: YouTubePlaylistItem[]; nextPageToken?: string } =
+      await res.json();
+
+    const pageVideos = (data.items ?? [])
+      .map((item) => {
+        const id = item.snippet?.resourceId?.videoId;
+        const title = item.snippet?.title;
+        const thumbnail =
+          item.snippet?.thumbnails?.medium?.url ||
+          item.snippet?.thumbnails?.default?.url;
+
+        if (!id || !title || !thumbnail) return null;
+
+        return { id, title, thumbnail };
+      })
+      .filter((video): video is PlaylistVideo => video !== null);
+
+    videos.push(...pageVideos);
+    nextPageToken = data.nextPageToken;
+  } while (nextPageToken);
+
+  return videos;
+}
+
+const videos = await getPlaylistVideos();
+---
+
+<section
+  id="guide"
+  class="bg-bg-additional flex w-full items-center justify-center py-15 sm:py-20 md:py-28 lg:py-32"
+>
+  <ContentWrapper
+    className="font-aeonik text-primary flex w-full flex-col items-center justify-center gap-12 sm:gap-14 md:gap-16 lg:gap-18"
+  >
+    <div class="flex flex-col items-center justify-center gap-4">
+      <h2 class="text-primary text-center text-2xl font-bold">
+        See all LiveDebugger features
+      </h2>
+    </div>
+
+    <div
+      class="bg-bg-primary flex aspect-video w-full items-center justify-center border border-white/10"
+    >
+      <p class="text-primary/70 text-lg font-medium">GIF preview</p>
+    </div>
+
+    <CTA
+      title="Visit the LiveDebugger Tour"
+      buttonText="View on GitHub"
+      url="https://github.com/software-mansion-labs/live-debugger-tour"
+    >
+      <Book className="h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10" strokeWidth={1} />
+    </CTA>
+
+    <div class="w-full overflow-x-auto pb-2">
+      <div class="flex min-w-max gap-4">
+        {
+          videos.map((video) => (
+            <div class="bg-bg-primary w-[220px] shrink-0 overflow-hidden border border-white/10">
+              <a
+                href={`https://www.youtube.com/watch?v=${video.id}`}
+                target="_blank"
+                rel="noreferrer"
+                class="group relative block aspect-video w-full overflow-hidden"
+                aria-label={video.title}
+              >
+                <img
+                  src={video.thumbnail}
+                  alt={video.title}
+                  class="h-full w-full object-cover transition group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition group-hover:opacity-100">
+                  <Play className="h-8 w-8 text-white" strokeWidth={1.5} />
+                </div>
+              </a>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </ContentWrapper>
+</section>
