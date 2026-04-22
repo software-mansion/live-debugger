@@ -38,3 +38,7 @@ devtools_*
 screenshots/
 
 shell.nix
+
+# landing build artifacts
+landing/.astro/
+landing/dist/
