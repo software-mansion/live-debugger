@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0 (2026-04-23)
+
+### Other
+* Chore: Bump required liveview version to v1.1.7 in [#974](https://github.com/software-mansion/live-debugger/pull/974)
+
+---
+
 ## 0.8.0 (2026-04-21)
 
 ### Features
