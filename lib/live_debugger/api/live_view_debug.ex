@@ -50,75 +50,11 @@ defmodule LiveDebugger.API.LiveViewDebug do
     @moduledoc false
     @behaviour LiveDebugger.API.LiveViewDebug
 
-    if LiveDebugger.API.System.Module.loaded?(Phoenix.LiveView.Debug) do
-      @impl true
-      defdelegate list_liveviews(), to: Phoenix.LiveView.Debug
-      @impl true
-      defdelegate socket(pid), to: Phoenix.LiveView.Debug
-      @impl true
-      defdelegate live_components(pid), to: Phoenix.LiveView.Debug
-    else
-      alias LiveDebugger.API.System.Process, as: ProcessAPI
-
-      @impl true
-      def list_liveviews() do
-        ProcessAPI.list()
-        |> Enum.filter(&liveview?/1)
-        |> Enum.map(fn pid ->
-          case ProcessAPI.state(pid) do
-            {:ok, %{socket: socket, topic: topic}} ->
-              %{
-                pid: pid,
-                view: socket.view,
-                topic: topic,
-                transport_pid: socket.transport_pid
-              }
-
-            {:error, _} ->
-              nil
-          end
-        end)
-        |> Enum.reject(&is_nil/1)
-      end
-
-      @impl true
-      def socket(pid) do
-        case ProcessAPI.state(pid) do
-          {:ok, %{socket: %Phoenix.LiveView.Socket{} = socket}} -> {:ok, socket}
-          _ -> {:error, :not_alive_or_not_a_liveview}
-        end
-      end
-
-      @impl true
-      def live_components(pid) do
-        case ProcessAPI.state(pid) do
-          {:ok, %{components: {components, _, _}}} ->
-            component_info =
-              Enum.map(components, fn {cid, {mod, id, assigns, private, _prints}} ->
-                %{
-                  id: id,
-                  cid: cid,
-                  module: mod,
-                  assigns: assigns,
-                  private: private,
-                  children_cids: private.children_cids
-                }
-              end)
-
-            {:ok, component_info}
-
-          _ ->
-            {:error, :not_alive_or_not_a_liveview}
-        end
-      end
-
-      @spec liveview?(pid :: pid()) :: boolean()
-      defp liveview?(pid) do
-        case ProcessAPI.initial_call(pid) do
-          {:ok, {_module, :mount, _arity}} -> true
-          _ -> false
-        end
-      end
-    end
+    @impl true
+    defdelegate list_liveviews(), to: Phoenix.LiveView.Debug
+    @impl true
+    defdelegate socket(pid), to: Phoenix.LiveView.Debug
+    @impl true
+    defdelegate live_components(pid), to: Phoenix.LiveView.Debug
   end
 end

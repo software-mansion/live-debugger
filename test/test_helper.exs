@@ -7,9 +7,6 @@ Application.put_env(:live_debugger, :api_dbg, LiveDebugger.MockAPIDbg)
 Mox.defmock(LiveDebugger.MockAPIModule, for: LiveDebugger.API.System.Module)
 Application.put_env(:live_debugger, :api_module, LiveDebugger.MockAPIModule)
 
-Mox.defmock(LiveDebugger.MockAPIProcess, for: LiveDebugger.API.System.Process)
-Application.put_env(:live_debugger, :api_process, LiveDebugger.MockAPIProcess)
-
 Mox.defmock(LiveDebugger.MockAPIProcessInfo, for: LiveDebugger.API.System.ProcessInfo)
 Application.put_env(:live_debugger, :api_process_info, LiveDebugger.MockAPIProcessInfo)
 

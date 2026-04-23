@@ -119,11 +119,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
     MockAPIDbg
     |> expect(:tracer, fn _ -> {:ok, pid} end)
     |> expect(:process, fn _ -> :ok end)
-    |> expect(
-      :trace_pattern,
-      if(Versions.live_component_destroyed_telemetry_supported?(), do: 18, else: 19),
-      fn _, _ -> :ok end
-    )
+    |> expect(:trace_pattern, 18, fn _, _ -> :ok end)
 
     MockBus
     |> expect(:broadcast_event!, fn %DbgStarted{} -> :ok end)

@@ -324,10 +324,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
       </:header>
 
       <div class="relative">
-        <div
-          :if={is_nil(@displayed_trace.error)}
-          class="absolute right-4 top-0 z-10"
-        >
+        <div :if={is_nil(@displayed_trace.error)} class="absolute right-4 top-0 z-10">
           <.open_in_editor_button
             id={@id <> "-fullscreen"}
             elixir_editor={@elixir_editor}

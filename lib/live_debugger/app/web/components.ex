@@ -581,11 +581,7 @@ defmodule LiveDebugger.App.Web.Components do
 
   def section_info_tooltip(assigns) do
     ~H"""
-    <.tooltip
-      id={@id <> "-tooltip"}
-      content={@content}
-      position={@position}
-    >
+    <.tooltip id={@id <> "-tooltip"} content={@content} position={@position}>
       <span class="flex items-center justify-center h-full">
         <.icon name="icon-info" class="w-4 h-4 bg-button-secondary-content" />
       </span>

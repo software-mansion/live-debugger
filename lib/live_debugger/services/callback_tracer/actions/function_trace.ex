@@ -3,7 +3,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace do
   This module provides actions for traces.
   """
 
-  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.Structs.Trace.FunctionTrace
   alias LiveDebugger.API.TracesStorage
 
@@ -30,44 +29,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.FunctionTrace do
 
       _ ->
         {:ok, trace}
-    end
-  end
-
-  if not Versions.live_component_destroyed_telemetry_supported?() do
-    @spec create_delete_component_trace(
-            n :: non_neg_integer(),
-            args :: list(),
-            pid :: pid(),
-            cid :: String.t(),
-            timestamp :: :erlang.timestamp()
-          ) :: {:ok, FunctionTrace.t()} | :live_debugger_trace | {:error, term()}
-    def create_delete_component_trace(n, args, pid, cid, timestamp) do
-      pid
-      |> LiveDebugger.API.LiveViewDebug.socket()
-      |> case do
-        {:ok, %{id: socket_id, transport_pid: t_pid, view: view}} when is_pid(t_pid) ->
-          if LiveDebugger.Utils.Modules.debugger_module?(view) do
-            :live_debugger_trace
-          else
-            trace =
-              FunctionTrace.new(
-                n,
-                Phoenix.LiveView.Diff,
-                :delete_component,
-                args,
-                pid,
-                timestamp,
-                socket_id: socket_id,
-                transport_pid: t_pid,
-                cid: %Phoenix.LiveComponent.CID{cid: cid}
-              )
-
-            {:ok, trace}
-          end
-
-        _ ->
-          {:error, "Could not get socket"}
-      end
     end
   end
 

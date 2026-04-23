@@ -89,10 +89,7 @@ defmodule LiveDebugger.App.Debugger.Web.DebuggerLive do
               <Navbar.garbage_collection_warning />
 
               <Navbar.settings_button return_to={@url} />
-              <span
-                :if={@show_sidebar_icon?}
-                class="h-5 border-r border-default-border md_ct:hidden"
-              >
+              <span :if={@show_sidebar_icon?} class="h-5 border-r border-default-border md_ct:hidden">
               </span>
 
               <.nav_icon

@@ -38,11 +38,7 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
     ~H"""
     <div id={@id}>
       <.async_result :let={started?} assign={@tracer_started?}>
-        <.tracer_crash_info
-          :if={!started?}
-          restarting?={@restarting?}
-          myself={@myself}
-        />
+        <.tracer_crash_info :if={!started?} restarting?={@restarting?} myself={@myself} />
         <.tracer_crashed_popup
           :if={!started?}
           id={@id <> "-crashed_popup"}
@@ -155,11 +151,8 @@ defmodule LiveDebugger.App.Web.LiveComponents.TracerStatus do
               disabled={@restarting?}
               class="flex items-center gap-2"
             >
-              <.spinner
-                :if={@restarting?}
-                size="xs"
-                class="text-button-primary-content"
-              /> Restart Tracing
+              <.spinner :if={@restarting?} size="xs" class="text-button-primary-content" />
+              Restart Tracing
             </.button>
           </div>
         </div>

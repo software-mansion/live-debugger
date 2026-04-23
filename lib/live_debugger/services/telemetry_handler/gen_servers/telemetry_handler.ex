@@ -5,7 +5,6 @@ defmodule LiveDebugger.Services.TelemetryHandler.GenServers.TelemetryHandler do
 
   use GenServer
 
-  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.API.LiveViewDebug
   alias LiveDebugger.API.StatesStorage
   alias LiveDebugger.Utils.Modules, as: UtilsModules
@@ -43,11 +42,7 @@ defmodule LiveDebugger.Services.TelemetryHandler.GenServers.TelemetryHandler do
 
     :telemetry.attach_many(
       "live-debugger-telemetry-handlers",
-      if Versions.live_component_destroyed_telemetry_supported?() do
-        [[:phoenix, :live_component, :destroyed]]
-      else
-        []
-      end,
+      [[:phoenix, :live_component, :destroyed]],
       &__MODULE__.handle_telemetry/4,
       self()
     )

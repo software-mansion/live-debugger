@@ -46,11 +46,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
     ~H"""
     <div class="flex-1 min-w-[25rem] grid grid-rows-[auto_1fr]">
       <div>
-        <.live_component
-          module={TracerStatus}
-          id="tracer-status"
-          tracer_started?={@tracer_started?}
-        />
+        <.live_component module={TracerStatus} id="tracer-status" tracer_started?={@tracer_started?} />
         <NavbarComponents.navbar class="flex pl-2 justify-between">
           <div class="flex items-center gap-2">
             <NavbarComponents.return_link return_link={@return_to || RoutesHelper.discovery()} />
