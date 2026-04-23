@@ -3,7 +3,6 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
 
   import Mox
 
-  alias LiveDebugger.Utils.Versions
   alias LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonitor
   alias LiveDebugger.MockAPILiveViewDebug
 
@@ -26,22 +25,20 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
   end
 
   describe "handle_info/2" do
-    if Versions.live_component_destroyed_telemetry_supported?() do
-      test "with TelemetryEmitted{type: :destroyed} event" do
-        pid = self()
-        cid = %Phoenix.LiveComponent.CID{cid: 1}
-        state = %{pid => %{components: MapSet.new([cid])}}
+    test "with TelemetryEmitted{type: :destroyed} event" do
+      pid = self()
+      cid = %Phoenix.LiveComponent.CID{cid: 1}
+      state = %{pid => %{components: MapSet.new([cid])}}
 
-        event = %TelemetryEmitted{source: :live_component, type: :destroyed, cid: cid, pid: pid}
+      event = %TelemetryEmitted{source: :live_component, type: :destroyed, cid: cid, pid: pid}
 
-        MockBus
-        |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid, pid: ^pid}, ^pid ->
-          :ok
-        end)
+      MockBus
+      |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid, pid: ^pid}, ^pid ->
+        :ok
+      end)
 
-        assert {:noreply, new_state} = DebuggedProcessesMonitor.handle_info(event, state)
-        assert new_state == %{pid => %{components: MapSet.new()}}
-      end
+      assert {:noreply, new_state} = DebuggedProcessesMonitor.handle_info(event, state)
+      assert new_state == %{pid => %{components: MapSet.new()}}
     end
 
     test "with TraceCalled for render with known cid" do
@@ -189,79 +186,6 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggedProcessesMonit
                    ])
                }
              }
-    end
-
-    if not Versions.live_component_destroyed_telemetry_supported?() do
-      test "with TraceCalled for delete_component with known cid" do
-        pid = self()
-        cid = %Phoenix.LiveComponent.CID{cid: 1}
-        state = %{pid => %{components: MapSet.new([cid])}}
-
-        event = %TraceCalled{
-          trace_id: -1,
-          module: Phoenix.LiveView.Diff,
-          function: :delete_component,
-          arity: 2,
-          cid: cid,
-          pid: pid,
-          ets_ref: nil,
-          transport_pid: nil
-        }
-
-        MockBus
-        |> expect(:broadcast_event!, fn %LiveComponentDeleted{cid: ^cid, pid: ^pid}, ^pid ->
-          :ok
-        end)
-
-        assert {:noreply, new_state} = DebuggedProcessesMonitor.handle_info(event, state)
-        assert new_state == %{pid => %{components: MapSet.new()}}
-      end
-
-      test "with TraceCalled for delete_component with unknown cid" do
-        pid = self()
-        cid1 = %Phoenix.LiveComponent.CID{cid: 1}
-        cid2 = %Phoenix.LiveComponent.CID{cid: 2}
-        state = %{pid => %{components: MapSet.new([cid1])}}
-
-        event = %TraceCalled{
-          trace_id: -1,
-          module: Phoenix.LiveView.Diff,
-          function: :delete_component,
-          arity: 2,
-          cid: cid2,
-          pid: pid,
-          ets_ref: nil,
-          transport_pid: nil
-        }
-
-        MockBus
-        |> deny(:broadcast_event!, 2)
-
-        assert {:noreply, ^state} = DebuggedProcessesMonitor.handle_info(event, state)
-      end
-
-      test "with TraceCalled for delete_component with unknown pid" do
-        pid1 = :c.pid(0, 11, 0)
-        pid2 = :c.pid(0, 12, 0)
-        cid = %Phoenix.LiveComponent.CID{cid: 1}
-        state = %{pid1 => %{components: MapSet.new([cid])}}
-
-        event = %TraceCalled{
-          trace_id: -1,
-          module: Phoenix.LiveView.Diff,
-          function: :delete_component,
-          arity: 2,
-          cid: cid,
-          pid: pid2,
-          ets_ref: nil,
-          transport_pid: nil
-        }
-
-        MockBus
-        |> deny(:broadcast_event!, 2)
-
-        assert {:noreply, ^state} = DebuggedProcessesMonitor.handle_info(event, state)
-      end
     end
 
     test "with DOWN message" do
