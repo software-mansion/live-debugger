@@ -91,10 +91,20 @@ const videos = await getPlaylistVideos();
       </h2>
     </div>
 
-    <div
-      class="bg-bg-primary flex aspect-video w-full items-center justify-center border border-white/10"
-    >
-      <p class="text-primary/70 text-lg font-medium">GIF preview</p>
+    <div class="w-full overflow-hidden">
+      <video
+        class="aspect-video w-full"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="none"
+      >
+        <source
+          src="/live-debugger/assets/guide-video.webm"
+          type="video/webm"
+        />
+      </video>
     </div>
 
     <CTA
