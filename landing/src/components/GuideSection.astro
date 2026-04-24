@@ -1,7 +1,7 @@
 ---
 import ContentWrapper from "../components/ContentWrapper.tsx";
 import CTA from "@/components/CTA.astro";
-import { Book, Play } from "lucide-react";
+import { Book, ChevronLeft, ChevronRight, Play } from "lucide-react";
 
 const API_KEY = import.meta.env.YOUTUBE_API_KEY;
 const playlistId = "PLSk21zn8fFZBOOhmNtBaHhk6N2SJ5_ve4";
@@ -107,40 +107,96 @@ const videos = await getPlaylistVideos();
       </video>
     </div>
 
-    <CTA
-      title="Visit the LiveDebugger Tour"
-      buttonText="View on GitHub"
-      url="https://github.com/software-mansion-labs/live-debugger-tour"
-    >
-      <Book className="h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10" strokeWidth={1} />
-    </CTA>
+    <div class="pb-6">
+      <CTA
+        title="Visit the LiveDebugger Tour"
+        buttonText="View on GitHub"
+        url="https://github.com/software-mansion-labs/live-debugger-tour"
+      >
+        <Book
+          className="h-7 w-7 sm:h-8 sm:w-8 md:h-10 md:w-10"
+          strokeWidth={1}
+        />
+      </CTA>
+    </div>
 
-    <div class="w-full overflow-x-auto pb-2 pt-6">
-      <div class="flex min-w-max gap-4">
-        {
-          videos.map((video) => (
-            <div class="bg-bg-primary w-[220px] shrink-0 overflow-hidden">
-              <a
-                href={`https://www.youtube.com/watch?v=${video.id}`}
-                target="_blank"
-                rel="noreferrer"
-                class="group relative block aspect-video w-full overflow-hidden"
-                aria-label={video.title}
-              >
-                <img
-                  src={video.thumbnail}
-                  alt={video.title}
-                  class="h-full w-full object-cover transition group-hover:scale-105"
-                  loading="lazy"
-                />
-                <div class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition group-hover:opacity-100">
-                  <Play className="h-8 w-8 text-white" strokeWidth={1.5} />
-                </div>
-              </a>
-            </div>
-          ))
-        }
+    <div class="relative w-full">
+      <button
+        type="button"
+        class="bg-bg-primary text-white border-white/10 hover:bg-bg-primary/80 absolute top-1/2 left-0 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center border transition"
+        aria-label="Scroll videos left"
+        data-guide-scroll-left
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button
+        type="button"
+        class="bg-bg-primary text-white border-white/10 hover:bg-bg-primary/80 absolute top-1/2 right-0 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center border transition"
+        aria-label="Scroll videos right"
+        data-guide-scroll-right
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+      <div
+        class="guide-scrollbar-hidden mx-auto w-[calc(100%-104px)] overflow-x-auto"
+        data-guide-scroll
+      >
+        <div class="flex min-w-max gap-4">
+          {
+            videos.map((video) => (
+              <div class="bg-bg-primary w-[220px] shrink-0 overflow-hidden sm:w-[250px] md:w-[280px]">
+                <a
+                  href={`https://www.youtube.com/watch?v=${video.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  class="group relative block aspect-video w-full overflow-hidden"
+                  aria-label={video.title}
+                >
+                  <img
+                    src={video.thumbnail}
+                    alt={video.title}
+                    class="h-full w-full object-cover transition group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition group-hover:opacity-100">
+                    <Play className="h-8 w-8 text-white" strokeWidth={1.5} />
+                  </div>
+                </a>
+              </div>
+            ))
+          }
+        </div>
       </div>
     </div>
   </ContentWrapper>
 </section>
+
+<style>
+  .guide-scrollbar-hidden {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .guide-scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
+<script is:inline>
+  const scrollContainer = document.querySelector("[data-guide-scroll]");
+  const leftButton = document.querySelector("[data-guide-scroll-left]");
+  const rightButton = document.querySelector("[data-guide-scroll-right]");
+
+  const scrollByAmount = () => {
+    if (!scrollContainer) return 280;
+    return Math.max(220, Math.floor(scrollContainer.clientWidth * 0.7));
+  };
+
+  leftButton?.addEventListener("click", () => {
+    scrollContainer?.scrollBy({ left: -scrollByAmount(), behavior: "smooth" });
+  });
+
+  rightButton?.addEventListener("click", () => {
+    scrollContainer?.scrollBy({ left: scrollByAmount(), behavior: "smooth" });
+  });
+</script>
