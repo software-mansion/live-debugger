@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, envField, fontProviders } from "astro/config";
+import { defineConfig, envField } from "astro/config";
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -32,26 +32,24 @@ export default defineConfig({
       {
         cssVariable: "--font-aeonik",
         name: "Aeonik",
-        provider: fontProviders.local(),
-        options: {
-          variants: [
-            {
-              src: ["./public/fonts/aeonik/aeonik-light.otf"],
-              style: "normal",
-              weight: 300,
-            },
-            {
-              src: ["./public/fonts/aeonik/aeonik-regular.otf"],
-              style: "normal",
-              weight: 400,
-            },
-            {
-              src: ["./public/fonts/aeonik/aeonik-medium.otf"],
-              style: "normal",
-              weight: 600,
-            },
-          ],
-        },
+        provider: "local",
+        variants: [
+          {
+            src: ["./public/fonts/aeonik/aeonik-light.otf"],
+            style: "normal",
+            weight: 300,
+          },
+          {
+            src: ["./public/fonts/aeonik/aeonik-regular.otf"],
+            style: "normal",
+            weight: 400,
+          },
+          {
+            src: ["./public/fonts/aeonik/aeonik-medium.otf"],
+            style: "normal",
+            weight: 600,
+          },
+        ],
       },
     ],
   },
