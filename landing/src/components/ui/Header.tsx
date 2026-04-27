@@ -7,15 +7,14 @@ import { getStorageValue } from "@/lib/utils";
 
 export interface HeaderProps extends React.HTMLAttributes<HTMLElement> {}
 
-const DEFAULT_LATEST_NEWS_ID = "v0.5.0";
+const DEFAULT_LATEST_NEWS_ID = "v1.0.0";
 const GITHUB_API_URL =
   "https://api.github.com/repos/software-mansion/live-debugger/releases/latest";
 
 const navItems = [
   { name: "Features", href: "#features" },
   { name: "Getting started", href: "#gettingstarted" },
-  { name: "What's new", href: "#whatsnew" },
-  { name: "Roadmap", href: "#roadmap" },
+  { name: "Guide", href: "#guide" },
 ];
 
 const sectionThemes = [
@@ -24,8 +23,7 @@ const sectionThemes = [
   { id: "videosection", theme: "dark" },
   { id: "debugcases", theme: "light" },
   { id: "gettingstarted", theme: "light" },
-  { id: "whatsnew", theme: "light" },
-  { id: "roadmap", theme: "light" },
+  { id: "guide", theme: "light" },
   { id: "footer", theme: "dark" },
 ];
 
@@ -119,7 +117,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
               ? "border-b border-white/40"
               : "border-b border-black/10"
             : "border-b border-transparent",
-          className,
+          className
         )}
         {...props}
       >
@@ -139,9 +137,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
                   "transition-all hover:scale-105",
                   activeTheme === "dark"
                     ? "hover:text-slate-300"
-                    : "hover:text-primary/70",
-                  "last:hidden",
-                  "lg:last:block",
+                    : "hover:text-primary/70"
                 )}
                 onClick={() => {
                   if (item.href === "#whatsnew") {
@@ -173,7 +169,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
                 "font-aeonik text-md font-light",
                 activeTheme === "dark"
                   ? "hover:text-slate-300"
-                  : "hover:text-primary/70",
+                  : "hover:text-primary/70"
               )}
             >
               Docs
@@ -185,7 +181,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
               className={cn(
                 activeTheme === "dark"
                   ? "hover:text-slate-300"
-                  : "hover:text-primary/70",
+                  : "hover:text-primary/70"
               )}
             >
               <Github className="size-6 sm:size-7 md:size-8" />
@@ -195,7 +191,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
         </div>
       </header>
     );
-  },
+  }
 );
 
 Header.displayName = "Header";
