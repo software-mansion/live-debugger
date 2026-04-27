@@ -228,13 +228,11 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
     |> noreply()
   end
 
-
   def handle_info({"tour:settings-enabled", _payload}, socket) do
     socket
     |> assign(settings_enabled: true)
     |> noreply()
   end
-
 
   def handle_info({"tour:settings-disabled", _payload}, socket) do
     socket

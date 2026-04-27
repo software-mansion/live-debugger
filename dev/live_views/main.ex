@@ -37,7 +37,6 @@ defmodule LiveDebuggerDev.LiveViews.Main do
       |> assign(message: nil)
       |> assign(current_step: "clear")
 
-    Tour.redirect("/settings")
     {:ok, socket, temporary_assigns: [message: nil]}
   end
 
