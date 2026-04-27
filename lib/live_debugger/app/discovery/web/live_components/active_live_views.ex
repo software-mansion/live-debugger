@@ -39,7 +39,7 @@ defmodule LiveDebugger.App.Discovery.Web.LiveComponents.ActiveLiveViews do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id} class={if(@open?, do: "flex-1")}>
+    <div id={@id} class={["bg-main-bg", if(@open?, do: "flex-1")]}>
       <.static_collapsible
         chevron_class="mr-2"
         class="h-full flex! flex-col max-lg:p-8 max-lg:pb-0 pt-8 lg:w-[60rem] lg:mx-auto"

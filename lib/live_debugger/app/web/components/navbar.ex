@@ -78,7 +78,7 @@ defmodule LiveDebugger.App.Web.Components.Navbar do
     ~H"""
     <.link patch={@return_link} class={@class} id="return-button">
       <.tooltip id="return-button-tooltip" content="Back" position="bottom">
-        <.nav_icon icon="icon-arrow-left" />
+        <.nav_icon icon="icon-arrow-left" class="bg-navbar-bg" />
       </.tooltip>
     </.link>
     """
