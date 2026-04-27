@@ -109,8 +109,8 @@ const videos = await getPlaylistVideos();
 
     <div class="pb-6">
       <CTA
-        title="Visit the LiveDebugger Tour"
-        buttonText="View on GitHub"
+        title="LiveDebugger Tour"
+        buttonText="Install from GitHub"
         url="https://github.com/software-mansion-labs/live-debugger-tour"
       >
         <Book
@@ -120,51 +120,56 @@ const videos = await getPlaylistVideos();
       </CTA>
     </div>
 
-    <div class="relative w-full">
-      <button
-        type="button"
-        class="bg-bg-primary text-white border-white/10 hover:bg-bg-primary/80 absolute top-1/2 left-0 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center border transition"
-        aria-label="Scroll videos left"
-        data-guide-scroll-left
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
-      <button
-        type="button"
-        class="bg-bg-primary text-white border-white/10 hover:bg-bg-primary/80 absolute top-1/2 right-0 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center border transition"
-        aria-label="Scroll videos right"
-        data-guide-scroll-right
-      >
-        <ChevronRight className="h-5 w-5" />
-      </button>
-      <div
-        class="guide-scrollbar-hidden mx-auto w-[calc(100%-104px)] overflow-x-auto"
-        data-guide-scroll
-      >
-        <div class="flex min-w-max gap-4">
-          {
-            videos.map((video) => (
-              <div class="bg-bg-primary w-[220px] shrink-0 overflow-hidden sm:w-[250px] md:w-[280px]">
-                <a
-                  href={`https://www.youtube.com/watch?v=${video.id}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  class="group relative block aspect-video w-full overflow-hidden"
-                  aria-label={video.title}
-                >
-                  <img
-                    src={video.thumbnail}
-                    alt={video.title}
-                    class="h-full w-full object-cover transition group-hover:scale-105"
-                    loading="lazy"
-                  />
-                  <div class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition group-hover:opacity-100">
-                    <Play className="h-8 w-8 text-white" strokeWidth={1.5} />
-                  </div>
-                </a>
-              </div>
-            ))
-          }
+    <div
+      class="relative w-full gap-8 flex flex-col items-center justify-center"
+    >
+      <h2 class="text-lg font-medium text-center">More features</h2>
+      <div class="relative w-full">
+        <button
+          type="button"
+          class="bg-bg-primary text-white border-white/10 hover:bg-bg-primary/80 absolute top-1/2 left-0 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center border transition"
+          aria-label="Scroll videos left"
+          data-guide-scroll-left
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <button
+          type="button"
+          class="bg-bg-primary text-white border-white/10 hover:bg-bg-primary/80 absolute top-1/2 right-0 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center border transition"
+          aria-label="Scroll videos right"
+          data-guide-scroll-right
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+        <div
+          class="guide-scrollbar-hidden mx-auto w-[calc(100%-104px)] overflow-x-auto"
+          data-guide-scroll
+        >
+          <div class="flex min-w-max gap-4">
+            {
+              videos.map((video) => (
+                <div class="bg-bg-primary w-[220px] shrink-0 overflow-hidden sm:w-[250px] md:w-[280px]">
+                  <a
+                    href={`https://www.youtube.com/watch?v=${video.id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    class="group relative block aspect-video w-full overflow-hidden"
+                    aria-label={video.title}
+                  >
+                    <img
+                      src={video.thumbnail}
+                      alt={video.title}
+                      class="h-full w-full object-cover transition group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 transition group-hover:opacity-100">
+                      <Play className="h-8 w-8 text-white" strokeWidth={1.5} />
+                    </div>
+                  </a>
+                </div>
+              ))
+            }
+          </div>
         </div>
       </div>
     </div>
