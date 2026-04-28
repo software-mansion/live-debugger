@@ -139,7 +139,10 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.GlobalTracesLive do
               This view lists all callbacks inside debugged LiveView and its LiveComponents
             </span>
           </div>
-          <div class="@container/traces w-full min-w-[20rem] flex flex-col pt-2 shadow-custom rounded-sm bg-surface-0-bg border border-default-border">
+          <div
+            class="@container/traces w-full min-w-[20rem] flex flex-col pt-2 shadow-custom rounded-sm bg-surface-0-bg border border-default-border"
+            id="global-traces-section"
+          >
             <div class="w-full flex justify-between items-center border-b border-default-border pb-2">
               <div class="ml-2">
                 <HookComponents.SearchInput.render
