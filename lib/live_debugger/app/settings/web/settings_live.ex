@@ -40,7 +40,7 @@ defmodule LiveDebugger.App.Settings.Web.SettingsLive do
     |> assign(return_to: params["return_to"])
     |> assign(settings: SettingsStorage.get_all())
     |> assign(config_browser_features_docs_url: @config_browser_features_docs_url)
-    |> assign(settings_enabled: false)
+    |> assign(settings_enabled: SettingsStorage.get(:settings_enabled))
     |> noreply()
   end
 

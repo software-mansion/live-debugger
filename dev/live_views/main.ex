@@ -94,10 +94,10 @@ defmodule LiveDebuggerDev.LiveViews.Main do
 
           <div class="flex items-center gap-2 flex-wrap">
             <span class="text-xs text-gray-500">Settings:</span>
-            <.button color="green" phx-click={Tour.enable_settings_JS()}>
+            <.button color="green" phx-click="enable-settings">
               Enable Settings
             </.button>
-            <.button color="red" phx-click={Tour.disable_settings_JS()}>
+            <.button color="red" phx-click="disable-settings">
               Disable Settings
             </.button>
           </div>
@@ -203,6 +203,16 @@ defmodule LiveDebuggerDev.LiveViews.Main do
 
   def handle_event("change_name", _, socket) do
     {:noreply, assign(socket, name: random_name())}
+  end
+
+  def handle_event("enable-settings", _, socket) do
+    Tour.enable_settings()
+    {:noreply, socket}
+  end
+
+  def handle_event("disable-settings", _, socket) do
+    Tour.disable_settings()
+    {:noreply, socket}
   end
 
   def handle_info({:new_datetime, datetime}, socket) do

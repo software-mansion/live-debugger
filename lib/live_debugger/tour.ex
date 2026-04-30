@@ -139,27 +139,12 @@ defmodule LiveDebugger.Tour do
   end
 
   @doc """
-  Enable settings toggles in the debugger via JS command.
-  """
-  @spec enable_settings_JS() :: JS.t()
-  def enable_settings_JS do
-    dispatch("tour:settings-enabled", %{})
-  end
-
-  @doc """
   Enable settings toggles in the debugger via PubSub broadcast.
   """
   @spec enable_settings() :: :ok
   def enable_settings do
+    LiveDebugger.API.SettingsStorage.save(:settings_enabled, true)
     broadcast("tour:settings-enabled", %{})
-  end
-
-  @doc """
-  Disable settings toggles in the debugger via JS command.
-  """
-  @spec disable_settings_JS() :: JS.t()
-  def disable_settings_JS do
-    dispatch("tour:settings-disabled", %{})
   end
 
   @doc """
@@ -167,6 +152,7 @@ defmodule LiveDebugger.Tour do
   """
   @spec disable_settings() :: :ok
   def disable_settings do
+    LiveDebugger.API.SettingsStorage.save(:settings_enabled, false)
     broadcast("tour:settings-disabled", %{})
   end
 

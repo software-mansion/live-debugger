@@ -5,7 +5,8 @@ defmodule LiveDebugger.API.SettingsStorage do
     :debug_button,
     :tracing_enabled_on_start,
     :dead_liveviews,
-    :highlight_in_browser
+    :highlight_in_browser,
+    :settings_enabled
   ]
 
   @moduledoc """
@@ -81,7 +82,8 @@ defmodule LiveDebugger.API.SettingsStorage do
       debug_button: true,
       tracing_enabled_on_start: true,
       dead_liveviews: false,
-      highlight_in_browser: true
+      highlight_in_browser: true,
+      settings_enabled: false
     }
 
     @table_name :lvdbg_settings
