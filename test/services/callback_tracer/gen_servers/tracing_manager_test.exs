@@ -13,7 +13,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
   alias LiveDebugger.Services.CallbackTracer.Events.DbgStarted
   alias LiveDebugger.Services.CallbackTracer.GenServers.TracingManager
   alias LiveDebugger.Services.ProcessMonitor.Events.LiveViewBorn
-  alias LiveDebugger.Utils.Versions
 
   setup :verify_on_exit!
 

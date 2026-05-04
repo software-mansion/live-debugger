@@ -47,44 +47,46 @@ defmodule LiveDebugger.App.Debugger.Web.Components.Pages do
         dropdown_id="node-inspector"
       />
 
-      <div class="flex flex-col max-w-screen-2xl w-full gap-4 p-8 overflow-y-auto">
-        <.live_component
-          module={NodeBasicInfo}
-          id="node-inspector-basic-info"
-          lv_process={@lv_process}
-          node_id={@node_id}
-        />
+      <div class="w-full overflow-y-auto">
+        <div class="flex flex-col max-w-screen-2xl w-full gap-4 p-8 mx-auto">
+          <.live_component
+            module={NodeBasicInfo}
+            id="node-inspector-basic-info"
+            lv_process={@lv_process}
+            node_id={@node_id}
+          />
 
-        <NodeStateLive.live_render
-          id="node-state-lv"
-          class="flex"
-          socket={@socket}
-          lv_process={@lv_process}
-          node_id={@node_id}
-        />
+          <NodeStateLive.live_render
+            id="node-state-lv"
+            class="flex"
+            socket={@socket}
+            lv_process={@lv_process}
+            node_id={@node_id}
+          />
 
-        <AsyncJobsLive.live_render
-          id="async-jobs-lv"
-          class="flex"
-          socket={@socket}
-          lv_process={@lv_process}
-          node_id={@node_id}
-        />
-        <StreamsLive.live_render
-          id="streams-list"
-          class="flex"
-          socket={@socket}
-          lv_process={@lv_process}
-          node_id={@node_id}
-        />
+          <AsyncJobsLive.live_render
+            id="async-jobs-lv"
+            class="flex"
+            socket={@socket}
+            lv_process={@lv_process}
+            node_id={@node_id}
+          />
+          <StreamsLive.live_render
+            id="streams-list"
+            class="flex"
+            socket={@socket}
+            lv_process={@lv_process}
+            node_id={@node_id}
+          />
 
-        <CallbackTracingWeb.NodeTracesLive.live_render
-          id="traces-list"
-          class="flex"
-          socket={@socket}
-          lv_process={@lv_process}
-          node_id={@node_id}
-        />
+          <CallbackTracingWeb.NodeTracesLive.live_render
+            id="traces-list"
+            class="flex"
+            socket={@socket}
+            lv_process={@lv_process}
+            node_id={@node_id}
+          />
+        </div>
       </div>
     </div>
     <.live_component module={NodeInspectorSidebar} id={@sidebar_id} trigger_sidebar={@trigger_sidebar}>
