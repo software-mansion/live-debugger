@@ -14,7 +14,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
   alias LiveDebugger.MockBus
   alias LiveDebugger.Services.CallbackTracer.Actions.Tracing, as: TracingActions
   alias LiveDebugger.Services.CallbackTracer.Events.DbgStarted
-  alias LiveDebugger.Utils.Versions
 
   setup :verify_on_exit!
 
