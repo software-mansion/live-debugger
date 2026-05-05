@@ -105,16 +105,16 @@ They spawn the `dev` application alongside LiveDebugger.
 
 E2E tests can be flaky — if a failure looks unrelated to your change, rerun the suite.
 
-### 3.5 JS (assets)
+### 3.5 JS assets
 
 - **`assets/client`** — runs inside the **debugged app**.
-Gathers info and draws overlays.
+Gathers info and draws overlays. It communicates with LiveDebugger via `lib/live_debugger/client/`
 - **`assets/app`** — runs inside **LiveDebugger**.
 LiveView hooks and styles for the UI.
 
 Don't share modules between the two.
 
-Thanks for all the contributions and happy debugging!
+### Thanks for all the contributions and happy debugging!
 
 [issues]: https://github.com/software-mansion/live-debugger/issues?q=is%3Aissue%20state%3Aopen%20label%3Abug
 [bug-issue]: https://github.com/software-mansion/live-debugger/issues/new?template=bug_report.yaml
