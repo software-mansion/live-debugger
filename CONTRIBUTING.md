@@ -1,19 +1,19 @@
 # Contributing
- 
-If you are interested in contributing to LiveDebugger please read this document.
+
+If you are interested in contributing to LiveDebugger, please read this document.
 We are happy to receive any feedback and contributions!
 
 ## 1. Bugs
 
-Before reporting a bug check [existing issues][issues] first.
+Before reporting a bug, check [existing issues][issues] first.
 If nothing matches, open a [new bug report][bug-issue] and follow the template.
 
 Bug fixes are always welcome.
-Browse open [issues][issues] and comment on the one you want to take.
+Browse [open issues][all-issues] and comment on the one you want to take.
 
 ## 2. Features
 
-For new features please check [project board][project] and [discussions][discussions] to make sure your idea isn't already discussed.
+For new features, please check the [project board][project] and [discussions][discussions] to make sure your idea isn't already discussed.
 
 - **Concrete feature?** Open a [feature request][feat-issue].
 - **Broad idea or unsure?** Start a [discussion][discussions] first.
@@ -23,47 +23,47 @@ Wait for an issue to be accepted before starting a PR.
 ## 3. Architecture
 
 LiveDebugger consists of background **services**, a UI **app**, **unit tests**, **E2E tests**, and JS **assets**.
-Read through `lib/live_debugger/` and `assets/` before making non-trivial changes to understand code layout, and conventions since it will make reviews faster.
+Read through `lib/live_debugger/` and `assets/` before making non-trivial changes to understand the code layout and conventions - this will make reviews faster.
 
 ### 3.1 Services
 
 Each service has its own supervision tree and runs asynchronously.
 Services shouldn't call each other directly - they communicate via the `LiveDebugger.Bus` module (PubSub) and exchange **events** (see `LiveDebugger.Event`).
 
-Services are interacting with ETS, FileStorage and Phoenix.LiveView API for debugging via `api/` modules, which are mocked in tests.
-Logic for querying and aggregating data should be inside `queries/`, modifying data inside `actions/` and event handling inside GenServer.
+Services interact with ETS, FileStorage, and the Phoenix.LiveView API for debugging via `api/` modules, which are mocked in tests.
+Logic for querying and aggregating data should be inside `queries/`, modifying data inside `actions/`, and event handling inside GenServer.
 
 ### 3.2 App
 
 The UI is built from LiveViews, sometimes nested, that subscribe to events.
 
-Common practices inside project.
+Follow these conventions:
 - For shared-state UI components, check `hook_components/`.
 - Don't grow files indefinitely. Split logic into `hooks`, presentation into
-  components, live components or nested LiveViews (which suit heavy message passing cases)
+  components, live components, or nested LiveViews (which suit heavy message passing cases).
 
 ### 3.3 Unit tests
 
 - Every bug fix needs a regression test.
 - Every new feature needs proper test coverage.
-- CI runs the suite against multiple Elixir versions - don't use Elixir and LiveView features which are not supported in earliest versions.
+- CI runs the suite against multiple Elixir versions - don't use Elixir and LiveView features which are not supported in the earliest versions.
 
 ### 3.4 E2E tests
 
 E2E tests use [Playwright][playwright].
 They spawn the Dev application alongside LiveDebugger.
 
+Required for any larger UI feature. Small visual tweaks don't need them.
+
 E2E tests can be flaky - if a failure looks unrelated to your change, rerun the suite.
 
 ### 3.5 JS assets
 
 - `assets/client` - runs inside the **debugged app**.
-Gathers info and draws overlays. It communicates with LiveDebugger via `lib/live_debugger/client/`
+  Gathers info and draws overlays. It communicates with LiveDebugger via `LiveDebugger.Client` module.
 - `assets/app` - runs inside LiveDebugger. LiveView hooks and styles for the UI.
 
 Don't share modules between these two.
-
-
 
 ## 4. Creating a pull request
 
@@ -71,14 +71,15 @@ Every PR should link to an existing issue.
 
 ### Local setup
 
-Clone repo and execute
+Clone the repo and run:
 
 ```console
 mix setup
+mix e2e.setup
 iex -S mix
 ```
 
-This sets up work environment and runs LiveDebugger and example Dev application. 
+This sets up the work environment and runs LiveDebugger and the example Dev application.
 
 - Dev app: `http://localhost:4004`
 - LiveDebugger: `http://localhost:4007`
@@ -91,20 +92,19 @@ mix assets.build:dev
 
 ### Running tests
 
-For E2E tests you need to setup them with `mix e2e.setup`.
-
-There are unit tests and E2E test which can be run using. 
+Unit tests and E2E tests can be run using:
 
 ```console
 mix test
-mix e2e.
+mix e2e
 ```
-Some E2E tests might be flaky so you can rerun them if needed.
+
+Some E2E tests can be flaky - rerun them if a failure looks unrelated to your change.
 
 ### Before pushing
 
 - Run `mix test` and `mix e2e`.
-- Run `mix format`
+- Run `mix format`.
 
 ### Opening the PR
 
@@ -112,10 +112,12 @@ Some E2E tests might be flaky so you can rerun them if needed.
 - Keep it focused on one change.
 - Make sure CI is green (unit tests across Elixir versions, E2E, formatter).
 
+---
 
-### Thanks for all the contributions and happy debugging!
+Thanks for all the contributions and happy debugging!
 
 [issues]: https://github.com/software-mansion/live-debugger/issues?q=is%3Aissue%20state%3Aopen%20label%3Abug
+[all-issues]: https://github.com/software-mansion/live-debugger/issues?q=is%3Aissue%20state%3Aopen
 [bug-issue]: https://github.com/software-mansion/live-debugger/issues/new?template=bug_report.yaml
 [feat-issue]: https://github.com/software-mansion/live-debugger/issues/new?template=feature_request.yaml
 [discussions]: https://github.com/software-mansion/live-debugger/discussions
