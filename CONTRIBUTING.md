@@ -1,7 +1,7 @@
 # Contributing
  
 If you are interested in contributing to LiveDebugger please read this document.
-We are happy to receive any feedback and contribution!
+We are happy to receive any feedback and contributions!
 
 ## 1. Bugs
 
@@ -13,74 +13,25 @@ Browse open [issues][issues] and comment on the one you want to take.
 
 ## 2. Features
 
-New new features please check [project board][project] and [discussions][discussions] to make sure your idea isn't already discussed.
-
+For new features please check [project board][project] and [discussions][discussions] to make sure your idea isn't already discussed.
 
 - **Concrete feature?** Open a [feature request][feat-issue].
 - **Broad idea or unsure?** Start a [discussion][discussions] first.
 
 Wait for an issue to be accepted before starting a PR.
 
-## 3. Creating a pull requests
-
-Every PR should link to an existing issue.
-
-### Local setup
-
-Clone repo and execute
-
-```console
-mix setup
-iex -S mix
-```
-
-This setups work environment and runs LiveDebugger and example `Dev` aplication. 
-
-- `Dev` app: `http://localhost:4004`
-- LiveDebugger: `http://localhost:4007`
-
-LiveReload handles `.ex` files and assets. If styles don't update, run:
-
-```console
-mix assets.build:dev
-```
-
-### Running tests
-
-For E2E tests you need to setup them with `mix e2e.setup`.
-
-There are unit tests and E2E test wich can be run using 
-
-```console
-mix test
-mix e2e
-```
-Some E2E tests might be flaky so you can rerun them if needed.
-
-### Before pushing
-
-- Run `mix test` and `mix e2e`.
-- Run `mix format`
-
-### Opening the PR
-
-- Link the issue.
-- Keep it focused on one change.
-- Make sure CI is green (unit tests across Elixir versions, E2E, formatter).
-
-
 ## 3. Architecture
 
-LiveDebugger consists of background **services**, a **LiveView UI**, **unit tests**, **E2E tests**, and **JS assets**.
-Read through `lib/live_debugger/` and `assets/` before making non-trivial changes - the layout has strong conventions and matching them makes review faster.
+LiveDebugger consists of background **services**, a UI **app**, **unit tests**, **E2E tests**, and JS **assets**.
+Read through `lib/live_debugger/` and `assets/` before making non-trivial changes to understand code layout, and conventions since it will make reviews faster.
 
 ### 3.1 Services
 
 Each service has its own supervision tree and runs asynchronously.
-Services shouldn't call each other directly — they communicate via the `Bus` module (PubSub) and exchange **events** (see `lib/live_debugger/event.ex`).
+Services shouldn't call each other directly - they communicate via the `LiveDebugger.Bus` module (PubSub) and exchange **events** (see `LiveDebugger.Event`).
 
-Services are interacting with ETS, FileStorage and Phoenix.LiveView api for debugging via `api/` modules.
-Logic for querying and aggregating data should be inside `queries/`, modyfing data inside `actions/` and event handling inside GenServer.
+Services are interacting with ETS, FileStorage and Phoenix.LiveView API for debugging via `api/` modules, which are mocked in tests.
+Logic for querying and aggregating data should be inside `queries/`, modifying data inside `actions/` and event handling inside GenServer.
 
 ### 3.2 App
 
@@ -95,24 +46,72 @@ Common practices inside project.
 
 - Every bug fix needs a regression test.
 - Every new feature needs proper test coverage.
-- CI runs the suite against multiple Elixir versions - don't use Elixr and LiveView features which are not supported in earliest versions.
-
+- CI runs the suite against multiple Elixir versions - don't use Elixir and LiveView features which are not supported in earliest versions.
 
 ### 3.4 E2E tests
 
 E2E tests use [Playwright][playwright].
-They spawn the `dev` application alongside LiveDebugger.
+They spawn the Dev application alongside LiveDebugger.
 
-E2E tests can be flaky — if a failure looks unrelated to your change, rerun the suite.
+E2E tests can be flaky - if a failure looks unrelated to your change, rerun the suite.
 
 ### 3.5 JS assets
 
-- **`assets/client`** — runs inside the **debugged app**.
+- `assets/client` - runs inside the **debugged app**.
 Gathers info and draws overlays. It communicates with LiveDebugger via `lib/live_debugger/client/`
-- **`assets/app`** — runs inside **LiveDebugger**.
-LiveView hooks and styles for the UI.
+- `assets/app` - runs inside LiveDebugger. LiveView hooks and styles for the UI.
 
-Don't share modules between the two.
+Don't share modules between these two.
+
+
+
+## 4. Creating a pull request
+
+Every PR should link to an existing issue.
+
+### Local setup
+
+Clone repo and execute
+
+```console
+mix setup
+iex -S mix
+```
+
+This sets up work environment and runs LiveDebugger and example Dev application. 
+
+- Dev app: `http://localhost:4004`
+- LiveDebugger: `http://localhost:4007`
+
+LiveReload handles `.ex` files and assets. If styles don't update, run:
+
+```console
+mix assets.build:dev
+```
+
+### Running tests
+
+For E2E tests you need to setup them with `mix e2e.setup`.
+
+There are unit tests and E2E test which can be run using. 
+
+```console
+mix test
+mix e2e.
+```
+Some E2E tests might be flaky so you can rerun them if needed.
+
+### Before pushing
+
+- Run `mix test` and `mix e2e`.
+- Run `mix format`
+
+### Opening the PR
+
+- Link the issue.
+- Keep it focused on one change.
+- Make sure CI is green (unit tests across Elixir versions, E2E, formatter).
+
 
 ### Thanks for all the contributions and happy debugging!
 
