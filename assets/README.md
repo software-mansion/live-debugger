@@ -13,10 +13,10 @@ assets/
 Each is its own npm package with its own `package.json`, `node_modules`, and entry point.
 They are bundled independently by esbuild via the LiveDebugger mix tasks.
 
-| | `app/` | `client/` |
-| --- | --- | --- |
-| Loaded by | `app/web/layout.ex` | A meta-tag injected by LiveDebugger |
-| Includes Tailwind | Yes (v4) | No (scoped CSS only - must not leak into the host app) |
+|                   | `app/`              | `client/`                                              |
+| ----------------- | ------------------- | ------------------------------------------------------ |
+| Loaded by         | `app/web/layout.ex` | A meta-tag injected by LiveDebugger                    |
+| Includes Tailwind | Yes (v4)            | No (scoped CSS only - must not leak into the host app) |
 
 ## App
 
