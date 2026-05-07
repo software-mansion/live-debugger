@@ -1,6 +1,11 @@
 defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   @moduledoc """
   Manages the tracing of callbacks.
+
+  In `:ip` port mode, the monitored pid (`:dbg_pid` for historical reasons)
+  is the `:dbg.trace_client` process, not the producer-side tracer port.
+  The client is the one we care about: if it dies, decoded traces stop
+  reaching `TraceHandler`, regardless of whether the C-side port is alive.
   """
 
   use GenServer
@@ -80,9 +85,10 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
     {:noreply, state}
   end
 
-  # Handling tracer process stop or crash.
-  # All exit messages are trapped and sent with `:done` reason.
-  def handle_info({:DOWN, _, _, pid, :done}, %{dbg_pid: pid} = state) do
+  # The monitored pid is the trace_client. Any exit reason (`:done`,
+  # `:killed` from the heap-size flag, connection loss, etc.) means traces
+  # have stopped flowing — broadcast `DbgKilled` so subscribers can react.
+  def handle_info({:DOWN, _, _, pid, _reason}, %{dbg_pid: pid} = state) do
     Bus.broadcast_event!(%DbgKilled{})
 
     {:noreply, %{state | dbg_pid: nil}}

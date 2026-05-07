@@ -11,6 +11,9 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   alias LiveDebugger.Services.CallbackTracer.Actions.State, as: StateActions
   alias LiveDebugger.Services.CallbackTracer.Actions.DiffTrace, as: DiffActions
 
+  alias LiveDebugger.Bus
+  alias LiveDebugger.Services.CallbackTracer.Events.TracesDropped
+
   alias LiveDebugger.Structs.Trace.FunctionTrace
 
   alias LiveDebugger.API.TracesStorage
@@ -156,6 +159,15 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
       :ok
     end
 
+    {:noreply, state}
+  end
+
+  #########################################################
+  # Handling drop notifications from the IP trace port queue
+  #########################################################
+
+  def handle_cast({:new_trace, {:drop, n_dropped}, _n}, state) do
+    Bus.broadcast_event!(%TracesDropped{count: n_dropped})
     {:noreply, state}
   end
 

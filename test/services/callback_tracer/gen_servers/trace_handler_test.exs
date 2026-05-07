@@ -17,6 +17,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
   alias LiveDebugger.Services.CallbackTracer.Events.TraceErrored
   alias LiveDebugger.Services.CallbackTracer.Events.StateChanged
   alias LiveDebugger.Services.CallbackTracer.Events.DiffTraceCreated
+  alias LiveDebugger.Services.CallbackTracer.Events.TracesDropped
   alias LiveDebugger.Structs.Trace.DiffTrace
 
   describe "handle_cast/2" do
@@ -372,6 +373,14 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandlerTest do
       assert_raise RuntimeError, fn ->
         TraceHandler.handle_cast(trace, %{})
       end
+    end
+
+    test "broadcasts TracesDropped on {:drop, N} from the IP trace port queue" do
+      MockBus
+      |> expect(:broadcast_event!, fn %TracesDropped{count: 42} -> :ok end)
+
+      result = TraceHandler.handle_cast({:new_trace, {:drop, 42}, 0}, %{})
+      assert {:noreply, %{}} = result
     end
   end
 end

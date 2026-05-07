@@ -97,7 +97,9 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
     end
   end
 
-  defp expect_setup_tracing(pid \\ self()) do
+  defp expect_setup_tracing(client_pid \\ self()) do
+    port_fun = fn -> nil end
+
     MockAPITracesStorage
     |> expect(:get_all_tables, fn -> [] end)
 
@@ -116,7 +118,11 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
     |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
     MockAPIDbg
-    |> expect(:tracer, fn _ -> {:ok, pid} end)
+    |> expect(:trace_port, fn :ip, {_port, _qsize} -> port_fun end)
+    |> expect(:tracer, fn :port, ^port_fun -> {:ok, self()} end)
+    |> expect(:trace_client, fn :ip, {~c"localhost", _port}, {_handler, {:init, _}} ->
+      client_pid
+    end)
     |> expect(:process, fn _ -> :ok end)
     |> expect(:trace_pattern, 18, fn _, _ -> :ok end)
 

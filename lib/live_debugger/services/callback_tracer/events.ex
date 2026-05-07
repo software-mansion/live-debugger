@@ -68,4 +68,6 @@ defmodule LiveDebugger.Services.CallbackTracer.Events do
 
   defevent(DbgKilled)
   defevent(DbgStarted)
+
+  defevent(TracesDropped, count: non_neg_integer())
 end

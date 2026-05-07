@@ -14,8 +14,17 @@ defmodule LiveDebugger.API.System.Dbg do
 
   @type handler_spec() :: {handler_fun(), initial_data :: term()}
   @type handler_fun() :: (event :: term(), data :: term() -> new_data :: term())
+  @type port_fun() :: (-> port())
+  @type ip_params() :: :inet.port_number() | {:inet.port_number(), pos_integer()}
 
-  @callback tracer(handler :: handler_spec()) :: {:ok, pid()} | {:error, term()}
+  @callback tracer(:process, handler :: handler_spec()) :: {:ok, pid()} | {:error, term()}
+  @callback tracer(:port, port_fun()) :: {:ok, pid()} | {:error, term()}
+  @callback trace_port(type :: :ip, params :: ip_params()) :: port_fun()
+  @callback trace_client(
+              type :: :ip,
+              params :: {:inet.hostname() | :inet.ip_address(), :inet.port_number()},
+              handler :: handler_spec()
+            ) :: pid()
   @callback process(flags :: list()) :: {:ok, term()} | {:error, term()}
   @callback process(pid(), flags :: list()) :: {:ok, term()} | {:error, term()}
   @callback trace_pattern(module() | mfa(), match_spec :: term()) ::
@@ -24,12 +33,47 @@ defmodule LiveDebugger.API.System.Dbg do
   @callback stop() :: :ok
 
   @doc """
-  Starts tracer process and returns its PID.
-  When tracer is already started, it returns error.
-  It uses `:dbg.tracer/2` under the hood.
+  Starts a `:dbg` tracer.
+
+    * `tracer(:process, handler_spec)` — events are delivered as Erlang
+      messages to the handler running in the dbg-spawned tracer process.
+      Higher overhead under burst because every event hits the Erlang
+      process mailbox.
+
+    * `tracer(:port, port_fun)` — events are encoded by a C port driver
+      and written to the port's sink (TCP socket for `:ip`, file for
+      `:file`), bypassing the Erlang process mailbox on the producer side.
+      `port_fun` is typically obtained from `trace_port/2`.
   """
-  @spec tracer(handler_spec()) :: {:ok, pid()} | {:error, term()}
-  def tracer(handler_spec), do: impl().tracer(handler_spec)
+  @spec tracer(:process, handler_spec()) :: {:ok, pid()} | {:error, term()}
+  @spec tracer(:port, port_fun()) :: {:ok, pid()} | {:error, term()}
+  def tracer(mode, arg)
+  def tracer(:process, handler_spec), do: impl().tracer(:process, handler_spec)
+
+  def tracer(:port, port_fun) when is_function(port_fun, 0),
+    do: impl().tracer(:port, port_fun)
+
+  @doc """
+  Returns a port generator fun for `:dbg.trace_port/2`.
+  For `:ip`, accepts a port number (with default queue size) or
+  `{port, queue_size}`. Pass `0` to bind to an OS-assigned port.
+  """
+  @spec trace_port(type :: :ip, params :: ip_params()) :: port_fun()
+  def trace_port(type, params), do: impl().trace_port(type, params)
+
+  @doc """
+  Starts a trace client process that consumes events from the given source.
+  For `:ip`, connects to the listening tracer port and invokes the handler
+  per event. The handler also receives `{:drop, N}` tuples when the producer
+  queue overflowed since the last delivery.
+  """
+  @spec trace_client(
+          :ip,
+          {:inet.hostname() | :inet.ip_address(), :inet.port_number()},
+          handler_spec()
+        ) :: pid()
+  def trace_client(type, params, handler_spec),
+    do: impl().trace_client(type, params, handler_spec)
 
   @doc """
   Enables tracing for all processes in the system.
@@ -100,8 +144,22 @@ defmodule LiveDebugger.API.System.Dbg do
     @behaviour LiveDebugger.API.System.Dbg
 
     @impl true
-    def tracer(handler) do
+    def tracer(:process, handler) do
       :dbg.tracer(:process, handler)
+    end
+
+    def tracer(:port, port_fun) do
+      :dbg.tracer(:port, port_fun)
+    end
+
+    @impl true
+    def trace_port(:ip, params) do
+      :dbg.trace_port(:ip, params)
+    end
+
+    @impl true
+    def trace_client(:ip, {host, port}, handler) do
+      :dbg.trace_client(:ip, {host, port}, handler)
     end
 
     @impl true

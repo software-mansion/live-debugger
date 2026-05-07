@@ -17,8 +17,21 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
 
   setup :verify_on_exit!
 
+  defp expect_ip_tracer(mock, client_pid) do
+    port_fun = fn -> nil end
+
+    mock
+    |> expect(:trace_port, fn :ip, {_port, _qsize} -> port_fun end)
+    |> expect(:tracer, fn :port, ^port_fun -> {:ok, self()} end)
+    |> expect(:trace_client, fn :ip, {~c"localhost", _port}, {_handler, {:init, _}} ->
+      client_pid
+    end)
+  end
+
   describe "setup_tracing_with_monitoring!/1" do
     test "successfully sets up tracing and monitoring" do
+      client_pid = self()
+
       MockAPITracesStorage
       |> expect(:get_all_tables, fn -> [] end)
 
@@ -37,7 +50,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
       MockAPIDbg
-      |> expect(:tracer, fn {_handler, {:init, 0}} -> {:ok, self()} end)
+      |> expect_ip_tracer(client_pid)
       |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
       |> expect(
         :trace_pattern,
@@ -48,23 +61,27 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       MockBus
       |> expect(:broadcast_event!, fn %DbgStarted{} -> :ok end)
 
-      assert %{dbg_pid: self()} == TracingActions.setup_tracing_with_monitoring!(%{dbg_pid: nil})
+      assert %{dbg_pid: ^client_pid} =
+               TracingActions.setup_tracing_with_monitoring!(%{dbg_pid: nil})
     end
 
     test "raises error when tracer fails to start" do
+      port_fun = fn -> nil end
+
       MockAPITracesStorage
       |> expect(:get_all_tables, fn -> [] end)
 
       MockAPIDbg
-      |> expect(:tracer, fn {_handler, {:init, 0}} -> {:error, :already_started} end)
+      |> expect(:trace_port, fn :ip, {_port, _qsize} -> port_fun end)
+      |> expect(:tracer, fn :port, ^port_fun -> {:error, :already_started} end)
 
       assert_raise RuntimeError, "Couldn't start tracer: :already_started", fn ->
         TracingActions.setup_tracing_with_monitoring!(%{})
       end
     end
 
-    test "monitors tracer process when successful" do
-      tracer_pid =
+    test "monitors trace_client process when successful" do
+      client_pid =
         spawn(fn ->
           receive do
             _ -> :ok
@@ -88,7 +105,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
       MockAPIDbg
-      |> expect(:tracer, fn {_handler, {:init, 0}} -> {:ok, tracer_pid} end)
+      |> expect_ip_tracer(client_pid)
       |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
       |> expect(
         :trace_pattern,
@@ -99,13 +116,13 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       MockBus
       |> expect(:broadcast_event!, fn %DbgStarted{} -> :ok end)
 
-      assert %{dbg_pid: ^tracer_pid} =
+      assert %{dbg_pid: ^client_pid} =
                TracingActions.setup_tracing_with_monitoring!(%{dbg_pid: nil})
 
-      # Verify process is monitored
-      Process.exit(tracer_pid, :done)
+      # Verify the trace_client process is the one being monitored
+      Process.exit(client_pid, :done)
 
-      assert_receive {:DOWN, _, :process, ^tracer_pid, :done}
+      assert_receive {:DOWN, _, :process, ^client_pid, :done}
     end
 
     test "monitors multiple directories for file changes" do
@@ -134,7 +151,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
       MockAPIDbg
-      |> expect(:tracer, fn {_handler, {:init, 0}} -> {:ok, self()} end)
+      |> expect_ip_tracer(self())
       |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
       # 2 modules * 9 LiveView callbacks * 2 (return + exception) = 36
       |> expect(

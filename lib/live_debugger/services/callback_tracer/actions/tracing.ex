@@ -1,6 +1,11 @@
 defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   @moduledoc """
   This module provides actions for tracing.
+
+  Tracing uses `:dbg` in `:port` mode with the `:ip` trace port driver:
+  the BEAM-side producer encodes events in C and writes them to a local
+  TCP socket buffered in kernel space, decoupling traced processes from
+  the consumer (the `:dbg.trace_client` process running `Tracer.handle_trace/2`).
   """
   require Logger
 
@@ -15,6 +20,8 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   alias LiveDebugger.Services.CallbackTracer.Queries.Traces, as: TraceQueries
   alias LiveDebugger.Utils.Modules, as: UtilsModules
 
+  @default_queue_size 5
+
   @doc """
   Sets up tracing and monitors recompilation in a single pass.
   Fetches and processes the module list only once for efficiency.
@@ -27,9 +34,20 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
       Dbg.stop()
     end
 
-    case Dbg.tracer({&Tracer.handle_trace/2, {:init, last_id - 1}}) do
-      {:ok, pid} ->
-        Process.monitor(pid)
+    bound_port = pick_bound_port()
+    queue_size = Application.get_env(:live_debugger, :tracer_ip_queue_size, @default_queue_size)
+    port_fun = Dbg.trace_port(:ip, {bound_port, queue_size})
+
+    case Dbg.tracer(:port, port_fun) do
+      {:ok, _tracer_port_pid} ->
+        client_pid =
+          Dbg.trace_client(
+            :ip,
+            {~c"localhost", bound_port},
+            {&Tracer.handle_trace/2, {:init, last_id - 1}}
+          )
+
+        Process.monitor(client_pid)
 
         Dbg.process([:c, :timestamp, :procs])
 
@@ -48,10 +66,29 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
         # Broadcast information
         Bus.broadcast_event!(%DbgStarted{})
 
-        %{state | dbg_pid: pid}
+        %{state | dbg_pid: client_pid}
 
       {:error, error} ->
         raise "Couldn't start tracer: #{inspect(error)}"
+    end
+  end
+
+  # Open a transient listener on port 0 to discover an available port number,
+  # then close it before handing the port back to the IP trace driver. This is
+  # racy in principle (another process could grab the port in the gap), but in
+  # practice the window is sub-millisecond and the alternative — a fixed port
+  # — collides on multi-instance setups.
+  @spec pick_bound_port() :: :inet.port_number()
+  defp pick_bound_port() do
+    case Application.get_env(:live_debugger, :tracer_ip_port) do
+      port when is_integer(port) and port > 0 ->
+        port
+
+      _ ->
+        {:ok, sock} = :gen_tcp.listen(0, [:binary, ip: {127, 0, 0, 1}])
+        {:ok, port} = :inet.port(sock)
+        :gen_tcp.close(sock)
+        port
     end
   end
 
