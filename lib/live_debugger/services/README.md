@@ -9,7 +9,7 @@ Each service lives in its own directory and follows the same skeleton:
 
 ```text
 services/<service_name>/
-├── supervisor.ex         # entry point in the app tree which is registered
+├── supervisor.ex         # registered in the app supervision tree
 ├── events.ex             # event structs this service publishes (Bus payloads)
 ├── gen_servers/          # processes owned by this service
 │   └── *.ex
@@ -22,7 +22,7 @@ Not every service has every directory — they are added when more files are nee
 
 ## Communication between services
 
-Services should **not** call each other. Cross-service communication goes through `LiveDebugger.Bus` (built on `Phoenix.PubSub`). There are 3 topics to use.
+Services should **not** call each other. Cross-service communication goes through `LiveDebugger.Bus` (built on `Phoenix.PubSub`):
 
 - `lvdbg/*` — general events
 - `lvdbg/traces/*` — trace data

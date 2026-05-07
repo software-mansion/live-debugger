@@ -1,6 +1,6 @@
 # Tests
 
-Unit tests for the LiveDebugger Elixir code mirrors `lib/` layout (e.g. `lib/foo/bar.ex` → `test/foo/bar_test.exs`).
+Unit tests for the LiveDebugger Elixir code. Layout mirrors `lib/` (e.g. `lib/foo/bar.ex` → `test/foo/bar_test.exs`).
 
 ## Running
 
@@ -15,7 +15,7 @@ mix test test/path/to/file.exs:42 # single test by line
 ### Helpers
 
 - `test/support/fakes.ex` - provides reusable factory functions (build a fake `LvProcess`, `Trace`, etc.)
-- `test_helper.exs` - default helper module with defined mocks
+- `test_helper.exs` - test suite entry script; defines shared mocks
 
 ### Conventions
 

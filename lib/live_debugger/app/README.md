@@ -4,10 +4,10 @@ LiveView UI application. It follows some predefined conventions.
 
 ## File / folder structure
 
-Each page is structured to contain elements which are inside nested in folder (e.g. nested live views are subfolder of live view in which they are used).
-If the components are shared between pages/bigger ui parts put them on the nearest connection branch.
+Each page's elements are nested in subfolders (e.g. a nested LiveView lives in a subfolder of the parent LiveView).
+Components shared between pages or larger UI parts go in the nearest common ancestor folder.
 
-Each **feature** (page or bigger ui element) (`debugger/`, `discovery/`, `settings/`) follows the same internal layout:
+Each **feature** - a page or larger UI element (`debugger/`, `discovery/`, `settings/`) - follows the same internal layout:
 
 ```text
 <feature>/
@@ -24,7 +24,7 @@ Each **feature** (page or bigger ui element) (`debugger/`, `discovery/`, `settin
     └── hook_components/   # function components that register their own hooks (see below)
 ```
 
-Not all folders are necessary and if there is little code then it is better to use a single file (e.g. `components.ex`)
+Not all folders are necessary - if there is little code, prefer a single file (e.g. `components.ex`).
 
 ## Hooks
 
@@ -40,6 +40,6 @@ A hook component (`use LiveDebugger.App.Web, :hook_component`) is a function com
 
 ## Nested LiveViews
 
-The debugger page (`Debugger.Web.DebuggerLive`) is a shell which consist of independent nested LiveViews mounted via [live_render/3](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#live_render/3). It allows each component to subscribe on the topic it needs and also removes need for propagating messages to children from parent LiveView.
+Some pages (e.g. `Debugger.Web.DebuggerLive`) consist of independent nested LiveViews mounted via [live_render/3](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#live_render/3). It allows each component to subscribe to the topic it needs and removes the need to propagate messages from the parent LiveView to children.
 
 Nested LiveViews should expose a `live_render` component for easy usage (it should handle initial assigns).

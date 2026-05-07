@@ -7,9 +7,8 @@ We are happy to receive any feedback and contributions!
 
 ## 1. Bugs
 
-Before reporting a bug, check [existing issues][issues] first.
+Before reporting a bug, check [existing bug reports][issues] first.
 If nothing matches, open a [new bug report][bug-issue] and follow the template.
-
 
 Bug fixes are always welcome!
 
@@ -50,13 +49,13 @@ Services interact with ETS, FileStorage, and the Phoenix.LiveView API through `a
 Code that queries or aggregates data lives in `queries/`, code that changes data lives in `actions/`, and event handling lives in the GenServers.
 
 Existing services:
+
 - `callback_tracer` - traces LiveView callbacks in the debugged app.
 - `client_communicator` - sends messages to the in-page client running inside the debugged app.
 - `garbage_collector` - prunes stale entries from ETS tables.
 - `process_monitor` - tracks LiveView processes in both the debugged app and LiveDebugger itself.
 - `successor_discoverer` - finds the new process after a LiveView reconnects.
 - `telemetry_handler` - listens for `:telemetry` events and forwards them.
-
 
 For more details, see [`lib/live_debugger/services/README.md`](lib/live_debugger/services/README.md).
 
@@ -69,7 +68,6 @@ The file structure groups pages and their elements into subfolders to keep the c
 To avoid large files, split logic and components apart.
 LiveDebugger uses `hooks` and `hook_components` to organize shared assigns.
 
-
 For more details, see [`lib/live_debugger/app/README.md`](lib/live_debugger/app/README.md).
 
 ### 3.3 Unit tests
@@ -77,8 +75,7 @@ For more details, see [`lib/live_debugger/app/README.md`](lib/live_debugger/app/
 Every bug fix needs a regression test.
 Every new feature needs proper test coverage.
 
-
-CI runs the suite against two Elixir / OTP combinations: the latest (Elixir 1.19 / OTP 28) and the oldest still supported (Elixir 1.16 / OTP 26). Don't use Elixir or LiveView features that aren't available in the oldest version.
+CI runs the suite against two Elixir / OTP combinations: the latest and the oldest still supported. The exact versions are defined in [`.github/workflows/elixir-ci.yaml`](.github/workflows/elixir-ci.yaml). Don't use Elixir or LiveView features that aren't available in the oldest version.
 
 For more details, see [`test/README.md`](test/README.md).
 
@@ -108,6 +105,7 @@ Every PR should link to an existing issue. Use github generated branch names to 
 ### Local setup
 
 Requirements:
+
 - Elixir
 - Node.js
 
@@ -120,7 +118,7 @@ mix setup
 iex -S mix
 ```
 
-This will fetch deps, handle JS and build assets before starting Dev application alongisde LiveDebugger.
+This will fetch deps, handle JS and build assets before starting Dev application alongside LiveDebugger.
 
 - Dev app: `http://localhost:4004`
 - LiveDebugger: `http://localhost:4007`
@@ -148,7 +146,6 @@ mix e2e
 
 Some E2E tests can be flaky - rerun them if a failure looks unrelated to your change.
 
-
 ### Opening the PR
 
 Before opening a PR please:
@@ -156,7 +153,7 @@ Before opening a PR please:
 - Do a self review of your code.
 - Ensure both unit tests (`mix test`) and E2E tests (`mix e2e`) pass.
 - Run `mix format` and `mix credo` and fix any issues they report.
-- Run `npx prettier . --check` inside `assets/` for the JS/CSS formatting check.
+- Run `cd assets && npx prettier . --check` for the JS/CSS formatting check.
 - Link to the related issue.
 
 After creating the pull request please make sure CI passes! It runs the same checks against both the newest and the oldest supported Elixir/OTP versions.
@@ -166,7 +163,6 @@ After creating the pull request please make sure CI passes! It runs the same che
 Thanks for all the contributions and happy debugging!
 
 [issues]: https://github.com/software-mansion/live-debugger/issues?q=is%3Aissue%20state%3Aopen%20label%3Abug
-[all-issues]: https://github.com/software-mansion/live-debugger/issues?q=is%3Aissue%20state%3Aopen
 [bug-issue]: https://github.com/software-mansion/live-debugger/issues/new?template=bug_report.yaml
 [feat-issue]: https://github.com/software-mansion/live-debugger/issues/new?template=feature_request.yaml
 [discussions]: https://github.com/software-mansion/live-debugger/discussions

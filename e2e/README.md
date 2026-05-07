@@ -11,10 +11,10 @@ mix e2e.setup
 ## Running
 
 ```sh
-mix e2e    
-# Or you can do it via `npx` in `e2e/` folder                       
+mix e2e
+# Or via `npx` in the `e2e/` folder:
 npx playwright test --ui
-npx playwright test --quiet --retries 2 
+npx playwright test --quiet --retries 2
 ```
 
 Reports land in `e2e/playwright-report/` — open with `npx playwright show-report`.
