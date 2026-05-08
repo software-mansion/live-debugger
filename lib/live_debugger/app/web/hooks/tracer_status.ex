@@ -53,9 +53,9 @@ defmodule LiveDebugger.App.Web.Hooks.TracerStatus do
   defp handle_async(_, _, socket), do: {:cont, socket}
 
   defp tracer_status() do
-    %{:dbg_pid => dbg_pid} =
+    %{tracer_pid: tracer_pid, trace_client_pid: trace_client_pid} =
       GenServer.call(TracingManager, :get_state, @tracer_state_request_timeout)
 
-    dbg_pid != nil
+    tracer_pid != nil and trace_client_pid != nil
   end
 end

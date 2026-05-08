@@ -39,7 +39,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
     :net_kernel.monitor_nodes(true, %{node_type: :visible})
 
-    {:ok, %{dbg_pid: nil}, {:continue, :setup_tracing}}
+    {:ok, %{tracer_pid: nil, trace_client_pid: nil}, {:continue, :setup_tracing}}
   end
 
   @impl true
@@ -88,10 +88,16 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
   # The monitored pid is the trace_client. Any exit reason (`:done`,
   # `:killed` from the heap-size flag, connection loss, etc.) means traces
   # have stopped flowing — broadcast `DbgKilled` so subscribers can react.
-  def handle_info({:DOWN, _, _, pid, _reason}, %{dbg_pid: pid} = state) do
+  def handle_info({:DOWN, _, _, pid, _reason}, %{tracer_pid: pid} = state) do
     Bus.broadcast_event!(%DbgKilled{})
 
-    {:noreply, %{state | dbg_pid: nil}}
+    {:noreply, %{state | tracer_pid: nil}}
+  end
+
+  def handle_info({:DOWN, _, _, pid, _reason}, %{trace_client_pid: pid} = state) do
+    Bus.broadcast_event!(%DbgKilled{})
+
+    {:noreply, %{state | trace_client_pid: nil}}
   end
 
   def handle_info({:nodeup, _name, _}, state) do

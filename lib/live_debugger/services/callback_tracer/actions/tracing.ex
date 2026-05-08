@@ -30,7 +30,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   def setup_tracing_with_monitoring!(state) do
     last_id = TraceQueries.get_last_trace_id()
 
-    if Map.get(state, :dbg_pid) do
+    if Map.get(state, :tracer_pid) do
       Dbg.stop()
     end
 
@@ -39,15 +39,15 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
     port_fun = Dbg.trace_port(:ip, {bound_port, queue_size})
 
     case Dbg.tracer(:port, port_fun) do
-      {:ok, _tracer_port_pid} ->
-        client_pid =
+      {:ok, tracer_pid} ->
+        trace_client_pid =
           Dbg.trace_client(
             :ip,
             {~c"localhost", bound_port},
             {&Tracer.handle_trace/2, {:init, last_id - 1}}
           )
 
-        Process.monitor(client_pid)
+        Process.monitor(trace_client_pid)
 
         Dbg.process([:c, :timestamp, :procs])
 
@@ -66,7 +66,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
         # Broadcast information
         Bus.broadcast_event!(%DbgStarted{})
 
-        %{state | dbg_pid: client_pid}
+        %{state | tracer_pid: tracer_pid, trace_client_pid: trace_client_pid}
 
       {:error, error} ->
         raise "Couldn't start tracer: #{inspect(error)}"
