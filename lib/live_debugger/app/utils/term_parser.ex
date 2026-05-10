@@ -137,8 +137,10 @@ defmodule LiveDebugger.App.Utils.TermParser do
     |> TermNode.set_pulse(true, recursive: false)
   end
 
-  defp update_by_diff!(term_node, %Diff{type: :struct, diff: diff}, _opts) do
-    term_node_reduce_diff!(term_node, diff)
+  defp update_by_diff!(term_node, %Diff{type: :struct, diff: diff} = struct_diff, opts) do
+    term_node
+    |> refresh_struct_content(struct_diff, opts)
+    |> term_node_reduce_diff!(diff)
   end
 
   defp update_by_diff!(term_node, %Diff{type: :map, ins: ins, del: del, diff: diff}, _opts) do
@@ -207,6 +209,36 @@ defmodule LiveDebugger.App.Utils.TermParser do
       term_node
     else
       term_node |> TermNode.set_pulse(true, recursive: false)
+    end
+  end
+
+  defp refresh_struct_content(%TermNode{} = term_node, %Diff{ins: ins}, opts) do
+    primitive_key = TermDiffer.primitive_key()
+
+    case Map.fetch(ins, primitive_key) do
+      {:ok, struct} ->
+        new_node =
+          case Keyword.get(opts, :key) do
+            nil ->
+              to_node(struct)
+
+            key ->
+              {key, struct}
+              |> to_key_value_node()
+              |> elem(1)
+          end
+
+        %TermNode{
+          term_node
+          | content: new_node.content,
+            expanded_before: new_node.expanded_before,
+            expanded_after: new_node.expanded_after,
+            kind: new_node.kind,
+            key: new_node.key
+        }
+
+      :error ->
+        term_node
     end
   end
 

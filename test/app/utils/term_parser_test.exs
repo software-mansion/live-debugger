@@ -748,6 +748,23 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
              ]
     end
 
+    test "updates collapsed content when struct inspect output changes" do
+      old_term = %{message: MapSet.new([])}
+      new_term = %{message: MapSet.new(["0"])}
+
+      term_node = TermParser.term_to_display_tree(old_term)
+      diff = TermDiffer.diff(old_term, new_term)
+
+      assert {:ok, updated_node} = TermParser.update_by_diff(term_node, diff)
+      {_, message_node} = List.keyfind(updated_node.children, :message, 0)
+
+      assert Enum.map(message_node.content, & &1.text) == [
+               "message:",
+               " ",
+               "MapSet.new([\"0\"])"
+             ]
+    end
+
     test "handles map key additions and deletions" do
       old_term = %{"a" => 1, "b" => 2}
       new_term = %{"b" => 2, "d" => 4}
