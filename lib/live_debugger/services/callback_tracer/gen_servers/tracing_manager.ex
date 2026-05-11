@@ -82,7 +82,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManager do
 
   # Handling tracer process stop or crash.
   # All exit messages are trapped and sent with `:done` reason.
-  def handle_info({:DOWN, _, _, pid, :done}, %{dbg_pid: pid} = state) do
+  def handle_info({:DOWN, _, _, pid, _reason}, %{dbg_pid: pid} = state) do
     Bus.broadcast_event!(%DbgKilled{})
 
     {:noreply, %{state | dbg_pid: nil}}
