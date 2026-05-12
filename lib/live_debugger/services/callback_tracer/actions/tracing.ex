@@ -31,7 +31,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
       {:ok, pid} ->
         Process.monitor(pid)
 
-        Dbg.process([:c, :timestamp, :procs])
+        Dbg.process([:c, :timestamp])
 
         # Fetch all live modules once with paths for both operations
         live_modules_with_paths = CallbackQueries.all_live_modules_with_paths()
@@ -70,7 +70,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
 
   @spec start_outgoing_messages_tracing(pid()) :: :ok
   def start_outgoing_messages_tracing(pid) do
-    Dbg.process(pid, [:s])
+    Dbg.process(pid, [:s, :procs])
 
     :ok
   end

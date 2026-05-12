@@ -38,7 +38,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
 
       MockAPIDbg
       |> expect(:tracer, fn {_handler, {:init, 0}} -> {:ok, self()} end)
-      |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
+      |> expect(:process, fn [:c, :timestamp] -> :ok end)
       |> expect(
         :trace_pattern,
         18,
@@ -89,7 +89,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
 
       MockAPIDbg
       |> expect(:tracer, fn {_handler, {:init, 0}} -> {:ok, tracer_pid} end)
-      |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
+      |> expect(:process, fn [:c, :timestamp] -> :ok end)
       |> expect(
         :trace_pattern,
         18,
@@ -135,7 +135,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
 
       MockAPIDbg
       |> expect(:tracer, fn {_handler, {:init, 0}} -> {:ok, self()} end)
-      |> expect(:process, fn [:c, :timestamp, :procs] -> :ok end)
+      |> expect(:process, fn [:c, :timestamp] -> :ok end)
       # 2 modules * 9 LiveView callbacks * 2 (return + exception) = 36
       |> expect(
         :trace_pattern,
@@ -211,7 +211,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       pid = :c.pid(0, 1, 0)
 
       MockAPIDbg
-      |> expect(:process, fn ^pid, [:s] -> :ok end)
+      |> expect(:process, fn ^pid, [:s, :procs] -> :ok end)
 
       result = TracingActions.start_outgoing_messages_tracing(pid)
 

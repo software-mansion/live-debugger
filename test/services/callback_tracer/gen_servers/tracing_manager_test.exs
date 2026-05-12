@@ -51,7 +51,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
       transport_pid = :c.pid(0, 2, 0)
 
       MockAPIDbg
-      |> expect(:process, fn ^pid, [:s] -> :ok end)
+      |> expect(:process, fn ^pid, [:s, :procs] -> :ok end)
 
       event = %LiveViewBorn{pid: pid, transport_pid: transport_pid}
 
