@@ -31,7 +31,10 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
       {:ok, pid} ->
         Process.monitor(pid)
 
-        Dbg.process([:c, :timestamp])
+        case Dbg.process([:c, :timestamp]) do
+          {:ok, _} -> :ok
+          {:error, error} -> raise "Couldn't enable system-wide call tracing: #{inspect(error)}"
+        end
 
         # Fetch all live modules once with paths for both operations
         live_modules_with_paths = CallbackQueries.all_live_modules_with_paths()
@@ -70,9 +73,13 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
 
   @spec start_outgoing_messages_tracing(pid()) :: :ok
   def start_outgoing_messages_tracing(pid) do
-    Dbg.process(pid, [:s, :procs])
+    case Dbg.process(pid, [:s, :procs]) do
+      {:ok, _} ->
+        :ok
 
-    :ok
+      {:error, error} ->
+        raise "Couldn't enable send tracing for #{inspect(pid)}: #{inspect(error)}"
+    end
   end
 
   defp refresh_tracing_for_module(module) do

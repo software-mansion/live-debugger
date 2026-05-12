@@ -132,27 +132,14 @@ defmodule LiveDebugger.API.System.Dbg do
     @impl true
     def tracer({handler_fun, initial_data})
         when is_function(handler_fun, 2) do
-      case Process.whereis(@tracer_name) do
-        nil ->
-          parent = self()
-          ref = make_ref()
+      pid = spawn(fn -> loop(handler_fun, initial_data) end)
 
-          pid =
-            :erlang.spawn(fn ->
-              Process.register(self(), @tracer_name)
-              send(parent, {:tracer_ready, ref})
-              loop(handler_fun, initial_data)
-            end)
-
-          receive do
-            {:tracer_ready, ^ref} -> {:ok, pid}
-          after
-            5_000 ->
-              Process.exit(pid, :kill)
-              {:error, :tracer_setup_timeout}
-          end
-
-        _existing ->
+      try do
+        Process.register(pid, @tracer_name)
+        {:ok, pid}
+      rescue
+        ArgumentError ->
+          Process.exit(pid, :kill)
           {:error, :already_started}
       end
     end
@@ -183,7 +170,6 @@ defmodule LiveDebugger.API.System.Dbg do
     def stop() do
       safe(fn -> :erlang.trace(:all, false, [:all]) end)
       safe(fn -> :erlang.trace_pattern({:_, :_, :_}, false, []) end)
-      safe(fn -> :erlang.trace_pattern({:_, :_, :_}, false, [:local]) end)
 
       case Process.whereis(@tracer_name) do
         nil ->
