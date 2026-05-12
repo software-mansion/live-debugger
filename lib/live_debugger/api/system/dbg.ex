@@ -4,8 +4,7 @@ defmodule LiveDebugger.API.System.Dbg do
 
   The implementation uses `:erlang.trace/3` and `:erlang.trace_pattern/3` BIFs
   directly (instead of going through `:dbg`) to reduce per-message overhead in
-  the tracer. The public surface and trace message shape are preserved so that
-  the rest of the CallbackTracer stack is unaffected.
+  the tracer.
 
   ## Usage
   1. If you want to trace callbacks you need to start tracer using `tracer/1` function.
@@ -206,9 +205,7 @@ defmodule LiveDebugger.API.System.Dbg do
 
     # Tracer process loop. Receives raw trace tuples from the BEAM and
     # dispatches them to the user-provided handler, threading state through
-    # each call. A `:stop` message terminates the loop with reason `:done`,
-    # which is what the existing `TracingManager` expects on the monitor's
-    # `:DOWN` message.
+    # each call. A `:stop` message terminates the loop with reason `:done`.
     defp loop(handler_fun, data) do
       receive do
         :stop ->
