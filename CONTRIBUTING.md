@@ -3,7 +3,7 @@
 If you are interested in contributing to LiveDebugger, please read this document.
 We are happy to receive any feedback and contributions!
 
-**NOTE:** LiveDebugger is not actively developed, so we welcome any help.
+**NOTE:** LiveDebugger is no longer under active developed, so we welcome any help.
 
 ## 1. Bugs
 
@@ -24,7 +24,7 @@ If you want to implement a feature, please wait for the issue to be accepted bef
 ## 3. Architecture
 
 LiveDebugger combines **services** that handle background work with an **app** that renders the UI in LiveView.
-Tests are split between Elixir unit tests and JavaScript E2E tests.
+Tests are split between Elixir unit tests and TypeScript E2E tests.
 
 Top-level layout:
 
