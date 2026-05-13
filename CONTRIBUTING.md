@@ -3,7 +3,7 @@
 If you are interested in contributing to LiveDebugger, please read this document.
 We are happy to receive any feedback and contributions!
 
-**NOTE:** LiveDebugger is no longer under active developed, so we welcome any help.
+**NOTE:** LiveDebugger is no longer under active development, so we welcome any help.
 
 ## 1. Bugs
 
