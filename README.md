@@ -109,6 +109,8 @@ LiveReload is working both for `.ex` files and static files, but if some styles 
 mix assets.build:dev
 ```
 
+For more information please look at [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ## What's next
 
 To learn about our upcoming plans and developments, please visit our [discussion page](https://github.com/software-mansion/live-debugger/discussions/355).
