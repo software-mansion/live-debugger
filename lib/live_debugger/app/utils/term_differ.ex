@@ -100,7 +100,6 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
     %Diff{
       type: :struct,
       ins: %{@primitive_key => struct2},
-      del: %{@primitive_key => struct1},
       diff: diff
     }
   end

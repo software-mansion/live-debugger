@@ -65,7 +65,6 @@ defmodule LiveDebugger.App.Utils.TermDifferTest do
                Fakes.term_diff(
                  type: :struct,
                  ins: %{TermDiffer.primitive_key() => %TestStruct1{a: 1, b: 2, c: 5}},
-                 del: %{TermDiffer.primitive_key() => %TestStruct1{a: 1, b: 2, c: 4}},
                  diff: %{c: Fakes.term_diff_primitive(old_value: 4, new_value: 5)}
                )
     end

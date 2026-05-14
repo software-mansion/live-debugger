@@ -8,6 +8,8 @@ defmodule LiveDebugger.App.Utils.TermParser do
   alias LiveDebugger.App.Utils.TermNode.DisplayElement
   alias LiveDebugger.App.Utils.TermNode
 
+  @primitive_key TermDiffer.primitive_key()
+
   @doc """
   Convert term into infinite string which can be copied to IEx console.
   """
@@ -213,9 +215,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp refresh_struct_content(%TermNode{} = term_node, %Diff{ins: ins}, opts) do
-    primitive_key = TermDiffer.primitive_key()
-
-    case Map.fetch(ins, primitive_key) do
+    case Map.fetch(ins, @primitive_key) do
       {:ok, struct} ->
         new_node =
           case Keyword.get(opts, :key) do
