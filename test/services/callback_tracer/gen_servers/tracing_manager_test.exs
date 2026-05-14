@@ -36,8 +36,6 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
     test "handles TracingRefreshed event" do
       new_pid = :c.pid(0, 1, 0)
 
-      expect(MockAPIDbg, :stop, fn -> :ok end)
-
       expect_setup_tracing(new_pid)
 
       event = %UserRefreshedTrace{}
@@ -116,6 +114,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TracingManagerTest do
     |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
     MockAPIDbg
+    |> expect(:stop, fn -> :ok end)
     |> expect(:tracer, fn _ -> {:ok, pid} end)
     |> expect(:process, fn _ -> {:ok, 1} end)
     |> expect(:trace_pattern, 18, fn _, _ -> :ok end)

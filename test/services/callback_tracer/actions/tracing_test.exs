@@ -1,6 +1,7 @@
 defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
   use ExUnit.Case, async: true
 
+  import ExUnit.CaptureLog
   import Mox
 
   # These params are defined here to prevent errors associated with String.to_existing_atom/1
@@ -37,6 +38,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
       MockAPIDbg
+      |> expect(:stop, fn -> :ok end)
       |> expect(:tracer, fn {_handler, {:init, 0}} -> {:ok, self()} end)
       |> expect(:process, fn [:c, :timestamp] -> {:ok, 1} end)
       |> expect(
@@ -56,11 +58,12 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:get_all_tables, fn -> [] end)
 
       MockAPIDbg
+      |> expect(:stop, fn -> :ok end)
       |> expect(:tracer, fn {_handler, {:init, 0}} -> {:error, :already_started} end)
 
-      assert_raise RuntimeError, "Couldn't start tracer: :already_started", fn ->
-        TracingActions.setup_tracing_with_monitoring!(%{})
-      end
+      assert capture_log(fn ->
+               TracingActions.setup_tracing_with_monitoring!(%{})
+             end) =~ "Couldn't start tracer: :already_started"
     end
 
     test "monitors tracer process when successful" do
@@ -88,6 +91,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
       MockAPIDbg
+      |> expect(:stop, fn -> :ok end)
       |> expect(:tracer, fn {_handler, {:init, 0}} -> {:ok, tracer_pid} end)
       |> expect(:process, fn [:c, :timestamp] -> {:ok, 1} end)
       |> expect(
@@ -134,6 +138,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       |> expect(:subscribe, fn :lvdbg_file_system_monitor -> :ok end)
 
       MockAPIDbg
+      |> expect(:stop, fn -> :ok end)
       |> expect(:tracer, fn {_handler, {:init, 0}} -> {:ok, self()} end)
       |> expect(:process, fn [:c, :timestamp] -> {:ok, 1} end)
       # 2 modules * 9 LiveView callbacks * 2 (return + exception) = 36
@@ -213,9 +218,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.TracingTest do
       MockAPIDbg
       |> expect(:process, fn ^pid, [:s, :procs] -> {:ok, 1} end)
 
-      result = TracingActions.start_outgoing_messages_tracing(pid)
-
-      assert :ok = result
+      assert :ok = TracingActions.start_outgoing_messages_tracing(pid)
     end
   end
 end

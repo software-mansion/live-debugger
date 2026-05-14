@@ -23,38 +23,32 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
   def setup_tracing_with_monitoring!(state) do
     last_id = TraceQueries.get_last_trace_id()
 
-    if Map.get(state, :dbg_pid) do
-      Dbg.stop()
-    end
+    Dbg.stop()
 
-    case Dbg.tracer({&Tracer.handle_trace/2, {:init, last_id - 1}}) do
-      {:ok, pid} ->
-        Process.monitor(pid)
+    with {:ok, pid} <- Dbg.tracer({&Tracer.handle_trace/2, {:init, last_id - 1}}),
+         {:ok, _} <- Dbg.process([:c, :timestamp]) do
+      Process.monitor(pid)
 
-        case Dbg.process([:c, :timestamp]) do
-          {:ok, _} -> :ok
-          {:error, error} -> raise "Couldn't enable system-wide call tracing: #{inspect(error)}"
-        end
+      # Fetch all live modules once with paths for both operations
+      live_modules_with_paths = CallbackQueries.all_live_modules_with_paths()
 
-        # Fetch all live modules once with paths for both operations
-        live_modules_with_paths = CallbackQueries.all_live_modules_with_paths()
+      # Extract just the module names for callback queries
+      module_names = Enum.map(live_modules_with_paths, fn {module, _path} -> module end)
 
-        # Extract just the module names for callback queries
-        module_names = Enum.map(live_modules_with_paths, fn {module, _path} -> module end)
+      # Apply trace patterns using the fetched modules
+      apply_trace_patterns(module_names)
 
-        # Apply trace patterns using the fetched modules
-        apply_trace_patterns(module_names)
+      # Monitor recompilation using the paths
+      start_file_monitoring(live_modules_with_paths)
 
-        # Monitor recompilation using the paths
-        start_file_monitoring(live_modules_with_paths)
+      # Broadcast information
+      Bus.broadcast_event!(%DbgStarted{})
 
-        # Broadcast information
-        Bus.broadcast_event!(%DbgStarted{})
-
-        %{state | dbg_pid: pid}
-
+      %{state | dbg_pid: pid}
+    else
       {:error, error} ->
-        raise "Couldn't start tracer: #{inspect(error)}"
+        Logger.error("Couldn't start tracer: #{inspect(error)}")
+        state
     end
   end
 
@@ -78,7 +72,7 @@ defmodule LiveDebugger.Services.CallbackTracer.Actions.Tracing do
         :ok
 
       {:error, error} ->
-        raise "Couldn't enable send tracing for #{inspect(pid)}: #{inspect(error)}"
+        Logger.error("Couldn't enable send tracing for #{inspect(pid)}: #{inspect(error)}")
     end
   end
 
