@@ -1,6 +1,7 @@
 defmodule LiveDebugger.Services.CallbackTracer.Process.Tracer do
   @moduledoc """
-  This module defines a function that is used in the `:dbg.tracer` process.
+  This module defines a function that is used as the handler in the tracer process
+  started by `LiveDebugger.API.System.Dbg.tracer/1`.
   """
 
   alias LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler
@@ -10,7 +11,8 @@ defmodule LiveDebugger.Services.CallbackTracer.Process.Tracer do
 
   @spec handle_trace(trace :: term(), state :: integer() | {:init, integer()}) :: integer()
   def handle_trace(trace, {:init, n}) do
-    # Maximum heap size is set inside `:dbg.tracer` process to prevent it from consuming too much memory.
+    # Set on first invocation so the limit applies to the tracer process itself
+    # (which is the one receiving every BEAM trace message).
     Memory.set_max_heap_size(@max_heap_size)
 
     do_handle_trace(trace, n)
