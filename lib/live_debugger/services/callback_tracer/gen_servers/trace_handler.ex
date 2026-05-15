@@ -45,7 +45,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   end
 
   @doc """
-  Handles trace from `:dbg.tracer` process.
+  Handles trace from the tracer process started via `LiveDebugger.API.System.Dbg`.
   """
   @spec handle_trace(trace :: term(), n :: integer()) :: :ok
   def handle_trace(trace, n) do
@@ -111,7 +111,7 @@ defmodule LiveDebugger.Services.CallbackTracer.GenServers.TraceHandler do
   #########################################################
   # Handling diffs tracing
   #
-  # Use :dbg.p(channel_pid, [:s]) to activate
+  # Activated via `Dbg.process(channel_pid, [:s])` from `TracingActions`.
   #########################################################
 
   def handle_cast({:new_trace, {_, pid, :send, {:socket_push, :text, iodata}, _, ts}, n}, state) do
