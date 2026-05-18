@@ -214,33 +214,60 @@ defmodule LiveDebugger.App.Utils.TermParser do
     end
   end
 
-  defp refresh_struct_content(%TermNode{} = term_node, %Diff{ins: ins}, opts) do
-    case Map.fetch(ins, @primitive_key) do
-      {:ok, struct} ->
-        new_node =
-          case Keyword.get(opts, :key) do
-            nil ->
-              to_node(struct)
+  defp struct_summary_node(%module{} = struct) do
+    content =
+      if Inspect.impl_for(struct) in [Inspect.Any, Inspect.Phoenix.LiveView.Socket] do
+        [
+          DisplayElement.black("%"),
+          DisplayElement.blue(inspect(module)),
+          DisplayElement.black("{...}")
+        ]
+      else
+        [DisplayElement.black(inspect(struct))]
+      end
 
-            key ->
-              {key, struct}
-              |> to_key_value_node()
-              |> elem(1)
-          end
+    expanded_before = [
+      DisplayElement.black("%"),
+      DisplayElement.blue(inspect(module)),
+      DisplayElement.black("{")
+    ]
 
-        %TermNode{
-          term_node
-          | content: new_node.content,
-            expanded_before: new_node.expanded_before,
-            expanded_after: new_node.expanded_after,
-            kind: new_node.kind,
-            key: new_node.key
-        }
+    expanded_after = [DisplayElement.black("}")]
 
-      :error ->
-        term_node
-    end
+    TermNode.new(:struct, content,
+      expanded_before: expanded_before,
+      expanded_after: expanded_after
+    )
   end
+
+  defp refresh_struct_content(
+         %TermNode{} = term_node,
+         %Diff{ins: %{@primitive_key => struct}},
+         opts
+       ) do
+    new_node =
+      case Keyword.get(opts, :key) do
+        nil ->
+          struct_summary_node(struct)
+
+        key ->
+          {key_span, sep_span} = key_prefix_and_separator(key)
+          summary = struct_summary_node(struct)
+          prefixed = TermNode.add_prefix(summary, [key_span, sep_span])
+          %TermNode{prefixed | key: key}
+      end
+
+    %TermNode{
+      term_node
+      | content: new_node.content,
+        expanded_before: new_node.expanded_before,
+        expanded_after: new_node.expanded_after,
+        kind: new_node.kind,
+        key: new_node.key
+    }
+  end
+
+  defp refresh_struct_content(%TermNode{} = term_node, %Diff{}, _opts), do: term_node
 
   @spec index_term_node(TermNode.t()) :: TermNode.t()
   defp index_term_node(%TermNode{children: children} = term_node, id_path \\ "root") do
@@ -402,19 +429,22 @@ defmodule LiveDebugger.App.Utils.TermParser do
     TermNode.new(:other, [DisplayElement.black(inspect(other))])
   end
 
+  defp key_prefix_and_separator(key) do
+    case to_node(key) do
+      %TermNode{content: [%DisplayElement{text: ":" <> name} = span]} when is_atom(key) ->
+        {%{span | text: name <> ":"}, DisplayElement.black(" ")}
+
+      %TermNode{content: [span]} ->
+        {%{span | text: inspect(key, width: :infinity)}, DisplayElement.black(" => ")}
+
+      %TermNode{content: _content} ->
+        {%DisplayElement{text: inspect(key, width: :infinity), color: "text-code-1"},
+         DisplayElement.black(" => ")}
+    end
+  end
+
   defp to_key_value_node({key, value}) do
-    {key_span, sep_span} =
-      case to_node(key) do
-        %TermNode{content: [%DisplayElement{text: ":" <> name} = span]} when is_atom(key) ->
-          {%{span | text: name <> ":"}, DisplayElement.black(" ")}
-
-        %TermNode{content: [span]} ->
-          {%{span | text: inspect(key, width: :infinity)}, DisplayElement.black(" => ")}
-
-        %TermNode{content: _content} ->
-          {%DisplayElement{text: inspect(key, width: :infinity), color: "text-code-1"},
-           DisplayElement.black(" => ")}
-      end
+    {key_span, sep_span} = key_prefix_and_separator(key)
 
     node = value |> to_node() |> TermNode.add_prefix([key_span, sep_span])
 
