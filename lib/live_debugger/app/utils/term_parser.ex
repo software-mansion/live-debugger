@@ -214,7 +214,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
     end
   end
 
-  defp struct_summary_node(%module{} = struct) do
+  defp struct_display_elements(%module{} = struct) do
     content =
       if Inspect.impl_for(struct) in [Inspect.Any, Inspect.Phoenix.LiveView.Socket] do
         [
@@ -234,10 +234,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
 
     expanded_after = [DisplayElement.black("}")]
 
-    TermNode.new(:struct, content,
-      expanded_before: expanded_before,
-      expanded_after: expanded_after
-    )
+    {content, expanded_before, expanded_after}
   end
 
   defp refresh_struct_content(
@@ -248,11 +245,23 @@ defmodule LiveDebugger.App.Utils.TermParser do
     new_node =
       case Keyword.get(opts, :key) do
         nil ->
-          struct_summary_node(struct)
+          {content, expanded_before, expanded_after} = struct_display_elements(struct)
+
+          TermNode.new(:struct, content,
+            expanded_before: expanded_before,
+            expanded_after: expanded_after
+          )
 
         key ->
           {key_span, sep_span} = key_prefix_and_separator(key)
-          summary = struct_summary_node(struct)
+          {content, expanded_before, expanded_after} = struct_display_elements(struct)
+
+          summary =
+            TermNode.new(:struct, content,
+              expanded_before: expanded_before,
+              expanded_after: expanded_after
+            )
+
           prefixed = TermNode.add_prefix(summary, [key_span, sep_span])
           %TermNode{prefixed | key: key}
       end
@@ -377,34 +386,21 @@ defmodule LiveDebugger.App.Utils.TermParser do
     TermNode.new(:regex, [DisplayElement.black(inspect(regex))])
   end
 
-  defp to_node(%module{} = struct) when is_struct(struct) do
-    content =
-      if Inspect.impl_for(struct) in [Inspect.Any, Inspect.Phoenix.LiveView.Socket] do
-        [
-          DisplayElement.black("%"),
-          DisplayElement.blue(inspect(module)),
-          DisplayElement.black("{...}")
-        ]
-      else
-        [DisplayElement.black(inspect(struct))]
-      end
-
+  defp to_node(struct) when is_struct(struct) do
     children =
       struct
       |> Map.from_struct()
       |> Map.to_list()
       |> to_key_value_children()
 
+    {content, expanded_before, expanded_after} = struct_display_elements(struct)
+
     TermNode.new(
       :struct,
       content,
       children: children,
-      expanded_before: [
-        DisplayElement.black("%"),
-        DisplayElement.blue(inspect(module)),
-        DisplayElement.black("{")
-      ],
-      expanded_after: [DisplayElement.black("}")]
+      expanded_before: expanded_before,
+      expanded_after: expanded_after
     )
   end
 
