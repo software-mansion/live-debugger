@@ -242,37 +242,30 @@ defmodule LiveDebugger.App.Utils.TermParser do
          %Diff{ins: %{@primitive_key => struct}},
          opts
        ) do
+     {content, expanded_before, expanded_after} = struct_display_elements(struct)
+
+    new_node =
+      TermNode.new(:struct, content,
+        expanded_before: expanded_before,
+        expanded_after: expanded_after
+      )
+
     new_node =
       case Keyword.get(opts, :key) do
         nil ->
-          {content, expanded_before, expanded_after} = struct_display_elements(struct)
-
-          TermNode.new(:struct, content,
-            expanded_before: expanded_before,
-            expanded_after: expanded_after
-          )
+          new_node
 
         key ->
           {key_span, sep_span} = key_prefix_and_separator(key)
-          {content, expanded_before, expanded_after} = struct_display_elements(struct)
 
-          summary =
-            TermNode.new(:struct, content,
-              expanded_before: expanded_before,
-              expanded_after: expanded_after
-            )
-
-          prefixed = TermNode.add_prefix(summary, [key_span, sep_span])
-          %TermNode{prefixed | key: key}
+          TermNode.add_prefix(new_node, [key_span, sep_span])
       end
 
     %TermNode{
       term_node
       | content: new_node.content,
         expanded_before: new_node.expanded_before,
-        expanded_after: new_node.expanded_after,
-        kind: new_node.kind,
-        key: new_node.key
+        expanded_after: new_node.expanded_after
     }
   end
 
