@@ -242,7 +242,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
          %Diff{ins: %{@primitive_key => struct}},
          opts
        ) do
-     {content, expanded_before, expanded_after} = struct_display_elements(struct)
+    {content, expanded_before, expanded_after} = struct_display_elements(struct)
 
     new_node =
       TermNode.new(:struct, content,
