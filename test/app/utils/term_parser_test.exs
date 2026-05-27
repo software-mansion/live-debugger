@@ -12,6 +12,10 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
     defstruct [:field1, :field2]
   end
 
+  defmodule NestedStruct do
+    defstruct [:inner, :stable]
+  end
+
   describe "term_to_display_tree/1" do
     test "parses a string term" do
       term = "Hello, World!"
@@ -748,6 +752,80 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
              ]
     end
 
+    test "updates collapsed content for nested structs without touching stable siblings" do
+      old_term = %{
+        message: MapSet.new([]),
+        nested: %{
+          list: [MapSet.new([]), MapSet.new(["stable"])],
+          wrapper: %NestedStruct{
+            inner: %{set: MapSet.new([])},
+            stable: MapSet.new(["stable"])
+          }
+        },
+        untouched: %{value: "same"}
+      }
+
+      new_term = %{
+        message: MapSet.new(["0"]),
+        nested: %{
+          list: [MapSet.new(["list"]), MapSet.new(["stable"])],
+          wrapper: %NestedStruct{
+            inner: %{set: MapSet.new(["struct"])},
+            stable: MapSet.new(["stable"])
+          }
+        },
+        untouched: %{value: "same"}
+      }
+
+      term_node = TermParser.term_to_display_tree(old_term)
+      diff = TermDiffer.diff(old_term, new_term)
+
+      assert {:ok, updated_node} = TermParser.update_by_diff(term_node, diff)
+      message_node = child!(updated_node, :message)
+
+      assert Enum.map(message_node.content, & &1.text) == [
+               "message:",
+               " ",
+               "MapSet.new([\"0\"])",
+               ","
+             ]
+
+      nested_node = child!(updated_node, :nested)
+      list_node = child!(nested_node, :list)
+      changed_list_node = child!(list_node, 0)
+      stable_list_node = child!(list_node, 1)
+
+      assert changed_list_node.content |> Enum.map(& &1.text) |> List.first() ==
+               "MapSet.new([\"list\"])"
+
+      assert stable_list_node.content |> Enum.map(& &1.text) |> List.first() ==
+               "MapSet.new([\"stable\"])"
+
+      refute Enum.any?(stable_list_node.content, & &1.pulse?)
+
+      wrapper_node = child!(nested_node, :wrapper)
+      inner_node = child!(wrapper_node, :inner)
+      set_node = child!(inner_node, :set)
+      stable_struct_node = child!(wrapper_node, :stable)
+
+      assert Enum.map(set_node.content, & &1.text) == [
+               "set:",
+               " ",
+               "MapSet.new([\"struct\"])"
+             ]
+
+      assert stable_struct_node.content |> Enum.map(& &1.text) |> List.first() ==
+               "stable:"
+
+      refute Enum.any?(stable_struct_node.content, & &1.pulse?)
+
+      untouched_node = child!(updated_node, :untouched)
+      value_node = child!(untouched_node, :value)
+
+      assert Enum.map(value_node.content, & &1.text) == ["value:", " ", "\"same\""]
+      refute Enum.any?(value_node.content, & &1.pulse?)
+    end
+
     test "handles map key additions and deletions" do
       old_term = %{"a" => 1, "b" => 2}
       new_term = %{"b" => 2, "d" => 4}
@@ -815,5 +893,10 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
 
   defp close_term_node(%TermNode{} = term_node) do
     %TermNode{term_node | open?: false}
+  end
+
+  defp child!(%TermNode{children: children}, key) do
+    {^key, node} = List.keyfind(children, key, 0)
+    node
   end
 end

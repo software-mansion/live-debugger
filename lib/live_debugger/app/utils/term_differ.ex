@@ -97,7 +97,11 @@ defmodule LiveDebugger.App.Utils.TermDiffer do
     map2 = Map.from_struct(struct2)
     {_, _, diff} = map_diffs(map1, map2)
 
-    %Diff{type: :struct, diff: diff}
+    %Diff{
+      type: :struct,
+      ins: %{@primitive_key => struct2},
+      diff: diff
+    }
   end
 
   def diff(struct1, struct2) when is_struct(struct1) and is_struct(struct2) do
