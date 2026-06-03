@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.1 (2026-06-03)
+
+### Enhancements
+* Enhancement: Improve tracing performance in [#989](https://github.com/software-mansion/live-debugger/pull/989)
+
+### Bug fixes
+* Fix MapSet assign summary updates in [#988](https://github.com/software-mansion/live-debugger/pull/988)
+
+---
+
 ## 1.0.0 (2026-04-23)
 
 ### Other
