@@ -127,28 +127,28 @@ const videos = await getPlaylistVideos();
       <div class="relative w-full">
         <button
           type="button"
-          class="bg-bg-primary text-white border-white/10 hover:bg-bg-primary/80 absolute top-1/2 left-0 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center border transition"
+          class="bg-bg-primary text-white border-white/10 hover:bg-bg-primary/80 absolute top-1/2 left-0 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center border transition disabled:pointer-events-none disabled:opacity-40"
           aria-label="Scroll videos left"
-          data-guide-scroll-left
+          data-guide-prev
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
         <button
           type="button"
-          class="bg-bg-primary text-white border-white/10 hover:bg-bg-primary/80 absolute top-1/2 right-0 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center border transition"
+          class="bg-bg-primary text-white border-white/10 hover:bg-bg-primary/80 absolute top-1/2 right-0 z-10 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center border transition disabled:pointer-events-none disabled:opacity-40"
           aria-label="Scroll videos right"
-          data-guide-scroll-right
+          data-guide-next
         >
           <ChevronRight className="h-5 w-5" />
         </button>
         <div
-          class="guide-scrollbar-hidden mx-auto w-[calc(100%-104px)] overflow-x-auto"
-          data-guide-scroll
+          class="mx-auto w-[calc(100%-104px)] overflow-hidden"
+          data-guide-embla
         >
-          <div class="flex min-w-max gap-4">
+          <div class="flex gap-4">
             {
               videos.map((video) => (
-                <div class="bg-bg-primary w-[220px] shrink-0 overflow-hidden sm:w-[250px] md:w-[280px]">
+                <div class="bg-bg-primary w-[220px] shrink-0 grow-0 basis-auto overflow-hidden sm:w-[250px] md:w-[280px]">
                   <a
                     href={`https://www.youtube.com/watch?v=${video.id}`}
                     target="_blank"
@@ -176,32 +176,28 @@ const videos = await getPlaylistVideos();
   </ContentWrapper>
 </section>
 
-<style>
-  .guide-scrollbar-hidden {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+<script>
+  import EmblaCarousel from "embla-carousel";
+
+  const node = document.querySelector<HTMLElement>("[data-guide-embla]");
+  const prevBtn = document.querySelector<HTMLButtonElement>("[data-guide-prev]");
+  const nextBtn = document.querySelector<HTMLButtonElement>("[data-guide-next]");
+
+  if (node) {
+    const embla = EmblaCarousel(node, {
+      align: "start",
+      dragFree: true,
+      containScroll: "trimSnaps",
+    });
+
+    const update = () => {
+      if (prevBtn) prevBtn.disabled = !embla.canScrollPrev();
+      if (nextBtn) nextBtn.disabled = !embla.canScrollNext();
+    };
+
+    prevBtn?.addEventListener("click", () => embla.scrollPrev());
+    nextBtn?.addEventListener("click", () => embla.scrollNext());
+    embla.on("select", update).on("init", update).on("reInit", update);
+    update();
   }
-
-  .guide-scrollbar-hidden::-webkit-scrollbar {
-    display: none;
-  }
-</style>
-
-<script is:inline>
-  const scrollContainer = document.querySelector("[data-guide-scroll]");
-  const leftButton = document.querySelector("[data-guide-scroll-left]");
-  const rightButton = document.querySelector("[data-guide-scroll-right]");
-
-  const scrollByAmount = () => {
-    if (!scrollContainer) return 280;
-    return Math.max(220, Math.floor(scrollContainer.clientWidth * 0.7));
-  };
-
-  leftButton?.addEventListener("click", () => {
-    scrollContainer?.scrollBy({ left: -scrollByAmount(), behavior: "smooth" });
-  });
-
-  rightButton?.addEventListener("click", () => {
-    scrollContainer?.scrollBy({ left: scrollByAmount(), behavior: "smooth" });
-  });
 </script>
