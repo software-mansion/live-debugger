@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useImperativeHandle } from "react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/Logo";
 import { Github } from "@/components/ui/Github";
-import { AdBanner } from "@/components/ui/AdBanner";
 import { getStorageValue } from "@/lib/utils";
 
 export interface HeaderProps extends React.HTMLAttributes<HTMLElement> {}
@@ -121,7 +120,6 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
         )}
         {...props}
       >
-        <AdBanner zoneId="3" contentId="ea15c4216158c4097b65fe6504a4b3b7" />
         <div className="mx-auto flex h-20 w-full max-w-[1360px] items-center justify-between px-7 sm:px-8">
           <a href="#hero" className="mr-6 flex items-center gap-2">
             <Logo className="size-36 sm:size-42 md:size-45" />
