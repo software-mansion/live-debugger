@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useImperativeHandle } from "react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/Logo";
 import { Github } from "@/components/ui/Github";
+import { TopBarBanner, TOP_BAR_BANNER } from "@/components/TopBarBanner";
 import { getStorageValue } from "@/lib/utils";
 
 export interface HeaderProps extends React.HTMLAttributes<HTMLElement> {}
@@ -104,23 +105,28 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
     }, []);
 
     return (
-      <header
-        ref={localHeaderRef}
-        className={cn(
-          "sticky top-0 z-50 w-full transition-all duration-300 ease-in-out",
-          activeTheme === "dark"
-            ? "bg-primary text-primary-foreground"
-            : "text-primary bg-white",
-          isScrolled
-            ? activeTheme === "dark"
-              ? "border-b border-white/40"
-              : "border-b border-black/10"
-            : "border-b border-transparent",
-          className
-        )}
-        {...props}
-      >
-        <div className="mx-auto flex h-20 w-full max-w-[1360px] items-center justify-between px-7 sm:px-8">
+      <>
+        <TopBarBanner
+          zones={TOP_BAR_BANNER.zones}
+          rotateIntervalMs={TOP_BAR_BANNER.rotateIntervalMs}
+        />
+        <header
+          ref={localHeaderRef}
+          className={cn(
+            "sticky top-0 z-50 w-full transition-all duration-300 ease-in-out",
+            activeTheme === "dark"
+              ? "bg-primary text-primary-foreground"
+              : "text-primary bg-white",
+            isScrolled
+              ? activeTheme === "dark"
+                ? "border-b border-white/40"
+                : "border-b border-black/10"
+              : "border-b border-transparent",
+            className
+          )}
+          {...props}
+        >
+          <div className="mx-auto flex h-20 w-full max-w-[1360px] items-center justify-between px-7 sm:px-8">
           <a href="#hero" className="mr-6 flex items-center gap-2">
             <Logo className="size-36 sm:size-42 md:size-45" />
           </a>
@@ -187,7 +193,8 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
             </a>
           </div>
         </div>
-      </header>
+        </header>
+      </>
     );
   }
 );
