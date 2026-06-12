@@ -3,10 +3,20 @@ import "../styles/global.css";
 import { Font } from "astro:assets";
 import { Header } from "@/components/ui/Header";
 import { Footer } from "@/components/ui/Footer";
+import {
+  topBarBannerReservationScript,
+  TOP_BAR_BANNER,
+} from "@/components/TopBarBanner";
 
 export interface Props {
   title: string;
 }
+
+const bannerReservation = topBarBannerReservationScript(
+  TOP_BAR_BANNER.zones[0]!.zoneId,
+  TOP_BAR_BANNER.zones[0]!.contentId,
+  TOP_BAR_BANNER.hiddenPaths
+);
 
 const enableAnalytics =
   import.meta.env.ENABLE_ANALYTICS === true ||
@@ -17,6 +27,7 @@ const enableAnalytics =
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script is:inline set:html={bannerReservation} />
     <link rel="icon" type="image/svg+xml" href="/live-debugger/favicon.svg" />
     <title>LiveDebugger: LiveView debugging made simple</title>
     <meta
