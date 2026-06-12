@@ -16,7 +16,7 @@
     "@tailwindcss/vite": "^4.1.16",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "astro": "^5.15.0",
+    "astro": "^5.18.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "embla-carousel": "^8.6.0",
