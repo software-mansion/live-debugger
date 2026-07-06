@@ -189,15 +189,14 @@ defmodule LiveDebugger.API.SettingsStorage do
     # platforms (notably on Windows it returns `{:error, :eexist}`), which would
     # make every `save/2` after the first one fail and silently stop persisting.
     # Remove the stale file and retry so persistence keeps working across saves.
+    #
+    # Note: the first `with` clause matches the *error* case on purpose, so any
+    # other result (including the happy-path `:ok`) is returned as-is. Do not add
+    # an `else` clause here or those results would be routed to it.
     defp rename_over(tmp, path) do
-      case File.rename(tmp, path) do
-        {:error, :eexist} ->
-          with :ok <- File.rm(path) do
-            File.rename(tmp, path)
-          end
-
-        other ->
-          other
+      with {:error, :eexist} <- File.rename(tmp, path),
+           :ok <- File.rm(path) do
+        File.rename(tmp, path)
       end
     end
 
