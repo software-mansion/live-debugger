@@ -12,9 +12,13 @@ defmodule LiveDebugger.API.SettingsStorage do
   API for managing settings storage. In order to properly use invoke `init/0` at the start of application.
   Settings are kept in an ETS table for fast access and persisted to a file
   (inside `_build/*/live_debugger/`) so they survive application restarts.
-  Settings are retrieved in this order:
-  1. locally saved file (inside `_build/*/live_debugger/` directory)
-  2. default values
+  On `init/0` each setting value is resolved with the following precedence:
+  1. value set in the application config (`config :live_debugger, <setting>, ...`)
+  2. value persisted to the local file (inside `_build/*/live_debugger/` directory)
+  3. default value
+
+  Only values changed at runtime via `save/2` are persisted, so a value set in
+  config keeps taking precedence on every application start.
 
   Available settings are: `#{Enum.join(@available_settings, ", ")}`.
   """
@@ -172,12 +176,28 @@ defmodule LiveDebugger.API.SettingsStorage do
       tmp = path <> ".tmp." <> Integer.to_string(:erlang.unique_integer([:positive]))
 
       with :ok <- File.write(tmp, :erlang.term_to_binary(map)),
-           :ok <- File.rename(tmp, path) do
+           :ok <- rename_over(tmp, path) do
         :ok
       else
         {:error, reason} ->
           _ = File.rm(tmp)
           {:error, reason}
+      end
+    end
+
+    # `File.rename/2` does not overwrite an existing destination on all
+    # platforms (notably on Windows it returns `{:error, :eexist}`), which would
+    # make every `save/2` after the first one fail and silently stop persisting.
+    # Remove the stale file and retry so persistence keeps working across saves.
+    defp rename_over(tmp, path) do
+      case File.rename(tmp, path) do
+        {:error, :eexist} ->
+          with :ok <- File.rm(path) do
+            File.rename(tmp, path)
+          end
+
+        other ->
+          other
       end
     end
 
