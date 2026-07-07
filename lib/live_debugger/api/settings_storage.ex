@@ -10,10 +10,15 @@ defmodule LiveDebugger.API.SettingsStorage do
 
   @moduledoc """
   API for managing settings storage. In order to properly use invoke `init/0` at the start of application.
-  It uses Erlang's DETS (Disk Erlang Term Storage).
-  Settings are retrieved in this order:
-  1. locally saved file (inside `_build/*/live_debugger/` directory)
-  2. default values
+  Settings are kept in an ETS table for fast access and persisted to a file
+  (inside `_build/*/live_debugger/`) so they survive application restarts.
+  On `init/0` each setting value is resolved with the following precedence:
+  1. value set in the application config (`config :live_debugger, <setting>, ...`)
+  2. value persisted to the local file (inside `_build/*/live_debugger/` directory)
+  3. default value
+
+  Only values changed at runtime via `save/2` are persisted, so a value set in
+  config keeps taking precedence on every application start.
 
   Available settings are: `#{Enum.join(@available_settings, ", ")}`.
   """
@@ -24,7 +29,7 @@ defmodule LiveDebugger.API.SettingsStorage do
   @callback get_all() :: map()
 
   @doc """
-  Initializes dets table and read config values to fetch initial settings.
+  Initializes the settings table and reads config values to fetch initial settings.
   It should be called when application starts.
   """
   @spec init() :: :ok
@@ -89,67 +94,130 @@ defmodule LiveDebugger.API.SettingsStorage do
 
     @impl true
     def init() do
-      {:ok, _} =
-        :dets.open_file(@table_name,
-          auto_save: :timer.seconds(1),
-          file: file_path()
-        )
+      ensure_table!()
 
-      # On init we populate dets in the following order:
-      # 1. Check if user has set value in config, if so, we prioritize it
-      # 2. Otherwise, we check if value is saved in dets
-      # 3. If value is not saved in dets, we use default value
+      saved = load_saved()
+
+      # On init we resolve every setting in the following order:
+      # 1. value set in the application config, if any, is always prioritized
+      # 2. otherwise the value persisted from a previous session is used
+      # 3. otherwise the default value is used
       #
-      # This way when user specifies setting value in config, it will be always used on start.
-      # User still can change it in settings, and until next app restart it will be used.
+      # Only values explicitly changed at runtime via `save/2` are persisted,
+      # so a value set in config keeps winning on every application start.
       SettingsStorage.available_settings()
-      |> Enum.map(fn setting ->
-        {setting, Application.get_env(:live_debugger, setting, fetch_setting(setting))}
+      |> Enum.each(fn setting ->
+        value =
+          Application.get_env(
+            :live_debugger,
+            setting,
+            Map.get(saved, setting, @default_settings[setting])
+          )
+
+        :ets.insert(@table_name, {setting, value})
       end)
-      |> Enum.each(fn {setting, value} -> save(setting, value) end)
 
       :ok
     end
 
     @impl true
     def save(setting, value) do
-      :dets.insert(@table_name, {setting, value})
+      :ets.insert(@table_name, {setting, value})
+      persist()
     end
 
     @impl true
     def get(setting) do
-      fetch_setting(setting)
+      case table_lookup(setting) do
+        {:ok, value} -> value
+        :error -> @default_settings[setting]
+      end
     end
 
     @impl true
     def get_all() do
       SettingsStorage.available_settings()
-      |> Enum.map(fn setting ->
-        {setting, fetch_setting(setting)}
-      end)
+      |> Enum.map(fn setting -> {setting, get(setting)} end)
       |> Enum.into(%{})
     end
 
-    defp fetch_setting(setting) do
-      with {:error, :not_saved} <- get_from_dets(setting) do
-        @default_settings[setting]
+    defp ensure_table!() do
+      case :ets.whereis(@table_name) do
+        :undefined -> :ets.new(@table_name, [:set, :public, :named_table])
+        _ref -> @table_name
       end
     end
 
-    defp get_from_dets(setting) do
-      case :dets.lookup(@table_name, setting) do
-        [{^setting, value}] ->
-          value
+    defp table_lookup(setting) do
+      case :ets.whereis(@table_name) do
+        :undefined ->
+          :error
 
-        _ ->
-          {:error, :not_saved}
+        _ref ->
+          case :ets.lookup(@table_name, setting) do
+            [{^setting, value}] -> {:ok, value}
+            _ -> :error
+          end
       end
+    end
+
+    # Persists the whole settings table to a plain term file. A plain file has
+    # no "open/dirty" flag (unlike DETS), so an abrupt VM halt can never leave
+    # it in a state that triggers a repair on the next start.
+    defp persist() do
+      @table_name
+      |> :ets.tab2list()
+      |> Map.new()
+      |> write_file()
+    end
+
+    defp write_file(map) do
+      path = file_path()
+      tmp = path <> ".tmp." <> Integer.to_string(:erlang.unique_integer([:positive]))
+
+      with :ok <- File.write(tmp, :erlang.term_to_binary(map)),
+           :ok <- rename_over(tmp, path) do
+        :ok
+      else
+        {:error, reason} ->
+          _ = File.rm(tmp)
+          {:error, reason}
+      end
+    end
+
+    # `File.rename/2` does not overwrite an existing destination on all
+    # platforms (notably on Windows it returns `{:error, :eexist}`), which would
+    # make every `save/2` after the first one fail and silently stop persisting.
+    # Remove the stale file and retry so persistence keeps working across saves.
+    #
+    # Note: the first `with` clause matches the *error* case on purpose, so any
+    # other result (including the happy-path `:ok`) is returned as-is. Do not add
+    # an `else` clause here or those results would be routed to it.
+    defp rename_over(tmp, path) do
+      with {:error, :eexist} <- File.rename(tmp, path),
+           :ok <- File.rm(path) do
+        File.rename(tmp, path)
+      end
+    end
+
+    defp load_saved() do
+      case File.read(file_path()) do
+        {:ok, binary} -> decode(binary)
+        {:error, _reason} -> %{}
+      end
+    end
+
+    defp decode(binary) do
+      case :erlang.binary_to_term(binary, [:safe]) do
+        map when is_map(map) -> map
+        _ -> %{}
+      end
+    rescue
+      _ -> %{}
     end
 
     defp file_path() do
-      :live_debugger
-      |> Application.app_dir(@filename)
-      |> String.to_charlist()
+      Application.app_dir(:live_debugger, @filename)
     end
   end
 end
