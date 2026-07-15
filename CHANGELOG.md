@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.2 (2026-07-15)
+
+### Bug fixes
+* Fix recurring DETS "not properly closed" log in [#997](https://github.com/software-mansion/live-debugger/pull/997)
+
+---
+
 ## 1.0.1 (2026-06-03)
 
 ### Enhancements
