@@ -1,6 +1,6 @@
 import{j as e}from"./utils.CP-DEBaU.js";import{I as t,C as o}from"./InlineCodeBlock.CobOJg0d.js";import"./index.BGzeIQFi.js";import"./button.Cv4HPvev.js";import"./index.DYFooN30.js";import"./index.CwgFG58H.js";const r=`defp deps do
   [
-    {:live_debugger, "~> 0.7.0", only: :dev}
+    {:live_debugger, "~> 1.0.0", only: :dev}
   ]
 end`,i=`# lib/my_app_web/components/layouts/root.html.heex
 
