@@ -131,7 +131,7 @@ const Header = React.forwardRef<HTMLElement, HeaderProps>(
             <Logo className="size-36 sm:size-42 md:size-45" />
           </a>
 
-          <nav className="mx-auto hidden items-center justify-center gap-10 md:flex">
+          <nav className="mx-auto hidden items-center justify-center gap-10 md:flex absolute left-[49.4%] -translate-x-1/2" >
             {navItems.map((item) => (
               <a
                 key={item.name}
