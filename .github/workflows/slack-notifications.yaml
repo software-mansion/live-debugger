@@ -1,0 +1,73 @@
+name: Notify Slack
+
+permissions: {}
+
+on:
+  issues:
+    types:
+      - opened
+  pull_request_target:
+    types:
+      - opened
+  discussion:
+    types:
+      - created
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notify Slack about Issue
+        if: github.event_name == 'issues'
+        env:
+          TITLE: ${{ github.event.issue.title }}
+          URL: ${{ github.event.issue.html_url }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          payload=$(jq -n \
+            --arg type "Issue" \
+            --arg repository "$REPOSITORY" \
+            --arg title "$TITLE" \
+            --arg url "$URL" \
+            '{type: $type, repository: $repository, title: $title, url: $url}')
+          curl --fail-with-body -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "$payload"
+
+      - name: Notify Slack about Pull Request
+        if: github.event_name == 'pull_request_target'
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          URL: ${{ github.event.pull_request.html_url }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          payload=$(jq -n \
+            --arg type "Pull Request" \
+            --arg repository "$REPOSITORY" \
+            --arg title "$TITLE" \
+            --arg url "$URL" \
+            '{type: $type, repository: $repository, title: $title, url: $url}')
+          curl --fail-with-body -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "$payload"
+
+      - name: Notify Slack about Discussion
+        if: github.event_name == 'discussion'
+        env:
+          TITLE: ${{ github.event.discussion.title }}
+          URL: ${{ github.event.discussion.html_url }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          payload=$(jq -n \
+            --arg type "Discussion" \
+            --arg repository "$REPOSITORY" \
+            --arg title "$TITLE" \
+            --arg url "$URL" \
+            '{type: $type, repository: $repository, title: $title, url: $url}')
+          curl --fail-with-body -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d "$payload"
