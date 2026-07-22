@@ -1,10 +1,12 @@
 name: Notify Slack
 
+permissions: {}
+
 on:
   issues:
     types:
       - opened
-  pull_request:
+  pull_request_target:
     types:
       - opened
   discussion:
@@ -18,36 +20,54 @@ jobs:
     steps:
       - name: Notify Slack about Issue
         if: github.event_name == 'issues'
+        env:
+          TITLE: ${{ github.event.issue.title }}
+          URL: ${{ github.event.issue.html_url }}
+          REPOSITORY: ${{ github.repository }}
         run: |
-          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+          set -euo pipefail
+          payload=$(jq -n \
+            --arg type "Issue" \
+            --arg repository "$REPOSITORY" \
+            --arg title "$TITLE" \
+            --arg url "$URL" \
+            '{type: $type, repository: $repository, title: $title, url: $url}')
+          curl --fail-with-body -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "type": "Issue",
-              "repository": "${{ github.repository }}",
-              "title": "${{ github.event.issue.title }}",
-              "url": "${{ github.event.issue.html_url }}"
-            }'
+            -d "$payload"
 
       - name: Notify Slack about Pull Request
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          URL: ${{ github.event.pull_request.html_url }}
+          REPOSITORY: ${{ github.repository }}
         run: |
-          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+          set -euo pipefail
+          payload=$(jq -n \
+            --arg type "Pull Request" \
+            --arg repository "$REPOSITORY" \
+            --arg title "$TITLE" \
+            --arg url "$URL" \
+            '{type: $type, repository: $repository, title: $title, url: $url}')
+          curl --fail-with-body -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "type": "Pull Request",
-              "repository": "${{ github.repository }}",
-              "title": "${{ github.event.pull_request.title }}",
-              "url": "${{ github.event.pull_request.html_url }}"
-            }'
+            -d "$payload"
 
       - name: Notify Slack about Discussion
         if: github.event_name == 'discussion'
+        env:
+          TITLE: ${{ github.event.discussion.title }}
+          URL: ${{ github.event.discussion.html_url }}
+          REPOSITORY: ${{ github.repository }}
         run: |
-          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+          set -euo pipefail
+          payload=$(jq -n \
+            --arg type "Discussion" \
+            --arg repository "$REPOSITORY" \
+            --arg title "$TITLE" \
+            --arg url "$URL" \
+            '{type: $type, repository: $repository, title: $title, url: $url}')
+          curl --fail-with-body -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "type": "Discussion",
-              "repository": "${{ github.repository }}",
-              "title": "${{ github.event.discussion.title }}",
-              "url": "${{ github.event.discussion.html_url }}"
-            }'
+            -d "$payload"
