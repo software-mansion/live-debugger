@@ -1,0 +1,53 @@
+name: Notify Slack
+
+on:
+  issues:
+    types:
+      - opened
+  pull_request:
+    types:
+      - opened
+  discussion:
+    types:
+      - created
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notify Slack about Issue
+        if: github.event_name == 'issues'
+        run: |
+          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "type": "Issue",
+              "repository": "${{ github.repository }}",
+              "title": "${{ github.event.issue.title }}",
+              "url": "${{ github.event.issue.html_url }}"
+            }'
+
+      - name: Notify Slack about Pull Request
+        if: github.event_name == 'pull_request'
+        run: |
+          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "type": "Pull Request",
+              "repository": "${{ github.repository }}",
+              "title": "${{ github.event.pull_request.title }}",
+              "url": "${{ github.event.pull_request.html_url }}"
+            }'
+
+      - name: Notify Slack about Discussion
+        if: github.event_name == 'discussion'
+        run: |
+          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "type": "Discussion",
+              "repository": "${{ github.repository }}",
+              "title": "${{ github.event.discussion.title }}",
+              "url": "${{ github.event.discussion.html_url }}"
+            }'
