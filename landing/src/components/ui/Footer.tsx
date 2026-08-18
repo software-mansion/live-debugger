@@ -151,7 +151,15 @@ const Footer = React.forwardRef<HTMLElement, FooterProps>(
                   ))}
                 </div>
                 <p className="text-md mt-3 font-normal">
-                  &copy; Software Mansion {new Date().getFullYear()}.
+                  &copy; Software Mansion {new Date().getFullYear()}. Read about
+                  our{" "}
+                  <a
+                    href="https://swmansion.com/privacy/policy/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Privacy Policy
+                  </a>
                 </p>
               </div>
             </div>
