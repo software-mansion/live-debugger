@@ -94,7 +94,7 @@ export function buildLlmsTxt({ description, files, name, prefix, readFile }) {
   return lines.join("\n");
 }
 
-export default function swmGeo({ description, name, repository } = {}) {
+export default function swmGeo({ description, name } = {}) {
   let site = "https://docs.swmansion.com";
   let base = "/";
 
