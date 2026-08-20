@@ -1,6 +1,6 @@
 // @ts-check
 import { defineConfig, envField, fontProviders } from "astro/config";
-import swmGeo, { structuredData } from "./swm-geo.mjs";
+import swmGeo from "./swm-geo.mjs";
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 
