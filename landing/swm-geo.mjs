@@ -37,7 +37,9 @@ export function structuredData({ description, name, repository }) {
         name,
         ...(description ? { description } : {}),
         ...(repository
-          ? { codeRepository: `https://github.com/software-mansion/${repository}` }
+          ? {
+              codeRepository: `https://github.com/software-mansion/${repository}`,
+            }
           : {}),
         author: { "@id": ORGANIZATION_ID },
         maintainer: { "@id": ORGANIZATION_ID },
@@ -69,10 +71,13 @@ export function buildLlmsTxt({ description, files, name, prefix, readFile }) {
     if (!title) continue;
 
     const detail = decode(
-      /<meta[^>]+name="description"[^>]+content="([^"]*)"/i.exec(html)?.[1] ?? "",
+      /<meta[^>]+name="description"[^>]+content="([^"]*)"/i.exec(html)?.[1] ??
+        "",
     );
     const route = file.replace(/index\.html$/, "").replace(/\.html$/, "");
-    entries.push(`- [${title}](${prefix}${route})${detail ? `: ${detail}` : ""}`);
+    entries.push(
+      `- [${title}](${prefix}${route})${detail ? `: ${detail}` : ""}`,
+    );
   }
 
   const lines = [`# ${name}`];
@@ -98,7 +103,11 @@ export default function swmGeo({ description, name, repository } = {}) {
     hooks: {
       "astro:config:done": ({ config }) => {
         if (config.site) site = String(config.site).replace(/\/$/, "");
-        base = `/${String(config.base ?? "/").replace(/^\/|\/$/g, "")}/`.replace("//", "/");
+        base =
+          `/${String(config.base ?? "/").replace(/^\/|\/$/g, "")}/`.replace(
+            "//",
+            "/",
+          );
       },
       "astro:build:done": ({ dir }) => {
         const outDir = fileURLToPath(dir);
@@ -109,7 +118,8 @@ export default function swmGeo({ description, name, repository } = {}) {
             files: collect(outDir),
             name,
             prefix: `${site}${base}`,
-            readFile: (file) => fs.readFileSync(path.join(outDir, file), "utf8"),
+            readFile: (file) =>
+              fs.readFileSync(path.join(outDir, file), "utf8"),
           }),
           "utf8",
         );
