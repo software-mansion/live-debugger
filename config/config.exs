@@ -78,7 +78,8 @@ end
 if config_env() == :test do
   config :live_debugger,
     server: true,
-    port: 4008
+    port: 4008,
+    unit_test?: true
 
   config :live_debugger, update_checks?: false
 
