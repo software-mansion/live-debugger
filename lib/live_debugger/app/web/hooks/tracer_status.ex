@@ -15,8 +15,6 @@ defmodule LiveDebugger.App.Web.Hooks.TracerStatus do
   alias LiveDebugger.Services.CallbackTracer.Events.DbgKilled
   alias LiveDebugger.Services.CallbackTracer.Events.DbgStarted
 
-  require Logger
-
   @tracer_state_request_timeout 3000
 
   @spec init(Phoenix.LiveView.Socket.t()) :: Phoenix.LiveView.Socket.t()

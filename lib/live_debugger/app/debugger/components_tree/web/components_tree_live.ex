@@ -5,8 +5,6 @@ defmodule LiveDebugger.App.Debugger.ComponentsTree.Web.ComponentsTreeLive do
 
   use LiveDebugger.App.Web, :live_view
 
-  require Logger
-
   alias LiveDebugger.API.SettingsStorage
   alias LiveDebugger.Client
   alias LiveDebugger.App.Utils.URL
