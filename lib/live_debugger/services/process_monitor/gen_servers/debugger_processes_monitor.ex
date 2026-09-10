@@ -7,8 +7,6 @@ defmodule LiveDebugger.Services.ProcessMonitor.GenServers.DebuggerProcessesMonit
 
   use GenServer
 
-  require Logger
-
   alias LiveDebugger.Bus
   alias LiveDebugger.App.Events.DebuggerMounted
   alias LiveDebugger.Services.ProcessMonitor.Events.DebuggerTerminated
