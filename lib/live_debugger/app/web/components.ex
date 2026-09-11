@@ -710,8 +710,7 @@ defmodule LiveDebugger.App.Web.Components do
       id="sidebar-auto-opener"
       phx-hook="OpenComponentsTree"
       data-cmd={Pages.get_open_sidebar_js(@page)}
-    >
-    </span>
+    ></span>
     <div class="w-max flex bg-sidebar-bg shadow-custom h-full">
       <div
         id={@id}
@@ -949,8 +948,7 @@ defmodule LiveDebugger.App.Web.Components do
         <span
           :if={@pulse?}
           class={"absolute inline-flex h-full w-full animate-ping rounded-full #{@bg_class} opacity-75"}
-        >
-        </span>
+        ></span>
         <span class={"relative inline-flex size-2 rounded-full #{@bg_class}"}></span>
       </span>
     </.tooltip>
