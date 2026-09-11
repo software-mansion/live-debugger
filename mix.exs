@@ -33,7 +33,7 @@ defmodule LiveDebugger.MixProject do
   end
 
   def cli() do
-    [preferred_envs: [e2e: :test]]
+    [preferred_envs: [e2e: :test, precommit: :test]]
   end
 
   defp elixirc_paths(:dev), do: ["lib", "dev"]
@@ -45,6 +45,14 @@ defmodule LiveDebugger.MixProject do
 
   defp aliases do
     [
+      precommit: [
+        "compile --warnings-as-errors",
+        "format",
+        "cmd --cd assets/app npx prettier . --write",
+        "cmd --cd assets/client npx prettier . --write",
+        "credo",
+        "test"
+      ],
       setup: [
         "deps.get",
         "cmd --cd assets/app npm install",

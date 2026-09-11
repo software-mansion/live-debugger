@@ -12,6 +12,19 @@ config :live_debugger, :browser_features?, false
 config :live_debugger, :external_url, "http://localhost:9007"
 ```
 
+## Debug button position
+
+The debug button sits in the bottom-right corner by default. If that spot conflicts with your app's UI, restyle it from your app's CSS via the `debug-button` shadow part:
+
+```css
+#live-debugger::part(debug-button) {
+  bottom: auto;
+  right: auto;
+  top: 16px;
+  left: 16px;
+}
+```
+
 ## Content Security Policy
 
 In `router.ex` of your Phoenix app, make sure your locally running Phoenix app can access the LiveDebugger JS files on port 4007. To achieve that you may need to extend your CSP in `:dev` mode:
