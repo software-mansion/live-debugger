@@ -45,6 +45,13 @@ defmodule LiveDebugger.MixProject do
 
   defp aliases do
     [
+      precommit: [
+        "compile --warnings-as-errors",
+        "format",
+        "cmd --cd assets npx prettier . --write",
+        "credo",
+        "test"
+      ],
       setup: [
         "deps.get",
         "cmd --cd assets/app npm install",
