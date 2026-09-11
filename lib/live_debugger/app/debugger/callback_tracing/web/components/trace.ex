@@ -488,7 +488,7 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Components.Trace do
     ~H"""
     <div class="flex flex-row gap-2 mt-1 text-error-text items-center">
       <.icon name="icon-info" class="w-4 h-4 shrink-0" />
-      <p :if={@error}><%= clean_error_message(@error.message) %></p>
+      <p><%= clean_error_message(@error.message) %></p>
     </div>
     """
   end

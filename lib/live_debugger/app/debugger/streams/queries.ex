@@ -7,8 +7,6 @@ defmodule LiveDebugger.App.Debugger.Streams.Queries do
 
   alias LiveDebugger.App.Debugger.Streams.StreamUtils
 
-  require Logger
-
   @type streams_result :: %{
           functions: [function()],
           config: map(),
@@ -16,7 +14,7 @@ defmodule LiveDebugger.App.Debugger.Streams.Queries do
         }
 
   @spec fetch_streams_from_render_traces(pid :: pid(), node_id :: TreeNode.id()) ::
-          {:ok, streams_result()} | {:error, String.t()}
+          {:ok, streams_result()} | :end_of_table
   def fetch_streams_from_render_traces(pid, node_id) do
     with {:ok, render_traces} <- fetch_render_traces(pid, node_id),
          stream_traces <- StreamUtils.extract_stream_traces(render_traces),
@@ -27,10 +25,6 @@ defmodule LiveDebugger.App.Debugger.Streams.Queries do
     else
       :end_of_table ->
         :end_of_table
-
-      error ->
-        Logger.error("Failed to fetch streams: #{inspect(error)}")
-        {:error, "Failed to fetch streams"}
     end
   end
 
