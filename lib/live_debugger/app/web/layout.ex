@@ -69,7 +69,8 @@ defmodule LiveDebugger.App.Web.Layout do
           id="tooltip"
           role="tooltip"
           class="absolute hidden p-2 text-xs rounded bg-tooltip-bg text-tooltip-text"
-        ></span>
+        >
+        </span>
         <.new_version_popup />
         <%= @inner_content %>
       </body>

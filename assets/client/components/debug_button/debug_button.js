@@ -63,10 +63,10 @@ export default function initDebugButton() {
       buttonRect.right <= window.innerWidth;
 
     if (!isVisible) {
-      debugButton.style.left = 'auto';
-      debugButton.style.top = 'auto';
-      debugButton.style.right = '20px';
-      debugButton.style.bottom = '20px';
+      debugButton.style.left = '';
+      debugButton.style.top = '';
+      debugButton.style.right = '';
+      debugButton.style.bottom = '';
     }
   };
 
