@@ -1,5 +1,13 @@
 # Changelog
 
+
+## 1.0.3 (2026-10-09)
+
+### Features
+* Feature: allow configuring debug button position in [#1009](https://github.com/software-mansion/live-debugger/pull/1009)
+
+---
+
 ## 1.0.2 (2026-07-15)
 
 ### Bug fixes
