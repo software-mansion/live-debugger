@@ -71,6 +71,7 @@ jobs:
         run: npx prettier . --check
 
       - name: Check formatting
+        if: ${{ !matrix.backward-compatibility }}
         run: mix format --check-formatted
 
       - name: Check credo
