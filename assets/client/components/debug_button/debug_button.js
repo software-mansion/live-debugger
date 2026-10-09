@@ -47,10 +47,10 @@ export default function initDebugButton() {
       Math.min(event.clientY - buttonHeight / 2, maxTop)
     );
 
-    debugButton.style.left = `${newLeft}px`;
-    debugButton.style.top = `${newTop}px`;
-    debugButton.style.right = 'auto';
-    debugButton.style.bottom = 'auto';
+    debugButton.style.setProperty('left', `${newLeft}px`, 'important');
+    debugButton.style.setProperty('top', `${newTop}px`, 'important');
+    debugButton.style.setProperty('right', 'auto', 'important');
+    debugButton.style.setProperty('bottom', 'auto', 'important');
   };
 
   const ensureButtonInViewport = () => {
@@ -63,10 +63,10 @@ export default function initDebugButton() {
       buttonRect.right <= window.innerWidth;
 
     if (!isVisible) {
-      debugButton.style.left = 'auto';
-      debugButton.style.top = 'auto';
-      debugButton.style.right = '20px';
-      debugButton.style.bottom = '20px';
+      debugButton.style.left = '';
+      debugButton.style.top = '';
+      debugButton.style.right = '';
+      debugButton.style.bottom = '';
     }
   };
 
