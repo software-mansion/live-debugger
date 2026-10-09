@@ -1,4 +1,5 @@
 ---
+import { structuredData } from '../../swm-geo.mjs';
 import "../styles/global.css";
 import { Font } from "astro:assets";
 import { Header } from "@/components/ui/Header";
@@ -64,6 +65,7 @@ const enableAnalytics =
         </>
       )
     }
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(structuredData({ name: 'LiveDebugger', description: 'LiveView debugging made simple', repository: 'live-debugger' }))} />
   </head>
   <body class="font-primary">
     <!-- Google Tag Manager (noscript) -->

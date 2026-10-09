@@ -1,11 +1,13 @@
 // @ts-check
 import { defineConfig, envField, fontProviders } from "astro/config";
+import swmGeo from "./swm-geo.mjs";
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [react()],
+  integrations: [
+    swmGeo({ name: "LiveDebugger", description: "LiveView debugging made simple", repository: "live-debugger" }),react()],
   env: {
     schema: {
       ENABLE_ANALYTICS: envField.string({
