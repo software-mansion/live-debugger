@@ -6,7 +6,9 @@ test('debug button position can be customized via ::part(debug-button)', async (
   await page.goto('/');
 
   const button = page.locator('#live-debugger-debug-button');
-  await expect(button).toBeVisible();
+
+  await expect(button).toHaveCSS('bottom', '20px');
+  await expect(button).toHaveCSS('right', '20px');
 
   // Page CSS targeting the shadow part overrides the default position
   await page.addStyleTag({
@@ -20,7 +22,19 @@ test('debug button position can be customized via ::part(debug-button)', async (
     `,
   });
 
-  const movedBox = (await button.boundingBox())!;
-  expect(movedBox.x).toBe(16);
-  expect(movedBox.y).toBe(16);
+  await expect(button).toHaveCSS('top', '16px');
+  await expect(button).toHaveCSS('left', '16px');
+
+  await button.click();
+  await page.locator('#live-debugger-debug-tooltip-move-button').click();
+  await page.mouse.move(300, 200);
+  await button.click();
+
+  await expect(button).toHaveCSS('top', '180px');
+  await expect(button).toHaveCSS('left', '280px');
+
+  await page.setViewportSize({ width: 250, height: 150 });
+
+  await expect(button).toHaveCSS('top', '16px');
+  await expect(button).toHaveCSS('left', '16px');
 });

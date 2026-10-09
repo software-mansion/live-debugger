@@ -47,10 +47,10 @@ export default function initDebugButton() {
       Math.min(event.clientY - buttonHeight / 2, maxTop)
     );
 
-    debugButton.style.left = `${newLeft}px`;
-    debugButton.style.top = `${newTop}px`;
-    debugButton.style.right = 'auto';
-    debugButton.style.bottom = 'auto';
+    debugButton.style.setProperty('left', `${newLeft}px`, 'important');
+    debugButton.style.setProperty('top', `${newTop}px`, 'important');
+    debugButton.style.setProperty('right', 'auto', 'important');
+    debugButton.style.setProperty('bottom', 'auto', 'important');
   };
 
   const ensureButtonInViewport = () => {
