@@ -39,6 +39,7 @@ window.document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const shadowHost = document.createElement('div');
+    shadowHost.id = 'live-debugger';
     shadowHost.style.position = 'absolute';
     shadowHost.style.width = '0px';
     shadowHost.style.height = '0px';
