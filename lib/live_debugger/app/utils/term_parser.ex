@@ -441,9 +441,7 @@ defmodule LiveDebugger.App.Utils.TermParser do
   end
 
   defp to_children(items) when is_list(items) do
-    items
-    |> Enum.sort()
-    |> Enum.with_index(fn item, index ->
+    Enum.with_index(items, fn item, index ->
       {index, to_node(item)}
     end)
   end
