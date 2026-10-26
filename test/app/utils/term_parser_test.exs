@@ -190,6 +190,15 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
       assert TermParser.term_to_display_tree(term) == expected
     end
 
+    test "keeps the order of list and tuple elements" do
+      term = %{list: [3, 1, 2], tuple: {:ok, 5}}
+
+      term_node = TermParser.term_to_display_tree(term)
+
+      assert term_node |> child!(:list) |> children_texts() == ["3", "1", "2"]
+      assert term_node |> child!(:tuple) |> children_texts() == [":ok", "5"]
+    end
+
     test "parses regex term" do
       term = ~r/hello/
 
@@ -684,6 +693,21 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
               }} = Enum.at(updated_node.children, 3)
     end
 
+    test "applies list insertions to elements in their original order" do
+      old_term = [3, 1, 2]
+      new_term = [3, 1, 2, 0]
+
+      term_node = TermParser.term_to_display_tree(old_term)
+      diff = TermDiffer.diff(old_term, new_term)
+
+      assert {:ok, updated_node} = TermParser.update_by_diff(term_node, diff)
+
+      assert children_texts(updated_node) == ["3", "1", "2", "0"]
+
+      assert children_texts(updated_node) ==
+               new_term |> TermParser.term_to_display_tree() |> children_texts()
+    end
+
     test "properly adds and removes comma suffixes" do
       term_node1 = %{a: 1, b: 2}
       term_node2 = %{a: 1, b: 2, c: 3}
@@ -898,5 +922,9 @@ defmodule LiveDebugger.App.Utils.TermParserTest do
   defp child!(%TermNode{children: children}, key) do
     {^key, node} = List.keyfind(children, key, 0)
     node
+  end
+
+  defp children_texts(%TermNode{children: children}) do
+    Enum.map(children, fn {_, %TermNode{content: [%DisplayElement{text: text} | _]}} -> text end)
   end
 end
