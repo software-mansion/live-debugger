@@ -219,6 +219,28 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.FiltersTest do
              )
     end
 
+    test "returns error if values are in exponent notation" do
+      assert {:error, errors} =
+               FiltersHelpers.validate_execution_time_params(%{
+                 "exec_time_min" => "1e3",
+                 "exec_time_max" => "20",
+                 "min_unit" => "ms",
+                 "max_unit" => "ms"
+               })
+
+      assert Keyword.equal?(errors, exec_time_min: "must be an integer")
+
+      assert {:error, errors} =
+               FiltersHelpers.validate_execution_time_params(%{
+                 "exec_time_min" => "",
+                 "exec_time_max" => "2e1",
+                 "min_unit" => "ms",
+                 "max_unit" => "ms"
+               })
+
+      assert Keyword.equal?(errors, exec_time_max: "must be an integer")
+    end
+
     test "returns errors if min is greater than max" do
       assert {:error, errors} =
                FiltersHelpers.validate_execution_time_params(%{
