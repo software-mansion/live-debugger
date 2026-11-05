@@ -59,7 +59,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 26
 
       - name: Cache Playwright
         uses: actions/cache@v3
