@@ -209,11 +209,12 @@ defmodule LiveDebugger.App.Debugger.CallbackTracing.Web.Helpers.Filters do
     "#{function}/#{arity}"
   end
 
+  defp validate_is_integer(errors, _field, ""), do: errors
+
   defp validate_is_integer(errors, field, value) do
-    if String.contains?(value, [",", "."]) do
-      Keyword.put(errors, field, "must be an integer")
-    else
-      errors
+    case Integer.parse(value) do
+      {_, ""} -> errors
+      _ -> Keyword.put(errors, field, "must be an integer")
     end
   end
 
