@@ -32,11 +32,12 @@ Top-level layout:
 live_debugger/
 ├── assets/                  JS and CSS
 ├── dev/                     Example LiveView app used during development and testing
+├── e2e/                     Playwright E2E tests
 ├── lib/live_debugger/
 │   ├── api/                 Wrappers for modules mocked in tests and external APIs
 │   ├── app/                 LiveView UI
 │   └── services/            Background services
-└── test/                    Elixir unit tests, and the E2E tests in `test/e2e_pw/`
+└── test/                    Elixir unit tests
 ```
 
 ### 3.1 Services
@@ -80,7 +81,7 @@ For more details, see [`test/README.md`](test/README.md).
 
 ### 3.4 E2E tests
 
-E2E tests are ExUnit tests in `test/e2e_pw/` that drive a browser with [Playwright][playwright]
+E2E tests are ExUnit tests in `e2e/` that drive a browser with [Playwright][playwright]
 through [playwright_ex](https://hex.pm/packages/playwright_ex), which needs Elixir 1.18 or later.
 They start the Dev application alongside LiveDebugger.
 

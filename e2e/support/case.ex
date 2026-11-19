@@ -22,8 +22,6 @@ defmodule LiveDebugger.E2E.Case do
 
       import LiveDebugger.E2E.Utils
 
-      @moduletag :e2e
-
       setup {LiveDebugger.E2E.Case, :dev_app}
     end
   end

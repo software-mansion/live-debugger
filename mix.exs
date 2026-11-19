@@ -21,9 +21,7 @@ defmodule LiveDebugger.MixProject do
         ignore_modules: [~r/^LiveDebuggerDev\./, DevWeb]
       ],
       listeners: [Phoenix.CodeReloader],
-      test_paths: test_paths(System.get_env("E2E")),
-      test_load_filters: test_load_filters(System.get_env("E2E")),
-      test_ignore_filters: [~r"/e2e_pw/"]
+      test_paths: test_paths(System.get_env("E2E"))
     ]
   end
 
@@ -39,15 +37,10 @@ defmodule LiveDebugger.MixProject do
     [preferred_envs: [e2e: :test, "e2e.setup": :test]]
   end
 
-  # `mix e2e` runs the Playwright suite in test/e2e_pw (`E2E=1 mix test --only e2e`)
-  defp test_paths("1"), do: ["test/e2e_pw"]
+  # `mix e2e` runs the Playwright suite in e2e/ (`E2E=1 mix test`). It lives outside test/ so that
+  # the unit tests, which also run on Elixir 1.16, don't load it.
+  defp test_paths("1"), do: ["e2e"]
   defp test_paths(_), do: ["test"]
-
-  # The unit tests don't load the ExUnit port of the Playwright suite
-  defp test_load_filters("1"), do: [&String.ends_with?(&1, "_test.exs")]
-
-  defp test_load_filters(_),
-    do: [&(String.ends_with?(&1, "_test.exs") and not String.contains?(&1, "/e2e_pw/"))]
 
   defp elixirc_paths(:dev), do: ["lib", "dev"]
 
@@ -67,7 +60,7 @@ defmodule LiveDebugger.MixProject do
       ],
       test: ["test"],
       "e2e.setup": ["playwright.install chromium firefox"],
-      e2e: ["cmd E2E=1 mix test --only e2e"],
+      e2e: ["cmd E2E=1 mix test"],
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
       "assets.build:deploy": [
         "esbuild build_app_js_deploy",
