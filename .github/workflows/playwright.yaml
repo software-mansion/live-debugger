@@ -60,10 +60,11 @@ jobs:
       - name: Install Playwright Dependencies
         run: mix playwright.install chromium firefox --with-deps
 
-      # Up to two retries of the failed tests, as the `retries: 2` of Playwright Test
+      # Up to two retries of the failed tests, as the `retries: 2` of Playwright Test. Not through `mix e2e`: `mix cmd` turns
+      # the exit code 2 of failed tests into 1
       - name: Run Playwright tests
         run: |
-          mix e2e --max-failures 5 || { [ $? -eq 2 ] && mix e2e --failed; } || { [ $? -eq 2 ] && mix e2e --failed; }
+          E2E=1 mix test --max-failures 5 || { [ $? -eq 2 ] && E2E=1 mix test --failed; } || { [ $? -eq 2 ] && E2E=1 mix test --failed; }
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
