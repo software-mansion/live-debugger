@@ -20,7 +20,10 @@ defmodule LiveDebugger.MixProject do
       test_coverage: [
         ignore_modules: [~r/^LiveDebuggerDev\./, DevWeb]
       ],
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      test_paths: test_paths(System.get_env("E2E")),
+      test_load_filters: test_load_filters(System.get_env("E2E")),
+      test_ignore_filters: [~r"/e2e_pw/"]
     ]
   end
 
@@ -33,8 +36,18 @@ defmodule LiveDebugger.MixProject do
   end
 
   def cli() do
-    [preferred_envs: [e2e: :test]]
+    [preferred_envs: [e2e: :test, "e2e.setup": :test]]
   end
+
+  # `mix e2e` runs the Playwright suite in test/e2e_pw (`E2E=1 mix test --only e2e`)
+  defp test_paths("1"), do: ["test/e2e_pw"]
+  defp test_paths(_), do: ["test"]
+
+  # The unit tests don't load the ExUnit port of the Playwright suite
+  defp test_load_filters("1"), do: [&String.ends_with?(&1, "_test.exs")]
+
+  defp test_load_filters(_),
+    do: [&(String.ends_with?(&1, "_test.exs") and not String.contains?(&1, "/e2e_pw/"))]
 
   defp elixirc_paths(:dev), do: ["lib", "dev"]
 
@@ -53,11 +66,8 @@ defmodule LiveDebugger.MixProject do
         "assets.build:dev"
       ],
       test: ["test"],
-      "e2e.setup": [
-        "cmd --cd e2e npm ci",
-        "cmd --cd e2e npx playwright install --with-deps"
-      ],
-      e2e: ["cmd --cd e2e npx playwright test"],
+      "e2e.setup": ["playwright.install chromium firefox"],
+      e2e: ["cmd E2E=1 mix test --only e2e"],
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
       "assets.build:deploy": [
         "esbuild build_app_js_deploy",
@@ -90,7 +100,16 @@ defmodule LiveDebugger.MixProject do
       {:phx_new, "~> 1.7", only: :test},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.34", only: :dev, runtime: false}
-    ]
+    ] ++ e2e_deps()
+  end
+
+  # playwright_ex needs Elixir 1.18, so the unit tests on older versions go without it
+  defp e2e_deps do
+    if Version.match?(System.version(), "~> 1.18") do
+      [{:playwright, "~> 1.65.0-rc.2", hex: :playwright_ex, only: :test}]
+    else
+      []
+    end
   end
 
   defp docs() do

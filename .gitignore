@@ -43,3 +43,4 @@ shell.nix
 landing/.astro/
 landing/dist/
 landing/.env.local
+/test-results/
