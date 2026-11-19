@@ -60,7 +60,7 @@ defmodule LiveDebugger.MixProject do
       ],
       test: ["test"],
       "e2e.setup": ["playwright.install chromium firefox"],
-      e2e: ["cmd E2E=1 mix test"],
+      e2e: ["cmd env E2E=1 mix test"],
       "assets.setup": ["esbuild.install --if-missing", "tailwind.install --if-missing"],
       "assets.build:deploy": [
         "esbuild build_app_js_deploy",
