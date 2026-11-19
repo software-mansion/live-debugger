@@ -64,7 +64,7 @@ jobs:
       # the exit code 2 of failed tests into 1
       - name: Run Playwright tests
         run: |
-          E2E=1 mix test --max-failures 5 || { [ $? -eq 2 ] && E2E=1 mix test --failed; } || { [ $? -eq 2 ] && E2E=1 mix test --failed; }
+          E2E=1 mix test || { [ $? -eq 2 ] && E2E=1 mix test --failed; } || { [ $? -eq 2 ] && E2E=1 mix test --failed; }
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

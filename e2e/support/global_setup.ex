@@ -19,6 +19,8 @@ defmodule LiveDebugger.E2E.GlobalSetup do
   # Start the dev app in this VM (what `iex -S mix` does through `.iex.exs`) and wait for its url.
   def web_server do
     Application.put_env(:live_debugger, :e2e?, true)
+    # as the `webServer` of the JS suite: `env -u TERM_PROGRAM -u EDITOR -u ELIXIR_EDITOR`
+    Enum.each(~w(TERM_PROGRAM EDITOR ELIXIR_EDITOR), &System.delete_env/1)
     LiveDebuggerDev.Runner.run()
     wait_for_url(@base_url, ~s|e2e="true"|, 60_000)
   end

@@ -1,6 +1,6 @@
 # The Playwright suite. Run with `mix e2e`: starts the dev app in this VM and warms it up first.
-# The suite crashes LiveViews on purpose; keep the app's crash logs out of the test output.
-Logger.configure(level: :emergency)
+# playwright_ex logs every API call at :debug; keep the app's warnings and errors.
+Logger.configure(level: :warning)
 
 Code.require_file("support/utils.ex", __DIR__)
 Code.require_file("support/case.ex", __DIR__)
