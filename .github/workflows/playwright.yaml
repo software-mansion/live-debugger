@@ -60,10 +60,12 @@ jobs:
       - name: Install Playwright Dependencies
         run: mix playwright.install chromium firefox --with-deps
 
-      # Up to two retries of the failed tests, as the `retries: 2` of Playwright Test
+      # Up to two retries of the failed tests, as the `retries: 2` of Playwright Test. An empty
+      # rerun (nothing failed but a module) must not pass.
       - name: Run Playwright tests
         run: |
-          mix e2e --max-failures 5 || { [ $? -eq 2 ] && mix e2e --failed; } || { [ $? -eq 2 ] && mix e2e --failed; }
+          set -o pipefail
+          mix e2e --max-failures 5 || { [ $? -eq 2 ] && mix e2e --failed | tee "$RUNNER_TEMP/retry.log" && ! grep -q "There are no tests to run" "$RUNNER_TEMP/retry.log"; } || { [ $? -eq 2 ] && mix e2e --failed | tee "$RUNNER_TEMP/retry.log" && ! grep -q "There are no tests to run" "$RUNNER_TEMP/retry.log"; }
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
