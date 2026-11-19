@@ -21,7 +21,8 @@ defmodule LiveDebugger.MixProject do
         ignore_modules: [~r/^LiveDebuggerDev\./, DevWeb]
       ],
       listeners: [Phoenix.CodeReloader],
-      test_paths: test_paths(System.get_env("E2E"))
+      test_paths: test_paths(System.get_env("E2E")),
+      test_ignore_filters: [~r"e2e/support/"]
     ]
   end
 
