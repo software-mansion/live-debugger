@@ -1,6 +1,7 @@
 defmodule LiveDebugger.E2E.Case do
   @moduledoc """
-  Runs every module on Desktop Chrome and Desktop Firefox, and sets up the dev app and debugger pair.
+  Runs every module on Desktop Chrome and Desktop Firefox (`PW_BROWSER=firefox` runs one), and
+  sets up the dev app and debugger pair.
 
   A module with `@moduletag dev_url: "/"` gets `dev_app` (the page, on that URL), and with
   `@moduletag :dbg_app` also `dbg_app` (the debugger, opened from the dev app's debug button).
@@ -9,12 +10,20 @@ defmodule LiveDebugger.E2E.Case do
 
   alias Playwright.Page
 
-  def projects,
-    do:
-      for(
-        device <- ["Desktop Chrome", "Desktop Firefox"],
-        do: Playwright.Test.parameters(Playwright.device(device))
-      )
+  @projects [chromium: "Desktop Chrome", firefox: "Desktop Firefox"]
+
+  @doc "The config's `projects`: all of them, or `PW_BROWSER`'s (`chromium` or `firefox`)."
+  def projects do
+    name = System.get_env("PW_BROWSER", "")
+    devices = for {project, device} <- @projects, name in ["", "#{project}"], do: device
+
+    if devices == [] do
+      available = Enum.map_join(@projects, ", ", fn {project, _} -> ~s("#{project}") end)
+      raise ArgumentError, ~s[Project(s) "#{name}" not found. Available projects: #{available}]
+    end
+
+    for device <- devices, do: Playwright.Test.parameters(Playwright.device(device))
+  end
 
   using opts do
     quote do

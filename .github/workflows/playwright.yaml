@@ -61,10 +61,25 @@ jobs:
         run: mix playwright.install chromium firefox --with-deps
 
       # Up to two retries of the failed tests, as the `retries: 2` of Playwright Test. Not through `mix e2e`: `mix cmd` turns
-      # the exit code 2 of failed tests into 1
+      # the exit code 2 of failed tests into 1. One project per run until Elixir 1.21: elixir-lang/elixir#15820
       - name: Run Playwright tests
+        shell: bash
+        env:
+          E2E: 1
         run: |
-          E2E=1 mix test || { [ $? -eq 2 ] && E2E=1 mix test --failed; } || { [ $? -eq 2 ] && E2E=1 mix test --failed; }
+          retry() {
+            mix test --failed 2>&1 | tee retry.log; s=${PIPESTATUS[0]}
+            if grep -q "^There are no tests to run" retry.log; then
+              echo "::error::mix test --failed found no failures to rerun after a failed run"; return 1
+            fi
+            return $s
+          }
+          status=0
+          for b in chromium firefox; do
+            export PW_BROWSER=$b
+            mix test || { [ $? -eq 2 ] && retry; } || { [ $? -eq 2 ] && retry; } || status=1
+          done
+          exit $status
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
