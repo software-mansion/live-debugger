@@ -12,17 +12,25 @@ defmodule LiveDebugger.E2E.Case do
 
   @projects [chromium: "Desktop Chrome", firefox: "Desktop Firefox"]
 
-  @doc "The config's `projects`: all of them, or `PW_BROWSER`'s (`chromium` or `firefox`)."
-  def projects do
+  @doc """
+  The config's `projects`: all of them, or `PW_BROWSER`'s (`chromium` or `firefox`). The serial
+  specs' are named with the `"serial-tests"` prefix, as there.
+  """
+  def projects(prefix \\ nil) do
     name = System.get_env("PW_BROWSER", "")
-    devices = for {project, device} <- @projects, name in ["", "#{project}"], do: device
 
-    if devices == [] do
+    projects =
+      for {project, device} <- @projects, name in ["", "#{project}"], do: {project, device}
+
+    if projects == [] do
       available = Enum.map_join(@projects, ", ", fn {project, _} -> ~s("#{project}") end)
       raise ArgumentError, ~s[Project(s) "#{name}" not found. Available projects: #{available}]
     end
 
-    for device <- devices, do: Playwright.Test.parameters(Playwright.device(device))
+    for {project, device} <- projects do
+      title = Enum.join(List.wrap(prefix) ++ ["#{project}"], " ")
+      Playwright.Test.parameters([name: title] ++ Playwright.device(device))
+    end
   end
 
   using opts do

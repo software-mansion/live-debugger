@@ -1,6 +1,8 @@
 defmodule LiveDebugger.E2E.SettingsSerialTest do
   # Runs after the parallel modules (ExUnit runs sync modules after async ones).
-  use LiveDebugger.E2E.Case, async: false, parameterize: LiveDebugger.E2E.Case.projects()
+  use LiveDebugger.E2E.Case,
+    async: false,
+    parameterize: LiveDebugger.E2E.Case.projects("serial-tests")
 
   defp dead_view_mode_input(page),
     do: Page.locator(page, ~s|input[phx-value-setting="dead_view_mode"]|)

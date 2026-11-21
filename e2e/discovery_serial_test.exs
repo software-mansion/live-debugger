@@ -1,6 +1,8 @@
 defmodule LiveDebugger.E2E.DiscoverySerialTest do
   # Runs after the parallel modules (ExUnit runs sync modules after async ones).
-  use LiveDebugger.E2E.Case, async: false, parameterize: LiveDebugger.E2E.Case.projects()
+  use LiveDebugger.E2E.Case,
+    async: false,
+    parameterize: LiveDebugger.E2E.Case.projects("serial-tests")
 
   @dbg_url "http://localhost:4008"
 

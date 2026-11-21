@@ -100,7 +100,7 @@ defmodule LiveDebugger.MixProject do
   # playwright_ex needs Elixir 1.18, so the unit tests on older versions go without it
   defp e2e_deps do
     if Version.match?(System.version(), "~> 1.18") do
-      [{:playwright, "~> 1.65.0-rc.2", hex: :playwright_ex, only: :test}]
+      [{:playwright, "~> 1.65.0-rc.3", hex: :playwright_ex, only: :test}]
     else
       []
     end
