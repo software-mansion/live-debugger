@@ -19,18 +19,9 @@ concurrency:
 jobs:
   test:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - elixir-version: "1.19.1"
-            otp-version: "28.1.1"
-            backward-compatibility: false
-
-          - elixir-version: "1.16.0"
-            otp-version: "26.0.2"
-            backward-compatibility: true
+    runs-on: ubuntu-24.04
+    env:
+      MIX_ENV: test
 
     steps:
       - uses: actions/checkout@v4
@@ -41,12 +32,9 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1.20.4
         with:
-          elixir-version: ${{ matrix.elixir-version }} # [Required] Define the Elixir version
-          otp-version: ${{ matrix.otp-version }} # [Required] Define the Erlang/OTP version
-
-      - name: Copy mix.lock for backward compatibility
-        if: ${{ matrix.backward-compatibility }}
-        run: cp ./.github/workflows/assets/mix.lock mix.lock
+          # playwright_ex needs Elixir 1.18 or later
+          elixir-version: "1.19.1"
+          otp-version: "28.1.1"
 
       - name: Cache Mix
         uses: actions/cache@v4
@@ -54,44 +42,49 @@ jobs:
           path: |
             deps
             _build
-          key: ${{ matrix.backward-compatibility && 'backward-compatibility-' || '' }}${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
-          restore-keys: ${{ matrix.backward-compatibility && 'backward-compatibility-' || '' }}${{ runner.os }}-mix-
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 26
-
-      - name: Cache Playwright
-        uses: actions/cache@v3
-        id: playwright-cache
-        with:
-          path: |
-            ~/.cache/ms-playwright
-            node_modules
-          key: ${{ runner.os }}-playwright-${{ hashFiles('./e2e/package-lock.json') }}
-
-      - name: Check prettier
-        working-directory: ./e2e
-        run: npx prettier . --check
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
 
       - name: Install Mix Dependencies
         run: mix deps.get
 
-      - name: Install Node Dependencies
-        working-directory: ./e2e
-        run: npm ci
+      # mix.lock pins the playwright_ex driver and so the browser revisions
+      - name: Cache Playwright
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/playwright
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('mix.lock') }}
 
       - name: Install Playwright Dependencies
-        working-directory: ./e2e
-        run: npx playwright install --with-deps
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: mix playwright.install chromium firefox --with-deps
 
+      # Up to two retries of the failed tests, as the `retries: 2` of Playwright Test. Not through `mix e2e`: `mix cmd` turns
+      # the exit code 2 of failed tests into 1. One project per run until Elixir 1.21: elixir-lang/elixir#15820
       - name: Run Playwright tests
-        run: mix e2e
+        shell: bash
+        env:
+          E2E: 1
+        run: |
+          retry() {
+            mix test --failed 2>&1 | tee retry.log; s=${PIPESTATUS[0]}
+            if grep -q "^There are no tests to run" retry.log; then
+              echo "::error::mix test --failed found no failures to rerun after a failed run"; return 1
+            fi
+            return $s
+          }
+          status=0
+          for b in chromium firefox; do
+            export PW_BROWSER=$b
+            mix test || { [ $? -eq 2 ] && retry; } || { [ $? -eq 2 ] && retry; } || status=1
+          done
+          exit $status
 
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
-          name: ${{ matrix.backward-compatibility && 'backward-compatibility-' || '' }}playwright-report
-          path: e2e/playwright-report/
+          name: test-results
+          path: test-results/
           retention-days: 1
+          if-no-files-found: ignore

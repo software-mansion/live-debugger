@@ -89,6 +89,15 @@ if config_env() == :test do
   # Initialize plugs at runtime for faster test compilation
   config :phoenix, :plug_init_mode, :runtime
 
+  # The Playwright suite (e2e/), which needs Elixir 1.18 or later
+  if Version.match?(System.version(), "~> 1.18") do
+    config :playwright, :test,
+      base_url: "http://localhost:4005",
+      trace: :retain_on_failure
+
+    if System.get_env("CI"), do: config(:playwright, :test, workers: 4)
+  end
+
   config :live_debugger,
     dead_view_mode: true,
     garbage_collection: true,

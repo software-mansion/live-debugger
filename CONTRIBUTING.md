@@ -24,7 +24,7 @@ If you want to implement a feature, please wait for the issue to be accepted bef
 ## 3. Architecture
 
 LiveDebugger combines **services** that handle background work with an **app** that renders the UI in LiveView.
-Tests are split between Elixir unit tests and TypeScript E2E tests.
+Tests are split between Elixir unit tests and Playwright E2E tests, both run with `mix`.
 
 Top-level layout:
 
@@ -81,12 +81,11 @@ For more details, see [`test/README.md`](test/README.md).
 
 ### 3.4 E2E tests
 
-E2E tests use [Playwright][playwright].
+E2E tests are ExUnit tests in `e2e/` that drive a browser with [Playwright][playwright]
+through [playwright_ex](https://hex.pm/packages/playwright_ex), which needs Elixir 1.18 or later.
 They start the Dev application alongside LiveDebugger.
 
 They might be flaky - if a failure looks unrelated to your change, rerun the suite.
-
-For more details, see [`e2e/README.md`](e2e/README.md).
 
 ### 3.5 JS assets
 
@@ -131,7 +130,7 @@ mix assets.build:dev
 
 ### Running tests
 
-Set up E2E tests:
+Install the browsers for the E2E tests (needs Elixir 1.18 or later):
 
 ```console
 mix e2e.setup
